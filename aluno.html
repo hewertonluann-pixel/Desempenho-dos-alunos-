@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ficha do Aluno</title>
+  <link rel="stylesheet" href="aluno.css" />
+</head>
+<body>
+  <h1 class="titulo">🎵 Olá, <span id="nomeAluno"></span>!</h1>
+
+  <div class="container-aluno">
+    <div class="foto" id="fotoAluno"></div>
+
+    <div class="instrumento" id="instrumentoAluno"></div>
+
+    <div class="pontuacoes">
+      <div class="pontuacao" id="scoreGeral" style="font-weight:bold; color:#00ffcc;">
+        🧮 Score geral: <span></span>
+      </div>
+      <div class="pontuacao">
+        Leitura (BONA): <span id="leituraValor"></span>
+      </div>
+      <div class="pontuacao">
+        Método  (instrumento): <span id="metodoValor"></span>
+      </div>
+    </div>
+
+    <div class="senha-link">
+      <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
+    </div>
+
+    <div class="alterar-foto">
+      <label for="novaFoto">🖼️ Alterar foto</label>
+      <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
+    </div>
+  </div>
+
+  <!-- Modal de senha -->
+  <div id="popupSenha" class="popup">
+    <div class="popup-conteudo">
+      <h2>Alterar senha</h2>
+      <input type="password" id="novaSenha" placeholder="Nova senha" />
+      <button onclick="salvarSenha()">Salvar</button>
+      <p id="mensagemSenha"></p>
+      <span class="fechar" onclick="fecharPopup()">×</span>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+      authDomain: "asafenotas-5cf3f.firebaseapp.com",
+      projectId: "asafenotas-5cf3f",
+      storageBucket: "asafenotas-5cf3f.appspot.com",
+      messagingSenderId: "312062581585",
+      appId: "1:312062581585:web:432ff63a527dd86fcf1170",
+      measurementId: "G-Z6G6D4RKZQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function getAlunoAtual() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("nome");
+    }
+
+    async function renderizarFicha() {
+      const nome = getAlunoAtual();
+      const q = query(collection(db, "alunos"), where("nome", "==", nome));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return;
+
+      const aluno = snapshot.docs[0].data();
+
+      document.getElementById("nomeAluno").textContent = aluno.nome;
+      document.getElementById("instrumentoAluno").textContent = ` ${aluno.instrumento}`;
+      document.getElementById("leituraValor").textContent = aluno.leitura || 1;
+      document.getElementById("metodoValor").textContent = aluno.metodo || 1;
+
+      const total = (aluno.leitura || 0) + (aluno.metodo || 0);
+      document.querySelector("#scoreGeral span").textContent = total;
+
+      if (aluno.foto) {
+        document.getElementById("fotoAluno").innerHTML = `<img src="${aluno.foto}" alt="Foto de ${aluno.nome}" />`;
+      }
+    }
+
+    window.abrirPopup = function () {
+      document.getElementById("popupSenha").style.display = "flex";
+    };
+
+    window.fecharPopup = function () {
+      document.getElementById("popupSenha").style.display = "none";
+      document.getElementById("novaSenha").value = "";
+      document.getElementById("mensagemSenha").textContent = "";
+    };
+
+    window.salvarSenha = async function () {
+      const novaSenha = document.getElementById("novaSenha").value.trim();
+      const nome = getAlunoAtual();
+      if (!novaSenha) return;
+
+      const q = query(collection(db, "alunos"), where("nome", "==", nome));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return;
+
+      const alunoId = snapshot.docs[0].id;
+      await updateDoc(doc(db, "alunos", alunoId), { senha: novaSenha });
+
+      document.getElementById("mensagemSenha").textContent = "✅ Senha alterada com sucesso!";
+    };
+
+    window.enviarNovaFoto = async function () {
+      const arquivo = document.getElementById("novaFoto").files[0];
+      if (!arquivo) return;
+
+      const leitor = new FileReader();
+      leitor.onload = async function (e) {
+        const novaImagem = e.target.result;
+        const nome = getAlunoAtual();
+        const q = query(collection(db, "alunos"), where("nome", "==", nome));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return;
+
+        const alunoId = snapshot.docs[0].id;
+        await updateDoc(doc(db, "alunos", alunoId), { foto: novaImagem });
+
+        document.getElementById("fotoAluno").innerHTML = `<img src="${novaImagem}" alt="Foto atualizada" />`;
+      };
+      leitor.readAsDataURL(arquivo);
+    };
+
+    renderizarFicha();
+  </script>
+
+<div class="quadro-geral-link">
+  <a href="desempenho.html">📊 Quadro geral</a>
+</div>
+
+
+</body>
+</html>

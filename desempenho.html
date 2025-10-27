@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Desempenho Geral da Orquestra Filhos de Asafe</title>
+  <link rel="stylesheet" href="aluno.css" />
+  <style>
+    .filtros {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .filtros select {
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .container-aluno.ouro {
+      border: 2px solid gold;
+      box-shadow: 0 0 15px gold;
+    }
+
+    .container-aluno.prata {
+      border: 2px solid silver;
+      box-shadow: 0 0 15px silver;
+    }
+
+    .container-aluno.bronze {
+      border: 2px solid #cd7f32;
+      box-shadow: 0 0 15px #cd7f32;
+    }
+
+    .painel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="titulo">📊 Desempenho Geral da Orquestra Filhos de Asafe</h1>
+
+  <div class="filtros">
+    <label for="filtroInstrumento">🎺 Filtrar por instrumento:</label>
+    <select id="filtroInstrumento" onchange="filtrarInstrumento()">
+      <option value="todos">Todos</option>
+    </select>
+  </div>
+
+  <div class="painel" id="painelAlunos"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+      authDomain: "asafenotas-5cf3f.firebaseapp.com",
+      projectId: "asafenotas-5cf3f",
+      storageBucket: "asafenotas-5cf3f.appspot.com",
+      messagingSenderId: "312062581585",
+      appId: "1:312062581585:web:432ff63a527dd86fcf1170",
+      measurementId: "G-Z6G6D4RKZQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let todosAlunos = [];
+
+    async function carregarAlunos() {
+      const snapshot = await getDocs(collection(db, "alunos"));
+      const alunos = [];
+
+      snapshot.forEach(doc => {
+        const aluno = doc.data();
+        aluno.total = (aluno.leitura || 0) + (aluno.metodo || 0);
+        alunos.push(aluno);
+      });
+
+      alunos.sort((a, b) => b.total - a.total);
+      todosAlunos = alunos;
+
+      preencherFiltroInstrumento(alunos);
+      renderizarAlunos(alunos);
+    }
+
+    function preencherFiltroInstrumento(alunos) {
+      const select = document.getElementById("filtroInstrumento");
+      const instrumentos = [...new Set(alunos.map(a => a.instrumento))].sort();
+      instrumentos.forEach(instr => {
+        const option = document.createElement("option");
+        option.value = instr;
+        option.textContent = instr;
+        select.appendChild(option);
+      });
+    }
+
+    function filtrarInstrumento() {
+      const filtro = document.getElementById("filtroInstrumento").value;
+      const filtrados = filtro === "todos"
+        ? todosAlunos
+        : todosAlunos.filter(a => a.instrumento === filtro);
+      renderizarAlunos(filtrados);
+    }
+
+    function renderizarAlunos(alunos) {
+  const painel = document.getElementById("painelAlunos");
+  painel.innerHTML = alunos.map((aluno, index) => {
+    let classe = "";
+    if (index === 0) classe = "ouro";
+    else if (index === 1) classe = "prata";
+    else if (index === 2) classe = "bronze";
+
+    const leitura = aluno.leitura || 0;
+    const metodo = aluno.metodo || 0;
+    const total = leitura + metodo;
+
+    return `
+      <div class="container-aluno ${classe}">
+        <div class="foto">
+          ${aluno.foto ? `<img src="${aluno.foto}" alt="Foto de ${aluno.nome}" />` : "Sem foto"}
+        </div>
+        <div class="instrumento"> ${aluno.instrumento}</div>
+        <div class="pontuacoes">
+          <div class="pontuacao" style="font-weight:bold; color:#00ffcc;">
+            🧮 Score geral: <span>${total}</span>
+          </div>
+          <div class="pontuacao">📘 Leitura (BONA): <span>${leitura}</span></div>
+          <div class="pontuacao">🎯 Método: <span>${metodo}</span></div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+
+    carregarAlunos();
+  </script>
+</body>
+</html>

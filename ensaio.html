@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ensaio - Orquestra Filhos de Asafe</title>
+  <link rel="stylesheet" href="aluno.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .painel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .container-aluno {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 200px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .foto {
+      width: 100%;
+      height: 120px;
+      background-color: #eee;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .foto img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-presenca {
+      width: 100%;
+      padding: 8px;
+      margin: 4px 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn-presenca.vazio { background-color: #ccc; color: #333; }
+    .btn-presenca.presente { background-color: #4caf50; color: white; }
+    .btn-presenca.ausente { background-color: #f44336; color: white; }
+
+    textarea {
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    .botoes {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .botoes button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #2196f3;
+      color: white;
+    }
+
+    .loader-fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      z-index: 9999;
+      flex-wrap: wrap;
+    }
+
+    .loader-fullscreen.inactive {
+      display: none;
+    }
+
+    .nota {
+      font-size: 3rem;
+      animation: subir 1s infinite alternate ease-in-out;
+    }
+
+    @keyframes subir {
+      0% { transform: translateY(0); opacity: 0.5; }
+      100% { transform: translateY(-50px); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-fullscreen" id="loader">
+    <div class="nota">🎵</div>
+    <div class="nota">🎶</div>
+    <div class="nota">🎼</div>
+    <div class="nota">🎻</div>
+    <div class="nota">🎺</div>
+  </div>
+
+  <h1>📌 Ensaio do dia: <span id="dataEnsaio"></span></h1>
+
+  <div class="painel" id="painelAlunos"></div>
+
+  <textarea id="observacoes" placeholder="Observações do ensaio..."></textarea>
+
+  <div class="botoes">
+    <button onclick="salvarPresencas()">💾 Gravar Presenças</button>
+    <button onclick="exportarPDF()">📄 Visualizar Relatório</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, updateDoc, doc, addDoc, query, where } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+      authDomain: "asafenotas-5cf3f.firebaseapp.com",
+      projectId: "asafenotas-5cf3f",
+      storageBucket: "asafenotas-5cf3f.appspot.com",
+      messagingSenderId: "312062581585",
+      appId: "1:312062581585:web:432ff63a527dd86fcf1170",
+      measurementId: "G-Z6G6D4RKZQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const loader = document.getElementById("loader");
+    const painel = document.getElementById("painelAlunos");
+    const dataEnsaio = document.getElementById("dataEnsaio");
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    dataEnsaio.textContent = hoje;
+
+    // Verificação de acesso do professor
+    const params = new URLSearchParams(window.location.search);
+    const usuario = params.get("usuario");
+    const classificado = params.get("classificado") === "true";
+
+    if (!classificado && usuario?.toLowerCase() !== "professor") {
+      alert("Acesso restrito. Apenas professor pode abrir esta página.");
+      window.location.href = "index.html";
+    }
+
+    let alunos = [];
+
+    async function carregarAlunos() {
+      const snapshot = await getDocs(collection(db, "alunos"));
+      alunos = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data(), presenca: "" }));
+      renderizarAlunos();
+      loader.classList.add("inactive");
+    }
+
+    function renderizarAlunos() {
+      painel.innerHTML = alunos.map(aluno => `
+        <div class="container-aluno">
+          <div class="foto">
+            ${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}
+          </div>
+          <div>${aluno.nome}</div>
+          <div><small>${aluno.instrumento || ""}</small></div>
+          <button class="btn-presenca vazio" onclick="alternarPresenca('${aluno.id}', this)">Presença</button>
+        </div>
+      `).join("");
+    }
+
+    window.alternarPresenca = function(id, btn) {
+      const aluno = alunos.find(a => a.id === id);
+      if (!aluno) return;
+
+      if (aluno.presenca === "" || aluno.presenca === "ausente") {
+        aluno.presenca = "presente";
+        btn.className = "btn-presenca presente";
+      } else if (aluno.presenca === "presente") {
+        aluno.presenca = "ausente";
+        btn.className = "btn-presenca ausente";
+      }
+    }
+
+    window.salvarPresencas = async function() {
+      const observacoes = document.getElementById("observacoes").value;
+
+      for (const aluno of alunos) {
+        await updateDoc(doc(db, "alunos", aluno.id), { ultimaPresenca: aluno.presenca });
+      }
+
+      const q = query(collection(db, "ensaios"), where("data", "==", hoje));
+      const snapshot = await getDocs(q);
+
+      const presencas = alunos.map(a => ({ nome: a.nome, instrumento: a.instrumento || "", presenca: a.presenca }));
+
+      if (!snapshot.empty) {
+        const docId = snapshot.docs[0].id;
+        await updateDoc(doc(db, "ensaios", docId), { observacoes, presencas });
+      } else {
+        await addDoc(collection(db, "ensaios"), { data: hoje, observacoes, presencas });
+      }
+
+      alert("Presenças gravadas com sucesso!");
+    }
+
+    window.exportarPDF = function() {
+      if (!alunos || alunos.length === 0) {
+        alert("Os dados dos alunos ainda não foram carregados. Aguarde alguns segundos e tente novamente.");
+        return;
+      }
+
+      const observacoes = document.getElementById("observacoes").value || "Nenhuma.";
+      const titulo = `Orquestra Filhos de Asafe - Ensaio ${hoje}`;
+
+      // Coloca Hewerton (maestro) primeiro
+      let maestro = alunos.find(a => a.nome.toLowerCase() === "hewerton");
+      let outrosAlunos = alunos.filter(a => a.nome.toLowerCase() !== "hewerton");
+
+      const metade = Math.ceil(outrosAlunos.length / 2);
+      const primeiraParte = outrosAlunos.slice(0, metade);
+      const segundaParte = outrosAlunos.slice(metade);
+
+      function gerarLinhas(lista) {
+        return lista.map(a => `
+          <tr>
+            <td>${a.nome}</td>
+            <td>${a.instrumento || ""}</td>
+            <td>${a.presenca || "—"}</td>
+          </tr>
+        `).join("");
+      }
+
+      const resumo = {};
+      alunos.forEach(a => {
+        if (!resumo[a.instrumento]) resumo[a.instrumento] = 0;
+        resumo[a.instrumento]++;
+      });
+      const resumoHtml = Object.entries(resumo).map(([instr, qtd]) => `${instr}: ${qtd}`).join(" | ");
+
+      const htmlContent = `
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>${titulo}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background-color: #fff; color: #000; }
+            h2 { text-align: center; margin-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+            th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            .resumo { margin-top: 10px; font-size: 14px; text-align: center; }
+            .observacoes { margin-top: 15px; }
+            .botoes { text-align: center; margin-bottom: 15px; }
+            button { padding: 8px 16px; font-size: 14px; border: none; border-radius: 6px; background-color: #2196f3; color: white; cursor: pointer; }
+            button:hover { background-color: #1976d2; }
+            .tabelas-lado { display: flex; gap: 20px; justify-content: center; }
+            @media print { .botoes { display: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="botoes">
+            <button onclick="window.print()">🖨️ Imprimir relatório</button>
+          </div>
+          <h2>${titulo}</h2>
+          <div class="tabelas-lado">
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>Instrumento</th><th>Presença</th></tr>
+              </thead>
+              <tbody>
+                ${maestro ? `<tr><td>${maestro.nome}</td><td>${maestro.instrumento || ""}</td><td>${maestro.presenca || "—"}</td></tr>` : ""}
+                ${gerarLinhas(primeiraParte)}
+              </tbody>
+            </table>
+            <table>
+              <thead>
+                <tr><th>Nome</th><th>Instrumento</th><th>Presença</th></tr>
+              </thead>
+              <tbody>
+                ${gerarLinhas(segundaParte)}
+              </tbody>
+            </table>
+          </div>
+          <div class="resumo">${resumoHtml}</div>
+          <div class="observacoes"><strong>Observações:</strong><br>${observacoes}</div>
+        </body>
+        </html>
+      `;
+
+      const novaJanela = window.open("", "_blank");
+      novaJanela.document.write(htmlContent);
+      novaJanela.document.close();
+    }
+
+    carregarAlunos();
+  </script>
+</body>
+</html>

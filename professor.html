@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Professor</title>
+  <link rel="stylesheet" href="professor.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <h1>Painel de Alunos 🎶</h1>
+  <div class="usuario-logado" id="usuarioLogado"></div>
+
+  <div class="formulario">
+    <input type="text" id="nomeAluno" placeholder="Nome do aluno" />
+    <input type="text" id="nomeInstrumento" placeholder="Instrumento" />
+    <input type="file" id="fotoAluno" accept="image/*" />
+    <button onclick="adicionarAluno()">Adicionar Aluno</button>
+  </div>
+
+  <div class="botoes">
+    <button onclick="exportarPDF()">📄 Exportar para PDF</button>
+  </div>
+
+  <div class="painel" id="painel"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+      authDomain: "asafenotas-5cf3f.firebaseapp.com",
+      projectId: "asafenotas-5cf3f",
+      storageBucket: "asafenotas-5cf3f.appspot.com",
+      messagingSenderId: "312062581585",
+      appId: "1:312062581585:web:432ff63a527dd86fc1170",
+      measurementId: "G-Z6G6D4RKZQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function getUsuarioLogado() {
+      const params = new URLSearchParams(window.location.search);
+      return { nome: params.get("usuario") || "Professor", classificado: params.get("classificado") === "true" };
+    }
+
+    async function carregarAlunos() {
+      const snapshot = await getDocs(collection(db, "alunos"));
+      const alunos = [];
+      snapshot.forEach((docItem) => alunos.push({ id: docItem.id, ...docItem.data() }));
+      return alunos;
+    }
+
+    async function renderizarPainel() {
+      const painel = document.getElementById("painel");
+      painel.innerHTML = "";
+      const alunos = await carregarAlunos();
+      alunos.sort((a, b) => a.nome.localeCompare(b.nome));
+      alunos.forEach(aluno => {
+        const ficha = document.createElement("div");
+        ficha.className = "ficha";
+        ficha.innerHTML = `
+          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}</div>
+          <div class="dados">
+            <div class="campo"><label>${aluno.nome || "Sem nome"}</label></div>
+
+            <div class="campo nota-linha">
+              <div class="nota-label-box">
+                <label>Leitura (BONA)</label>
+                <div class="nota-botoes">
+                  <button onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
+                  <button onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
+                </div>
+              </div>
+              <input class="nota-box" type="number" min="1" max="130"
+                id="leitura-${aluno.id}" value="${aluno.leitura || 1}"
+                oninput="validarNota(this)"
+                onchange="atualizarNota('${aluno.id}', 'leitura', this.value)">
+            </div>
+
+            <div class="campo nota-linha">
+              <div class="nota-label-box">
+                <label>Método</label>
+                <div class="nota-botoes">
+                  <button onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
+                  <button onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
+                </div>
+              </div>
+              <input class="nota-box" type="number" min="1" max="130"
+                id="metodo-${aluno.id}" value="${aluno.metodo || 1}"
+                oninput="validarNota(this)"
+                onchange="atualizarNota('${aluno.id}', 'metodo', this.value)">
+            </div>
+
+            <div class="campo">
+              <label>Instrumento</label>
+              <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarNota('${aluno.id}','instrumento',this.value)">
+            </div>
+
+            <input type="file" id="foto-${aluno.id}" style="display:none" accept="image/*" onchange="alterarFoto('${aluno.id}')">
+            <button class="classificar" onclick="alternarClassificacao('${aluno.id}',${aluno.classificado})">
+              ${aluno.classificado ? "Desqualificar" : "Classificar"}
+            </button>
+            <button class="remover" onclick="removerAluno('${aluno.id}')">Remover</button>
+            <button onclick="document.getElementById('foto-${aluno.id}').click()">Alterar Foto</button>
+          </div>
+        `;
+        painel.appendChild(ficha);
+      });
+    }
+
+    window.adicionarAluno = async function() {
+      const nome = document.getElementById("nomeAluno").value.trim();
+      const instrumento = document.getElementById("nomeInstrumento").value.trim();
+      const fotoInput = document.getElementById("fotoAluno");
+      if (!nome || !instrumento) { alert("Preencha nome e instrumento"); return; }
+
+      const novoAluno = { nome, instrumento, leitura:1, metodo:1, foto:"", classificado:false, senha:"asafe" };
+      const arquivo = fotoInput.files[0];
+      if (arquivo) {
+        const leitor = new FileReader();
+        leitor.onload = async e => { novoAluno.foto = e.target.result; await addDoc(collection(db,"alunos"), novoAluno); await renderizarPainel(); }
+        leitor.readAsDataURL(arquivo);
+      } else { await addDoc(collection(db,"alunos"), novoAluno); await renderizarPainel(); }
+
+      document.getElementById("nomeAluno").value="";
+      document.getElementById("nomeInstrumento").value="";
+      document.getElementById("fotoAluno").value="";
+    };
+
+    window.removerAluno = async function(id){ await deleteDoc(doc(db,"alunos",id)); await renderizarPainel(); }
+    window.atualizarNota = async function(id,campo,valor){ 
+      let numero = parseInt(valor); if(isNaN(numero) || numero<1) numero=1; if(numero>130) numero=130; 
+      document.getElementById(`${campo}-${id}`).value = numero; 
+      await updateDoc(doc(db,"alunos",id),{[campo]:numero}); 
+    };
+    window.alterarNota = async function(id,campo,delta){ 
+      const input = document.getElementById(`${campo}-${id}`); 
+      let novo = parseInt(input.value) + delta; 
+      if(novo<1) novo=1; if(novo>130) novo=130; 
+      input.value = novo; 
+      await updateDoc(doc(db,"alunos",id),{[campo]:novo}); 
+    };
+    window.alternarClassificacao = async function(id,classificado){ await updateDoc(doc(db,"alunos",id),{classificado:!classificado}); await renderizarPainel(); }
+    window.alterarFoto = async function(id){ 
+      const arquivo = document.getElementById(`foto-${id}`).files[0]; 
+      if(!arquivo) return; 
+      const leitor = new FileReader(); 
+      leitor.onload = async e=>{ await updateDoc(doc(db,"alunos",id),{foto:e.target.result}); await renderizarPainel(); } 
+      leitor.readAsDataURL(arquivo); 
+    };
+    window.exportarPDF = function(){ html2pdf().set({margin:0.5, filename:"painel_alunos.pdf", image:{type:"jpeg",quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:"in",format:"letter",orientation:"portrait"}}).from(document.getElementById("painel")).save(); }
+    window.validarNota = function(input){ let v=parseInt(input.value); if(isNaN(v)) input.value=1; if(v<1) input.value=1; if(v>130) input.value=130; }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const usuario = getUsuarioLogado();
+      document.getElementById("usuarioLogado").innerText = `Professor logado: ${usuario.nome}`;
+      if(!usuario.classificado && usuario.nome.toLowerCase()!=="professor"){ alert("Acesso restrito."); window.location.href="index.html"; return; }
+      renderizarPainel();
+    });
+  </script>
+</body>
+</html>

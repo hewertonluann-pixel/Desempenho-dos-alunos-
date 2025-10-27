@@ -1,0 +1,240 @@
+/* ===== Reset básico ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== Layout base ===== */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  padding: 20px;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* ===== Usuário logado ===== */
+.usuario-logado {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: #555;
+}
+
+/* ===== Formulário de cadastro ===== */
+.formulario {
+  max-width: 400px;
+  margin: 0 auto 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formulario input,
+.formulario button {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.formulario button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.formulario button:hover {
+  background-color: #388e3c;
+}
+
+/* ===== Botões principais ===== */
+.botoes {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.botoes button {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.botoes button:hover {
+  background-color: #388e3c;
+  transform: scale(1.05);
+}
+
+/* ===== Painel de alunos ===== */
+.painel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+/* ===== Ficha do aluno ===== */
+.ficha {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 300px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.foto {
+  width: 100%;
+  height: 150px;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.dados {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ===== Labels e inputs ===== */
+label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* ===== Botões de ação da ficha ===== */
+button.remover,
+button.classificar,
+.dados button:last-child {
+  padding: 8px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button.remover {
+  background-color: #f44336;
+  color: white;
+}
+
+button.remover:hover {
+  background-color: #d32f2f;
+}
+
+button.classificar {
+  background-color: #2196f3;
+  color: white;
+}
+
+button.classificar:hover {
+  background-color: #1976d2;
+}
+
+.dados button:last-child {
+  background-color: #ff9800;
+  color: white;
+}
+
+.dados button:last-child:hover {
+  background-color: #fb8c00;
+}
+
+/* ===== Controles de nota ===== */
+.nota-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.nota-label-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.nota-label-box label {
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.nota-botoes {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.nota-botoes button {
+  flex: 1;
+  height: 34px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.nota-botoes button:hover {
+  background-color: #388e3c;
+}
+
+.nota-box {
+  width: 80px;
+  height: 34px;
+  font-weight: bold;
+  font-size: 18px;
+  border-radius: 6px;
+  background-color: #e0e0e0;
+  color: #333;
+  text-align: center;
+  border: 1px solid #ccc;
+}
