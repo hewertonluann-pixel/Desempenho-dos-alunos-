@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciar Eventos - Orquestra Filhos de Asafe</title>
+  <link rel="stylesheet" href="professor.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    h2 {
+      color: #2196f3;
+      margin-top: 40px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #2196f3;
+      padding-bottom: 5px;
+      text-align: center;
+    }
+
+    .secao {
+      margin-bottom: 40px;
+    }
+
+    .lista-eventos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .evento {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      width: 260px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .evento:hover {
+      transform: translateY(-3px);
+    }
+
+    .evento h3 {
+      margin: 0;
+      color: #2196f3;
+      font-size: 18px;
+    }
+
+    .evento p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .evento button {
+      margin: 6px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .abrir {
+      background-color: #2196f3;
+    }
+    .abrir:hover {
+      background-color: #1976d2;
+    }
+
+    .excluir {
+      background-color: #f44336;
+    }
+    .excluir:hover {
+      background-color: #d32f2f;
+    }
+
+    .vazio {
+      text-align: center;
+      margin-top: 10px;
+      font-style: italic;
+      color: #666;
+    }
+
+    .voltar {
+      display: block;
+      text-align: center;
+      margin-bottom: 20px;
+      text-decoration: none;
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: 0.3s;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .voltar:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+  <a href="professor.html" class="voltar">⬅️ Voltar ao Painel do Professor</a>
+  <h1>🎵 Gerenciar Ensaios e Apresentações</h1>
+
+  <div class="secao">
+    <h2>🎼 Ensaios</h2>
+    <div class="lista-eventos" id="listaEnsaios"></div>
+  </div>
+
+  <div class="secao">
+    <h2>🎤 Apresentações</h2>
+    <div class="lista-eventos" id="listaApresentacoes"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+      authDomain: "asafenotas-5cf3f.firebaseapp.com",
+      projectId: "asafenotas-5cf3f",
+      storageBucket: "asafenotas-5cf3f.appspot.com",
+      messagingSenderId: "312062581585",
+      appId: "1:312062581585:web:432ff63a527dd86fc1170",
+      measurementId: "G-Z6G6D4RKZQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const listaEnsaios = document.getElementById("listaEnsaios");
+    const listaApresentacoes = document.getElementById("listaApresentacoes");
+
+    async function carregarEventos() {
+      listaEnsaios.innerHTML = "<p>Carregando ensaios...</p>";
+      listaApresentacoes.innerHTML = "<p>Carregando apresentações...</p>";
+
+      const ensaiosSnap = await getDocs(collection(db, "ensaios"));
+      const apresentacoesSnap = await getDocs(collection(db, "apresentacoes"));
+
+      const ensaios = [];
+      ensaiosSnap.forEach(doc => ensaios.push({ id: doc.id, ...doc.data() }));
+      ensaios.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+      const apresentacoes = [];
+      apresentacoesSnap.forEach(doc => apresentacoes.push({ id: doc.id, ...doc.data() }));
+      apresentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+      renderizarLista(ensaios, listaEnsaios, "Ensaio");
+      renderizarLista(apresentacoes, listaApresentacoes, "Apresentação");
+    }
+
+    function renderizarLista(eventos, container, tipo) {
+      if (eventos.length === 0) {
+        container.innerHTML = `<p class='vazio'>Nenhum ${tipo.toLowerCase()} encontrado.</p>`;
+        return;
+      }
+
+      container.innerHTML = eventos.map(e => `
+        <div class="evento">
+          <h3>${tipo} - ${e.data}</h3>
+          ${e.local ? `<p><strong>Local:</strong> ${e.local}</p>` : ""}
+          ${e.observacoes ? `<p><strong>Obs:</strong> ${e.observacoes}</p>` : ""}
+          <button class="abrir" onclick="abrirEvento('${e.id}', '${tipo}')">Abrir</button>
+          <button class="excluir" onclick="excluirEvento('${e.id}', '${tipo}')">Excluir</button>
+        </div>
+      `).join("");
+    }
+
+    window.abrirEvento = function(id, tipo) {
+      if (tipo === "Ensaio") {
+        window.location.href = `ensaio.html?id=${id}`;
+      } else {
+        window.location.href = `apresentacao.html?id=${id}`;
+      }
+    };
+
+    window.excluirEvento = async function(id, tipo) {
+      const confirma = confirm(`Deseja realmente excluir este ${tipo.toLowerCase()}?`);
+      if (!confirma) return;
+
+      const colecao = tipo === "Ensaio" ? "ensaios" : "apresentacoes";
+      await deleteDoc(doc(db, colecao, id));
+
+      alert(`${tipo} excluído com sucesso!`);
+      carregarEventos();
+    };
+
+    carregarEventos();
+  </script>
+</body>
+</html>

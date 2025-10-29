@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Gerencial 🎵</title>
+  <link rel="stylesheet" href="professor.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+  <h1>Painel Gerencial 🎶</h1>
+  <div class="usuario-logado" id="usuarioLogado"></div>
+
+  <div class="formulario">
+    <input type="text" id="nomeAluno" placeholder="Nome do aluno" />
+    <input type="text" id="nomeInstrumento" placeholder="Instrumento" />
+    <input type="file" id="fotoAluno" accept="image/*" />
+    <button onclick="adicionarAluno()">Adicionar Aluno</button>
+  </div>
+
+  <div class="botoes">
+    <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
+    <button id="btnModoAluno">🎓 Modo Aluno</button>
+    <button id="btnCriarEnsaio">🎼 Ensaio</button>
+    <button id="btnCriarApresentacao">🎤 Apresentação</button>
+    <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Eventos</button>
+    <button onclick="exportarPDF()">📄 Exportar PDF</button>
+  </div>
+
+  <!-- 🔄 Loader -->
+  <div id="loader" class="loader" style="display:none;">
+    <div class="spinner"></div>
+    <p>Carregando alunos...</p>
+  </div>
+
+  <!-- Painel de alunos -->
+  <div class="painel" id="painel" style="display:none;"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+      authDomain: "asafenotas-5cf3f.firebaseapp.com",
+      projectId: "asafenotas-5cf3f",
+      storageBucket: "asafenotas-5cf3f.appspot.com",
+      messagingSenderId: "312062581585",
+      appId: "1:312062581585:web:432ff63a527dd86fc1170",
+      measurementId: "G-Z6G6D4RKZQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function getUsuarioLogado() {
+      const params = new URLSearchParams(window.location.search);
+      return { nome: params.get("usuario") || "Professor" };
+    }
+
+    async function carregarAlunos() {
+      const snapshot = await getDocs(collection(db, "alunos"));
+      const alunos = [];
+      snapshot.forEach((docItem) => alunos.push({ id: docItem.id, ...docItem.data() }));
+      alunos.sort((a, b) => a.nome.localeCompare(b.nome));
+      return alunos;
+    }
+
+    async function renderizarPainel() {
+      const loader = document.getElementById("loader");
+      const painel = document.getElementById("painel");
+
+      loader.style.display = "flex";
+      painel.style.display = "none";
+
+      const alunos = await carregarAlunos();
+
+      painel.innerHTML = alunos.map(aluno => `
+        <div class="ficha">
+          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}</div>
+          <div class="dados">
+            <div class="campo"><label>${aluno.nome}</label></div>
+
+            <div class="campo nota-linha">
+              <label>Leitura (BONA)</label>
+              <div class="nota-controle">
+                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
+                <input class="campo-nota" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
+                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
+              </div>
+            </div>
+
+            <div class="campo nota-linha">
+              <label>Método</label>
+              <div class="nota-controle">
+                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
+                <input class="campo-nota" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
+                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
+              </div>
+            </div>
+
+            <div class="campo">
+              <label>Instrumento</label>
+              <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarNota('${aluno.id}','instrumento',this.value)">
+            </div>
+
+            <div class="acoes">
+              <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">
+                ${aluno.classificado ? "Desclassificar" : "Classificar"}
+              </button>
+              <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
+              <label class="alterar-foto">📷
+                <input type="file" id="foto-${aluno.id}" accept="image/*" onchange="alterarFoto('${aluno.id}')">
+              </label>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      loader.style.display = "none";
+      painel.style.display = "flex";
+    }
+
+    // ======= FUNÇÕES =======
+    window.adicionarAluno = async function() {
+      const nome = document.getElementById("nomeAluno").value.trim();
+      const instrumento = document.getElementById("nomeInstrumento").value.trim();
+      if (!nome || !instrumento) return alert("Preencha nome e instrumento.");
+      await addDoc(collection(db, "alunos"), { nome, instrumento, leitura: 1, metodo: 1, foto: "", classificado: false });
+      renderizarPainel();
+    };
+
+    window.alterarNota = async function(id, campo, delta) {
+      const input = document.getElementById(`${campo}-${id}`);
+      let v = parseInt(input.value) + delta;
+      if (v < 1) v = 1;
+      if (v > 130) v = 130;
+      input.value = v;
+      await updateDoc(doc(db, "alunos", id), { [campo]: v });
+    };
+
+    window.atualizarNota = async function(id, campo, valor) {
+      if (campo === "instrumento") {
+        await updateDoc(doc(db, "alunos", id), { instrumento: valor });
+        return;
+      }
+      let v = parseInt(valor);
+      if (isNaN(v) || v < 1) v = 1;
+      if (v > 130) v = 130;
+      await updateDoc(doc(db, "alunos", id), { [campo]: v });
+    };
+
+    window.alternarClassificacao = async function(id, classificado) {
+      await updateDoc(doc(db, "alunos", id), { classificado: !classificado });
+      renderizarPainel();
+    };
+
+    window.confirmarRemocao = async function(id, nome) {
+      const confirmar = confirm(`Tem certeza que deseja remover o aluno ${nome}?`);
+      if (!confirmar) return;
+      await deleteDoc(doc(db, "alunos", id));
+      alert("✅ Aluno removido com sucesso!");
+      renderizarPainel();
+    };
+
+    window.alterarFoto = async function(id) {
+      const arquivo = document.getElementById(`foto-${id}`).files[0];
+      if (!arquivo) return;
+      const leitor = new FileReader();
+      leitor.onload = async e => {
+        await updateDoc(doc(db, "alunos", id), { foto: e.target.result });
+        renderizarPainel();
+      };
+      leitor.readAsDataURL(arquivo);
+    };
+
+    // ======= PDF TÉCNICO =======
+    window.exportarPDF = async function() {
+      const alunos = await carregarAlunos();
+
+      let conteudo = `
+        <h2 style="text-align:center;">Relatório Técnico - Painel Gerencial</h2>
+        <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:12px;">
+          <thead>
+            <tr style="background-color:#00bfff; color:white;">
+              <th>Nome</th>
+              <th>Instrumento</th>
+              <th>Leitura (BONA)</th>
+              <th>Método</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${alunos.map(a => `
+              <tr>
+                <td>${a.nome}</td>
+                <td>${a.instrumento || '-'}</td>
+                <td>${a.leitura || 1}</td>
+                <td>${a.metodo || 1}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+
+      const elemento = document.createElement("div");
+      elemento.innerHTML = conteudo;
+      html2pdf().from(elemento).set({
+        margin: 0.5,
+        filename: "Relatorio_Tecnico.pdf",
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+      }).save();
+    };
+
+    // ======= EVENTOS =======
+    document.getElementById("btnCriarEnsaio").addEventListener("click", async () => {
+      if (confirm("Deseja abrir o painel de ensaio?")) window.location.href = "ensaio.html";
+    });
+
+    document.getElementById("btnCriarApresentacao").addEventListener("click", async () => {
+      if (confirm("Deseja abrir o painel de apresentação?")) window.location.href = "apresentacao.html";
+    });
+
+    document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
+      const painel = document.getElementById("painel");
+      if (painel.style.display === "none") await renderizarPainel();
+      else painel.style.display = "none";
+    });
+
+    document.getElementById("btnModoAluno").addEventListener("click", () => {
+      const usuario = getUsuarioLogado();
+      window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const usuario = getUsuarioLogado();
+      document.getElementById("usuarioLogado").textContent = `Professor logado: ${usuario.nome}`;
+    });
+  </script>
+</body>
+</html>
