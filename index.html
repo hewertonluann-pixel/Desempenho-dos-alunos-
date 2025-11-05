@@ -2,193 +2,116 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel de Desempenho Musical</title>
-  <link rel="stylesheet" href="index.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
-  
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00ffcc">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js');
-    });
-  }
-</script>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Sistema de Produção</title>
+  <link rel="stylesheet" href="style.css" />
+<script type="module" src="./importar_outubro.js"></script>
 
   <style>
-    /* Modal de escolha de acesso */
-    .modal-escolha {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
-    }
-
-    .modal-escolha.visivel {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .modal-conteudo {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      text-align: center;
-      max-width: 320px;
-    }
-
-    .modal-conteudo h2 {
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    .modal-conteudo button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      margin-bottom: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .btn-prof {
-      background-color: #2196f3;
-      color: white;
-    }
-    .btn-prof:hover {
-      background-color: #1976d2;
-    }
-
-    .btn-aluno {
-      background-color: #4caf50;
-      color: white;
-    }
-    .btn-aluno:hover {
-      background-color: #388e3c;
-    }
-
-    body.modo-escuro .modal-conteudo {
-      background: #1e1e1e;
-      color: #fff;
-    }
+    .perfil-toggle{display:flex;gap:8px;margin-top:4px}
+    .perfil-btn{flex:1;padding:10px 0;border-radius:8px;border:1px solid var(--border);background:#f3f4f6;color:var(--muted);font-weight:700;cursor:pointer;transition:.2s}
+    .perfil-btn:hover{background:#e0ecff}
+    .perfil-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   </style>
 </head>
 <body>
-  <!-- Alternador de tema -->
-  <div class="theme-toggle" onclick="alternarTema()" title="Alternar tema">
-    <svg id="iconeTema" class="icone-glifo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M21 12.79A9 9 0 0112.21 3a9 9 0 000 18A9 9 0 0121 12.79z"/>
-    </svg>
-  </div>
-
-  <main class="login-container">
-    <div class="login-box">
-      <h1 class="app-title">🎵 Painel de Desempenho Musical</h1>
-      <p class="subtitle">Orquestra Filhos de Asafe</p>
-
-      <input type="text" id="nomeUsuario" placeholder="👤 Nome de usuário" />
-      <input type="password" id="senhaUsuario" placeholder="🔒 Senha" />
-      <button id="btnEntrar" onclick="entrar()">Entrar</button>
-    </div>
-  </main>
-
-  <!-- Modal de escolha -->
-  <div id="modalEscolha" class="modal-escolha">
-    <div class="modal-conteudo">
-      <h2>Escolha o tipo de acesso</h2>
-      <button class="btn-prof" id="entrarComoProfessor">Acessar como Professor</button>
-      <button class="btn-aluno" id="entrarComoAluno">Acessar como Aluno</button>
+<div class="wrap">
+  <div class="card" style="max-width:460px;margin:60px auto">
+    <div class="hd">Acesso</div>
+    <div class="bd" style="display:grid;gap:12px">
+      <div>
+        <label>Nome</label>
+        <input id="nome" type="text" placeholder="Seu nome">
+      </div>
+      <div>
+        <label>Senha</label>
+        <input id="senha" type="password" placeholder="Sua senha">
+      </div>
+      <div>
+        <label>Perfil</label>
+        <div class="perfil-toggle">
+          <button type="button" id="btnFiscal" class="perfil-btn active">Fiscal</button>
+          <button type="button" id="btnGerente" class="perfil-btn">Gerente</button>
+        </div>
+      </div>
+      <button id="btnEntrar" type="button">Entrar</button>
+      <div id="msg" class="msg"></div>
     </div>
   </div>
+</div>
 
-  <!-- Alternância de tema -->
-  <script>
-    function alternarTema() {
-      document.body.classList.toggle('modo-escuro');
-      const icone = document.getElementById('iconeTema');
-      icone.innerHTML = document.body.classList.contains('modo-escuro')
-        ? '<path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.8 1.42-1.42zm10.48 0l1.79-1.8-1.41-1.41-1.8 1.79 1.42 1.42zM12 4V1h-1v3h1zm0 19v-3h-1v3h1zm8-8h3v-1h-3v1zm-19 0h3v-1H1v1zm15.24 7.16l1.8 1.79 1.41-1.41-1.79-1.8-1.42 1.42zM4.76 19.16l-1.79 1.8 1.41 1.41 1.8-1.79-1.42-1.42zM12 6a6 6 0 100 12 6 6 0 000-12z"/>'
-        : '<path d="M21 12.79A9 9 0 0112.21 3a9 9 0 000 18A9 9 0 0121 12.79z"/>';
+<script type="module">
+  // ===== Firebase SDK (v9 modular) =====
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, query, where, getDocs, addDoc, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyANrr4R5JtJ9GmO0j-1X8-9CvBmYkC4oCI",
+    authDomain: "fiscalizacao9557.firebaseapp.com",
+    projectId: "fiscalizacao9557",
+    storageBucket: "fiscalizacao9557.firebasestorage.app",
+    messagingSenderId: "98041336495",
+    appId: "1:98041336495:web:0475dfd9c0490cc0a17a5a",
+    measurementId: "G-7PY1G1JTKL"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ===== Util =====
+  const $ = s => document.querySelector(s);
+  const showMsg = (t, c='ok') => {
+    const m = $('#msg');
+    m.textContent = t;
+    m.className = 'msg ' + c;
+    m.style.display = 'block';
+    setTimeout(()=>m.style.display='none', 2500);
+  };
+
+  // Perfil local
+  let perfil = 'fiscal';
+  $('#btnFiscal').onclick = ()=>{perfil='fiscal'; $('#btnFiscal').classList.add('active'); $('#btnGerente').classList.remove('active');};
+  $('#btnGerente').onclick = ()=>{perfil='gerente'; $('#btnGerente').classList.add('active'); $('#btnFiscal').classList.remove('active');};
+
+  // Garante gerente padrão (Alexon) se não existir
+  async function ensureDefaultGerente(){
+    const q1 = query(collection(db,'usuarios'), where('nome','==','Alexon'), where('tipo','==','gerente'), limit(1));
+    const snap = await getDocs(q1);
+    if (snap.empty){
+      await addDoc(collection(db,'usuarios'), {
+        nome: 'Alexon',
+        nomeLower: 'alexon',
+        senha: 'gerente1234',
+        tipo: 'gerente'
+      });
     }
-  </script>
+  }
+  ensureDefaultGerente().catch(console.error);
 
-  <!-- Firebase login -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+  // Login local validando no Firestore
+  $('#btnEntrar').onclick = async ()=>{
+    const nome = ($('#nome').value||'').trim();
+    const senha = ($('#senha').value||'').trim();
+    if(!nome || !senha){ showMsg('Preencha nome e senha','err'); return; }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
-      authDomain: "asafenotas-5cf3f.firebaseapp.com",
-      projectId: "asafenotas-5cf3f",
-      storageBucket: "asafenotas-5cf3f.appspot.com",
-      messagingSenderId: "312062581585",
-      appId: "1:312062581585:web:432ff63a527dd86fcf1170",
-      measurementId: "G-Z6G6D4RKZQ"
-    };
+    try{
+      // Busca por nome exato (case-sensitive). Caso deseje, adicione campo nomeLower e pesquise por ele.
+      const qUser = query(collection(db,'usuarios'), where('nome','==',nome), where('tipo','==', perfil), limit(1));
+      const snap = await getDocs(qUser);
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+      if (snap.empty){ showMsg('Usuário não encontrado para este perfil.','err'); return; }
 
-    const modal = document.getElementById("modalEscolha");
-    const btnProf = document.getElementById("entrarComoProfessor");
-    const btnAluno = document.getElementById("entrarComoAluno");
+      const doc = snap.docs[0];
+      const u = doc.data();
+      if (u.senha !== senha){ showMsg('Senha incorreta.','err'); return; }
 
-    let usuarioAtual = null;
-
-    window.entrar = async function () {
-      const nome = document.getElementById("nomeUsuario").value.trim();
-      const senha = document.getElementById("senhaUsuario").value.trim();
-      const botao = document.getElementById("btnEntrar");
-
-      if (!nome || !senha) {
-        alert("Preencha o nome de usuário e a senha.");
-        return;
-      }
-
-      botao.disabled = true;
-      botao.textContent = "Entrando...";
-
-      const q = query(collection(db, "alunos"), where("nome", "==", nome), where("senha", "==", senha));
-      const snapshot = await getDocs(q);
-
-      botao.disabled = false;
-      botao.textContent = "Entrar";
-
-      if (snapshot.empty) {
-        alert("Usuário ou senha inválidos.");
-        return;
-      }
-
-      const usuario = snapshot.docs[0].data();
-      usuarioAtual = usuario;
-
-      if (usuario.nome.toLowerCase() === "professor") {
-        window.location.href = `professor.html?usuario=${encodeURIComponent(usuario.nome)}`;
-      } else if (usuario.classificado) {
-        modal.classList.add("visivel");
-      } else {
-        window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
-      }
-    };
-
-    btnProf.addEventListener("click", () => {
-      window.location.href = `professor.html?usuario=${encodeURIComponent(usuarioAtual.nome)}&classificado=true`;
-    });
-
-    btnAluno.addEventListener("click", () => {
-      window.location.href = `aluno.html?nome=${encodeURIComponent(usuarioAtual.nome)}`;
-    });
-  </script>
+      localStorage.setItem('sessao_usuario', JSON.stringify({ nome: u.nome, tipo: u.tipo }));
+      setTimeout(()=>{ location.href = (perfil==='gerente' ? 'gerente.html' : 'fiscal.html'); }, 150);
+    }catch(e){
+      console.error(e);
+      showMsg('Falha ao autenticar.','err');
+    }
+  };
+</script>
 </body>
 </html>
