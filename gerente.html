@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root{
       --bg:#f6f7fb;--card:#fff;--ink:#111827;--muted:#6b7280;
@@ -16,12 +15,17 @@
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
-    .header{position:fixed;top:0;left:0;right:0;z-index:50;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:12px 16px;}
+    .header{
+      position:fixed;top:0;left:0;right:0;z-index:50;
+      background:#fff;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:12px;padding:12px 16px;
+    }
     .header .title{font-weight:700}
     .header .sub{color:var(--muted);font-size:14px}
     .header .right{margin-left:auto;display:flex;align-items:center;gap:10px}
     .btn-ghost{background:#eef2ff;color:#1e40af;border:0;border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600}
     .who-badge{background:#f3f4f6;color:#111827;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600}
+
     .wrap{max-width:1150px;margin:0 auto;padding:98px 16px 24px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 4px 14px rgba(17,24,39,.05);margin-bottom:16px;overflow:hidden}
     .card .hd{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
@@ -38,6 +42,9 @@
     thead th{background:#f3f4f6;color:var(--muted);font-weight:600}
     tbody tr:nth-child(even){background:#f9fafb}
     h3{margin-top:20px;margin-bottom:8px;font-size:16px}
+    #modalUser{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:100}
+    #modalUser .box{background:#fff;padding:20px;border-radius:12px;max-width:400px;width:90%;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+    .msg.ok{color:var(--good)}.msg.err{color:var(--bad)}
   </style>
 </head>
 <body>
@@ -63,26 +70,73 @@
           <div><label>De</label><input id="dIni" type="date"></div>
           <div><label>Até</label><input id="dFim" type="date"></div>
           <div style="align-self:end"><button id="btnFiltrar">Filtrar</button></div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            <span class="pill" style="pointer-events:none">Atalhos:</span>
+            <button class="pill" id="pSem">Semanal</button>
+            <button class="pill" id="pQzn">Quinzenal</button>
+            <button class="pill" id="pMns">Mensal</button>
+          </div>
         </div>
 
         <div class="table-wrap" style="margin-top:16px">
           <table id="tabLanc" class="table">
-            <thead><tr><th>Data</th><th>Fiscal</th><th>Descrição</th><th>Qtd</th><th>Valor</th><th>Resumo</th></tr></thead>
+            <thead><tr><th>Data</th><th>Fiscal</th><th>Empresa</th><th>Descrição</th><th>Qtd</th><th>Valor</th><th>Destino</th><th>Resumo</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
 
-        <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-top:20px;">
-          <div style="flex:1;min-width:300px">
-            <h3>Resumo por Fiscal</h3>
-            <div id="resFiscal"></div>
-            <h3>Resumo por Tipo de Serviço</h3>
-            <div id="resTipo"></div>
-          </div>
-          <div style="flex:1;min-width:320px;max-width:480px;">
-            <h3 style="text-align:center;">Composição do Valor Arrecadado</h3>
-            <canvas id="graficoResumo" width="400" height="250"></canvas>
-          </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+          <div><strong>Total registros:</strong> <span id="tRegs">0</span></div>
+          <div><strong>Total Quantidade:</strong> <span id="tQtd">0</span></div>
+          <div><strong>Total Valor:</strong> <span id="tVal">R$ 0,00</span></div>
+        </div>
+
+        <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <label for="numRel" style="font-weight:600;">Nº Relatório:</label>
+          <input id="numRel" type="number" min="1" placeholder="(automático)" style="width:120px">
+          <button id="btnPDF" class="pill" style="background:#10b981;color:#fff">🖨️ Gerar PDF</button>
+        </div>
+
+        <h3>Resumo por Fiscal</h3>
+        <div id="resFiscal"></div>
+        <h3>Resumo por Tipo de Serviço</h3>
+        <div id="resTipo"></div>
+      </div>
+    </div>
+
+    <!-- GESTÃO DE USUÁRIOS -->
+    <div class="card">
+      <div class="hd">
+        <span>Gestão de Usuários (Fiscais e Gerentes)</span>
+        <button id="btnNovoUser" class="pill">➕ Novo Usuário</button>
+      </div>
+      <div class="bd">
+        <div class="table-wrap">
+          <table id="tabUsers" class="table">
+            <thead><tr><th>Nome</th><th>Tipo</th><th>Senha</th><th>Ações</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Usuário -->
+  <div id="modalUser">
+    <div class="box">
+      <h3 id="modalTitulo">Novo Usuário</h3>
+      <div style="display:grid;gap:10px;margin-top:10px">
+        <div><label>Nome</label><input id="uNome" type="text"></div>
+        <div><label>Senha</label><input id="uSenha" type="password"></div>
+        <div><label>Tipo</label>
+          <select id="uTipo">
+            <option value="fiscal">Fiscal</option>
+            <option value="gerente">Gerente</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
+          <button id="btnSalvarUser">Salvar</button>
+          <button id="btnCancelarUser" class="btn-ghost">Cancelar</button>
         </div>
       </div>
     </div>
@@ -90,7 +144,10 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { gerarPDF } from "./relatorio.js";
+    import { inicializarUsuarios } from "./usuarios.js";
+    import { gerarGraficoResumo } from "./graficoResumo.js";
 
     const firebaseConfig = {
       apiKey:"AIzaSyANrr4R5JtJ9GmO0j-1X8-9CvBmYkC4oCI",
@@ -106,19 +163,23 @@
     const $ = s=>document.querySelector(s);
     const numberToBRL = n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
-    let cacheLanc=[];
+    let sess=null;
+    try{ sess=JSON.parse(localStorage.getItem('sessao_usuario')||'null'); }catch(e){ sess=null; }
+    if(!sess || sess.tipo!=='gerente'){ location.href='index.html'; }
+    $('#who').textContent=`${sess.nome} (Gerente)`;
+    $('#btnSair').onclick=()=>{ localStorage.removeItem('sessao_usuario'); location.href='index.html'; };
 
+    let cacheLanc=[];
     async function filtrar(){
-      const dIni=new Date($('#dIni').value+"T00:00:00");
-      const dFim=new Date($('#dFim').value+"T23:59:59");
-      const snap=await getDocs(query(collection(db,'lancamentos'),orderBy('data','asc')));
-      const dados=[];
-      snap.forEach(doc=>{
-        const r=doc.data();
-        const dt=r.data?.toDate?.()||new Date();
-        if(dt>=dIni && dt<=dFim) dados.push(r);
-      });
-      cacheLanc=dados;
+      const dIni=$('#dIni').value, dFim=$('#dFim').value;
+      if(!dIni||!dFim)return;
+      const qLanc=query(collection(db,'lancamentos'),
+        where('data','>=',dIni),
+        where('data','<=',dFim),
+        orderBy('data','asc')
+      );
+      const snap=await getDocs(qLanc);
+      cacheLanc=snap.docs.map(d=>({id:d.id,...d.data()}));
       renderLanc(cacheLanc);
       gerarGraficoResumo(cacheLanc);
     }
@@ -130,63 +191,28 @@
       rows.forEach(r=>{
         tRegs++; tQtd+=Number(r.quantidade||0); tVal+=Number(r.valor||0);
         const tr=document.createElement('tr');
-        const dt=r.data?.toDate?.()?.toLocaleDateString('pt-BR')||'';
-        tr.innerHTML=`<td>${dt}</td><td>${r.usuario||''}</td><td>${r.descricao||''}</td>
-          <td>${r.quantidade||0}</td><td>${r.valor?numberToBRL(r.valor):''}</td><td>${r.descricaoResumida||''}</td>`;
+        tr.innerHTML=`<td>${r.data||''}</td><td>${r.usuario||''}</td><td>${r.empresa||''}</td><td>${r.descricao||''}</td>
+          <td>${r.quantidade||0}</td><td>${r.valor?numberToBRL(r.valor):''}</td><td>${r.destino||''}</td><td>${r.descricaoResumida||''}</td>`;
         tb.appendChild(tr);
         porFiscal.set(r.usuario,(porFiscal.get(r.usuario)||0)+Number(r.quantidade||0));
         porTipo.set(r.descricaoResumida,(porTipo.get(r.descricaoResumida)||0)+Number(r.quantidade||0));
       });
+      $('#tRegs').textContent=tRegs;
+      $('#tQtd').textContent=tQtd;
+      $('#tVal').textContent=numberToBRL(tVal);
       $('#resFiscal').innerHTML=Array.from(porFiscal.entries()).map(([k,v])=>`<div>• <strong>${k}:</strong> ${v}</div>`).join('')||'<em>—</em>';
       $('#resTipo').innerHTML=Array.from(porTipo.entries()).map(([k,v])=>`<div>• <strong>${k}:</strong> ${v}</div>`).join('')||'<em>—</em>';
     }
 
-    function gerarGraficoResumo(rows){
-      const canvas=document.getElementById('graficoResumo');
-      if(!canvas)return;
-      const ctx=canvas.getContext('2d');
-      if(window.graficoAtual)window.graficoAtual.destroy();
-
-      let totalISS=0,totalTFLF=0,totalOutros=0;
-      rows.forEach(r=>{
-        const tipo=(r.descricaoResumida||'').toLowerCase();
-        const valor=Number(r.valor||0);
-        if(tipo.includes('lançamento de tributo')||tipo.includes('emissão de guia de issqn')) totalISS+=valor;
-        else if(tipo.includes('apuração de tflf')) totalTFLF+=valor;
-        else totalOutros+=valor;
-      });
-
-      window.graficoAtual=new Chart(ctx,{
-        type:'bar',
-        data:{
-          labels:['ISSQN','TFLF','Outros'],
-          datasets:[{
-            label:'Valor arrecadado (R$)',
-            data:[totalISS,totalTFLF,totalOutros],
-            backgroundColor:['#2563eb','#16a34a','#6b7280']
-          }]
-        },
-        options:{
-          indexAxis:'y',
-          responsive:true,
-          plugins:{legend:{display:false}},
-          scales:{
-            x:{
-              beginAtZero:true,
-              ticks:{callback:v=>'R$ '+v.toLocaleString('pt-BR')}
-            }
-          }
-        }
-      });
-    }
-
     $('#btnFiltrar').onclick=filtrar;
+    $('#btnPDF').onclick=()=>gerarPDF(cacheLanc,sess,$('#dIni').value,$('#dFim').value,$('#numRel').value);
 
     (function init(){
       const fim=new Date(), ini=new Date(); ini.setDate(ini.getDate()-7);
       $('#dIni').value=ini.toISOString().slice(0,10);
       $('#dFim').value=fim.toISOString().slice(0,10);
-      filtrar(); // carrega gráfico automaticamente
+      filtrar();
+      inicializarUsuarios(db);
     })();
   </script>
 </body>
