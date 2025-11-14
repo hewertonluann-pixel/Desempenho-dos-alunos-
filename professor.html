@@ -6,36 +6,145 @@
   <title>Painel Gerencial 🎵</title>
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* ===== Mensagens ===== */
+    .mensagem-sucesso, .mensagem-info {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 9999;
+    }
+
+    .mensagem-sucesso { background: #16a34a; color: #fff; }
+    .mensagem-info { background: #2563eb; color: #fff; }
+    .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
+
+    /* ===== Botão Recalcular Energia ===== */
+    .recalcular-energia {
+      background-color: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .recalcular-energia:hover { background-color: #1e40af; }
+
+    /* ===== Modal genérico ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-conteudo {
+      background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      color: #f0f0f0;
+    }
+
+    .botoes-modal {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 18px;
+      gap: 10px;
+    }
+
+    .botoes-modal button {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.3s;
+    }
+
+    .btn-adicionar { background: #16a34a; }
+    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
+    .btn-cancelar { background: #dc2626; }
+    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
+  </style>
 </head>
 
 <body>
   <h1>Painel Gerencial 🎶</h1>
   <div class="usuario-logado" id="usuarioLogado"></div>
 
-  <div class="formulario">
-    <input type="text" id="nomeAluno" placeholder="Nome do aluno" />
-    <input type="text" id="nomeInstrumento" placeholder="Instrumento" />
-    <input type="file" id="fotoAluno" accept="image/*" />
-    <button onclick="adicionarAluno()">Adicionar Aluno</button>
-  </div>
-
+  <!-- 🔹 Botões principais -->
   <div class="botoes">
+    <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
     <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
     <button id="btnModoAluno">🎓 Modo Aluno</button>
-    <button id="btnCriarEnsaio">🎼 Ensaio</button>
-    <button id="btnCriarApresentacao">🎤 Apresentação</button>
+    <button id="btnCriarEvento">📋 Chamada</button>
     <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Eventos</button>
     <button onclick="exportarPDF()">📄 Exportar PDF</button>
+    <button id="btnRecalcularEnergia" class="recalcular-energia">🔄 Recalcular Energia (Frequência)</button>
   </div>
 
-  <!-- 🔄 Loader -->
+  <!-- Mensagens -->
+  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
+  <div id="mensagemInfo" class="mensagem-info"></div>
+
+  <!-- Loader -->
   <div id="loader" class="loader" style="display:none;">
     <div class="spinner"></div>
     <p>Carregando alunos...</p>
   </div>
 
-  <!-- Painel de alunos -->
+  <!-- Painel -->
   <div class="painel" id="painel" style="display:none;"></div>
+
+  <!-- Modal Adicionar Aluno -->
+  <div id="modalAdicionar" class="modal">
+    <div class="modal-conteudo">
+      <h2>➕ Novo Aluno</h2>
+      <input type="text" id="novoNome" placeholder="Nome do aluno" />
+      <input type="text" id="novoInstrumento" placeholder="Instrumento" />
+      <div class="botoes-modal">
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">✅ Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">❌ Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Tipo de Chamada -->
+  <div id="modalTipoChamada" class="modal">
+    <div class="modal-conteudo">
+      <h2>Qual tipo de chamada?</h2>
+      <div class="botoes-modal">
+        <button id="btnChamadaEnsaio" class="btn-adicionar">🎼 Ensaio</button>
+        <button id="btnChamadaApresentacao" class="btn-adicionar">🎤 Apresentação</button>
+      </div>
+      <button id="btnFecharModalChamada" class="btn-cancelar" style="margin-top:12px;">Cancelar</button>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
@@ -54,15 +163,134 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    function getUsuarioLogado() {
-      const params = new URLSearchParams(window.location.search);
-      return { nome: params.get("usuario") || "Professor" };
+    function mostrarMensagem(id, texto) {
+      const msg = document.getElementById(id);
+      msg.textContent = texto;
+      msg.classList.add("visivel");
+      setTimeout(() => msg.classList.remove("visivel"), 2000);
     }
 
+    // ====== MODAL ADICIONAR ALUNO ======
+    const modal = document.getElementById("modalAdicionar");
+    const btnAdd = document.getElementById("btnAdicionarAluno");
+    const btnConfirmar = document.getElementById("btnConfirmarAdicionar");
+    const btnCancelar = document.getElementById("btnCancelarAdicionar");
+
+    btnAdd.onclick = () => { modal.style.display = "flex"; };
+    btnCancelar.onclick = () => { modal.style.display = "none"; };
+    window.addEventListener("click", (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    btnConfirmar.onclick = async () => {
+      const nome = document.getElementById("novoNome").value.trim();
+      const instrumento = document.getElementById("novoInstrumento").value.trim();
+      if (!nome || !instrumento) return alert("Preencha nome e instrumento!");
+
+      const novoAluno = {
+        nome,
+        instrumento,
+        senha: "asafe",
+        leitura: 1,
+        metodo: 1,
+        energia: 100,
+        frequenciaMensal: { porcentagem: 0 },
+        frequenciaAnual: {},
+        conquistas: [],
+        classificado: false,
+        criadoEm: new Date().toISOString(),
+      };
+
+      await addDoc(collection(db, "alunos"), novoAluno);
+      modal.style.display = "none";
+      mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado com sucesso!`);
+      renderizarPainel();
+    };
+
+    // ====== MODAL TIPO DE CHAMADA + EVENTO ÚNICO ======
+    const modalTipoChamada = document.getElementById("modalTipoChamada");
+    const btnCriarEvento = document.getElementById("btnCriarEvento");
+    const btnChamadaEnsaio = document.getElementById("btnChamadaEnsaio");
+    const btnChamadaApresentacao = document.getElementById("btnChamadaApresentacao");
+    const btnFecharModalChamada = document.getElementById("btnFecharModalChamada");
+
+    btnCriarEvento.onclick = () => {
+      modalTipoChamada.style.display = "flex";
+    };
+
+    btnFecharModalChamada.onclick = () => {
+      modalTipoChamada.style.display = "none";
+    };
+
+    window.addEventListener("click", (e) => {
+      if (e.target === modalTipoChamada) modalTipoChamada.style.display = "none";
+    });
+
+    async function abrirOuCriarChamada(tipoSolicitado) {
+      const hoje = new Date().toISOString().split("T")[0];
+      const colecoes = ["ensaios", "apresentacoes", "eventos"];
+
+      // 1) Procura se já existe algo hoje em qualquer coleção
+      for (const col of colecoes) {
+        const snap = await getDocs(collection(db, col));
+        const existente = snap.docs.find(docItem => docItem.data().data === hoje);
+        if (existente) {
+          mostrarMensagem("mensagemInfo", "📅 Já existe registro para hoje. Abrindo...");
+          modalTipoChamada.style.display = "none";
+          setTimeout(() => {
+            window.location.href = `ensaio.html?id=${existente.id}`;
+          }, 800);
+          return;
+        }
+      }
+
+      // 2) Se não existe, cria evento pendente com tipo escolhido
+      const novoEvento = await addDoc(collection(db, "eventos"), {
+        data: hoje,
+        tipo: tipoSolicitado,   // "ensaio" ou "apresentacao"
+        observacoes: "",
+        presencas: []
+      });
+
+      mostrarMensagem("mensagemInfo", "🆕 Novo evento criado! Abrindo...");
+      modalTipoChamada.style.display = "none";
+      setTimeout(() => {
+        window.location.href = `ensaio.html?id=${novoEvento.id}`;
+      }, 800);
+    }
+
+    btnChamadaEnsaio.onclick = () => abrirOuCriarChamada("ensaio");
+    btnChamadaApresentacao.onclick = () => abrirOuCrirChamada("apresentacao"); // <- corrigir aqui se copiar: abrirOuCriarChamada
+
+    // ====== RECARCULAR ENERGIA ======
+    document.getElementById("btnRecalcularEnergia").addEventListener("click", async () => {
+      mostrarMensagem("mensagemInfo", "⚙️ Recalculando energia dos alunos...");
+
+      const snap = await getDocs(collection(db, "alunos"));
+      let totalAtualizados = 0;
+
+      for (const alunoDoc of snap.docs) {
+        const aluno = alunoDoc.data();
+        const freq = aluno.frequenciaMensal?.porcentagem || 0;
+        let novaEnergia = 0;
+
+        if (freq >= 80) novaEnergia = 100;
+        else if (freq >= 50) novaEnergia = 70;
+        else if (freq >= 30) novaEnergia = 40;
+        else novaEnergia = 10;
+
+        await updateDoc(doc(db, "alunos", alunoDoc.id), { energia: novaEnergia });
+        totalAtualizados++;
+      }
+
+      mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${totalAtualizados} alunos!`);
+    });
+
+    // ====== GERENCIAR ALUNOS ======
     async function carregarAlunos() {
       const snapshot = await getDocs(collection(db, "alunos"));
       const alunos = [];
-      snapshot.forEach((docItem) => alunos.push({ id: docItem.id, ...docItem.data() }));
+      snapshot.forEach(docItem => alunos.push({ id: docItem.id, ...docItem.data() }));
       alunos.sort((a, b) => a.nome.localeCompare(b.nome));
       return alunos;
     }
@@ -70,18 +298,15 @@
     async function renderizarPainel() {
       const loader = document.getElementById("loader");
       const painel = document.getElementById("painel");
-
       loader.style.display = "flex";
       painel.style.display = "none";
 
       const alunos = await carregarAlunos();
-
       painel.innerHTML = alunos.map(aluno => `
         <div class="ficha">
           <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}</div>
           <div class="dados">
             <div class="campo"><label>${aluno.nome}</label></div>
-
             <div class="campo nota-linha">
               <label>Leitura (BONA)</label>
               <div class="nota-controle">
@@ -90,7 +315,6 @@
                 <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
               </div>
             </div>
-
             <div class="campo nota-linha">
               <label>Método</label>
               <div class="nota-controle">
@@ -99,20 +323,15 @@
                 <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
               </div>
             </div>
-
             <div class="campo">
               <label>Instrumento</label>
               <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarNota('${aluno.id}','instrumento',this.value)">
             </div>
-
             <div class="acoes">
               <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">
                 ${aluno.classificado ? "Desclassificar" : "Classificar"}
               </button>
               <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
-              <label class="alterar-foto">📷
-                <input type="file" id="foto-${aluno.id}" accept="image/*" onchange="alterarFoto('${aluno.id}')">
-              </label>
             </div>
           </div>
         </div>
@@ -121,15 +340,6 @@
       loader.style.display = "none";
       painel.style.display = "flex";
     }
-
-    // ======= FUNÇÕES =======
-    window.adicionarAluno = async function() {
-      const nome = document.getElementById("nomeAluno").value.trim();
-      const instrumento = document.getElementById("nomeInstrumento").value.trim();
-      if (!nome || !instrumento) return alert("Preencha nome e instrumento.");
-      await addDoc(collection(db, "alunos"), { nome, instrumento, leitura: 1, metodo: 1, foto: "", classificado: false });
-      renderizarPainel();
-    };
 
     window.alterarNota = async function(id, campo, delta) {
       const input = document.getElementById(`${campo}-${id}`);
@@ -157,85 +367,22 @@
     };
 
     window.confirmarRemocao = async function(id, nome) {
-      const confirmar = confirm(`Tem certeza que deseja remover o aluno ${nome}?`);
-      if (!confirmar) return;
+      if (!confirm(`Deseja remover o aluno ${nome}?`)) return;
       await deleteDoc(doc(db, "alunos", id));
-      alert("✅ Aluno removido com sucesso!");
       renderizarPainel();
     };
 
-    window.alterarFoto = async function(id) {
-      const arquivo = document.getElementById(`foto-${id}`).files[0];
-      if (!arquivo) return;
-      const leitor = new FileReader();
-      leitor.onload = async e => {
-        await updateDoc(doc(db, "alunos", id), { foto: e.target.result });
-        renderizarPainel();
-      };
-      leitor.readAsDataURL(arquivo);
-    };
-
-    // ======= PDF TÉCNICO =======
-    window.exportarPDF = async function() {
-      const alunos = await carregarAlunos();
-
-      let conteudo = `
-        <h2 style="text-align:center;">Relatório Técnico - Painel Gerencial</h2>
-        <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:12px;">
-          <thead>
-            <tr style="background-color:#00bfff; color:white;">
-              <th>Nome</th>
-              <th>Instrumento</th>
-              <th>Leitura (BONA)</th>
-              <th>Método</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${alunos.map(a => `
-              <tr>
-                <td>${a.nome}</td>
-                <td>${a.instrumento || '-'}</td>
-                <td>${a.leitura || 1}</td>
-                <td>${a.metodo || 1}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-
-      const elemento = document.createElement("div");
-      elemento.innerHTML = conteudo;
-      html2pdf().from(elemento).set({
-        margin: 0.5,
-        filename: "Relatorio_Tecnico.pdf",
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
-      }).save();
-    };
-
-    // ======= EVENTOS =======
-    document.getElementById("btnCriarEnsaio").addEventListener("click", async () => {
-      if (confirm("Deseja abrir o painel de ensaio?")) window.location.href = "ensaio.html";
-    });
-
-    document.getElementById("btnCriarApresentacao").addEventListener("click", async () => {
-      if (confirm("Deseja abrir o painel de apresentação?")) window.location.href = "apresentacao.html";
-    });
-
-    document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
-      const painel = document.getElementById("painel");
-      if (painel.style.display === "none") await renderizarPainel();
-      else painel.style.display = "none";
-    });
+    document.getElementById("btnMostrarAlunos").addEventListener("click", renderizarPainel);
 
     document.getElementById("btnModoAluno").addEventListener("click", () => {
-      const usuario = getUsuarioLogado();
-      window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
+      const params = new URLSearchParams(window.location.search);
+      const usuario = params.get("usuario") || "Professor";
+      window.location.href = `aluno.html?nome=${encodeURIComponent(usuario)}`;
     });
 
     document.addEventListener("DOMContentLoaded", () => {
-      const usuario = getUsuarioLogado();
-      document.getElementById("usuarioLogado").textContent = `Professor logado: ${usuario.nome}`;
+      const usuario = new URLSearchParams(window.location.search).get("usuario") || "Professor";
+      document.getElementById("usuarioLogado").textContent = `Professor logado: ${usuario}`;
     });
   </script>
 </body>

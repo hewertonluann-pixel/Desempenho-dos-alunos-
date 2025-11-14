@@ -3,147 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ensaio - Orquestra Filhos de Asafe</title>
-  <link rel="stylesheet" href="aluno.css" />
+  <title>Chamada do dia - Orquestra Filhos de Asafe</title>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      padding: 20px;
-    }
+    body { font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 10px; color: #333; }
+    #tipoAtual { font-size: 1rem; color: #666; font-weight: normal; }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
+    /* Switch */
+    .switch-container { display: flex; align-items: center; justify-content: center; margin: 15px 0 25px; font-weight: bold; gap: 10px; transition: opacity 0.3s ease; }
+    .switch-label { color: #333; font-size: 1rem; }
+    .switch { position: relative; display: inline-block; width: 60px; height: 30px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #bbb; transition: 0.4s; border-radius: 30px; }
+    .slider::before { position: absolute; content: ""; height: 24px; width: 24px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #9c27b0; }
+    input:checked + .slider::before { transform: translateX(30px); }
 
-    .painel {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
+    /* Cards dos alunos */
+    .painel { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .container-aluno { background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 200px; padding: 10px; text-align: center; cursor: pointer; transition: 0.3s; }
+    .container-aluno:hover { transform: scale(1.03); }
+    .foto { width: 100%; height: 120px; background-color: #eee; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
+    .foto img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
 
-    .container-aluno {
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 200px;
-      padding: 10px;
-      text-align: center;
-    }
+    /* Estados */
+    .container-aluno.vazio { background-color: #fff; border: 1px solid #ccc; }
+    .container-aluno.presente { background-color: #c8f7c5; border: 2px solid #4caf50; }
+    .container-aluno.ausente { background-color: #f7c5c5; border: 2px solid #f44336; }
 
-    .foto {
-      width: 100%;
-      height: 120px;
-      background-color: #eee;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    textarea { width: 100%; margin-top: 20px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; resize: vertical; }
+    .botoes { text-align: center; margin-top: 20px; }
+    .botoes button { padding: 10px 20px; margin: 0 10px; font-size: 14px; border: none; border-radius: 6px; cursor: pointer; background-color: #2196f3; color: white; transition: background 0.3s; }
+    .botoes button:hover { background-color: #1976d2; }
+    .cancelar { background-color: #dc2626 !important; }
+    .cancelar:hover { background-color: #b91c1c !important; }
 
-    .foto img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    /* Loader */
+    .loader-fullscreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f5f5f5; display: flex; justify-content: center; align-items: center; gap: 20px; z-index: 9999; flex-wrap: wrap; }
+    .loader-fullscreen.inactive { display: none; }
 
-    .btn-presenca {
-      width: 100%;
-      padding: 8px;
-      margin: 4px 0;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-
-    .btn-presenca.vazio { background-color: #ccc; color: #333; }
-    .btn-presenca.presente { background-color: #4caf50; color: white; }
-    .btn-presenca.ausente { background-color: #f44336; color: white; }
-
-    textarea {
-      width: 100%;
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      resize: vertical;
-    }
-
-    .botoes {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .botoes button {
-      padding: 10px 20px;
-      margin: 0 10px;
-      font-size: 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background-color: #2196f3;
-      color: white;
-    }
-
-    .loader-fullscreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      z-index: 9999;
-      flex-wrap: wrap;
-    }
-
-    .loader-fullscreen.inactive {
-      display: none;
-    }
-
-    .nota {
-      font-size: 3rem;
-      animation: subir 1s infinite alternate ease-in-out;
-    }
-
-    @keyframes subir {
-      0% { transform: translateY(0); opacity: 0.5; }
-      100% { transform: translateY(-50px); opacity: 1; }
-    }
+    .nota { font-size: 3rem; animation: subir 1s infinite alternate ease-in-out; }
+    @keyframes subir { 0% { transform: translateY(0); opacity: 0.5; } 100% { transform: translateY(-50px); opacity: 1; } }
   </style>
 </head>
+
 <body>
-  <!-- 🎵 Loader -->
+  <!-- Loader -->
   <div class="loader-fullscreen" id="loader">
-    <div class="nota">🎵</div>
-    <div class="nota">🎶</div>
-    <div class="nota">🎼</div>
-    <div class="nota">🎻</div>
-    <div class="nota">🎺</div>
+    <div class="nota">🎵</div><div class="nota">🎶</div><div class="nota">🎼</div><div class="nota">🎻</div><div class="nota">🎺</div>
   </div>
 
-  <h1>📌 Ensaio do dia: <span id="dataEnsaio"></span></h1>
+  <h1>📋 Chamada do dia <span id="tipoAtual"></span>: <span id="dataEnsaio"></span></h1>
+
+  <!-- Seletor -->
+  <div class="switch-container" id="switchTipo">
+    <span class="switch-label">🎼 Ensaio</span>
+    <label class="switch">
+      <input type="checkbox" id="tipoEventoSwitch">
+      <span class="slider"></span>
+    </label>
+    <span class="switch-label">🎤 Apresentação</span>
+  </div>
 
   <div class="painel" id="painelAlunos"></div>
-
-  <textarea id="observacoes" placeholder="Observações do ensaio..."></textarea>
+  <textarea id="observacoes" placeholder="Observações..."></textarea>
 
   <div class="botoes">
     <button onclick="salvarPresencas()">💾 Gravar Presenças</button>
-    <button onclick="exportarPDF()">📄 Visualizar Relatório</button>
+    <button class="cancelar" onclick="cancelarEvento()">❌ Cancelar Evento</button>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, updateDoc, doc, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, updateDoc, doc, getDoc, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
@@ -160,74 +93,118 @@
 
     const loader = document.getElementById("loader");
     const painel = document.getElementById("painelAlunos");
-    const dataEnsaio = document.getElementById("dataEnsaio");
     const hoje = new Date().toISOString().split("T")[0];
-    dataEnsaio.textContent = new Date().toLocaleDateString("pt-BR");
+    const mesAtual = hoje.slice(0, 7);
+
+    document.getElementById("dataEnsaio").textContent = new Date().toLocaleDateString("pt-BR");
 
     const params = new URLSearchParams(window.location.search);
     const ensaioId = params.get("id");
 
     let alunos = [];
     let presencasSalvas = {};
+    let tipoEvento = "ensaio";
+    let veioDeEvento = false;
+    let colecaoOrigem = null;
 
-    async function carregarPresencasSalvas() {
-      if (!ensaioId) return;
-      const ref = doc(db, "ensaios", ensaioId);
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const dados = snap.data();
-        if (dados.presencas && Array.isArray(dados.presencas)) {
-          dados.presencas.forEach(p => presencasSalvas[p.nome] = p.presenca);
+    async function detectarOrigem() {
+      colecaoOrigem = null;
+      veioDeEvento = false;
+
+      if (!ensaioId) {
+        document.getElementById("switchTipo").style.display = "flex";
+        return null;
+      }
+
+      const colecoes = ["eventos", "ensaios", "apresentacoes"];
+      for (const c of colecoes) {
+        const ref = doc(db, c, ensaioId);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const dados = snap.data();
+          colecaoOrigem = c;
+
+          // EVENTO PENDENTE
+          if (c === "eventos") {
+            veioDeEvento = true;
+            tipoEvento = dados.tipo || "ensaio";
+            document.getElementById("tipoAtual").textContent = tipoEvento === "apresentacao" ? "(Evento — Apresentação)" : "(Evento — Ensaio)";
+            document.getElementById("tipoEventoSwitch").checked = tipoEvento === "apresentacao";
+            document.getElementById("switchTipo").style.display = "flex";
+          }
+
+          // ENSAIO SALVO
+          else if (c === "ensaios") {
+            tipoEvento = "ensaio";
+            document.getElementById("tipoAtual").textContent = "(Ensaio)";
+            document.getElementById("switchTipo").style.display = "none";
+          }
+
+          // APRESENTAÇÃO SALVA
+          else if (c === "apresentacoes") {
+            tipoEvento = "apresentacao";
+            document.getElementById("tipoAtual").textContent = "(Apresentação)";
+            document.getElementById("switchTipo").style.display = "none";
+          }
+
+          // Pré-carregar presenças e observações
+          if (dados.presencas) {
+            dados.presencas.forEach(p => presencasSalvas[p.nome] = p.presenca);
+          }
           document.getElementById("observacoes").value = dados.observacoes || "";
+
+          return;
         }
       }
+
+      // Não achou ID → novo evento
+      document.getElementById("switchTipo").style.display = "flex";
     }
 
+    document.getElementById("tipoEventoSwitch").addEventListener("change", e => {
+      tipoEvento = e.target.checked ? "apresentacao" : "ensaio";
+    });
+
     async function carregarAlunos() {
-      await carregarPresencasSalvas();
+      await detectarOrigem();
       const snapshot = await getDocs(collection(db, "alunos"));
+
       alunos = snapshot.docs.map(docItem => {
         const a = docItem.data();
-        const status = presencasSalvas[a.nome] || "";
-        return { id: docItem.id, ...a, presenca: status };
+        const estado = presencasSalvas[a.nome] || "";
+        return { id: docItem.id, ...a, presenca: estado };
       });
-      renderizarAlunos();
+
+      painel.innerHTML = alunos.map(a => `
+        <div class="container-aluno ${a.presenca || 'vazio'}">
+          <div class="foto">${a.foto ? `<img src="${a.foto}">` : "Sem foto"}</div>
+          <strong>${a.nome}</strong><br>
+          <small>${a.instrumento || ""}</small>
+        </div>
+      `).join("");
+
       loader.classList.add("inactive");
     }
 
-    function renderizarAlunos() {
-      painel.innerHTML = alunos.map(a => `
-        <div class="container-aluno">
-          <div class="foto">${a.foto ? `<img src="${a.foto}" alt="${a.nome}">` : "Sem foto"}</div>
-          <div>${a.nome}</div>
-          <div><small>${a.instrumento || ""}</small></div>
-          <button class="btn-presenca ${a.presenca || 'vazio'}" onclick="alternarPresenca('${a.id}', this)">
-            ${a.presenca ? a.presenca.charAt(0).toUpperCase() + a.presenca.slice(1) : 'Presença'}
-          </button>
-        </div>
-      `).join("");
-    }
+    painel.addEventListener("click", e => {
+      const card = e.target.closest(".container-aluno");
+      if (!card) return;
 
-    window.alternarPresenca = function(id, btn) {
-      const aluno = alunos.find(a => a.id === id);
-      if (!aluno) return;
+      const nome = card.querySelector("strong").textContent;
+      const aluno = alunos.find(a => a.nome === nome);
 
-      if (aluno.presenca === "" || aluno.presenca === "ausente") {
-        aluno.presenca = "presente";
-        btn.className = "btn-presenca presente";
-        btn.textContent = "Presente";
-      } else if (aluno.presenca === "presente") {
-        aluno.presenca = "ausente";
-        btn.className = "btn-presenca ausente";
-        btn.textContent = "Ausente";
-      } else {
-        aluno.presenca = "";
-        btn.className = "btn-presenca vazio";
-        btn.textContent = "Presença";
-      }
-    }
+      aluno.presenca = aluno.presenca === "presente"
+        ? "ausente"
+        : aluno.presenca === "ausente"
+        ? ""
+        : "presente";
 
-    // 💾 Salvar presenças + atualizar frequência mensal
+      card.className = `container-aluno ${aluno.presenca || "vazio"}`;
+    });
+
+    //----------------------------------------------------------
+    // FUNÇÃO PRINCIPAL: SALVAR LISTA DE PRESENÇAS + FREQUÊNCIA
+    //----------------------------------------------------------
     window.salvarPresencas = async function() {
       const observacoes = document.getElementById("observacoes").value;
       const presencas = alunos.map(a => ({
@@ -236,92 +213,76 @@
         presenca: a.presenca
       }));
 
-      if (ensaioId) {
-        await updateDoc(doc(db, "ensaios", ensaioId), { observacoes, presencas });
-      } else {
-        await addDoc(collection(db, "ensaios"), { data: hoje, observacoes, presencas });
+      const colecaoDestino = tipoEvento === "apresentacao" ? "apresentacoes" : "ensaios";
+
+      //----------------------------------------------------------
+      // 1. SALVAR O EVENTO (NÃO DUPLICAR)
+      //----------------------------------------------------------
+      if (ensaioId && colecaoOrigem && colecaoOrigem !== "eventos") {
+        await updateDoc(doc(db, colecaoOrigem, ensaioId), { data: hoje, observacoes, presencas });
+      }
+      else if (ensaioId && veioDeEvento) {
+        await addDoc(collection(db, colecaoDestino), { data: hoje, observacoes, presencas });
+        await deleteDoc(doc(db, "eventos", ensaioId));
+      }
+      else {
+        await addDoc(collection(db, colecaoDestino), { data: hoje, observacoes, presencas });
       }
 
-      alert("Presenças gravadas com sucesso!");
-      await atualizarFrequenciaMensal(); // ⚡ Atualiza frequência mensal
-    };
+      //----------------------------------------------------------
+      // 2. ATUALIZAR FREQUÊNCIA ANUAL + MENSAL + HISTÓRICO
+      //----------------------------------------------------------
+      for (const aluno of alunos) {
+        const ref = doc(db, "alunos", aluno.id);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) continue;
 
-    // 🧮 Atualiza frequência mensal no Firestore
-    async function atualizarFrequenciaMensal() {
-      const mesAtual = hoje.slice(0, 7); // "2025-10"
+        const dados = snap.data();
+        let historico = dados.presencas || [];
 
-      // Buscar ensaios do mês
-      const ensaiosSnap = await getDocs(collection(db, "ensaios"));
-      const ensaiosMes = ensaiosSnap.docs.filter(doc =>
-        doc.data().data?.startsWith(mesAtual)
-      );
-      const totalEnsaios = ensaiosMes.length || 1;
-
-      // Calcular presenças por aluno
-      const alunosSnap = await getDocs(collection(db, "alunos"));
-      for (const alunoDoc of alunosSnap.docs) {
-        const aluno = alunoDoc.data();
-        let presencas = 0;
-
-        for (const ensaio of ensaiosMes) {
-          const dados = ensaio.data();
-          if (dados.presencas && Array.isArray(dados.presencas)) {
-            const registro = dados.presencas.find(p => p.nome === aluno.nome && p.presenca === "presente");
-            if (registro) presencas++;
-          }
+        let mesRegistro = historico.find(p => p.mes === mesAtual);
+        if (!mesRegistro) {
+          mesRegistro = { mes: mesAtual, totalEnsaios: 0, presencasAluno: 0, percentual: 0 };
+          historico.push(mesRegistro);
         }
 
-        const porcentagem = Math.round((presencas / totalEnsaios) * 100);
-        await updateDoc(doc(db, "alunos", alunoDoc.id), {
-          frequenciaMensal: {
-            mes: mesAtual,
-            presencas,
-            totalEnsaios,
-            porcentagem
-          }
+        mesRegistro.totalEnsaios++;
+        if (aluno.presenca === "presente") mesRegistro.presencasAluno++;
+
+        mesRegistro.percentual =
+          Math.round((mesRegistro.presencasAluno / mesRegistro.totalEnsaios) * 100);
+
+        // Frequência mensal
+        const frequenciaMensal = { porcentagem: mesRegistro.percentual };
+
+        // Frequência anual
+        const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+        const nomeMes = meses[parseInt(mesAtual.split("-")[1]) - 1];
+
+        const frequenciaAnual = dados.frequenciaAnual || {};
+        frequenciaAnual[nomeMes] = mesRegistro.percentual;
+
+        await updateDoc(ref, {
+          presencas: historico,
+          frequenciaMensal,
+          frequenciaAnual
         });
       }
 
-      alert("✅ Frequência mensal atualizada com sucesso!");
-    }
+      alert("✔️ Chamada salva com sucesso!");
+      window.location.href = "professor.html";
+    };
 
-    window.exportarPDF = function() {
-      const observacoes = document.getElementById("observacoes").value || "Nenhuma.";
-      const titulo = `Orquestra Filhos de Asafe - Ensaio ${new Date().toLocaleDateString("pt-BR")}`;
-
-      const htmlContent = `
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>${titulo}</title>
-          <style>
-            body { font-family: Arial; padding: 20px; color: #000; background-color: #fff; }
-            h2 { text-align: center; margin-bottom: 15px; }
-            table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
-            th, td { border: 1px solid #ccc; padding: 6px; }
-            th { background-color: #f2f2f2; }
-            .observacoes { margin-top: 15px; }
-            @media print { button { display: none; } }
-          </style>
-        </head>
-        <body>
-          <h2>${titulo}</h2>
-          <table>
-            <thead><tr><th>Nome</th><th>Instrumento</th><th>Presença</th></tr></thead>
-            <tbody>
-              ${alunos.map(a => `<tr><td>${a.nome}</td><td>${a.instrumento || ""}</td><td>${a.presenca || "—"}</td></tr>`).join("")}
-            </tbody>
-          </table>
-          <div class="observacoes"><strong>Observações:</strong><br>${observacoes}</div>
-          <button onclick="window.print()">🖨️ Imprimir relatório</button>
-        </body>
-        </html>
-      `;
-
-      const win = window.open("", "_blank");
-      win.document.write(htmlContent);
-      win.document.close();
-    }
+    //----------------------------------------------------------
+    // CANCELAR
+    //----------------------------------------------------------
+    window.cancelarEvento = async function() {
+      if (veioDeEvento && ensaioId) {
+        const confirma = confirm("Deseja cancelar este evento pendente?");
+        if (confirma) await deleteDoc(doc(db, "eventos", ensaioId));
+      }
+      window.location.href = "professor.html";
+    };
 
     carregarAlunos();
   </script>
