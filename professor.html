@@ -8,13 +8,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
-    /* ===== Mensagens ===== */
+    /* ===== Mensagens flutuantes ===== */
     .mensagem-sucesso, .mensagem-info {
       position: fixed;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: 8px;
       font-weight: 600;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
@@ -22,8 +22,8 @@
       pointer-events: none;
       transition: opacity 0.4s ease;
       z-index: 9999;
+      font-size: 0.9rem;
     }
-
     .mensagem-sucesso { background: #16a34a; color: #fff; }
     .mensagem-info { background: #2563eb; color: #fff; }
     .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
@@ -35,12 +35,15 @@
       border: none;
       border-radius: 8px;
       padding: 10px 18px;
-      font-size: 1rem;
+      font-size: 0.95rem;
       cursor: pointer;
       font-weight: bold;
-      transition: background 0.3s ease;
+      transition: background 0.25s ease, transform 0.15s ease;
     }
-    .recalcular-energia:hover { background-color: #1e40af; }
+    .recalcular-energia:hover {
+      background-color: #1e40af;
+      transform: translateY(-1px);
+    }
 
     /* ===== Modal genérico ===== */
     .modal {
@@ -48,24 +51,49 @@
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(4px);
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      animation: fadeIn 0.3s ease;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
     .modal-conteudo {
-      background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
-      padding: 30px;
+      background: linear-gradient(145deg, #1e1e1e, #262738);
+      padding: 26px 24px;
       border-radius: 14px;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
       text-align: center;
-      width: 90%;
-      max-width: 400px;
-      color: #f0f0f0;
+      width: 92%;
+      max-width: 420px;
+      color: #f9fafb;
+    }
+
+    .modal-conteudo h2 {
+      margin-top: 0;
+      margin-bottom: 14px;
+      font-size: 1.15rem;
+    }
+
+    .modal-conteudo .campo-modal {
+      text-align: left;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .modal-conteudo input[type="text"],
+    .modal-conteudo input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 0.9rem;
     }
 
     .botoes-modal {
@@ -77,19 +105,30 @@
 
     .botoes-modal button {
       flex: 1;
-      padding: 10px 0;
+      padding: 9px 0;
       border: none;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
       color: #fff;
-      transition: transform 0.2s ease, background 0.3s;
+      transition: transform 0.15s ease, background 0.25s;
+      font-size: 0.9rem;
     }
 
     .btn-adicionar { background: #16a34a; }
-    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
+    .btn-adicionar:hover { background: #15803d; transform: translateY(-1px); }
     .btn-cancelar { background: #dc2626; }
-    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
+    .btn-cancelar:hover { background: #b91c1c; transform: translateY(-1px); }
+
+    /* Modal tipo chamada */
+    .modal-conteudo .botoes-modal-tipo {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .modal-conteudo .botoes-modal-tipo button {
+      flex: 1;
+    }
   </style>
 </head>
 
@@ -97,7 +136,11 @@
   <h1>Painel Gerencial 🎶</h1>
   <div class="usuario-logado" id="usuarioLogado"></div>
 
-  <!-- 🔹 Botões principais -->
+  <!-- Mensagens -->
+  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
+  <div id="mensagemInfo" class="mensagem-info"></div>
+
+  <!-- Botões principais -->
   <div class="botoes">
     <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
     <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
@@ -105,12 +148,8 @@
     <button id="btnCriarEvento">📋 Chamada</button>
     <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Eventos</button>
     <button onclick="exportarPDF()">📄 Exportar PDF</button>
-    <button id="btnRecalcularEnergia" class="recalcular-energia">🔄 Recalcular Energia (Frequência)</button>
+    <button id="btnRecalcularEnergia" class="recalcular-energia">🔄 Recalcular Energia</button>
   </div>
-
-  <!-- Mensagens -->
-  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
-  <div id="mensagemInfo" class="mensagem-info"></div>
 
   <!-- Loader -->
   <div id="loader" class="loader" style="display:none;">
@@ -118,15 +157,29 @@
     <p>Carregando alunos...</p>
   </div>
 
-  <!-- Painel -->
+  <!-- Painel de alunos -->
   <div class="painel" id="painel" style="display:none;"></div>
 
   <!-- Modal Adicionar Aluno -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
-      <input type="text" id="novoNome" placeholder="Nome do aluno" />
-      <input type="text" id="novoInstrumento" placeholder="Instrumento" />
+
+      <div class="campo-modal">
+        <label>Nome</label>
+        <input type="text" id="novoNome" placeholder="Nome do aluno">
+      </div>
+
+      <div class="campo-modal">
+        <label>Instrumento</label>
+        <input type="text" id="novoInstrumento" placeholder="Instrumento">
+      </div>
+
+      <div class="campo-modal">
+        <label>Foto (opcional)</label>
+        <input type="file" id="novoFoto" accept="image/*">
+      </div>
+
       <div class="botoes-modal">
         <button id="btnConfirmarAdicionar" class="btn-adicionar">✅ Adicionar</button>
         <button id="btnCancelarAdicionar" class="btn-cancelar">❌ Cancelar</button>
@@ -134,62 +187,91 @@
     </div>
   </div>
 
-  <!-- Modal Tipo de Chamada -->
+  <!-- Modal Tipo de Chamada (Ensaio / Apresentação) -->
   <div id="modalTipoChamada" class="modal">
     <div class="modal-conteudo">
       <h2>Qual tipo de chamada?</h2>
-      <div class="botoes-modal">
+      <div class="botoes-modal-tipo">
         <button id="btnChamadaEnsaio" class="btn-adicionar">🎼 Ensaio</button>
         <button id="btnChamadaApresentacao" class="btn-adicionar">🎤 Apresentação</button>
       </div>
-      <button id="btnFecharModalChamada" class="btn-cancelar" style="margin-top:12px;">Cancelar</button>
+      <button id="btnFecharModalChamada" class="btn-cancelar" style="margin-top: 14px;">Cancelar</button>
     </div>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { db } from "./firebase-config.js";
+    import {
+      collection,
+      getDocs,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
-      authDomain: "asafenotas-5cf3f.firebaseapp.com",
-      projectId: "asafenotas-5cf3f",
-      storageBucket: "asafenotas-5cf3f.appspot.com",
-      messagingSenderId: "312062581585",
-      appId: "1:312062581585:web:432ff63a527dd86fc1170",
-      measurementId: "G-Z6G6D4RKZQ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    function mostrarMensagem(id, texto) {
-      const msg = document.getElementById(id);
-      msg.textContent = texto;
-      msg.classList.add("visivel");
-      setTimeout(() => msg.classList.remove("visivel"), 2000);
+    // ========= UTILITÁRIOS =========
+    function getUsuarioLogado() {
+      const params = new URLSearchParams(window.location.search);
+      const daUrl = params.get("usuario");
+      const daSessao = localStorage.getItem("usuarioAtual");
+      return daUrl || daSessao || "Professor";
     }
 
-    // ====== MODAL ADICIONAR ALUNO ======
-    const modal = document.getElementById("modalAdicionar");
-    const btnAdd = document.getElementById("btnAdicionarAluno");
-    const btnConfirmar = document.getElementById("btnConfirmarAdicionar");
-    const btnCancelar = document.getElementById("btnCancelarAdicionar");
+    function mostrarMensagem(id, texto) {
+      const el = document.getElementById(id);
+      el.textContent = texto;
+      el.classList.add("visivel");
+      setTimeout(() => el.classList.remove("visivel"), 2000);
+    }
 
-    btnAdd.onclick = () => { modal.style.display = "flex"; };
-    btnCancelar.onclick = () => { modal.style.display = "none"; };
-    window.addEventListener("click", (e) => {
-      if (e.target === modal) modal.style.display = "none";
+    // ========= MODAL ADICIONAR ALUNO =========
+    const modalAdicionar = document.getElementById("modalAdicionar");
+    const btnAdicionarAluno = document.getElementById("btnAdicionarAluno");
+    const btnConfirmarAdicionar = document.getElementById("btnConfirmarAdicionar");
+    const btnCancelarAdicionar = document.getElementById("btnCancelarAdicionar");
+
+    btnAdicionarAluno.addEventListener("click", () => {
+      document.getElementById("novoNome").value = "";
+      document.getElementById("novoInstrumento").value = "";
+      document.getElementById("novoFoto").value = "";
+      modalAdicionar.style.display = "flex";
     });
 
-    btnConfirmar.onclick = async () => {
+    btnCancelarAdicionar.addEventListener("click", () => {
+      modalAdicionar.style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === modalAdicionar) modalAdicionar.style.display = "none";
+      if (e.target === modalTipoChamada) modalTipoChamada.style.display = "none";
+    });
+
+    btnConfirmarAdicionar.addEventListener("click", async () => {
       const nome = document.getElementById("novoNome").value.trim();
       const instrumento = document.getElementById("novoInstrumento").value.trim();
-      if (!nome || !instrumento) return alert("Preencha nome e instrumento!");
+      const fotoInput = document.getElementById("novoFoto");
+      const arquivo = fotoInput.files[0];
+
+      if (!nome || !instrumento) {
+        alert("Preencha nome e instrumento.");
+        return;
+      }
+
+      let fotoBase64 = "";
+
+      if (arquivo) {
+        fotoBase64 = await new Promise((resolve) => {
+          const leitor = new FileReader();
+          leitor.onload = (e) => resolve(e.target.result);
+          leitor.readAsDataURL(arquivo);
+        });
+      }
 
       const novoAluno = {
         nome,
         instrumento,
+        foto: fotoBase64,
         senha: "asafe",
         leitura: 1,
         metodo: 1,
@@ -198,82 +280,77 @@
         frequenciaAnual: {},
         conquistas: [],
         classificado: false,
-        criadoEm: new Date().toISOString(),
+        criadoEm: new Date().toISOString()
       };
 
       await addDoc(collection(db, "alunos"), novoAluno);
-      modal.style.display = "none";
-      mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado com sucesso!`);
+      modalAdicionar.style.display = "none";
+      mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado!`);
       renderizarPainel();
-    };
+    });
 
-    // ====== MODAL TIPO DE CHAMADA + EVENTO ÚNICO ======
+    // ========= MODAL TIPO DE CHAMADA =========
     const modalTipoChamada = document.getElementById("modalTipoChamada");
     const btnCriarEvento = document.getElementById("btnCriarEvento");
     const btnChamadaEnsaio = document.getElementById("btnChamadaEnsaio");
     const btnChamadaApresentacao = document.getElementById("btnChamadaApresentacao");
     const btnFecharModalChamada = document.getElementById("btnFecharModalChamada");
 
-    btnCriarEvento.onclick = () => {
+    btnCriarEvento.addEventListener("click", () => {
       modalTipoChamada.style.display = "flex";
-    };
+    });
 
-    btnFecharModalChamada.onclick = () => {
+    btnFecharModalChamada.addEventListener("click", () => {
       modalTipoChamada.style.display = "none";
-    };
-
-    window.addEventListener("click", (e) => {
-      if (e.target === modalTipoChamada) modalTipoChamada.style.display = "none";
     });
 
     async function abrirOuCriarChamada(tipoSolicitado) {
       const hoje = new Date().toISOString().split("T")[0];
       const colecoes = ["ensaios", "apresentacoes", "eventos"];
 
-      // 1) Procura se já existe algo hoje em qualquer coleção
+      // 1) Verificar se já existe qualquer registro hoje
       for (const col of colecoes) {
         const snap = await getDocs(collection(db, col));
         const existente = snap.docs.find(docItem => docItem.data().data === hoje);
         if (existente) {
-          mostrarMensagem("mensagemInfo", "📅 Já existe registro para hoje. Abrindo...");
+          mostrarMensagem("mensagemInfo", "📅 Já existe registro hoje. Abrindo...");
           modalTipoChamada.style.display = "none";
           setTimeout(() => {
             window.location.href = `ensaio.html?id=${existente.id}`;
-          }, 800);
+          }, 700);
           return;
         }
       }
 
-      // 2) Se não existe, cria evento pendente com tipo escolhido
+      // 2) Se não existe, cria evento pendente
       const novoEvento = await addDoc(collection(db, "eventos"), {
         data: hoje,
-        tipo: tipoSolicitado,   // "ensaio" ou "apresentacao"
+        tipo: tipoSolicitado,  // "ensaio" ou "apresentacao"
         observacoes: "",
         presencas: []
       });
 
-      mostrarMensagem("mensagemInfo", "🆕 Novo evento criado! Abrindo...");
+      mostrarMensagem("mensagemInfo", "🆕 Evento criado. Abrindo chamada...");
       modalTipoChamada.style.display = "none";
       setTimeout(() => {
         window.location.href = `ensaio.html?id=${novoEvento.id}`;
-      }, 800);
+      }, 700);
     }
 
-    btnChamadaEnsaio.onclick = () => abrirOuCriarChamada("ensaio");
-    btnChamadaApresentacao.onclick = () => abrirOuCrirChamada("apresentacao"); // <- corrigir aqui se copiar: abrirOuCriarChamada
+    btnChamadaEnsaio.addEventListener("click", () => abrirOuCriarChamada("ensaio"));
+    btnChamadaApresentacao.addEventListener("click", () => abrirOuCriarChamada("apresentacao"));
 
-    // ====== RECARCULAR ENERGIA ======
+    // ========= RE-CALCULAR ENERGIA =========
     document.getElementById("btnRecalcularEnergia").addEventListener("click", async () => {
       mostrarMensagem("mensagemInfo", "⚙️ Recalculando energia dos alunos...");
-
       const snap = await getDocs(collection(db, "alunos"));
       let totalAtualizados = 0;
 
       for (const alunoDoc of snap.docs) {
         const aluno = alunoDoc.data();
-        const freq = aluno.frequenciaMensal?.porcentagem || 0;
-        let novaEnergia = 0;
+        const freq = aluno.frequenciaMensal?.porcentagem ?? 0;
 
+        let novaEnergia = 0;
         if (freq >= 80) novaEnergia = 100;
         else if (freq >= 50) novaEnergia = 70;
         else if (freq >= 30) novaEnergia = 40;
@@ -283,10 +360,10 @@
         totalAtualizados++;
       }
 
-      mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${totalAtualizados} alunos!`);
+      mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${totalAtualizados} alunos.`);
     });
 
-    // ====== GERENCIAR ALUNOS ======
+    // ========= CARREGAR ALUNOS / PAINEL =========
     async function carregarAlunos() {
       const snapshot = await getDocs(collection(db, "alunos"));
       const alunos = [];
@@ -298,40 +375,65 @@
     async function renderizarPainel() {
       const loader = document.getElementById("loader");
       const painel = document.getElementById("painel");
+
       loader.style.display = "flex";
       painel.style.display = "none";
 
       const alunos = await carregarAlunos();
+
       painel.innerHTML = alunos.map(aluno => `
         <div class="ficha">
-          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}</div>
+          <div class="foto">
+            ${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}
+          </div>
           <div class="dados">
-            <div class="campo"><label>${aluno.nome}</label></div>
+            <div class="campo">
+              <label>${aluno.nome}</label>
+            </div>
+
             <div class="campo nota-linha">
               <label>Leitura (BONA)</label>
               <div class="nota-controle">
                 <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
-                <input class="campo-nota" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
+                <input class="campo-nota" type="number" id="leitura-${aluno.id}"
+                  value="${aluno.leitura ?? 1}"
+                  onchange="atualizarNota('${aluno.id}','leitura',this.value)">
                 <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
               </div>
             </div>
+
             <div class="campo nota-linha">
               <label>Método</label>
               <div class="nota-controle">
                 <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
-                <input class="campo-nota" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
+                <input class="campo-nota" type="number" id="metodo-${aluno.id}"
+                  value="${aluno.metodo ?? 1}"
+                  onchange="atualizarNota('${aluno.id}','metodo',this.value)">
                 <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
               </div>
             </div>
+
             <div class="campo">
               <label>Instrumento</label>
-              <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarNota('${aluno.id}','instrumento',this.value)">
+              <input type="text"
+                value="${aluno.instrumento ?? ''}"
+                onchange="atualizarNota('${aluno.id}','instrumento',this.value)">
             </div>
+
             <div class="acoes">
-              <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">
+              <button class="classificar"
+                onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado === true})">
                 ${aluno.classificado ? "Desclassificar" : "Classificar"}
               </button>
-              <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
+              <button class="remover"
+                onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">
+                Remover
+              </button>
+
+              <label class="alterar-foto">📷
+                <input type="file" id="foto-${aluno.id}" accept="image/*"
+                  onchange="alterarFoto('${aluno.id}')">
+              </label>
             </div>
           </div>
         </div>
@@ -341,6 +443,7 @@
       painel.style.display = "flex";
     }
 
+    // ====== FUNÇÕES GLOBAIS DE AÇÃO NOS ALUNOS ======
     window.alterarNota = async function(id, campo, delta) {
       const input = document.getElementById(`${campo}-${id}`);
       let v = parseInt(input.value) + delta;
@@ -367,22 +470,88 @@
     };
 
     window.confirmarRemocao = async function(id, nome) {
-      if (!confirm(`Deseja remover o aluno ${nome}?`)) return;
+      if (!confirm(`Tem certeza que deseja remover o aluno ${nome}?`)) return;
       await deleteDoc(doc(db, "alunos", id));
+      mostrarMensagem("mensagemSucesso", `Aluno ${nome} removido.`);
       renderizarPainel();
     };
 
-    document.getElementById("btnMostrarAlunos").addEventListener("click", renderizarPainel);
+    window.alterarFoto = async function(id) {
+      const input = document.getElementById(`foto-${id}`);
+      const arquivo = input.files[0];
+      if (!arquivo) return;
+
+      const leitor = new FileReader();
+      leitor.onload = async (e) => {
+        await updateDoc(doc(db, "alunos", id), { foto: e.target.result });
+        renderizarPainel();
+      };
+      leitor.readAsDataURL(arquivo);
+    };
+
+    // ========= PDF =========
+    window.exportarPDF = async function() {
+      const alunos = await carregarAlunos();
+
+      let conteudo = `
+        <h2 style="text-align:center;">Relatório Técnico - Painel Gerencial</h2>
+        <table border="1" cellspacing="0" cellpadding="6"
+               style="width:100%; border-collapse:collapse; font-size:12px;">
+          <thead>
+            <tr style="background-color:#00bfff; color:white;">
+              <th>Nome</th>
+              <th>Instrumento</th>
+              <th>Leitura (BONA)</th>
+              <th>Método</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${alunos.map(a => `
+              <tr>
+                <td>${a.nome}</td>
+                <td>${a.instrumento ?? '-'}</td>
+                <td>${a.leitura ?? 1}</td>
+                <td>${a.metodo ?? 1}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+
+      const elemento = document.createElement("div");
+      elemento.innerHTML = conteudo;
+
+      html2pdf().from(elemento).set({
+        margin: 0.5,
+        filename: "Relatorio_Tecnico.pdf",
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+      }).save();
+    };
+
+    // ========= BOTÕES PRINCIPAIS =========
+    document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
+      const painel = document.getElementById("painel");
+      if (painel.style.display === "none" || painel.innerHTML === "") {
+        await renderizarPainel();
+      } else {
+        painel.style.display = "none";
+      }
+    });
 
     document.getElementById("btnModoAluno").addEventListener("click", () => {
-      const params = new URLSearchParams(window.location.search);
-      const usuario = params.get("usuario") || "Professor";
-      window.location.href = `aluno.html?nome=${encodeURIComponent(usuario)}`;
+      const nomeOriginal = localStorage.getItem("usuarioAtual");
+      if (!nomeOriginal) {
+        alert("Não foi possível identificar o aluno da sessão.");
+        return;
+      }
+      window.location.href = `aluno.html?nome=${encodeURIComponent(nomeOriginal)}`;
     });
 
     document.addEventListener("DOMContentLoaded", () => {
-      const usuario = new URLSearchParams(window.location.search).get("usuario") || "Professor";
-      document.getElementById("usuarioLogado").textContent = `Professor logado: ${usuario}`;
+      const usuario = getUsuarioLogado();
+      document.getElementById("usuarioLogado").textContent =
+        `Professor logado: ${usuario}`;
     });
   </script>
 </body>
