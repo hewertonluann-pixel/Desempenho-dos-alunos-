@@ -143,7 +143,7 @@
 
     <div class="campo">
       <label for="usuario">Usuário</label>
-      <input id="usuario" type="text" placeholder="Ex: professor ou nome do aluno">
+      <input id="usuario" type="text" placeholder="Ex: João, Maria, etc.">
     </div>
 
     <div class="campo">
@@ -161,7 +161,7 @@
   <!-- Firebase Config -->
   <script type="module" src="firebase-config.js"></script>
 
-  <!-- Script de login -->
+  <!-- Script de login corrigido -->
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
@@ -184,30 +184,39 @@
         return;
       }
 
-      // === Modo Professor ===
-      if (usuario.toLowerCase() === "professor" && senha === "asafe") {
-        window.location.href = "professor.html?usuario=Professor";
-        return;
-      }
-
-      // === Alunos ===
+      // === Busca TODOS os alunos no Firestore ===
       const snap = await getDocs(collection(db, "alunos"));
-      let encontrado = null;
+
+      let usuarioEncontrado = null;
 
       snap.forEach(doc => {
-        const dado = doc.data();
-        if (dado.nome.toLowerCase() === usuario.toLowerCase() &&
-            dado.senha === senha) {
-          encontrado = dado;
+        const aluno = doc.data();
+
+        if (
+          aluno.nome.toLowerCase() === usuario.toLowerCase() &&
+          aluno.senha === senha
+        ) {
+          usuarioEncontrado = { id: doc.id, ...aluno };
         }
       });
 
-      if (encontrado) {
-        window.location.href = `aluno.html?nome=${encodeURIComponent(encontrado.nome)}`;
-      } else {
+      // Caso não encontre
+      if (!usuarioEncontrado) {
         msg.textContent = "Usuário ou senha incorretos.";
         msg.style.display = "block";
+        return;
       }
+
+      // === Se for professor (classificado = true) ===
+      if (usuarioEncontrado.classificado === true) {
+        window.location.href =
+          `professor.html?usuario=${encodeURIComponent(usuarioEncontrado.nome)}`;
+        return;
+      }
+
+      // === Caso contrário: modo aluno ===
+      window.location.href =
+        `aluno.html?nome=${encodeURIComponent(usuarioEncontrado.nome)}`;
     };
   </script>
 
