@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ficha do Aluno</title>
+  <title>Painel do Aluno</title>
   <link rel="stylesheet" href="aluno.css" />
 </head>
 <body>
+
   <h1 class="titulo">🎵 Olá, <span id="nomeAluno"></span>!</h1>
 
   <div class="painel-wrapper">
     <div class="painel-container">
-      
+
       <!-- 🎴 CARTA DO ALUNO -->
       <div class="container-aluno">
         <div class="foto" id="fotoAluno"></div>
@@ -42,10 +43,12 @@
           </div>
         </div>
 
+        <!-- 🔒 ALTERAR SENHA -->
         <div class="senha-link">
           <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
         </div>
 
+        <!-- 🖼️ ALTERAR FOTO -->
         <div class="alterar-foto">
           <label for="novaFoto">🖼️ Alterar foto</label>
           <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
@@ -54,27 +57,26 @@
 
       <!-- 📊 COLUNA LATERAL -->
       <div class="coluna-lateral">
-        
+
         <!-- 🏆 CONQUISTAS -->
         <div class="painel-conquistas">
           <h2>🏆 Conquistas</h2>
-          <div class="grade-conquistas" id="gradeConquistas">
-            <!-- Conquistas serão geradas dinamicamente -->
-          </div>
+          <div class="grade-conquistas" id="gradeConquistas"></div>
         </div>
 
         <!-- 📅 FREQUÊNCIA ANUAL -->
         <div class="painel-frequencia">
           <h2>📅 Frequência Anual</h2>
+
           <div class="grade-frequencia" id="gradeFrequencia"></div>
 
-          <!-- CONTROLE DE ANO -->
           <div class="controle-ano">
             <button id="anoAnterior" class="seta">&lt;</button>
             <span id="anoAtualTexto"></span>
             <button id="anoProximo" class="seta">&gt;</button>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -95,210 +97,13 @@
     <button onclick="acessarModoProfessor()">👨‍🏫 Acessar modo Professor</button>
   </div>
 
+  <!-- 📈 LINK QUADRO GERAL -->
   <div class="quadro-geral-link">
     <a href="desempenho.html">📊 Quadro geral</a>
   </div>
 
   <!-- 🔥 SCRIPT PRINCIPAL -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-    import { regrasDeConquistas } from "./conquistas.js";
+  <script type="module" src="aluno.js"></script>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
-      authDomain: "asafenotas-5cf3f.firebaseapp.com",
-      projectId: "asafenotas-5cf3f",
-      storageBucket: "asafenotas-5cf3f.appspot.com",
-      messagingSenderId: "312062581585",
-      appId: "1:312062581585:web:432ff63a527dd86fc1170",
-      measurementId: "G-Z6G6D4RKZQ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    function getAlunoAtual() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get("nome");
-    }
-
-    function gerarGraficosFrequencia(frequencias = {}) {
-      const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-      const grade = document.getElementById("gradeFrequencia");
-      grade.innerHTML = "";
-
-      meses.forEach((mes) => {
-        const valor = frequencias[mes] || 0;
-        let cor;
-        if (valor >= 80) cor = "#00ff99";
-        else if (valor >= 50) cor = "#ffff66";
-        else cor = "#ff4444";
-
-        const grafico = document.createElement("div");
-        grafico.classList.add("grafico-mes");
-        grafico.setAttribute("data-mes", mes);
-        grafico.style.background = `conic-gradient(${cor} ${valor}%, transparent 0)`;
-        grade.appendChild(grafico);
-      });
-    }
-
-    async function renderizarFicha() {
-      const nome = getAlunoAtual();
-      const q = query(collection(db, "alunos"), where("nome", "==", nome));
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return;
-
-      const alunoDoc = snapshot.docs[0];
-      const aluno = alunoDoc.data();
-
-      document.getElementById("nomeAluno").textContent = aluno.nome;
-      document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "";
-      document.getElementById("leituraValor").textContent = aluno.leitura || 0;
-      document.getElementById("metodoValor").textContent = aluno.metodo || 0;
-
-      const total = (aluno.leitura || 0) + (aluno.metodo || 0);
-      document.getElementById("scoreGeralValor").textContent = total;
-
-      if (aluno.foto) {
-        document.getElementById("fotoAluno").innerHTML = `<img src="${aluno.foto}" alt="Foto de ${aluno.nome}" />`;
-      }
-
-      // ⚡ ENERGIA (Frequência mensal)
-      const freq = aluno.frequenciaMensal?.porcentagem || 0;
-      const barra = document.getElementById("barraEnergia");
-      const textoEnergia = document.getElementById("textoEnergia");
-      barra.style.width = `${freq}%`;
-
-      let cor, texto;
-      if (freq < 40) {
-        cor = "linear-gradient(90deg, #ff0000, #ff6600)";
-        texto = "Energia baixa";
-      } else if (freq < 80) {
-        cor = "linear-gradient(90deg, #ffcc00, #ffff66)";
-        texto = "Energia média";
-      } else {
-        cor = "linear-gradient(90deg, #00ff66, #00ffaa)";
-        texto = "Energia máxima!";
-      }
-
-      barra.style.background = cor;
-      textoEnergia.textContent = texto;
-
-      // 📅 FREQUÊNCIA ANUAL (histórico)
-      const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-      const mesAtual = meses[new Date().getMonth()];
-      const anoAtual = new Date().getFullYear();
-
-      let mapaAnual = aluno.frequenciaAnual || {};
-      mapaAnual[mesAtual] = freq;
-
-      try {
-        await updateDoc(doc(db, "alunos", alunoDoc.id), { frequenciaAnual: mapaAnual });
-      } catch (e) {
-        console.warn("Não foi possível atualizar frequenciaAnual:", e);
-      }
-
-      const historico = aluno.historicoFrequencias || {};
-      const anosDisponiveis = Object.keys(historico).map(a => parseInt(a)).concat(anoAtual).sort((a, b) => a - b);
-      let anoSelecionado = anoAtual;
-
-      function atualizarGraficoAno() {
-        const dadosAno = anoSelecionado === anoAtual ? mapaAnual : historico[anoSelecionado] || {};
-        gerarGraficosFrequencia(dadosAno);
-        document.getElementById("anoAtualTexto").textContent = anoSelecionado;
-        atualizarSetas();
-      }
-
-      function atualizarSetas() {
-        const idx = anosDisponiveis.indexOf(anoSelecionado);
-        document.getElementById("anoAnterior").style.visibility = idx > 0 ? "visible" : "hidden";
-        document.getElementById("anoProximo").style.visibility = idx < anosDisponiveis.length - 1 ? "visible" : "hidden";
-      }
-
-      document.getElementById("anoAnterior").onclick = () => {
-        const idx = anosDisponiveis.indexOf(anoSelecionado);
-        if (idx > 0) {
-          anoSelecionado = anosDisponiveis[idx - 1];
-          atualizarGraficoAno();
-        }
-      };
-
-      document.getElementById("anoProximo").onclick = () => {
-        const idx = anosDisponiveis.indexOf(anoSelecionado);
-        if (idx < anosDisponiveis.length - 1) {
-          anoSelecionado = anosDisponiveis[idx + 1];
-          atualizarGraficoAno();
-        }
-      };
-
-      atualizarGraficoAno();
-
-      // 🏆 CONQUISTAS (via arquivo externo)
-      const gradeConquistas = document.getElementById("gradeConquistas");
-      gradeConquistas.innerHTML = "";
-      regrasDeConquistas.forEach((c) => {
-        const desbloqueado = c.condicao(aluno);
-        const slot = document.createElement("div");
-        slot.classList.add("slot");
-        if (desbloqueado) {
-          slot.classList.add("desbloqueado");
-          slot.textContent = c.icone;
-        } else {
-          slot.textContent = "🔒";
-        }
-        slot.title = `${c.titulo}${c.descricao ? " — " + c.descricao : ""}`;
-        gradeConquistas.appendChild(slot);
-      });
-
-      // 👨‍🏫 BOTÃO MODO PROFESSOR
-      if (aluno.classificado === true) {
-        document.getElementById("modoProfessorBtn").style.display = "block";
-      }
-    }
-
-    // === FUNÇÕES AUXILIARES ===
-    window.acessarModoProfessor = function() {
-      const nome = getAlunoAtual();
-      window.location.href = `professor.html?usuario=${encodeURIComponent(nome)}&classificado=true`;
-    };
-
-    window.abrirPopup = () => document.getElementById("popupSenha").style.display = "flex";
-    window.fecharPopup = () => document.getElementById("popupSenha").style.display = "none";
-
-    window.salvarSenha = async function() {
-      const novaSenha = document.getElementById("novaSenha").value.trim();
-      const nome = getAlunoAtual();
-      if (!novaSenha) return;
-
-      const q = query(collection(db, "alunos"), where("nome", "==", nome));
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return;
-
-      const alunoId = snapshot.docs[0].id;
-      await updateDoc(doc(db, "alunos", alunoId), { senha: novaSenha });
-      document.getElementById("mensagemSenha").textContent = "✅ Senha alterada com sucesso!";
-    };
-
-    window.enviarNovaFoto = async function() {
-      const arquivo = document.getElementById("novaFoto").files[0];
-      if (!arquivo) return;
-
-      const leitor = new FileReader();
-      leitor.onload = async (e) => {
-        const novaImagem = e.target.result;
-        const nome = getAlunoAtual();
-        const q = query(collection(db, "alunos"), where("nome", "==", nome));
-        const snapshot = await getDocs(q);
-        if (snapshot.empty) return;
-        const alunoId = snapshot.docs[0].id;
-        await updateDoc(doc(db, "alunos", alunoId), { foto: novaImagem });
-        document.getElementById("fotoAluno").innerHTML = `<img src="${novaImagem}" alt="Foto atualizada" />`;
-      };
-      leitor.readAsDataURL(arquivo);
-    };
-
-    renderizarFicha();
-  </script>
 </body>
 </html>
