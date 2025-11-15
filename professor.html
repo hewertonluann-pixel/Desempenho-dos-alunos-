@@ -73,26 +73,9 @@
       color: #f9fafb;
     }
 
-    .modal-conteudo h2 {
-      margin-top: 0;
-      margin-bottom: 14px;
-      font-size: 1.15rem;
-    }
-
     .modal-conteudo .campo-modal {
       text-align: left;
       margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-
-    .modal-conteudo input[type="text"],
-    .modal-conteudo input[type="file"] {
-      width: 100%;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #374151;
-      background: #111827;
-      color: #e5e7eb;
       font-size: 0.9rem;
     }
 
@@ -126,9 +109,6 @@
       gap: 10px;
       margin-top: 12px;
     }
-    .modal-conteudo .botoes-modal-tipo button {
-      flex: 1;
-    }
   </style>
 </head>
 
@@ -136,7 +116,7 @@
   <h1>Painel Gerencial 🎶</h1>
   <div class="usuario-logado" id="usuarioLogado"></div>
 
-  <!-- Mensagens -->
+  <!-- Mensagens flutuantes -->
   <div id="mensagemSucesso" class="mensagem-sucesso"></div>
   <div id="mensagemInfo" class="mensagem-info"></div>
 
@@ -199,8 +179,21 @@
     </div>
   </div>
 
+  <!-- SCRIPT PRINCIPAL -->
   <script type="module">
     import { db } from "./firebase-config.js";
+
+    import {
+      carregarAlunos,
+      renderizarPainel,
+      alterarNota,
+      atualizarNota,
+      atualizarInstrumento,
+      alternarClassificacao,
+      removerAluno,
+      alterarFoto
+    } from "./js/professor-alunos.js";
+
     import {
       collection,
       getDocs,
@@ -210,7 +203,7 @@
       doc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    // ========= UTILITÁRIOS =========
+    // ======== UTILITÁRIOS ========
     function getUsuarioLogado() {
       const params = new URLSearchParams(window.location.search);
       const daUrl = params.get("usuario");
@@ -225,29 +218,80 @@
       setTimeout(() => el.classList.remove("visivel"), 2000);
     }
 
-    // ========= MODAL ADICIONAR ALUNO =========
-    const modalAdicionar = document.getElementById("modalAdicionar");
-    const btnAdicionarAluno = document.getElementById("btnAdicionarAluno");
-    const btnConfirmarAdicionar = document.getElementById("btnConfirmarAdicionar");
-    const btnCancelarAdicionar = document.getElementById("btnCancelarAdicionar");
+    const painel = document.getElementById("painel");
+    const loader = document.getElementById("loader");
 
-    btnAdicionarAluno.addEventListener("click", () => {
+    // =====================================
+    //  BOTÃO GERENCIAR ALUNOS
+    // =====================================
+
+    document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
+      if (painel.style.display === "none" || painel.innerHTML === "") {
+        await renderizarPainel(painel, loader);
+      } else {
+        painel.style.display = "none";
+      }
+    });
+
+    // ========= DELEGAÇÃO DE EVENTOS DO PAINEL =========
+    painel.addEventListener("click", async (e) => {
+      const el = e.target;
+      const acao = el.dataset.acao;
+
+      if (!acao) return;
+
+      if (acao === "alterar") {
+        await alterarNota(el.dataset.id, el.dataset.campo, el.dataset.delta);
+      }
+
+      if (acao === "classificar") {
+        await alternarClassificacao(el.dataset.id, el.dataset.status === "true");
+        await renderizarPainel(painel, loader);
+      }
+
+      if (acao === "remover") {
+        if (confirm(`Tem certeza que deseja remover ${el.dataset.nome}?`)) {
+          await removerAluno(el.dataset.id);
+          mostrarMensagem("mensagemSucesso", "Aluno removido.");
+          await renderizarPainel(painel, loader);
+        }
+      }
+    });
+
+    painel.addEventListener("change", async (e) => {
+      const el = e.target;
+
+      if (el.dataset.acao === "input") {
+        await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
+      }
+
+      if (el.dataset.acao === "instrumento") {
+        await atualizarInstrumento(el.dataset.id, el.value);
+      }
+
+      if (el.dataset.acao === "foto") {
+        await alterarFoto(el.dataset.id, el.files[0]);
+        await renderizarPainel(painel, loader);
+      }
+    });
+
+    // =====================================
+    //  MODAL ADICIONAR ALUNO
+    // =====================================
+
+    const modalAdicionar = document.getElementById("modalAdicionar");
+    document.getElementById("btnAdicionarAluno").addEventListener("click", () => {
       document.getElementById("novoNome").value = "";
       document.getElementById("novoInstrumento").value = "";
       document.getElementById("novoFoto").value = "";
       modalAdicionar.style.display = "flex";
     });
 
-    btnCancelarAdicionar.addEventListener("click", () => {
+    document.getElementById("btnCancelarAdicionar").addEventListener("click", () => {
       modalAdicionar.style.display = "none";
     });
 
-    window.addEventListener("click", (e) => {
-      if (e.target === modalAdicionar) modalAdicionar.style.display = "none";
-      if (e.target === modalTipoChamada) modalTipoChamada.style.display = "none";
-    });
-
-    btnConfirmarAdicionar.addEventListener("click", async () => {
+    document.getElementById("btnConfirmarAdicionar").addEventListener("click", async () => {
       const nome = document.getElementById("novoNome").value.trim();
       const instrumento = document.getElementById("novoInstrumento").value.trim();
       const fotoInput = document.getElementById("novoFoto");
@@ -259,16 +303,15 @@
       }
 
       let fotoBase64 = "";
-
       if (arquivo) {
-        fotoBase64 = await new Promise((resolve) => {
+        fotoBase64 = await new Promise(resolve => {
           const leitor = new FileReader();
-          leitor.onload = (e) => resolve(e.target.result);
+          leitor.onload = e => resolve(e.target.result);
           leitor.readAsDataURL(arquivo);
         });
       }
 
-      const novoAluno = {
+      await addDoc(collection(db, "alunos"), {
         nome,
         instrumento,
         foto: fotoBase64,
@@ -281,26 +324,24 @@
         conquistas: [],
         classificado: false,
         criadoEm: new Date().toISOString()
-      };
+      });
 
-      await addDoc(collection(db, "alunos"), novoAluno);
       modalAdicionar.style.display = "none";
       mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado!`);
-      renderizarPainel();
+      await renderizarPainel(painel, loader);
     });
 
-    // ========= MODAL TIPO DE CHAMADA =========
-    const modalTipoChamada = document.getElementById("modalTipoChamada");
-    const btnCriarEvento = document.getElementById("btnCriarEvento");
-    const btnChamadaEnsaio = document.getElementById("btnChamadaEnsaio");
-    const btnChamadaApresentacao = document.getElementById("btnChamadaApresentacao");
-    const btnFecharModalChamada = document.getElementById("btnFecharModalChamada");
+    // =====================================
+    //  MODAL TIPO DE CHAMADA
+    // =====================================
 
-    btnCriarEvento.addEventListener("click", () => {
+    const modalTipoChamada = document.getElementById("modalTipoChamada");
+
+    document.getElementById("btnCriarEvento").addEventListener("click", () => {
       modalTipoChamada.style.display = "flex";
     });
 
-    btnFecharModalChamada.addEventListener("click", () => {
+    document.getElementById("btnFecharModalChamada").addEventListener("click", () => {
       modalTipoChamada.style.display = "none";
     });
 
@@ -308,200 +349,73 @@
       const hoje = new Date().toISOString().split("T")[0];
       const colecoes = ["ensaios", "apresentacoes", "eventos"];
 
-      // 1) Verificar se já existe qualquer registro hoje
       for (const col of colecoes) {
         const snap = await getDocs(collection(db, col));
-        const existente = snap.docs.find(docItem => docItem.data().data === hoje);
+        const existente = snap.docs.find(d => d.data().data === hoje);
         if (existente) {
           mostrarMensagem("mensagemInfo", "📅 Já existe registro hoje. Abrindo...");
           modalTipoChamada.style.display = "none";
-          setTimeout(() => {
-            window.location.href = `ensaio.html?id=${existente.id}`;
-          }, 700);
+          setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 600);
           return;
         }
       }
 
-      // 2) Se não existe, cria evento pendente
       const novoEvento = await addDoc(collection(db, "eventos"), {
         data: hoje,
-        tipo: tipoSolicitado,  // "ensaio" ou "apresentacao"
+        tipo: tipoSolicitado,
         observacoes: "",
         presencas: []
       });
 
       mostrarMensagem("mensagemInfo", "🆕 Evento criado. Abrindo chamada...");
       modalTipoChamada.style.display = "none";
-      setTimeout(() => {
-        window.location.href = `ensaio.html?id=${novoEvento.id}`;
-      }, 700);
+      setTimeout(() => window.location.href = `ensaio.html?id=${novoEvento.id}`, 600);
     }
 
-    btnChamadaEnsaio.addEventListener("click", () => abrirOuCriarChamada("ensaio"));
-    btnChamadaApresentacao.addEventListener("click", () => abrirOuCriarChamada("apresentacao"));
+    document.getElementById("btnChamadaEnsaio").addEventListener("click", () => abrirOuCriarChamada("ensaio"));
+    document.getElementById("btnChamadaApresentacao").addEventListener("click", () => abrirOuCriarChamada("apresentacao"));
 
-    // ========= RE-CALCULAR ENERGIA =========
+    // =====================================
+    //  RECALCULAR ENERGIA
+    // =====================================
+
     document.getElementById("btnRecalcularEnergia").addEventListener("click", async () => {
-      mostrarMensagem("mensagemInfo", "⚙️ Recalculando energia dos alunos...");
+      mostrarMensagem("mensagemInfo", "⚙️ Recalculando energia...");
+
       const snap = await getDocs(collection(db, "alunos"));
-      let totalAtualizados = 0;
+      let total = 0;
 
       for (const alunoDoc of snap.docs) {
         const aluno = alunoDoc.data();
         const freq = aluno.frequenciaMensal?.porcentagem ?? 0;
 
-        let novaEnergia = 0;
+        let novaEnergia = 10;
         if (freq >= 80) novaEnergia = 100;
         else if (freq >= 50) novaEnergia = 70;
         else if (freq >= 30) novaEnergia = 40;
-        else novaEnergia = 10;
 
         await updateDoc(doc(db, "alunos", alunoDoc.id), { energia: novaEnergia });
-        totalAtualizados++;
+        total++;
       }
 
-      mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${totalAtualizados} alunos.`);
+      mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alunos.`);
     });
 
-    // ========= CARREGAR ALUNOS / PAINEL =========
-    async function carregarAlunos() {
-      const snapshot = await getDocs(collection(db, "alunos"));
-      const alunos = [];
-      snapshot.forEach(docItem => alunos.push({ id: docItem.id, ...docItem.data() }));
-      alunos.sort((a, b) => a.nome.localeCompare(b.nome));
-      return alunos;
-    }
+    // =====================================
+    //  EXPORTAR PDF
+    // =====================================
 
-    async function renderizarPainel() {
-      const loader = document.getElementById("loader");
-      const painel = document.getElementById("painel");
-
-      loader.style.display = "flex";
-      painel.style.display = "none";
-
-      const alunos = await carregarAlunos();
-
-      painel.innerHTML = alunos.map(aluno => `
-        <div class="ficha">
-          <div class="foto">
-            ${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}
-          </div>
-          <div class="dados">
-            <div class="campo">
-              <label>${aluno.nome}</label>
-            </div>
-
-            <div class="campo nota-linha">
-              <label>Leitura (BONA)</label>
-              <div class="nota-controle">
-                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
-                <input class="campo-nota" type="number" id="leitura-${aluno.id}"
-                  value="${aluno.leitura ?? 1}"
-                  onchange="atualizarNota('${aluno.id}','leitura',this.value)">
-                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
-              </div>
-            </div>
-
-            <div class="campo nota-linha">
-              <label>Método</label>
-              <div class="nota-controle">
-                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
-                <input class="campo-nota" type="number" id="metodo-${aluno.id}"
-                  value="${aluno.metodo ?? 1}"
-                  onchange="atualizarNota('${aluno.id}','metodo',this.value)">
-                <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
-              </div>
-            </div>
-
-            <div class="campo">
-              <label>Instrumento</label>
-              <input type="text"
-                value="${aluno.instrumento ?? ''}"
-                onchange="atualizarNota('${aluno.id}','instrumento',this.value)">
-            </div>
-
-            <div class="acoes">
-              <button class="classificar"
-                onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado === true})">
-                ${aluno.classificado ? "Desclassificar" : "Classificar"}
-              </button>
-              <button class="remover"
-                onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">
-                Remover
-              </button>
-
-              <label class="alterar-foto">📷
-                <input type="file" id="foto-${aluno.id}" accept="image/*"
-                  onchange="alterarFoto('${aluno.id}')">
-              </label>
-            </div>
-          </div>
-        </div>
-      `).join("");
-
-      loader.style.display = "none";
-      painel.style.display = "flex";
-    }
-
-    // ====== FUNÇÕES GLOBAIS DE AÇÃO NOS ALUNOS ======
-    window.alterarNota = async function(id, campo, delta) {
-      const input = document.getElementById(`${campo}-${id}`);
-      let v = parseInt(input.value) + delta;
-      if (v < 1) v = 1;
-      if (v > 130) v = 130;
-      input.value = v;
-      await updateDoc(doc(db, "alunos", id), { [campo]: v });
-    };
-
-    window.atualizarNota = async function(id, campo, valor) {
-      if (campo === "instrumento") {
-        await updateDoc(doc(db, "alunos", id), { instrumento: valor });
-        return;
-      }
-      let v = parseInt(valor);
-      if (isNaN(v) || v < 1) v = 1;
-      if (v > 130) v = 130;
-      await updateDoc(doc(db, "alunos", id), { [campo]: v });
-    };
-
-    window.alternarClassificacao = async function(id, classificado) {
-      await updateDoc(doc(db, "alunos", id), { classificado: !classificado });
-      renderizarPainel();
-    };
-
-    window.confirmarRemocao = async function(id, nome) {
-      if (!confirm(`Tem certeza que deseja remover o aluno ${nome}?`)) return;
-      await deleteDoc(doc(db, "alunos", id));
-      mostrarMensagem("mensagemSucesso", `Aluno ${nome} removido.`);
-      renderizarPainel();
-    };
-
-    window.alterarFoto = async function(id) {
-      const input = document.getElementById(`foto-${id}`);
-      const arquivo = input.files[0];
-      if (!arquivo) return;
-
-      const leitor = new FileReader();
-      leitor.onload = async (e) => {
-        await updateDoc(doc(db, "alunos", id), { foto: e.target.result });
-        renderizarPainel();
-      };
-      leitor.readAsDataURL(arquivo);
-    };
-
-    // ========= PDF =========
     window.exportarPDF = async function() {
       const alunos = await carregarAlunos();
 
-      let conteudo = `
+      const conteudo = `
         <h2 style="text-align:center;">Relatório Técnico - Painel Gerencial</h2>
-        <table border="1" cellspacing="0" cellpadding="6"
-               style="width:100%; border-collapse:collapse; font-size:12px;">
+        <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:12px;">
           <thead>
             <tr style="background-color:#00bfff; color:white;">
               <th>Nome</th>
               <th>Instrumento</th>
-              <th>Leitura (BONA)</th>
+              <th>Leitura</th>
               <th>Método</th>
             </tr>
           </thead>
@@ -509,7 +423,7 @@
             ${alunos.map(a => `
               <tr>
                 <td>${a.nome}</td>
-                <td>${a.instrumento ?? '-'}</td>
+                <td>${a.instrumento ?? "-"}</td>
                 <td>${a.leitura ?? 1}</td>
                 <td>${a.metodo ?? 1}</td>
               </tr>
@@ -518,10 +432,10 @@
         </table>
       `;
 
-      const elemento = document.createElement("div");
-      elemento.innerHTML = conteudo;
+      const el = document.createElement("div");
+      el.innerHTML = conteudo;
 
-      html2pdf().from(elemento).set({
+      html2pdf().from(el).set({
         margin: 0.5,
         filename: "Relatorio_Tecnico.pdf",
         html2canvas: { scale: 2 },
@@ -529,30 +443,29 @@
       }).save();
     };
 
-    // ========= BOTÕES PRINCIPAIS =========
-    document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
-      const painel = document.getElementById("painel");
-      if (painel.style.display === "none" || painel.innerHTML === "") {
-        await renderizarPainel();
-      } else {
-        painel.style.display = "none";
-      }
-    });
+    // =====================================
+    //  BOTÃO MODO ALUNO
+    // =====================================
 
     document.getElementById("btnModoAluno").addEventListener("click", () => {
-      const nomeOriginal = localStorage.getItem("usuarioAtual");
-      if (!nomeOriginal) {
-        alert("Não foi possível identificar o aluno da sessão.");
+      const nome = localStorage.getItem("usuarioAtual");
+      if (!nome) {
+        alert("Aluno da sessão não identificado.");
         return;
       }
-      window.location.href = `aluno.html?nome=${encodeURIComponent(nomeOriginal)}`;
+      window.location.href = `aluno.html?nome=${encodeURIComponent(nome)}`;
     });
+
+    // =====================================
+    //  USUÁRIO LOGADO
+    // =====================================
 
     document.addEventListener("DOMContentLoaded", () => {
       const usuario = getUsuarioLogado();
       document.getElementById("usuarioLogado").textContent =
         `Professor logado: ${usuario}`;
     });
+
   </script>
 </body>
 </html>
