@@ -4,14 +4,20 @@ import { collection, query, where, getDocs, updateDoc, doc } from "https://www.g
 import { gerarPainelConquistas } from "./conquistas.js";
 import { gerarPainelFrequencia } from "./frequencia.js";
 
-// --- Identifica o aluno pelo nome na URL ---
+// --- Identifica nome e modo público ---
 function getAlunoAtual() {
   const params = new URLSearchParams(window.location.search);
   return params.get("nome");
 }
 
+function isModoPublico() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("view") === "public";
+}
+
 // --- POPUP SENHA ---
 export function abrirPopup() {
+  if (isModoPublico()) return; // bloco de proteção
   document.getElementById("popupSenha").style.display = "flex";
 }
 export function fecharPopup() {
@@ -20,10 +26,11 @@ export function fecharPopup() {
 
 // --- ALTERAR SENHA ---
 export async function salvarSenha() {
+  if (isModoPublico()) return; // bloqueado
   const novaSenha = document.getElementById("novaSenha").value.trim();
-  const nome = getAlunoAtual();
   if (!novaSenha) return;
 
+  const nome = getAlunoAtual();
   const q = query(collection(db, "alunos"), where("nome", "==", nome));
   const snap = await getDocs(q);
   if (snap.empty) return;
@@ -31,11 +38,14 @@ export async function salvarSenha() {
   const alunoId = snap.docs[0].id;
   await updateDoc(doc(db, "alunos", alunoId), { senha: novaSenha });
 
-  document.getElementById("mensagemSenha").textContent = "✅ Senha alterada com sucesso!";
+  document.getElementById("mensagemSenha").textContent =
+    "✅ Senha alterada com sucesso!";
 }
 
 // --- ALTERAR FOTO ---
 export async function enviarNovaFoto() {
+  if (isModoPublico()) return; // impede alteração
+
   const arquivo = document.getElementById("novaFoto").files[0];
   if (!arquivo) return;
 
@@ -51,7 +61,8 @@ export async function enviarNovaFoto() {
     const alunoId = snap.docs[0].id;
     await updateDoc(doc(db, "alunos", alunoId), { foto: novaImagem });
 
-    document.getElementById("fotoAluno").innerHTML = `<img src="${novaImagem}" alt="Foto atualizada" />`;
+    document.getElementById("fotoAluno").innerHTML =
+      `<img src="${novaImagem}" alt="Foto atualizada" />`;
   };
 
   leitor.readAsDataURL(arquivo);
@@ -59,6 +70,8 @@ export async function enviarNovaFoto() {
 
 // --- ACESSAR MODO PROFESSOR ---
 export function acessarModoProfessor() {
+  if (isModoPublico()) return; // impedido
+
   const nome = getAlunoAtual();
   localStorage.setItem("usuarioLogado", JSON.stringify({ nome, tipo: "professor" }));
   window.location.href = "professor.html";
@@ -67,9 +80,10 @@ export function acessarModoProfessor() {
 // --- CARREGAR FICHA DO ALUNO ---
 export async function renderizarFicha() {
   const nome = getAlunoAtual();
+  const publico = isModoPublico();
+
   const q = query(collection(db, "alunos"), where("nome", "==", nome));
   const snap = await getDocs(q);
-
   if (snap.empty) return;
 
   const alunoDoc = snap.docs[0];
@@ -114,18 +128,33 @@ export async function renderizarFicha() {
   // FREQUÊNCIA ANUAL
   gerarPainelFrequencia(aluno, document.getElementById("gradeFrequencia"));
 
-  // Mostrar botão do professor se classificado
-  if (aluno.classificado) {
+  // 👨‍🏫 Mostrar botão do professor somente se:
+  // 1. Aluno é classificado
+  // 2. NÃO está no modo público
+  if (aluno.classificado && !publico) {
     document.getElementById("modoProfessorBtn").style.display = "block";
+  }
+
+  // 🔒 Bloquear alterações se estiver no modo público
+  if (publico) {
+    document.getElementById("boxAlterarSenha").style.display = "none";
+    document.getElementById("boxAlterarFoto").style.display = "none";
+    document.getElementById("modoProfessorBtn").style.display = "none";
+
+    // Desativa campos
+    window.abrirPopup = () => {};
+    window.salvarSenha = () => {};
+    window.enviarNovaFoto = () => {};
+    window.acessarModoProfessor = () => {};
   }
 }
 
-// --- EXPOSE FUNCTIONS TO WINDOW (IMPORTANT!) ---
+// --- EXPOSE FUNCTIONS (importante!) ---
 window.abrirPopup = abrirPopup;
 window.fecharPopup = fecharPopup;
 window.salvarSenha = salvarSenha;
 window.enviarNovaFoto = enviarNovaFoto;
 window.acessarModoProfessor = acessarModoProfessor;
 
-// Renderizar ficha ao abrir a página
+// Renderizar ao abrir página
 renderizarFicha();
