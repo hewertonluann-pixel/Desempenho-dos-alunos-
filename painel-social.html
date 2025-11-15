@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel Social 🎵 — Orquestra Filhos de Asafe</title>
+  <title>Painel Social 🎵</title>
 
+  <!-- Reutilizamos o CSS do aluno -->
   <link rel="stylesheet" href="aluno.css">
 
   <style>
     body {
       background: #1e1e2f;
-      color: #fff;
+      color: white;
       font-family: "Segoe UI", sans-serif;
       padding: 20px;
     }
@@ -23,36 +24,37 @@
 
     .subtitulo {
       text-align: center;
-      margin-bottom: 25px;
       color: #ccc;
+      margin-bottom: 25px;
     }
 
-    /* GRID DE CARDS */
-    .grid-alunos {
+    /* Grade de cards */
+    .grid-social {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 22px;
+      padding: 10px;
     }
 
-    /* CARD DO ALUNO */
-    .card-aluno {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid #00ffcc44;
+    /* Card compactado */
+    .card-social {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid #00ffcc33;
       border-radius: 14px;
-      padding: 16px;
+      padding: 15px;
       text-align: center;
-      transition: transform 0.3s ease;
-      box-shadow: 0 0 12px rgba(0,255,204,0.08);
+      transition: transform 0.25s ease, box-shadow 0.3s ease;
+      cursor: pointer;
     }
 
-    .card-aluno:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 0 18px rgba(0,255,204,0.25);
+    .card-social:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 18px #00ffcc44;
     }
 
-    .foto-aluno {
-      width: 110px;
-      height: 110px;
+    .card-social .foto {
+      width: 95px;
+      height: 95px;
       border-radius: 50%;
       overflow: hidden;
       margin: 0 auto 12px;
@@ -60,175 +62,140 @@
       background-color: #111;
     }
 
-    .foto-aluno img {
+    .card-social .foto img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .nome {
-      font-size: 1.2rem;
+    .nome-aluno {
+      font-size: 1.18rem;
       font-weight: bold;
-      margin-bottom: 4px;
-      color: #fff;
+      margin-top: 5px;
     }
 
-    .instrumento {
-      color: #ccc;
+    .instrumento-aluno {
+      color: #bbb;
       font-size: 0.9rem;
       margin-bottom: 12px;
     }
 
-    /* BARRA DE ENERGIA */
-    .barra-energia-mini {
-      width: 90%;
-      height: 10px;
+    /* Energia compactada */
+    .energia-mini {
+      margin: 10px 0 4px;
+      font-size: 0.85rem;
+    }
+
+    .barra-mini {
+      width: 85%;
+      height: 9px;
       background: #222;
       border-radius: 6px;
-      margin: 8px auto;
+      margin: 0 auto;
       overflow: hidden;
     }
 
     .nivel-mini {
       height: 100%;
-      background: linear-gradient(90deg, #00ff99, #00ffaa);
-      width: 0%;
-      transition: width 0.6s ease;
+      background: #00ff99;
+      width: 0;
     }
 
-    /* CONQUISTAS */
-    .conquistas-mini {
-      margin: 10px 0;
-      font-size: 1.4rem;
-    }
-
-    .btn-ver {
+    /* Pontuações compactadas */
+    .pontos-mini {
       margin-top: 10px;
-      background: #00bfff;
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
+      display: flex;
+      justify-content: space-around;
       font-size: 0.9rem;
-      transition: background 0.3s ease;
     }
 
-    .btn-ver:hover {
-      background: #0099cc;
-    }
-
-    /* RANKING */
-    .ranking {
-      text-align: center;
-      margin: 25px 0;
-      font-size: 1rem;
-      color: #00ffcc;
-      text-shadow: 0 0 8px #00ffcc55;
+    /* Conquistas */
+    .conquistas-mini {
+      font-size: 1.4rem;
+      margin-top: 12px;
     }
 
   </style>
+
 </head>
 
 <body>
 
-  <h1>Painel Social da Orquestra 🎵</h1>
-  <p class="subtitulo">Veja os colegas, suas pontuações e conquistas!</p>
+  <h1>👥 Painel Social da Orquestra</h1>
+  <p class="subtitulo">Veja seus colegas, pontuações e conquistas!</p>
 
-  <div class="ranking" id="rankingTop"></div>
-
-  <div class="grid-alunos" id="gridAlunos"></div>
+  <div class="grid-social" id="gridSocial"></div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
-      authDomain: "asafenotas-5cf3f.firebaseapp.com",
-      projectId: "asafenotas-5cf3f",
-      storageBucket: "asafenotas-5cf3f.appspot.com",
-      messagingSenderId: "312062581585",
-      appId: "1:312062581585:web:432ff63a527dd86fc1170",
-      measurementId: "G-Z6G6D4RKZQ"
-    };
+    import { db } from "./firebase-config.js";
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const grid = document.getElementById("gridSocial");
 
-    const grid = document.getElementById("gridAlunos");
-    const rankingTop = document.getElementById("rankingTop");
-
-    function gerarConquistasIcons(conquistasObj) {
-      if (!conquistasObj) return "—";
+    // Ícones de conquistas (baseados no que já existe)
+    function gerarConquistas(colecao) {
+      if (!colecao || colecao.length === 0) return "—";
 
       const icons = {
         presenca_perfeita: "⭐",
+        evolucao_constante: "🔥",
         leitor_dedicado: "📘",
         musico_pontual: "🎯",
-        evolucao_constante: "🔥",
         veterano_palco: "🎤",
-        lider: "🧑‍🏫"
+        lider: "👑"
       };
 
-      return Object.keys(conquistasObj)
-        .map(key => icons[key] || "🏅")
-        .join(" ");
+      return colecao.map(c => icons[c] || "🏅").join(" ");
     }
 
     async function carregarAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
-      const lista = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const alunos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Ranking: ordenar por energia
-      lista.sort((a, b) =>
+      // Ordenar por energia (ranking social)
+      alunos.sort((a, b) => 
         (b.frequenciaMensal?.porcentagem ?? 0) -
-        (a.frequenciaMensal?.porcentagem ?? 0));
+        (a.frequenciaMensal?.porcentagem ?? 0)
+      );
 
-      gerarRanking(lista);
+      grid.innerHTML = alunos.map(a => {
 
-      // Montar cards
-      grid.innerHTML = lista.map(a => {
-        const energia = a.frequenciaMensal?.porcentagem || 0;
-        const conquistas = gerarConquistasIcons(a.conquistas);
+        const energia = a.frequenciaMensal?.porcentagem ?? 0;
+        const total = (a.leitura ?? 0) + (a.metodo ?? 0);
 
         return `
-        <div class="card-aluno">
-          <div class="foto-aluno">
+        <div class="card-social"
+             onclick="window.location.href='aluno.html?nome=${encodeURIComponent(a.nome)}&view=public'">
+
+          <div class="foto">
             ${a.foto ? `<img src="${a.foto}">` : ""}
           </div>
 
-          <div class="nome">${a.nome}</div>
-          <div class="instrumento">${a.instrumento || ""}</div>
+          <div class="nome-aluno">${a.nome}</div>
+          <div class="instrumento-aluno">${a.instrumento ?? ""}</div>
 
-          <div class="barra-energia-mini">
-            <div class="nivel-mini" style="width:${energia}%"></div>
+          <div class="energia-mini">⚡ Energia: ${energia}%</div>
+          <div class="barra-mini"><div class="nivel-mini" style="width:${energia}%"></div></div>
+
+          <div class="pontos-mini">
+            <span>📘 ${a.leitura ?? 0}</span>
+            <span>🎯 ${a.metodo ?? 0}</span>
+            <span>🧮 ${total}</span>
           </div>
-          <small>Energia: ${energia}%</small>
 
-          <div class="conquistas-mini">${conquistas}</div>
+          <div class="conquistas-mini">
+            ${gerarConquistas(a.conquistas)}
+          </div>
 
-          <button class="btn-ver"
-            onclick="window.location.href='aluno.html?nome=${encodeURIComponent(a.nome)}&view=public'">
-            Ver Perfil ▶️
-          </button>
         </div>
         `;
       }).join("");
-    }
 
-    function gerarRanking(lista) {
-      if (lista.length === 0) return;
-
-      const top = lista[0];
-      const energia = top.frequenciaMensal?.porcentagem ?? 0;
-
-      rankingTop.innerHTML = `
-        🏆 <b>${top.nome}</b> é o destaque do mês com <b>${energia}%</b> de energia!
-      `;
     }
 
     carregarAlunos();
+
   </script>
 
 </body>
