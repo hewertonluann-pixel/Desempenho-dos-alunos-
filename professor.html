@@ -70,25 +70,16 @@
       margin-bottom: 12px;
     }
 
-    /* ================= PAINEL DE LIÇÕES ================= */
-    .painel-licoes-prof {
-      flex: 1;
-      min-height: 200px;
+    /* ================= PAINEL ALUNOS ================= */
+    .painel {
+      margin-top: 20px;
+      padding: 0 20px;
+      display: none;
+
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
     }
-
-    /* PAINEL DE ALUNOS */
-.painel {
-  margin-top: 20px;
-  padding: 0 20px;
-  display: none; /* escondido inicialmente */
-
-  /* GRID REAL */
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  display: grid;
-  gap: 18px;
-}
-
-
 
     .ficha {
       display: flex;
@@ -167,7 +158,7 @@
       border: none;
     }
 
-    /* ================== MODAIS ================== */
+    /* ================== MODAL ADICIONAR ================== */
     .modal {
       display: none;
       position: fixed;
@@ -235,16 +226,6 @@
       flex: 1;
       cursor: pointer;
     }
-
-    /* Responsivo */
-    @media (max-width: 760px) {
-      .layout-professor {
-        flex-direction: column;
-      }
-      .coluna-botoes-prof {
-        width: 100%;
-      }
-    }
   </style>
 </head>
 
@@ -267,29 +248,24 @@
         <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
         <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
         <button id="btnModoAluno">🎓 Modo Aluno</button>
-        <button id="btnCriarEvento">📋 Chamada</button>
-        <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Eventos</button>
+        <button id="btnCriarChamada">📋 Chamada do Dia</button>
+        <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
         <button onclick="exportarPDF()">📄 Exportar PDF</button>
         <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
 
       </div>
     </div>
 
-    <!-- 🔔 PAINEL DE LIÇÕES -->
-    <div class="painel-licoes-prof" id="painelLicoesProf">
-      <!-- professor-licoes.js irá inserir aqui -->
-    </div>
+    <div class="painel-licoes-prof" id="painelLicoesProf"></div>
 
   </div>
 
-  <!-- 🎵 PAINEL DE ALUNOS -->
   <div class="painel" id="painel"></div>
-
   <div id="loader" class="loader" style="display:none;">
     <p>Carregando alunos...</p>
   </div>
 
-  <!-- ============= MODAL ADICIONAR ALUNO ============= -->
+  <!-- MODAL ADICIONAR -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
@@ -316,23 +292,17 @@
     </div>
   </div>
 
-  <!-- ============= MODAL TIPO DE CHAMADA ============= -->
-  <div id="modalTipoChamada" class="modal">
-    <div class="modal-conteudo">
-      <h2>Qual tipo de chamada?</h2>
-
-      <div class="botoes-modal">
-        <button id="btnChamadaEnsaio" class="btn-adicionar">🎼 Ensaio</button>
-        <button id="btnChamadaApresentacao" class="btn-adicionar">🎤 Apresentação</button>
-      </div>
-
-      <button id="btnFecharModalChamada" class="btn-cancelar" style="margin-top:14px;">Cancelar</button>
-    </div>
-  </div>
-
-  <!-- ============= SCRIPT PRINCIPAL ============= -->
+  <!-- SCRIPT PRINCIPAL -->
   <script type="module">
     import { db } from "./firebase-config.js";
+    import {
+      collection,
+      getDocs,
+      addDoc,
+      updateDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
     import {
       carregarAlunos,
       renderizarPainel,
@@ -344,22 +314,17 @@
       alterarFoto
     } from "./js/professor-alunos.js";
 
-    import {
-      collection, getDocs, addDoc, updateDoc, doc
-    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    const painel = document.getElementById("painel");
+    const loader = document.getElementById("loader");
 
-    // Exibir nome do professor logado
+    // Identifica professor logado
     document.addEventListener("DOMContentLoaded", () => {
-      let user = null;
-      try { user = JSON.parse(localStorage.getItem("usuarioAtual")); } catch {}
+      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
       document.getElementById("usuarioLogado").textContent =
         user?.nome ? `Professor logado: ${user.nome}` : "Professor";
     });
 
-    const painel = document.getElementById("painel");
-    const loader = document.getElementById("loader");
-
-    // Mostrar alunos
+    // Mostrar/ocultar painel alunos
     document.getElementById("btnMostrarAlunos").onclick = async () => {
       if (painel.style.display === "none" || painel.innerHTML === "") {
         await renderizarPainel(painel, loader);
@@ -368,10 +333,10 @@
       }
     };
 
-    // Eventos no painel
+    // Eventos de ações nos cards
     painel.addEventListener("click", async (e) => {
       const el = e.target;
-      if (!el.dataset.acao) return;
+      if (!el.dataset?.acao) return;
 
       if (el.dataset.acao === "alterar") {
         await alterarNota(el.dataset.id, el.dataset.campo, el.dataset.delta);
@@ -392,26 +357,24 @@
 
     painel.addEventListener("change", async (e) => {
       const el = e.target;
-
-      if (el.dataset.acao === "input") {
+      if (el.dataset?.acao === "input") {
         await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
       }
-
-      if (el.dataset.acao === "instrumento") {
+      if (el.dataset?.acao === "instrumento") {
         await atualizarInstrumento(el.dataset.id, el.value);
       }
-
-      if (el.dataset.acao === "foto") {
+      if (el.dataset?.acao === "foto") {
         await alterarFoto(el.dataset.id, el.files[0]);
         await renderizarPainel(painel, loader);
       }
     });
 
-    // Botão modo aluno
+    // Modo aluno
     document.getElementById("btnModoAluno").onclick = () => {
-      let user = null;
-      try { user = JSON.parse(localStorage.getItem("usuarioAtual")); } catch {}
-      if (user?.nome) window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
+      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+      if (user.nome) {
+        window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
+      }
     };
 
     // Modal adicionar aluno
@@ -446,35 +409,26 @@
       await renderizarPainel(painel, loader);
     };
 
-    // Modal tipo de chamada
-    const modalTipo = document.getElementById("modalTipoChamada");
-    document.getElementById("btnCriarEvento").onclick = () => modalTipo.style.display = "flex";
-    document.getElementById("btnFecharModalChamada").onclick = () => modalTipo.style.display = "none";
-
-    async function abrirOuCriarChamada(tipo) {
+    // Criar/Abrir chamada do dia (unificado)
+    document.getElementById("btnCriarChamada").onclick = async () => {
       const hoje = new Date().toISOString().split("T")[0];
-      const colecoes = ["ensaios", "apresentacoes", "eventos"];
 
-      for (const col of colecoes) {
-        const snap = await getDocs(collection(db, col));
-        const existente = snap.docs.find(d => d.data().data === hoje);
-        if (existente) {
-          modalTipo.style.display = "none";
-          setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 300);
-          return;
-        }
+      const snap = await getDocs(collection(db, "eventos"));
+      const existente = snap.docs.find(d => d.data().data === hoje);
+
+      if (existente) {
+        window.location.href = `ensaio.html?id=${existente.id}`;
+        return;
       }
 
       const novo = await addDoc(collection(db, "eventos"), {
-        data: hoje, tipo, observacoes: "", presencas: []
+        data: hoje,
+        observacoes: "",
+        presencas: []
       });
 
-      modalTipo.style.display = "none";
-      setTimeout(() => window.location.href = `ensaio.html?id=${novo.id}`, 300);
-    }
-
-    document.getElementById("btnChamadaEnsaio").onclick = () => abrirOuCriarChamada("ensaio");
-    document.getElementById("btnChamadaApresentacao").onclick = () => abrirOuCriarChamada("apresentacao");
+      window.location.href = `ensaio.html?id=${novo.id}`;
+    };
 
     // Recalcular energia
     document.getElementById("btnRecalcularEnergia").onclick = async () => {
@@ -491,13 +445,12 @@
 
         await updateDoc(doc(db, "alunos", docAluno.id), { energia });
       }
+      alert("Energia recalculada!");
     };
+
   </script>
 
-  <!-- PAINEL DE NOTIFICAÇÕES -->
   <script type="module" src="professor-licoes.js"></script>
 
 </body>
 </html>
-
-
