@@ -9,11 +9,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
-    /* ====== Layout geral ====== */
     body {
       background: #0f172a;
       color: #e2e8f0;
       font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
     h1 {
@@ -22,6 +23,7 @@
       color: #22d3ee;
     }
 
+    /* ================= LAYOUT ================= */
     .layout-professor {
       display: flex;
       gap: 20px;
@@ -29,7 +31,7 @@
       margin-top: 20px;
     }
 
-    /* COLUNA DE BOTÕES */
+    /* ================= COLUNA DE BOTÕES ================= */
     .coluna-botoes-prof {
       flex: 0 0 250px;
     }
@@ -42,7 +44,7 @@
       box-shadow: 0 0 20px rgba(15, 118, 255, 0.25);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .card-botoes-prof button {
@@ -54,7 +56,7 @@
       color: #fff;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.25s;
+      transition: 0.2s ease;
     }
 
     .card-botoes-prof button:hover {
@@ -68,36 +70,19 @@
       margin-bottom: 12px;
     }
 
-    /* PAINEL DE NOTIFICAÇÕES */
+    /* ================= PAINEL DE LIÇÕES ================= */
     .painel-licoes-prof {
       flex: 1;
       min-height: 200px;
     }
 
-    /* Loader */
-    .loader {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #22d3ee;
-    }
-
-    /* ===== Responsivo ===== */
-    @media (max-width: 760px) {
-      .layout-professor {
-        flex-direction: column;
-      }
-      .coluna-botoes-prof {
-        width: 100%;
-      }
-    }
-
-    /* ======== PAINEL ALUNOS ======== */
+    /* ================= PAINEL DE ALUNOS ================= */
     .painel {
       display: none;
       flex-direction: column;
       gap: 15px;
       margin-top: 20px;
+      padding: 0 20px;
     }
 
     .ficha {
@@ -177,75 +162,90 @@
       border: none;
     }
 
-/* ======= RESTAURAÇÃO COMPLETA DOS MODAIS ======= */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  justify-content: center;
-  align-items: center;
-  z-index: 99999 !important;
-}
+    /* ================== MODAIS ================== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+    }
 
-.modal-conteudo {
-  background: linear-gradient(145deg, #1e1e1e, #262738);
-  padding: 26px 24px;
-  border-radius: 14px;
-  box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
-  text-align: center;
-  width: 92%;
-  max-width: 420px;
-  color: #f9fafb;
-  animation: fadeIn 0.25s ease;
-}
+    .modal-conteudo {
+      background: linear-gradient(145deg, #1e1e1e, #262738);
+      padding: 26px 24px;
+      border-radius: 14px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      width: 92%;
+      max-width: 420px;
+      color: #f9fafb;
+      animation: fadeIn 0.25s ease;
+    }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
 
-.botoes-modal {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 18px;
-  gap: 10px;
-}
+    .campo-modal {
+      margin-bottom: 12px;
+      text-align: left;
+    }
 
-.btn-adicionar,
-.btn-cancelar {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-}
+    .campo-modal input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
 
-.btn-adicionar {
-  background: #22c55e;
-  color: #022c22;
-}
+    .botoes-modal {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
 
-.btn-cancelar {
-  background: #dc2626;
-  color: #fff;
-}
+    .btn-adicionar {
+      background: #22c55e;
+      color: #022c22;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      flex: 1;
+      cursor: pointer;
+    }
 
-/* Botões tipo de chamada */
-.modal-conteudo .botoes-modal-tipo {
-  display: flex;
-  gap: 10px;
-}
+    .btn-cancelar {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      flex: 1;
+      cursor: pointer;
+    }
 
-    
+    /* Responsivo */
+    @media (max-width: 760px) {
+      .layout-professor {
+        flex-direction: column;
+      }
+      .coluna-botoes-prof {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- NAVBAR -->
+  <!-- NAV -->
   <script type="module" src="navegacao.js"></script>
 
   <h1>Painel Gerencial 🎶</h1>
@@ -253,7 +253,7 @@
 
   <div class="layout-professor">
 
-    <!-- 🌟 COLUNA DE BOTÕES -->
+    <!-- ⭐ MENU LATERAL -->
     <div class="coluna-botoes-prof">
       <div class="card-botoes-prof">
 
@@ -270,41 +270,37 @@
       </div>
     </div>
 
-    <!-- 🔔 PAINEL DE NOTIFICAÇÕES DAS LIÇÕES -->
+    <!-- 🔔 PAINEL DE LIÇÕES -->
     <div class="painel-licoes-prof" id="painelLicoesProf">
-      <!-- professor-licoes.js irá preencher -->
+      <!-- professor-licoes.js irá inserir aqui -->
     </div>
 
   </div>
 
-  <!-- Painel de alunos -->
+  <!-- 🎵 PAINEL DE ALUNOS -->
   <div class="painel" id="painel"></div>
 
-  <!-- Loader -->
   <div id="loader" class="loader" style="display:none;">
-    <div class="spinner"></div>
     <p>Carregando alunos...</p>
   </div>
 
-  <!-- 🔽 Modais originais permanecem abaixo (completos e funcionando) -->
-
-  <!-- Modal Adicionar Aluno -->
+  <!-- ============= MODAL ADICIONAR ALUNO ============= -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
 
       <div class="campo-modal">
         <label>Nome</label>
-        <input type="text" id="novoNome" placeholder="Nome do aluno">
+        <input type="text" id="novoNome">
       </div>
 
       <div class="campo-modal">
         <label>Instrumento</label>
-        <input type="text" id="novoInstrumento" placeholder="Instrumento">
+        <input type="text" id="novoInstrumento">
       </div>
 
       <div class="campo-modal">
-        <label>Foto (opcional)</label>
+        <label>Foto</label>
         <input type="file" id="novoFoto" accept="image/*">
       </div>
 
@@ -315,20 +311,21 @@
     </div>
   </div>
 
-  <!-- Modal Tipo Chamada -->
+  <!-- ============= MODAL TIPO DE CHAMADA ============= -->
   <div id="modalTipoChamada" class="modal">
     <div class="modal-conteudo">
       <h2>Qual tipo de chamada?</h2>
+
       <div class="botoes-modal">
         <button id="btnChamadaEnsaio" class="btn-adicionar">🎼 Ensaio</button>
         <button id="btnChamadaApresentacao" class="btn-adicionar">🎤 Apresentação</button>
       </div>
+
       <button id="btnFecharModalChamada" class="btn-cancelar" style="margin-top:14px;">Cancelar</button>
     </div>
   </div>
 
-  <!-- ================= SCRIPTS ================= -->
-
+  <!-- ============= SCRIPT PRINCIPAL ============= -->
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
@@ -343,53 +340,44 @@
     } from "./js/professor-alunos.js";
 
     import {
-      collection,
-      getDocs,
-      addDoc,
-      updateDoc,
-      doc
+      collection, getDocs, addDoc, updateDoc, doc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
     // Exibir nome do professor logado
     document.addEventListener("DOMContentLoaded", () => {
-      let usuario = null;
-      try {
-        usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
-      } catch {}
-
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem("usuarioAtual")); } catch {}
       document.getElementById("usuarioLogado").textContent =
-        usuario?.nome ? `Professor logado: ${usuario.nome}` : "Professor";
+        user?.nome ? `Professor logado: ${user.nome}` : "Professor";
     });
 
     const painel = document.getElementById("painel");
     const loader = document.getElementById("loader");
 
-    // Gerenciar Alunos
-    document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
+    // Mostrar alunos
+    document.getElementById("btnMostrarAlunos").onclick = async () => {
       if (painel.style.display === "none" || painel.innerHTML === "") {
         await renderizarPainel(painel, loader);
       } else {
         painel.style.display = "none";
       }
-    });
+    };
 
-    // Delegação de eventos do painel
+    // Eventos no painel
     painel.addEventListener("click", async (e) => {
       const el = e.target;
-      const acao = el.dataset.acao;
+      if (!el.dataset.acao) return;
 
-      if (!acao) return;
-
-      if (acao === "alterar") {
+      if (el.dataset.acao === "alterar") {
         await alterarNota(el.dataset.id, el.dataset.campo, el.dataset.delta);
       }
 
-      if (acao === "classificar") {
+      if (el.dataset.acao === "classificar") {
         await alternarClassificacao(el.dataset.id, el.dataset.status === "true");
         await renderizarPainel(painel, loader);
       }
 
-      if (acao === "remover") {
+      if (el.dataset.acao === "remover") {
         if (confirm(`Remover ${el.dataset.nome}?`)) {
           await removerAluno(el.dataset.id);
           await renderizarPainel(painel, loader);
@@ -414,97 +402,81 @@
       }
     });
 
-    // Modal Adicionar Aluno
-    const modalAdicionar = document.getElementById("modalAdicionar");
-    document.getElementById("btnAdicionarAluno").addEventListener("click", () => {
-      modalAdicionar.style.display = "flex";
-    });
-    document.getElementById("btnCancelarAdicionar").addEventListener("click", () => {
-      modalAdicionar.style.display = "none";
-    });
+    // Botão modo aluno
+    document.getElementById("btnModoAluno").onclick = () => {
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem("usuarioAtual")); } catch {}
+      if (user?.nome) window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
+    };
 
-    document.getElementById("btnConfirmarAdicionar").addEventListener("click", async () => {
+    // Modal adicionar aluno
+    const modalAdd = document.getElementById("modalAdicionar");
+    document.getElementById("btnAdicionarAluno").onclick = () => modalAdd.style.display = "flex";
+    document.getElementById("btnCancelarAdicionar").onclick = () => modalAdd.style.display = "none";
+
+    document.getElementById("btnConfirmarAdicionar").onclick = async () => {
       const nome = document.getElementById("novoNome").value.trim();
       const instrumento = document.getElementById("novoInstrumento").value.trim();
       const foto = document.getElementById("novoFoto").files[0];
 
       let fotoBase64 = "";
       if (foto) {
-        fotoBase64 = await new Promise(resolve => {
+        fotoBase64 = await new Promise(res => {
           const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
+          reader.onload = e => res(e.target.result);
           reader.readAsDataURL(foto);
         });
       }
 
       await addDoc(collection(db, "alunos"), {
-        nome,
-        instrumento,
-        foto: fotoBase64,
-        leitura: 1,
-        metodo: 1,
-        energia: 100,
+        nome, instrumento, foto: fotoBase64,
+        leitura: 1, metodo: 1, energia: 100,
         frequenciaMensal: { porcentagem: 0 },
-        frequenciaAnual: {},
-        conquistas: [],
-        classificado: false,
-        senha: "asafe",
+        frequenciaAnual: {}, conquistas: [],
+        classificado: false, senha: "asafe",
         criadoEm: new Date().toISOString()
       });
 
-      modalAdicionar.style.display = "none";
+      modalAdd.style.display = "none";
       await renderizarPainel(painel, loader);
-    });
+    };
 
-    // Modal Tipo Chamada
-    const modalTipoChamada = document.getElementById("modalTipoChamada");
-    document.getElementById("btnCriarEvento").addEventListener("click", () => {
-      modalTipoChamada.style.display = "flex";
-    });
-    document.getElementById("btnFecharModalChamada").addEventListener("click", () => {
-      modalTipoChamada.style.display = "none";
-    });
+    // Modal tipo de chamada
+    const modalTipo = document.getElementById("modalTipoChamada");
+    document.getElementById("btnCriarEvento").onclick = () => modalTipo.style.display = "flex";
+    document.getElementById("btnFecharModalChamada").onclick = () => modalTipo.style.display = "none";
 
     async function abrirOuCriarChamada(tipo) {
       const hoje = new Date().toISOString().split("T")[0];
-
       const colecoes = ["ensaios", "apresentacoes", "eventos"];
+
       for (const col of colecoes) {
         const snap = await getDocs(collection(db, col));
         const existente = snap.docs.find(d => d.data().data === hoje);
         if (existente) {
-          modalTipoChamada.style.display = "none";
-          setTimeout(() => {
-            window.location.href = `ensaio.html?id=${existente.id}`;
-          }, 400);
+          modalTipo.style.display = "none";
+          setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 300);
           return;
         }
       }
 
       const novo = await addDoc(collection(db, "eventos"), {
-        data: hoje,
-        tipo,
-        observacoes: "",
-        presencas: []
+        data: hoje, tipo, observacoes: "", presencas: []
       });
 
-      modalTipoChamada.style.display = "none";
-      setTimeout(() => {
-        window.location.href = `ensaio.html?id=${novo.id}`;
-      }, 400);
+      modalTipo.style.display = "none";
+      setTimeout(() => window.location.href = `ensaio.html?id=${novo.id}`, 300);
     }
 
-    document.getElementById("btnChamadaEnsaio")
-      .addEventListener("click", () => abrirOuCriarChamada("ensaio"));
-    document.getElementById("btnChamadaApresentacao")
-      .addEventListener("click", () => abrirOuCriarChamada("apresentacao"));
+    document.getElementById("btnChamadaEnsaio").onclick = () => abrirOuCriarChamada("ensaio");
+    document.getElementById("btnChamadaApresentacao").onclick = () => abrirOuCriarChamada("apresentacao");
 
-    // Recalcular Energia
-    document.getElementById("btnRecalcularEnergia").addEventListener("click", async () => {
+    // Recalcular energia
+    document.getElementById("btnRecalcularEnergia").onclick = async () => {
       const snap = await getDocs(collection(db, "alunos"));
 
-      for (const alunoDoc of snap.docs) {
-        const aluno = alunoDoc.data();
+      for (const docAluno of snap.docs) {
+        const aluno = docAluno.data();
         const freq = aluno.frequenciaMensal?.porcentagem ?? 0;
 
         let energia = 10;
@@ -512,24 +484,13 @@
         else if (freq >= 50) energia = 70;
         else if (freq >= 30) energia = 40;
 
-        await updateDoc(doc(db, "alunos", alunoDoc.id), { energia });
+        await updateDoc(doc(db, "alunos", docAluno.id), { energia });
       }
-    });
-
-    // Modo aluno
-    document.getElementById("btnModoAluno").addEventListener("click", () => {
-      let usuario = null;
-      try { usuario = JSON.parse(localStorage.getItem("usuarioAtual")); } catch {}
-      if (usuario?.nome) {
-        window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
-      }
-    });
-
+    };
   </script>
 
-  <!-- NOTIFICAÇÕES DE LIÇÕES -->
+  <!-- PAINEL DE NOTIFICAÇÕES -->
   <script type="module" src="professor-licoes.js"></script>
 
 </body>
 </html>
-
