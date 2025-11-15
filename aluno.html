@@ -43,16 +43,17 @@
           </div>
         </div>
 
-        <!-- 🔒 ALTERAR SENHA -->
-        <div class="senha-link">
+        <!-- 🔒 ALTERAR SENHA (oculta em modo público) -->
+        <div class="senha-link" id="boxAlterarSenha">
           <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
         </div>
 
-        <!-- 🖼️ ALTERAR FOTO -->
-        <div class="alterar-foto">
+        <!-- 🖼️ ALTERAR FOTO (oculta em modo público) -->
+        <div class="alterar-foto" id="boxAlterarFoto">
           <label for="novaFoto">🖼️ Alterar foto</label>
           <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
         </div>
+
       </div>
 
       <!-- 📊 COLUNA LATERAL -->
@@ -81,7 +82,7 @@
     </div>
   </div>
 
-  <!-- 🔐 POPUP DE SENHA -->
+  <!-- 🔐 POPUP DE SENHA (desativado em modo público) -->
   <div id="popupSenha" class="popup">
     <div class="popup-conteudo">
       <h2>Alterar senha</h2>
@@ -92,14 +93,14 @@
     </div>
   </div>
 
-  <!-- 👨‍🏫 MODO PROFESSOR -->
+  <!-- 👨‍🏫 MODO PROFESSOR (só aparece se classificado === true e NÃO for view=public) -->
   <div class="modo-professor" id="modoProfessorBtn" style="display:none;">
     <button onclick="acessarModoProfessor()">👨‍🏫 Acessar modo Professor</button>
   </div>
 
-  <!-- 📈 LINK QUADRO GERAL -->
+  <!-- 📈 LINK PARA O PAINEL SOCIAL -->
   <div class="quadro-geral-link">
-    <a href="desempenho.html">📊 Quadro geral</a>
+    <a href="painel-social.html">👥 Painel Social da Orquestra</a>
   </div>
 
   <!-- 🔥 SCRIPT PRINCIPAL -->
