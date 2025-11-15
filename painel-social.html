@@ -60,7 +60,6 @@
       color: #ccc;
       margin-bottom: 4px;
     }
-
   </style>
 </head>
 
@@ -77,9 +76,9 @@
 
     const grid = document.getElementById("gridSocial");
 
-    // Ícones das conquistas (mesmo padrão já usado)
-    function gerarConquistas(colecao) {
-      if (!colecao || colecao.length === 0) return "—";
+    // Ícones das conquistas (para o card)
+    function gerarConquistas(conqObj) {
+      if (!conqObj || Object.keys(conqObj).length === 0) return "—";
 
       const icons = {
         presenca_perfeita: "⭐",
@@ -90,7 +89,9 @@
         lider: "👑"
       };
 
-      return colecao.map(c => icons[c] || "🏅").join(" ");
+      return Object.keys(conqObj)
+        .map(c => icons[c] || "🏅")
+        .join(" ");
     }
 
     async function carregarAlunos() {
@@ -106,22 +107,35 @@
         <div class="container-aluno card-click"
              onclick="window.location.href='aluno.html?nome=${encodeURIComponent(a.nome)}&view=public'">
 
+          <!-- FOTO -->
           <div class="foto">
             ${a.foto ? `<img src="${a.foto}" alt="${a.nome}">` : ""}
           </div>
 
+          <!-- INSTRUMENTO -->
           <div class="instrumento">${a.instrumento ?? ""}</div>
 
           <!-- ENERGIA -->
           <div class="pontuacao energia">
             ⚡ Energia
             <div class="barra-frequencia">
-              <div class="nivel" style="width:${energia}%"></div>
+              <div class="nivel"
+                   style="
+                     width:${energia}%;
+                     background:
+                       ${energia < 40
+                          ? 'linear-gradient(90deg, #ff0000, #ff6600)'
+                          : energia < 80
+                            ? 'linear-gradient(90deg, #ffcc00, #ffff66)'
+                            : 'linear-gradient(90deg, #00ff66, #00ffaa)'
+                       };
+                   ">
+              </div>
             </div>
             <small>${energia}%</small>
           </div>
 
-          <!-- PONTOS -->
+          <!-- PONTUAÇÕES -->
           <div class="pontuacoes-lado">
             <div class="bloco">
               <label>🧮 Nível</label>
