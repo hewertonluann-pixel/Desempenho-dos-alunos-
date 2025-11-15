@@ -1,4 +1,5 @@
-// professor-licoes.js
+// professor-licoes.js – versão atualizada para o novo layout
+
 import { db } from "./firebase-config.js";
 import {
   collection,
@@ -9,51 +10,43 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-const CARD_ID = "cardSolicitacoesLicao";
-const LISTA_ID = "listaSolicitacoesLicao";
-
-function inserirCardNotificacoes() {
-  const botoes = document.querySelector(".botoes");
-  if (!botoes) return;
+function inserirPainel() {
+  const destino = document.getElementById("painelLicoesProf");
+  if (!destino) {
+    console.error("❌ ERRO: painelLicoesProf não encontrado no HTML.");
+    return;
+  }
 
   const card = document.createElement("div");
-  card.id = CARD_ID;
-  card.className = "card-solicitacoes-licao";
-  card.style.margin = "0 auto 20px auto";
-  card.style.maxWidth = "600px";
+  card.id = "cardSolicitacoesLicao";
   card.style.background = "rgba(15,23,42,0.9)";
+  card.style.border = "1px solid rgba(56,189,248,0.3)";
   card.style.borderRadius = "12px";
-  card.style.border = "1px solid rgba(56,189,248,0.4)";
-  card.style.padding = "12px 14px";
+  card.style.padding = "14px";
   card.style.boxShadow = "0 0 18px rgba(15,118,255,0.35)";
+  card.style.marginBottom = "18px";
 
   card.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div>
-        <strong>🔔 Solicitações de lição</strong>
-        <div style="font-size:0.8rem;opacity:0.8;">Ouça os áudios enviados pelos alunos e aprove ou reprove.</div>
-      </div>
-      <button id="btnAtualizarSolicitacoes" style="
-        border:none;border-radius:999px;padding:6px 10px;
-        font-size:0.75rem;cursor:pointer;
-        background:#22d3ee;color:#0f172a;
-      ">Atualizar</button>
-    </div>
-    <div id="${LISTA_ID}" style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem;">
-      Carregando...
-    </div>
+    <h2 style="color:#22d3ee;margin:0 0 10px 0;font-size:1.1rem;">🔔 Solicitações de lição</h2>
+    <p style="opacity:0.8;font-size:0.85rem;margin-top:-6px;">Aprove ou reprove as lições enviadas pelos alunos.</p>
+    <button id="btnAtualizarSolicitacoes"
+      style="margin:8px 0 14px 0;width:100%;padding:8px;border-radius:8px;border:none;background:#0ea5e9;color:#fff;font-weight:600;cursor:pointer;">
+      Atualizar lista
+    </button>
+    <div id="listaSolicitacoesLicao" style="display:flex;flex-direction:column;gap:10px;"></div>
   `;
 
-  botoes.insertAdjacentElement("afterend", card);
+  destino.appendChild(card);
 
   document.getElementById("btnAtualizarSolicitacoes").onclick = carregarSolicitacoes;
+  carregarSolicitacoes();
 }
 
 async function carregarSolicitacoes() {
-  const lista = document.getElementById(LISTA_ID);
+  const lista = document.getElementById("listaSolicitacoesLicao");
   if (!lista) return;
 
-  lista.textContent = "Carregando...";
+  lista.innerHTML = "Carregando...";
 
   const q = query(
     collection(db, "solicitacoesLicao"),
@@ -63,65 +56,74 @@ async function carregarSolicitacoes() {
   const snap = await getDocs(q);
 
   if (snap.empty) {
-    lista.innerHTML = "<div>Nenhuma solicitação pendente no momento.</div>";
+    lista.innerHTML = "<p>Nenhuma solicitação pendente.</p>";
     return;
   }
 
-  const dados = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  dados.sort((a, b) => (a.criadoEm > b.criadoEm ? 1 : -1));
+  const itens = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  lista.innerHTML = dados.map(item => `
-    <div class="linha-solicitacao-licao" data-id="${item.id}" data-alunoid="${item.alunoId}" data-tipo="${item.tipo}" data-numero="${item.numero}">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <strong>${item.alunoNome}</strong><br>
-          <span>${item.tipo === "leitura" ? "📘 BONA" : "🎯 Método"} — lição ${item.numero}</span>
-        </div>
-        <span style="font-size:0.75rem;opacity:0.7;">
+  lista.innerHTML = itens.map(item => `
+    <div class="card-item-licao"
+      data-id="${item.id}"
+      data-tipolicao="${item.tipo}"
+      data-numerolicao="${item.numero}"
+      data-alunoid="${item.alunoId}">
+      
+      <div style="display:flex;justify-content:space-between;">
+        <strong>${item.alunoNome}</strong>
+        <span style="opacity:0.7;font-size:0.75rem;">
           ${new Date(item.criadoEm).toLocaleString("pt-BR")}
         </span>
       </div>
-      <div style="margin:6px 0;">
-        <audio controls src="${item.audioURL}" style="width:100%;"></audio>
+
+      <p style="margin:6px 0 4px 0;">
+        ${item.tipo === "leitura" ? "📘 BONA" : "🎯 Método"} — lição ${item.numero}
+      </p>
+
+      <audio controls src="${item.audioURL}" style="width:100%; margin-bottom:6px;"></audio>
+
+      ${item.texto ? `<p style="font-size:0.85rem;opacity:0.9;">💬 ${item.texto}</p>` : ""}
+
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button class="btnReprovarLicao"
+          style="flex:1;padding:8px;border:none;border-radius:6px;background:#fca5a5;color:#7f1d1d;font-weight:600;cursor:pointer;">
+          Reprovar
+        </button>
+
+        <button class="btnAprovarLicao"
+          style="flex:1;padding:8px;border:none;border-radius:6px;background:#bbf7d0;color:#14532d;font-weight:600;cursor:pointer;">
+          Aprovar
+        </button>
       </div>
-      ${item.texto ? `<div style="font-size:0.8rem;opacity:0.9;">💬 ${item.texto}</div>` : ""}
-      <div style="display:flex;gap:8px;margin-top:6px;justify-content:flex-end;">
-        <button class="btnReprovarLicao" style="border:none;border-radius:999px;padding:5px 10px;font-size:0.8rem;background:#fecaca;color:#7f1d1d;cursor:pointer;">Reprovar</button>
-        <button class="btnAprovarLicao" style="border:none;border-radius:999px;padding:5px 10px;font-size:0.8rem;background:#bbf7d0;color:#14532d;cursor:pointer;">Aprovar</button>
-      </div>
-      <hr style="border:none;border-top:1px solid rgba(148,163,184,0.3);margin-top:8px;">
     </div>
   `).join("");
 
+  // Eventos dos botões
   lista.querySelectorAll(".btnAprovarLicao").forEach(btn => {
-    btn.onclick = () => tratarSolicitacao(btn.closest(".linha-solicitacao-licao"), true);
+    btn.onclick = () => tratar(btn.closest(".card-item-licao"), true);
   });
 
   lista.querySelectorAll(".btnReprovarLicao").forEach(btn => {
-    btn.onclick = () => tratarSolicitacao(btn.closest(".linha-solicitacao-licao"), false);
+    btn.onclick = () => tratar(btn.closest(".card-item-licao"), false);
   });
 }
 
-async function tratarSolicitacao(linha, aprovar) {
-  if (!linha) return;
-  const id = linha.dataset.id;
-  const alunoId = linha.dataset.alunoid;
-  const tipo = linha.dataset.tipo;
-  const numero = parseInt(linha.dataset.numero, 10);
-
-  if (!id || !alunoId || !tipo || !numero) return;
+async function tratar(card, aprovar) {
+  const id = card.dataset.id;
+  const tipo = card.dataset.tipolicao;
+  const numero = parseInt(card.dataset.numerolicao, 10);
+  const alunoId = card.dataset.alunoid;
 
   if (aprovar) {
-    // Atualiza pontuação do aluno
-    const campo = tipo === "leitura" ? "leitura" : "metodo";
     await updateDoc(doc(db, "alunos", alunoId), {
-      [campo]: numero
+      [tipo]: numero
     });
 
     await updateDoc(doc(db, "solicitacoesLicao", id), {
       status: "aprovado",
       respondidoEm: new Date().toISOString()
     });
+
   } else {
     await updateDoc(doc(db, "solicitacoesLicao", id), {
       status: "reprovado",
@@ -129,12 +131,8 @@ async function tratarSolicitacao(linha, aprovar) {
     });
   }
 
-  linha.style.opacity = "0.4";
-  linha.style.pointerEvents = "none";
+  card.style.opacity = "0.4";
+  card.style.pointerEvents = "none";
 }
 
-// Inicialização
-document.addEventListener("DOMContentLoaded", () => {
-  inserirCardNotificacoes();
-  carregarSolicitacoes();
-});
+document.addEventListener("DOMContentLoaded", inserirPainel);
