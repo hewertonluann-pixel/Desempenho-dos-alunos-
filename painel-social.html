@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel Social 🎵</title>
 
-  <!-- Reutilizamos o CSS do aluno -->
-  <link rel="stylesheet" href="aluno.css">
+  <!-- Usa o MESMO CSS da página do aluno -->
+  <link rel="stylesheet" href="aluno.css" />
 
   <style>
     body {
@@ -28,112 +28,56 @@
       margin-bottom: 25px;
     }
 
-    /* Grade de cards */
+    /* Grade de cards do aluno */
     .grid-social {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 25px;
       padding: 10px;
     }
 
-    /* Card compactado */
-    .card-social {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid #00ffcc33;
-      border-radius: 14px;
-      padding: 15px;
-      text-align: center;
-      transition: transform 0.25s ease, box-shadow 0.3s ease;
+    /* Torna o card clicável */
+    .card-click {
       cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.3s ease;
     }
 
-    .card-social:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 0 18px #00ffcc44;
+    .card-click:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px #00ffcc44;
     }
 
-    .card-social .foto {
-      width: 95px;
-      height: 95px;
-      border-radius: 50%;
-      overflow: hidden;
-      margin: 0 auto 12px;
-      border: 3px solid #00ffcc66;
-      background-color: #111;
-    }
-
-    .card-social .foto img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .nome-aluno {
-      font-size: 1.18rem;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-
-    .instrumento-aluno {
-      color: #bbb;
-      font-size: 0.9rem;
-      margin-bottom: 12px;
-    }
-
-    /* Energia compactada */
-    .energia-mini {
-      margin: 10px 0 4px;
-      font-size: 0.85rem;
-    }
-
-    .barra-mini {
-      width: 85%;
-      height: 9px;
-      background: #222;
-      border-radius: 6px;
-      margin: 0 auto;
-      overflow: hidden;
-    }
-
-    .nivel-mini {
-      height: 100%;
-      background: #00ff99;
-      width: 0;
-    }
-
-    /* Pontuações compactadas */
-    .pontos-mini {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-around;
-      font-size: 0.9rem;
-    }
-
-    /* Conquistas */
-    .conquistas-mini {
-      font-size: 1.4rem;
+    /* Bloco extra de conquistas */
+    .conquistas-extra {
       margin-top: 12px;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .conquistas-extra label {
+      display: block;
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-bottom: 4px;
     }
 
   </style>
-
 </head>
 
 <body>
 
   <h1>👥 Painel Social da Orquestra</h1>
-  <p class="subtitulo">Veja seus colegas, pontuações e conquistas!</p>
+  <p class="subtitulo">Clique em um aluno para ver seu painel completo.</p>
 
   <div class="grid-social" id="gridSocial"></div>
 
   <script type="module">
-
     import { db } from "./firebase-config.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
     const grid = document.getElementById("gridSocial");
 
-    // Ícones de conquistas (baseados no que já existe)
+    // Ícones das conquistas (mesmo padrão já usado)
     function gerarConquistas(colecao) {
       if (!colecao || colecao.length === 0) return "—";
 
@@ -153,49 +97,60 @@
       const snap = await getDocs(collection(db, "alunos"));
       const alunos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Ordenar por energia (ranking social)
-      alunos.sort((a, b) => 
-        (b.frequenciaMensal?.porcentagem ?? 0) -
-        (a.frequenciaMensal?.porcentagem ?? 0)
-      );
-
       grid.innerHTML = alunos.map(a => {
 
         const energia = a.frequenciaMensal?.porcentagem ?? 0;
-        const total = (a.leitura ?? 0) + (a.metodo ?? 0);
+        const score = (a.leitura ?? 0) + (a.metodo ?? 0);
 
         return `
-        <div class="card-social"
+        <div class="container-aluno card-click"
              onclick="window.location.href='aluno.html?nome=${encodeURIComponent(a.nome)}&view=public'">
 
           <div class="foto">
-            ${a.foto ? `<img src="${a.foto}">` : ""}
+            ${a.foto ? `<img src="${a.foto}" alt="${a.nome}">` : ""}
           </div>
 
-          <div class="nome-aluno">${a.nome}</div>
-          <div class="instrumento-aluno">${a.instrumento ?? ""}</div>
+          <div class="instrumento">${a.instrumento ?? ""}</div>
 
-          <div class="energia-mini">⚡ Energia: ${energia}%</div>
-          <div class="barra-mini"><div class="nivel-mini" style="width:${energia}%"></div></div>
-
-          <div class="pontos-mini">
-            <span>📘 ${a.leitura ?? 0}</span>
-            <span>🎯 ${a.metodo ?? 0}</span>
-            <span>🧮 ${total}</span>
+          <!-- ENERGIA -->
+          <div class="pontuacao energia">
+            ⚡ Energia
+            <div class="barra-frequencia">
+              <div class="nivel" style="width:${energia}%"></div>
+            </div>
+            <small>${energia}%</small>
           </div>
 
-          <div class="conquistas-mini">
+          <!-- PONTOS -->
+          <div class="pontuacoes-lado">
+            <div class="bloco">
+              <label>🧮 Nível</label>
+              <span>${score}</span>
+            </div>
+
+            <div class="bloco">
+              <label>📘 Leitura</label>
+              <span>${a.leitura ?? 0}</span>
+            </div>
+
+            <div class="bloco">
+              <label>🎯 Método</label>
+              <span>${a.metodo ?? 0}</span>
+            </div>
+          </div>
+
+          <!-- CONQUISTAS (NOVO BLOCO) -->
+          <div class="conquistas-extra">
+            <label>🏆 Conquistas</label>
             ${gerarConquistas(a.conquistas)}
           </div>
 
         </div>
         `;
       }).join("");
-
     }
 
     carregarAlunos();
-
   </script>
 
 </body>
