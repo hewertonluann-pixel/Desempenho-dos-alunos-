@@ -1,204 +1,106 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Orquestra – Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Orquestra Filhos de Asafe</title>
 
   <style>
-    :root {
-      --bg: #0d0f17;
-      --card: #161925;
-      --accent: #00ffcc;
-      --accent2: #00bfff;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-      --radius: 14px;
-      --shadow: 0 0 20px rgba(0,255,204,0.15);
-    }
-
     body {
       margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Inter", Arial, sans-serif;
+      height: 100vh;
       display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, #0a0f1f, #0b1025);
+      font-family: "Segoe UI", sans-serif;
+      color: #e2e8f0;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 2rem;
-      text-align: center;
-      color: var(--accent);
-      text-shadow: 0 0 10px rgba(0,255,204,0.5);
-    }
-
-    .logo {
-      width: 110px;
-      height: 110px;
-      margin-bottom: 12px;
-      animation: pulsar 2s infinite ease-in-out;
-    }
-
-    @keyframes pulsar {
-      0% { transform: scale(1); filter: drop-shadow(0 0 6px var(--accent)); }
-      50% { transform: scale(1.08); filter: drop-shadow(0 0 15px var(--accent)); }
-      100% { transform: scale(1); filter: drop-shadow(0 0 6px var(--accent)); }
-    }
-
-    .card-login {
-      background: var(--card);
+    .login-card {
+      background: #111827;
       padding: 28px;
-      border-radius: var(--radius);
-      width: 90%;
-      max-width: 380px;
-      margin-top: 20px;
-      box-shadow: var(--shadow);
-      animation: subir 0.5s ease;
+      width: 320px;
+      border-radius: 16px;
+      box-shadow: 0 0 35px rgba(34, 211, 238, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.22);
     }
 
-    @keyframes subir {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .campo { margin-bottom: 14px; display: flex; flex-direction: column; }
-    .campo label { margin-bottom: 6px; color: var(--muted); }
-    .campo input {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      background: #0f111a;
-      color: var(--text);
-    }
-
-    .erro {
-      background: #ff4d4d;
-      padding: 8px;
-      border-radius: 8px;
+    .titulo {
       text-align: center;
-      display: none;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      color: #22d3ee;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+      background: #1f2937;
+      color: #e5e7eb;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus {
+      border: 1px solid #22d3ee;
     }
 
     button {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
+      border-radius: 8px;
       border: none;
-      border-radius: 10px;
-      background: var(--accent);
-      color: #000;
+      background: #22d3ee;
+      color: #0a0f1f;
+      font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.3s;
+      transition: 0.2s;
+      margin-top: 12px;
+    }
+    button:hover {
+      background: #38bdf8;
     }
 
-    button:hover { background: var(--accent2); transform: scale(1.03); }
-
-    .sub {
-      margin-top: 15px;
-      color: var(--muted);
+    .erro {
+      color: #f87171;
       font-size: 0.9rem;
       text-align: center;
+      margin-top: 10px;
+    }
+
+    .switch {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.8;
+      cursor: pointer;
+    }
+    .switch:hover {
+      opacity: 1;
     }
   </style>
 </head>
 
 <body>
 
-  <img src="icon-192.png" class="logo" alt="Logo Orquestra">
-  <h1>🎵 Painel Orquestra</h1>
+  <div class="login-card">
+    <div class="titulo">🎵 Orquestra Filhos de Asafe</div>
 
-  <div class="card-login">
-    <div id="msgErro" class="erro"></div>
+    <input type="text" id="nome" placeholder="Seu nome" />
+    <input type="password" id="senha" placeholder="Senha" />
 
-    <div class="campo">
-      <label>Usuário</label>
-      <input id="usuario" type="text" placeholder="Seu nome">
-    </div>
+    <button id="btnEntrar">Entrar</button>
 
-    <div class="campo">
-      <label>Senha</label>
-      <input id="senha" type="password" placeholder="Sua senha">
-    </div>
+    <div id="erro" class="erro"></div>
 
-    <button id="btnLogin">Entrar</button>
-
-    <div class="sub">
-      * A senha padrão dos alunos é: <b>asafe</b>
-    </div>
+    <div id="switchLogin" class="switch">Entrar como Professor</div>
   </div>
 
-  <script type="module" src="firebase-config.js"></script>
-
-  <script type="module">
-    import { db } from "./firebase-config.js";
-    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-
-    const btn = document.getElementById("btnLogin");
-    const msg = document.getElementById("msgErro");
-
-    btn.onclick = async () => {
-      msg.style.display = "none";
-
-      const usuario = usuarioInput.value.trim();
-      const senha = senhaInput.value.trim();
-
-      if (!usuario || !senha) {
-        msg.textContent = "Preencha usuário e senha.";
-        msg.style.display = "block";
-        return;
-      }
-
-      // Buscar alunos no Firestore
-      const snap = await getDocs(collection(db, "alunos"));
-      let encontrado = null;
-
-      snap.forEach(doc => {
-        const aluno = { id: doc.id, ...doc.data() };
-        if (
-          aluno.nome.toLowerCase() === usuario.toLowerCase() &&
-          aluno.senha === senha
-        ) {
-          encontrado = aluno;
-        }
-      });
-
-      if (!encontrado) {
-        msg.textContent = "Usuário ou senha incorretos.";
-        msg.style.display = "block";
-        return;
-      }
-
-      // 🔥 Salvar sessão
-      localStorage.setItem("usuarioAtual", encontrado.nome);
-
-      // 🔥 Professor (aluno classificado)
-      if (encontrado.classificado === true) {
-        window.location.href =
-          `professor.html?usuario=${encodeURIComponent(encontrado.nome)}`;
-        return;
-      }
-
-      // 🔥 Modo aluno
-      window.location.href =
-        `aluno.html?nome=${encodeURIComponent(encontrado.nome)}`;
-    };
-
-    const usuarioInput = document.getElementById("usuario");
-    const senhaInput = document.getElementById("senha");
-  </script>
-
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  </script>
+  <script type="module" src="login.js"></script>
 
 </body>
 </html>
