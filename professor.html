@@ -176,6 +176,70 @@
       border-radius: 6px;
       border: none;
     }
+
+/* ======= RESTAURAÇÃO COMPLETA DOS MODAIS ======= */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  justify-content: center;
+  align-items: center;
+  z-index: 99999 !important;
+}
+
+.modal-conteudo {
+  background: linear-gradient(145deg, #1e1e1e, #262738);
+  padding: 26px 24px;
+  border-radius: 14px;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  width: 92%;
+  max-width: 420px;
+  color: #f9fafb;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.botoes-modal {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  gap: 10px;
+}
+
+.btn-adicionar,
+.btn-cancelar {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-adicionar {
+  background: #22c55e;
+  color: #022c22;
+}
+
+.btn-cancelar {
+  background: #dc2626;
+  color: #fff;
+}
+
+/* Botões tipo de chamada */
+.modal-conteudo .botoes-modal-tipo {
+  display: flex;
+  gap: 10px;
+}
+
+    
   </style>
 </head>
 
@@ -468,3 +532,4 @@
 
 </body>
 </html>
+
