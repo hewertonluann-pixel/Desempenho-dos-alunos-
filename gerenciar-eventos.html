@@ -3,213 +3,188 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerenciar Eventos - Orquestra Filhos de Asafe</title>
+  <title>Gerenciar Chamadas - Orquestra Filhos de Asafe</title>
   <link rel="stylesheet" href="professor.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
       background-color: #f5f5f5;
+      margin: 0;
     }
-
     h1 {
       text-align: center;
-      margin-bottom: 30px;
-      color: #333;
+      color: #111827;
+      margin-bottom: 16px;
     }
-
-    h2 {
-      color: #2196f3;
-      margin-top: 40px;
-      margin-bottom: 15px;
-      border-bottom: 2px solid #2196f3;
-      padding-bottom: 5px;
-      text-align: center;
-    }
-
-    .secao {
-      margin-bottom: 40px;
-    }
-
-    .lista-eventos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      justify-content: center;
-    }
-
-    .evento {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      width: 260px;
-      text-align: center;
-      transition: transform 0.2s ease;
-    }
-
-    .evento:hover {
-      transform: translateY(-3px);
-    }
-
-    .evento h3 {
-      margin: 0;
-      color: #2196f3;
-      font-size: 18px;
-    }
-
-    .evento p {
-      margin: 5px 0;
-      font-size: 14px;
-    }
-
-    .evento button {
-      margin: 6px;
-      padding: 8px 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      color: white;
-      font-weight: bold;
-      transition: 0.3s;
-    }
-
-    .abrir {
-      background-color: #2196f3;
-    }
-    .abrir:hover {
-      background-color: #1976d2;
-    }
-
-    .excluir {
-      background-color: #f44336;
-    }
-    .excluir:hover {
-      background-color: #d32f2f;
-    }
-
-    .vazio {
-      text-align: center;
-      margin-top: 10px;
-      font-style: italic;
-      color: #666;
-    }
-
     .voltar {
-      display: block;
-      text-align: center;
-      margin-bottom: 20px;
+      display: inline-block;
       text-decoration: none;
       background-color: #4caf50;
       color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: 0.3s;
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
+      padding: 8px 16px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.15s ease, transform 0.1s ease;
     }
-
     .voltar:hover {
       background-color: #388e3c;
+      transform: translateY(-1px);
+    }
+    .lista {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .evento {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      border: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .evento h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #111827;
+    }
+    .evento p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #4b5563;
+    }
+    .acoes {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .acoes button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .acoes button:active {
+      transform: scale(0.97);
+    }
+    .btn-abrir {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .btn-excluir {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .vazio {
+      text-align: center;
+      font-style: italic;
+      color: #6b7280;
+      margin-top: 20px;
+    }
+    .info {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
   <a href="professor.html" class="voltar">⬅️ Voltar ao Painel do Professor</a>
-  <h1>🎵 Gerenciar Ensaios e Apresentações</h1>
+  <h1>🎵 Gerenciar Chamadas</h1>
+  <div class="info">Aqui você encontra todas as chamadas já registradas (ensaios, apresentações, etc.).</div>
 
-  <div class="secao">
-    <h2>🎼 Ensaios</h2>
-    <div class="lista-eventos" id="listaEnsaios"></div>
-  </div>
-
-  <div class="secao">
-    <h2>🎤 Apresentações</h2>
-    <div class="lista-eventos" id="listaApresentacoes"></div>
-  </div>
+  <div class="lista" id="listaEventos"></div>
+  <p class="vazio" id="msgVazio" style="display:none;">Nenhuma chamada registrada até o momento.</p>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { db } from "./firebase-config.js";
+    import {
+      collection,
+      getDocs,
+      deleteDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
-      authDomain: "asafenotas-5cf3f.firebaseapp.com",
-      projectId: "asafenotas-5cf3f",
-      storageBucket: "asafenotas-5cf3f.appspot.com",
-      messagingSenderId: "312062581585",
-      appId: "1:312062581585:web:432ff63a527dd86fc1170",
-      measurementId: "G-Z6G6D4RKZQ"
-    };
+    const lista = document.getElementById("listaEventos");
+    const msgVazio = document.getElementById("msgVazio");
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const listaEnsaios = document.getElementById("listaEnsaios");
-    const listaApresentacoes = document.getElementById("listaApresentacoes");
-
-    async function carregarEventos() {
-      listaEnsaios.innerHTML = "<p>Carregando ensaios...</p>";
-      listaApresentacoes.innerHTML = "<p>Carregando apresentações...</p>";
-
-      const ensaiosSnap = await getDocs(collection(db, "ensaios"));
-      const apresentacoesSnap = await getDocs(collection(db, "apresentacoes"));
-
-      const ensaios = [];
-      ensaiosSnap.forEach(doc => ensaios.push({ id: doc.id, ...doc.data() }));
-      ensaios.sort((a, b) => new Date(b.data) - new Date(a.data));
-
-      const apresentacoes = [];
-      apresentacoesSnap.forEach(doc => apresentacoes.push({ id: doc.id, ...doc.data() }));
-      apresentacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
-
-      renderizarLista(ensaios, listaEnsaios, "Ensaio");
-      renderizarLista(apresentacoes, listaApresentacoes, "Apresentação");
+    function formatarData(iso) {
+      if (!iso) return "--/--/----";
+      const [ano, mes, dia] = iso.split("-");
+      return `${dia}/${mes}/${ano}`;
     }
 
-    function renderizarLista(eventos, container, tipo) {
-      if (eventos.length === 0) {
-        container.innerHTML = `<p class='vazio'>Nenhum ${tipo.toLowerCase()} encontrado.</p>`;
+    async function carregarEventos() {
+      lista.innerHTML = "";
+      msgVazio.style.display = "none";
+
+      const snap = await getDocs(collection(db, "eventos"));
+      const eventos = [];
+      snap.forEach(d => {
+        const dados = d.data();
+        eventos.push({
+          id: d.id,
+          data: dados.data || "",
+          observacoes: dados.observacoes || ""
+        });
+      });
+
+      eventos.sort((a, b) => {
+        return new Date(b.data || "1970-01-01") - new Date(a.data || "1970-01-01");
+      });
+
+      if (!eventos.length) {
+        msgVazio.style.display = "block";
         return;
       }
 
-      container.innerHTML = eventos.map(e => `
-        <div class="evento">
-          <h3>${tipo} - ${e.data}</h3>
-          ${e.local ? `<p><strong>Local:</strong> ${e.local}</p>` : ""}
-          ${e.observacoes ? `<p><strong>Obs:</strong> ${e.observacoes}</p>` : ""}
-          <button class="abrir" onclick="abrirEvento('${e.id}', '${tipo}')">Abrir</button>
-          <button class="excluir" onclick="excluirEvento('${e.id}', '${tipo}')">Excluir</button>
-        </div>
-      `).join("");
+      lista.innerHTML = eventos.map(e => {
+        const titulo = e.data ? `Chamada - ${formatarData(e.data)}` : "Chamada sem data";
+        const obs = e.observacoes ? e.observacoes : "";
+        return `
+          <div class="evento">
+            <h3>${titulo}</h3>
+            ${obs ? `<p><strong>Obs.:</strong> ${obs}</p>` : ""}
+            <div class="acoes">
+              <button class="btn-abrir" onclick="abrirEvento('${e.id}')">📋 Abrir chamada</button>
+              <button class="btn-excluir" onclick="excluirEvento('${e.id}')">🗑️ Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
-    window.abrirEvento = function(id, tipo) {
-      if (tipo === "Ensaio") {
-        window.location.href = `ensaio.html?id=${id}`;
-      } else {
-        window.location.href = `apresentacao.html?id=${id}`;
-      }
+    window.abrirEvento = function(id) {
+      window.location.href = `ensaio.html?id=${id}`;
     };
 
-    window.excluirEvento = async function(id, tipo) {
-      const confirma = confirm(`Deseja realmente excluir este ${tipo.toLowerCase()}?`);
+    window.excluirEvento = async function(id) {
+      const confirma = confirm("Deseja realmente excluir esta chamada?");
       if (!confirma) return;
 
-      const colecao = tipo === "Ensaio" ? "ensaios" : "apresentacoes";
-      await deleteDoc(doc(db, colecao, id));
-
-      alert(`${tipo} excluído com sucesso!`);
+      await deleteDoc(doc(db, "eventos", id));
+      alert("Chamada excluída com sucesso!");
       carregarEventos();
     };
 
     carregarEventos();
   </script>
 
-<script type="module" src="navegacao.js"></script>
-  
+  <script type="module" src="navegacao.js"></script>
 </body>
 </html>
-
