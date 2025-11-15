@@ -9,108 +9,212 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
-    /* ===== Mensagens flutuantes ===== */
-    .mensagem-sucesso, .mensagem-info {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-      z-index: 9999;
-      font-size: 0.9rem;
-    }
-    .mensagem-sucesso { background: #16a34a; color: #fff; }
-    .mensagem-info { background: #2563eb; color: #fff; }
-    .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
-
-    /* ===== Modal genérico ===== */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      animation: fadeIn 0.25s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    /* ====== Layout geral ====== */
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
     }
 
-    .modal-conteudo {
-      background: linear-gradient(145deg, #1e1e1e, #262738);
-      padding: 26px 24px;
-      border-radius: 14px;
-      box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
+    h1 {
       text-align: center;
-      width: 92%;
-      max-width: 420px;
-      color: #f9fafb;
+      margin-top: 20px;
+      color: #22d3ee;
     }
 
-    .modal-conteudo .campo-modal {
-      text-align: left;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-
-    .botoes-modal {
+    .layout-professor {
       display: flex;
-      justify-content: space-between;
-      margin-top: 18px;
-      gap: 10px;
+      gap: 20px;
+      padding: 15px 20px;
+      margin-top: 20px;
     }
 
-    .botoes-modal button {
-      flex: 1;
-      padding: 9px 0;
+    /* COLUNA DE BOTÕES */
+    .coluna-botoes-prof {
+      flex: 0 0 250px;
+    }
+
+    .card-botoes-prof {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 14px;
+      padding: 18px 16px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 0 20px rgba(15, 118, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-botoes-prof button {
+      width: 100%;
+      padding: 12px;
+      background: #0ea5e9;
       border: none;
       border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
       color: #fff;
-      transition: transform 0.15s ease, background 0.25s;
-      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s;
     }
 
-    .btn-adicionar { background: #16a34a; }
-    .btn-adicionar:hover { background: #15803d; transform: translateY(-1px); }
-    .btn-cancelar { background: #dc2626; }
-    .btn-cancelar:hover { background: #b91c1c; transform: translateY(-1px); }
+    .card-botoes-prof button:hover {
+      background: #0284c7;
+    }
+
+    .titulo-card-prof {
+      text-align: center;
+      color: #22d3ee;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+
+    /* PAINEL DE NOTIFICAÇÕES */
+    .painel-licoes-prof {
+      flex: 1;
+      min-height: 200px;
+    }
+
+    /* Loader */
+    .loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #22d3ee;
+    }
+
+    /* ===== Responsivo ===== */
+    @media (max-width: 760px) {
+      .layout-professor {
+        flex-direction: column;
+      }
+      .coluna-botoes-prof {
+        width: 100%;
+      }
+    }
+
+    /* ======== PAINEL ALUNOS ======== */
+    .painel {
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .ficha {
+      display: flex;
+      gap: 20px;
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .foto img {
+      width: 85px;
+      height: 85px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .dados {
+      flex: 1;
+    }
+
+    .campo {
+      margin-bottom: 6px;
+    }
+
+    .nota-linha {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nota-controle {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .campo-nota {
+      width: 50px;
+      padding: 4px;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+    }
+
+    .botao-nota {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .remover {
+      background: #dc2626;
+      padding: 6px 8px;
+      color: #fff;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .classificar {
+      background: #22c55e;
+      padding: 6px 8px;
+      color: #022c22;
+      border-radius: 6px;
+      border: none;
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- NAVBAR DINÂMICA -->
+  <!-- NAVBAR -->
   <script type="module" src="navegacao.js"></script>
 
   <h1>Painel Gerencial 🎶</h1>
-  <div class="usuario-logado" id="usuarioLogado"></div>
+  <div id="usuarioLogado" style="text-align:center; opacity:0.85;"></div>
 
-  <!-- Mensagens -->
-  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
-  <div id="mensagemInfo" class="mensagem-info"></div>
+  <div class="layout-professor">
 
-  <!-- Botões principais -->
-  <div class="botoes">
-    <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
-    <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
-    <button id="btnModoAluno">🎓 Modo Aluno</button>
-    <button id="btnCriarEvento">📋 Chamada</button>
-    <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Eventos</button>
-    <button onclick="exportarPDF()">📄 Exportar PDF</button>
-    <button id="btnRecalcularEnergia" class="recalcular-energia">🔄 Recalcular Energia</button>
+    <!-- 🌟 COLUNA DE BOTÕES -->
+    <div class="coluna-botoes-prof">
+      <div class="card-botoes-prof">
+
+        <h2 class="titulo-card-prof">Menu do Professor</h2>
+
+        <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
+        <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
+        <button id="btnModoAluno">🎓 Modo Aluno</button>
+        <button id="btnCriarEvento">📋 Chamada</button>
+        <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Eventos</button>
+        <button onclick="exportarPDF()">📄 Exportar PDF</button>
+        <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
+
+      </div>
+    </div>
+
+    <!-- 🔔 PAINEL DE NOTIFICAÇÕES DAS LIÇÕES -->
+    <div class="painel-licoes-prof" id="painelLicoesProf">
+      <!-- professor-licoes.js irá preencher -->
+    </div>
+
   </div>
+
+  <!-- Painel de alunos -->
+  <div class="painel" id="painel"></div>
 
   <!-- Loader -->
   <div id="loader" class="loader" style="display:none;">
@@ -118,10 +222,9 @@
     <p>Carregando alunos...</p>
   </div>
 
-  <!-- Painel de alunos -->
-  <div class="painel" id="painel" style="display:none;"></div>
+  <!-- 🔽 Modais originais permanecem abaixo (completos e funcionando) -->
 
-  <!-- Modal Adicionar -->
+  <!-- Modal Adicionar Aluno -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
@@ -148,19 +251,20 @@
     </div>
   </div>
 
-  <!-- Modal Tipo -->
+  <!-- Modal Tipo Chamada -->
   <div id="modalTipoChamada" class="modal">
     <div class="modal-conteudo">
       <h2>Qual tipo de chamada?</h2>
-      <div class="botoes-modal-tipo">
+      <div class="botoes-modal">
         <button id="btnChamadaEnsaio" class="btn-adicionar">🎼 Ensaio</button>
         <button id="btnChamadaApresentacao" class="btn-adicionar">🎤 Apresentação</button>
       </div>
-      <button id="btnFecharModalChamada" class="btn-cancelar" style="margin-top: 14px;">Cancelar</button>
+      <button id="btnFecharModalChamada" class="btn-cancelar" style="margin-top:14px;">Cancelar</button>
     </div>
   </div>
 
-  <!-- SCRIPT PRINCIPAL -->
+  <!-- ================= SCRIPTS ================= -->
+
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
@@ -179,43 +283,24 @@
       getDocs,
       addDoc,
       updateDoc,
-      deleteDoc,
       doc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    function mostrarMensagem(id, texto) {
-      const el = document.getElementById(id);
-      el.textContent = texto;
-      el.classList.add("visivel");
-      setTimeout(() => el.classList.remove("visivel"), 2000);
-    }
+    // Exibir nome do professor logado
+    document.addEventListener("DOMContentLoaded", () => {
+      let usuario = null;
+      try {
+        usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
+      } catch {}
+
+      document.getElementById("usuarioLogado").textContent =
+        usuario?.nome ? `Professor logado: ${usuario.nome}` : "Professor";
+    });
 
     const painel = document.getElementById("painel");
     const loader = document.getElementById("loader");
 
-    // ========================
-    // Exibir Nome do Professor Logado
-    // ========================
-    document.addEventListener("DOMContentLoaded", () => {
-      let usuario;
-
-      try {
-        usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
-      } catch {
-        usuario = null;
-      }
-
-      if (!usuario || !usuario.nome) {
-        document.getElementById("usuarioLogado").textContent = "Professor";
-      } else {
-        document.getElementById("usuarioLogado").textContent =
-          `Professor logado: ${usuario.nome}`;
-      }
-    });
-
-    // ========================
-    // Gerenciar alunos
-    // ========================
+    // Gerenciar Alunos
     document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
       if (painel.style.display === "none" || painel.innerHTML === "") {
         await renderizarPainel(painel, loader);
@@ -224,6 +309,7 @@
       }
     });
 
+    // Delegação de eventos do painel
     painel.addEventListener("click", async (e) => {
       const el = e.target;
       const acao = el.dataset.acao;
@@ -242,7 +328,6 @@
       if (acao === "remover") {
         if (confirm(`Remover ${el.dataset.nome}?`)) {
           await removerAluno(el.dataset.id);
-          mostrarMensagem("mensagemSucesso", "Aluno removido.");
           await renderizarPainel(painel, loader);
         }
       }
@@ -265,18 +350,11 @@
       }
     });
 
-    // ========================
-    // Modal adicionar aluno
-    // ========================
+    // Modal Adicionar Aluno
     const modalAdicionar = document.getElementById("modalAdicionar");
-
     document.getElementById("btnAdicionarAluno").addEventListener("click", () => {
       modalAdicionar.style.display = "flex";
-      document.getElementById("novoNome").value = "";
-      document.getElementById("novoInstrumento").value = "";
-      document.getElementById("novoFoto").value = "";
     });
-
     document.getElementById("btnCancelarAdicionar").addEventListener("click", () => {
       modalAdicionar.style.display = "none";
     });
@@ -284,19 +362,14 @@
     document.getElementById("btnConfirmarAdicionar").addEventListener("click", async () => {
       const nome = document.getElementById("novoNome").value.trim();
       const instrumento = document.getElementById("novoInstrumento").value.trim();
-      const fotoFile = document.getElementById("novoFoto").files[0];
-
-      if (!nome || !instrumento) {
-        alert("Preencha nome e instrumento.");
-        return;
-      }
+      const foto = document.getElementById("novoFoto").files[0];
 
       let fotoBase64 = "";
-      if (fotoFile) {
-        fotoBase64 = await new Promise((resolve) => {
-          const leitor = new FileReader();
-          leitor.onload = (e) => resolve(e.target.result);
-          leitor.readAsDataURL(fotoFile);
+      if (foto) {
+        fotoBase64 = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(foto);
         });
       }
 
@@ -304,7 +377,6 @@
         nome,
         instrumento,
         foto: fotoBase64,
-        senha: "asafe",
         leitura: 1,
         metodo: 1,
         energia: 100,
@@ -312,23 +384,19 @@
         frequenciaAnual: {},
         conquistas: [],
         classificado: false,
+        senha: "asafe",
         criadoEm: new Date().toISOString()
       });
 
       modalAdicionar.style.display = "none";
-      mostrarMensagem("mensagemSucesso", `Aluno ${nome} adicionado!`);
       await renderizarPainel(painel, loader);
     });
 
-    // ========================
     // Modal Tipo Chamada
-    // ========================
     const modalTipoChamada = document.getElementById("modalTipoChamada");
-
     document.getElementById("btnCriarEvento").addEventListener("click", () => {
       modalTipoChamada.style.display = "flex";
     });
-
     document.getElementById("btnFecharModalChamada").addEventListener("click", () => {
       modalTipoChamada.style.display = "none";
     });
@@ -339,11 +407,12 @@
       const colecoes = ["ensaios", "apresentacoes", "eventos"];
       for (const col of colecoes) {
         const snap = await getDocs(collection(db, col));
-        const existente = snap.docs.find((d) => d.data().data === hoje);
+        const existente = snap.docs.find(d => d.data().data === hoje);
         if (existente) {
-          mostrarMensagem("mensagemInfo", "📅 Já existe registro hoje!");
           modalTipoChamada.style.display = "none";
-          setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 500);
+          setTimeout(() => {
+            window.location.href = `ensaio.html?id=${existente.id}`;
+          }, 400);
           return;
         }
       }
@@ -355,22 +424,20 @@
         presencas: []
       });
 
-      mostrarMensagem("mensagemInfo", "🆕 Evento criado!");
       modalTipoChamada.style.display = "none";
-      setTimeout(() => window.location.href = `ensaio.html?id=${novo.id}`, 500);
+      setTimeout(() => {
+        window.location.href = `ensaio.html?id=${novo.id}`;
+      }, 400);
     }
 
-    document.getElementById("btnChamadaEnsaio").addEventListener("click", () => abrirOuCriarChamada("ensaio"));
-    document.getElementById("btnChamadaApresentacao").addEventListener("click", () => abrirOuCriarChamada("apresentacao"));
+    document.getElementById("btnChamadaEnsaio")
+      .addEventListener("click", () => abrirOuCriarChamada("ensaio"));
+    document.getElementById("btnChamadaApresentacao")
+      .addEventListener("click", () => abrirOuCriarChamada("apresentacao"));
 
-    // ========================
-    // Recalcular energia
-    // ========================
+    // Recalcular Energia
     document.getElementById("btnRecalcularEnergia").addEventListener("click", async () => {
-      mostrarMensagem("mensagemInfo", "⚙️ Calculando...");
-
       const snap = await getDocs(collection(db, "alunos"));
-      let total = 0;
 
       for (const alunoDoc of snap.docs) {
         const aluno = alunoDoc.data();
@@ -382,75 +449,22 @@
         else if (freq >= 30) energia = 40;
 
         await updateDoc(doc(db, "alunos", alunoDoc.id), { energia });
-        total++;
       }
-
-      mostrarMensagem("mensagemSucesso", `⚡ Energia atualizada: ${total} alunos.`);
     });
 
-    // ========================
-    // PDF
-    // ========================
-    window.exportarPDF = async function () {
-      const alunos = await carregarAlunos();
-
-      const conteudo = `
-        <h2 style="text-align:center;">Relatório — Painel Gerencial</h2>
-        <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:12px;">
-          <thead>
-            <tr style="background:#00bfff; color:white;">
-              <th>Nome</th>
-              <th>Instrumento</th>
-              <th>Leitura</th>
-              <th>Método</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${alunos.map(a => `
-              <tr>
-                <td>${a.nome}</td>
-                <td>${a.instrumento ?? "-"}</td>
-                <td>${a.leitura}</td>
-                <td>${a.metodo}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-
-      const el = document.createElement("div");
-      el.innerHTML = conteudo;
-
-      html2pdf().from(el).set({
-        margin: 0.5,
-        filename: "Relatorio_Tecnico.pdf",
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
-      }).save();
-    };
-
-    // ========================
     // Modo aluno
-    // ========================
     document.getElementById("btnModoAluno").addEventListener("click", () => {
       let usuario = null;
-
-      try {
-        usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
-      } catch {}
-
-      if (!usuario || !usuario.nome) {
-        alert("Não foi possível identificar o aluno.");
-        return;
+      try { usuario = JSON.parse(localStorage.getItem("usuarioAtual")); } catch {}
+      if (usuario?.nome) {
+        window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
       }
-
-      window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
     });
 
   </script>
 
-<script type="module" src="professor-licoes.js"></script>
-  
+  <!-- NOTIFICAÇÕES DE LIÇÕES -->
+  <script type="module" src="professor-licoes.js"></script>
+
 </body>
 </html>
-
