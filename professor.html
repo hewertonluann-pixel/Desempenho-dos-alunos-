@@ -76,17 +76,18 @@
       min-height: 200px;
     }
 
-    /* ================= PAINEL DE ALUNOS ================= */
-    .painel {
-  display: none;
+    /* PAINEL DE ALUNOS */
+.painel {
   margin-top: 20px;
   padding: 0 20px;
+  display: none; /* escondido inicialmente */
 
-  /* NOVO GRID */
+  /* GRID REAL */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 18px;
 }
+
 
 
     .ficha {
@@ -498,4 +499,5 @@
 
 </body>
 </html>
+
 
