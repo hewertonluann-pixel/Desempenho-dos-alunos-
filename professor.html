@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel Gerencial 🎵</title>
+
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -27,23 +28,6 @@
     .mensagem-sucesso { background: #16a34a; color: #fff; }
     .mensagem-info { background: #2563eb; color: #fff; }
     .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
-
-    /* ===== Botão Recalcular Energia ===== */
-    .recalcular-energia {
-      background-color: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 18px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.25s ease, transform 0.15s ease;
-    }
-    .recalcular-energia:hover {
-      background-color: #1e40af;
-      transform: translateY(-1px);
-    }
 
     /* ===== Modal genérico ===== */
     .modal {
@@ -102,21 +86,18 @@
     .btn-adicionar:hover { background: #15803d; transform: translateY(-1px); }
     .btn-cancelar { background: #dc2626; }
     .btn-cancelar:hover { background: #b91c1c; transform: translateY(-1px); }
-
-    /* Modal tipo chamada */
-    .modal-conteudo .botoes-modal-tipo {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-    }
   </style>
 </head>
 
 <body>
+
+  <!-- NAVBAR DINÂMICA -->
+  <script type="module" src="navegacao.js"></script>
+
   <h1>Painel Gerencial 🎶</h1>
   <div class="usuario-logado" id="usuarioLogado"></div>
 
-  <!-- Mensagens flutuantes -->
+  <!-- Mensagens -->
   <div id="mensagemSucesso" class="mensagem-sucesso"></div>
   <div id="mensagemInfo" class="mensagem-info"></div>
 
@@ -140,7 +121,7 @@
   <!-- Painel de alunos -->
   <div class="painel" id="painel" style="display:none;"></div>
 
-  <!-- Modal Adicionar Aluno -->
+  <!-- Modal Adicionar -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
@@ -161,13 +142,13 @@
       </div>
 
       <div class="botoes-modal">
-        <button id="btnConfirmarAdicionar" class="btn-adicionar">✅ Adicionar</button>
-        <button id="btnCancelarAdicionar" class="btn-cancelar">❌ Cancelar</button>
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Tipo de Chamada (Ensaio / Apresentação) -->
+  <!-- Modal Tipo -->
   <div id="modalTipoChamada" class="modal">
     <div class="modal-conteudo">
       <h2>Qual tipo de chamada?</h2>
@@ -182,7 +163,6 @@
   <!-- SCRIPT PRINCIPAL -->
   <script type="module">
     import { db } from "./firebase-config.js";
-
     import {
       carregarAlunos,
       renderizarPainel,
@@ -203,14 +183,6 @@
       doc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    // ======== UTILITÁRIOS ========
-    function getUsuarioLogado() {
-      const params = new URLSearchParams(window.location.search);
-      const daUrl = params.get("usuario");
-      const daSessao = localStorage.getItem("usuarioAtual");
-      return daUrl || daSessao || "Professor";
-    }
-
     function mostrarMensagem(id, texto) {
       const el = document.getElementById(id);
       el.textContent = texto;
@@ -221,10 +193,29 @@
     const painel = document.getElementById("painel");
     const loader = document.getElementById("loader");
 
-    // =====================================
-    //  BOTÃO GERENCIAR ALUNOS
-    // =====================================
+    // ========================
+    // Exibir Nome do Professor Logado
+    // ========================
+    document.addEventListener("DOMContentLoaded", () => {
+      let usuario;
 
+      try {
+        usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
+      } catch {
+        usuario = null;
+      }
+
+      if (!usuario || !usuario.nome) {
+        document.getElementById("usuarioLogado").textContent = "Professor";
+      } else {
+        document.getElementById("usuarioLogado").textContent =
+          `Professor logado: ${usuario.nome}`;
+      }
+    });
+
+    // ========================
+    // Gerenciar alunos
+    // ========================
     document.getElementById("btnMostrarAlunos").addEventListener("click", async () => {
       if (painel.style.display === "none" || painel.innerHTML === "") {
         await renderizarPainel(painel, loader);
@@ -233,7 +224,6 @@
       }
     });
 
-    // ========= DELEGAÇÃO DE EVENTOS DO PAINEL =========
     painel.addEventListener("click", async (e) => {
       const el = e.target;
       const acao = el.dataset.acao;
@@ -250,7 +240,7 @@
       }
 
       if (acao === "remover") {
-        if (confirm(`Tem certeza que deseja remover ${el.dataset.nome}?`)) {
+        if (confirm(`Remover ${el.dataset.nome}?`)) {
           await removerAluno(el.dataset.id);
           mostrarMensagem("mensagemSucesso", "Aluno removido.");
           await renderizarPainel(painel, loader);
@@ -275,16 +265,16 @@
       }
     });
 
-    // =====================================
-    //  MODAL ADICIONAR ALUNO
-    // =====================================
-
+    // ========================
+    // Modal adicionar aluno
+    // ========================
     const modalAdicionar = document.getElementById("modalAdicionar");
+
     document.getElementById("btnAdicionarAluno").addEventListener("click", () => {
+      modalAdicionar.style.display = "flex";
       document.getElementById("novoNome").value = "";
       document.getElementById("novoInstrumento").value = "";
       document.getElementById("novoFoto").value = "";
-      modalAdicionar.style.display = "flex";
     });
 
     document.getElementById("btnCancelarAdicionar").addEventListener("click", () => {
@@ -294,8 +284,7 @@
     document.getElementById("btnConfirmarAdicionar").addEventListener("click", async () => {
       const nome = document.getElementById("novoNome").value.trim();
       const instrumento = document.getElementById("novoInstrumento").value.trim();
-      const fotoInput = document.getElementById("novoFoto");
-      const arquivo = fotoInput.files[0];
+      const fotoFile = document.getElementById("novoFoto").files[0];
 
       if (!nome || !instrumento) {
         alert("Preencha nome e instrumento.");
@@ -303,11 +292,11 @@
       }
 
       let fotoBase64 = "";
-      if (arquivo) {
-        fotoBase64 = await new Promise(resolve => {
+      if (fotoFile) {
+        fotoBase64 = await new Promise((resolve) => {
           const leitor = new FileReader();
-          leitor.onload = e => resolve(e.target.result);
-          leitor.readAsDataURL(arquivo);
+          leitor.onload = (e) => resolve(e.target.result);
+          leitor.readAsDataURL(fotoFile);
         });
       }
 
@@ -327,14 +316,13 @@
       });
 
       modalAdicionar.style.display = "none";
-      mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado!`);
+      mostrarMensagem("mensagemSucesso", `Aluno ${nome} adicionado!`);
       await renderizarPainel(painel, loader);
     });
 
-    // =====================================
-    //  MODAL TIPO DE CHAMADA
-    // =====================================
-
+    // ========================
+    // Modal Tipo Chamada
+    // ========================
     const modalTipoChamada = document.getElementById("modalTipoChamada");
 
     document.getElementById("btnCriarEvento").addEventListener("click", () => {
@@ -345,42 +333,41 @@
       modalTipoChamada.style.display = "none";
     });
 
-    async function abrirOuCriarChamada(tipoSolicitado) {
+    async function abrirOuCriarChamada(tipo) {
       const hoje = new Date().toISOString().split("T")[0];
-      const colecoes = ["ensaios", "apresentacoes", "eventos"];
 
+      const colecoes = ["ensaios", "apresentacoes", "eventos"];
       for (const col of colecoes) {
         const snap = await getDocs(collection(db, col));
-        const existente = snap.docs.find(d => d.data().data === hoje);
+        const existente = snap.docs.find((d) => d.data().data === hoje);
         if (existente) {
-          mostrarMensagem("mensagemInfo", "📅 Já existe registro hoje. Abrindo...");
+          mostrarMensagem("mensagemInfo", "📅 Já existe registro hoje!");
           modalTipoChamada.style.display = "none";
-          setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 600);
+          setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 500);
           return;
         }
       }
 
-      const novoEvento = await addDoc(collection(db, "eventos"), {
+      const novo = await addDoc(collection(db, "eventos"), {
         data: hoje,
-        tipo: tipoSolicitado,
+        tipo,
         observacoes: "",
         presencas: []
       });
 
-      mostrarMensagem("mensagemInfo", "🆕 Evento criado. Abrindo chamada...");
+      mostrarMensagem("mensagemInfo", "🆕 Evento criado!");
       modalTipoChamada.style.display = "none";
-      setTimeout(() => window.location.href = `ensaio.html?id=${novoEvento.id}`, 600);
+      setTimeout(() => window.location.href = `ensaio.html?id=${novo.id}`, 500);
     }
 
     document.getElementById("btnChamadaEnsaio").addEventListener("click", () => abrirOuCriarChamada("ensaio"));
     document.getElementById("btnChamadaApresentacao").addEventListener("click", () => abrirOuCriarChamada("apresentacao"));
 
-    // =====================================
-    //  RECALCULAR ENERGIA
-    // =====================================
-
+    // ========================
+    // Recalcular energia
+    // ========================
     document.getElementById("btnRecalcularEnergia").addEventListener("click", async () => {
-      mostrarMensagem("mensagemInfo", "⚙️ Recalculando energia...");
+      mostrarMensagem("mensagemInfo", "⚙️ Calculando...");
 
       const snap = await getDocs(collection(db, "alunos"));
       let total = 0;
@@ -389,30 +376,29 @@
         const aluno = alunoDoc.data();
         const freq = aluno.frequenciaMensal?.porcentagem ?? 0;
 
-        let novaEnergia = 10;
-        if (freq >= 80) novaEnergia = 100;
-        else if (freq >= 50) novaEnergia = 70;
-        else if (freq >= 30) novaEnergia = 40;
+        let energia = 10;
+        if (freq >= 80) energia = 100;
+        else if (freq >= 50) energia = 70;
+        else if (freq >= 30) energia = 40;
 
-        await updateDoc(doc(db, "alunos", alunoDoc.id), { energia: novaEnergia });
+        await updateDoc(doc(db, "alunos", alunoDoc.id), { energia });
         total++;
       }
 
-      mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alunos.`);
+      mostrarMensagem("mensagemSucesso", `⚡ Energia atualizada: ${total} alunos.`);
     });
 
-    // =====================================
-    //  EXPORTAR PDF
-    // =====================================
-
-    window.exportarPDF = async function() {
+    // ========================
+    // PDF
+    // ========================
+    window.exportarPDF = async function () {
       const alunos = await carregarAlunos();
 
       const conteudo = `
-        <h2 style="text-align:center;">Relatório Técnico - Painel Gerencial</h2>
+        <h2 style="text-align:center;">Relatório — Painel Gerencial</h2>
         <table border="1" cellspacing="0" cellpadding="6" style="width:100%; border-collapse:collapse; font-size:12px;">
           <thead>
-            <tr style="background-color:#00bfff; color:white;">
+            <tr style="background:#00bfff; color:white;">
               <th>Nome</th>
               <th>Instrumento</th>
               <th>Leitura</th>
@@ -424,8 +410,8 @@
               <tr>
                 <td>${a.nome}</td>
                 <td>${a.instrumento ?? "-"}</td>
-                <td>${a.leitura ?? 1}</td>
-                <td>${a.metodo ?? 1}</td>
+                <td>${a.leitura}</td>
+                <td>${a.metodo}</td>
               </tr>
             `).join("")}
           </tbody>
@@ -443,33 +429,25 @@
       }).save();
     };
 
-    // =====================================
-    //  BOTÃO MODO ALUNO
-    // =====================================
-
+    // ========================
+    // Modo aluno
+    // ========================
     document.getElementById("btnModoAluno").addEventListener("click", () => {
-      const nome = localStorage.getItem("usuarioAtual");
-      if (!nome) {
-        alert("Aluno da sessão não identificado.");
+      let usuario = null;
+
+      try {
+        usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
+      } catch {}
+
+      if (!usuario || !usuario.nome) {
+        alert("Não foi possível identificar o aluno.");
         return;
       }
-      window.location.href = `aluno.html?nome=${encodeURIComponent(nome)}`;
-    });
 
-    // =====================================
-    //  USUÁRIO LOGADO
-    // =====================================
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const usuario = getUsuarioLogado();
-      document.getElementById("usuarioLogado").textContent =
-        `Professor logado: ${usuario}`;
+      window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
     });
 
   </script>
 
-<script type="module" src="navegacao.js"></script>
-  
 </body>
 </html>
-
