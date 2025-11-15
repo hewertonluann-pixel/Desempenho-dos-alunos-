@@ -1,9 +1,15 @@
 // ==========================
 //  NAVBAR DINÂMICA MODULAR
+//  VERSÃO CORRIGIDA — USA APENAS usuarioAtual DO localStorage
 // ==========================
 
 import { db } from "./firebase-config.js";
-import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import {
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 // Insere HTML da navbar no topo da página
 function inserirNavbar() {
@@ -107,9 +113,10 @@ function inserirNavbar() {
           <a id="navInicio" href="#">Início</a>
           <a href="painel-social.html">Amigos</a>
           <a id="navProfessor" href="professor.html" style="display:none;">Professor</a>
-          <a id="navSair" href="#">Sair</a>
+          <a id="navSair" href="#" style="color:#f87171;">Sair</a>
         </div>
       </div>
+
       <div id="navAvatar" class="nav-avatar"></div>
     </div>
     `
@@ -129,35 +136,37 @@ async function configurarNavbar() {
   const navAvatar = document.getElementById("navAvatar");
   const navSair = document.getElementById("navSair");
 
-  // Mostrar / esconder menu mobile
+  // Abrir menu no mobile
   menuBtn.addEventListener("click", () => {
     navLinks.classList.toggle("active");
   });
 
-  // Identificar aluno logado pelo parâmetro da URL
-  const params = new URLSearchParams(window.location.search);
-  const nome = params.get("nome");
+  // Carregar usuário logado (SEMPRE A PARTIR DO localStorage)
+  const usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
 
-  if (!nome) return;
+  if (!usuario || !usuario.nome) {
+    console.warn("Nenhum usuário logado. Navbar exibida em modo visitante.");
+    return;
+  }
 
-  // INÍCIO → leva ao painel pessoal
-  navInicio.href = `aluno.html?nome=${encodeURIComponent(nome)}`;
+  // INÍCIO → sempre leva ao painel pessoal do usuário logado
+  navInicio.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
 
-  // Buscar aluno no Firestore
-  const q = query(collection(db, "alunos"), where("nome", "==", nome));
+  // Carrega informações reais do usuário logado no Firestore
+  const q = query(collection(db, "alunos"), where("nome", "==", usuario.nome));
   const snap = await getDocs(q);
 
   if (!snap.empty) {
     const aluno = snap.docs[0].data();
 
-    // Avatar
+    // Avatar do usuário logado
     if (aluno.foto) {
       navAvatar.innerHTML = `<img src="${aluno.foto}" />`;
       navAvatar.onclick = () =>
-        window.location.href = `aluno.html?nome=${encodeURIComponent(nome)}`;
+        window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
     }
 
-    // Apenas classificados podem ver modo professor
+    // Professor → só aparece se o usuário logado for classificado
     if (aluno.classificado === true) {
       navProfessor.style.display = "inline-block";
     }
