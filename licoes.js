@@ -360,14 +360,27 @@ async function iniciarGravacao() {
       if (e.data.size > 0) chunks.push(e.data);
     };
 
-    mediaRecorder.onstop = () => {
-      gravando = false;
-      const blob = new Blob(chunks, { type: "audio/webm" });
-      blobAtual = blob;
-      urlAudioTemp = URL.createObjectURL(blob);
-      btnOuvir.disabled = false;
-      status.textContent = "Gravação concluída. Você pode ouvir antes de enviar.";
-    };
+   mediaRecorder.onstop = () => {
+  gravando = false;
+
+  // Pega o MIME real do navegador
+  const mime = mediaRecorder.mimeType || "audio/webm";
+
+  const blob = new Blob(chunks, { type: mime });
+
+  // Verificação extra (evita blobs corrompidos)
+  if (blob.size < 500) {
+    status.textContent = "⚠ Erro: áudio muito curto ou corrompido. Tente novamente.";
+    blobAtual = null;
+    return;
+  }
+
+  blobAtual = blob;
+  urlAudioTemp = URL.createObjectURL(blob);
+
+  btnOuvir.disabled = false;
+  status.textContent = "Gravação concluída! Você pode ouvir antes de enviar.";
+};
 
     mediaRecorder.start();
     status.textContent = "Gravando... fale normalmente.";
@@ -463,8 +476,18 @@ async function enviarLicao() {
   const caminho = `licoes/${alunoId}/${tipo}_${numero}_${Date.now()}.webm`;
   const arquivoRef = ref(storage, caminho);
 
-  await uploadBytes(arquivoRef, blobAtual);
-  const audioURL = await getDownloadURL(arquivoRef);
+  // O upload deve ser feito com metadata correta
+const metadata = {
+  contentType: blobAtual.type || "audio/webm"
+};
+
+await uploadBytes(arquivoRef, blobAtual, metadata);
+
+// Aguarda 150–250ms antes do getDownloadURL (bug do Firebase em mobile)
+await new Promise(res => setTimeout(res, 200));
+
+const audioURL = await getDownloadURL(arquivoRef);
+
 
   // Criar solicitação no Firestore
   await addDoc(collection(db, "solicitacoesLicao"), {
