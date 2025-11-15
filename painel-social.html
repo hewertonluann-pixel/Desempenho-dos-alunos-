@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel Social 🎵</title>
+  <title>Painel Social 🎵 — Orquestra</title>
 
-  <!-- Usa o MESMO CSS da página do aluno -->
+  <!-- Usa o MESMO CSS do painel do aluno -->
   <link rel="stylesheet" href="aluno.css" />
 
   <style>
@@ -28,12 +28,11 @@
       margin-bottom: 25px;
     }
 
-    /* Grade de cards do aluno */
+    /* Grade de cards usando o card do aluno */
     .grid-social {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
       gap: 25px;
-      padding: 10px;
     }
 
     /* Torna o card clicável */
@@ -43,14 +42,13 @@
     }
 
     .card-click:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 0 20px #00ffcc44;
+      transform: translateY(-6px);
+      box-shadow: 0 0 25px #00ffcc55;
     }
 
-    /* Bloco extra de conquistas */
+    /* Bloco de conquistas */
     .conquistas-extra {
-      margin-top: 12px;
-      font-size: 1.5rem;
+      margin-top: 14px;
       text-align: center;
     }
 
@@ -58,7 +56,11 @@
       display: block;
       font-size: 0.9rem;
       color: #ccc;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .conquistas-extra .icones {
+      font-size: 1.6rem;
     }
   </style>
 </head>
@@ -71,27 +73,24 @@
   <div class="grid-social" id="gridSocial"></div>
 
   <script type="module">
+
     import { db } from "./firebase-config.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
+    // Importa as regras oficiais das conquistas
+    import { regrasDeConquistas } from "./conquistas.js";
+
     const grid = document.getElementById("gridSocial");
 
-    // Ícones das conquistas (para o card)
-    function gerarConquistas(conqObj) {
-      if (!conqObj || Object.keys(conqObj).length === 0) return "—";
+    // Calcula as conquistas dinamicamente exatamente como no aluno.js
+    function calcularConquistas(aluno) {
+      const desbloqueadas = regrasDeConquistas
+        .filter(regra => regra.condicao(aluno))   // aplica regra
+        .map(regra => regra.icone);               // pega ícone
 
-      const icons = {
-        presenca_perfeita: "⭐",
-        evolucao_constante: "🔥",
-        leitor_dedicado: "📘",
-        musico_pontual: "🎯",
-        veterano_palco: "🎤",
-        lider: "👑"
-      };
-
-      return Object.keys(conqObj)
-        .map(c => icons[c] || "🏅")
-        .join(" ");
+      return desbloqueadas.length > 0
+        ? desbloqueadas.join(" ")
+        : "—";
     }
 
     async function carregarAlunos() {
@@ -101,11 +100,12 @@
       grid.innerHTML = alunos.map(a => {
 
         const energia = a.frequenciaMensal?.porcentagem ?? 0;
-        const score = (a.leitura ?? 0) + (a.metodo ?? 0);
+        const total = (a.leitura ?? 0) + (a.metodo ?? 0);
+        const conquistas = calcularConquistas(a);
 
         return `
         <div class="container-aluno card-click"
-             onclick="window.location.href='aluno.html?nome=${encodeURIComponent(a.nome)}&view=public'">
+            onclick="window.location.href='aluno.html?nome=${encodeURIComponent(a.nome)}&view=public'">
 
           <!-- FOTO -->
           <div class="foto">
@@ -127,8 +127,7 @@
                           ? 'linear-gradient(90deg, #ff0000, #ff6600)'
                           : energia < 80
                             ? 'linear-gradient(90deg, #ffcc00, #ffff66)'
-                            : 'linear-gradient(90deg, #00ff66, #00ffaa)'
-                       };
+                            : 'linear-gradient(90deg, #00ff66, #00ffaa)'};
                    ">
               </div>
             </div>
@@ -139,7 +138,7 @@
           <div class="pontuacoes-lado">
             <div class="bloco">
               <label>🧮 Nível</label>
-              <span>${score}</span>
+              <span>${total}</span>
             </div>
 
             <div class="bloco">
@@ -153,10 +152,10 @@
             </div>
           </div>
 
-          <!-- CONQUISTAS (NOVO BLOCO) -->
+          <!-- CONQUISTAS (NOVO BLOCO COMPLETO) -->
           <div class="conquistas-extra">
             <label>🏆 Conquistas</label>
-            ${gerarConquistas(a.conquistas)}
+            <div class="icones">${conquistas}</div>
           </div>
 
         </div>
@@ -165,6 +164,7 @@
     }
 
     carregarAlunos();
+
   </script>
 
 </body>
