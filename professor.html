@@ -78,12 +78,16 @@
 
     /* ================= PAINEL DE ALUNOS ================= */
     .painel {
-      display: none;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 20px;
-      padding: 0 20px;
-    }
+  display: none;
+  margin-top: 20px;
+  padding: 0 20px;
+
+  /* NOVO GRID */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
 
     .ficha {
       display: flex;
@@ -494,3 +498,4 @@
 
 </body>
 </html>
+
