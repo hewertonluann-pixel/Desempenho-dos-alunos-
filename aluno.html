@@ -6,13 +6,16 @@
   <title>Painel do Aluno</title>
   <link rel="stylesheet" href="aluno.css" />
 </head>
+
 <body>
 
   <h1 class="titulo">🎵 Olá, <span id="nomeAluno"></span>!</h1>
 
   <div class="painel-wrapper">
 
-    <!-- ==================== COLUNA 1 — CARD DO ALUNO ==================== -->
+    <!-- ============================================================
+         COLUNA 1 — CARD DO ALUNO
+         ============================================================ -->
     <div class="card-aluno">
 
       <!-- FOTO -->
@@ -20,11 +23,12 @@
         <img id="fotoAluno" src="" alt="Foto do aluno">
       </div>
 
+      <!-- INSTRUMENTO -->
       <div class="instrumento" id="instrumentoAluno"></div>
 
       <!-- ENERGIA -->
       <div class="pontuacao energia">
-        ⚡ Energia
+        ⚡ Energia (frequência do mês)
         <div class="barra-frequencia">
           <div class="nivel" id="barraEnergia"></div>
         </div>
@@ -47,72 +51,68 @@
         </div>
       </div>
 
-      <!-- FOTO / SENHA -->
+      <!-- SENHA -->
       <div class="senha-link" id="boxAlterarSenha">
         <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
       </div>
 
+      <!-- FOTO -->
       <div class="alterar-foto" id="boxAlterarFoto">
         <label for="novaFoto">🖼️ Alterar foto</label>
         <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
       </div>
+    </div>
+
+    <!-- ============================================================
+         COLUNA 2 — CONQUISTAS + FREQUÊNCIA
+         ============================================================ -->
+    <div class="painel-coluna2">
+
+      <!-- CONQUISTAS -->
+      <h2>🏆 Conquistas</h2>
+      <div class="grade-conquistas" id="grade-conquistas"></div>
+
+      <!-- FREQUÊNCIA -->
+      <h2 style="margin-top: 22px;">📅 Frequência Anual</h2>
+
+      <div class="grade-frequencia" id="gradeFrequencia"></div>
+
+      <div class="controle-ano">
+        <button id="anoAnterior" class="seta">&lt;</button>
+        <span id="anoAtualTexto"></span>
+        <button id="anoProximo" class="seta">&gt;</button>
+      </div>
 
     </div>
 
-    <!-- ==================== COLUNA 2 E 3 — ÁREA DE ABAS ==================== -->
-    <div class="painel-central">
+    <!-- ============================================================
+         COLUNA 3 — LIÇÕES ENVIADAS
+         ============================================================ -->
+    <div class="painel-coluna3">
 
-      <!-- ABAS -->
-      <div class="abas">
-        <button class="aba ativa" data-aba="abaConquistas">🏆 Conquistas</button>
-        <button class="aba" data-aba="abaFrequencia">📅 Frequência</button>
-        <button class="aba" data-aba="abaLicoes">🎤 Lições</button>
-      </div>
+      <h2>🎤 Lições enviadas</h2>
 
-      <!-- ÁREA DE CONTEÚDO (troca dinâmica) -->
-      <div class="conteudo-abas">
+      <button class="btn-enviar-licao" onclick="abrirModalEnviarLicao()">
+        ➕ Enviar nova lição
+      </button>
 
-        <!-- === ABA CONQUISTAS === -->
-        <div id="abaConquistas" class="conteudo-aba ativo">
-          <h2>🏆 Conquistas</h2>
-          <div id="grade-conquistas" class="grade-conquistas"></div>
-        </div>
+      <div id="listaLicoes" class="lista-licoes"></div>
 
-        <!-- === ABA FREQUÊNCIA === -->
-        <div id="abaFrequencia" class="conteudo-aba">
-          <h2>📅 Frequência Anual</h2>
-          <div id="gradeFrequencia" class="grade-frequencia"></div>
-
-          <div class="controle-ano">
-            <button id="anoAnterior" class="seta">&lt;</button>
-            <span id="anoAtualTexto"></span>
-            <button id="anoProximo" class="seta">&gt;</button>
-          </div>
-        </div>
-
-        <!-- === ABA LIÇÕES === -->
-        <div id="abaLicoes" class="conteudo-aba">
-          <h2>🎤 Lições enviadas</h2>
-
-          <button class="btn-enviar-licao" onclick="abrirModalEnviarLicao()">
-            ➕ Enviar nova lição
-          </button>
-
-          <div id="listaLicoes" class="lista-licoes"></div>
-        </div>
-
-      </div>
-
-    </div><!-- painel-central -->
+    </div>
 
   </div> <!-- painel-wrapper -->
 
-  <!-- POPUP FREQUÊNCIA -->
+
+  <!-- ============================================================
+       POPUP FREQUÊNCIA
+       ============================================================ -->
   <div id="popupFrequencia" class="popup" style="display:none;">
     <div class="popup-conteudo"></div>
   </div>
 
-  <!-- POPUP SENHA -->
+  <!-- ============================================================
+       POPUP SENHA
+       ============================================================ -->
   <div id="popupSenha" class="popup">
     <div class="popup-conteudo">
       <h2>Alterar senha</h2>
@@ -123,40 +123,26 @@
     </div>
   </div>
 
-  <!-- MODO PROFESSOR -->
+  <!-- ============================================================
+       MODO PROFESSOR
+       ============================================================ -->
   <div class="modo-professor" id="modoProfessorBtn" style="display:none;">
     <button onclick="acessarModoProfessor()">👨‍🏫 Acessar modo Professor</button>
   </div>
 
-  <!-- PAINEL SOCIAL -->
+  <!-- ============================================================
+       LINK DO PAINEL SOCIAL
+       ============================================================ -->
   <div class="quadro-geral-link">
     <a href="painel-social.html">👥 Painel Social da Orquestra</a>
   </div>
 
-  <!-- SCRIPTS -->
+  <!-- ============================================================
+       SCRIPTS
+       ============================================================ -->
   <script type="module" src="aluno.js"></script>
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="licoes.js"></script>
-
-  <!-- SCRIPT DAS ABAS -->
-  <script>
-    document.querySelectorAll(".aba").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document
-          .querySelectorAll(".aba")
-          .forEach(a => a.classList.remove("ativa"));
-        btn.classList.add("ativa");
-
-        const destino = btn.dataset.aba;
-
-        document
-          .querySelectorAll(".conteudo-aba")
-          .forEach(box => box.classList.remove("ativo"));
-
-        document.getElementById(destino).classList.add("ativo");
-      });
-    });
-  </script>
 
 </body>
 </html>
