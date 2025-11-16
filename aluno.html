@@ -66,9 +66,17 @@
 
       </div>
 
-      <!-- BOTÕES DO ALUNO -->
-      <button onclick="abrirModalEnviarLicao()">🎤 Enviar lição</button>
-      <a href="historico-licoes.html">📜 Ver histórico de lições</a>
+     <!-- 🎤 PAINEL DE LIÇÕES -->
+<div class="painel-licoes">
+  <h2>🎤 Lições enviadas</h2>
+
+  <button class="btn-enviar-licao" onclick="abrirModalEnviarLicao()">➕ Enviar nova lição</button>
+
+  <div id="listaLicoes" class="lista-licoes">
+    <!-- licoes.js irá preencher -->
+  </div>
+</div>
+
 
       <!-- 📊 COLUNA LATERAL -->
       <div class="coluna-lateral">
@@ -130,3 +138,4 @@
 
 </body>
 </html>
+
