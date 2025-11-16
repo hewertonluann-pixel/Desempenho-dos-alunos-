@@ -196,6 +196,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
+import { carregarLicoesAluno } from "./licoes.js";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const aluno = await carregarAlunoAtual();
+  if (aluno) carregarLicoesAluno(aluno.nome);
+});
+
+
+
 /* ========================================================
     8. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
    ======================================================== */
