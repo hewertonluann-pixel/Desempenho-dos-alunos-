@@ -549,3 +549,32 @@ export async function carregarLicoesAluno(nomeAluno) {
   });
 }
 
+export async function carregarLicoesAluno(nomeAluno) {
+  const snap = await getDocs(collection(db, "licoes"));
+  const lista = document.getElementById("listaLicoes");
+  if (!lista) return;
+
+  lista.innerHTML = "";
+
+  snap.forEach(doc => {
+    const l = doc.data();
+    if (l.aluno !== nomeAluno) return;
+
+    const data = new Date(l.dataEnvio).toLocaleDateString("pt-BR");
+
+    const card = document.createElement("div");
+    card.className = "card-licao";
+    card.innerHTML = `
+      <div><strong>Data:</strong> ${data}</div>
+      <div><strong>Status:</strong> <span class="status ${l.status}">${l.status}</span></div>
+      ${
+        l.observacaoProfessor
+          ? `<div><strong>Obs.:</strong> ${l.observacaoProfessor}</div>`
+          : ""
+      }
+      <button class="btn-ver" onclick="abrirLicao('${doc.id}')">Ver lição</button>
+    `;
+
+    lista.appendChild(card);
+  });
+}
