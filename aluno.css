@@ -40,28 +40,21 @@ h1 {
 }
 
 /* ============================================================
-   LAYOUT PRINCIPAL
+   LAYOUT PRINCIPAL — 3 COLUNAS (LAYOUT A)
    ============================================================ */
 
 .painel-wrapper {
   display: grid;
-  grid-template-columns: 290px 1fr;
+  grid-template-columns: 30% 40% 30%;
   gap: 20px;
   padding: 20px;
   max-width: 1400px;
   margin: auto;
-}
-
-.painel-central {
-  background: var(--card-alt);
-  padding: 14px;
-  border-radius: 15px;
-  border: 1px solid var(--border);
-  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.4);
+  align-items: start;
 }
 
 /* ============================================================
-   CARD DO ALUNO (COLUNA ESQUERDA)
+   COLUNA 1 — CARD DO ALUNO
    ============================================================ */
 
 .card-aluno {
@@ -103,7 +96,6 @@ h1 {
   margin-top: 16px;
   font-weight: 600;
   text-align: center;
-  color: var(--ink);
 }
 
 .barra-frequencia {
@@ -130,7 +122,6 @@ h1 {
 }
 
 .bloco label {
-  display: block;
   font-size: 0.9rem;
   color: var(--muted);
 }
@@ -141,65 +132,29 @@ h1 {
 }
 
 /* ============================================================
-   ABAS
+   COLUNA 2 — CONQUISTAS + FREQUÊNCIA
    ============================================================ */
 
-.abas {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
+.painel-coluna2 {
+  background: var(--card-alt);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+  height: 100%;
 }
 
-.aba {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid var(--azul-suave);
-  background: rgba(30, 41, 59, 0.6);
-  color: #93c5fd;
-  text-align: center;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s ease;
+.painel-coluna2 h2 {
+  margin-top: 0;
+  color: #38bdf8;
 }
-
-.aba:hover {
-  background: rgba(56, 189, 248, 0.25);
-}
-
-.aba.ativa {
-  background: var(--azul);
-  color: white;
-  border-color: #38bdf8;
-}
-
-.conteudo-aba {
-  display: none;
-  animation: fadeIn 0.25s ease;
-}
-
-.conteudo-aba.ativo {
-  display: block;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ============================================================
-   ABA: CONQUISTAS
-   ============================================================ */
 
 .grade-conquistas {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   gap: 10px;
+  margin-bottom: 20px;
 }
-
-/* ============================================================
-   ABA: FREQUÊNCIA
-   ============================================================ */
 
 .grade-frequencia {
   display: grid;
@@ -231,8 +186,25 @@ h1 {
 }
 
 /* ============================================================
-   ABA: LIÇÕES
+   COLUNA 3 — LIÇÕES ENVIADAS (ALTURA IGUAL À COLUNA 2)
    ============================================================ */
+
+.painel-coluna3 {
+  background: var(--card-alt);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+
+  /* FIXA A ALTURA DA COLUNA 2 */
+  height: 100%;
+  overflow-y: auto;
+}
+
+.painel-coluna3 h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
 
 .btn-enviar-licao {
   width: 100%;
@@ -246,17 +218,12 @@ h1 {
   margin-bottom: 16px;
 }
 
-.lista-licoes {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 .card-licao {
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid var(--border);
   padding: 14px;
   border-radius: 12px;
+  margin-bottom: 12px;
 }
 
 .status {
@@ -267,20 +234,9 @@ h1 {
   text-transform: uppercase;
 }
 
-.status.aprovada {
-  background: var(--verde-suave);
-  color: var(--verde);
-}
-
-.status.pendente {
-  background: rgba(59, 130, 246, 0.25);
-  color: #60a5fa;
-}
-
-.status.reprovada {
-  background: var(--vermelho-suave);
-  color: var(--vermelho);
-}
+.status.aprovada { background: var(--verde-suave); color: var(--verde); }
+.status.pendente { background: rgba(59, 130, 246, 0.25); color: #60a5fa; }
+.status.reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
 
 .btn-ver {
   margin-top: 8px;
@@ -298,24 +254,17 @@ h1 {
 }
 
 /* ============================================================
-   RESPONSIVIDADE — MODO CELULAR
+   RESPONSIVIDADE — CELULAR
    ============================================================ */
 
-@media (max-width: 850px) {
-
+@media (max-width: 900px) {
   .painel-wrapper {
     display: flex;
     flex-direction: column;
-    padding: 14px;
-    gap: 18px;
   }
 
-  .card-aluno {
-    order: 1;
-  }
-
-  .painel-central {
-    order: 2;
+  .painel-coluna3 {
+    max-height: 350px;
   }
 
   .grade-frequencia {
@@ -324,9 +273,7 @@ h1 {
 }
 
 @media (max-width: 500px) {
-  h1 {
-    font-size: 1.3rem;
-  }
+  h1 { font-size: 1.3rem; }
 
   .grade-frequencia {
     grid-template-columns: repeat(3, 1fr);
