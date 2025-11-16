@@ -532,3 +532,74 @@ body {
 .btn-ver:hover {
   background: rgba(59, 130, 246, 0.4);
 }
+
+/* ===================== ÁREA DE ABAS ===================== */
+
+.painel-central {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  padding: 14px;
+  border-radius: 14px;
+  backdrop-filter: blur(4px);
+}
+
+.abas {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.aba {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  color: #93c5fd;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.aba.ativa {
+  background: #0ea5e9;
+  color: #fff;
+  border-color: #38bdf8;
+}
+
+.conteudo-abas {
+  margin-top: 8px;
+}
+
+.conteudo-aba {
+  display: none;
+  animation: fadeIn 0.25s ease;
+}
+
+.conteudo-aba.ativo {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* CELULAR */
+@media (max-width: 850px) {
+  .painel-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .painel-central {
+    order: 2;
+  }
+
+  .card-aluno {
+    order: 1;
+  }
+}
