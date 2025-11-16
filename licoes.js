@@ -1,5 +1,6 @@
 // licoes.js
 // Modal premium de envio de lição com gravação de áudio + texto
+// Agora usando coleção única "licoes" (envio + listagem)
 
 import { db } from "./firebase-config.js";
 import {
@@ -7,7 +8,9 @@ import {
   addDoc,
   query,
   where,
-  getDocs
+  getDocs,
+  getDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import {
   getStorage,
@@ -23,8 +26,12 @@ let gravando = false;
 let chunks = [];
 let blobAtual = null;
 let urlAudioTemp = null;
+let timerId = null;
+let segundos = 0;
 
-// ============ INJETAR MODAL E ESTILOS ============
+/* ==========================
+   ESTILOS E MODAL DE ENVIO
+   ========================== */
 function inserirModalLicao() {
   const estilo = document.createElement("style");
   estilo.textContent = `
@@ -138,18 +145,9 @@ function inserirModalLicao() {
       justify-content: center;
       gap: 4px;
     }
-    .btn-gravar {
-      background: #ef4444;
-      color: #fff;
-    }
-    .btn-parar {
-      background: #f97316;
-      color: #111827;
-    }
-    .btn-ouvir {
-      background: #22c55e;
-      color: #022c22;
-    }
+    .btn-gravar { background: #ef4444; color: #fff; }
+    .btn-parar  { background: #f97316; color: #111827; }
+    .btn-ouvir  { background: #22c55e; color: #022c22; }
     .gravador-wave {
       height: 4px;
       border-radius: 999px;
@@ -211,6 +209,51 @@ function inserirModalLicao() {
     .msg-licao.err {
       color: #f97316;
     }
+
+    /* Modal de visualização da lição */
+    .modal-view-licao {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      backdrop-filter: blur(3px);
+    }
+    .modal-view-licao.ativo {
+      display: flex;
+      animation: aparecerLicao 0.25s ease;
+    }
+    .modal-view-conteudo {
+      background: #020617;
+      border-radius: 14px;
+      padding: 16px 14px;
+      width: 95%;
+      max-width: 360px;
+      color: #e5e7eb;
+      border: 1px solid rgba(56,189,248,0.4);
+    }
+    .modal-view-conteudo h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      color: #38bdf8;
+    }
+    .modal-view-conteudo p {
+      font-size: 0.85rem;
+      margin: 4px 0;
+    }
+    .btn-fechar-view {
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      padding: 8px 0;
+      background: #111827;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
   `;
   document.head.appendChild(estilo);
 
@@ -267,6 +310,21 @@ function inserirModalLicao() {
   `;
   document.body.appendChild(modal);
 
+  // Modal de visualização de lição
+  const modalView = document.createElement("div");
+  modalView.id = "modalViewLicao";
+  modalView.className = "modal-view-licao";
+  modalView.innerHTML = `
+    <div class="modal-view-conteudo">
+      <h3>📜 Detalhes da lição</h3>
+      <p id="viewLicaoInfo"></p>
+      <p id="viewLicaoObs"></p>
+      <audio id="viewLicaoAudio" controls style="width:100%; margin-top:6px;"></audio>
+      <button class="btn-fechar-view" id="btnFecharViewLicao">Fechar</button>
+    </div>
+  `;
+  document.body.appendChild(modalView);
+
   // Eventos
   document.getElementById("btnFecharModalLicao").onclick = fecharModalLicao;
   document.getElementById("btnCancelarLicao").onclick = fecharModalLicao;
@@ -274,6 +332,10 @@ function inserirModalLicao() {
   document.getElementById("btnPararLicao").onclick = pararGravacao;
   document.getElementById("btnOuvirLicao").onclick = ouvirGravacao;
   document.getElementById("btnEnviarLicao").onclick = enviarLicao;
+
+  document.getElementById("btnFecharViewLicao").onclick = () => {
+    modalView.classList.remove("ativo");
+  };
 }
 
 function abrirModalEnviarLicao() {
@@ -300,6 +362,12 @@ function resetarEstado() {
     URL.revokeObjectURL(urlAudioTemp);
     urlAudioTemp = null;
   }
+  if (timerId) {
+    clearInterval(timerId);
+    timerId = null;
+  }
+  segundos = 0;
+
   const status = document.getElementById("statusGravador");
   const tempo = document.getElementById("tempoGravacao");
   const wave = document.getElementById("waveBar");
@@ -307,32 +375,38 @@ function resetarEstado() {
   const btnParar = document.getElementById("btnPararLicao");
   const btnOuvir = document.getElementById("btnOuvirLicao");
   const msg = document.getElementById("msgLicao");
-  document.getElementById("tipoLicao").value = "leitura";
-  document.getElementById("numeroLicao").value = 1;
-  document.getElementById("textoLicao").value = "";
 
-  status.textContent = "Pronto para gravar.";
-  tempo.textContent = "00:00";
-  wave.style.transform = "scaleX(0)";
-  btnGravar.disabled = false;
-  btnParar.disabled = true;
-  btnOuvir.disabled = true;
-  msg.textContent = "";
-  msg.className = "msg-licao";
+  const tipo = document.getElementById("tipoLicao");
+  const numero = document.getElementById("numeroLicao");
+  const texto = document.getElementById("textoLicao");
+
+  if (tipo) tipo.value = "leitura";
+  if (numero) numero.value = 1;
+  if (texto) texto.value = "";
+
+  if (status) status.textContent = "Pronto para gravar.";
+  if (tempo) tempo.textContent = "00:00";
+  if (wave) wave.style.transform = "scaleX(0)";
+  if (btnGravar) btnGravar.disabled = false;
+  if (btnParar) btnParar.disabled = true;
+  if (btnOuvir) btnOuvir.disabled = true;
+  if (msg) {
+    msg.textContent = "";
+    msg.className = "msg-licao";
+  }
 }
-
-let timerId = null;
-let segundos = 0;
 
 function atualizarTempo() {
   segundos++;
   const m = String(Math.floor(segundos / 60)).padStart(2, "0");
   const s = String(segundos % 60).padStart(2, "0");
-  document.getElementById("tempoGravacao").textContent = `${m}:${s}`;
+  const tempoEl = document.getElementById("tempoGravacao");
+  if (tempoEl) tempoEl.textContent = `${m}:${s}`;
 
   const wave = document.getElementById("waveBar");
-  // animação simples
-  wave.style.transform = `scaleX(${Math.min(1, segundos / 30)})`;
+  if (wave) {
+    wave.style.transform = `scaleX(${Math.min(1, segundos / 30)})`;
+  }
 }
 
 async function iniciarGravacao() {
@@ -343,8 +417,10 @@ async function iniciarGravacao() {
   const msg = document.getElementById("msgLicao");
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    msg.textContent = "Seu navegador não suporta gravação. Use o envio de arquivo futuramente.";
-    msg.className = "msg-licao err";
+    if (msg) {
+      msg.textContent = "Seu navegador não suporta gravação. Use outro navegador.";
+      msg.className = "msg-licao err";
+    }
     return;
   }
 
@@ -360,40 +436,38 @@ async function iniciarGravacao() {
       if (e.data.size > 0) chunks.push(e.data);
     };
 
-   mediaRecorder.onstop = () => {
-  gravando = false;
+    mediaRecorder.onstop = () => {
+      gravando = false;
+      const mime = mediaRecorder.mimeType || "audio/webm";
+      const blob = new Blob(chunks, { type: mime });
 
-  // Pega o MIME real do navegador
-  const mime = mediaRecorder.mimeType || "audio/webm";
+      if (blob.size < 500) {
+        if (status) status.textContent = "⚠ Áudio muito curto ou corrompido. Tente novamente.";
+        blobAtual = null;
+        return;
+      }
 
-  const blob = new Blob(chunks, { type: mime });
+      blobAtual = blob;
+      urlAudioTemp = URL.createObjectURL(blob);
 
-  // Verificação extra (evita blobs corrompidos)
-  if (blob.size < 500) {
-    status.textContent = "⚠ Erro: áudio muito curto ou corrompido. Tente novamente.";
-    blobAtual = null;
-    return;
-  }
-
-  blobAtual = blob;
-  urlAudioTemp = URL.createObjectURL(blob);
-
-  btnOuvir.disabled = false;
-  status.textContent = "Gravação concluída! Você pode ouvir antes de enviar.";
-};
+      if (btnOuvir) btnOuvir.disabled = false;
+      if (status) status.textContent = "Gravação concluída! Você pode ouvir antes de enviar.";
+    };
 
     mediaRecorder.start();
-    status.textContent = "Gravando... fale normalmente.";
-    btnGravar.disabled = true;
-    btnParar.disabled = false;
-    btnOuvir.disabled = true;
+    if (status) status.textContent = "Gravando... fale normalmente.";
+    if (btnGravar) btnGravar.disabled = true;
+    if (btnParar) btnParar.disabled = false;
+    if (btnOuvir) btnOuvir.disabled = true;
 
     if (timerId) clearInterval(timerId);
     timerId = setInterval(atualizarTempo, 1000);
 
   } catch (erro) {
-    msg.textContent = "Não foi possível acessar o microfone.";
-    msg.className = "msg-licao err";
+    if (msg) {
+      msg.textContent = "Não foi possível acessar o microfone.";
+      msg.className = "msg-licao err";
+    }
   }
 }
 
@@ -405,13 +479,13 @@ function pararGravacao() {
   if (mediaRecorder && gravando) {
     mediaRecorder.stop();
     gravando = false;
-    btnParar.disabled = true;
-    btnGravar.disabled = false;
+    if (btnParar) btnParar.disabled = true;
+    if (btnGravar) btnGravar.disabled = false;
     if (timerId) {
       clearInterval(timerId);
       timerId = null;
     }
-    status.textContent = "Processando áudio...";
+    if (status) status.textContent = "Processando áudio...";
   }
 }
 
@@ -422,23 +496,29 @@ function ouvirGravacao() {
 }
 
 async function enviarLicao() {
-  const tipo = document.getElementById("tipoLicao").value;
-  const numero = parseInt(document.getElementById("numeroLicao").value, 10);
-  const texto = document.getElementById("textoLicao").value.trim();
+  const tipo = document.getElementById("tipoLicao")?.value;
+  const numero = parseInt(document.getElementById("numeroLicao")?.value, 10);
+  const texto = document.getElementById("textoLicao")?.value.trim();
   const msg = document.getElementById("msgLicao");
 
-  msg.textContent = "";
-  msg.className = "msg-licao";
+  if (msg) {
+    msg.textContent = "";
+    msg.className = "msg-licao";
+  }
 
   if (!blobAtual) {
-    msg.textContent = "Grave um áudio antes de enviar.";
-    msg.className = "msg-licao err";
+    if (msg) {
+      msg.textContent = "Grave um áudio antes de enviar.";
+      msg.className = "msg-licao err";
+    }
     return;
   }
 
   if (!numero || numero <= 0) {
-    msg.textContent = "Informe o número da lição.";
-    msg.className = "msg-licao err";
+    if (msg) {
+      msg.textContent = "Informe o número da lição.";
+      msg.className = "msg-licao err";
+    }
     return;
   }
 
@@ -450,21 +530,27 @@ async function enviarLicao() {
   }
 
   if (!usuario || !usuario.nome) {
-    msg.textContent = "Sessão inválida. Faça login novamente.";
-    msg.className = "msg-licao err";
+    if (msg) {
+      msg.textContent = "Sessão inválida. Faça login novamente.";
+      msg.className = "msg-licao err";
+    }
     return;
   }
 
-  msg.textContent = "Enviando lição...";
-  msg.className = "msg-licao";
+  if (msg) {
+    msg.textContent = "Enviando lição...";
+    msg.className = "msg-licao";
+  }
 
   // Buscar aluno no Firestore
   const q = query(collection(db, "alunos"), where("nome", "==", usuario.nome));
   const snap = await getDocs(q);
 
   if (snap.empty) {
-    msg.textContent = "Aluno não encontrado no banco de dados.";
-    msg.className = "msg-licao err";
+    if (msg) {
+      msg.textContent = "Aluno não encontrado no banco de dados.";
+      msg.className = "msg-licao err";
+    }
     return;
   }
 
@@ -476,105 +562,130 @@ async function enviarLicao() {
   const caminho = `licoes/${alunoId}/${tipo}_${numero}_${Date.now()}.webm`;
   const arquivoRef = ref(storage, caminho);
 
-  // O upload deve ser feito com metadata correta
-const metadata = {
-  contentType: blobAtual.type || "audio/webm"
-};
+  const metadata = {
+    contentType: blobAtual.type || "audio/webm"
+  };
 
-await uploadBytes(arquivoRef, blobAtual, metadata);
+  await uploadBytes(arquivoRef, blobAtual, metadata);
+  await new Promise(res => setTimeout(res, 200)); // pequeno delay
+  const audioURL = await getDownloadURL(arquivoRef);
 
-// Aguarda 150–250ms antes do getDownloadURL (bug do Firebase em mobile)
-await new Promise(res => setTimeout(res, 200));
-
-const audioURL = await getDownloadURL(arquivoRef);
-
-
-  // Criar solicitação no Firestore
-  await addDoc(collection(db, "solicitacoesLicao"), {
+  // Criar registro na coleção UNIFICADA "licoes"
+  await addDoc(collection(db, "licoes"), {
     alunoId,
     alunoNome,
-    tipo,          // "leitura" ou "metodo"
-    numero,        // número da lição
-    texto,         // comentário opcional
+    aluno: alunoNome,
+    tipo,
+    numero,
+    texto,
     audioURL,
     status: "pendente",
+    observacaoProfessor: "",
     criadoEm: new Date().toISOString()
   });
 
-  msg.textContent = "✅ Lição enviada para avaliação!";
-  msg.className = "msg-licao ok";
+  if (msg) {
+    msg.textContent = "✅ Lição enviada para avaliação!";
+    msg.className = "msg-licao ok";
+  }
 
   setTimeout(() => {
     fecharModalLicao();
   }, 1200);
 }
 
-// Injetar modal ao carregar
-document.addEventListener("DOMContentLoaded", () => {
-  inserirModalLicao();
-});
-
-// Tornar função global para ser chamada pelo HTML
-window.abrirModalEnviarLicao = abrirModalEnviarLicao;
-
-
+/* ==========================
+   LISTAGEM DE LIÇÕES NA ABA
+   ========================== */
 
 export async function carregarLicoesAluno(nomeAluno) {
-  const snap = await getDocs(collection(db, "licoes"));
-  const lista = document.getElementById("listaLicoes");
-
-  if (!lista) return;
-
-  lista.innerHTML = "";
-
-  snap.forEach(doc => {
-    const l = doc.data();
-    if (l.aluno !== nomeAluno) return;
-
-    const card = document.createElement("div");
-    card.className = "card-licao";
-
-    const data = new Date(l.dataEnvio).toLocaleDateString("pt-BR");
-
-    card.innerHTML = `
-      <div class="linha"><strong>Data:</strong> ${data}</div>
-      <div class="linha"><strong>Status:</strong> 
-        <span class="status ${l.status}">${l.status}</span>
-      </div>
-      ${l.observacaoProfessor ? `<div class="linha"><strong>Obs. do professor:</strong> ${l.observacaoProfessor}</div>` : ""}
-      <button class="btn-ver" onclick="abrirLicao('${doc.id}')">Ver lição</button>
-    `;
-
-    lista.appendChild(card);
-  });
-}
-
-export async function carregarLicoesAluno(nomeAluno) {
-  const snap = await getDocs(collection(db, "licoes"));
   const lista = document.getElementById("listaLicoes");
   if (!lista) return;
 
+  lista.innerHTML = "Carregando lições...";
+
+  // Lê da coleção "licoes" unificada
+  const q = query(collection(db, "licoes"), where("alunoNome", "==", nomeAluno));
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    lista.innerHTML = "<p style='font-size:0.9rem; opacity:0.8;'>Nenhuma lição enviada ainda.</p>";
+    return;
+  }
+
   lista.innerHTML = "";
 
-  snap.forEach(doc => {
-    const l = doc.data();
-    if (l.aluno !== nomeAluno) return;
+  snap.forEach(docSnap => {
+    const l = docSnap.data();
+    const id = docSnap.id;
 
-    const data = new Date(l.dataEnvio).toLocaleDateString("pt-BR");
+    // Garante compatibilidade se algum dia usou campo "aluno"
+    if (l.alunoNome !== nomeAluno && l.aluno !== nomeAluno) return;
+
+    const data = l.criadoEm
+      ? new Date(l.criadoEm).toLocaleDateString("pt-BR")
+      : new Date().toLocaleDateString("pt-BR");
 
     const card = document.createElement("div");
     card.className = "card-licao";
     card.innerHTML = `
       <div><strong>Data:</strong> ${data}</div>
+      <div><strong>Tipo:</strong> ${l.tipo === "metodo" ? "Método" : "Leitura"}</div>
+      <div><strong>Lição nº:</strong> ${l.numero}</div>
       <div><strong>Status:</strong> <span class="status ${l.status}">${l.status}</span></div>
       ${
         l.observacaoProfessor
-          ? `<div><strong>Obs.:</strong> ${l.observacaoProfessor}</div>`
+          ? `<div><strong>Obs. do professor:</strong> ${l.observacaoProfessor}</div>`
           : ""
       }
-      <button class="btn-ver" onclick="abrirLicao('${doc.id}')">Ver lição</button>
+      <button class="btn-ver" onclick="abrirLicao('${id}')">Ver lição</button>
     `;
-
     lista.appendChild(card);
   });
 }
+
+/* ==========================
+   VISUALIZAÇÃO DE UMA LIÇÃO
+   ========================== */
+
+async function abrirLicao(id) {
+  const refL = doc(db, "licoes", id);
+  const snap = await getDoc(refL);
+  if (!snap.exists()) {
+    alert("Lição não encontrada.");
+    return;
+  }
+
+  const l = snap.data();
+  const modal = document.getElementById("modalViewLicao");
+  const infoEl = document.getElementById("viewLicaoInfo");
+  const obsEl = document.getElementById("viewLicaoObs");
+  const audioEl = document.getElementById("viewLicaoAudio");
+
+  if (!modal || !infoEl || !audioEl) return;
+
+  const data = l.criadoEm
+    ? new Date(l.criadoEm).toLocaleString("pt-BR")
+    : "";
+
+  infoEl.textContent = `${l.tipo === "metodo" ? "Método" : "Leitura"} — lição nº ${l.numero} — ${data}`;
+  if (obsEl) {
+    obsEl.textContent = l.texto ? `Comentário: ${l.texto}` : "";
+  }
+  audioEl.src = l.audioURL || "";
+  audioEl.load();
+
+  modal.classList.add("ativo");
+}
+
+/* ==========================
+   INICIALIZAÇÃO
+   ========================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  inserirModalLicao();
+});
+
+// tornar funções globais para o HTML (onclick)
+window.abrirModalEnviarLicao = abrirModalEnviarLicao;
+window.abrirLicao = abrirLicao;
