@@ -11,87 +11,77 @@
   <h1 class="titulo">🎵 Olá, <span id="nomeAluno"></span>!</h1>
 
   <div class="painel-wrapper">
-    <div class="painel-container">
 
-      <!-- 🎴 CARTA DO ALUNO -->
-      <div class="container-aluno">
+    <!-- ==================== COLUNA 1 — CARD DO ALUNO ==================== -->
+    <div class="card-aluno">
 
-        <!-- FOTO (agora é IMG, necessário para aluno.js) -->
-        <div class="foto">
-          <img id="fotoAluno" src="" alt="Foto do aluno">
-        </div>
-
-        <!-- INSTRUMENTO -->
-        <div class="instrumento" id="instrumentoAluno"></div>
-
-        <!-- ⚡ ENERGIA -->
-        <div class="pontuacao energia">
-          ⚡ Energia (Frequência mensal)
-          <div class="barra-frequencia">
-            <div class="nivel" id="barraEnergia"></div>
-          </div>
-          <small><span id="valorEnergia">0</span>%</small>
-        </div>
-
-        <!-- 🔢 PONTUAÇÕES -->
-        <div class="pontuacoes-lado">
-
-          <div class="bloco">
-            <label>🧮 Nível</label>
-            <span id="nivelGeral">--</span>
-          </div>
-
-          <div class="bloco">
-            <label>📘 Leitura</label>
-            <span id="nivelLeitura">--</span>
-          </div>
-
-          <div class="bloco">
-            <label>🎯 Método</label>
-            <span id="nivelMetodo">--</span>
-          </div>
-
-        </div>
-
-        <!-- 🔒 ALTERAR SENHA (apenas quem não está em modo público) -->
-        <div class="senha-link" id="boxAlterarSenha">
-          <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
-        </div>
-
-        <!-- 🖼️ ALTERAR FOTO -->
-        <div class="alterar-foto" id="boxAlterarFoto">
-          <label for="novaFoto">🖼️ Alterar foto</label>
-          <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
-        </div>
-
+      <!-- FOTO -->
+      <div class="foto">
+        <img id="fotoAluno" src="" alt="Foto do aluno">
       </div>
 
-     <!-- 🎤 PAINEL DE LIÇÕES -->
-<div class="painel-licoes">
-  <h2>🎤 Lições enviadas</h2>
+      <div class="instrumento" id="instrumentoAluno"></div>
 
-  <button class="btn-enviar-licao" onclick="abrirModalEnviarLicao()">➕ Enviar nova lição</button>
+      <!-- ENERGIA -->
+      <div class="pontuacao energia">
+        ⚡ Energia
+        <div class="barra-frequencia">
+          <div class="nivel" id="barraEnergia"></div>
+        </div>
+        <small><span id="valorEnergia">0</span>%</small>
+      </div>
 
-  <div id="listaLicoes" class="lista-licoes">
-    <!-- licoes.js irá preencher -->
-  </div>
-</div>
+      <!-- PONTUAÇÕES -->
+      <div class="pontuacoes-lado">
+        <div class="bloco">
+          <label>🧮 Nível</label>
+          <span id="nivelGeral">--</span>
+        </div>
+        <div class="bloco">
+          <label>📘 Leitura</label>
+          <span id="nivelLeitura">--</span>
+        </div>
+        <div class="bloco">
+          <label>🎯 Método</label>
+          <span id="nivelMetodo">--</span>
+        </div>
+      </div>
 
+      <!-- FOTO / SENHA -->
+      <div class="senha-link" id="boxAlterarSenha">
+        <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
+      </div>
 
-      <!-- 📊 COLUNA LATERAL -->
-      <div class="coluna-lateral">
+      <div class="alterar-foto" id="boxAlterarFoto">
+        <label for="novaFoto">🖼️ Alterar foto</label>
+        <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
+      </div>
 
-        <!-- 🏆 CONQUISTAS -->
-        <div class="painel-conquistas">
+    </div>
+
+    <!-- ==================== COLUNA 2 E 3 — ÁREA DE ABAS ==================== -->
+    <div class="painel-central">
+
+      <!-- ABAS -->
+      <div class="abas">
+        <button class="aba ativa" data-aba="abaConquistas">🏆 Conquistas</button>
+        <button class="aba" data-aba="abaFrequencia">📅 Frequência</button>
+        <button class="aba" data-aba="abaLicoes">🎤 Lições</button>
+      </div>
+
+      <!-- ÁREA DE CONTEÚDO (troca dinâmica) -->
+      <div class="conteudo-abas">
+
+        <!-- === ABA CONQUISTAS === -->
+        <div id="abaConquistas" class="conteudo-aba ativo">
           <h2>🏆 Conquistas</h2>
-          <div class="grade-conquistas" id="grade-conquistas"></div>
+          <div id="grade-conquistas" class="grade-conquistas"></div>
         </div>
 
-        <!-- 📅 FREQUÊNCIA ANUAL -->
-        <div class="painel-frequencia">
+        <!-- === ABA FREQUÊNCIA === -->
+        <div id="abaFrequencia" class="conteudo-aba">
           <h2>📅 Frequência Anual</h2>
-
-          <div class="grade-frequencia" id="gradeFrequencia"></div>
+          <div id="gradeFrequencia" class="grade-frequencia"></div>
 
           <div class="controle-ano">
             <button id="anoAnterior" class="seta">&lt;</button>
@@ -100,17 +90,29 @@
           </div>
         </div>
 
+        <!-- === ABA LIÇÕES === -->
+        <div id="abaLicoes" class="conteudo-aba">
+          <h2>🎤 Lições enviadas</h2>
+
+          <button class="btn-enviar-licao" onclick="abrirModalEnviarLicao()">
+            ➕ Enviar nova lição
+          </button>
+
+          <div id="listaLicoes" class="lista-licoes"></div>
+        </div>
+
       </div>
 
-    </div>
-  </div>
+    </div><!-- painel-central -->
 
-  <!-- 📌 POPUP DE FREQUÊNCIA (detalhes do mês) -->
+  </div> <!-- painel-wrapper -->
+
+  <!-- POPUP FREQUÊNCIA -->
   <div id="popupFrequencia" class="popup" style="display:none;">
     <div class="popup-conteudo"></div>
   </div>
 
-  <!-- 🔐 POPUP DE SENHA -->
+  <!-- POPUP SENHA -->
   <div id="popupSenha" class="popup">
     <div class="popup-conteudo">
       <h2>Alterar senha</h2>
@@ -121,12 +123,12 @@
     </div>
   </div>
 
-  <!-- 👨‍🏫 MODO PROFESSOR (só se classificado == true) -->
+  <!-- MODO PROFESSOR -->
   <div class="modo-professor" id="modoProfessorBtn" style="display:none;">
     <button onclick="acessarModoProfessor()">👨‍🏫 Acessar modo Professor</button>
   </div>
 
-  <!-- 📈 LINK PARA O PAINEL SOCIAL -->
+  <!-- PAINEL SOCIAL -->
   <div class="quadro-geral-link">
     <a href="painel-social.html">👥 Painel Social da Orquestra</a>
   </div>
@@ -136,6 +138,25 @@
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="licoes.js"></script>
 
+  <!-- SCRIPT DAS ABAS -->
+  <script>
+    document.querySelectorAll(".aba").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document
+          .querySelectorAll(".aba")
+          .forEach(a => a.classList.remove("ativa"));
+        btn.classList.add("ativa");
+
+        const destino = btn.dataset.aba;
+
+        document
+          .querySelectorAll(".conteudo-aba")
+          .forEach(box => box.classList.remove("ativo"));
+
+        document.getElementById(destino).classList.add("ativo");
+      });
+    });
+  </script>
+
 </body>
 </html>
-
