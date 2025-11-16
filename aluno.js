@@ -58,15 +58,23 @@ export function montarPainelAluno(aluno) {
   document.getElementById("nomeAluno").textContent = aluno.nome;
   document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "--";
 
+  // Foto
   const fotoEl = document.getElementById("fotoAluno");
   fotoEl.src = aluno.foto || "https://via.placeholder.com/150";
 
-  const nivelLeitura = document.getElementById("nivelLeitura");
-  const nivelMetodo = document.getElementById("nivelMetodo");
+  // Leitura e Método
+  const leitura = aluno.leitura ?? 0;
+  const metodo = aluno.metodo ?? 0;
 
-  if (nivelLeitura) nivelLeitura.textContent = aluno.leitura ?? "--";
-  if (nivelMetodo) nivelMetodo.textContent = aluno.metodo ?? "--";
+  document.getElementById("nivelLeitura").textContent = leitura;
+  document.getElementById("nivelMetodo").textContent = metodo;
 
+  // 💥 NÍVEL TOTAL (soma)
+  const nivel = leitura + metodo;
+  const nivelEl = document.getElementById("nivelGeral");
+  if (nivelEl) nivelEl.textContent = nivel;
+
+  // Energia
   atualizarEnergiaVisual(aluno.energia ?? 10);
 }
 
