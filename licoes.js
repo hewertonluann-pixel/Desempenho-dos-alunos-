@@ -516,3 +516,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Tornar função global para ser chamada pelo HTML
 window.abrirModalEnviarLicao = abrirModalEnviarLicao;
+
+
+
+export async function carregarLicoesAluno(nomeAluno) {
+  const snap = await getDocs(collection(db, "licoes"));
+  const lista = document.getElementById("listaLicoes");
+
+  if (!lista) return;
+
+  lista.innerHTML = "";
+
+  snap.forEach(doc => {
+    const l = doc.data();
+    if (l.aluno !== nomeAluno) return;
+
+    const card = document.createElement("div");
+    card.className = "card-licao";
+
+    const data = new Date(l.dataEnvio).toLocaleDateString("pt-BR");
+
+    card.innerHTML = `
+      <div class="linha"><strong>Data:</strong> ${data}</div>
+      <div class="linha"><strong>Status:</strong> 
+        <span class="status ${l.status}">${l.status}</span>
+      </div>
+      ${l.observacaoProfessor ? `<div class="linha"><strong>Obs. do professor:</strong> ${l.observacaoProfessor}</div>` : ""}
+      <button class="btn-ver" onclick="abrirLicao('${doc.id}')">Ver lição</button>
+    `;
+
+    lista.appendChild(card);
+  });
+}
+
