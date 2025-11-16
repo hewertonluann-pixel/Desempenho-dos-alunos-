@@ -16,7 +16,7 @@
       <!-- 🎴 CARTA DO ALUNO -->
       <div class="container-aluno">
 
-        <!-- FOTO DO ALUNO (AGORA IMG, NÃO DIV) -->
+        <!-- FOTO (agora é IMG, necessário para aluno.js) -->
         <div class="foto">
           <img id="fotoAluno" src="" alt="Foto do aluno">
         </div>
@@ -37,6 +37,11 @@
         <div class="pontuacoes-lado">
 
           <div class="bloco">
+            <label>🧮 Nível</label>
+            <span id="nivelGeral">--</span>
+          </div>
+
+          <div class="bloco">
             <label>📘 Leitura</label>
             <span id="nivelLeitura">--</span>
           </div>
@@ -45,22 +50,23 @@
             <label>🎯 Método</label>
             <span id="nivelMetodo">--</span>
           </div>
+
         </div>
 
-        <!-- 🔒 SENHA -->
+        <!-- 🔒 ALTERAR SENHA (apenas quem não está em modo público) -->
         <div class="senha-link" id="boxAlterarSenha">
           <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
         </div>
 
-        <!-- FOTO -->
+        <!-- 🖼️ ALTERAR FOTO -->
         <div class="alterar-foto" id="boxAlterarFoto">
           <label for="novaFoto">🖼️ Alterar foto</label>
-          <input type="file" id="novaFoto" accept="image/*" />
+          <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
         </div>
 
       </div>
 
-      <!-- ENVIO DE LIÇÃO -->
+      <!-- BOTÕES DO ALUNO -->
       <button onclick="abrirModalEnviarLicao()">🎤 Enviar lição</button>
       <a href="historico-licoes.html">📜 Ver histórico de lições</a>
 
@@ -70,7 +76,7 @@
         <!-- 🏆 CONQUISTAS -->
         <div class="painel-conquistas">
           <h2>🏆 Conquistas</h2>
-          <div class="grade-conquistas" id="gradeConquistas"></div>
+          <div class="grade-conquistas" id="grade-conquistas"></div>
         </div>
 
         <!-- 📅 FREQUÊNCIA ANUAL -->
@@ -87,10 +93,11 @@
         </div>
 
       </div>
+
     </div>
   </div>
 
-  <!-- 📌 POPUP DETALHE DO MÊS -->
+  <!-- 📌 POPUP DE FREQUÊNCIA (detalhes do mês) -->
   <div id="popupFrequencia" class="popup" style="display:none;">
     <div class="popup-conteudo"></div>
   </div>
@@ -106,12 +113,12 @@
     </div>
   </div>
 
-  <!-- 👨‍🏫 MODO PROFESSOR -->
+  <!-- 👨‍🏫 MODO PROFESSOR (só se classificado == true) -->
   <div class="modo-professor" id="modoProfessorBtn" style="display:none;">
     <button onclick="acessarModoProfessor()">👨‍🏫 Acessar modo Professor</button>
   </div>
 
-  <!-- 📈 LINK PAINEL SOCIAL -->
+  <!-- 📈 LINK PARA O PAINEL SOCIAL -->
   <div class="quadro-geral-link">
     <a href="painel-social.html">👥 Painel Social da Orquestra</a>
   </div>
