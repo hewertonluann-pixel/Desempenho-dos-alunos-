@@ -1,115 +1,146 @@
-// ===============================
 // professor-alunos.js
-// Módulo exclusivo de gerenciamento de alunos
-// ===============================
+// Módulo oficial para gerenciar alunos no Painel do Professor
+// Compatível com a arquitetura unificada de CHAMADA DO DIA
 
 import { db } from "../firebase-config.js";
 import {
   collection,
   getDocs,
   updateDoc,
-  deleteDoc,
-  doc
+  doc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-
-// ---------- CARREGAR ALUNOS ----------
+/* ============================================================
+   1. CARREGAR ALUNOS
+   ============================================================ */
 export async function carregarAlunos() {
-  const snapshot = await getDocs(collection(db, "alunos"));
+  const snap = await getDocs(collection(db, "alunos"));
   const alunos = [];
-  snapshot.forEach(docItem => alunos.push({ id: docItem.id, ...docItem.data() }));
-  alunos.sort((a, b) => a.nome.localeCompare(b.nome));
+
+  snap.forEach((d) => {
+    alunos.push({ id: d.id, ...d.data() });
+  });
+
+  alunos.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
   return alunos;
 }
 
-
-// ---------- RENDERIZAR PAINEL ----------
-export async function renderizarPainel(painelElem, loaderElem) {
-  loaderElem.style.display = "flex";
-  painelElem.style.display = "none";
+/* ============================================================
+   2. RENDERIZAR PAINEL
+   ============================================================ */
+export async function renderizarPainel(painelEl, loaderEl) {
+  painelEl.style.display = "none";
+  loaderEl.style.display = "block";
 
   const alunos = await carregarAlunos();
 
-  painelElem.innerHTML = alunos.map(aluno => `
+  painelEl.innerHTML = alunos
+    .map((aluno) => criarFichaHTML(aluno))
+    .join("");
+
+  loaderEl.style.display = "none";
+  painelEl.style.display = "grid";
+}
+
+/* ============================================================
+   3. GERAR HTML DE CADA FICHA DO ALUNO
+   ============================================================ */
+function criarFichaHTML(aluno) {
+  const foto = aluno.foto
+    ? `<img src="${aluno.foto}" alt="${aluno.nome}">`
+    : `<img src="https://via.placeholder.com/85" alt="Sem foto">`;
+
+  return `
     <div class="ficha">
-      <div class="foto">
-        ${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : "Sem foto"}
+
+      <div class="foto">${foto}
+        <input type="file" data-acao="foto" data-id="${aluno.id}" style="margin-top:4px;" />
       </div>
 
       <div class="dados">
-        <div class="campo"><label>${aluno.nome}</label></div>
 
-        <!-- Leitura -->
+        <div class="campo">
+          <label>${aluno.nome}</label>
+        </div>
+
         <div class="campo nota-linha">
-          <label>Leitura (BONA)</label>
+          <label>Leitura</label>
           <div class="nota-controle">
-            <button class="botao-nota" data-acao="alterar" data-campo="leitura" data-id="${aluno.id}" data-delta="-1">−</button>
-            <input class="campo-nota" type="number" id="leitura-${aluno.id}"
-                   value="${aluno.leitura ?? 1}"
-                   data-acao="input" data-campo="leitura" data-id="${aluno.id}">
-            <button class="botao-nota" data-acao="alterar" data-campo="leitura" data-id="${aluno.id}" data-delta="1">+</button>
+            <button class="botao-nota" 
+              data-acao="alterar" data-id="${aluno.id}" data-campo="leitura" data-delta="-1">−</button>
+
+            <input type="number" class="campo-nota"
+              value="${aluno.leitura ?? 1}"
+              data-acao="input" data-id="${aluno.id}" data-campo="leitura">
+
+            <button class="botao-nota" 
+              data-acao="alterar" data-id="${aluno.id}" data-campo="leitura" data-delta="1">+</button>
           </div>
         </div>
 
-        <!-- Método -->
         <div class="campo nota-linha">
           <label>Método</label>
           <div class="nota-controle">
-            <button class="botao-nota" data-acao="alterar" data-campo="metodo" data-id="${aluno.id}" data-delta="-1">−</button>
-            <input class="campo-nota" type="number" id="metodo-${aluno.id}"
-                   value="${aluno.metodo ?? 1}"
-                   data-acao="input" data-campo="metodo" data-id="${aluno.id}">
-            <button class="botao-nota" data-acao="alterar" data-campo="metodo" data-id="${aluno.id}" data-delta="1">+</button>
+            <button class="botao-nota"
+              data-acao="alterar" data-id="${aluno.id}" data-campo="metodo" data-delta="-1">−</button>
+
+            <input type="number" class="campo-nota"
+              value="${aluno.metodo ?? 1}"
+              data-acao="input" data-id="${aluno.id}" data-campo="metodo">
+
+            <button class="botao-nota"
+              data-acao="alterar" data-id="${aluno.id}" data-campo="metodo" data-delta="1">+</button>
           </div>
         </div>
 
-        <!-- Instrumento -->
         <div class="campo">
           <label>Instrumento</label>
-          <input type="text"
-                 value="${aluno.instrumento ?? ''}"
-                 data-acao="instrumento" data-id="${aluno.id}">
+          <input type="text" class="campo-nota" style="width:120px;"
+            value="${aluno.instrumento ?? ""}"
+            data-acao="instrumento" data-id="${aluno.id}">
         </div>
 
         <div class="acoes">
           <button class="classificar"
-                  data-acao="classificar"
-                  data-id="${aluno.id}"
-                  data-status="${aluno.classificado === true}">
+            data-acao="classificar"
+            data-id="${aluno.id}"
+            data-status="${aluno.classificado}">
             ${aluno.classificado ? "Desclassificar" : "Classificar"}
           </button>
 
-          <button class="remover" data-acao="remover" data-id="${aluno.id}" data-nome="${aluno.nome}">
+          <button class="remover"
+            data-acao="remover"
+            data-id="${aluno.id}"
+            data-nome="${aluno.nome}">
             Remover
           </button>
-
-          <label class="alterar-foto">📷
-            <input type="file" accept="image/*"
-                   data-acao="foto" data-id="${aluno.id}">
-          </label>
         </div>
+
       </div>
     </div>
-  `).join("");
-
-  loaderElem.style.display = "none";
-  painelElem.style.display = "flex";
+  `;
 }
 
-
-// ---------- ALTERAR NOTA +/− ----------
+/* ============================================================
+   4. ALTERAR NOTA DE LEITURA OU MÉTODO
+   ============================================================ */
 export async function alterarNota(id, campo, delta) {
-  const input = document.getElementById(`${campo}-${id}`);
-  let v = Number(input.value) + Number(delta);
-  if (v < 1) v = 1;
-  if (v > 130) v = 130;
+  const ref = doc(db, "alunos", id);
+  const valorAtual = parseInt(
+    document.querySelector(`[data-id="${id}"][data-campo="${campo}"]`)?.value || "1"
+  );
 
-  input.value = v;
-  await updateDoc(doc(db, "alunos", id), { [campo]: v });
+  let novoValor = valorAtual + Number(delta);
+  if (novoValor < 1) novoValor = 1;
+  if (novoValor > 130) novoValor = 130;
+
+  await updateDoc(ref, { [campo]: novoValor });
 }
 
-
-// ---------- ALTERAR NOTA (digitado) ----------
+/* ============================================================
+   5. ATUALIZAR NOTA PELO INPUT
+   ============================================================ */
 export async function atualizarNota(id, campo, valor) {
   let v = parseInt(valor);
   if (isNaN(v) || v < 1) v = 1;
@@ -118,33 +149,42 @@ export async function atualizarNota(id, campo, valor) {
   await updateDoc(doc(db, "alunos", id), { [campo]: v });
 }
 
-
-// ---------- ATUALIZAR INSTRUMENTO ----------
-export async function atualizarInstrumento(id, valor) {
-  await updateDoc(doc(db, "alunos", id), { instrumento: valor });
+/* ============================================================
+   6. ATUALIZAR INSTRUMENTO
+   ============================================================ */
+export async function atualizarInstrumento(id, novoInstrumento) {
+  await updateDoc(doc(db, "alunos", id), {
+    instrumento: novoInstrumento.trim()
+  });
 }
 
-
-// ---------- ALTERNAR CLASSIFICAÇÃO ----------
-export async function alternarClassificacao(id, atual) {
-  await updateDoc(doc(db, "alunos", id), { classificado: !atual });
+/* ============================================================
+   7. CLASSIFICAR / DESCLASSIFICAR
+   ============================================================ */
+export async function alternarClassificacao(id, classificadoAtual) {
+  await updateDoc(doc(db, "alunos", id), {
+    classificado: !classificadoAtual
+  });
 }
 
-
-// ---------- REMOVER ALUNO ----------
+/* ============================================================
+   8. REMOVER ALUNO
+   ============================================================ */
 export async function removerAluno(id) {
   await deleteDoc(doc(db, "alunos", id));
 }
 
-
-// ---------- ALTERAR FOTO ----------
+/* ============================================================
+   9. ALTERAR FOTO
+   ============================================================ */
 export async function alterarFoto(id, arquivo) {
-  const leitor = new FileReader();
-  return new Promise((resolve) => {
-    leitor.onload = async (e) => {
-      await updateDoc(doc(db, "alunos", id), { foto: e.target.result });
-      resolve();
-    };
-    leitor.readAsDataURL(arquivo);
+  if (!arquivo) return;
+
+  const base64 = await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.readAsDataURL(arquivo);
   });
+
+  await updateDoc(doc(db, "alunos", id), { foto: base64 });
 }
