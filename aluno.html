@@ -15,7 +15,13 @@
 
       <!-- 🎴 CARTA DO ALUNO -->
       <div class="container-aluno">
-        <div class="foto" id="fotoAluno"></div>
+
+        <!-- FOTO DO ALUNO (AGORA IMG, NÃO DIV) -->
+        <div class="foto">
+          <img id="fotoAluno" src="" alt="Foto do aluno">
+        </div>
+
+        <!-- INSTRUMENTO -->
         <div class="instrumento" id="instrumentoAluno"></div>
 
         <!-- ⚡ ENERGIA -->
@@ -24,44 +30,40 @@
           <div class="barra-frequencia">
             <div class="nivel" id="barraEnergia"></div>
           </div>
-          <small id="textoEnergia"></small>
+          <small><span id="valorEnergia">0</span>%</small>
         </div>
 
         <!-- 🔢 PONTUAÇÕES -->
         <div class="pontuacoes-lado">
-          <div class="bloco">
-            <label>🧮 Nível</label>
-            <span id="scoreGeralValor"></span>
-          </div>
+
           <div class="bloco">
             <label>📘 Leitura</label>
-            <span id="leituraValor"></span>
+            <span id="nivelLeitura">--</span>
           </div>
+
           <div class="bloco">
             <label>🎯 Método</label>
-            <span id="metodoValor"></span>
+            <span id="nivelMetodo">--</span>
           </div>
         </div>
 
-        <!-- 🔒 ALTERAR SENHA (oculta em modo público) -->
+        <!-- 🔒 SENHA -->
         <div class="senha-link" id="boxAlterarSenha">
           <a href="#" onclick="abrirPopup()">🔒 Alterar senha</a>
         </div>
 
-        <!-- 🖼️ ALTERAR FOTO (oculta em modo público) -->
+        <!-- FOTO -->
         <div class="alterar-foto" id="boxAlterarFoto">
           <label for="novaFoto">🖼️ Alterar foto</label>
-          <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" />
+          <input type="file" id="novaFoto" accept="image/*" />
         </div>
 
       </div>
 
+      <!-- ENVIO DE LIÇÃO -->
+      <button onclick="abrirModalEnviarLicao()">🎤 Enviar lição</button>
+      <a href="historico-licoes.html">📜 Ver histórico de lições</a>
 
-     <button onclick="abrirModalEnviarLicao()">🎤 Enviar lição</button>
-     <a href="historico-licoes.html">📜 Ver histórico de lições</a>
-
-
-      
       <!-- 📊 COLUNA LATERAL -->
       <div class="coluna-lateral">
 
@@ -88,7 +90,12 @@
     </div>
   </div>
 
-  <!-- 🔐 POPUP DE SENHA (desativado em modo público) -->
+  <!-- 📌 POPUP DETALHE DO MÊS -->
+  <div id="popupFrequencia" class="popup" style="display:none;">
+    <div class="popup-conteudo"></div>
+  </div>
+
+  <!-- 🔐 POPUP DE SENHA -->
   <div id="popupSenha" class="popup">
     <div class="popup-conteudo">
       <h2>Alterar senha</h2>
@@ -99,24 +106,20 @@
     </div>
   </div>
 
-  <!-- 👨‍🏫 MODO PROFESSOR (só aparece se classificado === true e NÃO for view=public) -->
+  <!-- 👨‍🏫 MODO PROFESSOR -->
   <div class="modo-professor" id="modoProfessorBtn" style="display:none;">
     <button onclick="acessarModoProfessor()">👨‍🏫 Acessar modo Professor</button>
   </div>
 
-  <!-- 📈 LINK PARA O PAINEL SOCIAL -->
+  <!-- 📈 LINK PAINEL SOCIAL -->
   <div class="quadro-geral-link">
     <a href="painel-social.html">👥 Painel Social da Orquestra</a>
   </div>
 
-  <!-- 🔥 SCRIPT PRINCIPAL -->
+  <!-- SCRIPTS -->
   <script type="module" src="aluno.js"></script>
-
   <script type="module" src="navegacao.js"></script>
-
   <script type="module" src="licoes.js"></script>
 
 </body>
 </html>
-
-
