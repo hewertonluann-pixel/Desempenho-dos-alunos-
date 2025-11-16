@@ -4,133 +4,270 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chamada do dia - Orquestra Filhos de Asafe</title>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      padding: 20px;
-      margin: 0;
+    :root {
+      --bg: #020617;
+      --card: #0b1220;
+      --card-alt: #020617;
+      --border: #1e293b;
+      --ink: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
+      --danger: #f97373;
+      --danger-soft: rgba(248, 113, 113, 0.18);
+      --neutral-soft: rgba(148, 163, 184, 0.14);
+      --chip-bg: #0f172a;
+      --chip-ink: #e5e7eb;
     }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
     h1 {
       text-align: center;
-      margin-bottom: 4px;
-      color: #111827;
+      margin: 16px 12px 4px;
+      font-size: 1.4rem;
     }
+
     .subtitulo {
       text-align: center;
-      font-size: 0.95rem;
-      color: #4b5563;
-      margin-bottom: 16px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding: 0 12px;
     }
+
     .data-evento {
       text-align: center;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: #1f2933;
-    }
-    .painel {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .container-aluno {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 10px 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-      border: 1px solid #e5e7eb;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-    }
-    .container-aluno.vazio {
-      opacity: 0.8;
-    }
-    .container-aluno.presente {
-      border-color: #16a34a;
-      background: #ecfdf3;
-    }
-    .container-aluno.ausente {
-      border-color: #dc2626;
-      background: #fef2f2;
-    }
-    .container-aluno:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-    .nome {
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 4px;
-    }
-    .instrumento {
-      font-size: 0.85rem;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-    .botoes-presenca {
-      display: flex;
-      gap: 6px;
-    }
-    .botoes-presenca button {
-      flex: 1;
-      padding: 6px 0;
-      font-size: 0.85rem;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
-    }
-    .btn-presente {
-      background: #ecfdf3;
-      border-color: #16a34a;
-      color: #166534;
-    }
-    .btn-presente.ativo {
-      background: #16a34a;
-      color: #ecfdf3;
-    }
-    .btn-ausente {
-      background: #fef2f2;
-      border-color: #dc2626;
-      color: #b91c1c;
-    }
-    .btn-ausente.ativo {
-      background: #dc2626;
-      color: #fef2f2;
-    }
-    .botoes-presenca button:hover {
-      transform: translateY(-1px);
-    }
-    textarea {
-      width: 100%;
-      min-height: 80px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      padding: 8px 10px;
-      font-family: inherit;
-      resize: vertical;
-      margin-top: 4px;
-    }
-    textarea:focus {
-      outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.08);
-    }
-    .label-observacoes {
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: #e2e8f0;
       font-size: 0.9rem;
-      color: #374151;
-      margin-top: 8px;
+    }
+
+    .wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 6px 10px 72px;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .info {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 4px 0 10px;
+    }
+
+    .lista-alunos {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      padding-bottom: 4px;
+      overscroll-behavior: contain;
+    }
+
+    /* CARD DO ALUNO */
+    .container-aluno {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.65);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+
+    .container-aluno.vazio {
+      background: var(--card-alt);
+      border-color: #111827;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.55);
+    }
+
+    .container-aluno.presente {
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.35), var(--card));
+      border-color: var(--accent);
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.45);
+    }
+
+    .container-aluno.ausente {
+      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.35), var(--card));
+      border-color: var(--danger);
+      box-shadow: 0 8px 22px rgba(248, 113, 113, 0.4);
+    }
+
+    .container-aluno:active {
+      transform: scale(0.98);
+    }
+
+    .container-aluno.focado {
+      outline: 2px solid #38bdf8;
+      outline-offset: 1px;
+    }
+
+    .foto-aluno {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid #1e293b;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .foto-aluno img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
     }
-    .botoes {
-      margin-top: 16px;
+
+    .foto-placeholder {
+      font-size: 1.3rem;
+      color: #64748b;
+    }
+
+    .dados-aluno {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .nome {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #e5e7eb;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .instrumento {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .status-linha {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .chip-status {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--chip-bg);
+      color: var(--chip-ink);
+      border: 1px solid #1f2937;
+    }
+
+    .chip-status.presente {
+      background: var(--accent-soft);
+      color: #bbf7d0;
+      border-color: #22c55e;
+    }
+
+    .chip-status.ausente {
+      background: var(--danger-soft);
+      color: #fecaca;
+      border-color: #f97373;
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ÁREA DE OBSERVAÇÕES */
+    .observacoes-area {
+      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      padding: 10px;
+    }
+
+    .label-observacoes {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      resize: vertical;
+      background: #020617;
+      color: var(--ink);
+    }
+
+    textarea::placeholder {
+      color: #64748b;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.25);
+    }
+
+    /* RODAPÉ FIXO PARA AÇÕES */
+    .footer-acoes {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 10px 10px;
+      background: linear-gradient(to top, rgba(15,23,42,0.96), rgba(15,23,42,0.85), transparent);
       display: flex;
       gap: 8px;
       justify-content: center;
-      flex-wrap: wrap;
+      z-index: 50;
     }
-    .botoes button {
-      padding: 10px 16px;
+
+    .footer-acoes button {
+      flex: 1;
+      max-width: 260px;
+      padding: 10px 12px;
       border-radius: 999px;
       border: none;
       cursor: pointer;
@@ -138,57 +275,75 @@
       font-size: 0.95rem;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
-    .botoes button:active {
+
+    .footer-acoes button:active {
       transform: scale(0.97);
     }
-    .salvar {
-      background: #2563eb;
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(37,99,235,0.4);
+
+    .btn-salvar {
+      background: #22c55e;
+      color: #022c22;
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.6);
     }
-    .salvar[disabled] {
+
+    .btn-salvar[disabled] {
       opacity: 0.6;
-      cursor: default;
       box-shadow: none;
+      cursor: default;
     }
-    .cancelar {
-      background: #e5e7eb;
-      color: #111827;
+
+    .btn-cancelar {
+      background: #1f2937;
+      color: #e5e7eb;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.9);
     }
-    .info {
-      text-align: center;
-      font-size: 0.85rem;
-      color: #6b7280;
-      margin-bottom: 10px;
-    }
+
     .loader {
       text-align: center;
-      margin-top: 20px;
-      color: #4b5563;
-      font-size: 0.95rem;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) {
+      .wrap {
+        padding-bottom: 80px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
 <body>
   <h1>📋 Chamada do dia</h1>
-  <div class="subtitulo">Registre presenças e ausências da orquestra em um único lugar.</div>
+  <div class="subtitulo">Toque no aluno para marcar Presente / Ausente. A lista avança sozinha. 😊</div>
   <div class="data-evento">Data da chamada: <span id="dataEvento">--/--/----</span></div>
 
-  <div class="info" id="infoCarregando">Carregando alunos...</div>
-  <div class="painel" id="painelAlunos"></div>
+  <div class="wrap">
+    <div class="info" id="infoCarregando">Carregando alunos...</div>
 
-  <label class="label-observacoes" for="observacoes">Observações (tipo de encontro, local, detalhes...)</label>
-  <textarea id="observacoes" placeholder="Ex.: Ensaio geral, preparação para apresentação no centro."></textarea>
+    <div class="lista-alunos" id="painelAlunos"></div>
 
-  <div class="botoes">
-    <button id="btnSalvar" class="salvar">💾 Salvar chamada</button>
-    <button class="cancelar" id="btnCancelar">❌ Cancelar chamada</button>
+    <div class="observacoes-area">
+      <label class="label-observacoes" for="observacoes">Observações (tipo de encontro, local, detalhes...)</label>
+      <textarea id="observacoes" placeholder="Ex.: Ensaio geral, preparação para apresentação na praça."></textarea>
+    </div>
+
+    <div class="loader" id="loader" style="display:none;">
+      Salvando chamada e atualizando frequências...
+    </div>
   </div>
 
-  <div class="loader" id="loader" style="display:none;">Salvando chamada e atualizando frequências...</div>
+  <!-- BOTÕES FIXOS -->
+  <div class="footer-acoes">
+    <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
+    <button id="btnSalvar" class="btn-salvar">💾 Salvar chamada</button>
+  </div>
 
   <script type="module">
     import { db } from "./firebase-config.js";
@@ -225,15 +380,23 @@
       return `${dia}/${mes}/${ano}`;
     }
 
+    function proximoEstadoPresenca(atual) {
+      // vazio -> presente -> ausente -> vazio
+      if (!atual || atual === "") return "presente";
+      if (atual === "presente") return "ausente";
+      return "";
+    }
+
     async function carregarAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
       alunos = snap.docs
-        .map(d => {
+        .map((d) => {
           const dados = d.data();
           return {
             id: d.id,
             nome: dados.nome,
             instrumento: dados.instrumento || "",
+            foto: dados.foto || "",
             presenca: "" // será preenchido pelo evento, se existir
           };
         })
@@ -261,29 +424,73 @@
       observacoesEl.value = dados.observacoes || "";
 
       const mapaPresencas = {};
-      (dados.presencas || []).forEach(p => {
+      (dados.presencas || []).forEach((p) => {
         if (p && p.nome) mapaPresencas[p.nome] = p.presenca;
       });
 
-      alunos.forEach(a => {
+      alunos.forEach((a) => {
         a.presenca = mapaPresencas[a.nome] || "";
       });
     }
 
     function atualizarClasseCard(card, aluno) {
-      card.className = "container-aluno " + (aluno.presenca || "vazio");
+      card.classList.remove("vazio", "presente", "ausente");
+      const estado = aluno.presenca || "vazio";
+      card.classList.add(estado);
 
-      const btnPres = card.querySelector(".btn-presente");
-      const btnAus = card.querySelector(".btn-ausente");
-      btnPres.classList.toggle("ativo", aluno.presenca === "presente");
-      btnAus.classList.toggle("ativo", aluno.presenca === "ausente");
+      const chip = card.querySelector(".chip-status");
+      if (!chip) return;
+
+      chip.classList.remove("presente", "ausente");
+      if (!aluno.presenca) {
+        chip.textContent = "Não marcado";
+      } else if (aluno.presenca === "presente") {
+        chip.textContent = "Presente";
+        chip.classList.add("presente");
+      } else if (aluno.presenca === "ausente") {
+        chip.textContent = "Ausente";
+        chip.classList.add("ausente");
+      }
+    }
+
+    function focarProximoCard(indiceAtual) {
+      const proximo = document.querySelector(
+        '.container-aluno[data-index="' + (indiceAtual + 1) + '"]'
+      );
+      if (!proximo) return;
+
+      document
+        .querySelectorAll(".container-aluno.focado")
+        .forEach((c) => c.classList.remove("focado"));
+
+      proximo.classList.add("focado");
+      proximo.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function renderizarAlunos() {
       painel.innerHTML = "";
-      alunos.forEach(aluno => {
+      alunos.forEach((aluno, index) => {
         const card = document.createElement("div");
         card.className = "container-aluno " + (aluno.presenca || "vazio");
+        card.dataset.index = index;
+
+        const fotoWrap = document.createElement("div");
+        fotoWrap.className = "foto-aluno";
+
+        if (aluno.foto) {
+          const img = document.createElement("img");
+          img.src = aluno.foto;
+          img.alt = aluno.nome;
+          fotoWrap.appendChild(img);
+        } else {
+          const span = document.createElement("span");
+          span.className = "foto-placeholder";
+          span.textContent = "🎵";
+          fotoWrap.appendChild(span);
+        }
+
+        const dadosDiv = document.createElement("div");
+        dadosDiv.className = "dados-aluno";
 
         const nomeDiv = document.createElement("div");
         nomeDiv.className = "nome";
@@ -291,43 +498,50 @@
 
         const instrDiv = document.createElement("div");
         instrDiv.className = "instrumento";
-        instrDiv.textContent = aluno.instrumento || "";
+        instrDiv.textContent = aluno.instrumento || "Sem instrumento";
 
-        const botoesDiv = document.createElement("div");
-        botoesDiv.className = "botoes-presenca";
+        const statusLinha = document.createElement("div");
+        statusLinha.className = "status-linha";
 
-        const btnPres = document.createElement("button");
-        btnPres.className = "btn-presente";
-        btnPres.textContent = "Presente";
+        const chip = document.createElement("span");
+        chip.className = "chip-status";
+        chip.textContent = "Não marcado";
 
-        const btnAus = document.createElement("button");
-        btnAus.className = "btn-ausente";
-        btnAus.textContent = "Ausente";
+        const hint = document.createElement("span");
+        hint.className = "hint";
+        hint.textContent = "Toque p/ marcar";
 
-        btnPres.onclick = () => {
-          aluno.presenca = "presente";
+        statusLinha.appendChild(chip);
+        statusLinha.appendChild(hint);
+
+        dadosDiv.appendChild(nomeDiv);
+        dadosDiv.appendChild(instrDiv);
+        dadosDiv.appendChild(statusLinha);
+
+        card.appendChild(fotoWrap);
+        card.appendChild(dadosDiv);
+
+        card.addEventListener("click", () => {
+          const novoEstado = proximoEstadoPresenca(aluno.presenca);
+          aluno.presenca = novoEstado;
           atualizarClasseCard(card, aluno);
-        };
-
-        btnAus.onclick = () => {
-          aluno.presenca = "ausente";
-          atualizarClasseCard(card, aluno);
-        };
-
-        botoesDiv.appendChild(btnPres);
-        botoesDiv.appendChild(btnAus);
-
-        card.appendChild(nomeDiv);
-        card.appendChild(instrDiv);
-        card.appendChild(botoesDiv);
+          focarProximoCard(index);
+        });
 
         painel.appendChild(card);
         atualizarClasseCard(card, aluno);
       });
+
+      // Foca o primeiro por padrão
+      const primeiro = document.querySelector('.container-aluno[data-index="0"]');
+      if (primeiro) {
+        primeiro.classList.add("focado");
+        primeiro.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }
 
     async function inicializar() {
-      infoCarregando.style.display = "block";
+      infoCarregando.textContent = "Carregando alunos...";
       await carregarAlunos();
       await carregarEventoSeExistir();
       infoCarregando.style.display = "none";
@@ -340,15 +554,13 @@
         loader.style.display = "block";
 
         const observacoes = observacoesEl.value.trim();
-        const presencas = alunos.map(a => ({
+        const presencas = alunos.map((a) => ({
           nome: a.nome,
           instrumento: a.instrumento || "",
           presenca: a.presenca || "ausente"
         }));
 
-        if (!dataEvento) {
-          dataEvento = hojeISO();
-        }
+        if (!dataEvento) dataEvento = hojeISO();
 
         if (eventoId) {
           await updateDoc(doc(db, "eventos", eventoId), {
@@ -380,11 +592,11 @@
 
     async function recalcularFrequenciasDoMes(dataISO) {
       const [ano, mes] = dataISO.split("-");
-      const chaveMes = `${ano}-${mes}`; // ex: 2025-11
+      const chaveMes = `${ano}-${mes}`;
 
       const eventosSnap = await getDocs(collection(db, "eventos"));
       const eventosMes = [];
-      eventosSnap.forEach(docSnap => {
+      eventosSnap.forEach((docSnap) => {
         const dados = docSnap.data();
         if (!dados.data) return;
         if (dados.data.startsWith(chaveMes)) {
@@ -396,8 +608,8 @@
       if (!totalEventosMes) return;
 
       const contagemPorAluno = {};
-      eventosMes.forEach(ev => {
-        (ev.presencas || []).forEach(p => {
+      eventosMes.forEach((ev) => {
+        (ev.presencas || []).forEach((p) => {
           if (!p || !p.nome) return;
           if (!contagemPorAluno[p.nome]) contagemPorAluno[p.nome] = 0;
           if (p.presenca === "presente") contagemPorAluno[p.nome]++;
@@ -416,7 +628,7 @@
         const percentual = Math.round((presencasAluno / totalEventosMes) * 100);
 
         const historico = Array.isArray(dados.presencas) ? [...dados.presencas] : [];
-        let registroMes = historico.find(r => r.mes === chaveMes);
+        let registroMes = historico.find((r) => r.mes === chaveMes);
         if (!registroMes) {
           registroMes = {
             mes: chaveMes,
@@ -477,4 +689,3 @@
   <script type="module" src="navegacao.js"></script>
 </body>
 </html>
-
