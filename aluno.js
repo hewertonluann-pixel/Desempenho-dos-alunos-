@@ -9,7 +9,6 @@ import { db } from "./firebase-config.js";
 import {
   collection,
   getDocs,
-  getDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
@@ -21,8 +20,10 @@ import {
   calcularEnergia
 } from "./frequencia.js";
 
+import { carregarLicoesAluno } from "./licoes.js";
+
 /* ========================================================
-    1. OBTER ALUNO LOGADO (pela URL ou localStorage)
+    1. OBTER ALUNO LOGADO (pela URL)
    ======================================================== */
 export async function carregarAlunoAtual() {
   const params = new URLSearchParams(window.location.search);
@@ -55,26 +56,34 @@ export async function carregarAlunoAtual() {
     2. EXIBIR DADOS DO ALUNO
    ======================================================== */
 export function montarPainelAluno(aluno) {
-  document.getElementById("nomeAluno").textContent = aluno.nome;
-  document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "--";
+  const nomeEl = document.getElementById("nomeAluno");
+  if (nomeEl) nomeEl.textContent = aluno.nome;
 
-  // Foto
-  const fotoEl = document.getElementById("fotoAluno");
-  fotoEl.src = aluno.foto || "https://via.placeholder.com/150";
+  const instrumentoEl = document.getElementById("instrumentoAluno");
+  if (instrumentoEl) instrumentoEl.textContent = aluno.instrumento || "--";
+
+  // Foto (IMG)
+  const fotoImg = document.getElementById("fotoAluno");
+  if (fotoImg) {
+    fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
+    fotoImg.alt = `Foto de ${aluno.nome}`;
+  }
 
   // Leitura e Método
   const leitura = aluno.leitura ?? 0;
   const metodo = aluno.metodo ?? 0;
 
-  document.getElementById("nivelLeitura").textContent = leitura;
-  document.getElementById("nivelMetodo").textContent = metodo;
+  const leituraEl = document.getElementById("nivelLeitura");
+  const metodoEl = document.getElementById("nivelMetodo");
+  if (leituraEl) leituraEl.textContent = leitura;
+  if (metodoEl) metodoEl.textContent = metodo;
 
   // 💥 NÍVEL TOTAL (soma)
   const nivel = leitura + metodo;
   const nivelEl = document.getElementById("nivelGeral");
   if (nivelEl) nivelEl.textContent = nivel;
 
-  // Energia
+  // Energia visual
   atualizarEnergiaVisual(aluno.energia ?? 10);
 }
 
@@ -129,7 +138,7 @@ export function abrirPopupFrequencia(info, destino) {
 
   destino.innerHTML = `
     <div class="popup-conteudo">
-      <h2>${meses[info.mes]}</h2>
+      <h2>${meses[info.mes] || info.mes}</h2>
 
       <p><strong>Chamadas no mês:</strong> ${info.totalEventos}</p>
       <p><strong>Presente em:</strong> ${info.presencasAluno}</p>
@@ -141,17 +150,21 @@ export function abrirPopupFrequencia(info, destino) {
 
   destino.style.display = "flex";
 
-  document.getElementById("fecharPopup").onclick = () => {
-    destino.style.display = "none";
-  };
+  const btnFechar = document.getElementById("fecharPopup");
+  if (btnFechar) {
+    btnFechar.onclick = () => {
+      destino.style.display = "none";
+    };
+  }
 }
 
 /* ========================================================
     6. CALCULAR ENERGIA DO ALUNO (baseado no mês atual)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
-  const ano = new Date().getFullYear();
-  const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
+  const hoje = new Date();
+  const ano = hoje.getFullYear();
+  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
 
   const eventosAno = await obterEventosDoAno(ano);
   const grupos = agruparEventosPorMes(eventosAno);
@@ -177,33 +190,9 @@ export async function iniciarPainelAluno() {
 
   montarPainelAluno(aluno);
   await montarGraficoFrequencia(aluno);
-
-  const energia = await calcularEnergiaDoAluno(aluno);
-
-  // opcional: podemos atualizar energia no banco
-  // mas deixei desativado até você decidir
-  //
-  // await updateDoc(doc(db, "alunos", aluno.id), { energia });
+  await calcularEnergiaDoAluno(aluno);
+  await carregarLicoesAluno(aluno.nome); // preenche a aba de lições
 }
-
-
-import { carregarLicoesAluno } from "./licoes.js";
-
-document.addEventListener("DOMContentLoaded", async () => {
-  const aluno = await carregarAlunoAtual();
-  if (aluno) carregarLicoesAluno(aluno.nome);
-});
-
-
-
-import { carregarLicoesAluno } from "./licoes.js";
-
-document.addEventListener("DOMContentLoaded", async () => {
-  const aluno = await carregarAlunoAtual();
-  if (aluno) carregarLicoesAluno(aluno.nome);
-});
-
-
 
 /* ========================================================
     8. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
