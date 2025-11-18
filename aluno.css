@@ -390,7 +390,7 @@ body {
   height: 60px;
   margin: 0 auto;
   border-radius: 50%;
-  background: conic-gradient(var(--azul) calc(var(--p) * 1%), var(--azul-escuro) 0);
+  background: conic-gradient(var(--azul) calc(var(--p) * 3.6deg), var(--azul-escuro) 0);
   display: flex;
   align-items: center;
   justify-content: center;
