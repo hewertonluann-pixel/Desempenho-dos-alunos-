@@ -1,288 +1,200 @@
+// aluno.js
+// ==========================================
+// PAINEL DO ALUNO — Sistema Unificado
+// Trabalha com a coleção "eventos" e o aluno
+// Atualiza frequência, energia, conquistas e gráficos
+// ==========================================
+
+import { db } from "./firebase-config.js";
 import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.1.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  updateDoc,
   collection,
-  query,
-  where,
   getDocs,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+  doc
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
 import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
+  obterEventosDoAno,
+  agruparEventosPorMes,
+  calcularFrequenciaMensalParaAluno,
+  gerarPainelFrequencia,
+  calcularEnergia
+} from "./frequencia.js";
 
-// Inicialização do Firebase (assumindo que está em firebase-config.js)
-import "./firebase-config.js";
+import { carregarLicoesAluno } from "./licoes.js";
 
-const auth = getAuth();
-const db = getFirestore();
-const storage = getStorage();
+/* ========================================================
+    1. OBTER ALUNO LOGADO (pela URL)
+   ======================================================== */
+export async function carregarAlunoAtual() {
+  const params = new URLSearchParams(window.location.search);
+  const nomeAluno = params.get("nome");
 
-let alunoID = null;
-let alunoData = null;
-
-// ============================================================
-// FUNÇÕES DE CARREGAMENTO DE DADOS
-// ============================================================
-
-// Função principal para carregar os dados do aluno
-async function carregarDadosAluno(uid) {
-  const alunoRef = doc(db, "alunos", uid);
-  const docSnap = await getDoc(alunoRef);
-
-  if (docSnap.exists()) {
-    alunoData = docSnap.data();
-    alunoID = uid;
-    exibirDadosAluno(alunoData);
-    verificarModoProfessor(alunoData);
-    carregarConquistas(alunoData.conquistas || {});
-    carregarFrequenciaAnual(alunoData.frequenciaAnual || {});
-    // Outras funções de carregamento (lições, etc.)
-  } else {
-    console.error("Nenhum dado encontrado para o aluno.");
-    // Redirecionar para login ou exibir erro
-  }
-}
-
-// Exibe os dados básicos do aluno na interface
-function exibirDadosAluno(data) {
-  document.getElementById("nomeAluno").textContent = data.nome || "Aluno";
-  document.getElementById("instrumentoAluno").textContent = data.instrumento || "Não definido";
-  document.getElementById("nivelGeral").textContent = (data.leitura || 0) + (data.metodo || 0);
-  document.getElementById("nivelLeitura").textContent = data.leitura || 0;
-  document.getElementById("nivelMetodo").textContent = data.metodo || 0;
-
-  // Foto do aluno
-  const fotoAluno = document.getElementById("fotoAluno");
-  if (data.foto) {
-    fotoAluno.src = data.foto;
-  } else {
-    // Foto padrão
-    fotoAluno.src = "icon-192.png";
+  if (!nomeAluno) {
+    alert("Nenhum aluno informado.");
+    return null;
   }
 
-  // Energia (Frequência Mensal)
-  const energia = data.frequenciaMensal?.porcentagem || 0;
-  document.getElementById("valorEnergia").textContent = energia;
-  const barraEnergia = document.getElementById("barraEnergia");
-  barraEnergia.style.width = `${energia}%`;
-  
-  // Mudar cor da barra de energia
-  // ATENÇÃO: As variáveis CSS --vermelho, --amarelo, --verde não estão definidas no aluno.css
-  // O código original usava cores hardcoded ou variáveis diferentes.
-  // Vou manter o código como está, mas o usuário pode precisar definir essas variáveis no CSS.
-  if (energia < 40) {
-    barraEnergia.style.backgroundColor = "var(--vermelho)";
-  } else if (energia >= 40 && energia <= 80) {
-    barraEnergia.style.backgroundColor = "var(--amarelo)";
-  } else {
-    barraEnergia.style.backgroundColor = "var(--verde)";
-  }
-}
+  const snap = await getDocs(collection(db, "alunos"));
+  let alunoEncontrado = null;
 
-// Verifica se o aluno pode acessar o modo professor
-function verificarModoProfessor(data) {
-  if (data.classificado) {
-    document.getElementById("modoProfessorBtn").style.display = "block";
-  }
-}
-
-// ============================================================
-// CONQUISTAS
-// ============================================================
-
-// Mapeamento de conquistas (exemplo simplificado)
-const mapaConquistas = {
-  presencaPerfeita: { icone: "⭐", nome: "Presença Perfeita", raridade: "lendaria" },
-  leituraAlta: { icone: "📘", nome: "Leitura Avançada", raridade: "rara" },
-  metodoAlto: { icone: "🎯", nome: "Método Concluído", raridade: "epica" },
-  // ... outras conquistas
-};
-
-function carregarConquistas(conquistas) {
-  const gradeConquistas = document.getElementById("grade-conquistas");
-  gradeConquistas.innerHTML = ""; // Limpa a grade
-
-  for (const key in conquistas) {
-    if (conquistas[key] > 0 && mapaConquistas[key]) {
-      const info = mapaConquistas[key];
-      const card = document.createElement("div");
-      card.className = `achievement-card ${info.raridade}`;
-      card.innerHTML = `
-        <span class="achievement-icon">${info.icone}</span>
-        <span class="achievement-name">${info.nome}</span>
-        ${conquistas[key] > 1 ? `<span class="achievement-count">x${conquistas[key]}</span>` : ''}
-      `;
-      gradeConquistas.appendChild(card);
+  snap.forEach(d => {
+    const dados = d.data();
+    if (dados.nome === nomeAluno) {
+      alunoEncontrado = { id: d.id, ...dados };
     }
-  }
-}
-
-// ============================================================
-// FREQUÊNCIA ANUAL
-// ============================================================
-
-function carregarFrequenciaAnual(frequenciaAnual) {
-  const gradeFrequencia = document.getElementById("gradeFrequencia");
-  const anoAtualTexto = document.getElementById("anoAtualTexto");
-  const anoAtual = new Date().getFullYear();
-  
-  anoAtualTexto.textContent = anoAtual;
-  gradeFrequencia.innerHTML = ""; // Limpa a grade
-
-  const meses = [
-    "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-    "Jul", "Ago", "Set", "Out", "Nov", "Dez"
-  ];
-
-  meses.forEach((mes, index) => {
-    const mesData = frequenciaAnual[index + 1] || { porcentagem: 0, total: 0, presencas: 0 };
-    const porcentagem = mesData.porcentagem || 0;
-    
-    const card = document.createElement("div");
-    card.className = "month-card";
-    card.setAttribute("data-mes", mes);
-    card.setAttribute("data-porcentagem", porcentagem);
-    card.innerHTML = `
-      <div class="month-name">${mes}</div>
-      <div class="month-progress" style="--p:${porcentagem};">
-        <div class="progress-circle"></div>
-        <span class="progress-value">${porcentagem}%</span>
-      </div>
-    `;
-    gradeFrequencia.appendChild(card);
-    
-    // Adicionar evento de clique para o popup (implementação simplificada)
-    card.addEventListener('click', () => abrirPopupFrequencia(mes, mesData));
   });
+
+  if (!alunoEncontrado) {
+    alert("Aluno não encontrado.");
+    return null;
+  }
+
+  return alunoEncontrado;
 }
 
-function abrirPopupFrequencia(mes, data) {
-  const popup = document.getElementById("popupFrequencia");
-  const content = popup.querySelector(".popup-content");
-  
-  content.innerHTML = `
-    <h3>Frequência de ${mes}</h3>
-    <p>Porcentagem: ${data.porcentagem || 0}%</p>
-    <p>Presenças: ${data.presencas || 0}</p>
-    <p>Total de Ensaios: ${data.total || 0}</p>
-    <button onclick="fecharPopupFrequencia()">Fechar</button>
+/* ========================================================
+    2. EXIBIR DADOS DO ALUNO
+   ======================================================== */
+export function montarPainelAluno(aluno) {
+  const nomeEl = document.getElementById("nomeAluno");
+  if (nomeEl) nomeEl.textContent = aluno.nome;
+
+  const instrumentoEl = document.getElementById("instrumentoAluno");
+  if (instrumentoEl) instrumentoEl.textContent = aluno.instrumento || "--";
+
+  // Foto (IMG)
+  const fotoImg = document.getElementById("fotoAluno");
+  if (fotoImg) {
+    fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
+    fotoImg.alt = `Foto de ${aluno.nome}`;
+  }
+
+  // Leitura e Método
+  const leitura = aluno.leitura ?? 0;
+  const metodo = aluno.metodo ?? 0;
+
+  const leituraEl = document.getElementById("nivelLeitura");
+  const metodoEl = document.getElementById("nivelMetodo");
+  if (leituraEl) leituraEl.textContent = leitura;
+  if (metodoEl) metodoEl.textContent = metodo;
+
+  // 💥 NÍVEL TOTAL (soma)
+  const nivel = leitura + metodo;
+  const nivelEl = document.getElementById("nivelGeral");
+  if (nivelEl) nivelEl.textContent = nivel;
+
+  // Energia visual
+  atualizarEnergiaVisual(aluno.energia ?? 10);
+}
+
+/* ========================================================
+    3. ATUALIZAR ENERGIA NO PAINEL DO ALUNO
+   ======================================================== */
+export function atualizarEnergiaVisual(valor) {
+  const barra = document.getElementById("barraEnergia");
+  const numero = document.getElementById("valorEnergia");
+
+  if (!barra || !numero) return;
+
+  barra.style.width = valor + "%";
+  numero.textContent = valor;
+
+  if (valor >= 80) barra.style.background = "#00ff99";
+  else if (valor >= 50) barra.style.background = "#22d3ee";
+  else if (valor >= 30) barra.style.background = "#eab308";
+  else barra.style.background = "#ef4444";
+}
+
+/* ========================================================
+    4. CARREGAR GRÁFICO DE FREQUÊNCIA ANUAL
+   ======================================================== */
+export async function montarGraficoFrequencia(aluno) {
+  const anoAtual = new Date().getFullYear();
+
+  const destinoGrafico = document.getElementById("gradeFrequencia");
+  const destinoPopup = document.getElementById("popupFrequencia");
+
+  if (!destinoGrafico) return;
+
+  await gerarPainelFrequencia(
+    aluno,
+    anoAtual,
+    destinoGrafico,
+    dadosPopup => abrirPopupFrequencia(dadosPopup, destinoPopup)
+  );
+}
+
+/* ========================================================
+    5. POPUP (detalhes do mês)
+   ======================================================== */
+export function abrirPopupFrequencia(info, destino) {
+  if (!destino) return;
+
+  const meses = {
+    "01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril",
+    "05":"Maio","06":"Junho","07":"Julho","08":"Agosto",
+    "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
+  };
+
+  destino.innerHTML = `
+    <div class="popup-conteudo">
+      <h2>${meses[info.mes] || info.mes}</h2>
+
+      <p><strong>Chamadas no mês:</strong> ${info.totalEventos}</p>
+      <p><strong>Presente em:</strong> ${info.presencasAluno}</p>
+      <p><strong>Frequência:</strong> ${info.percentual}%</p>
+
+      <button id="fecharPopup" class="fechar-popup">Fechar</button>
+    </div>
   `;
-  popup.style.display = "flex";
+
+  destino.style.display = "flex";
+
+  const btnFechar = document.getElementById("fecharPopup");
+  if (btnFechar) {
+    btnFechar.onclick = () => {
+      destino.style.display = "none";
+    };
+  }
 }
 
-window.fecharPopupFrequencia = () => {
-  document.getElementById("popupFrequencia").style.display = "none";
-};
+/* ========================================================
+    6. CALCULAR ENERGIA DO ALUNO (baseado no mês atual)
+   ======================================================== */
+export async function calcularEnergiaDoAluno(aluno) {
+  const hoje = new Date();
+  const ano = hoje.getFullYear();
+  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
 
-// ============================================================
-// ALTERAR SENHA
-// ============================================================
+  const eventosAno = await obterEventosDoAno(ano);
+  const grupos = agruparEventosPorMes(eventosAno);
 
-window.abrirPopup = () => {
-  document.getElementById("popupSenha").style.display = "flex";
-  document.getElementById("mensagemSenha").textContent = "";
-  document.getElementById("novaSenha").value = "";
-};
+  const chaveMes = `${ano}-${mesAtual}`;
+  const eventosMes = grupos[chaveMes] || [];
 
-window.fecharPopup = () => {
-  document.getElementById("popupSenha").style.display = "none";
-};
+  const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
 
-window.salvarSenha = async () => {
-  const novaSenha = document.getElementById("novaSenha").value;
-  const mensagemSenha = document.getElementById("mensagemSenha");
+  const energia = calcularEnergia(freq.percentual);
 
-  if (!novaSenha || novaSenha.length < 6) {
-    mensagemSenha.textContent = "A senha deve ter pelo menos 6 caracteres.";
-    return;
-  }
+  atualizarEnergiaVisual(energia);
 
-  if (alunoID) {
-    try {
-      const alunoRef = doc(db, "alunos", alunoID);
-      // No Firestore, a senha é salva como um campo do documento do aluno
-      // ATENÇÃO: Em um sistema real, a senha deve ser hasheada no backend.
-      // Aqui, estamos apenas simulando a atualização do campo 'senha'.
-      await updateDoc(alunoRef, {
-        senha: novaSenha // ATENÇÃO: Isso é inseguro em produção!
-      });
-      mensagemSenha.textContent = "Senha alterada com sucesso!";
-      setTimeout(fecharPopup, 2000);
-    } catch (error) {
-      console.error("Erro ao salvar a senha:", error);
-      mensagemSenha.textContent = "Erro ao salvar a senha. Tente novamente.";
-    }
-  }
-};
+  return energia;
+}
 
-// ============================================================
-// ALTERAR FOTO
-// ============================================================
+/* ========================================================
+    7. INICIALIZAÇÃO DA PÁGINA DO ALUNO
+   ======================================================== */
+export async function iniciarPainelAluno() {
+  const aluno = await carregarAlunoAtual();
+  if (!aluno) return;
 
-window.enviarNovaFoto = async () => {
-  const fileInput = document.getElementById("novaFoto");
-  const file = fileInput.files[0];
+  montarPainelAluno(aluno);
+  await montarGraficoFrequencia(aluno);
+  await calcularEnergiaDoAluno(aluno);
+  await carregarLicoesAluno(aluno.nome); // preenche a aba de lições
+}
 
-  if (!file || !alunoID) return;
-
-  const storageRef = ref(storage, `fotos_alunos/${alunoID}/${file.name}`);
-
-  try {
-    // 1. Upload da imagem
-    await uploadBytes(storageRef, file);
-    
-    // 2. Obter a URL de download
-    const fotoURL = await getDownloadURL(storageRef);
-
-    // 3. Atualizar o Firestore com a nova URL
-    const alunoRef = doc(db, "alunos", alunoID);
-    await updateDoc(alunoRef, {
-      foto: fotoURL
-    });
-
-    // 4. Atualizar a interface
-    document.getElementById("fotoAluno").src = fotoURL;
-    alert("Foto atualizada com sucesso!");
-
-  } catch (error) {
-    console.error("Erro ao atualizar a foto:", error);
-    alert("Erro ao atualizar a foto. Verifique o console.");
-  }
-};
-
-// ============================================================
-// MODO PROFESSOR
-// ============================================================
-
-window.acessarModoProfessor = () => {
-  // Redireciona para a página do professor
-  window.location.href = "professor.html";
-};
-
-// ============================================================
-// INICIALIZAÇÃO
-// ============================================================
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // O usuário está logado
-    carregarDadosAluno(user.uid);
-  } else {
-    // O usuário não está logado, redireciona para a página de login
-    window.location.href = "index.html";
-  }
-});
-
-// A função abrirModalEnviarLicao será implementada em licoes.js
-// A função carregarLicoes será implementada em licoes.js
-// A função de navegação (como logout) será implementada em navegacao.js
+/* ========================================================
+    8. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
+   ======================================================== */
+document.addEventListener("DOMContentLoaded", iniciarPainelAluno);

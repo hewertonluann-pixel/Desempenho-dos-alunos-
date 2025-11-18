@@ -1,3 +1,284 @@
+/* ============================================================
+   TEMA BASE — IGUAL AO PAINEL SOCIAL
+   ============================================================ */
+:root {
+  --bg: #020617;
+  --card: #0b1220;
+  --card-alt: #0f172a;
+  --border: rgba(56, 189, 248, 0.25);
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+
+  --azul: #0ea5e9;
+  --azul-escuro: #1e293b;
+  --azul-suave: rgba(56, 189, 248, 0.2);
+
+  --verde: #22c55e;
+  --verde-suave: rgba(34, 197, 94, 0.25);
+
+  --vermelho: #ef4444;
+  --vermelho-suave: rgba(239, 68, 68, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #000 100%);
+  color: var(--ink);
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 1.6rem;
+  color: #38bdf8;
+}
+
+/* ============================================================
+   LAYOUT PRINCIPAL — 3 COLUNAS (LAYOUT A)
+   ============================================================ */
+
+.painel-wrapper {
+  display: grid;
+  grid-template-columns: 30% 40% 30%;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: auto;
+  align-items: start;
+}
+
+/* ============================================================
+   COLUNA 1 — CARD DO ALUNO
+   ============================================================ */
+
+.card-aluno {
+  background: var(--card);
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--azul-suave);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.foto {
+  width: 140px;
+  height: 140px;
+  border-radius: 14px;
+  overflow: hidden;
+  margin: auto;
+  border: 2px solid var(--azul-suave);
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.instrumento {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* ============================================================
+   ENERGIA
+   ============================================================ */
+
+.pontuacao.energia {
+  margin-top: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.barra-frequencia {
+  background: var(--azul-escuro);
+  height: 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin: 6px auto;
+  overflow: hidden;
+}
+
+.nivel {
+  height: 100%;
+  background: var(--azul);
+  width: 0%;
+  transition: width 0.4s ease, background 0.3s ease;
+}
+
+.pontuacoes-lado {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bloco label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.bloco span {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* ============================================================
+   COLUNA 2 — CONQUISTAS + FREQUÊNCIA
+   ============================================================ */
+
+.painel-coluna2 {
+  background: var(--card-alt);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+  height: 100%;
+}
+
+.painel-coluna2 h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+.grade-conquistas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.grade-frequencia {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.grafico-mes {
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  border: 2px solid var(--azul-suave);
+  cursor: pointer;
+}
+
+.controle-ano {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.seta {
+  background: var(--azul-escuro);
+  border: 1px solid var(--azul-suave);
+  padding: 6px 14px;
+  color: var(--ink);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   COLUNA 3 — LIÇÕES ENVIADAS (ALTURA IGUAL À COLUNA 2)
+   ============================================================ */
+
+.painel-coluna3 {
+  background: var(--card-alt);
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+
+  /* FIXA A ALTURA DA COLUNA 2 */
+  height: 100%;
+  overflow-y: auto;
+}
+
+.painel-coluna3 h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+.btn-enviar-licao {
+  width: 100%;
+  padding: 12px;
+  background: var(--azul);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.card-licao {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border);
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.status {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status.aprovada { background: var(--verde-suave); color: var(--verde); }
+.status.pendente { background: rgba(59, 130, 246, 0.25); color: #60a5fa; }
+.status.reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
+
+.btn-ver {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-ver:hover {
+  background: rgba(59, 130, 246, 0.45);
+}
+
+/* ============================================================
+   RESPONSIVIDADE — CELULAR
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .painel-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .painel-coluna3 {
+    max-height: 350px;
+  }
+
+  .grade-frequencia {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  h1 { font-size: 1.3rem; }
+
+  .grade-frequencia {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
 /* ============================================================
