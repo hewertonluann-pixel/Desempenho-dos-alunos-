@@ -17,8 +17,7 @@ import {
   obterEventosDoAno,
   agruparEventosPorMes,
   calcularFrequenciaMensalParaAluno,
-  gerarPainelFrequencia,
-  calcularEnergia
+  gerarPainelFrequencia
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
@@ -87,7 +86,9 @@ export function montarPainelAluno(aluno) {
   }
 
   // Energia visual
-  atualizarEnergiaVisual(aluno.energia ?? 10);
+  // O valor de energia será calculado em calcularEnergiaDoAluno
+  // e não mais lido do aluno.
+  // atualizarEnergiaVisual(aluno.energia ?? 10);
   
   // Conquistas (simulação)
   carregarConquistas(aluno.conquistas || {});
@@ -180,7 +181,7 @@ export async function calcularEnergiaDoAluno(aluno) {
 
   const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
 
-  const energia = calcularEnergia(freq.percentual);
+  const energia = freq.percentual; // Agora a energia é a frequência real
 
   atualizarEnergiaVisual(energia);
 
