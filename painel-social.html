@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel Social 🎵 — Orquestra</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
   <!-- Reutiliza base visual do aluno (fonte, cores, etc) -->
   <link rel="stylesheet" href="aluno.css" />
@@ -189,14 +190,14 @@
   <script type="module">
     import { db } from "./firebase-config.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-    import { regrasDeConquistas } from "./conquistas.js";
+    import { mapaConquistas } from "./conquistas.js";
 
     const grid = document.getElementById("gridSocial");
 
     function calcularConquistas(aluno) {
-      const desbloqueadas = regrasDeConquistas
-        .filter(regra => regra.condicao(aluno))
-        .map(regra => regra.icone);
+      const desbloqueadas = Object.values(mapaConquistas)
+        .filter(conquista => conquista.condicao(aluno))
+        .map(conquista => conquista.icone);
 
       return desbloqueadas.length > 0 ? desbloqueadas.join(" ") : "—";
     }
