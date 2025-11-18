@@ -198,3 +198,17 @@ export async function iniciarPainelAluno() {
     8. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
    ======================================================== */
 document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
+
+// ========================================================
+// FUNÇÕES DE POPUP DE SENHA
+// ========================================================
+
+window.abrirPopup = () => {
+  document.getElementById("popupSenha").style.display = "flex";
+  document.getElementById("mensagemSenha").textContent = "";
+  document.getElementById("novaSenha").value = "";
+};
+
+window.fecharPopup = () => {
+  document.getElementById("popupSenha").style.display = "none";
+};
