@@ -336,11 +336,14 @@ function carregarConquistas(conquistas) {
   
   gradeConquistas.innerHTML = ""; // Limpa a grade
 
+  // Garante que 'conquistas' é um objeto iterável
+  const conquistasReais = conquistas || {};
+
   // Usa o objeto 'conquistas' passado como argumento (dados reais do aluno)
   // O objeto 'conquistas' deve ter o formato { nomeDaConquista: nivel, ... }
   // Ex: { presencaPerfeita: 2, leituraAlta: 1 }
 
-  for (const key in conquistas) {
+  for (const key in conquistasReais) {
     const nivel = conquistas[key];
     if (nivel > 0 && mapaConquistas[key]) {
       const info = mapaConquistas[key];
