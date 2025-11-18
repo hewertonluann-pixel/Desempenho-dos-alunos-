@@ -336,18 +336,13 @@ function carregarConquistas(conquistas) {
   
   gradeConquistas.innerHTML = ""; // Limpa a grade
 
-  // Simulação de dados de conquistas para preencher o novo HTML
-  const conquistasSimuladas = {
-    presencaPerfeita: 1,
-    leituraAlta: 2,
-    musicoPontual: 1,
-    evolucaoConstante: 1,
-    veteranoPalco: 1,
-    lider: 1
-  };
+  // Usa o objeto 'conquistas' passado como argumento (dados reais do aluno)
+  // O objeto 'conquistas' deve ter o formato { nomeDaConquista: nivel, ... }
+  // Ex: { presencaPerfeita: 2, leituraAlta: 1 }
 
-  for (const key in conquistasSimuladas) {
-    if (conquistasSimuladas[key] > 0 && mapaConquistas[key]) {
+  for (const key in conquistas) {
+    const nivel = conquistas[key];
+    if (nivel > 0 && mapaConquistas[key]) {
       const info = mapaConquistas[key];
       const card = document.createElement("div");
       card.className = `achievement-card ${info.raridade}`;
@@ -355,7 +350,7 @@ function carregarConquistas(conquistas) {
       card.innerHTML = `
         <span class="achievement-icon">${info.icone}</span>
         <span class="achievement-name">${info.nome}</span>
-        ${conquistasSimuladas[key] > 1 ? `<span class="achievement-count">x${conquistasSimuladas[key]}</span>` : ''}
+        ${nivel > 1 ? `<span class="achievement-count">x${nivel}</span>` : ''}
       `;
       gradeConquistas.appendChild(card);
     }
