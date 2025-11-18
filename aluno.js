@@ -92,7 +92,8 @@ export function montarPainelAluno(aluno) {
   // atualizarEnergiaVisual(aluno.energia ?? 10);
   
   // Conquistas (simulação)
-  carregarConquistas(aluno.conquistas || {});
+  // A lógica de carregamento de conquistas será movida para iniciarPainelAluno
+  // carregarConquistas(aluno.conquistas || {});
 }
 
 /* ========================================================
@@ -255,42 +256,21 @@ window.acessarModoProfessor = () => {
 };
 
 /* ========================================================
-    10. CONQUISTAS (Simulação para o novo HTML)
+    10. CONQUISTAS (Renderização)
    ======================================================== */
-const mapaConquistas = {
-  presencaPerfeita: { icone: "⭐", nome: "Presença Perfeita", raridade: "lendaria" },
-  leituraAlta: { icone: "📘", nome: "Leitura Avançada", raridade: "rara" },
-  metodoAlto: { icone: "🎯", nome: "Método Concluído", raridade: "epica" },
-  // ... outras conquistas
+// A lógica de cálculo e renderização foi movida para conquistas.js
+
+window.abrirPopupConquista = (key) => {
+  // A lógica de popup será movida para conquistas.js
+  // Por enquanto, apenas para evitar erros de referência
+  console.log("Abrir popup para: " + key);
 };
 
-function carregarConquistas(conquistas) {
-  const gradeConquistas = document.getElementById("grade-conquistas");
-  if (!gradeConquistas) return;
-  
-  gradeConquistas.innerHTML = ""; // Limpa a grade
-
-  // Simulação de dados de conquistas para preencher o novo HTML
-  const conquistasSimuladas = {
-    presencaPerfeita: 1,
-    leituraAlta: 2,
-    metodoAlto: 1
-  };
-
-  for (const key in conquistasSimuladas) {
-    if (conquistasSimuladas[key] > 0 && mapaConquistas[key]) {
-      const info = mapaConquistas[key];
-      const card = document.createElement("div");
-      card.className = `achievement-card ${info.raridade}`;
-      card.innerHTML = `
-        <span class="achievement-icon">${info.icone}</span>
-        <span class="achievement-name">${info.nome}</span>
-        ${conquistasSimuladas[key] > 1 ? `<span class="achievement-count">x${conquistasSimuladas[key]}</span>` : ''}
-      `;
-      gradeConquistas.appendChild(card);
-    }
-  }
-}
+window.fecharPopupConquista = () => {
+  // A lógica de popup será movida para conquistas.js
+  // Por enquanto, apenas para evitar erros de referência
+  console.log("Fechar popup");
+};
 
 /* ========================================================
     11. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA

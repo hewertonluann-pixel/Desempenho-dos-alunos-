@@ -80,7 +80,13 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
 /* ======================================================
    4. GERAR GRADE DE FREQUÊNCIA MENSAL (bolinhas)
    ====================================================== */
-export async function gerarPainelFrequencia(aluno, ano, elementoDestino, abrirPopupCallback) {
+  const mesesAbreviados = {
+    "01": "JAN", "02": "FEV", "03": "MAR", "04": "ABR",
+    "05": "MAI", "06": "JUN", "07": "JUL", "08": "AGO",
+    "09": "SET", "10": "OUT", "11": "NOV", "12": "DEZ"
+  };
+
+  export async function gerarPainelFrequencia(aluno, ano, elementoDestino, abrirPopupCallback) {
   if (!elementoDestino) return;
 
   elementoDestino.innerHTML = "";
@@ -100,38 +106,25 @@ export async function gerarPainelFrequencia(aluno, ano, elementoDestino, abrirPo
 
     const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
 
-    const grafico = document.createElement("div");
-    grafico.className = "grafico-mes";
+    const mesAbreviado = mesesAbreviados[mesNumero];
 
-    grafico.dataset.mes = mesNumero;
-    grafico.dataset.percentual = freq.percentual;
-    grafico.dataset.total = freq.totalEventos;
-    grafico.dataset.presencas = freq.presencasAluno;
-
-    const angulo = freq.percentual * 3.6;
-
-    grafico.style.background = `
-      conic-gradient(
-        #00ff99 ${angulo}deg,
-        transparent 0deg
-      )
-    `;
-
-    grafico.onclick = () => abrirPopupCallback({
+    const mesCard = document.createElement("div");
+    mesCard.className = "month-card";
+    mesCard.onclick = () => abrirPopupCallback({
       mes: mesNumero,
       ...freq
     });
 
-    elementoDestino.appendChild(grafico);
+    // O novo CSS usa a variável --p para o conic-gradient
+    mesCard.innerHTML = `
+      <div class="month-progress" style="--p: ${freq.percentual};">
+        <span class="progress-value">${freq.percentual}%</span>
+      </div>
+      <span class="month-name">${mesAbreviado}</span>
+    `;
+
+    elementoDestino.appendChild(mesCard);
   });
 }
 
-/* ======================================================
-   5. SETAR ENERGIA DO ALUNO (usado na página aluno)
-   ====================================================== */
-export function calcularEnergia(percentual) {
-  if (percentual >= 80) return 100;
-  if (percentual >= 50) return 70;
-  if (percentual >= 30) return 40;
-  return 10;
-}
+
