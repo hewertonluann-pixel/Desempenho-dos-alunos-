@@ -127,12 +127,4 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
   });
 }
 
-/* ======================================================
-   5. SETAR ENERGIA DO ALUNO (usado na página aluno)
-   ====================================================== */
-export function calcularEnergia(percentual) {
-  if (percentual >= 80) return 100;
-  if (percentual >= 50) return 70;
-  if (percentual >= 30) return 40;
-  return 10;
-}
+
