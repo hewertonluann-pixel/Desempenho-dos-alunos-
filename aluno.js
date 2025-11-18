@@ -344,7 +344,7 @@ function carregarConquistas(conquistas) {
   // Ex: { presencaPerfeita: 2, leituraAlta: 1 }
 
   for (const key in conquistasReais) {
-    const nivel = conquistas[key];
+    const nivel = conquistasReais[key];
     if (nivel > 0 && mapaConquistas[key]) {
       const info = mapaConquistas[key];
       const card = document.createElement("div");
