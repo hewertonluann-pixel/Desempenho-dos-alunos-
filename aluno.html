@@ -107,14 +107,19 @@
     <div class="popup-content"></div>
   </div>
 
-  <!-- POPUP CONQUISTA -->
-  <div id="popupConquista" class="popup" style="display:none;">
-    <div class="popup-content">
-      <h2 id="conquistaTitulo"></h2>
-      <div id="conquistaIcone" class="icon" style="font-size: 3rem; margin-bottom: 10px;"></div>
+  <!-- Popup de Detalhes da Conquista -->
+  <div id="popupConquista" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="fecharPopupConquista()">&times;</span>
+      <div class="conquista-header">
+        <span id="conquistaIcone" class="achievement-icon"></span>
+        <h2 id="conquistaTitulo"></h2>
+      </div>
       <p id="conquistaDescricao"></p>
-      <ul id="conquistaDetalhes" style="text-align: left; list-style-type: disc; margin-left: 20px;"></ul>
-      <span class="close-btn" onclick="fecharPopupConquista()">×</span>
+      <h3>Detalhes da Conquista:</h3>
+      <ul id="conquistaDetalhes">
+        <!-- Detalhes preenchidos pelo JS -->
+      </ul>
     </div>
   </div>
 
