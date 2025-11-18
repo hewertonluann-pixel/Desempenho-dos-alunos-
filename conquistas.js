@@ -1,15 +1,6 @@
 // conquistas.js
 // --------------------------------------
-// Sistema modular de conquistas do painel do aluno
-// --------------------------------------
-
-// 🏆 Cada conquista tem:
-// id → identificador único (não muda)
-// titulo → nome exibido
-// icone → emoji ou ícone visual
-// descricao → texto explicativo (opcional, útil para tooltips)
-// condicao → função que retorna true/false com base nos dados do aluno
-// raridade → nível de dificuldade (para uso futuro)
+// Sistema modular de conquistas do painel do aluno com contador animado
 // --------------------------------------
 
 export const regrasDeConquistas = [
@@ -54,35 +45,53 @@ export const regrasDeConquistas = [
     condicao: (aluno) => aluno.frequenciaTotal >= 20
   },
   {
-    id: "espirito_grupo",
-    titulo: "Espírito de Grupo",
-    icone: "🤝",
-    descricao: "Demonstrou comprometimento e colaboração.",
-    raridade: "bronze",
+    id: "lider",
+    titulo: "Líder",
+    icone: "🧑‍🏫",
+    descricao: "Reconhecido como professor ou líder de bancada.",
+    raridade: "ouro",
     condicao: (aluno) => aluno.classificado === true
   }
 ];
 
 // --------------------------------------
-// 🔧 Função utilitária (opcional)
-// Para uso futuro: gera o painel automaticamente com base na lista acima.
+// 🔧 Gera o painel com contador visual e animação
 // --------------------------------------
 
 export function gerarPainelConquistas(aluno, elementoAlvo) {
   if (!elementoAlvo) return;
-
   elementoAlvo.innerHTML = "";
 
   regrasDeConquistas.forEach((c) => {
     const desbloqueado = c.condicao(aluno);
+    const vezes = aluno.conquistas?.[c.id] || 0;
+
+    // Contêiner principal
     const slot = document.createElement("div");
     slot.classList.add("slot");
     if (desbloqueado) slot.classList.add("desbloqueado");
 
-    // Mostra o ícone ou um marcador de bloqueado
-    slot.textContent = desbloqueado ? c.icone : "🔒";
+    // Ícone visual
+    const icone = document.createElement("span");
+    icone.classList.add("icone");
+    icone.textContent = desbloqueado ? c.icone : "🔒";
+    slot.appendChild(icone);
 
-    // Tooltip simples com o título
+    // Contador (se > 1)
+    if (desbloqueado && vezes > 1) {
+      const contador = document.createElement("span");
+      contador.classList.add("contador");
+
+      // Se o contador é novo ou aumentou, adiciona classe de animação
+      if (aluno.novosNiveis && aluno.novosNiveis.includes(c.id)) {
+        contador.classList.add("animar");
+      }
+
+      contador.textContent = `x${vezes}`;
+      slot.appendChild(contador);
+    }
+
+    // Tooltip
     slot.title = c.titulo + (c.descricao ? " — " + c.descricao : "");
     elementoAlvo.appendChild(slot);
   });
