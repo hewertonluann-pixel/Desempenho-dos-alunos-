@@ -294,6 +294,49 @@
 
   <!-- SCRIPT PRINCIPAL -->
   <script type="module">
+
+
+
+    
+
+import { collection, getDocs, updateDoc, doc } 
+from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+// FUNÇÃO DE ZERAR — execute só uma vez
+async function zerarFrequencias() {
+  if (!confirm("Tem certeza que deseja ZERAR TODAS as presenças dos alunos?")) return;
+
+  const snap = await getDocs(collection(db, "alunos"));
+
+  for (const alunoDoc of snap.docs) {
+    const alunoRef = doc(db, "alunos", alunoDoc.id);
+
+    await updateDoc(alunoRef, {
+      // zera tudo relacionado à presença
+      presencas: [],                 // histórico mensal antigo
+      frequenciaMensal: { 
+        porcentagem: 0, 
+        presencas: 0, 
+        totalEventos: 0 
+      },
+      frequenciaAnual: {}            // limpa o ano também
+    });
+
+    console.log("Zerado:", alunoDoc.data().nome);
+  }
+
+  alert("✅ Todos os contadores de presença foram zerados com sucesso!");
+}
+
+// CHAME A FUNÇÃO UMA VEZ
+zerarFrequencias();
+
+
+
+
+
+    
+    
     import { db } from "./firebase-config.js";
     import {
       collection,
@@ -454,3 +497,4 @@
 
 </body>
 </html>
+
