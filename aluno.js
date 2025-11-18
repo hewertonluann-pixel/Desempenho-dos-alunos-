@@ -255,10 +255,79 @@ window.acessarModoProfessor = () => {
     10. CONQUISTAS (Simulação para o novo HTML)
    ======================================================== */
 const mapaConquistas = {
-  presencaPerfeita: { icone: "⭐", nome: "Presença Perfeita", raridade: "lendaria" },
-  leituraAlta: { icone: "📘", nome: "Leitura Avançada", raridade: "rara" },
-  metodoAlto: { icone: "🎯", nome: "Método Concluído", raridade: "epica" },
-  // ... outras conquistas
+  presencaPerfeita: { 
+    icone: "⭐", 
+    nome: "Presença Perfeita", 
+    raridade: "lendaria",
+    descricao: "Concedida a quem comparece a 100% dos ensaios do mês.",
+    detalhes: ["Não faltar nenhum ensaio.", "Compromisso e constância exemplar.", "Atualizada mensalmente."]
+  },
+  leituraAlta: { 
+    icone: "📘", 
+    nome: "Leitor Dedicado", 
+    raridade: "rara",
+    descricao: "Atingida por alunos com Leitura ≥ 50 pontos.",
+    detalhes: ["Estudo contínuo da leitura musical (BONA).", "Requer evolução técnica constante.", "Indicador de boa leitura rítmica e melódica."]
+  },
+  musicoPontual: { 
+    icone: "🎯", 
+    nome: "Músico Pontual", 
+    raridade: "epica",
+    descricao: "Obtida com frequência mensal acima de 80%.",
+    detalhes: ["Comparecer na maioria dos ensaios.", "Evitar faltas repetidas.", "Reflete disciplina e responsabilidade."]
+  },
+  evolucaoConstante: { 
+    icone: "🔥", 
+    nome: "Evolução Constante", 
+    raridade: "epica",
+    descricao: "Conquistada quando Leitura + Método ≥ 100 pontos.",
+    detalhes: ["Avanço equilibrado nas duas áreas.", "Indicador de estudo consistente.", "Mostra domínio progressivo."]
+  },
+  veteranoPalco: { 
+    icone: "🎤", 
+    nome: "Veterano de Palco", 
+    raridade: "rara",
+    descricao: "Para quem participou de 20 ou mais apresentações.",
+    detalhes: ["Experiência em eventos oficiais.", "Presença em oportunidades musicais.", "Confiança no palco."]
+  },
+  lider: { 
+    icone: "🧑‍🏫", 
+    nome: "Líder", 
+    raridade: "lendaria",
+    descricao: "Conquista atribuída pelo professor ao aluno que demonstra postura de liderança.",
+    detalhes: ["Líder de naipe / monitor / auxiliar.", "Critério: maturidade, cooperação e exemplo.", "Não é automática — depende do professor."]
+  },
+};
+
+// ... outras conquistas
+// Vou manter a simulação de dados, mas o mapa agora é mais completo.
+// A chave 'metodoAlto' foi substituída por 'musicoPontual' e 'evolucaoConstante' para refletir o manual.
+// A simulação será ajustada no próximo passo.
+// A função carregarConquistas será ajustada no próximo passo.
+// ...
+// FUNÇÕES DE POPUP DE CONQUISTA
+// ...
+window.abrirPopupConquista = (key) => {
+  const conquista = mapaConquistas[key];
+  if (!conquista) return;
+
+  document.getElementById("conquistaTitulo").textContent = conquista.nome;
+  document.getElementById("conquistaIcone").textContent = conquista.icone;
+  document.getElementById("conquistaDescricao").textContent = conquista.descricao;
+
+  const ul = document.getElementById("conquistaDetalhes");
+  ul.innerHTML = "";
+  conquista.detalhes.forEach(detalhe => {
+    const li = document.createElement("li");
+    li.textContent = detalhe;
+    ul.appendChild(li);
+  });
+
+  document.getElementById("popupConquista").style.display = "flex";
+};
+
+window.fecharPopupConquista = () => {
+  document.getElementById("popupConquista").style.display = "none";
 };
 
 function carregarConquistas(conquistas) {
@@ -271,7 +340,10 @@ function carregarConquistas(conquistas) {
   const conquistasSimuladas = {
     presencaPerfeita: 1,
     leituraAlta: 2,
-    metodoAlto: 1
+    musicoPontual: 1,
+    evolucaoConstante: 1,
+    veteranoPalco: 1,
+    lider: 1
   };
 
   for (const key in conquistasSimuladas) {
@@ -279,6 +351,7 @@ function carregarConquistas(conquistas) {
       const info = mapaConquistas[key];
       const card = document.createElement("div");
       card.className = `achievement-card ${info.raridade}`;
+      card.setAttribute("onclick", `abrirPopupConquista('${key}')`); // Adiciona o onclick
       card.innerHTML = `
         <span class="achievement-icon">${info.icone}</span>
         <span class="achievement-name">${info.nome}</span>
