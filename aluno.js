@@ -21,7 +21,7 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { regrasDeConquistas, gerarPainelConquistas } from "./conquistas.js";
+import { gerarPainelConquistas } from "./conquistas.js";
 
 /* ========================================================
     1. OBTER ALUNO LOGADO (pela URL)
@@ -200,7 +200,7 @@ export async function iniciarPainelAluno() {
   montarPainelAluno(aluno);
   await montarGraficoFrequencia(aluno);
   await calcularEnergiaDoAluno(aluno);
-  // Usa a função de renderização do conquistas.js
+  // Renderiza o painel de conquistas
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
   await carregarLicoesAluno(aluno.nome); // preenche a aba de lições
 }

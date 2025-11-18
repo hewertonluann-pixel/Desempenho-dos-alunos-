@@ -1,98 +1,125 @@
 // conquistas.js
 // --------------------------------------
-// Sistema modular de conquistas do painel do aluno com contador animado
+// Sistema modular de conquistas do painel do aluno
 // --------------------------------------
 
-export const regrasDeConquistas = [
-  {
-    id: "presenca_perfeita",
-    titulo: "Presença Perfeita",
+// 🏆 Mapa de Conquistas (Regras e Detalhes)
+export const mapaConquistas = {
+  presenca_perfeita: {
     icone: "⭐",
-    descricao: "Compareceu a todos os ensaios do mês.",
+    titulo: "Presença Perfeita",
     raridade: "ouro",
+    descricao: "Concedida a quem comparece a 100% dos ensaios do mês.",
+    detalhes: ["Não faltar nenhum ensaio.", "Compromisso e constância exemplar.", "Atualizada mensalmente."],
     condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 100
   },
-  {
-    id: "leitor_dedicado",
-    titulo: "Leitor Dedicado",
+  leitor_dedicado: {
     icone: "📘",
-    descricao: "Atingiu alto desempenho em leitura musical.",
+    titulo: "Leitor Dedicado",
     raridade: "prata",
+    descricao: "Atingida por alunos com Leitura ≥ 50 pontos.",
+    detalhes: ["Estudo contínuo da leitura musical (BONA).", "Requer evolução técnica constante.", "Indicador de boa leitura rítmica e melódica."],
     condicao: (aluno) => aluno.leitura >= 50
   },
-  {
-    id: "musico_pontual",
-    titulo: "Músico Pontual",
+  musico_pontual: {
     icone: "🎯",
-    descricao: "Manteve presença consistente nos ensaios.",
+    titulo: "Músico Pontual",
     raridade: "prata",
+    descricao: "Obtida com frequência mensal acima de 80%.",
+    detalhes: ["Comparecer na maioria dos ensaios.", "Evitar faltas repetidas.", "Reflete disciplina e responsabilidade."],
     condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 80
   },
-  {
-    id: "evolucao_constante",
-    titulo: "Evolução Constante",
+  evolucao_constante: {
     icone: "🔥",
-    descricao: "Somou 100 pontos ou mais entre leitura e método.",
+    titulo: "Evolução Constante",
     raridade: "ouro",
+    descricao: "Conquistada quando Leitura + Método ≥ 100 pontos.",
+    detalhes: ["Avanço equilibrado nas duas áreas.", "Indicador de estudo consistente.", "Mostra domínio progressivo."],
     condicao: (aluno) => (aluno.leitura + aluno.metodo) >= 100
   },
-  {
-    id: "veterano_palco",
-    titulo: "Veterano de Palco",
+  veterano_palco: {
     icone: "🎤",
-    descricao: "Participou de mais de 20 apresentações.",
+    titulo: "Veterano de Palco",
     raridade: "ouro",
+    descricao: "Para quem participou de 20 ou mais apresentações.",
+    detalhes: ["Experiência em eventos oficiais.", "Presença em oportunidades musicais.", "Confiança no palco."],
     condicao: (aluno) => aluno.frequenciaTotal >= 20
   },
-  {
-    id: "lider",
-    titulo: "Líder",
+  lider: {
     icone: "🧑‍🏫",
-    descricao: "Reconhecido como professor ou líder de bancada.",
-    raridade: "ouro",
+    titulo: "Líder",
+    raridade: "lendaria",
+    descricao: "Conquista atribuída pelo professor ao aluno que demonstra postura de liderança.",
+    detalhes: ["Líder de naipe / monitor / auxiliar.", "Critério: maturidade, cooperação e exemplo.", "Não é automática — depende do professor."],
     condicao: (aluno) => aluno.classificado === true
-  }
-];
+  },
+};
 
 // --------------------------------------
-// 🔧 Gera o painel com contador visual e animação
+// 🔧 Funções de Pop-up
+// --------------------------------------
+
+window.abrirPopupConquista = (key) => {
+  const conquista = mapaConquistas[key];
+  if (!conquista) return;
+
+  document.getElementById("conquistaTitulo").textContent = conquista.titulo;
+  document.getElementById("conquistaIcone").textContent = conquista.icone;
+  document.getElementById("conquistaDescricao").textContent = conquista.descricao;
+
+  const ul = document.getElementById("conquistaDetalhes");
+  ul.innerHTML = "";
+  conquista.detalhes.forEach(detalhe => {
+    const li = document.createElement("li");
+    li.textContent = detalhe;
+    ul.appendChild(li);
+  });
+
+  document.getElementById("popupConquista").style.display = "flex";
+};
+
+window.fecharPopupConquista = () => {
+  document.getElementById("popupConquista").style.display = "none";
+};
+
+// --------------------------------------
+// 🔧 Função de Renderização
 // --------------------------------------
 
 export function gerarPainelConquistas(aluno, elementoAlvo) {
   if (!elementoAlvo) return;
   elementoAlvo.innerHTML = "";
 
-  regrasDeConquistas.forEach((c) => {
-    const desbloqueado = c.condicao(aluno);
-    const vezes = aluno.conquistas?.[c.id] || 0;
-
-    // Contêiner principal
-    const slot = document.createElement("div");
-    slot.classList.add("slot");
-    if (desbloqueado) slot.classList.add("desbloqueado");
-
-    // Ícone visual
-    const icone = document.createElement("span");
-    icone.classList.add("icone");
-    icone.textContent = desbloqueado ? c.icone : "🔒";
-    slot.appendChild(icone);
-
-    // Contador (se > 1)
-    if (desbloqueado && vezes > 1) {
-      const contador = document.createElement("span");
-      contador.classList.add("contador");
-
-      // Se o contador é novo ou aumentou, adiciona classe de animação
-      if (aluno.novosNiveis && aluno.novosNiveis.includes(c.id)) {
-        contador.classList.add("animar");
-      }
-
-      contador.textContent = `x${vezes}`;
-      slot.appendChild(contador);
+  // 1. Calcular as conquistas desbloqueadas
+  const conquistasDesbloqueadas = [];
+  
+  for (const key in mapaConquistas) {
+    const conquista = mapaConquistas[key];
+    // Simplificação: se a condição for atendida, a conquista é desbloqueada (nível 1)
+    if (conquista.condicao(aluno)) {
+      conquistasDesbloqueadas.push({
+        key: key,
+        ...conquista,
+        nivel: 1 // Assumindo nível 1 para simplificar
+      });
     }
+  }
 
-    // Tooltip
-    slot.title = c.titulo + (c.descricao ? " — " + c.descricao : "");
-    elementoAlvo.appendChild(slot);
+  // 2. Renderizar os cards
+  conquistasDesbloqueadas.forEach(info => {
+    const card = document.createElement("div");
+    card.className = `achievement-card ${info.raridade}`;
+    card.setAttribute("onclick", `abrirPopupConquista(\'${info.key}\')`);
+    card.innerHTML = `
+      <span class="achievement-icon">${info.icone}</span>
+      <span class="achievement-name">${info.titulo}</span>
+      ${info.nivel > 1 ? `<span class="achievement-count">x${info.nivel}</span>` : ''}
+    `;
+    elementoAlvo.appendChild(card);
   });
+  
+  // Se não houver conquistas, exibe uma mensagem
+  if (conquistasDesbloqueadas.length === 0) {
+    elementoAlvo.innerHTML = "<p style='text-align: center; color: #aaa;'>Nenhuma conquista desbloqueada ainda. Continue estudando!</p>";
+  }
 }
