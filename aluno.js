@@ -9,7 +9,8 @@ import { db } from "./firebase-config.js";
 import {
   collection,
   getDocs,
-  doc
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 import {
@@ -30,7 +31,8 @@ export async function carregarAlunoAtual() {
   const nomeAluno = params.get("nome");
 
   if (!nomeAluno) {
-    alert("Nenhum aluno informado.");
+    // Se não houver nome na URL, redireciona para o login
+    window.location.href = "index.html";
     return null;
   }
 
@@ -46,6 +48,7 @@ export async function carregarAlunoAtual() {
 
   if (!alunoEncontrado) {
     alert("Aluno não encontrado.");
+    window.location.href = "index.html";
     return null;
   }
 
@@ -53,14 +56,12 @@ export async function carregarAlunoAtual() {
 }
 
 /* ========================================================
-    2. EXIBIR DADOS DO ALUNO
+    2. EXIBIR DADOS DO ALUNO (Adaptado para o novo HTML)
    ======================================================== */
 export function montarPainelAluno(aluno) {
-  const nomeEl = document.getElementById("nomeAluno");
-  if (nomeEl) nomeEl.textContent = aluno.nome;
-
-  const instrumentoEl = document.getElementById("instrumentoAluno");
-  if (instrumentoEl) instrumentoEl.textContent = aluno.instrumento || "--";
+  // Sidebar
+  document.getElementById("nomeAluno").textContent = aluno.nome || "Aluno";
+  document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "Não definido";
 
   // Foto (IMG)
   const fotoImg = document.getElementById("fotoAluno");
@@ -73,22 +74,27 @@ export function montarPainelAluno(aluno) {
   const leitura = aluno.leitura ?? 0;
   const metodo = aluno.metodo ?? 0;
 
-  const leituraEl = document.getElementById("nivelLeitura");
-  const metodoEl = document.getElementById("nivelMetodo");
-  if (leituraEl) leituraEl.textContent = leitura;
-  if (metodoEl) metodoEl.textContent = metodo;
+  document.getElementById("nivelLeitura").textContent = leitura;
+  document.getElementById("nivelMetodo").textContent = metodo;
 
-  // 💥 NÍVEL TOTAL (soma)
+  // NÍVEL TOTAL (soma)
   const nivel = leitura + metodo;
-  const nivelEl = document.getElementById("nivelGeral");
-  if (nivelEl) nivelEl.textContent = nivel;
+  document.getElementById("nivelGeral").textContent = nivel;
+
+  // Modo Professor
+  if (aluno.classificado === true) {
+    document.getElementById("modoProfessorBtn").style.display = "block";
+  }
 
   // Energia visual
   atualizarEnergiaVisual(aluno.energia ?? 10);
+  
+  // Conquistas (simulação)
+  carregarConquistas(aluno.conquistas || {});
 }
 
 /* ========================================================
-    3. ATUALIZAR ENERGIA NO PAINEL DO ALUNO
+    3. ATUALIZAR ENERGIA NO PAINEL DO ALUNO (Adaptado para o novo HTML)
    ======================================================== */
 export function atualizarEnergiaVisual(valor) {
   const barra = document.getElementById("barraEnergia");
@@ -97,17 +103,18 @@ export function atualizarEnergiaVisual(valor) {
   if (!barra || !numero) return;
 
   barra.style.width = valor + "%";
-  numero.textContent = valor;
+  numero.textContent = valor + "%";
 
-  if (valor >= 80) barra.style.background = "#00ff99";
-  else if (valor >= 50) barra.style.background = "#22d3ee";
-  else if (valor >= 30) barra.style.background = "#eab308";
-  else barra.style.background = "#ef4444";
+  // Cores baseadas nas variáveis CSS (verde, amarelo, vermelho)
+  if (valor >= 80) barra.style.backgroundColor = "var(--verde)";
+  else if (valor >= 40) barra.style.backgroundColor = "var(--amarelo)";
+  else barra.style.backgroundColor = "var(--vermelho)";
 }
 
 /* ========================================================
     4. CARREGAR GRÁFICO DE FREQUÊNCIA ANUAL
    ======================================================== */
+// Mantido o código original, pois a lógica de dados é a mesma.
 export async function montarGraficoFrequencia(aluno) {
   const anoAtual = new Date().getFullYear();
 
@@ -116,6 +123,7 @@ export async function montarGraficoFrequencia(aluno) {
 
   if (!destinoGrafico) return;
 
+  // O novo HTML usa o ID 'gradeFrequencia'
   await gerarPainelFrequencia(
     aluno,
     anoAtual,
@@ -127,6 +135,7 @@ export async function montarGraficoFrequencia(aluno) {
 /* ========================================================
     5. POPUP (detalhes do mês)
    ======================================================== */
+// Mantido o código original, mas o HTML do popup foi simplificado no novo HTML.
 export function abrirPopupFrequencia(info, destino) {
   if (!destino) return;
 
@@ -136,31 +145,28 @@ export function abrirPopupFrequencia(info, destino) {
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
 
-  destino.innerHTML = `
-    <div class="popup-conteudo">
-      <h2>${meses[info.mes] || info.mes}</h2>
+  // O novo HTML usa a classe 'popup-content'
+  destino.querySelector(".popup-content").innerHTML = `
+    <h3>Frequência de ${meses[info.mes] || info.mes}</h3>
 
-      <p><strong>Chamadas no mês:</strong> ${info.totalEventos}</p>
-      <p><strong>Presente em:</strong> ${info.presencasAluno}</p>
-      <p><strong>Frequência:</strong> ${info.percentual}%</p>
+    <p>Chamadas no mês: <strong>${info.totalEventos}</strong></p>
+    <p>Presente em: <strong>${info.presencasAluno}</strong></p>
+    <p>Frequência: <strong>${info.percentual}%</strong></p>
 
-      <button id="fecharPopup" class="fechar-popup">Fechar</button>
-    </div>
+    <button onclick="fecharPopupFrequencia()">Fechar</button>
   `;
 
   destino.style.display = "flex";
-
-  const btnFechar = document.getElementById("fecharPopup");
-  if (btnFechar) {
-    btnFechar.onclick = () => {
-      destino.style.display = "none";
-    };
-  }
 }
+
+window.fecharPopupFrequencia = () => {
+  document.getElementById("popupFrequencia").style.display = "none";
+};
 
 /* ========================================================
     6. CALCULAR ENERGIA DO ALUNO (baseado no mês atual)
    ======================================================== */
+// Mantido o código original.
 export async function calcularEnergiaDoAluno(aluno) {
   const hoje = new Date();
   const ano = hoje.getFullYear();
@@ -195,14 +201,8 @@ export async function iniciarPainelAluno() {
 }
 
 /* ========================================================
-    8. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
+    8. FUNÇÕES DE POPUP DE SENHA (Simplificado)
    ======================================================== */
-document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
-
-// ========================================================
-// FUNÇÕES DE POPUP DE SENHA
-// ========================================================
-
 window.abrirPopup = () => {
   document.getElementById("popupSenha").style.display = "flex";
   document.getElementById("mensagemSenha").textContent = "";
@@ -212,3 +212,87 @@ window.abrirPopup = () => {
 window.fecharPopup = () => {
   document.getElementById("popupSenha").style.display = "none";
 };
+
+window.salvarSenha = async () => {
+  const novaSenha = document.getElementById("novaSenha").value;
+  const mensagemSenha = document.getElementById("mensagemSenha");
+  const aluno = await carregarAlunoAtual(); // Recarrega o aluno para obter o ID
+
+  if (!novaSenha || novaSenha.length < 6) {
+    mensagemSenha.textContent = "A senha deve ter pelo menos 6 caracteres.";
+    return;
+  }
+
+  if (aluno && aluno.id) {
+    try {
+      const alunoRef = doc(db, "alunos", aluno.id);
+      await updateDoc(alunoRef, {
+        senha: novaSenha // ATENÇÃO: Isso é inseguro em produção!
+      });
+      mensagemSenha.textContent = "Senha alterada com sucesso!";
+      setTimeout(fecharPopup, 2000);
+    } catch (error) {
+      console.error("Erro ao salvar a senha:", error);
+      mensagemSenha.textContent = "Erro ao salvar a senha. Tente novamente.";
+    }
+  }
+};
+
+/* ========================================================
+    9. FUNÇÕES DE FOTO E MODO PROFESSOR
+   ======================================================== */
+window.enviarNovaFoto = () => {
+  alert("Funcionalidade de upload de foto precisa ser implementada.");
+  // A lógica de upload de foto precisa ser implementada, pois não estava no código original.
+};
+
+window.acessarModoProfessor = () => {
+  window.location.href = "professor.html";
+};
+
+/* ========================================================
+    10. CONQUISTAS (Simulação para o novo HTML)
+   ======================================================== */
+const mapaConquistas = {
+  presencaPerfeita: { icone: "⭐", nome: "Presença Perfeita", raridade: "lendaria" },
+  leituraAlta: { icone: "📘", nome: "Leitura Avançada", raridade: "rara" },
+  metodoAlto: { icone: "🎯", nome: "Método Concluído", raridade: "epica" },
+  // ... outras conquistas
+};
+
+function carregarConquistas(conquistas) {
+  const gradeConquistas = document.getElementById("grade-conquistas");
+  if (!gradeConquistas) return;
+  
+  gradeConquistas.innerHTML = ""; // Limpa a grade
+
+  // Simulação de dados de conquistas para preencher o novo HTML
+  const conquistasSimuladas = {
+    presencaPerfeita: 1,
+    leituraAlta: 2,
+    metodoAlto: 1
+  };
+
+  for (const key in conquistasSimuladas) {
+    if (conquistasSimuladas[key] > 0 && mapaConquistas[key]) {
+      const info = mapaConquistas[key];
+      const card = document.createElement("div");
+      card.className = `achievement-card ${info.raridade}`;
+      card.innerHTML = `
+        <span class="achievement-icon">${info.icone}</span>
+        <span class="achievement-name">${info.nome}</span>
+        ${conquistasSimuladas[key] > 1 ? `<span class="achievement-count">x${conquistasSimuladas[key]}</span>` : ''}
+      `;
+      gradeConquistas.appendChild(card);
+    }
+  }
+}
+
+/* ========================================================
+    11. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
+   ======================================================== */
+document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
+
+// A função abrirModalEnviarLicao será implementada em licoes.js
+// A função carregarLicoesAluno será implementada em licoes.js
+// A função de navegação (como logout) será implementada em navegacao.js
