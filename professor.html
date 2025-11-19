@@ -329,7 +329,7 @@ async function zerarFrequencias() {
 }
 
 // CHAME A FUNÇÃO UMA VEZ
-zerarFrequencias();
+	// zerarFrequencias(); // Removido para evitar execução automática
 
 
 
@@ -473,8 +473,20 @@ zerarFrequencias();
       window.location.href = `ensaio.html?id=${novo.id}`;
     };
 
-    // Recalcular energia
-    document.getElementById("btnRecalcularEnergia").onclick = async () => {
+// Função para exportar PDF
+	function exportarPDF() {
+	  const element = document.body;
+	  html2pdf(element, {
+	    margin: 10,
+	    filename: 'relatorio_alunos.pdf',
+	    image: { type: 'jpeg', quality: 0.98 },
+	    html2canvas: { scale: 2 },
+	    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+	  });
+	}
+	
+	// Recalcular energia
+	document.getElementById("btnRecalcularEnergia").onclick = async () => {
       const snap = await getDocs(collection(db, "alunos"));
 
       for (const docAluno of snap.docs) {
