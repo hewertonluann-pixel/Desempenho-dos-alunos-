@@ -140,5 +140,21 @@
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="licoes.js"></script>
 
+
+<script type="module">
+  import {
+    carregarAlunoReal,
+    montarDadosParaGrafico,
+    montarGraficoEvolucao
+  } from "./grafico-evolucao.js";
+
+  (async () => {
+    const aluno = await carregarAlunoReal();
+    const dados = montarDadosParaGrafico(aluno);
+    montarGraficoEvolucao("graficoEvolucao", dados);
+  })();
+</script>
+
+  
 </body>
 </html>
