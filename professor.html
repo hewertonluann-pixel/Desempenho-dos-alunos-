@@ -352,11 +352,19 @@
 import { carregarSolicitacoes } from "./js/professor-licoes.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  await carregarSolicitacoes(
-    document.getElementById("painelLicoesProf"),
-    document.getElementById("listaSolicitacoes")
-  );
+
+  const painel = document.getElementById("painelLicoesProf");
+  const lista = document.getElementById("listaSolicitacoes");
+
+  const temSolicitacoes = await carregarSolicitacoes(painel, lista);
+
+  if (temSolicitacoes) {
+    painel.style.display = "block";
+  } else {
+    painel.style.display = "none";
+  }
 });
+
 
 
 
@@ -524,6 +532,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   
 </body>
 </html>
+
 
 
 
