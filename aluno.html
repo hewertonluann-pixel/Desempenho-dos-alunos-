@@ -140,6 +140,8 @@
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="licoes.js"></script>
 
+
+  <!-- =================== GRAFICO ===================================-->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
@@ -155,6 +157,17 @@
 </div>
 
 
+
+<script type="module">
+  import { carregarAlunoReal } from "./grafico-evolucao.js";
+
+  (async () => {
+    const aluno = await carregarAlunoReal();
+    console.log("Aluno carregado:", aluno);
+  })();
+</script>
+
+  
   
 <script type="module">
   import {
