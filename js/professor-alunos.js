@@ -1,141 +1,190 @@
-// professor-licoes.js
-// Sistema de solicitações de lição mostrado no painel do professor
+// professor-alunos.js
+// Módulo oficial para gerenciar alunos no Painel do Professor
+// Compatível com a arquitetura unificada de CHAMADA DO DIA
 
 import { db } from "../firebase-config.js";
 import {
   collection,
   getDocs,
-  deleteDoc,
   updateDoc,
-  doc
+  doc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 /* ============================================================
-   CARREGAR SOLICITAÇÕES
+   1. CARREGAR ALUNOS
    ============================================================ */
+export async function carregarAlunos() {
+  const snap = await getDocs(collection(db, "alunos"));
+  const alunos = [];
 
-export async function carregarSolicitacoes(painelEl, listaEl) {
-
-  listaEl.innerHTML = `
-    <p style="text-align:center; opacity:0.6; font-size:0.95rem;">
-      Carregando solicitações...
-    </p>
-  `;
-
-  const snap = await getDocs(collection(db, "solicitacoes"));
-
-  // Se estiver vazia → esconde o painel
-  if (snap.empty) {
-    painelEl.style.display = "none";
-    return false;
-  }
-
-  painelEl.style.display = "block";
-  listaEl.innerHTML = "";
-
-  snap.forEach((docItem) => {
-    const dados = docItem.data();
-
-    listaEl.innerHTML += `
-      <div class="item-licao" 
-           style="
-             padding: 12px;
-             background: rgba(30,41,59,0.8);
-             border-radius: 10px;
-             border: 1px solid rgba(56,189,248,0.25);
-             box-shadow: 0 0 8px rgba(0,0,0,0.25);
-           ">
-        
-        <div style="font-size:1rem; color:#38bdf8; font-weight:600;">
-          ${dados.aluno ?? "Aluno desconhecido"}
-        </div>
-
-        <div style="margin-top:4px; font-size:0.9rem; opacity:0.8;">
-          Solicitou correção da lição: <strong>${dados.licao ?? "?"}</strong>
-        </div>
-
-        <div style="display:flex; gap:10px; margin-top:10px;">
-
-          <button 
-            class="btn-aprovar" 
-            data-acao="aprovarLicao"
-            data-id="${docItem.id}"
-            style="
-              flex:1;
-              padding: 8px;
-              border:none;
-              border-radius:8px;
-              background:#22c55e;
-              color:#022c22;
-              font-weight:600;
-              cursor:pointer;
-            ">
-            ✔ Aprovar
-          </button>
-
-          <button 
-            class="btn-rejeitar" 
-            data-acao="rejeitarLicao"
-            data-id="${docItem.id}"
-            style="
-              flex:1;
-              padding: 8px;
-              border:none;
-              border-radius:8px;
-              background:#dc2626;
-              color:white;
-              font-weight:600;
-              cursor:pointer;
-            ">
-            ✖ Rejeitar
-          </button>
-
-        </div>
-
-      </div>
-    `;
+  snap.forEach((d) => {
+    alunos.push({ id: d.id, ...d.data() });
   });
 
-  return true;
+  alunos.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  return alunos;
 }
 
 /* ============================================================
-   EVENTOS GLOBAIS (delegação)
+   2. RENDERIZAR PAINEL
    ============================================================ */
+export async function renderizarPainel(painelEl, loaderEl) {
+  painelEl.style.display = "none";
+  loaderEl.style.display = "block";
 
-document.addEventListener("click", async (e) => {
-  const el = e.target;
+  const alunos = await carregarAlunos();
 
-  if (!el.dataset?.acao) return;
+  painelEl.innerHTML = alunos
+    .map((aluno) => criarFichaHTML(aluno))
+    .join("");
 
-  // ----------- APROVAR -----------
-  if (el.dataset.acao === "aprovarLicao") {
-    const id = el.dataset.id;
-
-    // opcional: atualizar alguma coisa no aluno
-    await deleteDoc(doc(db, "solicitacoes", id));
-
-    alert("Lição aprovada!");
-    recarregarPainel();
-  }
-
-  // ----------- REJEITAR -----------
-  if (el.dataset.acao === "rejeitarLicao") {
-    const id = el.dataset.id;
-
-    await deleteDoc(doc(db, "solicitacoes", id));
-
-    alert("Lição rejeitada.");
-    recarregarPainel();
-  }
-});
+  loaderEl.style.display = "none";
+  painelEl.style.display = "grid";
+}
 
 /* ============================================================
-   FUNÇÃO PARA RECARREGAR PAINEL DE SOLICITAÇÕES
+   3. GERAR HTML DE CADA FICHA DO ALUNO
    ============================================================ */
-async function recarregarPainel() {
-  const painel = document.getElementById("painelLicoesProf");
-  const lista = document.getElementById("listaSolicitacoes");
+function criarFichaHTML(aluno) {
+  const foto = aluno.foto
+    ? `<img src="${aluno.foto}" alt="${aluno.nome}">`
+    : `<img src="https://via.placeholder.com/85" alt="Sem foto">`;
 
-  await carregarSolicitacoes(painel, lista);
+  return `
+    <div class="ficha">
+
+      <div class="foto">${foto}
+        <input type="file" data-acao="foto" data-id="${aluno.id}" style="margin-top:4px;" />
+      </div>
+
+      <div class="dados">
+
+        <div class="campo">
+          <label>${aluno.nome}</label>
+        </div>
+
+        <div class="campo nota-linha">
+          <label>Leitura</label>
+          <div class="nota-controle">
+            <button class="botao-nota" 
+              data-acao="alterar" data-id="${aluno.id}" data-campo="leitura" data-delta="-1">−</button>
+
+            <input type="number" class="campo-nota"
+              value="${aluno.leitura ?? 1}"
+              data-acao="input" data-id="${aluno.id}" data-campo="leitura">
+
+            <button class="botao-nota" 
+              data-acao="alterar" data-id="${aluno.id}" data-campo="leitura" data-delta="1">+</button>
+          </div>
+        </div>
+
+        <div class="campo nota-linha">
+          <label>Método</label>
+          <div class="nota-controle">
+            <button class="botao-nota"
+              data-acao="alterar" data-id="${aluno.id}" data-campo="metodo" data-delta="-1">−</button>
+
+            <input type="number" class="campo-nota"
+              value="${aluno.metodo ?? 1}"
+              data-acao="input" data-id="${aluno.id}" data-campo="metodo">
+
+            <button class="botao-nota"
+              data-acao="alterar" data-id="${aluno.id}" data-campo="metodo" data-delta="1">+</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label>Instrumento</label>
+          <input type="text" class="campo-nota" style="width:120px;"
+            value="${aluno.instrumento ?? ""}"
+            data-acao="instrumento" data-id="${aluno.id}">
+        </div>
+
+        <div class="acoes">
+          <button class="classificar"
+            data-acao="classificar"
+            data-id="${aluno.id}"
+            data-status="${aluno.classificado}">
+            ${aluno.classificado ? "Desclassificar" : "Classificar"}
+          </button>
+
+          <button class="remover"
+            data-acao="remover"
+            data-id="${aluno.id}"
+            data-nome="${aluno.nome}">
+            Remover
+          </button>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   4. ALTERAR NOTA DE LEITURA OU MÉTODO
+   ============================================================ */
+export async function alterarNota(id, campo, delta) {
+  const ref = doc(db, "alunos", id);
+  const valorAtual = parseInt(
+    document.querySelector(`[data-id="${id}"][data-campo="${campo}"]`)?.value || "1"
+  );
+
+  let novoValor = valorAtual + Number(delta);
+  if (novoValor < 1) novoValor = 1;
+  if (novoValor > 130) novoValor = 130;
+
+  await updateDoc(ref, { [campo]: novoValor });
+}
+
+/* ============================================================
+   5. ATUALIZAR NOTA PELO INPUT
+   ============================================================ */
+export async function atualizarNota(id, campo, valor) {
+  let v = parseInt(valor);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 130) v = 130;
+
+  await updateDoc(doc(db, "alunos", id), { [campo]: v });
+}
+
+/* ============================================================
+   6. ATUALIZAR INSTRUMENTO
+   ============================================================ */
+export async function atualizarInstrumento(id, novoInstrumento) {
+  await updateDoc(doc(db, "alunos", id), {
+    instrumento: novoInstrumento.trim()
+  });
+}
+
+/* ============================================================
+   7. CLASSIFICAR / DESCLASSIFICAR
+   ============================================================ */
+export async function alternarClassificacao(id, classificadoAtual) {
+  await updateDoc(doc(db, "alunos", id), {
+    classificado: !classificadoAtual
+  });
+}
+
+/* ============================================================
+   8. REMOVER ALUNO
+   ============================================================ */
+export async function removerAluno(id) {
+  await deleteDoc(doc(db, "alunos", id));
+}
+
+/* ============================================================
+   9. ALTERAR FOTO
+   ============================================================ */
+export async function alterarFoto(id, arquivo) {
+  if (!arquivo) return;
+
+  const base64 = await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.readAsDataURL(arquivo);
+  });
+
+  await updateDoc(doc(db, "alunos", id), { foto: base64 });
 }
