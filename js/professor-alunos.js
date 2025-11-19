@@ -1,6 +1,5 @@
 // professor-alunos.js
 // Módulo oficial para gerenciar alunos no Painel do Professor
-// Compatível com a arquitetura unificada de CHAMADA DO DIA
 
 import { db } from "../firebase-config.js";
 import {
@@ -44,18 +43,23 @@ export async function renderizarPainel(painelEl, loaderEl) {
 }
 
 /* ============================================================
-   3. GERAR HTML DE CADA FICHA DO ALUNO
+   3. HTML COMPLETO DA FICHA DO ALUNO
    ============================================================ */
 function criarFichaHTML(aluno) {
   const foto = aluno.foto
     ? `<img src="${aluno.foto}" alt="${aluno.nome}">`
-    : `<img src="https://via.placeholder.com/85" alt="Sem foto">`;
+    : `<img src="https://via.placeholder.com/120" alt="Sem foto">`;
 
   return `
     <div class="ficha">
 
-      <div class="foto">${foto}
-        <input type="file" data-acao="foto" data-id="${aluno.id}" style="margin-top:4px;" />
+      <div class="foto">
+        ${foto}
+
+        <label class="alterar-foto">
+          🖼️ Trocar Foto
+          <input type="file" data-acao="foto" data-id="${aluno.id}" hidden />
+        </label>
       </div>
 
       <div class="dados">
@@ -65,17 +69,19 @@ function criarFichaHTML(aluno) {
         </div>
 
         <div class="campo nota-linha">
-          <label>Leitura</label>
+          <label>Leitura (BONA)</label>
           <div class="nota-controle">
             <button class="botao-nota" 
-              data-acao="alterar" data-id="${aluno.id}" data-campo="leitura" data-delta="-1">−</button>
+              data-acao="alterar" data-id="${aluno.id}"
+              data-campo="leitura" data-delta="-1">−</button>
 
             <input type="number" class="campo-nota"
               value="${aluno.leitura ?? 1}"
               data-acao="input" data-id="${aluno.id}" data-campo="leitura">
 
             <button class="botao-nota" 
-              data-acao="alterar" data-id="${aluno.id}" data-campo="leitura" data-delta="1">+</button>
+              data-acao="alterar" data-id="${aluno.id}"
+              data-campo="leitura" data-delta="1">+</button>
           </div>
         </div>
 
@@ -83,14 +89,16 @@ function criarFichaHTML(aluno) {
           <label>Método</label>
           <div class="nota-controle">
             <button class="botao-nota"
-              data-acao="alterar" data-id="${aluno.id}" data-campo="metodo" data-delta="-1">−</button>
+              data-acao="alterar" data-id="${aluno.id}"
+              data-campo="metodo" data-delta="-1">−</button>
 
             <input type="number" class="campo-nota"
               value="${aluno.metodo ?? 1}"
               data-acao="input" data-id="${aluno.id}" data-campo="metodo">
 
             <button class="botao-nota"
-              data-acao="alterar" data-id="${aluno.id}" data-campo="metodo" data-delta="1">+</button>
+              data-acao="alterar" data-id="${aluno.id}"
+              data-campo="metodo" data-delta="1">+</button>
           </div>
         </div>
 
@@ -123,15 +131,19 @@ function criarFichaHTML(aluno) {
 }
 
 /* ============================================================
-   4. ALTERAR NOTA DE LEITURA OU MÉTODO
+   4. ALTERAR NOTA (+ / -)
    ============================================================ */
 export async function alterarNota(id, campo, delta) {
   const ref = doc(db, "alunos", id);
-  const valorAtual = parseInt(
-    document.querySelector(`[data-id="${id}"][data-campo="${campo}"]`)?.value || "1"
+
+  // Seleciona SOMENTE o input válido
+  const input = document.querySelector(
+    `input[data-id="${id}"][data-campo="${campo}"]`
   );
 
+  let valorAtual = parseInt(input?.value || "1");
   let novoValor = valorAtual + Number(delta);
+
   if (novoValor < 1) novoValor = 1;
   if (novoValor > 130) novoValor = 130;
 
