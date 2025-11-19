@@ -348,22 +348,23 @@
 
 
 
-    // ----------- CARREGAR SOLICITAÇÕES DE LIÇÃO -----------
-import { carregarSolicitacoes } from "./js/professor-licoes.js";
+// ----------- SOLICITAÇÕES DE LIÇÃO -----------
+import { carregarSolicitacoes } from "./professor-licoes.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
   const painel = document.getElementById("painelLicoesProf");
   const lista = document.getElementById("listaSolicitacoes");
 
-  const temSolicitacoes = await carregarSolicitacoes(painel, lista);
+  const existe = await carregarSolicitacoes(painel, lista);
 
-  if (temSolicitacoes) {
+  if (existe) {
     painel.style.display = "block";
   } else {
     painel.style.display = "none";
   }
 });
+
 
 
 
@@ -532,6 +533,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   
 </body>
 </html>
+
 
 
 
