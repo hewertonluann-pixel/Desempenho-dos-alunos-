@@ -280,3 +280,6 @@ document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
 // A função abrirModalEnviarLicao será implementada em licoes.js
 // A função carregarLicoesAluno será implementada em licoes.js
 // A função de navegação (como logout) será implementada em navegacao.js
+
+gerarGraficoEvolucao(aluno, document.getElementById("painelEvolucao"));
+
