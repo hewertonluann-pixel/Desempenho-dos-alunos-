@@ -47,14 +47,16 @@ window.gerarGraficoEvolucao = function (aluno, alvo) {
           pointBackgroundColor: "#00ffcc",
           pointRadius: 7,
           tension: 0.3
-        },
-      ],
+        }
+      ]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,  // 🔥 impede o crescimento gigante
+      maintainAspectRatio: false,
 
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false }
+      },
 
       scales: {
         y: {
