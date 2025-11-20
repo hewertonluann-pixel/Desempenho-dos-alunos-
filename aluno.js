@@ -200,10 +200,14 @@ export async function iniciarPainelAluno() {
   montarPainelAluno(aluno);
   await montarGraficoFrequencia(aluno);
   await calcularEnergiaDoAluno(aluno);
-  // Renderiza o painel de conquistas
+
+  // 🔥 ADICIONE ESTA LINHA AQUI
+  gerarGraficoEvolucao(aluno, document.getElementById("painelEvolucao"));
+
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
-  await carregarLicoesAluno(aluno.nome); // preenche a aba de lições
+  await carregarLicoesAluno(aluno.nome);
 }
+
 
 /* ========================================================
     8. FUNÇÕES DE POPUP DE SENHA (Simplificado)
@@ -280,6 +284,3 @@ document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
 // A função abrirModalEnviarLicao será implementada em licoes.js
 // A função carregarLicoesAluno será implementada em licoes.js
 // A função de navegação (como logout) será implementada em navegacao.js
-
-gerarGraficoEvolucao(aluno, document.getElementById("painelEvolucao"));
-
