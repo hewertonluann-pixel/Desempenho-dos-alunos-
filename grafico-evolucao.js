@@ -1,11 +1,11 @@
 // ================================================
 //  GRAFICO DE EVOLUÇÃO - SCRIPT PARA PAGINA ALUNO
 // ================================================
-//  - Puxa dados reais do Firestore (agora correto)
-//  - Cria histórico automático (caso aluno não tenha)
-//  - Gráfico neon com duas escalas (Bona / Método)
-//  - Frequência real como fundo
-//  - Marcador de último valor centralizado
+//  - Puxa dados reais do Firestore
+//  - Cria histórico de 12 meses (JAN–DEZ)
+//  - Gráfico neon com 2 eixos (Bona / Método)
+//  - Frequência real como gráfico de fundo
+//  - Marcador neon no último valor
 // ================================================
 
 import { db } from "./firebase-config.js";
@@ -13,14 +13,12 @@ import {
   collection,
   query,
   where,
-  getDocs,
-  doc,
-  getDoc
+  getDocs
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
 // ------------------------------------------------------
-//  1. OBTER ALUNO REAL / FIRESTORE  (CORRIGIDO)
+//  1. OBTER ALUNO REAL / FIRESTORE (busca por nome)
 // ------------------------------------------------------
 export async function carregarAlunoReal() {
   const params = new URLSearchParams(window.location.search);
@@ -31,7 +29,7 @@ export async function carregarAlunoReal() {
     return null;
   }
 
-  // 🔥 Buscar aluno por campo "nome" (correto)
+  // Buscar aluno pelo campo "nome" (correto)
   const q = query(collection(db, "alunos"), where("nome", "==", nome));
   const snap = await getDocs(q);
 
@@ -40,19 +38,17 @@ export async function carregarAlunoReal() {
     return null;
   }
 
-  // Pega os dados do aluno encontrado
-  const aluno = snap.docs[0].data();
-  return aluno;
+  return snap.docs[0].data();
 }
 
 
 // ------------------------------------------------------
-//  2. GERAR HISTÓRICO AUTOMÁTICO (BONA / MÉTODO)
+//  2. GERAR HISTÓRICO DE 12 MESES (BONA / MÉTODO)
 // ------------------------------------------------------
 function gerarHistorico(valorAtual, tipo) {
-  let inicio = tipo === "bona" ? 60 : 1; // BONA começa em 60, Método em 1
+  let inicio = tipo === "bona" ? 60 : 1;
   let fim = valorAtual;
-  let pontos = 8; // últimos 8 meses
+  let pontos = 12;  // AGORA SÃO 12 MESES DO ANO
 
   if (fim < inicio) fim = inicio;
 
@@ -73,7 +69,7 @@ function gerarHistorico(valorAtual, tipo) {
 export function montarDadosParaGrafico(aluno) {
   const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
 
-  // Frequência REAL
+  // Frequência REAL por mês
   const frequencia = meses.map(m => {
     return aluno.frequenciaAnual?.[m]?.percentual || 0;
   });
@@ -88,18 +84,18 @@ export function montarDadosParaGrafico(aluno) {
 
 
 // =======================================================
-//  4. PLUGIN DO MARCADOR NEON
+//  4. PLUGIN DO MARCADOR NEON (mostra último valor)
 // =======================================================
 const ultimoValorPlugin = {
   id: "ultimoValor",
   afterDatasetsDraw(chart) {
     const ctx = chart.ctx;
-    const dataset = chart.data.datasets[1]; // dataset de BONA ou MÉTODO
+    const dataset = chart.data.datasets[1];
     const meta = chart.getDatasetMeta(1);
 
     if (!meta || !meta.data || meta.data.length === 0) return;
 
-    const ultimoPonto = meta.data[meta.data.length - 1];
+    const ponto = meta.data[meta.data.length - 1];
     const valor = dataset.data[dataset.data.length - 1];
 
     ctx.save();
@@ -109,13 +105,9 @@ const ultimoValorPlugin = {
 
     const largura = 42;
     const altura = 22;
-    const padding = 10;
 
-    let x = ultimoPonto.x - padding;
-    let y = ultimoPonto.y - 10;
-
-    const rectX = x - largura;
-    const rectY = y - altura / 2;
+    const rectX = ponto.x - largura - 10;
+    const rectY = ponto.y - altura / 2;
 
     ctx.fillStyle = "rgba(14,165,233,0.85)";
     ctx.fillRect(rectX, rectY, largura, altura);
@@ -123,7 +115,7 @@ const ultimoValorPlugin = {
     ctx.strokeStyle = "#38bdf8";
     ctx.strokeRect(rectX, rectY, largura, altura);
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#fff";
     ctx.fillText(valor, rectX + largura / 2, rectY + altura / 2);
 
     ctx.restore();
@@ -132,7 +124,7 @@ const ultimoValorPlugin = {
 
 
 // =======================================================
-//  5. MONTAR O GRÁFICO (CHART.JS)
+//  5. MONTAR O GRÁFICO (Chart.js)
 // =======================================================
 export function montarGraficoEvolucao(idCanvas, dados) {
   const ctx = document.getElementById(idCanvas).getContext("2d");
@@ -149,15 +141,13 @@ export function montarGraficoEvolucao(idCanvas, dados) {
         {
           label: "Frequência (%)",
           data: dados.frequencia,
-          type: "line",
           fill: true,
-          backgroundColor: "rgba(14,165,233,0.18)",
           borderColor: "rgba(14,165,233,0)",
-          pointRadius: 0,
+          backgroundColor: "rgba(14,165,233,0.18)",
           tension: 0.3,
+          pointRadius: 0,
           yAxisID: "yFreq"
         },
-
         {
           label: "Bona",
           data: dados.bona,
@@ -174,7 +164,7 @@ export function montarGraficoEvolucao(idCanvas, dados) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { 
+      plugins: {
         legend: { display: false }
       },
 
@@ -198,8 +188,8 @@ export function montarGraficoEvolucao(idCanvas, dados) {
             callback: v => ticksMetodo.includes(v) ? v : ""
           },
           grid: { color: "rgba(255,255,255,0.05)" },
-          position: "left",
-          display: false
+          display: false,
+          position: "left"
         },
 
         yFreq: {
@@ -217,9 +207,9 @@ export function montarGraficoEvolucao(idCanvas, dados) {
   });
 
 
-  // ---------------------------------------------------
-  // BOTÕES PARA TROCAR BONA / MÉTODO
-  // ---------------------------------------------------
+  // -----------------------------------------------------
+  // BOTÕES (trocar entre Bona e Método)
+  // -----------------------------------------------------
   const btnBona = document.getElementById("btnBona");
   const btnMetodo = document.getElementById("btnMetodo");
 
