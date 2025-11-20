@@ -44,10 +44,19 @@ export async function exportarChamada3Colunas() {
 
   // === Copiar cards ===
   cards.forEach(card => {
-    const clone = card.cloneNode(true);
-    clone.style.transform = "none";
-    clone.style.cursor = "default";
-    clone.style.margin = "0";
+const clone = card.cloneNode(true);
+clone.style.transform = "none";
+clone.style.cursor = "default";
+clone.style.margin = "0";
+
+// 🔥 AUMENTAR FONTE DO NOME DURANTE A EXPORTAÇÃO
+const nomeElemento = clone.querySelector("strong");
+if (nomeElemento) {
+  nomeElemento.style.fontSize = "20px";     // antes era ~15px
+  nomeElemento.style.fontWeight = "700";
+  nomeElemento.style.color = "#ffffff";
+  nomeElemento.style.textShadow = "0 0 4px rgba(0,255,204,0.6)";
+}
     temp.appendChild(clone);
   });
 
