@@ -82,7 +82,7 @@ obsArea.innerHTML = `<strong style="font-size:20px; color:#00ffcc;">Observaçõe
 
   // Título do gráfico
   const labelGrafico = document.createElement("div");
-  labelGrafico.style.fontSize = "14px";
+  labelGrafico.style.fontSize = "20px";
   labelGrafico.style.color = "#00ffcc";
   labelGrafico.style.fontWeight = "600";
   labelGrafico.style.marginBottom = "5px";
