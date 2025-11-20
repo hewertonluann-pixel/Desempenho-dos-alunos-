@@ -1,5 +1,5 @@
 // exportar-chamada.js
-// 📸 Exportar chamada em JPG reorganizada em 3 colunas com tema escuro idêntico à página
+// 📸 Exportar chamada em JPG em 3 colunas, tema escuro + gráfico de presenças
 
 export async function exportarChamada3Colunas() {
   const painelOriginal = document.getElementById("painelAlunos");
@@ -8,11 +8,32 @@ export async function exportarChamada3Colunas() {
     return;
   }
 
+  const cards = painelOriginal.querySelectorAll(".container-aluno");
+
+  // === Cálculo da presença ===
+  let total = cards.length;
+  let presentes = 0;
+
+  cards.forEach(c => {
+    if (c.classList.contains("presente")) presentes++;
+  });
+
+  const porcentagem = Math.round((presentes / total) * 100);
+
+  // Barra visual do gráfico (20 blocos)
+  const blocosTotais = 20;
+  const blocosPreenchidos = Math.round((porcentagem / 100) * blocosTotais);
+  const barra =
+    "[" +
+    "=".repeat(blocosPreenchidos) +
+    "-".repeat(blocosTotais - blocosPreenchidos) +
+    `] ${porcentagem}% de Presenças`;
+
   // === 1. Criar painel temporário com tema escuro ===
   const temp = document.createElement("div");
   temp.style.width = "1100px";
   temp.style.padding = "30px";
-  temp.style.background = "#1e1e2f";  // TEMA ESCURO
+  temp.style.background = "#1e1e2f";
   temp.style.color = "white";
   temp.style.display = "grid";
   temp.style.gridTemplateColumns = "repeat(3, 1fr)";
@@ -24,25 +45,32 @@ export async function exportarChamada3Colunas() {
   const titulo = document.createElement("h2");
   titulo.style.gridColumn = "1 / 4";
   titulo.style.textAlign = "center";
-  titulo.style.marginBottom = "10px";
+  titulo.style.marginBottom = "5px";
   titulo.style.color = "#00ffcc";
   titulo.style.textShadow = "0 0 8px rgba(0,255,204,0.6)";
   titulo.innerText = `📋 Chamada do Dia – ${new Date().toLocaleDateString("pt-BR")}`;
   temp.appendChild(titulo);
 
-  // === 2. Copiar cards originais exatamente como aparecem ===
-  const cards = painelOriginal.querySelectorAll(".container-aluno");
+  // === GRÁFICO DE PRESENÇA ===
+  const grafico = document.createElement("div");
+  grafico.style.gridColumn = "1 / 4";
+  grafico.style.textAlign = "center";
+  grafico.style.fontSize = "18px";
+  grafico.style.marginBottom = "20px";
+  grafico.style.fontFamily = "Courier New, monospace";
+  grafico.style.color = "#00ffcc";
+  grafico.style.textShadow = "0 0 4px rgba(0,255,204,0.5)";
+  grafico.innerText = barra;
+  temp.appendChild(grafico);
 
+  // === 2. Copiar cards exatamente como aparecem ===
   cards.forEach(card => {
     const clone = card.cloneNode(true);
 
-    // Remover efeitos de hover da página
+    // Ajustes para exportação
     clone.style.transform = "none";
     clone.style.cursor = "default";
     clone.style.margin = "0";
-
-    // Forçar fundo escuro do container
-    clone.style.backgroundColor = getComputedStyle(card).backgroundColor;
 
     temp.appendChild(clone);
   });
@@ -60,20 +88,20 @@ export async function exportarChamada3Colunas() {
   obs.innerHTML = `<strong>Observações:</strong><br>${obsInput ? obsInput.value : ""}`;
   temp.appendChild(obs);
 
-  // Adiciona painel temporário no DOM
+  // Adicionar ao DOM para captura
   document.body.appendChild(temp);
 
-  // === 3. Capturar imagem usando html2canvas ===
+  // === 3. Capturar imagem ===
   const canvas = await html2canvas(temp, {
     scale: 2,
     useCORS: true,
     allowTaint: true,
-    backgroundColor: null // captura o fundo dark corretamente
+    backgroundColor: null
   });
 
   // === 4. Baixar JPG ===
   const link = document.createElement("a");
-  link.download = `chamada_3colunas_dark_${new Date().toLocaleDateString("pt-BR")}.jpg`;
+  link.download = `chamada_3colunas_${porcentagem}porcento.jpg`;
   link.href = canvas.toDataURL("image/jpeg", 0.95);
   link.click();
 
