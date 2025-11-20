@@ -1,5 +1,5 @@
 // exportar-chamada.js
-// 📸 Exportar chamada em JPG em 3 colunas, tema escuro + gráfico de presenças
+// 📸 Exportar chamada em JPG em 3 colunas + gráfico moderno posicionado no final
 
 export async function exportarChamada3Colunas() {
   const painelOriginal = document.getElementById("painelAlunos");
@@ -20,16 +20,7 @@ export async function exportarChamada3Colunas() {
 
   const porcentagem = Math.round((presentes / total) * 100);
 
-  // Barra visual do gráfico (20 blocos)
-  const blocosTotais = 20;
-  const blocosPreenchidos = Math.round((porcentagem / 100) * blocosTotais);
-  const barra =
-    "[" +
-    "=".repeat(blocosPreenchidos) +
-    "-".repeat(blocosTotais - blocosPreenchidos) +
-    `] ${porcentagem}% de Presenças`;
-
-  // === 1. Criar painel temporário com tema escuro ===
+  // === 1. Criar painel temporário ===
   const temp = document.createElement("div");
   temp.style.width = "1100px";
   temp.style.padding = "30px";
@@ -51,47 +42,87 @@ export async function exportarChamada3Colunas() {
   titulo.innerText = `📋 Chamada do Dia – ${new Date().toLocaleDateString("pt-BR")}`;
   temp.appendChild(titulo);
 
-  // === GRÁFICO DE PRESENÇA ===
-  const grafico = document.createElement("div");
-  grafico.style.gridColumn = "1 / 4";
-  grafico.style.textAlign = "center";
-  grafico.style.fontSize = "18px";
-  grafico.style.marginBottom = "20px";
-  grafico.style.fontFamily = "Courier New, monospace";
-  grafico.style.color = "#00ffcc";
-  grafico.style.textShadow = "0 0 4px rgba(0,255,204,0.5)";
-  grafico.innerText = barra;
-  temp.appendChild(grafico);
-
-  // === 2. Copiar cards exatamente como aparecem ===
+  // === Copiar cards ===
   cards.forEach(card => {
     const clone = card.cloneNode(true);
-
-    // Ajustes para exportação
     clone.style.transform = "none";
     clone.style.cursor = "default";
     clone.style.margin = "0";
-
     temp.appendChild(clone);
   });
 
-  // === Observações ===
+  // === Linha final (Observações + Gráfico) ===
+
+  const linhaFinal = document.createElement("div");
+  linhaFinal.style.gridColumn = "1 / 4";
+  linhaFinal.style.display = "flex";
+  linhaFinal.style.justifyContent = "space-between";
+  linhaFinal.style.alignItems = "center";
+  linhaFinal.style.marginTop = "20px";
+  linhaFinal.style.gap = "20px";
+
+  // --- Observações ---
   const obsInput = document.getElementById("observacoes");
+  const obsArea = document.createElement("div");
+  obsArea.style.flex = "1";
+  obsArea.style.fontSize = "14px";
+  obsArea.style.color = "#fff";
+  obsArea.innerHTML = `<strong>Observações:</strong><br>${obsInput ? obsInput.value : ""}`;
 
-  const obs = document.createElement("div");
-  obs.style.gridColumn = "1 / 4";
-  obs.style.marginTop = "15px";
-  obs.style.paddingTop = "10px";
-  obs.style.borderTop = "2px solid #00ffcc88";
-  obs.style.fontSize = "14px";
-  obs.style.color = "#fff";
-  obs.innerHTML = `<strong>Observações:</strong><br>${obsInput ? obsInput.value : ""}`;
-  temp.appendChild(obs);
+  linhaFinal.appendChild(obsArea);
 
-  // Adicionar ao DOM para captura
+  // --- Gráfico moderno ---
+  const graficoBox = document.createElement("div");
+  graficoBox.style.width = "320px";
+  graficoBox.style.textAlign = "right";
+
+  // Título do gráfico
+  const labelGrafico = document.createElement("div");
+  labelGrafico.style.fontSize = "14px";
+  labelGrafico.style.color = "#00ffcc";
+  labelGrafico.style.fontWeight = "600";
+  labelGrafico.style.marginBottom = "5px";
+  labelGrafico.innerText = `Presenças: ${presentes}/${total}`;
+  graficoBox.appendChild(labelGrafico);
+
+  // Contêiner da barra
+  const barraContainer = document.createElement("div");
+  barraContainer.style.width = "100%";
+  barraContainer.style.height = "18px";
+  barraContainer.style.borderRadius = "10px";
+  barraContainer.style.background = "#333";
+  barraContainer.style.boxShadow = "inset 0 0 6px rgba(0,0,0,0.7)";
+  barraContainer.style.overflow = "hidden";
+
+  // Barra preenchida
+  const barra = document.createElement("div");
+  barra.style.height = "100%";
+  barra.style.width = `${porcentagem}%`;
+  barra.style.background = "linear-gradient(90deg, #00ffcc, #0099aa)";
+  barra.style.boxShadow = "0 0 10px rgba(0,255,204,0.9)";
+  barra.style.transition = "width 0.3s ease";
+
+  barraContainer.appendChild(barra);
+
+  graficoBox.appendChild(barraContainer);
+
+  // Porcentagem grande
+  const txtPercent = document.createElement("div");
+  txtPercent.style.fontSize = "22px";
+  txtPercent.style.fontWeight = "bold";
+  txtPercent.style.color = "#00ffcc";
+  txtPercent.style.marginTop = "6px";
+  txtPercent.style.textShadow = "0 0 6px rgba(0,255,204,0.7)";
+  txtPercent.innerText = `${porcentagem}%`;
+  graficoBox.appendChild(txtPercent);
+
+  linhaFinal.appendChild(graficoBox);
+
+  temp.appendChild(linhaFinal);
+
+  // === Adicionar ao DOM e capturar ===
   document.body.appendChild(temp);
 
-  // === 3. Capturar imagem ===
   const canvas = await html2canvas(temp, {
     scale: 2,
     useCORS: true,
@@ -99,12 +130,10 @@ export async function exportarChamada3Colunas() {
     backgroundColor: null
   });
 
-  // === 4. Baixar JPG ===
   const link = document.createElement("a");
   link.download = `chamada_3colunas_${porcentagem}porcento.jpg`;
   link.href = canvas.toDataURL("image/jpeg", 0.95);
   link.click();
 
-  // Remover painel temporário
   document.body.removeChild(temp);
 }
