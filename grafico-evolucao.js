@@ -11,8 +11,10 @@ window.gerarGraficoEvolucao = function (aluno, alvo) {
     <div class="painel-evolucao" style="
       text-align:center;
       width:100%;
+      position: relative;
+      min-height: 260px;
     ">
-      <canvas id="canvasEvolucao" height="240"></canvas>
+      <canvas id="canvasEvolucao" style="width:100%; height:240px;"></canvas>
 
       <div id="legendaEvolucao" style="
         margin-top:12px;
@@ -31,29 +33,43 @@ window.gerarGraficoEvolucao = function (aluno, alvo) {
   const maxEscala = maximo <= 50 ? 60 : maximo <= 100 ? 120 : 150;
 
   new Chart(ctx, {
-  type: "line",
-  data: { ... },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,  // 🔥 ESSENCIAL
+    type: "line",
+    data: {
+      labels: ["Leitura (Bona)", "Método"],
+      datasets: [
+        {
+          label: "Pontuação",
+          data: [leitura, metodo],
+          borderColor: "#00ffcc",
+          backgroundColor: "rgba(0,255,204,0.25)",
+          pointBorderColor: "#003333",
+          borderWidth: 3,
+          pointBackgroundColor: "#00ffcc",
+          pointRadius: 7,
+          tension: 0.3
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,  // 🔥 impede o crescimento gigante
 
-    plugins: { legend: { display: false } },
+      plugins: { legend: { display: false } },
 
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: maxEscala,
-        ticks: { color: "#ffffff" },
-        grid: { color: "rgba(255,255,255,0.15)" }
-      },
-      x: {
-        ticks: { color: "#ffffff" },
-        grid: { color: "rgba(255,255,255,0.15)" }
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: maxEscala,
+          ticks: { color: "#ffffff" },
+          grid: { color: "rgba(255,255,255,0.15)" }
+        },
+        x: {
+          ticks: { color: "#ffffff" },
+          grid: { color: "rgba(255,255,255,0.15)" }
+        }
       }
     }
-  }
-});
-
+  });
 
   const legenda = document.getElementById("legendaEvolucao");
 
