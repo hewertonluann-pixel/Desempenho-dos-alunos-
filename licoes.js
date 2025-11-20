@@ -523,23 +523,17 @@ async function iniciarGravacao() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
     // Escolha de tipo híbrida
-    let options = {};
-    if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
-      const preferidos = [
-        "audio/wav",
-        "audio/webm;codecs=opus",
-        "audio/ogg;codecs=opus",
-        "audio/webm"
-      ];
-      for (const tipo of preferidos) {
-        if (MediaRecorder.isTypeSupported(tipo)) {
-          options.mimeType = tipo;
-          break;
-        }
-      }
-    }
+   // 🔒 Formato seguro e 100% compatível
+let options = { mimeType: "audio/webm" };
 
-    mediaRecorder = new MediaRecorder(stream, options);
+// fallback automático se o navegador não aceitar
+try {
+  mediaRecorder = new MediaRecorder(stream, options);
+} catch (e) {
+  console.warn("Falha com audio/webm, usando padrão:", e);
+  mediaRecorder = new MediaRecorder(stream);
+}
+
     chunks = [];
     blobAtual = null;
     segundos = 0;
