@@ -1,7 +1,7 @@
 // ================================================
 //  GRAFICO DE EVOLUÇÃO - SCRIPT PARA PAGINA ALUNO
 // ================================================
-//  - Puxa dados reais do Firestore
+//  - Puxa dados reais do Firestore (agora correto)
 //  - Cria histórico automático (caso aluno não tenha)
 //  - Gráfico neon com duas escalas (Bona / Método)
 //  - Frequência real como fundo
@@ -10,32 +10,39 @@
 
 import { db } from "./firebase-config.js";
 import {
+  collection,
+  query,
+  where,
+  getDocs,
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 
 // ------------------------------------------------------
-//  1. OBTER ALUNO REAL / FIRESTORE
+//  1. OBTER ALUNO REAL / FIRESTORE  (CORRIGIDO)
 // ------------------------------------------------------
 export async function carregarAlunoReal() {
   const params = new URLSearchParams(window.location.search);
   const nome = params.get("nome");
 
   if (!nome) {
-    console.error("Nome do aluno não informado.");
+    console.error("Nome do aluno não informado na URL");
     return null;
   }
 
-  const ref = doc(db, "alunos", nome);
-  const snap = await getDoc(ref);
+  // 🔥 Buscar aluno por campo "nome" (correto)
+  const q = query(collection(db, "alunos"), where("nome", "==", nome));
+  const snap = await getDocs(q);
 
-  if (!snap.exists()) {
-    console.error("Aluno não encontrado:", nome);
+  if (snap.empty) {
+    console.error("Aluno não encontrado no Firestore:", nome);
     return null;
   }
 
-  return snap.data();
+  // Pega os dados do aluno encontrado
+  const aluno = snap.docs[0].data();
+  return aluno;
 }
 
 
@@ -43,9 +50,11 @@ export async function carregarAlunoReal() {
 //  2. GERAR HISTÓRICO AUTOMÁTICO (BONA / MÉTODO)
 // ------------------------------------------------------
 function gerarHistorico(valorAtual, tipo) {
-  let inicio = tipo === "bona" ? 60 : 1;
+  let inicio = tipo === "bona" ? 60 : 1; // BONA começa em 60, Método em 1
   let fim = valorAtual;
-  let pontos = 8; // 8 meses exibidos
+  let pontos = 8; // últimos 8 meses
+
+  if (fim < inicio) fim = inicio;
 
   let delta = (fim - inicio) / (pontos - 1);
   let vetor = [];
@@ -64,7 +73,7 @@ function gerarHistorico(valorAtual, tipo) {
 export function montarDadosParaGrafico(aluno) {
   const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
 
-  // Frequência REAL (ou zero se não tiver)
+  // Frequência REAL
   const frequencia = meses.map(m => {
     return aluno.frequenciaAnual?.[m]?.percentual || 0;
   });
@@ -79,13 +88,13 @@ export function montarDadosParaGrafico(aluno) {
 
 
 // =======================================================
-//  4. PLUGIN DO MARCADOR NEON (centralizado e bonito)
+//  4. PLUGIN DO MARCADOR NEON
 // =======================================================
 const ultimoValorPlugin = {
   id: "ultimoValor",
   afterDatasetsDraw(chart) {
     const ctx = chart.ctx;
-    const dataset = chart.data.datasets[1];
+    const dataset = chart.data.datasets[1]; // dataset de BONA ou MÉTODO
     const meta = chart.getDatasetMeta(1);
 
     if (!meta || !meta.data || meta.data.length === 0) return;
@@ -123,7 +132,7 @@ const ultimoValorPlugin = {
 
 
 // =======================================================
-//  5. MONTAR O GRÁFICO NA CANVAS
+//  5. MONTAR O GRÁFICO (CHART.JS)
 // =======================================================
 export function montarGraficoEvolucao(idCanvas, dados) {
   const ctx = document.getElementById(idCanvas).getContext("2d");
@@ -165,7 +174,9 @@ export function montarGraficoEvolucao(idCanvas, dados) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: { 
+        legend: { display: false }
+      },
 
       scales: {
         yBona: {
@@ -205,9 +216,10 @@ export function montarGraficoEvolucao(idCanvas, dados) {
     }
   });
 
-  // -------------------------
-  // BOTÕES
-  // -------------------------
+
+  // ---------------------------------------------------
+  // BOTÕES PARA TROCAR BONA / MÉTODO
+  // ---------------------------------------------------
   const btnBona = document.getElementById("btnBona");
   const btnMetodo = document.getElementById("btnMetodo");
 
