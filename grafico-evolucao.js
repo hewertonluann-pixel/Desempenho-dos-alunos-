@@ -31,41 +31,29 @@ window.gerarGraficoEvolucao = function (aluno, alvo) {
   const maxEscala = maximo <= 50 ? 60 : maximo <= 100 ? 120 : 150;
 
   new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: ["Leitura (Bona)", "Método"],
-      datasets: [
-        {
-          label: "Pontuação",
-          data: [leitura, metodo],
-          borderColor: "#00ffcc",
-          backgroundColor: "rgba(0,255,204,0.25)",
-          pointBorderColor: "#003333",
-          borderWidth: 3,
-          pointBackgroundColor: "#00ffcc",
-          pointRadius: 7,
-          tension: 0.3
-        },
-      ],
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: maxEscala,
-          ticks: { color: "#ffffff" },
-          grid: { color: "rgba(255,255,255,0.15)" }
-        },
-        x: {
-          ticks: { color: "#ffffff" },
-          grid: { color: "rgba(255,255,255,0.15)" }
-        }
+  type: "line",
+  data: { ... },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,  // 🔥 ESSENCIAL
+
+    plugins: { legend: { display: false } },
+
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: maxEscala,
+        ticks: { color: "#ffffff" },
+        grid: { color: "rgba(255,255,255,0.15)" }
+      },
+      x: {
+        ticks: { color: "#ffffff" },
+        grid: { color: "rgba(255,255,255,0.15)" }
       }
     }
-  });
+  }
+});
+
 
   const legenda = document.getElementById("legendaEvolucao");
 
