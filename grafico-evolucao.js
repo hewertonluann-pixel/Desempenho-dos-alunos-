@@ -2,10 +2,10 @@
 //  GRAFICO DE EVOLUÇÃO - SCRIPT PARA PAGINA ALUNO
 // ================================================
 //  - Puxa dados reais do Firestore
-//  - Cria histórico de 12 meses (JAN–DEZ)
-//  - Gráfico neon com 2 eixos (Bona / Método)
-//  - Frequência real como gráfico de fundo
-//  - Marcador neon no último valor
+//  - Histórico técnico até o mês atual
+//  - Gráfico neon com 2 escalas (Bona / Método)
+//  - Frequência real como fundo
+//  - Marcador de último valor
 // ================================================
 
 import { db } from "./firebase-config.js";
@@ -29,7 +29,7 @@ export async function carregarAlunoReal() {
     return null;
   }
 
-  // Buscar aluno pelo campo "nome" (correto)
+  // Buscar aluno pelo campo "nome"
   const q = query(collection(db, "alunos"), where("nome", "==", nome));
   const snap = await getDocs(q);
 
@@ -43,12 +43,14 @@ export async function carregarAlunoReal() {
 
 
 // ------------------------------------------------------
-//  2. GERAR HISTÓRICO DE 12 MESES (BONA / MÉTODO)
+//  2. GERAR HISTÓRICO ATÉ O MÊS ATUAL (Bona / Método)
 // ------------------------------------------------------
 function gerarHistorico(valorAtual, tipo) {
   let inicio = tipo === "bona" ? 60 : 1;
   let fim = valorAtual;
-  let pontos = 12;  // AGORA SÃO 12 MESES DO ANO
+
+  const mesAtual = new Date().getMonth() + 1; // Janeiro = 1
+  let pontos = mesAtual; // **PARA NO MÊS ATUAL**
 
   if (fim < inicio) fim = inicio;
 
@@ -67,24 +69,27 @@ function gerarHistorico(valorAtual, tipo) {
 //  3. MONTAR OBJETO FINAL PARA O GRÁFICO
 // ------------------------------------------------------
 export function montarDadosParaGrafico(aluno) {
-  const meses = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+  const mesesFull = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
 
-  // Frequência REAL por mês
-  const frequencia = meses.map(m => {
-    return aluno.frequenciaAnual?.[m]?.percentual || 0;
-  });
+  const mesAtual = new Date().getMonth() + 1;
+
+  // Labels até o mês atual
+  const meses = mesesFull.slice(0, mesAtual);
+
+  // Frequência real até o mês atual
+  const frequencia = meses.map(m => aluno.frequenciaAnual?.[m]?.percentual || 0);
 
   return {
     meses,
+    frequencia,
     bona: gerarHistorico(aluno.leitura || 60, "bona"),
-    metodo: gerarHistorico(aluno.metodo || 1, "metodo"),
-    frequencia
+    metodo: gerarHistorico(aluno.metodo || 1, "metodo")
   };
 }
 
 
 // =======================================================
-//  4. PLUGIN DO MARCADOR NEON (mostra último valor)
+//  4. PLUGIN DO MARCADOR NEON (último valor)
 // =======================================================
 const ultimoValorPlugin = {
   id: "ultimoValor",
@@ -164,9 +169,7 @@ export function montarGraficoEvolucao(idCanvas, dados) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
+      plugins: { legend: { display: false } },
 
       scales: {
         yBona: {
@@ -176,8 +179,7 @@ export function montarGraficoEvolucao(idCanvas, dados) {
             color: "#e2e8f0",
             callback: v => ticksBona.includes(v) ? v : ""
           },
-          grid: { color: "rgba(255,255,255,0.05)" },
-          position: "left"
+          grid: { color: "rgba(255,255,255,0.05)" }
         },
 
         yMetodo: {
@@ -188,8 +190,7 @@ export function montarGraficoEvolucao(idCanvas, dados) {
             callback: v => ticksMetodo.includes(v) ? v : ""
           },
           grid: { color: "rgba(255,255,255,0.05)" },
-          display: false,
-          position: "left"
+          display: false
         },
 
         yFreq: {
