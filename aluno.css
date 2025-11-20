@@ -692,3 +692,16 @@ body {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+
+/* Painel de evolução técnica */
+#painelEvolucao {
+  width: 100%;
+  min-height: 260px;
+  max-height: 260px; 
+  position: relative;
+}
+#painelEvolucao canvas {
+  width: 100% !important;
+  height: 240px !important;
+}
