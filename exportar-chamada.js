@@ -66,7 +66,7 @@ const obsInput = document.getElementById("observacoes");
 
 const obsArea = document.createElement("div");
 obsArea.style.flex = "1";
-obsArea.style.fontSize = "18px";           // 🔥 AUMENTO REAL DA FONTE
+obsArea.style.fontSize = "25px";           // 🔥 AUMENTO REAL DA FONTE
 obsArea.style.lineHeight = "1.45";         // 🔥 Mais espaçamento
 obsArea.style.color = "#e0fafa";           // 🔥 Texto mais claro p/ leitura
 obsArea.style.fontWeight = "500";          // 🔥 Leve destaque
