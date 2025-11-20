@@ -563,8 +563,8 @@ async function enviarLicao() {
   const arquivoRef = ref(storage, caminho);
 
   const metadata = {
-    contentType: blobAtual.type || "audio/webm"
-  };
+	    contentType: blobAtual.type || "audio/webm"
+	  };
 
   await uploadBytes(arquivoRef, blobAtual, metadata);
   await new Promise(res => setTimeout(res, 200)); // pequeno delay
