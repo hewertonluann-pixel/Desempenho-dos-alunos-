@@ -329,6 +329,8 @@
   <div class="footer-acoes">
     <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
     <button id="btnSalvar" class="btn-salvar">💾 Salvar chamada</button>
+    <button onclick="exportarChamada3Colunas()">🖼️ Exportar </button>
+
   </div>
 
   <script type="module">
@@ -657,5 +659,17 @@
   </script>
 
   <script type="module" src="navegacao.js"></script>
+
+// ===========   botão exportar lista de presença  ==============
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="module">
+  import { exportarChamada3Colunas } from "./exportar-chamada.js";
+  window.exportarChamada3Colunas = exportarChamada3Colunas;
+</script>
+
+
+  
+  
 </body>
 </html>
+
