@@ -61,13 +61,17 @@ export async function exportarChamada3Colunas() {
   linhaFinal.style.marginTop = "20px";
   linhaFinal.style.gap = "20px";
 
-  // --- Observações ---
-  const obsInput = document.getElementById("observacoes");
-  const obsArea = document.createElement("div");
-  obsArea.style.flex = "1";
-  obsArea.style.fontSize = "14px";
-  obsArea.style.color = "#fff";
-  obsArea.innerHTML = `<strong>Observações:</strong><br>${obsInput ? obsInput.value : ""}`;
+    // --- Observações  ---
+const obsInput = document.getElementById("observacoes");
+
+const obsArea = document.createElement("div");
+obsArea.style.flex = "1";
+obsArea.style.fontSize = "18px";           // 🔥 AUMENTO REAL DA FONTE
+obsArea.style.lineHeight = "1.45";         // 🔥 Mais espaçamento
+obsArea.style.color = "#e0fafa";           // 🔥 Texto mais claro p/ leitura
+obsArea.style.fontWeight = "500";          // 🔥 Leve destaque
+obsArea.style.maxWidth = "700px";          // 🔥 Mantém bloco organizado
+obsArea.innerHTML = `<strong style="font-size:20px; color:#00ffcc;">Observações:</strong><br>${obsInput ? obsInput.value : ""}`;
 
   linhaFinal.appendChild(obsArea);
 
