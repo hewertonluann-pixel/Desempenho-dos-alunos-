@@ -28,6 +28,7 @@ let blobAtual = null;
 let urlAudioTemp = null;
 let timerId = null;
 let segundos = 0;
+let formatoFinal = "audio/wav"; // formato que vamos subir para o Storage
 
 /* ==========================
    ESTILOS E MODAL DE ENVIO
@@ -358,6 +359,8 @@ function resetarEstado() {
   gravando = false;
   chunks = [];
   blobAtual = null;
+  formatoFinal = "audio/wav";
+
   if (urlAudioTemp) {
     URL.revokeObjectURL(urlAudioTemp);
     urlAudioTemp = null;
@@ -409,6 +412,98 @@ function atualizarTempo() {
   }
 }
 
+/* ==========================
+   CONVERSÃO PARA WAV (HÍBRIDO)
+   ========================== */
+
+async function converterParaWav(blobOriginal) {
+  // Se já for WAV, não precisa converter
+  if (blobOriginal.type && blobOriginal.type.includes("wav")) {
+    return blobOriginal;
+  }
+
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) {
+    // Navegador não suporta AudioContext, volta o original
+    return null;
+  }
+
+  const audioCtx = new AudioCtx();
+  try {
+    const arrayBuffer = await blobOriginal.arrayBuffer();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+    const wavBlob = encodeWavFromAudioBuffer(audioBuffer);
+    await audioCtx.close();
+    return wavBlob;
+  } catch (e) {
+    console.error("Erro convertendo para WAV:", e);
+    try {
+      await audioCtx.close();
+    } catch {}
+    return null;
+  }
+}
+
+function encodeWavFromAudioBuffer(audioBuffer) {
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const samples = audioBuffer.length;
+  const bytesPerSample = 2;
+  const blockAlign = numChannels * bytesPerSample;
+  const buffer = new ArrayBuffer(44 + samples * bytesPerSample * numChannels);
+  const view = new DataView(buffer);
+
+  function writeString(offset, str) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
+  }
+
+  let offset = 0;
+
+  // RIFF header
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + samples * bytesPerSample * numChannels, true);
+  writeString(8, "WAVE");
+
+  // fmt chunk
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true); // subchunk size
+  view.setUint16(20, 1, true);  // PCM
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true); // bits per sample
+
+  // data chunk
+  writeString(36, "data");
+  view.setUint32(40, samples * bytesPerSample * numChannels, true);
+
+  offset = 44;
+  const channelData = [];
+  for (let ch = 0; ch < numChannels; ch++) {
+    channelData.push(audioBuffer.getChannelData(ch));
+  }
+
+  for (let i = 0; i < samples; i++) {
+    for (let ch = 0; ch < numChannels; ch++) {
+      let sample = channelData[ch][i];
+      sample = Math.max(-1, Math.min(1, sample));
+      const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+      view.setInt16(offset, intSample, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([view], { type: "audio/wav" });
+}
+
+/* ==========================
+   GRAVAÇÃO (HÍBRIDO AUTOMÁTICO)
+   ========================== */
+
 async function iniciarGravacao() {
   const status = document.getElementById("statusGravador");
   const btnGravar = document.getElementById("btnGravarLicao");
@@ -426,35 +521,83 @@ async function iniciarGravacao() {
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
+
+    // Escolha de tipo híbrida
+    let options = {};
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+      const preferidos = [
+        "audio/wav",
+        "audio/webm;codecs=opus",
+        "audio/ogg;codecs=opus",
+        "audio/webm"
+      ];
+      for (const tipo of preferidos) {
+        if (MediaRecorder.isTypeSupported(tipo)) {
+          options.mimeType = tipo;
+          break;
+        }
+      }
+    }
+
+    mediaRecorder = new MediaRecorder(stream, options);
     chunks = [];
     blobAtual = null;
     segundos = 0;
     gravando = true;
 
     mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) chunks.push(e.data);
+      if (e.data && e.data.size > 0) chunks.push(e.data);
     };
 
-    mediaRecorder.onstop = () => {
+    mediaRecorder.onstop = async () => {
       gravando = false;
-      const mime = mediaRecorder.mimeType || "audio/webm";
-      const blob = new Blob(chunks, { type: mime });
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
 
-      if (blob.size < 500) {
-        if (status) status.textContent = "⚠ Áudio muito curto ou corrompido. Tente novamente.";
+      const mime = mediaRecorder.mimeType || "audio/webm";
+      const blobOriginal = new Blob(chunks, { type: mime });
+
+      const status2 = document.getElementById("statusGravador");
+      const btnOuvir2 = document.getElementById("btnOuvirLicao");
+
+      if (!blobOriginal || blobOriginal.size === 0) {
+        if (status2) status2.textContent = "⚠ Não foi possível capturar o áudio. Tente gravar novamente.";
         blobAtual = null;
         return;
       }
 
-      blobAtual = blob;
-      urlAudioTemp = URL.createObjectURL(blob);
+      try {
+        // tenta converter para WAV se não for WAV
+        const wavBlob = await converterParaWav(blobOriginal);
+        if (wavBlob) {
+          blobAtual = wavBlob;
+          formatoFinal = "audio/wav";
+        } else {
+          blobAtual = blobOriginal;
+          formatoFinal = blobOriginal.type || "audio/webm";
+        }
+      } catch (e) {
+        console.error("Erro no processamento de áudio:", e);
+        blobAtual = blobOriginal;
+        formatoFinal = blobOriginal.type || "audio/webm";
+      }
 
-      if (btnOuvir) btnOuvir.disabled = false;
-      if (status) status.textContent = "Gravação concluída! Você pode ouvir antes de enviar.";
+      if (blobAtual.size < 1000) {
+        if (status2) status2.textContent = "⚠ Áudio muito curto ou inválido. Tente novamente.";
+        blobAtual = null;
+        return;
+      }
+
+      urlAudioTemp = URL.createObjectURL(blobAtual);
+
+      if (btnOuvir2) btnOuvir2.disabled = false;
+      if (status2) status2.textContent = "Gravação concluída! Você pode ouvir antes de enviar.";
     };
 
     mediaRecorder.start();
+
     if (status) status.textContent = "Gravando... fale normalmente.";
     if (btnGravar) btnGravar.disabled = true;
     if (btnParar) btnParar.disabled = false;
@@ -464,6 +607,7 @@ async function iniciarGravacao() {
     timerId = setInterval(atualizarTempo, 1000);
 
   } catch (erro) {
+    console.error("Erro ao iniciar gravação:", erro);
     if (msg) {
       msg.textContent = "Não foi possível acessar o microfone.";
       msg.className = "msg-licao err";
@@ -494,6 +638,10 @@ function ouvirGravacao() {
   const audio = new Audio(urlAudioTemp);
   audio.play();
 }
+
+/* ==========================
+   ENVIO DA LIÇÃO
+   ========================== */
 
 async function enviarLicao() {
   const tipo = document.getElementById("tipoLicao")?.value;
@@ -558,17 +706,46 @@ async function enviarLicao() {
   const alunoId = alunoDoc.id;
   const alunoNome = alunoDoc.data().nome;
 
+  // Verificação reforçada do blob
+  if (!blobAtual || blobAtual.size < 1000) {
+    if (msg) {
+      msg.textContent = "⚠ O áudio gravado está muito curto ou inválido. Tente gravar novamente.";
+      msg.className = "msg-licao err";
+    }
+    return;
+  }
+
   // Upload do áudio no Storage
-  const caminho = `licoes/${alunoId}/${tipo}_${numero}_${Date.now()}.webm`;
+  const caminho = `licoes/${alunoId}/${tipo}_${numero}_${Date.now()}.wav`;
   const arquivoRef = ref(storage, caminho);
 
   const metadata = {
-	    contentType: blobAtual.type || "audio/webm"
-	  };
+    contentType: formatoFinal || blobAtual.type || "audio/wav"
+  };
 
-  await uploadBytes(arquivoRef, blobAtual, metadata);
-  await new Promise(res => setTimeout(res, 200)); // pequeno delay
-  const audioURL = await getDownloadURL(arquivoRef);
+  let audioURL;
+
+  try {
+    await uploadBytes(arquivoRef, blobAtual, metadata);
+  } catch (e) {
+    console.error("ERRO UPLOAD:", e);
+    if (msg) {
+      msg.textContent = "⚠ Erro ao enviar o áudio. Tente novamente.";
+      msg.className = "msg-licao err";
+    }
+    return;
+  }
+
+  try {
+    audioURL = await getDownloadURL(arquivoRef);
+  } catch (e) {
+    console.error("ERRO DOWNLOAD URL:", e);
+    if (msg) {
+      msg.textContent = "⚠ Erro ao gerar o link do áudio.";
+      msg.className = "msg-licao err";
+    }
+    return;
+  }
 
   // Criar registro na coleção UNIFICADA "licoes"
   await addDoc(collection(db, "licoes"), {
