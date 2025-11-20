@@ -33,7 +33,7 @@ export async function exportarChamada3Colunas() {
   temp.style.border = "2px solid #00ffcc55";
 
   // === Título ===
-  const titulo = document.createElement("h2");
+  const titulo = document.createElement("h1");
   titulo.style.gridColumn = "1 / 4";
   titulo.style.textAlign = "center";
   titulo.style.marginBottom = "5px";
