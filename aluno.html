@@ -145,51 +145,15 @@
 <!-- Depois -->
 <script type="module" src="licoes.js"></script>
 
-<div id="painelEvolucao"></div>
+
 
   <!-- =================== GRAFICO ===================================-->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="grafico-evolucao.js"></script>
 
-
-
-  <h3 class="titulo-secao">📈 Evolução Técnica</h3>
-
-<div class="grafico-evolucao-box" style="margin-top:12px;">
-  <canvas id="graficoEvolucao"></canvas>
-</div>
-
-<div class="legend-buttons">
-  <button id="btnBona" class="btn-tab ativo">Bona</button>
-  <button id="btnMetodo" class="btn-tab">Método</button>
-</div>
-
-
-
-<script type="module">
-  import { carregarAlunoReal } from "./grafico-evolucao.js";
-
-  (async () => {
-    const aluno = await carregarAlunoReal();
-    console.log("Aluno carregado:", aluno);
-  })();
-</script>
+<div id="painelEvolucao"></div>
 
   
-  
-<script type="module">
-  import {
-    carregarAlunoReal,
-    montarDadosParaGrafico,
-    montarGraficoEvolucao
-  } from "./grafico-evolucao.js";
-
-  (async () => {
-    const aluno = await carregarAlunoReal();
-    const dados = montarDadosParaGrafico(aluno);
-    montarGraficoEvolucao("graficoEvolucao", dados);
-  })();
-</script>
 
   
 </body>
