@@ -39,31 +39,16 @@ export async function exportarChamada3Colunas() {
   titulo.style.marginBottom = "5px";
   titulo.style.color = "#00ffcc";
   titulo.style.textShadow = "0 0 8px rgba(0,255,204,0.6)";
-// 🌟 PEGAR A DATA DO ENSAIO REGISTRADO
-let dataEnsaio = "";
+// 🌟 PEGAR A DATA REAL DO ENSAIO EXIBIDA NA PÁGINA
+let dataEnsaio = "--/--/----";
 
-// Tenta ler de um input <input type="date" id="dataEnsaio">
-const inputData = document.getElementById("dataEnsaio");
-if (inputData && inputData.value) {
-  const partes = inputData.value.split("-");
-  dataEnsaio = `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-// Se não achar input date, tenta pegar de um elemento comum
-if (!dataEnsaio) {
-  const divData = document.getElementById("dataEnsaio");
-  if (divData && divData.textContent.trim() !== "") {
-    dataEnsaio = divData.textContent.trim();
-  }
-}
-
-// Último fallback (não deve ser usado)
-if (!dataEnsaio) {
-  dataEnsaio = new Date().toLocaleDateString("pt-BR");
+const dataSpan = document.getElementById("dataEvento");
+if (dataSpan && dataSpan.textContent.trim() !== "") {
+  dataEnsaio = dataSpan.textContent.trim();
 }
 
 titulo.innerText = `📋 Chamada do Ensaio – ${dataEnsaio}`;
-  temp.appendChild(titulo);
+
 
   // === Copiar cards ===
   cards.forEach(card => {
