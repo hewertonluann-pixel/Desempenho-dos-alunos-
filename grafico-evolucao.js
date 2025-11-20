@@ -1,248 +1,108 @@
-// ================================================
-//  GRAFICO DE EVOLUÇÃO - SCRIPT PARA PAGINA ALUNO
-// ================================================
-//  - Puxa dados reais do Firestore
-//  - Histórico técnico até o mês atual
-//  - Gráfico neon com 2 escalas (Bona / Método)
-//  - Frequência real como fundo
-//  - Marcador de último valor
-// ================================================
+// ======================
+//  gráfico-evolucao.js
+// ======================
+// Gera o gráfico de evolução técnica (Leitura + Método)
+// com painel automático, título e legenda fixa.
+// ======================
 
-import { db } from "./firebase-config.js";
-import {
-  collection,
-  query,
-  where,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+window.gerarGraficoEvolucao = function (aluno, alvo) {
+  if (!alvo) return;
 
+  // Criar painel onde o gráfico será exibido
+  alvo.innerHTML = `
+    <div class="painel-evolucao-box" style="
+      background: rgba(40,40,60,0.45);
+      border: 2px solid #00ffcc33;
+      border-radius: 16px;
+      padding: 14px 16px 18px;
+      box-shadow: 0 0 10px rgba(0,255,204,0.08);
+      width: 320px;
+      margin: 0 auto;
+      color: white;
+      text-align: center;
+    ">
+      <h2 style="
+        margin-bottom: 6px;
+        color: #00ffcc;
+        font-size: 1.05rem;
+        text-shadow: 0 0 6px rgba(0,255,204,0.3);
+      ">📈 Evolução Técnica</h2>
 
-// ------------------------------------------------------
-//  1. OBTER ALUNO REAL / FIRESTORE (busca por nome)
-// ------------------------------------------------------
-export async function carregarAlunoReal() {
-  const params = new URLSearchParams(window.location.search);
-  const nome = params.get("nome");
+      <canvas id="canvasEvolucao" width="300" height="220"></canvas>
 
-  if (!nome) {
-    console.error("Nome do aluno não informado na URL");
-    return null;
-  }
+      <div id="legendaEvolucao" style="
+        margin-top: 10px;
+        text-align: center;
+        font-size: .9rem;
+        color: #00ffcc;
+        font-weight: bold;
+      "></div>
+    </div>
+  `;
 
-  // Buscar aluno pelo campo "nome"
-  const q = query(collection(db, "alunos"), where("nome", "==", nome));
-  const snap = await getDocs(q);
+  const ctx = document.getElementById("canvasEvolucao").getContext("2d");
 
-  if (snap.empty) {
-    console.error("Aluno não encontrado no Firestore:", nome);
-    return null;
-  }
+  // --- DADOS REAIS DO ALUNO ---
+  const leitura = aluno.leitura || 0;
+  const metodo = aluno.metodo || 0;
 
-  return snap.docs[0].data();
-}
+  // --- DEFINIR ESCALA DINÂMICA ---
+  const maximo = Math.max(leitura, metodo, 10);
+  const maxEscala = maximo <= 50 ? 60 : maximo <= 100 ? 120 : 150;
 
-
-// ------------------------------------------------------
-//  2. GERAR HISTÓRICO ATÉ O MÊS ATUAL (Bona / Método)
-// ------------------------------------------------------
-function gerarHistorico(valorAtual, tipo) {
-  let inicio = tipo === "bona" ? 60 : 1;
-  let fim = valorAtual;
-
-  const mesAtual = new Date().getMonth() + 1; // Janeiro = 1
-  let pontos = mesAtual; // **PARA NO MÊS ATUAL**
-
-  if (fim < inicio) fim = inicio;
-
-  let delta = (fim - inicio) / (pontos - 1);
-  let vetor = [];
-
-  for (let i = 0; i < pontos; i++) {
-    vetor.push(Math.round(inicio + delta * i));
-  }
-
-  return vetor;
-}
-
-
-// ------------------------------------------------------
-//  3. MONTAR OBJETO FINAL PARA O GRÁFICO
-// ------------------------------------------------------
-export function montarDadosParaGrafico(aluno) {
-  const mesesFull = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-
-  const mesAtual = new Date().getMonth() + 1;
-
-  // Labels até o mês atual
-  const meses = mesesFull.slice(0, mesAtual);
-
-  // Frequência real até o mês atual
-  const frequencia = meses.map(m => aluno.frequenciaAnual?.[m]?.percentual || 0);
-
-  return {
-    meses,
-    frequencia,
-    bona: gerarHistorico(aluno.leitura || 60, "bona"),
-    metodo: gerarHistorico(aluno.metodo || 1, "metodo")
-  };
-}
-
-
-// =======================================================
-//  4. PLUGIN DO MARCADOR NEON (último valor)
-// =======================================================
-const ultimoValorPlugin = {
-  id: "ultimoValor",
-  afterDatasetsDraw(chart) {
-    const ctx = chart.ctx;
-    const dataset = chart.data.datasets[1];
-    const meta = chart.getDatasetMeta(1);
-
-    if (!meta || !meta.data || meta.data.length === 0) return;
-
-    const ponto = meta.data[meta.data.length - 1];
-    const valor = dataset.data[dataset.data.length - 1];
-
-    ctx.save();
-    ctx.font = "bold 13px Inter";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    const largura = 42;
-    const altura = 22;
-
-    const rectX = ponto.x - largura - 10;
-    const rectY = ponto.y - altura / 2;
-
-    ctx.fillStyle = "rgba(14,165,233,0.85)";
-    ctx.fillRect(rectX, rectY, largura, altura);
-
-    ctx.strokeStyle = "#38bdf8";
-    ctx.strokeRect(rectX, rectY, largura, altura);
-
-    ctx.fillStyle = "#fff";
-    ctx.fillText(valor, rectX + largura / 2, rectY + altura / 2);
-
-    ctx.restore();
-  }
-};
-
-
-// =======================================================
-//  5. MONTAR O GRÁFICO (Chart.js)
-// =======================================================
-export function montarGraficoEvolucao(idCanvas, dados) {
-  const ctx = document.getElementById(idCanvas).getContext("2d");
-
-  const ticksBona = [60, 80, 100, 120];
-  const ticksMetodo = [0, 10, 20, 30, 40, 50];
-
-  let grafico = new Chart(ctx, {
+  // --- CRIAR O GRÁFICO ---
+  const chart = new Chart(ctx, {
     type: "line",
-    plugins: [ultimoValorPlugin],
     data: {
-      labels: dados.meses,
+      labels: ["Leitura (Bona)", "Método"],
       datasets: [
         {
-          label: "Frequência (%)",
-          data: dados.frequencia,
-          fill: true,
-          borderColor: "rgba(14,165,233,0)",
-          backgroundColor: "rgba(14,165,233,0.18)",
+          label: "Pontuação",
+          data: [leitura, metodo],
+          borderColor: "#00ffcc",
+          backgroundColor: "rgba(0,255,204,0.25)",
+          borderWidth: 3,
+          pointRadius: 7,
+          pointBackgroundColor: "#00ffcc",
+          pointBorderColor: "#003333",
           tension: 0.3,
-          pointRadius: 0,
-          yAxisID: "yFreq"
         },
-        {
-          label: "Bona",
-          data: dados.bona,
-          borderColor: "#3b82f6",
-          backgroundColor: "rgba(59,130,246,0.15)",
-          tension: 0.3,
-          borderWidth: 2,
-          pointRadius: 3,
-          yAxisID: "yBona"
-        }
-      ]
+      ],
     },
-
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: false,
       plugins: { legend: { display: false } },
-
       scales: {
-        yBona: {
-          min: 60,
-          max: 120,
-          ticks: {
-            color: "#e2e8f0",
-            callback: v => ticksBona.includes(v) ? v : ""
-          },
-          grid: { color: "rgba(255,255,255,0.05)" }
+        y: {
+          beginAtZero: true,
+          max: maxEscala,
+          ticks: { color: "#fff" },
+          grid: { color: "rgba(255,255,255,0.1)" },
         },
-
-        yMetodo: {
-          min: 0,
-          max: 50,
-          ticks: {
-            color: "#e2e8f0",
-            callback: v => ticksMetodo.includes(v) ? v : ""
-          },
-          grid: { color: "rgba(255,255,255,0.05)" },
-          display: false
-        },
-
-        yFreq: {
-          min: 0,
-          max: 100,
-          display: false
-        },
-
         x: {
-          ticks: { color: "#e2e8f0" },
-          grid: { display: false }
-        }
-      }
-    }
+          ticks: { color: "#fff" },
+          grid: { color: "rgba(255,255,255,0.1)" },
+        },
+      },
+    },
   });
 
+  // --- LEGENDA FIXA (MOSTRA ONDE PAROU) ---
+  const legenda = document.getElementById("legendaEvolucao");
 
-  // -----------------------------------------------------
-  // BOTÕES (trocar entre Bona e Método)
-  // -----------------------------------------------------
-  const btnBona = document.getElementById("btnBona");
-  const btnMetodo = document.getElementById("btnMetodo");
-
-  btnBona.onclick = () => {
-    btnBona.classList.add("ativo");
-    btnMetodo.classList.remove("ativo");
-
-    grafico.data.datasets[1].label = "Bona";
-    grafico.data.datasets[1].data = dados.bona;
-    grafico.data.datasets[1].borderColor = "#3b82f6";
-    grafico.data.datasets[1].backgroundColor = "rgba(59,130,246,0.15)";
-    grafico.data.datasets[1].yAxisID = "yBona";
-
-    grafico.options.scales.yBona.display = true;
-    grafico.options.scales.yMetodo.display = false;
-
-    grafico.update();
-  };
-
-  btnMetodo.onclick = () => {
-    btnMetodo.classList.add("ativo");
-    btnBona.classList.remove("ativo");
-
-    grafico.data.datasets[1].label = "Método";
-    grafico.data.datasets[1].data = dados.metodo;
-    grafico.data.datasets[1].borderColor = "#22c55e";
-    grafico.data.datasets[1].backgroundColor = "rgba(34,197,94,0.15)";
-    grafico.data.datasets[1].yAxisID = "yMetodo";
-
-    grafico.options.scales.yBona.display = false;
-    grafico.options.scales.yMetodo.display = true;
-
-    grafico.update();
-  };
-}
+  legenda.innerHTML = `
+    <div style="
+      background: #00ffcc22;
+      border: 1px solid #00ffcc55;
+      padding: 6px 12px;
+      display: inline-block;
+      border-radius: 8px;
+      color: #00ffcc;
+      font-size: 1rem;
+      text-align: center;
+    ">
+      Último progresso: 
+      <strong>${leitura >= metodo ? `Leitura ${leitura}` : `Método ${metodo}`}</strong>
+    </div>
+  `;
+};
