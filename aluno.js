@@ -22,8 +22,6 @@ import {
 
 import { carregarLicoesAluno } from "./licoes.js";
 import { gerarPainelConquistas } from "./conquistas.js";
-
-// 🔥 IMPORTANTE: carregamento do histórico real
 import { carregarHistoricoProgressoAluno } from "./evolucao.js";
 
 /* ========================================================
@@ -151,7 +149,6 @@ export async function calcularEnergiaDoAluno(aluno) {
   const eventosAno = snap.docs.map(d => d.data());
 
   const grupos = agruparEventosPorMes(eventosAno);
-
   const chaveMes = `${ano}-${mes}`;
   const eventosMes = grupos[chaveMes] || [];
 
@@ -170,29 +167,54 @@ export async function iniciarPainelAluno() {
   const aluno = await carregarAlunoAtual();
   if (!aluno) return;
 
-  // 🔥 Verificação de segurança: esconder botão de "Alterar Senha"
+  // =====================================================
+  // 🔥 CONTROLE DE PERMISSÃO (mostrar / esconder funções)
+  // =====================================================
   const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
-  if (!usuario.nome || usuario.nome !== aluno.nome) {
+  const ehDonoDaPagina = usuario.nome && usuario.nome === aluno.nome;
+
+  // Ocultar botão de alterar senha
+  if (!ehDonoDaPagina) {
     const btnSenha = document.querySelector(".btn-change-password");
     if (btnSenha) btnSenha.style.display = "none";
   }
+
+  // Ocultar edição de foto
+  if (!ehDonoDaPagina) {
+    const labelFoto = document.querySelector('label[for="novaFoto"]');
+    const inputFoto = document.getElementById("novaFoto");
+    if (labelFoto) labelFoto.style.display = "none";
+    if (inputFoto) inputFoto.style.display = "none";
+  }
+
+  // 🔥 Ocultar painel de lições inteiramente
+  if (!ehDonoDaPagina) {
+    const painelLicoes = document.querySelector(".lessons-section");
+    if (painelLicoes) painelLicoes.style.display = "none";
+  }
+
+  // =====================================================
 
   montarPainelAluno(aluno);
   await montarGraficoFrequencia(aluno);
 
   const energia = await calcularEnergiaDoAluno(aluno);
 
-  // 🔥 carregar histórico real do Firestore
+  // Histórico real
   const historico = await carregarHistoricoProgressoAluno(aluno);
 
-  // 🔥 Gráfico avançado (histórico real)
+  // Gráfico histórico
   const destinoGrafico = document.getElementById("painelEvolucao");
   if (window.gerarGraficoEvolucao) {
     gerarGraficoEvolucao(aluno, energia, destinoGrafico, historico);
   }
 
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
-  await carregarLicoesAluno(aluno.nome);
+
+  // Carregar lições (SOMENTE se dono da página)
+  if (ehDonoDaPagina) {
+    await carregarLicoesAluno(aluno.nome);
+  }
 }
 
 /* ========================================================
@@ -238,13 +260,7 @@ window.acessarModoProfessor = () => {
   window.location.href = "professor.html";
 };
 
-/* ========================================================
-    10. POPUP CONQUISTAS
-   ======================================================== */
 window.abrirPopupConquista = key => console.log("Abrir", key);
 window.fecharPopupConquista = () => console.log("Fechar conquista");
 
-/* ========================================================
-    11. INICIAR
-   ======================================================== */
 document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
