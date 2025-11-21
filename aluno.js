@@ -1,8 +1,8 @@
 // aluno.js
 // ==========================================
 // PAINEL DO ALUNO — Sistema Unificado
-// Trabalha com a coleção "eventos" e o aluno
-// Atualiza frequência, energia, conquistas e gráficos
+// Atualiza frequência, energia, conquistas,
+// gráfico de evolução histórica (Bona / Método)
 // ==========================================
 
 import { db } from "./firebase-config.js";
@@ -22,6 +22,9 @@ import {
 
 import { carregarLicoesAluno } from "./licoes.js";
 import { gerarPainelConquistas } from "./conquistas.js";
+
+// 🔥 IMPORTANTE: carregamento do histórico real
+import { carregarHistoricoProgressoAluno } from "./evolucao.js";
 
 /* ========================================================
     1. OBTER ALUNO LOGADO (pela URL)
@@ -62,9 +65,7 @@ export function montarPainelAluno(aluno) {
   document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "Não definido";
 
   const fotoImg = document.getElementById("fotoAluno");
-  if (fotoImg) {
-    fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
-  }
+  if (fotoImg) fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
 
   const leitura = aluno.leitura ?? 0;
   const metodo = aluno.metodo ?? 0;
@@ -146,10 +147,10 @@ export async function calcularEnergiaDoAluno(aluno) {
   const ano = hoje.getFullYear();
   const mes = String(hoje.getMonth() + 1).padStart(2, "0");
 
-  const eventosAno = await getDocs(collection(db, "eventos"));
-  const grupos = agruparEventosPorMes(
-    eventosAno.docs.map(d => d.data())
-  );
+  const snap = await getDocs(collection(db, "eventos"));
+  const eventosAno = snap.docs.map(d => d.data());
+
+  const grupos = agruparEventosPorMes(eventosAno);
 
   const chaveMes = `${ano}-${mes}`;
   const eventosMes = grupos[chaveMes] || [];
@@ -170,14 +171,17 @@ export async function iniciarPainelAluno() {
   if (!aluno) return;
 
   montarPainelAluno(aluno);
-
   await montarGraficoFrequencia(aluno);
+
   const energia = await calcularEnergiaDoAluno(aluno);
 
-  // 🔥 Gráfico avançado (Bona / Método / Presença)
+  // 🔥 carregar histórico real do Firestore
+  const historico = await carregarHistoricoProgressoAluno(aluno);
+
+  // 🔥 Gráfico avançado (histórico real)
   const destinoGrafico = document.getElementById("painelEvolucao");
   if (window.gerarGraficoEvolucao) {
-    gerarGraficoEvolucao(aluno, energia, destinoGrafico);
+    gerarGraficoEvolucao(aluno, energia, destinoGrafico, historico);
   }
 
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
