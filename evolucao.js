@@ -17,12 +17,6 @@ import {
 
 /**
  * Registrar evolução de leitura ou método.
- * @param {Object} dados 
- *  - alunoId
- *  - alunoNome
- *  - tipo: "bona" | "metodo"
- *  - valor: número da lição
- *  - origem: "professor" | "enviar_licao" | "retroativo"
  */
 export async function registrarHistoricoProgresso(dados) {
   try {
@@ -41,28 +35,67 @@ export async function registrarHistoricoProgresso(dados) {
 }
 
 /**
- * Carrega o histórico completo do aluno
- * @param {*} aluno
- * @returns Array ordenado por data crescente
+ * Carrega histórico ordenado corretamente, mesmo sem índice.
  */
 export async function carregarHistoricoProgressoAluno(aluno) {
-  const consultas = query(
-    collection(db, "historicoProgresso"),
-    where("alunoId", "==", aluno.id),
-    orderBy("data", "asc")
-  );
+  const colRef = collection(db, "historicoProgresso");
 
-  const snap = await getDocs(consultas);
+  let snap;
+
+  try {
+    // ⚠ TENTATIVA COM ORDEM → pode exigir índice
+    const q = query(
+      colRef,
+      where("alunoId", "==", aluno.id),
+      orderBy("data", "asc")
+    );
+
+    snap = await getDocs(q);
+  } catch (e) {
+    console.warn("Sem índice composto. Usando fallback automático.");
+
+    // 🔥 Fallback sem orderBy (não exige índice)
+    const q2 = query(
+      colRef,
+      where("alunoId", "==", aluno.id)
+    );
+
+    snap = await getDocs(q2);
+  }
+
+  // Converte e ordena manualmente
   const lista = [];
 
-  snap.forEach((d) => lista.push({ id: d.id, ...d.data() }));
+  snap.forEach((d) => {
+    const data = d.data();
+
+    // Converter serverTimestamp() para JS Date
+    let dt;
+    if (data.data && typeof data.data.toDate === "function") {
+      dt = data.data.toDate();
+    } else if (data.data instanceof Date) {
+      dt = data.data;
+    } else if (typeof data.data === "string") {
+      dt = new Date(data.data);
+    } else {
+      dt = new Date();
+    }
+
+    lista.push({
+      id: d.id,
+      ...data,
+      data: dt
+    });
+  });
+
+  // Ordena do mais antigo para o mais recente
+  lista.sort((a, b) => a.data - b.data);
 
   return lista;
 }
 
 /**
- * Registrar retroativo inicial baseado nos valores atuais
- * (opcional na primeira execução)
+ * Registrar ponto inicial retroativo
  */
 export async function registrarPontoInicial(aluno) {
   await registrarHistoricoProgresso({
