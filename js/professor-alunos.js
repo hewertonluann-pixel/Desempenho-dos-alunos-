@@ -58,9 +58,7 @@ function criarFichaHTML(aluno) {
   return `
     <div class="ficha">
 
-      <div class="foto">${foto}
-        <input type="file" data-acao="foto" data-id="${aluno.id}" style="margin-top:4px;" />
-      </div>
+      <div class="foto">${foto}</div>
 
       <div class="dados">
 
@@ -113,6 +111,11 @@ function criarFichaHTML(aluno) {
             ${aluno.classificado ? "Desclassificar" : "Classificar"}
           </button>
 
+          <label for="foto-${aluno.id}" class="classificar" style="cursor:pointer; background:#0ea5e9; color:#fff;">
+            Alterar Foto
+          </label>
+          <input type="file" id="foto-${aluno.id}" data-acao="foto" data-id="${aluno.id}" style="display:none;" />
+
           <button class="remover"
             data-acao="remover"
             data-id="${aluno.id}"
@@ -143,6 +146,8 @@ export async function alterarNota(id, campo, delta) {
   if (novoValor > 130) novoValor = 130;
 
   await updateDoc(ref, { [campo]: novoValor });
+  // Atualiza o valor no input
+  document.querySelector(`[data-id="${id}"][data-campo="${campo}"]`).value = novoValor;
 
   // 🔥 Registrar histórico automaticamente
   const tipo = campo === "leitura" ? "bona" : "metodo";
