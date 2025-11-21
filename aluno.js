@@ -170,6 +170,13 @@ export async function iniciarPainelAluno() {
   const aluno = await carregarAlunoAtual();
   if (!aluno) return;
 
+  // 🔥 Verificação de segurança: esconder botão de "Alterar Senha"
+  const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+  if (!usuario.nome || usuario.nome !== aluno.nome) {
+    const btnSenha = document.querySelector(".btn-change-password");
+    if (btnSenha) btnSenha.style.display = "none";
+  }
+
   montarPainelAluno(aluno);
   await montarGraficoFrequencia(aluno);
 
