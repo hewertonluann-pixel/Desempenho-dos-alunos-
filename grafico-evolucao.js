@@ -1,13 +1,16 @@
 // ======================================
 // gráfico-evolucao.js
-// Gráfico avançado: BONA / MÉTODO
-// com sombra de presença atrás das medições
+// Gráfico histórico: BONA / MÉTODO
+// Linha contínua mês a mês com último ponto destacado
 // ======================================
 
-window.gerarGraficoEvolucao = function (aluno, energia, alvo) {
+window.gerarGraficoEvolucao = function (aluno, energia, alvo, historico) {
   if (!alvo) return;
 
-  // Garante um número entre 0 e 100
+  // Garante array
+  historico = Array.isArray(historico) ? historico : [];
+
+  // Presença do mês atual (apenas texto informativo aqui)
   const presencaPercentual = Math.max(0, Math.min(100, energia || 0));
 
   // Monta o painel dentro do card (botões + canvas + legenda)
@@ -124,6 +127,80 @@ window.gerarGraficoEvolucao = function (aluno, energia, alvo) {
     }
   };
 
+  const nomesMes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+  function prepararDadosHistorico(modo) {
+    const isBona = modo === "bona";
+    const tipoFiltro = isBona ? "bona" : "metodo";
+
+    const historicoFiltrado = historico.filter(h => h.tipo === tipoFiltro && h.valor != null);
+
+    // Se ainda não há histórico, volta para gráfico simples (0 → valor atual)
+    if (!historicoFiltrado.length) {
+      const valorAtual = isBona ? (aluno.leitura || 0) : (aluno.metodo || 0);
+      const labelModo = isBona ? "Leitura (Bona)" : "Método";
+
+      const maxEscala = isBona
+        ? (valorAtual <= 20 ? 30 : valorAtual <= 60 ? 80 : valorAtual <= 100 ? 120 : 150)
+        : (valorAtual <= 10 ? 20 : valorAtual <= 20 ? 30 : valorAtual <= 40 ? 50 : 60);
+
+      return {
+        labels: ["Início", labelModo],
+        valores: [0, valorAtual],
+        maxEscala
+      };
+    }
+
+    // Agrupar por mês (YYYY-MM) pegando o MAIOR valor daquele mês
+    const porMes = {}; // { "2025-01": 12, ... }
+
+    historicoFiltrado.forEach(h => {
+      let dt;
+      if (h.data && typeof h.data.toDate === "function") {
+        dt = h.data.toDate();
+      } else if (h.data instanceof Date) {
+        dt = h.data;
+      } else if (typeof h.data === "string") {
+        dt = new Date(h.data);
+      } else {
+        dt = new Date();
+      }
+
+      const ano = dt.getFullYear();
+      const mes = dt.getMonth() + 1; // 0-11
+      const chave = `${ano}-${String(mes).padStart(2, "0")}`;
+
+      const valor = Number(h.valor) || 0;
+
+      if (!porMes[chave] || valor > porMes[chave]) {
+        porMes[chave] = valor;
+      }
+    });
+
+    const chavesOrdenadas = Object.keys(porMes).sort(); // "2025-01", "2025-02", ...
+
+    const labels = [];
+    const valores = [];
+
+    chavesOrdenadas.forEach(chave => {
+      const [anoStr, mesStr] = chave.split("-");
+      const ano = Number(anoStr);
+      const mesIndex = Number(mesStr) - 1;
+
+      const labelMes = `${nomesMes[mesIndex]} ${String(ano).slice(2)}`;
+      labels.push(labelMes);
+      valores.push(porMes[chave]);
+    });
+
+    const maxValor = valores.length ? Math.max(...valores) : 0;
+
+    const maxEscala = isBona
+      ? (maxValor <= 20 ? 30 : maxValor <= 60 ? 80 : maxValor <= 100 ? 120 : 150)
+      : (maxValor <= 10 ? 20 : maxValor <= 20 ? 30 : maxValor <= 40 ? 50 : 60);
+
+    return { labels, valores, maxEscala };
+  }
+
   let chartAtual = null;
 
   function criarGrafico(modo) {
@@ -133,39 +210,23 @@ window.gerarGraficoEvolucao = function (aluno, energia, alvo) {
     }
 
     const isBona = modo === "bona";
-    const valor = isBona ? (aluno.leitura || 0) : (aluno.metodo || 0);
-    const labelModo = isBona ? "Leitura (Bona)" : "Método";
-
-    // Escalas diferentes
-    const maxEscala = isBona ? 120 : 50;
-    const sombraValor = (maxEscala * presencaPercentual) / 100;
+    const { labels, valores, maxEscala } = prepararDadosHistorico(modo);
 
     chartAtual = new Chart(ctx, {
       type: "line",
       data: {
-        labels: ["Início", labelModo],
+        labels,
         datasets: [
-          // Sombra de presença (fundo)
           {
-            label: "Presença (sombra)",
-            data: [0, sombraValor],
-            borderColor: "rgba(56,189,248,0.0)",
-            backgroundColor: "rgba(56,189,248,0.20)", // azul ciano claro
-            pointRadius: 0,
-            tension: 0.3,
-            fill: "origin"
-          },
-          // Linha principal (Bona ou Método)
-          {
-            label: "Progresso",
-            data: [0, valor],
+            label: isBona ? "Leitura (Bona)" : "Método",
+            data: valores,
             borderColor: "#22c55e",
             backgroundColor: "rgba(34,197,94,0.20)",
             pointBorderColor: "#052e16",
             borderWidth: 3,
             pointBackgroundColor: "#22c55e",
-            pointRadius: 7,
-            tension: 0.3,
+            pointRadius: 6,
+            tension: 0.35,
             fill: false
           }
         ]
