@@ -158,6 +158,16 @@
       border: none;
     }
 
+    /* BOTÃO FOTO */
+    .btnTrocarFoto {
+      background:#0ea5e9;
+      color:white;
+      padding:6px 10px;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:0.85rem;
+    }
+
     /* ================== MODAL ADICIONAR ================== */
     .modal {
       display: none;
@@ -182,50 +192,6 @@
       animation: fadeIn 0.25s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-
-    .campo-modal {
-      margin-bottom: 12px;
-      text-align: left;
-    }
-
-    .campo-modal input {
-      width: 100%;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #475569;
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-
-    .botoes-modal {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .btn-adicionar {
-      background: #22c55e;
-      color: #022c22;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      flex: 1;
-      cursor: pointer;
-    }
-
-    .btn-cancelar {
-      background: #dc2626;
-      color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      flex: 1;
-      cursor: pointer;
-    }
   </style>
 </head>
 
@@ -258,8 +224,9 @@
    </div>
 
  <div class="painel-licoes-prof" id="painelLicoesProf"></div>
-  
+
   <div class="painel" id="painel"></div>
+
   <div id="loader" class="loader" style="display:none;">
     <p>Carregando alunos...</p>
   </div>
@@ -293,7 +260,7 @@
 
   <!-- SCRIPT PRINCIPAL -->
   <script type="module">
-  
+
     import { db } from "./firebase-config.js";
     import {
       collection,
@@ -333,13 +300,21 @@
       }
     };
 
-    // Eventos de ações nos cards
+    // ======= CORREÇÃO DO EVENTO (BOTÕES + E -) =======
     painel.addEventListener("click", async (e) => {
-      const el = e.target;
-      if (!el.dataset?.acao) return;
+
+      let el = e.target;
+
+      // se clicou no SVG, subir até o botão
+      if (!el.dataset.acao) {
+        el = el.closest("[data-acao]");
+      }
+
+      if (!el || !el.dataset.acao) return;
 
       if (el.dataset.acao === "alterar") {
         await alterarNota(el.dataset.id, el.dataset.campo, el.dataset.delta);
+        await renderizarPainel(painel, loader);
       }
 
       if (el.dataset.acao === "classificar") {
@@ -355,21 +330,25 @@
       }
     });
 
+    // Alterações via input
     painel.addEventListener("change", async (e) => {
       const el = e.target;
+
       if (el.dataset?.acao === "input") {
         await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
       }
+
       if (el.dataset?.acao === "instrumento") {
         await atualizarInstrumento(el.dataset.id, el.value);
       }
+
       if (el.dataset?.acao === "foto") {
         await alterarFoto(el.dataset.id, el.files[0]);
         await renderizarPainel(painel, loader);
       }
     });
 
-    // Modo aluno
+
     document.getElementById("btnModoAluno").onclick = () => {
       const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
       if (user.nome) {
@@ -377,7 +356,6 @@
       }
     };
 
-    // Modal adicionar aluno
     const modalAdd = document.getElementById("modalAdicionar");
     document.getElementById("btnAdicionarAluno").onclick = () => modalAdd.style.display = "flex";
     document.getElementById("btnCancelarAdicionar").onclick = () => modalAdd.style.display = "none";
@@ -409,7 +387,7 @@
       await renderizarPainel(painel, loader);
     };
 
-    // Criar/Abrir chamada do dia (unificado)
+    // Criar/Abrir chamada do dia
     document.getElementById("btnCriarChamada").onclick = async () => {
       const hoje = new Date().toISOString().split("T")[0];
 
@@ -448,15 +426,9 @@
       alert("Energia recalculada!");
     };
 
-
   </script>
 
   <script type="module" src="professor-licoes.js"></script>
-  
+
 </body>
 </html>
-
-
-
-
-
