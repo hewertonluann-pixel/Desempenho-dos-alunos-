@@ -31,7 +31,6 @@ export async function carregarAlunoAtual() {
   const nomeAluno = params.get("nome");
 
   if (!nomeAluno) {
-    // Se não houver nome na URL, redireciona para o login
     window.location.href = "index.html";
     return null;
   }
@@ -56,48 +55,31 @@ export async function carregarAlunoAtual() {
 }
 
 /* ========================================================
-    2. EXIBIR DADOS DO ALUNO (Adaptado para o novo HTML)
+    2. EXIBIR DADOS DO ALUNO
    ======================================================== */
 export function montarPainelAluno(aluno) {
-  // Sidebar
-  document.getElementById("nomeAluno").textContent = aluno.nome || "Aluno";
+  document.getElementById("nomeAluno").textContent = aluno.nome;
   document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "Não definido";
 
-  // Foto (IMG)
   const fotoImg = document.getElementById("fotoAluno");
   if (fotoImg) {
     fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
-    fotoImg.alt = `Foto de ${aluno.nome}`;
   }
 
-  // Leitura e Método
   const leitura = aluno.leitura ?? 0;
   const metodo = aluno.metodo ?? 0;
 
   document.getElementById("nivelLeitura").textContent = leitura;
   document.getElementById("nivelMetodo").textContent = metodo;
+  document.getElementById("nivelGeral").textContent = leitura + metodo;
 
-  // NÍVEL TOTAL (soma)
-  const nivel = leitura + metodo;
-  document.getElementById("nivelGeral").textContent = nivel;
-
-  // Modo Professor
   if (aluno.classificado === true) {
     document.getElementById("modoProfessorBtn").style.display = "block";
   }
-
-  // Energia visual
-  // O valor de energia será calculado em calcularEnergiaDoAluno
-  // e não mais lido do aluno.
-  // atualizarEnergiaVisual(aluno.energia ?? 10);
-  
-  // Conquistas (simulação)
-  // A lógica de carregamento de conquistas será movida para iniciarPainelAluno
-  // carregarConquistas(aluno.conquistas || {});
 }
 
 /* ========================================================
-    3. ATUALIZAR ENERGIA NO PAINEL DO ALUNO (Adaptado para o novo HTML)
+    3. ATUALIZAR ENERGIA BARRA
    ======================================================== */
 export function atualizarEnergiaVisual(valor) {
   const barra = document.getElementById("barraEnergia");
@@ -108,37 +90,30 @@ export function atualizarEnergiaVisual(valor) {
   barra.style.width = valor + "%";
   numero.textContent = valor + "%";
 
-  // Cores baseadas nas variáveis CSS (verde, amarelo, vermelho)
   if (valor >= 80) barra.style.backgroundColor = "var(--verde)";
   else if (valor >= 40) barra.style.backgroundColor = "var(--amarelo)";
   else barra.style.backgroundColor = "var(--vermelho)";
 }
 
 /* ========================================================
-    4. CARREGAR GRÁFICO DE FREQUÊNCIA ANUAL
+    4. GRÁFICO FREQUÊNCIA ANUAL
    ======================================================== */
-// Mantido o código original, pois a lógica de dados é a mesma.
 export async function montarGraficoFrequencia(aluno) {
   const anoAtual = new Date().getFullYear();
-
-  const destinoGrafico = document.getElementById("gradeFrequencia");
+  const destino = document.getElementById("gradeFrequencia");
   const destinoPopup = document.getElementById("popupFrequencia");
 
-  if (!destinoGrafico) return;
+  if (!destino) return;
 
-  // O novo HTML usa o ID 'gradeFrequencia'
   await gerarPainelFrequencia(
     aluno,
     anoAtual,
-    destinoGrafico,
+    destino,
     dadosPopup => abrirPopupFrequencia(dadosPopup, destinoPopup)
   );
 }
 
-/* ========================================================
-    5. POPUP (detalhes do mês)
-   ======================================================== */
-// Mantido o código original, mas o HTML do popup foi simplificado no novo HTML.
+/* POPUP FREQUÊNCIA */
 export function abrirPopupFrequencia(info, destino) {
   if (!destino) return;
 
@@ -148,14 +123,11 @@ export function abrirPopupFrequencia(info, destino) {
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
 
-  // O novo HTML usa a classe 'popup-content'
   destino.querySelector(".popup-content").innerHTML = `
-    <h3>Frequência de ${meses[info.mes] || info.mes}</h3>
-
+    <h3>Frequência de ${meses[info.mes]}</h3>
     <p>Chamadas no mês: <strong>${info.totalEventos}</strong></p>
     <p>Presente em: <strong>${info.presencasAluno}</strong></p>
     <p>Frequência: <strong>${info.percentual}%</strong></p>
-
     <button onclick="fecharPopupFrequencia()">Fechar</button>
   `;
 
@@ -167,23 +139,23 @@ window.fecharPopupFrequencia = () => {
 };
 
 /* ========================================================
-    6. CALCULAR ENERGIA DO ALUNO (baseado no mês atual)
+    6. CALCULAR ENERGIA (Frequência do mês)
    ======================================================== */
-// Mantido o código original.
 export async function calcularEnergiaDoAluno(aluno) {
   const hoje = new Date();
   const ano = hoje.getFullYear();
-  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
+  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
 
-  const eventosAno = await obterEventosDoAno(ano);
-  const grupos = agruparEventosPorMes(eventosAno);
+  const eventosAno = await getDocs(collection(db, "eventos"));
+  const grupos = agruparEventosPorMes(
+    eventosAno.docs.map(d => d.data())
+  );
 
-  const chaveMes = `${ano}-${mesAtual}`;
+  const chaveMes = `${ano}-${mes}`;
   const eventosMes = grupos[chaveMes] || [];
 
   const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
-
-  const energia = freq.percentual; // Agora a energia é a frequência real
+  const energia = freq.percentual;
 
   atualizarEnergiaVisual(energia);
 
@@ -191,26 +163,29 @@ export async function calcularEnergiaDoAluno(aluno) {
 }
 
 /* ========================================================
-    7. INICIALIZAÇÃO DA PÁGINA DO ALUNO
+    7. INICIALIZAÇÃO FINAL
    ======================================================== */
 export async function iniciarPainelAluno() {
   const aluno = await carregarAlunoAtual();
   if (!aluno) return;
 
   montarPainelAluno(aluno);
-  await montarGraficoFrequencia(aluno);
-  await calcularEnergiaDoAluno(aluno);
 
-  // 🔥 ADICIONE ESTA LINHA AQUI
-  gerarGraficoEvolucao(aluno, document.getElementById("painelEvolucao"));
+  await montarGraficoFrequencia(aluno);
+  const energia = await calcularEnergiaDoAluno(aluno);
+
+  // 🔥 Gráfico avançado (Bona / Método / Presença)
+  const destinoGrafico = document.getElementById("painelEvolucao");
+  if (window.gerarGraficoEvolucao) {
+    gerarGraficoEvolucao(aluno, energia, destinoGrafico);
+  }
 
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
   await carregarLicoesAluno(aluno.nome);
 }
 
-
 /* ========================================================
-    8. FUNÇÕES DE POPUP DE SENHA (Simplificado)
+    8. POPUP SENHA
    ======================================================== */
 window.abrirPopup = () => {
   document.getElementById("popupSenha").style.display = "flex";
@@ -224,35 +199,28 @@ window.fecharPopup = () => {
 
 window.salvarSenha = async () => {
   const novaSenha = document.getElementById("novaSenha").value;
-  const mensagemSenha = document.getElementById("mensagemSenha");
-  const aluno = await carregarAlunoAtual(); // Recarrega o aluno para obter o ID
+  const mensagem = document.getElementById("mensagemSenha");
+  const aluno = await carregarAlunoAtual();
 
-  if (!novaSenha || novaSenha.length < 6) {
-    mensagemSenha.textContent = "A senha deve ter pelo menos 6 caracteres.";
+  if (novaSenha.length < 6) {
+    mensagem.textContent = "A senha deve ter pelo menos 6 caracteres.";
     return;
   }
 
-  if (aluno && aluno.id) {
-    try {
-      const alunoRef = doc(db, "alunos", aluno.id);
-      await updateDoc(alunoRef, {
-        senha: novaSenha // ATENÇÃO: Isso é inseguro em produção!
-      });
-      mensagemSenha.textContent = "Senha alterada com sucesso!";
-      setTimeout(fecharPopup, 2000);
-    } catch (error) {
-      console.error("Erro ao salvar a senha:", error);
-      mensagemSenha.textContent = "Erro ao salvar a senha. Tente novamente.";
-    }
+  try {
+    await updateDoc(doc(db, "alunos", aluno.id), { senha: novaSenha });
+    mensagem.textContent = "Senha alterada com sucesso!";
+    setTimeout(() => fecharPopup(), 2000);
+  } catch (e) {
+    mensagem.textContent = "Erro ao alterar senha.";
   }
 };
 
 /* ========================================================
-    9. FUNÇÕES DE FOTO E MODO PROFESSOR
+    9. FOTO / MODO PROFESSOR
    ======================================================== */
 window.enviarNovaFoto = () => {
-  alert("Funcionalidade de upload de foto precisa ser implementada.");
-  // A lógica de upload de foto precisa ser implementada, pois não estava no código original.
+  alert("Upload de foto ainda não implementado.");
 };
 
 window.acessarModoProfessor = () => {
@@ -260,27 +228,12 @@ window.acessarModoProfessor = () => {
 };
 
 /* ========================================================
-    10. CONQUISTAS (Renderização)
+    10. POPUP CONQUISTAS
    ======================================================== */
-// A lógica de cálculo e renderização foi movida para conquistas.js
-
-window.abrirPopupConquista = (key) => {
-  // A lógica de popup será movida para conquistas.js
-  // Por enquanto, apenas para evitar erros de referência
-  console.log("Abrir popup para: " + key);
-};
-
-window.fecharPopupConquista = () => {
-  // A lógica de popup será movida para conquistas.js
-  // Por enquanto, apenas para evitar erros de referência
-  console.log("Fechar popup");
-};
+window.abrirPopupConquista = key => console.log("Abrir", key);
+window.fecharPopupConquista = () => console.log("Fechar conquista");
 
 /* ========================================================
-    11. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
+    11. INICIAR
    ======================================================== */
 document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
-
-// A função abrirModalEnviarLicao será implementada em licoes.js
-// A função carregarLicoesAluno será implementada em licoes.js
-// A função de navegação (como logout) será implementada em navegacao.js
