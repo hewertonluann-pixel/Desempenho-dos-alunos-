@@ -3,50 +3,455 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel do Professor 🎵</title>
+  <title>Painel Gerencial 🎵</title>
 
   <link rel="stylesheet" href="professor.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      color: #22d3ee;
+    }
+
+    /* ================= LAYOUT ================= */
+    .layout-professor {
+      display: flex;
+      gap: 20px;
+      padding: 15px 20px;
+      margin-top: 20px;
+    }
+
+    /* ================= COLUNA DE BOTÕES ================= */
+    .coluna-botoes-prof {
+      flex: 0 0 250px;
+    }
+
+    .card-botoes-prof {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 14px;
+      padding: 18px 16px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 0 20px rgba(15, 118, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-botoes-prof button {
+      width: 100%;
+      padding: 12px;
+      background: #0ea5e9;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .card-botoes-prof button:hover {
+      background: #0284c7;
+    }
+
+    .titulo-card-prof {
+      text-align: center;
+      color: #22d3ee;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+
+    /* ================= PAINEL ALUNOS ================= */
+    .painel {
+      margin-top: 20px;
+      padding: 0 20px;
+      display: none;
+
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+
+    .ficha {
+      display: flex;
+      gap: 20px;
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .foto img {
+      width: 85px;
+      height: 85px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .dados {
+      flex: 1;
+    }
+
+    .campo {
+      margin-bottom: 6px;
+    }
+
+    .nota-linha {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nota-controle {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .campo-nota {
+      width: 50px;
+      padding: 4px;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+    }
+
+    .botao-nota {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .remover {
+      background: #dc2626;
+      padding: 6px 8px;
+      color: #fff;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .classificar {
+      background: #22c55e;
+      padding: 6px 8px;
+      color: #022c22;
+      border-radius: 6px;
+      border: none;
+    }
+
+    /* ================== MODAL ADICIONAR ================== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+    }
+
+    .modal-conteudo {
+      background: linear-gradient(145deg, #1e1e1e, #262738);
+      padding: 26px 24px;
+      border-radius: 14px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
+      text-align: center;
+      width: 92%;
+      max-width: 420px;
+      color: #f9fafb;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .campo-modal {
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .campo-modal input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    .botoes-modal {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn-adicionar {
+      background: #22c55e;
+      color: #022c22;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .btn-cancelar {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      flex: 1;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
 
+  <!-- NAV -->
+  <script type="module" src="navegacao.js"></script>
+
   <h1>Painel Gerencial 🎶</h1>
-  <div id="usuarioLogado" class="usuario-logado"></div>
+  <div id="usuarioLogado" style="text-align:center; opacity:0.85;"></div>
 
-  <!-- 🟦 MENU EM CARDS (TIPO 2) -->
-  <section class="menu-cards">
-    <div class="card-menu" onclick="carregarModulo('dashboard')">
-      📊 <span>Dashboard</span>
+  <div class="layout-professor">
+
+    <!-- ⭐ MENU LATERAL -->
+    <div class="coluna-botoes-prof">
+      <div class="card-botoes-prof">
+
+        <h2 class="titulo-card-prof">Menu do Professor</h2>
+
+        <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
+        <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
+        <button id="btnModoAluno">🎓 Modo Aluno</button>
+        <button id="btnCriarChamada">📋 Chamada do Dia</button>
+        <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
+        <button onclick="exportarPDF()">📄 Exportar PDF</button>
+        <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
+
+      </div>
     </div>
+   </div>
 
-    <div class="card-menu" onclick="carregarModulo('gerenciar-alunos')">
-      👥 <span>Gerenciar Alunos</span>
+ <div class="painel-licoes-prof" id="painelLicoesProf"></div>
+  
+  <div class="painel" id="painel"></div>
+  <div id="loader" class="loader" style="display:none;">
+    <p>Carregando alunos...</p>
+  </div>
+
+  <!-- MODAL ADICIONAR -->
+  <div id="modalAdicionar" class="modal">
+    <div class="modal-conteudo">
+      <h2>➕ Novo Aluno</h2>
+
+      <div class="campo-modal">
+        <label>Nome</label>
+        <input type="text" id="novoNome">
+      </div>
+
+      <div class="campo-modal">
+        <label>Instrumento</label>
+        <input type="text" id="novoInstrumento">
+      </div>
+
+      <div class="campo-modal">
+        <label>Foto</label>
+        <input type="file" id="novoFoto" accept="image/*">
+      </div>
+
+      <div class="botoes-modal">
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
+      </div>
     </div>
+  </div>
 
-    <div class="card-menu" onclick="carregarModulo('licoes')">
-      📝 <span>Solicitações de Lição</span>
-    </div>
+  <!-- SCRIPT PRINCIPAL -->
+  <script type="module">
+  
+    import { db } from "./firebase-config.js";
+    import {
+      collection,
+      getDocs,
+      addDoc,
+      updateDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    <div class="card-menu" onclick="carregarModulo('chamada')">
-      📋 <span>Chamada do Dia</span>
-    </div>
+    import {
+      carregarAlunos,
+      renderizarPainel,
+      alterarNota,
+      atualizarNota,
+      atualizarInstrumento,
+      alternarClassificacao,
+      removerAluno,
+      alterarFoto
+    } from "./js/professor-alunos.js";
 
-    <div class="card-menu" onclick="carregarModulo('eventos')">
-      🗂️ <span>Gerenciar Chamadas</span>
-    </div>
+    const painel = document.getElementById("painel");
+    const loader = document.getElementById("loader");
 
-    <div class="card-menu" onclick="exportarPDF()">
-      📄 <span>Exportar PDF</span>
-    </div>
+    // Identifica professor logado
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+      document.getElementById("usuarioLogado").textContent =
+        user?.nome ? `Professor logado: ${user.nome}` : "Professor";
+    });
 
-    <div class="card-menu" onclick="carregarModulo('energia')">
-      ⚡ <span>Recalcular Energia</span>
-    </div>
-  </section>
+    // Mostrar/ocultar painel alunos
+    document.getElementById("btnMostrarAlunos").onclick = async () => {
+      if (painel.style.display === "none" || painel.innerHTML === "") {
+        await renderizarPainel(painel, loader);
+      } else {
+        painel.style.display = "none";
+      }
+    };
 
-  <!-- ÁREA DINÂMICA — aqui os módulos vão aparecer -->
-  <main id="conteudo" class="conteudo-dinamico"></main>
+    // Eventos de ações nos cards
+    painel.addEventListener("click", async (e) => {
+      const el = e.target;
+      if (!el.dataset?.acao) return;
 
-  <script type="module" src="professor.js"></script>
+      if (el.dataset.acao === "alterar") {
+        await alterarNota(el.dataset.id, el.dataset.campo, el.dataset.delta);
+      }
+
+      if (el.dataset.acao === "classificar") {
+        await alternarClassificacao(el.dataset.id, el.dataset.status === "true");
+        await renderizarPainel(painel, loader);
+      }
+
+      if (el.dataset.acao === "remover") {
+        if (confirm(`Remover ${el.dataset.nome}?`)) {
+          await removerAluno(el.dataset.id);
+          await renderizarPainel(painel, loader);
+        }
+      }
+    });
+
+    painel.addEventListener("change", async (e) => {
+      const el = e.target;
+      if (el.dataset?.acao === "input") {
+        await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
+      }
+      if (el.dataset?.acao === "instrumento") {
+        await atualizarInstrumento(el.dataset.id, el.value);
+      }
+      if (el.dataset?.acao === "foto") {
+        await alterarFoto(el.dataset.id, el.files[0]);
+        await renderizarPainel(painel, loader);
+      }
+    });
+
+    // Modo aluno
+    document.getElementById("btnModoAluno").onclick = () => {
+      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+      if (user.nome) {
+        window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
+      }
+    };
+
+    // Modal adicionar aluno
+    const modalAdd = document.getElementById("modalAdicionar");
+    document.getElementById("btnAdicionarAluno").onclick = () => modalAdd.style.display = "flex";
+    document.getElementById("btnCancelarAdicionar").onclick = () => modalAdd.style.display = "none";
+
+    document.getElementById("btnConfirmarAdicionar").onclick = async () => {
+      const nome = document.getElementById("novoNome").value.trim();
+      const instrumento = document.getElementById("novoInstrumento").value.trim();
+      const foto = document.getElementById("novoFoto").files[0];
+
+      let fotoBase64 = "";
+      if (foto) {
+        fotoBase64 = await new Promise(res => {
+          const reader = new FileReader();
+          reader.onload = e => res(e.target.result);
+          reader.readAsDataURL(foto);
+        });
+      }
+
+      await addDoc(collection(db, "alunos"), {
+        nome, instrumento, foto: fotoBase64,
+        leitura: 1, metodo: 1, energia: 100,
+        frequenciaMensal: { porcentagem: 0 },
+        frequenciaAnual: {}, conquistas: [],
+        classificado: false, senha: "asafe",
+        criadoEm: new Date().toISOString()
+      });
+
+      modalAdd.style.display = "none";
+      await renderizarPainel(painel, loader);
+    };
+
+    // Criar/Abrir chamada do dia (unificado)
+    document.getElementById("btnCriarChamada").onclick = async () => {
+      const hoje = new Date().toISOString().split("T")[0];
+
+      const snap = await getDocs(collection(db, "eventos"));
+      const existente = snap.docs.find(d => d.data().data === hoje);
+
+      if (existente) {
+        window.location.href = `ensaio.html?id=${existente.id}`;
+        return;
+      }
+
+      const novo = await addDoc(collection(db, "eventos"), {
+        data: hoje,
+        observacoes: "",
+        presencas: []
+      });
+
+      window.location.href = `ensaio.html?id=${novo.id}`;
+    };
+
+    // Recalcular energia
+    document.getElementById("btnRecalcularEnergia").onclick = async () => {
+      const snap = await getDocs(collection(db, "alunos"));
+
+      for (const docAluno of snap.docs) {
+        const aluno = docAluno.data();
+        const freq = aluno.frequenciaMensal?.porcentagem ?? 0;
+
+        let energia = 10;
+        if (freq >= 80) energia = 100;
+        else if (freq >= 50) energia = 70;
+        else if (freq >= 30) energia = 40;
+
+        await updateDoc(doc(db, "alunos", docAluno.id), { energia });
+      }
+      alert("Energia recalculada!");
+    };
+
+
+  </script>
+
+  <script type="module" src="professor-licoes.js"></script>
+  
 </body>
 </html>

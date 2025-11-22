@@ -1,3 +1,10 @@
+/* ===== RESET ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 /* ===== BASE ===== */
 body {
   font-family: 'Nunito', sans-serif;
@@ -11,56 +18,291 @@ body {
 h1 {
   color: #00ffcc;
   text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .usuario-logado {
   font-size: 1rem;
   color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* ===== FORMULÁRIO DE CADASTRO ===== */
+.formulario {
+  max-width: 400px;
+  margin: 0 auto 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
+}
+
+.formulario input[type="text"],
+.formulario input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.formulario input::placeholder {
+  color: #bbb;
+}
+
+.formulario button {
+  width: 100%;
+  background: linear-gradient(145deg, #00bfff, #007acc);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
+}
+
+.formulario button:hover {
+  background: linear-gradient(145deg, #00ccff, #00aacc);
+  box-shadow: 0 0 18px rgba(0, 255, 204, 0.6);
+  transform: scale(1.05);
+}
+
+/* ===== BOTÕES PRINCIPAIS ===== */
+.botoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
   margin-bottom: 25px;
 }
 
-/* ===== MENU EM CARDS (TIPO 2) ===== */
-.menu-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 18px;
-  max-width: 900px;
-  margin: 0 auto 35px;
+.botoes button {
+  background: linear-gradient(145deg, #00bfff, #007acc);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
 }
 
-.card-menu {
-  background: linear-gradient(145deg, #00bfff33, #007acc33);
-  border: 1px solid #00ffcc55;
-  box-shadow: 0 0 15px rgba(0, 255, 200, 0.15);
-  padding: 25px 20px;
-  border-radius: 14px;
+.botoes button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(145deg, #00ccff, #00aaff);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+}
+
+.botoes button:active {
+  transform: scale(0.96);
+}
+
+/* ===== PAINEL DE ALUNOS ===== */
+.painel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  animation: aparecer 0.4s ease-out;
+}
+
+/* ===== FICHA DE ALUNO ===== */
+.ficha {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 204, 0.4);
+  border-radius: 12px;
+  padding: 16px;
+  width: 320px;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ficha:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
+}
+
+/* ===== FOTO DO ALUNO ===== */
+.foto {
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: rgba(0, 255, 204, 0.1);
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== CAMPOS ===== */
+.campo {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.campo label {
+  display: block;
+  font-size: 0.9rem;
+  color: #00ffcc;
+  margin-bottom: 5px;
+}
+
+/* ===== NOTAS ===== */
+.nota-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nota-controle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Botões de nota maiores */
+.botao-nota {
+  width: 45px;
+  height: 45px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #00bfff;
   color: #fff;
   cursor: pointer;
-  font-size: 1.4rem;
-  transition: 0.25s;
-  backdrop-filter: blur(6px);
+  transition: transform 0.2s, background 0.2s;
 }
 
-.card-menu span {
-  display: block;
-  margin-top: 8px;
-  font-size: 1rem;
+.botao-nota:hover {
+  transform: scale(1.1);
+  background-color: #00e6e6;
 }
 
-.card-menu:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 25px rgba(0, 255, 204, 0.45);
-  background: linear-gradient(145deg, #00ccff55, #00aaff44);
+/* Campo de nota igual ao tamanho dos botões */
+.campo-nota {
+  width: 45px;
+  height: 45px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
 }
 
-/* ===== ÁREA DINÂMICA DOS MÓDULOS ===== */
-.conteudo-dinamico {
+/* ===== AÇÕES ===== */
+.acoes {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.acoes button {
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.acoes .remover {
+  background-color: #ff4444;
+  color: white;
+}
+
+.acoes .remover:hover {
+  background-color: #ff6666;
+}
+
+.alterar-foto input {
+  display: none;
+}
+
+.alterar-foto {
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* ===== LOADER ===== */
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #00ffcc;
+  font-size: 1.1rem;
   margin-top: 30px;
-  animation: fadeIn 0.4s ease-out;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(0, 255, 204, 0.2);
+  border-top-color: #00ffcc;
+  border-radius: 50%;
+  animation: girar 1s linear infinite;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes girar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== SCROLL PERSONALIZADO ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #00ffcc55;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #00ffcc88;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+  .formulario {
+    width: 90%;
+  }
+
+  .botoes {
+    flex-direction: column;
+  }
+
+  .botoes button {
+    width: 90%;
+    max-width: 400px;
+  }
+
+  .ficha {
+    width: 90%;
+  }
 }
