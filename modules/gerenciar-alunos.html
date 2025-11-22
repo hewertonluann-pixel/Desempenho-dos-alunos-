@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="modules/gerenciar-alunos.css">
+
+<h2 class="titulo-modulo">👥 Gerenciar Alunos</h2>
+
+<div class="topo-modulo">
+  <button class="btn-add" id="btnAddNovoAluno">➕ Adicionar Aluno</button>
+</div>
+
+<div id="loaderGerAlunos" class="loader-gerenciar">Carregando alunos...</div>
+
+<div id="painelGerenciar" class="painel-gerenciar"></div>
+
+<!-- Modal adicionar -->
+<div id="modalAddAluno" class="modal-ger">
+  <div class="modal-content-ger">
+    <h3>Novo Aluno</h3>
+
+    <label>Nome</label>
+    <input type="text" id="novoNomeAluno">
+
+    <label>Instrumento</label>
+    <input type="text" id="novoInstrumentoAluno">
+
+    <label>Foto</label>
+    <input type="file" id="novoFotoAluno" accept="image/*">
+
+    <div class="modal-botoes">
+      <button id="confirmAddAluno" class="ok">Adicionar</button>
+      <button id="cancelAddAluno" class="cancel">Cancelar</button>
+    </div>
+  </div>
+</div>
