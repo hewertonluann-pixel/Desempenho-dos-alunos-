@@ -1,0 +1,34 @@
+<link rel="stylesheet" href="modules/chamada.css">
+
+<h2 class="titulo-modulo">📋 Chamada do Dia</h2>
+
+<!-- Switch Ensaio / Apresentação -->
+<div class="switch-container">
+  <span class="switch-label">🎼 Ensaio</span>
+
+  <label class="switch">
+    <input type="checkbox" id="tipoEventoSwitch">
+    <span class="slider"></span>
+  </label>
+
+  <span class="switch-label">🎤 Apresentação</span>
+</div>
+
+<h3 id="dataChamada" class="data-chamada"></h3>
+
+<div class="campo-local">
+  <label>Local (apenas para apresentações)</label>
+  <input type="text" id="localEvento" placeholder="Ex: Praça da Liberdade">
+</div>
+
+<!-- Painel de alunos -->
+<div id="painelChamada" class="painel-chamada"></div>
+
+<textarea id="observacoesChamada" class="obs" placeholder="Observações..."></textarea>
+
+<div class="botoes-chamada">
+  <button id="btnSalvarChamada" class="btn-salvar">💾 Salvar</button>
+  <button id="btnCancelarEvento" class="btn-cancelar">❌ Cancelar Evento</button>
+</div>
+
+<div id="loaderChamada" class="loader-chamada">Carregando...</div>
