@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convite – Recital de Saxofone</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #1a1a2e, #050508);
+      color: #f1f5f9;
+      overflow: hidden;
+    }
+
+    .center-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .sax {
+      font-size: 120px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .play-btn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      background: transparent;
+      border: 1px solid #c7a93c;
+      color: #f8fafc;
+      border-radius: 40px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .painel {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(5,5,8,0.95), rgba(15,15,30,0.98));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+
+    .painel.ativo {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .convite-card {
+      max-width: 700px;
+      background: rgba(20, 20, 35, 0.85);
+      border: 1px solid rgba(199, 169, 60, 0.3);
+      border-radius: 20px;
+      padding: 60px 30px 40px;
+      text-align: center;
+      position: relative;
+    }
+
+    #btnFechar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.4);
+      border-radius: 50%;
+      border: 1px solid rgba(199,169,60,0.4);
+      color: #e2e8f0;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .confirmacao { margin-top: 30px; }
+
+    .botoes-confirmacao {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .botoes-confirmacao button {
+      padding: 10px 18px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #btnSim { background: #22c55e; }
+    #btnNao { background: #ef4444; }
+
+    .popup-confirmacao {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(20,20,35,0.95);
+      padding: 14px 20px;
+      border-radius: 14px;
+      opacity: 0;
+      transition: all 0.35s ease;
+      pointer-events: none;
+      font-size: 14px;
+    }
+
+    .popup-confirmacao.ativo {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="center-screen" id="telaInicial">
+  <div class="sax">🎷</div>
+  <button class="play-btn" id="btnPlay">▶ Abrir convite</button>
+</div>
+
+<div class="painel" id="painelConvite">
+  <div class="convite-card">
+    <button id="btnFechar">×</button>
+    <h1>Convite Especial</h1>
+    <h2>Recital de Saxofone – Formatura</h2>
+
+    <p id="textoConvite">
+      É com grande alegria que convido você para prestigiar minha
+      <strong>formatura em Saxofone</strong> pelo
+      <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.
+    </p>
+
+    <div style="margin-top:20px;font-size:20px;font-weight:600;color:#facc15;">
+      📅 08 de dezembro de 2025<br>⏰ 20h00
+    </div>
+
+    <div class="confirmacao">
+      <p><strong>Você irá comparecer?</strong></p>
+      <div class="botoes-confirmacao">
+        <button id="btnSim">✅ Sim</button>
+        <button id="btnNao">❌ Não</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="popupConfirmacao" class="popup-confirmacao"></div>
+
+<script type="module">
+  import { firebaseConfig } from "../firebase-config.js"; // use o MESMO do Painel Orquestra
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const popup = document.getElementById('popupConfirmacao');
+  const params = new URLSearchParams(window.location.search);
+  const idConvite = params.get('id');
+  const nomeQuery = params.get('nome') || "";
+  const textoConvite = document.getElementById('textoConvite');
+
+  let nomeConvidado = nomeQuery || null;
+
+  // Busca no Firestore pelo id, se existir
+  async function carregarConvite() {
+    try {
+      if (idConvite) {
+        const ref = doc(db, "convites_recital", idConvite);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const dados = snap.data();
+          if (dados.nome) nomeConvidado = dados.nome;
+        }
+      }
+
+      if (nomeConvidado) {
+        textoConvite.innerHTML =
+          `É com grande alegria que convido <strong>${nomeConvidado}</strong> para prestigiar minha ` +
+          `<strong>formatura em Saxofone</strong> pelo ` +
+          `<strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`;
+      }
+    } catch (e) {
+      console.error("Erro ao carregar convite:", e);
+    }
+  }
+
+  function showPopup(msg) {
+    popup.textContent = msg;
+    popup.classList.add('ativo');
+    setTimeout(() => popup.classList.remove('ativo'), 3000);
+  }
+
+  document.getElementById('btnPlay').onclick = () => {
+    document.getElementById('telaInicial').style.display = 'none';
+    document.getElementById('painelConvite').classList.add('ativo');
+  };
+
+  document.getElementById('btnFechar').onclick = () => {
+    document.getElementById('painelConvite').classList.remove('ativo');
+    document.getElementById('telaInicial').style.display = 'flex';
+  };
+
+  document.getElementById('btnSim').onclick = async () => {
+    // mensagem personalizada
+    if (nomeConvidado) {
+      showPopup(`✨ ${nomeConvidado}, sua presença engrandece este momento.`);
+    } else {
+      showPopup("✨ Sua presença engrandece este momento.");
+    }
+
+    // salva confirmação no banco, se tiver id
+    if (idConvite) {
+      try {
+        const ref = doc(db, "convites_recital", idConvite);
+        await updateDoc(ref, {
+          confirmado: true,
+          confirmadoEm: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Erro ao registrar confirmação:", e);
+      }
+    }
+  };
+
+  document.getElementById('btnNao').onclick = () => {
+    showPopup("⚠️ Esta opção foi desabilitada pelo administrador!");
+  };
+
+  carregarConvite();
+</script>
+
+</body>
+</html>
