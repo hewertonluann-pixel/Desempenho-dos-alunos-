@@ -1,314 +1,92 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel de Convites – Recital</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: "Inter", sans-serif;
-      background: radial-gradient(circle at top, #020617, #020617);
-      color: #e5e7eb;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 30px 10px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 900px;
-      background: rgba(15,23,42,0.95);
-      border-radius: 18px;
-      padding: 24px 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-      border: 1px solid rgba(148,163,184,0.3);
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      text-align: center;
-      color: #facc15;
-      font-size: 22px;
-    }
-
-    p.sub {
-      text-align: center;
-      margin: 0 0 20px;
-      font-size: 13px;
-      color: #9ca3af;
-    }
-
-    label {
-      font-size: 13px;
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .btn-gerar {
-      width: 100%;
-      background: #facc15;
-      color: #0f172a;
-      margin-bottom: 15px;
-    }
-
-    .lista-convidados {
-      margin-top: 20px;
-    }
-
-    .lista-convidados h2 {
-      font-size: 16px;
-      margin-bottom: 10px;
-      color: #e5e7eb;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    li {
-      background: rgba(15,23,42,0.9);
-      border-radius: 12px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      border: 1px solid rgba(55,65,81,0.8);
-      font-size: 13px;
-    }
-
-    .linha-topo {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .nome {
-      font-weight: 600;
-      color: #e5e7eb;
-    }
-
-    .status {
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 999px;
-    }
-
-    .status-pendente {
-      background: rgba(248, 250, 252, 0.06);
-      color: #fbbf24;
-    }
-
-    .status-confirmado {
-      background: rgba(22,163,74,0.25);
-      color: #bbf7d0;
-    }
-
-    .link {
-      color: #9ca3af;
-      word-break: break-word;
-      margin-top: 4px;
-    }
-
-    .acoes {
-      margin-top: 6px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .acoes a {
-      font-size: 12px;
-      text-decoration: none;
-      color: #facc15;
-    }
-
-    .msg {
-      font-size: 12px;
-      margin-top: 4px;
-      color: #a3e635;
-    }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <h1>🎷 Convites do Recital</h1>
-  <p class="sub">Gerencie os convidados e links personalizados usando o mesmo banco do Painel Orquestra.</p>
-
-  <div>
-    <label for="nome">Nome do convidado</label>
-    <input id="nome" type="text" placeholder="Ex: Maria Silva" />
-
-    <label for="linkBase">Link base do convite</label>
-    <input id="linkBase" type="text" value="convite.html" />
-
-    <button class="btn-gerar" id="btnGerar">Gerar convite</button>
-  </div>
-
-  <div class="lista-convidados">
-    <h2>📋 Convites gerados</h2>
-    <ul id="lista"></ul>
-  </div>
-</div>
-
 <script type="module">
-  import { firebaseConfig } from "../firebase-config.js"; // MESMO arquivo do Painel
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    orderBy,
-    query,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { db } from "../firebase-config.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const colConvites = collection(db, "convites_recital");
+const lista = document.getElementById('listaLinks');
+const resultado = document.getElementById('resultado');
+const status = document.getElementById('status');
 
-  const nomeInput = document.getElementById("nome");
-  const linkBaseInput = document.getElementById("linkBase");
-  const btnGerar = document.getElementById("btnGerar");
-  const lista = document.getElementById("lista");
+const colConvites = collection(db, "convites_recital");
 
-  btnGerar.addEventListener("click", async () => {
-    const nome = nomeInput.value.trim();
-    const linkBase = linkBaseInput.value.trim();
+async function gerarLink() {
+  const nome = document.getElementById('nome').value.trim();
+  const linkBase = document.getElementById('linkBase').value.trim();
 
-    if (!nome) {
-      alert("Digite o nome do convidado");
-      return;
-    }
-    if (!linkBase) {
-      alert("Informe o link base do convite (ex: convite.html ou https://seusite.com/convite.html)");
-      return;
-    }
+  if (!nome) {
+    alert('Digite o nome do convidado');
+    return;
+  }
 
-    try {
-      // cria doc no Firestore
-      const ref = await addDoc(colConvites, {
-        nome,
-        criadoEm: serverTimestamp(),
-        confirmado: false,
-        confirmadoEm: null
-      });
+  try {
+    const docRef = await addDoc(colConvites, {
+      nome,
+      confirmado: false,
+      criadoEm: serverTimestamp()
+    });
 
-      const linkFinal = `${linkBase}?id=${ref.id}`;
+    const linkFinal = `${linkBase}?id=${docRef.id}&nome=${encodeURIComponent(nome)}`;
 
-      // atualiza lista na hora
-      adicionarItemLista({
-        id: ref.id,
-        nome,
-        link: linkFinal,
-        confirmado: false,
-        confirmadoEm: null
-      });
+    resultado.style.display = 'block';
+    resultado.textContent = linkFinal;
+    document.querySelector('.copiar').style.display = 'block';
 
-      nomeInput.value = "";
-    } catch (e) {
-      console.error("Erro ao gerar convite:", e);
-      alert("Erro ao gerar convite. Veja o console.");
-    }
+    adicionarNaLista(nome, linkFinal, false);
+    status.textContent = "✅ Convite criado com sucesso!";
+  } catch (erro) {
+    console.error("Erro ao gerar convite:", erro);
+    status.textContent = "❌ Erro ao gerar convite.";
+  }
+}
+
+function adicionarNaLista(nome, link, confirmado) {
+  const item = document.createElement('li');
+  item.style.marginBottom = '12px';
+  item.innerHTML = `
+    <strong>${nome}</strong><br>
+    <span style="color:#94a3b8;">${link}</span><br>
+    <span style="color:${confirmado ? '#22c55e' : '#facc15'};">
+      ${confirmado ? 'Confirmado' : 'Pendente'}
+    </span>
+  `;
+  lista.appendChild(item);
+}
+
+async function carregarLista() {
+  lista.innerHTML = '';
+  const q = query(colConvites, orderBy("criadoEm", "desc"));
+  const snap = await getDocs(q);
+
+  snap.forEach(docSnap => {
+    const dados = docSnap.data();
+    const linkFinal = `convite.html?id=${docSnap.id}&nome=${encodeURIComponent(dados.nome)}`;
+    adicionarNaLista(dados.nome, linkFinal, dados.confirmado);
   });
+}
 
-  function adicionarItemLista(convite) {
-    const li = document.createElement("li");
+// MÉTODO DE CÓPIA SEGURO
+function copiarLinkManual() {
+  const range = document.createRange();
+  range.selectNode(resultado);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+  status.textContent = '✅ Link selecionado. Use CTRL + C para copiar.';
+}
 
-    const linhaTopo = document.createElement("div");
-    linhaTopo.className = "linha-topo";
+// TESTES
+document.addEventListener('DOMContentLoaded', () => {
+  console.assert(typeof gerarLink === 'function', 'gerarLink não definido');
+  carregarLista();
+});
 
-    const spanNome = document.createElement("span");
-    spanNome.className = "nome";
-    spanNome.textContent = convite.nome;
-
-    const spanStatus = document.createElement("span");
-    spanStatus.classList.add("status");
-    if (convite.confirmado) {
-      spanStatus.classList.add("status-confirmado");
-      spanStatus.textContent = "Confirmado";
-    } else {
-      spanStatus.classList.add("status-pendente");
-      spanStatus.textContent = "Pendente";
-    }
-
-    linhaTopo.appendChild(spanNome);
-    linhaTopo.appendChild(spanStatus);
-
-    const divLink = document.createElement("div");
-    divLink.className = "link";
-    divLink.textContent = convite.link;
-
-    const divAcoes = document.createElement("div");
-    divAcoes.className = "acoes";
-
-    const aAbrir = document.createElement("a");
-    aAbrir.href = convite.link;
-    aAbrir.target = "_blank";
-    aAbrir.textContent = "🔗 Abrir convite";
-
-    divAcoes.appendChild(aAbrir);
-
-    li.appendChild(linhaTopo);
-    li.appendChild(divLink);
-    li.appendChild(divAcoes);
-
-    lista.appendChild(li);
-  }
-
-  async function carregarConvites() {
-    try {
-      const q = query(colConvites, orderBy("criadoEm", "desc"));
-      const snap = await getDocs(q);
-      lista.innerHTML = "";
-
-      snap.forEach(docSnap => {
-        const dados = docSnap.data();
-        const linkFinal = `${linkBaseInput.value.trim() || "convite.html"}?id=${docSnap.id}`;
-        adicionarItemLista({
-          id: docSnap.id,
-          nome: dados.nome || "(sem nome)",
-          link: linkFinal,
-          confirmado: !!dados.confirmado,
-          confirmadoEm: dados.confirmadoEm || null
-        });
-      });
-    } catch (e) {
-      console.error("Erro ao carregar convites:", e);
-    }
-  }
-
-  carregarConvites();
+// Tornando funções globais para botões inline
+window.gerarLink = gerarLink;
+window.copiarLinkManual = copiarLinkManual;
 </script>
-
-</body>
-</html>
