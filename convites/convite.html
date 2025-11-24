@@ -16,6 +16,63 @@
       overflow: hidden;
     }
 
+    /* ==== EFEITOS DE PALCO ==== */
+    .holofote {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,215,120,0.15), rgba(0,0,0,0.85) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particulas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-radial-gradient(circle at 30% 30%, rgba(255,215,120,0.05), transparent 80px);
+      animation: brilhar 8s linear infinite;
+    }
+
+    @keyframes brilhar {
+      0% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0.3; }
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.7));
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ==== NOTAS MUSICAIS ==== */
+    .notas-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .nota {
+      position: absolute;
+      bottom: -40px;
+      color: rgba(248, 250, 252, 0.6);
+      font-size: 24px;
+      animation: subirNota linear forwards;
+      filter: drop-shadow(0 0 6px rgba(199,169,60,0.4));
+    }
+
+    @keyframes subirNota {
+      from { transform: translateY(0) scale(0.8); opacity: 0; }
+      20% { opacity: 0.8; }
+      to { transform: translateY(-110vh) scale(1.3); opacity: 0; }
+    }
+
     .center-screen {
       display: flex;
       flex-direction: column;
@@ -23,11 +80,14 @@
       justify-content: center;
       height: 100vh;
       text-align: center;
+      position: relative;
+      z-index: 5;
     }
 
     .sax {
       font-size: 120px;
       animation: float 4s ease-in-out infinite;
+      text-shadow: 0 0 15px rgba(255,215,120,0.8), 0 0 35px rgba(255,215,120,0.4);
     }
 
     @keyframes float {
@@ -57,6 +117,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 1s ease;
+      z-index: 5;
     }
 
     .painel.ativo {
@@ -72,6 +133,7 @@
       padding: 60px 30px 40px;
       text-align: center;
       position: relative;
+      box-shadow: 0 0 40px rgba(255,215,120,0.15);
     }
 
     #btnFechar {
@@ -91,26 +153,6 @@
       cursor: pointer;
     }
 
-    .confirmacao { margin-top: 30px; }
-
-    .botoes-confirmacao {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    .botoes-confirmacao button {
-      padding: 10px 18px;
-      border-radius: 25px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    #btnSim { background: #22c55e; }
-    #btnNao { background: #ef4444; }
-
     .popup-confirmacao {
       position: fixed;
       bottom: 30px;
@@ -121,6 +163,8 @@
       border-radius: 14px;
       opacity: 0;
       transition: all 0.35s ease;
+      pointer-events: none;
+      z-index: 10;
     }
 
     .popup-confirmacao.ativo { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -128,9 +172,13 @@
 </head>
 <body>
 
+<div class="holofote"></div>
+<div class="particulas"></div>
+<div class="notas-container" id="notasContainer"></div>
+
 <div class="center-screen" id="telaInicial">
   <div class="sax">🎷</div>
-  <button class="play-btn" id="btnPlay">▶ Play</button>
+  <button class="play-btn" id="btnPlay">▶ Abrir convite</button>
 </div>
 
 <div class="painel" id="painelConvite">
@@ -139,11 +187,7 @@
     <h1>Convite Especial</h1>
     <h2>Recital de Saxofone – Formatura</h2>
 
-    <p id="textoConvite">
-      É com grande alegria que convido você para prestigiar minha
-      <strong>formatura em Saxofone</strong> pelo
-      <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.
-    </p>
+    <p id="textoConvite"></p>
 
     <div style="margin-top:20px;font-size:20px;font-weight:600;color:#facc15;">
       📅 08 de dezembro de 2025<br>⏰ 20h00
@@ -151,10 +195,8 @@
 
     <div class="confirmacao">
       <p><strong>Você irá comparecer?</strong></p>
-      <div class="botoes-confirmacao">
-        <button id="btnSim">✅ Sim</button>
-        <button id="btnNao">❌ Não</button>
-      </div>
+      <button id="btnSim">✅ Sim</button>
+      <button id="btnNao">❌ Não</button>
     </div>
   </div>
 </div>
@@ -166,60 +208,51 @@ import { db } from "../firebase-config.js";
 import { doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 const popup = document.getElementById('popupConfirmacao');
-
-// PERSONALIZAÇÃO POR NOME
 const params = new URLSearchParams(window.location.search);
-const nomeConvidado = params.get('nome');
+const nome = params.get('nome');
 const idConvite = params.get('id');
 const textoConvite = document.getElementById('textoConvite');
 
-if (nomeConvidado) {
-  textoConvite.innerHTML = `É com grande alegria que convido <strong>${nomeConvidado}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`;
-}
+textoConvite.innerHTML = nome
+  ? `É com grande alegria que convido <strong>${nome}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`
+  : `É com grande alegria que convido você para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`;
 
 function showPopup(msg) {
   popup.textContent = msg;
   popup.classList.add('ativo');
-
-  setTimeout(() => {
-    popup.classList.remove('ativo');
-  }, 3000);
+  setTimeout(() => popup.classList.remove('ativo'), 3000);
 }
 
 document.getElementById('btnPlay').onclick = () => {
-  document.getElementById('telaInicial').style.display = 'none';
-  document.getElementById('painelConvite').classList.add('ativo');
-};
-
-document.getElementById('btnFechar').onclick = () => {
-  document.getElementById('painelConvite').classList.remove('ativo');
-  document.getElementById('telaInicial').style.display = 'flex';
+  telaInicial.style.display = 'none';
+  painelConvite.classList.add('ativo');
 };
 
 document.getElementById('btnSim').onclick = async () => {
-  if (nomeConvidado) {
-    showPopup(`✨ ${nomeConvidado}, sua presença engrandece este momento.`);
-  } else {
-    showPopup('✨ Sua presença engrandece este momento.');
-  }
+  showPopup(nome ? `✨ ${nome}, sua presença engrandece este momento.` : '✨ Sua presença engrandece este momento.');
 
-  // REGISTRAR CONFIRMAÇÃO NO FIRESTORE
   if (idConvite) {
-    try {
-      const ref = doc(db, 'convites_recital', idConvite);
-      await updateDoc(ref, {
-        confirmado: true,
-        confirmadoEm: serverTimestamp()
-      });
-    } catch (erro) {
-      console.error('Erro ao registrar confirmação:', erro);
-    }
+    await updateDoc(doc(db, 'convites_recital', idConvite), {
+      confirmado: true,
+      confirmadoEm: serverTimestamp()
+    });
   }
 };
 
-document.getElementById('btnNao').onclick = () => {
-  showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
-};
+document.getElementById('btnNao').onclick = () => showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
+
+// NOTAS SUBINDO
+const notasContainer = document.getElementById('notasContainer');
+const simbolosNotas = ['♪','♫','♩','♬'];
+setInterval(() => {
+  const n = document.createElement('div');
+  n.className = 'nota';
+  n.textContent = simbolosNotas[Math.floor(Math.random()*simbolosNotas.length)];
+  n.style.left = Math.random()*100 + '%';
+  n.style.animationDuration = (6+Math.random()*6)+'s';
+  notasContainer.appendChild(n);
+  setTimeout(()=>n.remove(),12000);
+},700);
 </script>
 
 </body>
