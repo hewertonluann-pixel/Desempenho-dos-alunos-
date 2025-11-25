@@ -44,7 +44,8 @@
       inset: 0;
       pointer-events: none;
       overflow: hidden;
-      z-index: 2;
+      z-index: 6; /* garante que continue visível durante confirmação */
+    }
     }
 
     .nota {
@@ -249,7 +250,11 @@ btnFechar.onclick = () => {
   telaInicial.style.display = 'flex';
 };
 
-btnSim.onclick = () => showPopup('✨ Será uma honra receber você!');
+btnSim.onclick = () => {
+  showPopup('✨ Será uma honra receber você!');
+  // Mantém as notas ativas mesmo na tela de confirmação
+  iniciarNotas();
+};('✨ Será uma honra receber você!');
 btnNao.onclick = () => showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
 </script>
 
