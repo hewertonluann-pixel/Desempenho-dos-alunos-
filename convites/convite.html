@@ -183,7 +183,7 @@
 
 <div class="painel" id="painelConvite">
   <div class="convite-card">
-    <img src="https://raw.githubusercontent.com/hewertonluann-pixel/Desempenho-dos-alunos-/main/convites/eu.png" class="foto-fundo">
+    <img src="/mnt/data/eu.png" class="foto-fundo" alt="Hewerton com sax">
     <button id="btnFechar">×</button>
     <h1>Convite Especial</h1>
     <h2>Recital de Saxofone – Formatura</h2>
@@ -212,7 +212,17 @@ import { doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebas
 const telaInicial = document.getElementById('telaInicial');
 const painelConvite = document.getElementById('painelConvite');
 
+const params = new URLSearchParams(window.location.search);
+const nomeConvidado = params.get('nome');
+const textoConvite = document.getElementById('textoConvite');
+
+textoConvite.innerHTML = nomeConvidado
+  ? `É com grande alegria que <strong>eu, Hewerton Assunção</strong>, convido <strong>${nomeConvidado}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>. Sua presença tornará este momento ainda mais especial.`
+  : `É com grande alegria que <strong>eu, Hewerton Assunção</strong>, convido você para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>. Sua presença tornará este momento ainda mais especial.`;
+
 function iniciarNotas() {
+  if (window._notasAtivas) return;
+  window._notasAtivas = true;() {
   setInterval(() => {
     const nota = document.createElement('div');
     nota.className = 'nota';
@@ -238,9 +248,22 @@ document.getElementById('btnPlay').onclick = () => {
   iniciarMusica();
 };
 
-document.getElementById('btnFechar').onclick = () => {
+document.getElementById('btnFechar').onclick = () => {.onclick = () => {
   painelConvite.classList.remove('ativo');
   telaInicial.style.display = 'flex';
+};
+document.getElementById('btnSim').onclick = () => {
+  const popup = document.getElementById('popupConfirmacao');
+  popup.textContent = '✨ Será uma honra receber você!';
+  popup.classList.add('ativo');
+  setTimeout(() => popup.classList.remove('ativo'), 3000);
+};
+
+document.getElementById('btnNao').onclick = () => {
+  const popup = document.getElementById('popupConfirmacao');
+  popup.textContent = '⚠️ Esta opção foi desabilitada pelo administrador!';
+  popup.classList.add('ativo');
+  setTimeout(() => popup.classList.remove('ativo'), 3000);
 };
 </script>
 
