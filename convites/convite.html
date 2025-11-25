@@ -61,7 +61,7 @@
 
 <div class="painel" id="painelConvite">
   <div class="convite-card">
-    <img src="/mnt/data/eu.png" alt="Hewerton com sax" class="foto-fundo">
+    <img src="./eu.png" onerror="this.style.display='none'" alt="Hewerton com sax" class="foto-fundo">
     <button id="btnFechar">×</button>
     <h1>Convite Especial</h1>
     <h2>Recital de Saxofone – Formatura</h2>
@@ -117,59 +117,22 @@ function showPopup(msg) {
   setTimeout(() => popup.classList.remove('ativo'), 3000);
 }
 
+const telaInicial = document.getElementById('telaInicial');
+const painelConvite = document.getElementById('painelConvite');
+
+// Botão PLAY - abre convite
 document.getElementById('btnPlay').onclick = () => {
   telaInicial.style.display = 'none';
   painelConvite.classList.add('ativo');
-};
-
-document.getElementById('btnSim').onclick = async () => {
-  showPopup(nome ? `✨ ${nome}, sua presença engrandece este momento.` : '✨ Sua presença engrandece este momento.');
-
-  if (idConvite) {
-    await updateDoc(doc(db, 'convites_recital', idConvite), {
-      confirmado: true,
-      confirmadoEm: serverTimestamp()
-    });
+  iniciarNotas();
+  if (player) {
+    player.setVolume(15);
+    player.playVideo();
   }
 };
 
-document.getElementById('btnNao').onclick = () => showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
-
-// === NOTAS SUBINDO CONTROLADAS ===
-const notasContainer = document.getElementById('notasContainer');
-const simbolosNotas = ['♪','♫','♩','♬'];
-let notasInterval = null;
-
-function iniciarNotas(){
-  if(notasInterval) return;
-  notasInterval=setInterval(()=>{
-    const n=document.createElement('div');
-    n.className='nota';
-    n.textContent=simbolosNotas[Math.floor(Math.random()*simbolosNotas.length)];
-    n.style.left=Math.random()*100+'%';
-    n.style.animationDuration=(6+Math.random()*6)+'s';
-    notasContainer.appendChild(n);
-    setTimeout(()=>n.remove(),12000);
-  },700);
-}
-
-// === ÁUDIO YOUTUBE ===
-let player;
-window.onYouTubeIframeAPIReady=function(){
-  player=new YT.Player('ytPlayer',{videoId:'uEfy8JoQg8o',playerVars:{autoplay:0,controls:0,rel:0}});
-}
-
-const telaInicial=document.getElementById('telaInicial');
-const painelConvite=document.getElementById('painelConvite');
-
-document.getElementById('btnPlay').onclick=()=>{
-  telaInicial.style.display='none';
-  painelConvite.classList.add('ativo');
-  iniciarNotas();
-  if(player){player.setVolume(15);player.playVideo();}
-};
-
-document.getElementById('btnFechar').onclick=()=>{
+// Botão X - fecha convite
+document.getElementById('btnFechar').onclick = () => {=()=>{
   painelConvite.classList.remove('ativo');
   telaInicial.style.display='flex';
   if(player){player.pauseVideo();}
