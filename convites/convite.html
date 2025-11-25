@@ -127,31 +127,13 @@
 
     .convite-card {
       max-width: 700px;
-      background: rgba(20, 20, 35, 0.88);
+      background: rgba(20, 20, 35, 0.85);
       border: 1px solid rgba(199, 169, 60, 0.3);
       border-radius: 20px;
       padding: 60px 30px 40px;
       text-align: center;
       position: relative;
       box-shadow: 0 0 40px rgba(255,215,120,0.15);
-      overflow: hidden;
-    }
-
-    /* sua foto PNG atrás do texto */
-    .foto-fundo {
-      position: absolute;
-      right: 5%;
-      bottom: 0;
-      max-height: 360px;
-      opacity: 0.20;
-      pointer-events: none;
-      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.7));
-      z-index: 0;
-    }
-
-    .convite-card > * {
-      position: relative;
-      z-index: 1;
     }
 
     #btnFechar {
@@ -171,26 +153,6 @@
       cursor: pointer;
     }
 
-    .confirmacao {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .confirmacao button {
-      padding: 10px 18px;
-      border-radius: 25px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      margin: 0 5px;
-    }
-
-    #btnSim { background: #22c55e; }
-    #btnNao { background: #ef4444; }
-
     .popup-confirmacao {
       position: fixed;
       bottom: 30px;
@@ -203,25 +165,9 @@
       transition: all 0.35s ease;
       pointer-events: none;
       z-index: 10;
-      font-size: 14px;
     }
 
-    .popup-confirmacao.ativo {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-      pointer-events: auto;
-    }
-
-    @media (max-width: 600px) {
-      .convite-card {
-        padding: 40px 18px 32px;
-      }
-      .foto-fundo {
-        right: -10%;
-        max-height: 300px;
-        opacity: 0.18;
-      }
-    }
+    .popup-confirmacao.ativo { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -237,7 +183,6 @@
 
 <div class="painel" id="painelConvite">
   <div class="convite-card">
-    <img src="eu.png" alt="Saxofonista" class="foto-fundo" />
     <button id="btnFechar">×</button>
     <h1>Convite Especial</h1>
     <h2>Recital de Saxofone – Formatura</h2>
@@ -250,19 +195,13 @@
 
     <div class="confirmacao">
       <p><strong>Você irá comparecer?</strong></p>
-      <div>
-        <button id="btnSim">✅ Sim</button>
-        <button id="btnNao">❌ Não</button>
-      </div>
+      <button id="btnSim">✅ Sim</button>
+      <button id="btnNao">❌ Não</button>
     </div>
   </div>
 </div>
 
 <div id="popupConfirmacao" class="popup-confirmacao"></div>
-
-<!-- Player YouTube escondido -->
-<div id="ytPlayer" style="display:none;"></div>
-<script src="https://www.youtube.com/iframe_api"></script>
 
 <script type="module">
 import { db } from "../firebase-config.js";
@@ -273,98 +212,47 @@ const params = new URLSearchParams(window.location.search);
 const nome = params.get('nome');
 const idConvite = params.get('id');
 const textoConvite = document.getElementById('textoConvite');
-const telaInicial = document.getElementById('telaInicial');
-const painelConvite = document.getElementById('painelConvite');
 
-// Texto personalizado
 textoConvite.innerHTML = nome
   ? `É com grande alegria que convido <strong>${nome}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`
   : `É com grande alegria que convido você para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`;
 
-// Pop-up
 function showPopup(msg) {
   popup.textContent = msg;
   popup.classList.add('ativo');
   setTimeout(() => popup.classList.remove('ativo'), 3000);
 }
 
-// Notas musicais – só iniciam depois do Play
-const notasContainer = document.getElementById('notasContainer');
-const simbolosNotas = ['♪','♫','♩','♬'];
-let notasInterval = null;
-
-function criarNota() {
-  const n = document.createElement('div');
-  n.className = 'nota';
-  n.textContent = simbolosNotas[Math.floor(Math.random() * simbolosNotas.length)];
-  n.style.left = Math.random() * 100 + '%';
-  n.style.fontSize = (18 + Math.random() * 25) + 'px';
-  n.style.animationDuration = (6 + Math.random() * 6) + 's';
-  notasContainer.appendChild(n);
-  setTimeout(() => n.remove(), 12000);
-}
-
-function iniciarNotas() {
-  if (notasInterval) return; // evita duplicar
-  notasInterval = setInterval(criarNota, 700);
-}
-
-// YouTube Player API
-let player = null;
-window.onYouTubeIframeAPIReady = () => {
-  player = new YT.Player('ytPlayer', {
-    videoId: 'uEfy8JoQg8o', // Consagração
-    playerVars: {
-      autoplay: 0,
-      controls: 0,
-      rel: 0
-    }
-  });
-};
-
-// Botão Play
 document.getElementById('btnPlay').onclick = () => {
   telaInicial.style.display = 'none';
   painelConvite.classList.add('ativo');
-  iniciarNotas();
-
-  // tenta iniciar a música em volume baixo
-  if (player && player.playVideo) {
-    try {
-      player.setVolume(15);
-      player.playVideo();
-    } catch (e) {
-      console.warn('Não foi possível iniciar o áudio automaticamente:', e);
-    }
-  }
 };
 
-// Fechar convite e voltar
-document.getElementById('btnFechar').onclick = () => {
-  painelConvite.classList.remove('ativo');
-  telaInicial.style.display = 'flex';
-};
-
-// Confirmação SIM
 document.getElementById('btnSim').onclick = async () => {
   showPopup(nome ? `✨ ${nome}, sua presença engrandece este momento.` : '✨ Sua presença engrandece este momento.');
 
   if (idConvite) {
-    try {
-      await updateDoc(doc(db, 'convites_recital', idConvite), {
-        confirmado: true,
-        confirmadoEm: serverTimestamp()
-      });
-    } catch (e) {
-      console.error('Erro ao registrar confirmação:', e);
-    }
+    await updateDoc(doc(db, 'convites_recital', idConvite), {
+      confirmado: true,
+      confirmadoEm: serverTimestamp()
+    });
   }
 };
 
-// Botão NÃO
-document.getElementById('btnNao').onclick = () => {
-  showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
-};
+document.getElementById('btnNao').onclick = () => showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
+
+// NOTAS SUBINDO
+const notasContainer = document.getElementById('notasContainer');
+const simbolosNotas = ['♪','♫','♩','♬'];
+setInterval(() => {
+  const n = document.createElement('div');
+  n.className = 'nota';
+  n.textContent = simbolosNotas[Math.floor(Math.random()*simbolosNotas.length)];
+  n.style.left = Math.random()*100 + '%';
+  n.style.animationDuration = (6+Math.random()*6)+'s';
+  notasContainer.appendChild(n);
+  setTimeout(()=>n.remove(),12000);
+},700);
 </script>
 
 </body>
