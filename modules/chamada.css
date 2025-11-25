@@ -1,0 +1,165 @@
+.titulo-modulo {
+  font-size: 1.6rem;
+  color: #00ffcc;
+  text-shadow: 0 0 12px #00ffccaa;
+  margin-bottom: 15px;
+}
+
+.data-chamada {
+  margin-bottom: 12px;
+  color: #ccc;
+}
+
+/* ==== Switch ==== */
+.switch-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.switch-label {
+  color: #ccc;
+}
+
+.switch {
+  position: relative;
+  width: 55px;
+  height: 30px;
+}
+.switch input {
+  display: none;
+}
+.slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 30px;
+  background: #334;
+  cursor: pointer;
+  transition: .4s;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .4s;
+}
+input:checked + .slider {
+  background: #9c27b0;
+}
+input:checked + .slider::before {
+  transform: translateX(25px);
+}
+
+/* ===== LOCAL ===== */
+.campo-local {
+  width: 90%;
+  max-width: 500px;
+  margin: 0 auto 20px;
+  text-align: left;
+}
+.campo-local input {
+  width: 100%;
+  padding: 10px;
+  background: #1f1f2f;
+  border: 1px solid #00ffcc55;
+  border-radius: 8px;
+  color: #fff;
+}
+
+/* ===== Painel ===== */
+.painel-chamada {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.card-chamada {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #00ffcc44;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00ffcc22;
+}
+
+.card-chamada.presente {
+  background: #1d4421cc;
+  border-color: #22c55e;
+}
+
+.card-chamada.ausente {
+  background: #442121cc;
+  border-color: #dc2626;
+}
+
+.card-chamada .foto {
+  width: 100%;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0a0a12;
+  margin-bottom: 8px;
+}
+
+.card-chamada img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-chamada strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ===== OBS ===== */
+.obs {
+  margin-top: 20px;
+  width: 90%;
+  max-width: 600px;
+  height: 120px;
+  background: #1f1f2f;
+  border: 1px solid #00ffcc33;
+  border-radius: 10px;
+  padding: 10px;
+  color: #fff;
+}
+
+/* ===== Botões ===== */
+.botoes-chamada {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.btn-salvar {
+  background: #00ccff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+}
+
+.btn-cancelar {
+  background: #dc2626;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: white;
+}
+
+.loader-chamada {
+  margin-top: 25px;
+  text-shadow: 0 0 12px #00ffcc;
+}

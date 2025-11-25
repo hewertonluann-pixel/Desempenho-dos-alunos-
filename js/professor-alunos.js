@@ -8,8 +8,12 @@ import {
   getDocs,
   updateDoc,
   doc,
-  deleteDoc
+  deleteDoc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+// 🔥 IMPORTANTE: Registro de histórico
+import { registrarHistoricoProgresso } from "../evolucao.js";
 
 /* ============================================================
    1. CARREGAR ALUNOS
@@ -54,9 +58,7 @@ function criarFichaHTML(aluno) {
   return `
     <div class="ficha">
 
-      <div class="foto">${foto}
-        <input type="file" data-acao="foto" data-id="${aluno.id}" style="margin-top:4px;" />
-      </div>
+      <div class="foto">${foto}</div>
 
       <div class="dados">
 
@@ -109,6 +111,11 @@ function criarFichaHTML(aluno) {
             ${aluno.classificado ? "Desclassificar" : "Classificar"}
           </button>
 
+          <label for="foto-${aluno.id}" class="classificar" style="cursor:pointer; background:#0ea5e9; color:#fff;">
+            Alterar Foto
+          </label>
+          <input type="file" id="foto-${aluno.id}" data-acao="foto" data-id="${aluno.id}" style="display:none;" />
+
           <button class="remover"
             data-acao="remover"
             data-id="${aluno.id}"
@@ -123,10 +130,13 @@ function criarFichaHTML(aluno) {
 }
 
 /* ============================================================
-   4. ALTERAR NOTA DE LEITURA OU MÉTODO
+   4. ALTERAR NOTA (+/-) + REGISTRO HISTÓRICO
    ============================================================ */
 export async function alterarNota(id, campo, delta) {
   const ref = doc(db, "alunos", id);
+  const snap = await getDoc(ref);
+  const aluno = snap.data();
+
   const valorAtual = parseInt(
     document.querySelector(`[data-id="${id}"][data-campo="${campo}"]`)?.value || "1"
   );
@@ -136,17 +146,48 @@ export async function alterarNota(id, campo, delta) {
   if (novoValor > 130) novoValor = 130;
 
   await updateDoc(ref, { [campo]: novoValor });
+  // Atualiza o valor no input
+  document.querySelector(`[data-id="${id}"][data-campo="${campo}"]`).value = novoValor;
+
+  // 🔥 Registrar histórico automaticamente
+  const tipo = campo === "leitura" ? "bona" : "metodo";
+
+  await registrarHistoricoProgresso({
+    alunoId: id,
+    alunoNome: aluno.nome,
+    tipo,
+    valor: novoValor,
+    origem: "professor"
+  });
+
+  console.log(`Histórico registrado: ${aluno.nome} → ${campo}: ${novoValor}`);
 }
 
 /* ============================================================
-   5. ATUALIZAR NOTA PELO INPUT
+   5. ATUALIZAR NOTA PELO INPUT + REGISTRO HISTÓRICO
    ============================================================ */
-export async function atualizarNota(id, campo, valor) {
-  let v = parseInt(valor);
-  if (isNaN(v) || v < 1) v = 1;
-  if (v > 130) v = 130;
+export async function atualizarNota(id, campo, valorDigitado) {
+  let novoValor = parseInt(valorDigitado);
+  if (isNaN(novoValor) || novoValor < 1) novoValor = 1;
+  if (novoValor > 130) novoValor = 130;
 
-  await updateDoc(doc(db, "alunos", id), { [campo]: v });
+  const ref = doc(db, "alunos", id);
+  const snap = await getDoc(ref);
+  const aluno = snap.data();
+
+  await updateDoc(ref, { [campo]: novoValor });
+
+  const tipo = campo === "leitura" ? "bona" : "metodo";
+
+  await registrarHistoricoProgresso({
+    alunoId: id,
+    alunoNome: aluno.nome,
+    tipo,
+    valor: novoValor,
+    origem: "professor"
+  });
+
+  console.log(`Histórico atualizado: ${aluno.nome} → ${campo}: ${novoValor}`);
 }
 
 /* ============================================================

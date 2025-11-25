@@ -255,11 +255,10 @@
 
       </div>
     </div>
+   </div>
 
-    <div class="painel-licoes-prof" id="painelLicoesProf"></div>
-
-  </div>
-
+ <div class="painel-licoes-prof" id="painelLicoesProf"></div>
+  
   <div class="painel" id="painel"></div>
   <div id="loader" class="loader" style="display:none;">
     <p>Carregando alunos...</p>
@@ -294,6 +293,7 @@
 
   <!-- SCRIPT PRINCIPAL -->
   <script type="module">
+  
     import { db } from "./firebase-config.js";
     import {
       collection,
@@ -448,9 +448,10 @@
       alert("Energia recalculada!");
     };
 
+
   </script>
 
   <script type="module" src="professor-licoes.js"></script>
-
+  
 </body>
 </html>

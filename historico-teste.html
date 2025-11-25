@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerar Histórico de Teste</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: "Inter", sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: #38bdf8;
+      margin-bottom: 10px;
+    }
+    .card {
+      background: rgba(30,41,59,0.8);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .btn-gerar {
+      background: #22c55e;
+      color: #052e16;
+    }
+    .btn-limpar {
+      background: #ef4444;
+      color: #fff;
+    }
+    .btn-voltar {
+      background: #3b82f6;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gerar / Limpar Histórico</h1>
+
+  <div class="card">
+    <label>Nome do aluno</label>
+    <input type="text" id="nomeAluno" value="Hewerton">
+
+    <button class="btn-gerar" id="btnGerar">Gerar Histórico de Teste</button>
+    <button class="btn-limpar" id="btnLimpar">Limpar Histórico</button>
+    <button class="btn-voltar" onclick="window.location.href='professor.html'">Voltar ao painel</button>
+  </div>
+
+  <!-- Firebase config -->
+  <script type="module" src="./firebase-config.js"></script>
+
+  <!-- Funções de teste -->
+  <script type="module" src="./evolucao-teste.js"></script>
+
+  <!-- Script local para chamar funções -->
+  <script type="module">
+    import { gerarHistoricoTeste, limparHistorico } from "./evolucao-teste.js";
+
+    document.getElementById("btnGerar").onclick = async () => {
+      const nome = document.getElementById("nomeAluno").value.trim();
+      if (!nome) return alert("Digite o nome do aluno.");
+
+      await gerarHistoricoTeste(nome);
+    };
+
+    document.getElementById("btnLimpar").onclick = async () => {
+      const nome = document.getElementById("nomeAluno").value.trim();
+      if (!nome) return alert("Digite o nome do aluno.");
+
+      if (confirm("Excluir TODO o histórico desse aluno?")) {
+        await limparHistorico(nome);
+      }
+    };
+  </script>
+
+</body>
+</html>

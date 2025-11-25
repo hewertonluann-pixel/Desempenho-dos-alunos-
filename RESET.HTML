@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚠️ Ferramentas de Reset - Orquestra</title>
+
+  <style>
+    body {
+      background: #1e1e2f;
+      color: #fff;
+      font-family: "Segoe UI";
+      padding: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00ffcc;
+      margin-bottom: 20px;
+    }
+
+    .painel {
+      max-width: 450px;
+      margin: auto;
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,255,204,0.2);
+    }
+
+    button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .danger { background: #dc2626; color: white; }
+    .danger:hover { background: #b91c1c; }
+
+    .warning { background: #d97706; color: white; }
+    .warning:hover { background: #b45309; }
+
+    .info { background: #2563eb; color: white; }
+    .info:hover { background: #1d4ed8; }
+
+    .sucesso {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #16a34a;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🛠️ Ferramentas de Reset</h1>
+<p>Use com cuidado! Estas ações não podem ser desfeitas.</p>
+
+<div class="painel">
+
+  <button class="danger" id="btnZerarTudo">🔴 Zerar TODAS as presenças (mensal + anual)</button>
+
+  <button class="warning" id="btnZerarMensal">🟠 Zerar frequência MENSAL</button>
+
+  <button class="warning" id="btnZerarAnual">🟡 Zerar frequência ANUAL</button>
+
+  <button class="info" id="btnZerarConquistas">🔵 Zerar conquistas</button>
+
+  <button class="info" id="btnZerarNotas">🔵 Zerar notas (BONA e método → volta para 1)</button>
+
+  <button class="info" id="btnZerarClassificados">🔵 Zerar alunos classificados</button>
+
+  <button class="danger" id="btnZerarFotos">🔴 Remover fotos dos alunos</button>
+</div>
+
+<div id="msg" class="sucesso"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+    authDomain: "asafenotas-5cf3f.firebaseapp.com",
+    projectId: "asafenotas-5cf3f",
+    storageBucket: "asafenotas-5cf3f.appspot.com",
+    messagingSenderId: "312062581585",
+    appId: "1:312062581585:web:432ff63a527dd86fc1170",
+    measurementId: "G-Z6G6D4RKZQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  function msg(texto) {
+    const m = document.getElementById("msg");
+    m.textContent = texto;
+    m.style.display = "block";
+    setTimeout(() => m.style.display = "none", 2500);
+  }
+
+  async function executar(acao, texto) {
+    if (!confirm("Tem certeza que deseja: " + texto + " ?")) return;
+
+    const snap = await getDocs(collection(db, "alunos"));
+    let total = 0;
+
+    for (const alunoDoc of snap.docs) {
+      await acao(alunoDoc.id);
+      total++;
+    }
+
+    msg("✔️ " + texto + " para " + total + " alunos.");
+  }
+
+  // 🔴 Zerar tudo
+  document.getElementById("btnZerarTudo").onclick = () => {
+    executar(async id => {
+      await updateDoc(doc(db, "alunos", id), {
+        presencas: [],
+        frequenciaMensal: { porcentagem: 0, presencas: 0, totalEventos: 0 },
+        frequenciaAnual: {}
+      });
+    }, "Zerar todas as presenças");
+  };
+
+  // 🟠 Mensal
+  document.getElementById("btnZerarMensal").onclick = () => {
+    executar(async id => {
+      await updateDoc(doc(db, "alunos", id), {
+        frequenciaMensal: { porcentagem: 0, presencas: 0, totalEventos: 0 }
+      });
+    }, "Zerar frequência mensal");
+  };
+
+  // 🟡 Anual
+  document.getElementById("btnZerarAnual").onclick = () => {
+    executar(async id => {
+      await updateDoc(doc(db, "alunos", id), {
+        frequenciaAnual: {}
+      });
+    }, "Zerar frequência anual");
+  };
+
+  // 🔵 Conquistas
+  document.getElementById("btnZerarConquistas").onclick = () => {
+    executar(async id => {
+      await updateDoc(doc(db, "alunos", id), { conquistas: {} });
+    }, "Zerar todas as conquistas");
+  };
+
+  // 🔵 Notas
+  document.getElementById("btnZerarNotas").onclick = () => {
+    executar(async id => {
+      await updateDoc(doc(db, "alunos", id), { leitura: 1, metodo: 1 });
+    }, "Zerar notas");
+  };
+
+  // 🔵 Classificação
+  document.getElementById("btnZerarClassificados").onclick = () => {
+    executar(async id => {
+      await updateDoc(doc(db, "alunos", id), { classificado: false });
+    }, "Zerar classificação dos alunos");
+  };
+
+  // 🔴 Remover fotos
+  document.getElementById("btnZerarFotos").onclick = () => {
+    executar(async id => {
+      await updateDoc(doc(db, "alunos", id), { foto: "" });
+    }, "Remover fotos dos alunos");
+  };
+
+</script>
+
+</body>
+</html>
