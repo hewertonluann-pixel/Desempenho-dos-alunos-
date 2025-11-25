@@ -39,34 +39,25 @@
       100% { opacity: 0.3; }
     }
 
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.7));
-      pointer-events: none;
-      z-index: 2;
-    }
-
     .notas-container {
       position: fixed;
       inset: 0;
       pointer-events: none;
       overflow: hidden;
-      z-index: 1;
+      z-index: 2;
     }
 
     .nota {
       position: absolute;
       bottom: -40px;
-      color: rgba(248, 250, 252, 0.6);
+      color: rgba(248, 250, 252, 0.7);
       font-size: 24px;
       animation: subirNota linear forwards;
     }
 
     @keyframes subirNota {
       from { transform: translateY(0) scale(0.8); opacity: 0; }
-      20% { opacity: 0.8; }
+      20% { opacity: 0.9; }
       to { transform: translateY(-110vh) scale(1.3); opacity: 0; }
     }
 
@@ -81,15 +72,7 @@
       z-index: 5;
     }
 
-    .sax {
-      font-size: 120px;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
+    .sax { font-size: 120px; }
 
     .play-btn {
       margin-top: 30px;
@@ -105,7 +88,7 @@
     .painel {
       position: fixed;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(5,5,8,0.95), rgba(15,15,30,0.98));
+      background: rgba(10,10,20,0.95);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,7 +106,7 @@
 
     .convite-card {
       max-width: 700px;
-      background: rgba(20, 20, 35, 0.88);
+      background: rgba(20,20,35,0.88);
       border-radius: 20px;
       padding: 60px 30px 40px;
       text-align: center;
@@ -140,20 +123,18 @@
       z-index: 0;
     }
 
-    .convite-card > * {
-      position: relative;
-      z-index: 1;
-    }
+    .convite-card > * { position: relative; z-index: 1; }
 
     #btnFechar {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
+      top: 10px;
+      right: 10px;
       background: rgba(0,0,0,0.6);
       color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
       cursor: pointer;
     }
 
@@ -168,6 +149,21 @@
 
     #btnSim { background: #22c55e; }
     #btnNao { background: #ef4444; }
+
+    .popup-confirmacao {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20,20,35,0.95);
+      padding: 14px 22px;
+      border-radius: 14px;
+      opacity: 0;
+      transition: opacity .4s ease;
+      z-index: 20;
+    }
+
+    .popup-confirmacao.ativo { opacity: 1; }
   </style>
 </head>
 <body>
@@ -201,28 +197,25 @@
   </div>
 </div>
 
-<div id="popupConfirmacao"></div>
-
+<div id="popupConfirmacao" class="popup-confirmacao"></div>
 <div id="ytPlayer" style="display:none"></div>
 
-<script type="module">
-import { db } from "../firebase-config.js";
-import { doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-
+<script>
 const telaInicial = document.getElementById('telaInicial');
 const painelConvite = document.getElementById('painelConvite');
-
-const params = new URLSearchParams(window.location.search);
-const nomeConvidado = params.get('nome');
+const popup = document.getElementById('popupConfirmacao');
 const textoConvite = document.getElementById('textoConvite');
 
-textoConvite.innerHTML = nomeConvidado
-  ? `É com grande alegria que <strong>eu, Hewerton Assunção</strong>, convido <strong>${nomeConvidado}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>. Sua presença tornará este momento ainda mais especial.`
+const params = new URLSearchParams(window.location.search);
+const nome = params.get('nome');
+
+textoConvite.innerHTML = nome
+  ? `É com grande alegria que <strong>eu, Hewerton Assunção</strong>, convido <strong>${nome}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>. Sua presença tornará este momento ainda mais especial.`
   : `É com grande alegria que <strong>eu, Hewerton Assunção</strong>, convido você para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>. Sua presença tornará este momento ainda mais especial.`;
 
 function iniciarNotas() {
   if (window._notasAtivas) return;
-  window._notasAtivas = true;() {
+  window._notasAtivas = true;
   setInterval(() => {
     const nota = document.createElement('div');
     nota.className = 'nota';
@@ -235,36 +228,29 @@ function iniciarNotas() {
 }
 
 function iniciarMusica() {
-  document.getElementById('ytPlayer').innerHTML = `
-    <iframe width="1" height="1"
-      src="https://www.youtube.com/embed/uEfy8JoQg8o?autoplay=1"
-      allow="autoplay"></iframe>`;
+  document.getElementById('ytPlayer').innerHTML = '<iframe width="1" height="1" src="https://www.youtube.com/embed/uEfy8JoQg8o?autoplay=1" allow="autoplay"></iframe>';
 }
 
-document.getElementById('btnPlay').onclick = () => {
+function showPopup(msg) {
+  popup.textContent = msg;
+  popup.classList.add('ativo');
+  setTimeout(() => popup.classList.remove('ativo'), 3000);
+}
+
+btnPlay.onclick = () => {
   telaInicial.style.display = 'none';
   painelConvite.classList.add('ativo');
   iniciarNotas();
   iniciarMusica();
 };
 
-document.getElementById('btnFechar').onclick = () => {.onclick = () => {
+btnFechar.onclick = () => {
   painelConvite.classList.remove('ativo');
   telaInicial.style.display = 'flex';
 };
-document.getElementById('btnSim').onclick = () => {
-  const popup = document.getElementById('popupConfirmacao');
-  popup.textContent = '✨ Será uma honra receber você!';
-  popup.classList.add('ativo');
-  setTimeout(() => popup.classList.remove('ativo'), 3000);
-};
 
-document.getElementById('btnNao').onclick = () => {
-  const popup = document.getElementById('popupConfirmacao');
-  popup.textContent = '⚠️ Esta opção foi desabilitada pelo administrador!';
-  popup.classList.add('ativo');
-  setTimeout(() => popup.classList.remove('ativo'), 3000);
-};
+btnSim.onclick = () => showPopup('✨ Será uma honra receber você!');
+btnNao.onclick = () => showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
 </script>
 
 </body>
