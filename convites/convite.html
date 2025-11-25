@@ -16,158 +16,36 @@
       overflow: hidden;
     }
 
-    /* ==== EFEITOS DE PALCO ==== */
-    .holofote {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(255,215,120,0.15), rgba(0,0,0,0.85) 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
+    .holofote { position: fixed; inset: 0; background: radial-gradient(circle at center, rgba(255,215,120,0.15), rgba(0,0,0,0.85) 70%); pointer-events:none; z-index:0; }
+    .particulas { position: fixed; inset: 0; pointer-events:none; z-index:1; background: repeating-radial-gradient(circle at 30% 30%, rgba(255,215,120,0.05), transparent 80px); animation: brilhar 8s linear infinite; }
+    @keyframes brilhar {0%{opacity:.3}50%{opacity:.6}100%{opacity:.3}}
+    body::after {content:"";position:fixed;inset:0;background:radial-gradient(circle at center,transparent 40%,rgba(0,0,0,0.7));pointer-events:none;z-index:2;}
 
-    .particulas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      background: repeating-radial-gradient(circle at 30% 30%, rgba(255,215,120,0.05), transparent 80px);
-      animation: brilhar 8s linear infinite;
-    }
+    .notas-container{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+    .nota{position:absolute;bottom:-40px;color:rgba(248,250,252,.6);font-size:24px;animation:subirNota linear forwards;filter:drop-shadow(0 0 6px rgba(199,169,60,.4))}
+    @keyframes subirNota{from{transform:translateY(0) scale(.8);opacity:0}20%{opacity:.8}to{transform:translateY(-110vh) scale(1.3);opacity:0}}
 
-    @keyframes brilhar {
-      0% { opacity: 0.3; }
-      50% { opacity: 0.6; }
-      100% { opacity: 0.3; }
-    }
+    .center-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;position:relative;z-index:5}
+    .sax{font-size:120px;animation:float 4s ease-in-out infinite;text-shadow:0 0 15px rgba(255,215,120,.8),0 0 35px rgba(255,215,120,.4)}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
 
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.7));
-      pointer-events: none;
-      z-index: 2;
-    }
+    .play-btn{margin-top:30px;padding:14px 28px;background:transparent;border:1px solid #c7a93c;color:#f8fafc;border-radius:40px;font-size:18px;cursor:pointer}
 
-    /* ==== NOTAS MUSICAIS ==== */
-    .notas-container {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 1;
-    }
+    .painel{position:fixed;inset:0;background:linear-gradient(to bottom,rgba(5,5,8,.95),rgba(15,15,30,.98));display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 1s ease;z-index:5}
+    .painel.ativo{opacity:1;pointer-events:all}
 
-    .nota {
-      position: absolute;
-      bottom: -40px;
-      color: rgba(248, 250, 252, 0.6);
-      font-size: 24px;
-      animation: subirNota linear forwards;
-      filter: drop-shadow(0 0 6px rgba(199,169,60,0.4));
-    }
+    .convite-card{max-width:700px;background:rgba(20,20,35,.85);border:1px solid rgba(199,169,60,.3);border-radius:20px;padding:60px 30px 40px;text-align:center;position:relative;box-shadow:0 0 40px rgba(255,215,120,.15);overflow:hidden}
 
-    @keyframes subirNota {
-      from { transform: translateY(0) scale(0.8); opacity: 0; }
-      20% { opacity: 0.8; }
-      to { transform: translateY(-110vh) scale(1.3); opacity: 0; }
-    }
+    .foto-fundo{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);max-height:400px;opacity:1;z-index:0}
+    .convite-card>*{position:relative;z-index:1}
 
-    .center-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      position: relative;
-      z-index: 5;
-    }
+    #btnFechar{position:absolute;top:12px;right:12px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);border-radius:50%;border:1px solid rgba(199,169,60,.4);color:#e2e8f0;font-size:18px;cursor:pointer}
 
-    .sax {
-      font-size: 120px;
-      animation: float 4s ease-in-out infinite;
-      text-shadow: 0 0 15px rgba(255,215,120,0.8), 0 0 35px rgba(255,215,120,0.4);
-    }
+    .confirmacao button{padding:12px 22px;border-radius:25px;border:none;font-weight:600;cursor:pointer;color:white}
+    #btnSim{background:linear-gradient(135deg,#22c55e,#15803d)}
+    #btnNao{background:linear-gradient(135deg,#ef4444,#991b1b)}
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
-
-    .play-btn {
-      margin-top: 30px;
-      padding: 14px 28px;
-      background: transparent;
-      border: 1px solid #c7a93c;
-      color: #f8fafc;
-      border-radius: 40px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .painel {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(5,5,8,0.95), rgba(15,15,30,0.98));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 1s ease;
-      z-index: 5;
-    }
-
-    .painel.ativo {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .convite-card {
-      max-width: 700px;
-      background: rgba(20, 20, 35, 0.85);
-      border: 1px solid rgba(199, 169, 60, 0.3);
-      border-radius: 20px;
-      padding: 60px 30px 40px;
-      text-align: center;
-      position: relative;
-      box-shadow: 0 0 40px rgba(255,215,120,0.15);
-    }
-
-    #btnFechar {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 34px;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.4);
-      border-radius: 50%;
-      border: 1px solid rgba(199,169,60,0.4);
-      color: #e2e8f0;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .popup-confirmacao {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(20,20,35,0.95);
-      padding: 14px 20px;
-      border-radius: 14px;
-      opacity: 0;
-      transition: all 0.35s ease;
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    .popup-confirmacao.ativo { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media(max-width:600px){.foto-fundo{max-height:240px}.confirmacao{margin-top:160px}}
   </style>
 </head>
 <body>
@@ -183,6 +61,7 @@
 
 <div class="painel" id="painelConvite">
   <div class="convite-card">
+    <img src="/mnt/data/eu.png" alt="Hewerton com sax" class="foto-fundo">
     <button id="btnFechar">×</button>
     <h1>Convite Especial</h1>
     <h2>Recital de Saxofone – Formatura</h2>
@@ -205,6 +84,9 @@
 </div>
 
 <div id="popupConfirmacao" class="popup-confirmacao"></div>
+
+<div id="ytPlayer" style="display:none"></div>
+<script src="https://www.youtube.com/iframe_api"></script> class="popup-confirmacao"></div>
 
 <script type="module">
 import { db } from "../firebase-config.js";
@@ -253,19 +135,42 @@ document.getElementById('btnSim').onclick = async () => {
 
 document.getElementById('btnNao').onclick = () => showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
 
-// NOTAS SUBINDO
+// === NOTAS SUBINDO CONTROLADAS ===
 const notasContainer = document.getElementById('notasContainer');
 const simbolosNotas = ['♪','♫','♩','♬'];
-setInterval(() => {
-  const n = document.createElement('div');
-  n.className = 'nota';
-  n.textContent = simbolosNotas[Math.floor(Math.random()*simbolosNotas.length)];
-  n.style.left = Math.random()*100 + '%';
-  n.style.animationDuration = (6+Math.random()*6)+'s';
-  notasContainer.appendChild(n);
-  setTimeout(()=>n.remove(),12000);
-},700);
-</script>
+let notasInterval = null;
 
-</body>
-</html>
+function iniciarNotas(){
+  if(notasInterval) return;
+  notasInterval=setInterval(()=>{
+    const n=document.createElement('div');
+    n.className='nota';
+    n.textContent=simbolosNotas[Math.floor(Math.random()*simbolosNotas.length)];
+    n.style.left=Math.random()*100+'%';
+    n.style.animationDuration=(6+Math.random()*6)+'s';
+    notasContainer.appendChild(n);
+    setTimeout(()=>n.remove(),12000);
+  },700);
+}
+
+// === ÁUDIO YOUTUBE ===
+let player;
+window.onYouTubeIframeAPIReady=function(){
+  player=new YT.Player('ytPlayer',{videoId:'uEfy8JoQg8o',playerVars:{autoplay:0,controls:0,rel:0}});
+}
+
+const telaInicial=document.getElementById('telaInicial');
+const painelConvite=document.getElementById('painelConvite');
+
+document.getElementById('btnPlay').onclick=()=>{
+  telaInicial.style.display='none';
+  painelConvite.classList.add('ativo');
+  iniciarNotas();
+  if(player){player.setVolume(15);player.playVideo();}
+};
+
+document.getElementById('btnFechar').onclick=()=>{
+  painelConvite.classList.remove('ativo');
+  telaInicial.style.display='flex';
+  if(player){player.pauseVideo();}
+};
