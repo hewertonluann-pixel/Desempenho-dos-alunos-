@@ -191,7 +191,15 @@
     </div>
 
     <div class="confirmacao">
+      <p id="textoConvite"></p>
+
+    <div class="confirmacao" style="margin-top:20px;">
       <p><strong>Você irá comparecer?</strong></p>
+      <div style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;">
+        <button id="btnSimConfirmacao" style="background:#16a34a;color:#fff;border:none;padding:10px 18px;border-radius:20px;cursor:pointer;">✅ Sim</button>
+        <button id="btnNaoConfirmacao" style="background:#dc2626;color:#fff;border:none;padding:10px 18px;border-radius:20px;cursor:pointer;">❌ Não</button>
+      </div>
+    </div><strong>Você irá comparecer?</strong></p>
       <button id="btnSim">✅ Sim</button>
       <button id="btnNao">❌ Não</button>
     </div>
@@ -277,6 +285,33 @@ btnSim.onclick = () => {
   iniciarNotas();
 };('✨ Será uma honra receber você!');
 btnNao.onclick = () => showPopup('⚠️ Esta opção foi desabilitada pelo administrador!');
+  // Personalização por nome via URL (?nome=)
+  const params = new URLSearchParams(window.location.search);
+  const nomeConvidado = params.get('nome');
+  const textoConvite = document.getElementById('textoConvite');
+
+  textoConvite.innerHTML = nomeConvidado
+    ? `É com grande alegria que eu, <strong>Hewerton Assunção</strong>, convido <strong>${nomeConvidado}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>. Sua presença tornará este momento ainda mais especial.`
+    : `É com grande alegria que eu, <strong>Hewerton Assunção</strong>, convido você para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>. Sua presença tornará este momento ainda mais especial.`;
+
+  function registrarConfirmacao(resp) {
+    const dados = {
+      nome: nomeConvidado || 'Convidado anônimo',
+      resposta: resp,
+      data: new Date().toISOString()
+    };
+    localStorage.setItem('ultimaConfirmacaoConvite', JSON.stringify(dados));
+  }
+
+  document.getElementById('btnSimConfirmacao').addEventListener('click', () => {
+    registrarConfirmacao('SIM');
+    alert('✨ Será uma honra receber você!');
+  });
+
+  document.getElementById('btnNaoConfirmacao').addEventListener('click', () => {
+    registrarConfirmacao('NAO');
+    alert('⚠️ Esta opção foi desabilitada pelo administrador!');
+  });
 </script>
 
 </body>
