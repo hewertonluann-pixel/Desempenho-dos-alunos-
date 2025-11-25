@@ -227,7 +227,7 @@ function iniciarNotas() {
   if (window._notasAtivas) return;
   window._notasAtivas = true;
 
-  setInterval(() => {
+  setInterval() => {
     const nota = document.createElement('div');
     nota.className = 'nota';
     nota.textContent = ['♪','♩','♫','♬'][Math.floor(Math.random()*4)];
