@@ -186,6 +186,9 @@
     <button id="btnFechar">×</button>
     <h1>Convite Especial</h1>
     <h2>Recital de Saxofone – Formatura</h2>
+    <p style="margin-top:8px;font-style:italic;color:#facc15;">
+      Convidado por <strong>Hewerton Assunção</strong>
+    </p>
 
     <p id="textoConvite"></p>
 
@@ -214,8 +217,17 @@ const idConvite = params.get('id');
 const textoConvite = document.getElementById('textoConvite');
 
 textoConvite.innerHTML = nome
-  ? `É com grande alegria que convido <strong>${nome}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`
-  : `É com grande alegria que convido você para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`;
+  ? `É com grande alegria que <strong>eu, Hewerton Assunção</strong>, convido <strong>${nome}</strong> para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`
+  : `É com grande alegria que <strong>eu, Hewerton Assunção</strong>, convido você para prestigiar minha <strong>formatura em Saxofone</strong> pelo <strong>Conservatório Estadual de Música Lobo de Mesquita</strong>.`;
+
+// assinatura visual do convidante
+const assinatura = document.createElement('p');
+assinatura.style.marginTop = '25px';
+assinatura.style.fontSize = '15px';
+assinatura.style.color = '#eab308';
+assinatura.style.fontStyle = 'italic';
+assinatura.innerHTML = '— Hewerton Assunção';
+textoConvite.parentElement.appendChild(assinatura);
 
 function showPopup(msg) {
   popup.textContent = msg;
