@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite Recital de Saxofone</title>
+    <link rel="stylesheet" href="convite.css">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+    <!-- 1. TELA DE INTRODUÇÃO (Holofote, Saxofone, Botão Play) -->
+    <div id="introScreen" class="screen active">
+        <div class="spotlight"></div>
+        <div class="intro-content">
+            <div class="icon-sax">🎷</div>
+            <button id="btnAbrirConvite">Play / Abrir Convite</button>
+        </div>
+        <div class="particles"></div>
+    </div>
+
+    <!-- 2. TELA DO CONVITE (Painel Principal) -->
+    <div id="conviteScreen" class="screen">
+        <div class="spotlight"></div>
+        <div class="convite-content">
+            <div class="convite-card">
+                <div class="convite-header">
+                    <img src="../hewerton-sax.jpg" alt="Hewerton Assunção com Saxofone" class="profile-img">
+                    <div class="info">
+                        <p class="data-hora">20 de Dezembro de 2025 | 20:00h</p>
+                        <h1 class="titulo-recital">Recital de Formatura em Saxofone</h1>
+                    </div>
+                </div>
+
+                <p class="texto-convite">
+                    É com grande alegria que eu, Hewerton Assunção, convido 
+                    <span id="nomeConvidado" class="nome-destaque">Prezado Convidado</span> 
+                    para prestigiar minha formatura em Saxofone pelo Conservatório Estadual de Música Lobo de Mesquita.
+                </p>
+
+                <p class="local">
+                    Local: Auditório Principal do Conservatório.
+                </p>
+
+                <div id="botoesConfirmacao" class="botoes-confirmacao">
+                    <button id="btnSim" class="btn-confirmar sim">Sim, estarei presente ✨</button>
+                    <button id="btnNao" class="btn-confirmar nao">Não poderei ir ❌</button>
+                </div>
+
+                <div id="mensagemResposta" class="mensagem-resposta" style="display: none;">
+                    <!-- Mensagem de resposta será inserida aqui -->
+                </div>
+            </div>
+        </div>
+        <div class="notes-container"></div>
+    </div>
+
+    <script src="convite.js" type="module"></script>
+</body>
+</html>
