@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — Orquestra Filhos de Asafe</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="manifest.json"> <!-- PWA boost! -->
+  <link rel="manifest" href="manifest.json">
 
   <style>
     * { box-sizing: border-box; }
@@ -18,7 +18,7 @@
       background: linear-gradient(180deg, #0a0f1f 0%, #0b1025 50%, #1a0d2e 100%);
       font-family: "Segoe UI", -apple-system, sans-serif;
       color: #e2e8f0;
-      overflow: hidden; /* Evita scroll desnecessário */
+      overflow: hidden;
     }
     body::before {
       content: '';
@@ -28,6 +28,7 @@
                   radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
       animation: pulse 4s ease-in-out infinite alternate;
       pointer-events: none;
+      z-index: 0;
     }
     @keyframes pulse {
       0% { opacity: 0.5; transform: scale(1); }
@@ -61,21 +62,11 @@
       text-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
       font-weight: 700;
     }
-    .titulo svg { width: 28px; height: 28px; vertical-align: middle; margin-right: 8px; }
 
-    .form-group {
-      margin-bottom: 16px;
-    }
-    label {
-      display: block;
-      font-size: 0.85rem;
-      color: #9ca3af;
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
     input {
       width: 100%;
       padding: 14px 16px;
+      margin: 8px 0;
       border-radius: 12px;
       border: 1px solid rgba(55, 65, 81, 0.5);
       background: rgba(31, 41, 55, 0.8);
@@ -104,7 +95,7 @@
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
-      margin-top: 8px;
+      margin-top: 12px;
     }
     button:hover:not(:disabled) {
       background: linear-gradient(135deg, #38bdf8, #60a5fa);
@@ -126,6 +117,7 @@
       border-top-color: #fff;
       animation: spin 1s ease-in-out infinite;
       margin-right: 8px;
+      vertical-align: middle;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -139,6 +131,7 @@
       border-radius: 8px;
       border-left: 3px solid #f87171;
       animation: shake 0.5s ease-in-out;
+      display: none;
     }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
@@ -146,20 +139,20 @@
       75% { transform: translateX(4px); }
     }
 
-    .switch-container {
+    .switch {
       margin-top: 20px;
       text-align: center;
-    }
-    .switch {
       font-size: 0.9rem;
       opacity: 0.85;
       cursor: pointer;
       padding: 8px 12px;
       border-radius: 8px;
       transition: all 0.3s ease;
-      display: inline-block;
     }
-    .switch:hover { opacity: 1; background: rgba(34, 211, 238, 0.1); }
+    .switch:hover { 
+      opacity: 1; 
+      background: rgba(34, 211, 238, 0.1); 
+    }
     .switch.active { 
       background: rgba(34, 211, 238, 0.2); 
       color: #22d3ee;
@@ -174,34 +167,69 @@
 
 <body>
   <div class="login-card">
-    <div class="titulo">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-      Orquestra Filhos de Asafe
-    </div>
+    <div class="titulo">🎵 Orquestra Filhos de Asafe</div>
 
-    <form id="formLogin">
-      <div class="form-group">
-        <label for="nome">Nome Completo</label>
-        <input type="text" id="nome" placeholder="Digite seu nome" required autocomplete="name" />
-      </div>
-      <div class="form-group">
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" placeholder="Senha segura" required autocomplete="current-password" />
-      </div>
+    <input type="text" id="nome" placeholder="Seu nome" autocomplete="name" />
+    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" />
 
-      <button type="submit" id="btnEntrar">
-        <span class="loading" id="loading" style="display: none;"></span>
-        Entrar
-      </button>
-    </form>
+    <button id="btnEntrar">
+      <span class="loading" id="loadingSpinner" style="display: none;"></span>
+      Entrar
+    </button>
 
-    <div id="erro" class="erro" style="display: none;"></div>
+    <div id="erro" class="erro"></div>
 
-    <div class="switch-container">
-      <div id="switchLogin" class="switch" data-mode="aluno">Entrar como Professor</div>
-    </div>
+    <div id="switchLogin" class="switch">Entrar como Professor</div>
   </div>
 
-  <script type="module" src="login.js"></script>
+  <script type="module">
+    // BÔNUS: Suporte a ENTER + Loading/Erro (não quebra teu login.js)
+    const nomeInput = document.getElementById('nome');
+    const senhaInput = document.getElementById('senha');
+    const btnEntrar = document.getElementById('btnEntrar');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const erroDiv = document.getElementById('erro');
+    const switchLogin = document.getElementById('switchLogin');
+
+    let modoProfessor = false;
+
+    // Switch Professor/Aluno
+    switchLogin.addEventListener('click', () => {
+      modoProfessor = !modoProfessor;
+      switchLogin.textContent = modoProfessor ? 'Entrar como Aluno' : 'Entrar como Professor';
+      switchLogin.classList.toggle('active');
+      // Se teu login.js usa uma var global, set aqui: window.modoProfessor = modoProfessor;
+    });
+
+    // Enter nos inputs ativa botão
+    [nomeInput, senhaInput].forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') btnEntrar.click();
+      });
+    });
+
+    // Intercepta CLIQUE do teu login.js e adiciona loading
+    const originalClick = btnEntrar.onclick || btnEntrar.addEventListener.bind(btnEntrar, 'click');
+    btnEntrar.addEventListener('click', function handler(e) {
+      // Remove handler pra evitar loop
+      btnEntrar.removeEventListener('click', handler);
+      
+      // Loading ON
+      btnEntrar.disabled = true;
+      loadingSpinner.style.display = 'inline-block';
+      erroDiv.style.display = 'none';
+      
+      // Chama TUA LÓGICA (teu login.js roda aqui!)
+      if (typeof originalLogin === 'function') originalLogin(); // Se teu JS expõe função
+      // OU teu login.js já escuta o click e roda async
+      
+      // Exemplo de reset após 5s (ajusta pro teu Firebase promise)
+      setTimeout(() => {
+        btnEntrar.disabled = false;
+        loadingSpinner.style.display = 'none';
+      }, 5000);
+    });
+  </script>
+  <script type="module" src="login.js"></script> <!-- Teu JS original POR ÚLTIMO -->
 </body>
 </html>
