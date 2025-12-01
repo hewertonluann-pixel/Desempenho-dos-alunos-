@@ -1,4 +1,4 @@
-const CACHE_NAME = "painel-orquestra-cache-v2";
+const CACHE_NAME = "painel-orquestra-cache-v3";
 const urlsToCache = [
   "/", // Atual versões para relative paths se hospedado em subfolder
   //"/index.html",
