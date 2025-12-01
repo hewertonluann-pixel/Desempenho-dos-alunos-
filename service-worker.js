@@ -1,9 +1,9 @@
 const CACHE_NAME = "painel-orquestra-cache-v2";
 const urlsToCache = [
   "/", // Atual versões para relative paths se hospedado em subfolder
-  "/index.html",
-  "/aluno.html",
-  "/professor.html",
+  //"/index.html",
+  //"/aluno.html",
+  //"/professor.html",
   "/aluno.css",
   "/conquistas.js",
   "/professor.css",
