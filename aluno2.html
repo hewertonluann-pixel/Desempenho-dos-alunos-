@@ -33,14 +33,14 @@
       color: #9ca3af;
     }
 
-    /* Para tornar o placar clicável (adicionado cursor para indicação visual) */
-    .placar, #painelEvolucao, #valorEnergia {
+    /* CSS para tornar os valores de Leitura e Método clicáveis no sidebar */
+    .detail-item .detail-value {
       cursor: pointer;
-      user-select: none; /* Evita seleção de texto */
+      user-select: none;
+      transition: color 0.3s;
     }
-    .placar:hover {
-      background: rgba(56,189,248,0.1);
-      border-color: var(--neon-cyan);
+    .detail-item .detail-value:hover {
+      color: var(--neon-cyan);
     }
   </style>
 
@@ -62,29 +62,19 @@
       if (el) el.classList.remove('empty');
     };
 
-    // Variável global
-    let currentPlacarId = null;
-
-    // Adicionei função para verificar se popup existe
-    function popupExist() {
+    // Função para abrir popup de Leitura/Método (agora acionada pelos labels no sidebar)
+    window.abrirPopupLeituraMetodo = function() {
+      console.log('🔍 Abrindo popup de Leitura/Método');
       const popup = document.getElementById('popupLeituraMetodo');
-      return popup !== null;
-    }
-
-    // Função para abrir popup
-    window.abrirPopupLeituraMetodo = function(placarId) {
-      console.log(`🔍 Tentando abrir popup para: ${placarId}`);
-      if (!popupExist()) {
+      if (!popup) {
         console.error('❌ Popup não encontrado no DOM!');
         return;
       }
-      currentPlacarId = placarId;
-      const popup = document.getElementById('popupLeituraMetodo');
-      popup.classList.add('active');
       popup.style.display = 'flex';
+      popup.classList.add('active');
 
-      // Carregar dados se existirem
-      const data = localStorage.getItem(`leituraMetodo_${placarId}`);
+      // Carregar dados globais
+      const data = localStorage.getItem('leituraMetodoGlobal');
       const leituraInput = document.getElementById('popupLeitura');
       const metodoInput = document.getElementById('popupMetodo');
       if (data && leituraInput && metodoInput) {
@@ -95,10 +85,9 @@
         if (leituraInput) leituraInput.value = '';
         if (metodoInput) metodoInput.value = '';
       }
-      console.log('✅ Popup aberto com sucesso.');
     };
 
-    // Salvar
+    // Função para salvar
     window.salvarPopupLeituraMetodo = function() {
       const leituraInput = document.getElementById('popupLeitura');
       const metodoInput = document.getElementById('popupMetodo');
@@ -108,104 +97,94 @@
       }
       const leitura = leituraInput.value.trim();
       const metodo = metodoInput.value.trim();
-      if (currentPlacarId) {
-        const data = { leitura, metodo };
-        localStorage.setItem(`leituraMetodo_${currentPlacarId}`, JSON.stringify(data));
-        atualizarDisplayPlacar(currentPlacarId);
-        console.log(`💾 Salvo para: ${currentPlacarId} - Leitura: ${leitura}, Método: ${metodo}`);
-      }
+      const data = { leitura, metodo };
+      localStorage.setItem('leituraMetodoGlobal', JSON.stringify(data));
+      // Atualizar displays nos placares
+      ['evolucaoPlacar', 'energiaPlacar'].forEach(id => {
+        const displayEl = document.getElementById(`display_${id}`);
+        if (displayEl) displayEl.innerHTML = `<strong>Leitura:</strong> ${leitura || 'N/D'}<br><strong>Método:</strong> ${metodo || 'N/D'}`;
+      });
+      // Para lições, você precisa integrar em licoes.js para aplicar em each placar após carregar
+      console.log('💾 Salvo global: Leitura:', leitura, 'Método:', metodo);
       fecharPopupLeituraMetodo();
     };
 
-    // Fechar
+    // Função para fechar
     window.fecharPopupLeituraMetodo = function() {
       const popup = document.getElementById('popupLeituraMetodo');
       if (popup) {
-        popup.classList.remove('active');
         popup.style.display = 'none';
+        popup.classList.remove('active');
       }
-      currentPlacarId = null;
-      console.log('✅ Popup fechado.');
     };
 
-    // Atualizar display
-    function atualizarDisplayPlacar(placarId) {
-      const displayEl = document.getElementById(`display_${placarId}`);
-      if (!displayEl) {
-        console.warn(`❌ Display para ${placarId} não encontrado`);
+    // Função para abrir popup de conquistas (adicionada/corrigida)
+    window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
+      console.log('🔍 Abrindo popup de conquista:', titulo);
+      const popup = document.getElementById('popupConquista');
+      if (!popup) {
+        console.error('❌ Popup de conquista não encontrado!');
         return;
       }
-      const data = localStorage.getItem(`leituraMetodo_${placarId}`);
-      if (data) {
-        const { leitura, metodo } = JSON.parse(data);
-        displayEl.innerHTML = `<strong>Leitura:</strong> ${leitura || 'N/D'}<br><strong>Método:</strong> ${metodo || 'N/D'}`;
-      } else {
-        displayEl.innerHTML = '';
-      }
-    }
+      popup.style.display = 'flex';
+      popup.classList.add('active');
 
-    // Adicionar listener para placar dinâmico
-    window.adicionarOnClickPlacar = function(placarId) {
-      const el = document.getElementById(`placar_${placarId}`);
-      if (!el) {
-        console.warn(`❌ Elemento placar_${placarId} não encontrado para adicionar evento`);
-        return;
+      // Definir conteúdo
+      safeSet('conquistaIcone', icone || '🏆');
+      safeSet('conquistaTitulo', titulo || 'Conquista');
+      safeSet('conquistaDescricao', descricao || 'Descrição não disponível.');
+      const detailsEl = document.getElementById('conquistaDetalhes');
+      if (detailsEl && detalhes) {
+        detailsEl.innerHTML = detalhes.map(item => `<li>${item}</li>`).join('');
       }
-      console.log(`✅ Adicionando clique para placar_${placarId}`);
-      el.addEventListener('click', (e) => {
-        e.preventDefault();  // Evitar propagação
-        console.log(`🎯 Clicou em placar_${placarId}`);
-        abrirPopupLeituraMetodo(`placar_${placarId}`);
-      });
-      atualizarDisplayPlacar(`placar_${placarId}`);
+    };
+
+    // Função para fechar popup de conquistas
+    window.fecharPopupConquista = function() {
+      const popup = document.getElementById('popupConquista');
+      if (popup) {
+        popup.style.display = 'none';
+        popup.classList.remove('active');
+      }
     };
 
     // DOM pronto
     document.addEventListener('DOMContentLoaded', () => {
       console.log('✅ DOM Pronto - Iniciando...');
 
-      // Verificar se popup existe
-      if (!popupExist()) {
-        console.error('❌ Crítico: #popupLeituraMetodo não carregou!');
-      }
-
-      // Verificar e adicionar listeners para elementos estáticos
-      const evolPlacar = document.getElementById('evolucaoPlacar');
-      if (evolPlacar) {
-        console.log('✅ Adicionando listener para #evolucaoPlacar');
-        evolPlacar.addEventListener('click', () => {
-          console.log('🎯 Clicou em evolucaoPlacar');
-          abrirPopupLeituraMetodo('evolucaoPlacar');
-        });
-        atualizarDisplayPlacar('evolucaoPlacar');
-      } else {
-        console.warn('⚠️ #evolucaoPlacar não encontrado');
-      }
-
-      // Adicionar listener para valorEnergia (energia, se quiser)
-      const energiaVal = document.getElementById('valorEnergia');
-      if (energiaVal) {
-        console.log('✅ Adicionando listener para #valorEnergia');
-        energiaVal.addEventListener('click', () => {
-          console.log('🎯 Clicou em valorEnergia');
-          abrirPopupLeituraMetodo('energiaPlacar');
-        });
-        atualizarDisplayPlacar('energiaPlacar');
-      }
-
-      // Adicionar listener para painelEvolucao (gráfico inteiro)
-      const painelEvol = document.getElementById('painelEvolucao');
-      if (painelEvol) {
-        console.log('✅ Adicionando listener para #painelEvolucao');
-        painelEvol.addEventListener('click', () => {
-          console.log('🎯 Clicou em painelEvolucao');
-          abrirPopupLeituraMetodo('evolucaoPlacar');
+      // Adicionar listeners para Leitura e Método no sidebar
+      const nivelLeitura = document.getElementById('nivelLeitura');
+      const nivelMetodo = document.getElementById('nivelMetodo');
+      if (nivelLeitura) {
+        console.log('✅ Listener adicionado em #nivelLeitura');
+        nivelLeitura.addEventListener('click', () => {
+          console.log('🎯 Clicou em Leitura');
+          abrirPopupLeituraMetodo();
         });
       } else {
-        console.warn('⚠️ #painelEvolucao não encontrado');
+        console.warn('⚠️ #nivelLeitura não encontrado');
+      }
+      if (nivelMetodo) {
+        console.log('✅ Listener adicionado em #nivelMetodo');
+        nivelMetodo.addEventListener('click', () => {
+          console.log('🎯 Clicou em Método');
+          abrirPopupLeituraMetodo();
+        });
+      } else {
+        console.warn('⚠️ #nivelMetodo não encontrado');
       }
 
-      // Chamar iniciarPainelAluno se existir
+      // Carregar displays nos placares com dados globais
+      const dataGlobal = localStorage.getItem('leituraMetodoGlobal');
+      if (dataGlobal) {
+        const { leitura, metodo } = JSON.parse(dataGlobal);
+        ['evolucaoPlacar', 'energiaPlacar'].forEach(id => {
+          const displayEl = document.getElementById(`display_${id}`);
+          if (displayEl) displayEl.innerHTML = `<strong>Leitura:</strong> ${leitura || 'N/D'}<br><strong>Método:</strong> ${metodo || 'N/D'}`;
+        });
+      }
+
+      // Inicializar painel aluno
       if (typeof iniciarPainelAluno === 'function') {
         iniciarPainelAluno();
       } else {
@@ -213,13 +192,12 @@
       }
     });
 
-    // ESC
+    // ESC para fechar popups
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         fecharPopupLeituraMetodo();
-        // Fechar outros se funções existirem
+        fecharPopupConquista();
         if (typeof fecharPopup === 'function') fecharPopup();
-        if (typeof fecharPopupConquista === 'function') fecharPopupConquista();
         document.body.classList.remove('menu-open');
         const sidebar = document.getElementById('sidebar');
         if (sidebar) sidebar.classList.remove('open');
@@ -259,11 +237,11 @@
         </div>
         <div class="level-details">
           <div class="detail-item">
-            <span class="detail-label">Leitura</span>
+            <span class="detail-label">Leitura (Clique para editar)</span>
             <span class="detail-value" id="nivelLeitura">0</span>
           </div>
           <div class="detail-item">
-            <span class="detail-label">Método</span>
+            <span class="detail-label">Método (Clique para editar)</span>
             <span class="detail-value" id="nivelMetodo">0</span>
           </div>
         </div>
@@ -292,6 +270,7 @@
             <div class="energy-level" id="barraEnergia" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
           </div>
           <div style="position:relative;"><span class="energy-value" id="valorEnergia">0%</span></div>
+          <div id="display_energiaPlacar" class="reading-method-display"></div>
         </div>
       </section>
 
@@ -313,8 +292,8 @@
       <section class="evolucao-section card">
         <h2>📈 Evolução Técnica</h2>
         <div id="painelEvolucao"></div>
-        <!-- Adicionada div abaixo do painel para clicar -->
-        <div id="evolucaoPlacar" class="placar">📊 Clique aqui para definir Leitura/Método (Contador/Placar)</div>
+        <!-- Placares sem clique, apenas display -->
+        <div>Contador Numérico / Placar</div>
         <div id="display_evolucaoPlacar" class="reading-method-display"></div>
       </section>
 
@@ -327,12 +306,13 @@
           Enviar nova lição
         </button>
         <div id="listaLicoes" class="lessons-list empty">
-          <!-- Modelo para cada lição em licoes.js:
-          <div class="licao-item">
-            <div id="placar_${licaoId}" class="placar">Placar/Contador da Lição ${licaoId} (Ex.: Nota 10)</div>
-            <div id="display_placar_${licaoId}" class="reading-method-display"></div>
+          <!-- Para cada lição, adicione display de Leitura/Método:
+          Exemplo: <div class="licao-item">
+          <div>Placar da Lição</div>
+          <div id="display_placar_${licaoId}" class="reading-method-display"></div>
           </div>
-          Depois de criar, chame: adicionarOnClickPlacar('${licaoId}'); -->
+
+          Em licoes.js, ao carregar, carregue o global para cada display: atualizarDisplayGlobal(id) -->
         </div>
       </section>
     </main>
