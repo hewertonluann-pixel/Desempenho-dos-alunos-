@@ -13,21 +13,13 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"></noscript>
 
   <style>
-    :root{--neon-cyan:#22d3ee;--neon-blue:#38bdf8;--dark-bg:#0a0f1f;--card-bg:rgba(17,24,39,0.95);--glow:0 0 20px rgba(34,211,238,0.4);}*{box-sizing:border-box;}body{margin:0;background:linear-gradient(135deg,#0a0f1f 0%,#0b1025 50%,#1a0d2e 100%);font-family:"Inter","Segoe UI",sans-serif;color:#e2e8f0;overflow-x:hidden;position:relative;}body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 20% 80%,rgba(34,211,238,.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(56,189,248,.08) 0%,transparent 50%);animation:nebula 8s ease-in-out infinite alternate;z-index:-1;pointer-events:none;}@keyframes nebula{0%{opacity:.6;transform:scale(1);}100%{opacity:1;transform:scale(1.1);}}.main-container{display:flex;min-height:100vh;animation:fadeIn .8s ease-out;}@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.sidebar{width:280px;flex-shrink:0;padding:20px;background:var(--card-bg);backdrop-filter:blur(12px);border-right:1px solid rgba(56,189,248,.2);overflow-y:auto;animation:slideInLeft .6s ease-out;}@keyframes slideInLeft{from{transform:translateX(-20px);opacity:0;}to{transform:translateX(0);opacity:1;}}@media (max-width:768px){.sidebar{position:fixed;top:0;left:0;height:100vh;z-index:1000;transform:translateX(-100%);transition:transform .3s ease;}.sidebar.open{transform:translateX(0);}.main-container{padding-left:0;}body.menu-open::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:999;backdrop-filter:blur(4px);}}.card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:16px;padding:24px;margin-bottom:24px;border:1px solid rgba(56,189,248,.2);box-shadow:var(--glow),0 8px 32px rgba(0,0,0,.3);transition:all .3s ease;animation:cardRise .5s ease-out forwards;opacity:0;transform:translateY(20px);}.card:nth-child(1){animation-delay:.1s;}.card:nth-child(2){animation-delay:.2s;}.card:nth-child(3){animation-delay:.3s;}@keyframes cardRise{to{opacity:1;transform:translateY(0);}}.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(34,211,238,.3);border-color:var(--neon-cyan);}.skeleton{background:linear-gradient(90deg,#1f2937 25%,#374151 50%,#1f2937 75%);background-size:200% 100%;animation:loading 1.5s infinite;border-radius:8px;}@keyframes loading{0%{background-position:200% 0;}100%{background-position:-200% 0;}}button{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));border:none;border-radius:12px;padding:12px 20px;color:#0a0f1f;font-weight:600;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;}button:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--glow);}button:disabled{opacity:.6;cursor:not-allowed;}.popup,.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:2000;animation:modalFade .3s ease-out;}@keyframes modalFade{from{opacity:0;}to{opacity:1;}}.popup-content,.modal-content{background:var(--card-bg);border-radius:20px;padding:32px;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--glow),0 20px 60px rgba(0,0,0,.5);}.close-button,.close-btn{float:right;font-size:28px;cursor:pointer;color:#9ca3af;transition:color .3s;margin-top:-16px;}.close-button:hover,.close-btn:hover{color:var(--neon-cyan);}.content-area{flex:1;padding:20px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--neon-cyan) transparent;}.content-area::-webkit-scrollbar{width:6px;}.content-area::-webkit-scrollbar-track{background:transparent;}.content-area::-webkit-scrollbar-thumb{background:var(--neon-cyan);border-radius:3px;}@media (max-width:768px){.content-area{padding:16px;}.card{padding:20px;margin-bottom:20px;}}.mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:1001;background:var(--neon-cyan);border-radius:50%;width:48px;height:48px;color:#0a0f1f;}@media (max-width:768px){.mobile-menu-btn{display:block;}}
+    :root{--neon-cyan:#22d3ee;--neon-blue:#38bdf8;--dark-bg:#0a0f1f;--card-bg:rgba(17,24,39,0.95);--glow:0 0 20px rgba(34,211,238,0.4);}*{box-sizing:border-box;}body{margin:0;background:linear-gradient(135deg,#0a0f1f 0%,#0b1025 50%,#1a0d2e 100%);font-family:"Inter","Segoe UI",sans-serif;color:#e2e8f0;overflow-x:hidden;position:relative;}body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 20% 80%,rgba(34,211,238,.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(56,189,248,.08) 0%,transparent 50%);animation:nebula 8s ease-in-out infinite alternate;z-index:-1;pointer-events:none;}@keyframes nebula{0%{opacity:.6;transform:scale(1);}100%{opacity:1;transform:scale(1.1);}}.main-container{display:flex;min-height:100vh;animation:fadeIn .8s ease-out;}@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.sidebar{width:280px;flex-shrink:0;padding:20px;background:var(--card-bg);backdrop-filter:blur(12px);border-right:1px solid rgba(56,189,248,.2);overflow-y:auto;animation:slideInLeft .6s ease-out;}@keyframes slideInLeft{from{transform:translateX(-20px);opacity:0;}to{transform:translateX(0);opacity:1;}}@media (max-width:768px){.sidebar{position:fixed;top:0;left:0;height:100vh;z-index:1000;transform:translateX(-100%);transition:transform .3s ease;}.sidebar.open{transform:translateX(0);}.main-container{padding-left:0;}body.menu-open::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:999;backdrop-filter:blur(4px);}}.card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:16px;padding:24px;margin-bottom:24px;border:1px solid rgba(56,189,248,.2);box-shadow:var(--glow),0 8px 32px rgba(0,0,0,.3);transition:all .3s ease;animation:cardRise .5s ease-out forwards;opacity:0;transform:translateY(0);}.card:nth-child(1){animation-delay:.1s;}.card:nth-child(2){animation-delay:.2s;}.card:nth-child(3){animation-delay:.3s;}@keyframes cardRise{to{opacity:1;transform:translateY(0);}}.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(34,211,238,.3);border-color:var(--neon-cyan);}.skeleton{background:linear-gradient(90deg,#1f2937 25%,#374151 50%,#1f2937 75%);background-size:200% 100%;animation:loading 1.5s infinite;border-radius:8px;}@keyframes loading{0%{background-position:200% 0;}100%{background-position:-200% 0;}}button{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));border:none;border-radius:12px;padding:12px 20px;color:#0a0f1f;font-weight:600;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;}button:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--glow);}button:disabled{opacity:.6;cursor:not-allowed;}.popup,.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:2000;animation:modalFade .3s ease-out;}@keyframes modalFade{from{opacity:0;}to{opacity:1;}}.popup-content,.modal-content{background:var(--card-bg);border-radius:20px;padding:32px;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--glow),0 20px 60px rgba(0,0,0,.5);}.close-button,.close-btn{float:right;font-size:28px;cursor:pointer;color:#9ca3af;transition:color .3s;margin-top:-16px;}.close-button:hover,.close-btn:hover{color:var(--neon-cyan);}.content-area{flex:1;padding:20px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--neon-cyan) transparent;}.content-area::-webkit-scrollbar{width:6px;}.content-area::-webkit-scrollbar-track{background:transparent;}.content-area::-webkit-scrollbar-thumb{background:var(--neon-cyan);border-radius:3px;}@media (max-width:768px){.content-area{padding:16px;}.card{padding:20px;margin-bottom:20px;}}.mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:1001;background:var(--neon-cyan);border-radius:50%;width:48px;height:48px;color:#0a0f1f;}@media (max-width:768px){.mobile-menu-btn{display:block;}}
 
-    /* Novo CSS para rótulos adicionais nas lições */
+    /* CSS para rótulos adicionais nas lições (fonte pequena) */
     .lesson-label {
       font-size: 12px;
       color: #9ca3af;
       margin-top: 5px;
-    }
-    .lesson-score, .reading-method-label {
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.3s;
-    }
-    .lesson-score:hover, .reading-method-label:hover {
-      color: var(--neon-cyan);
     }
 
     /* CSS para centralizar o título e ajustar botão Modo Professor */
@@ -41,14 +33,9 @@
       position: static;
     }
 
-    /* CSS para tornar os valores de Leitura e Método clicáveis no sidebar */
+    /* Os valores de Leitura e Método no sidebar são apenas para display agora */
     .detail-item .detail-value {
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.3s;
-    }
-    .detail-item .detail-value:hover {
-      color: var(--neon-cyan);
+      /* Removeu cursor pointer e hover, pois não é editável */
     }
   </style>
 
@@ -70,82 +57,31 @@
       if (el) el.classList.remove('empty');
     };
 
-    // Função para obter dados globais de Leitura/Método
+    // Função para obter dados globais de Leitura/Método (definidos pelo professor)
     function obterDadosGlobais() {
       const data = localStorage.getItem('leituraMetodoGlobal');
       if (data) {
         return JSON.parse(data);
       }
-      return { leitura: '', metodo: '' };
+      return { leitura: 'N/D', metodo: 'N/D' };
     }
 
-    // Função para atualizar rótulos das lições (chamada após salvar ou carregar)
+    // Função para atualizar rótulos das lições (exibe valores definidos pelo professor)
     window.atualizarRotulosLicoes = function() {
       const dados = obterDadosGlobais();
-      // Para cada lição, atualize o rótulo baseado no placar
-      // Assumindo que você tem IDs como 'rotulo_licao1', etc., em licoes.js
-      // Exemplo hipotético: para uma lição, defina como dados.metodo se 'Método', ou dados.leitura se 'Leitura'
-      // Aqui, conforme exemplo, abaixo do número, coloque o método (Bona)
-      // Você precisa ajustar em licoes.js para cada lição fö colocada caixa clicável 'Leitura' ou 'Método' e o rótulo abaixo.
+      // Para cada lição, atualize o rótulo baseado no tipo (ex.: método abaixo do número)
+      // Assumindo que você tem elementos com data-tipo="leitura" ou "metodo" em licoes.js
       document.querySelectorAll('.reading-method-label').forEach(el => {
-        const tipo = el.dataset.tipo; // Assume que você adicionará data-tipo="metodo" ou "leitura"
+        const tipo = el.dataset.tipo;
         if (tipo === 'metodo') {
-          el.textContent = dados.metodo || '';
+          el.textContent = dados.metodo;
         } else if (tipo === 'leitura') {
-          el.textContent = dados.leitura || '';
+          el.textContent = dados.leitura;
         }
       });
     };
 
-    // Função para abrir popup de Leitura/Método (agora acionada pelos labels no sidebar ou nas lições)
-    window.abrirPopupLeituraMetodo = function(tipo) {
-      console.log('🔍 Abrindo popup de Leitura/Método para tipo:', tipo);
-      const popup = document.getElementById('popupLeituraMetodo');
-      if (!popup) {
-        console.error('❌ Popup não encontrado no DOM!');
-        return;
-      }
-      // Armazenar tipo para saber qual campo destacar/default
-      window.editingTipo = tipo;
-      popup.style.display = 'flex';
-      popup.classList.add('active');
-
-      // Carregar dados globais
-      const dados = obterDadosGlobais();
-      document.getElementById('popupLeitura').value = dados.leitura;
-      document.getElementById('popupMetodo').value = dados.metodo;
-
-      // Destaque o campo se específico
-      const leituraInput = document.getElementById('popupLeitura');
-      const metodoInput = document.getElementById('popupMetodo');
-      if (tipo === 'leitura') {
-        leituraInput.focus();
-      } else if (tipo === 'metodo') {
-        metodoInput.focus();
-      }
-    };
-
-    // Função para salvar
-    window.salvarPopupLeituraMetodo = function() {
-      const leitura = document.getElementById('popupLeitura').value.trim();
-      const metodo = document.getElementById('popupMetodo').value.trim();
-      const data = { leitura, metodo };
-      localStorage.setItem('leituraMetodoGlobal', JSON.stringify(data));
-      atualizarRotulosLicoes(); // Atualiza rótulos nas lições
-      console.log('💾 Salvo global: Leitura:', leitura, 'Método:', metodo);
-      fecharPopupLeituraMetodo();
-    };
-
-    // Função para fechar
-    window.fecharPopupLeituraMetodo = function() {
-      const popup = document.getElementById('popupLeituraMetodo');
-      if (popup) {
-        popup.style.display = 'none';
-        popup.classList.remove('active');
-      }
-    };
-
-    // Função para abrir popup de conquistas (corrigida)
+    // Função para abrir popup de conquistas (mantida)
     window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
       console.log('🔍 Abrindo popup de conquista:', titulo);
       const popup = document.getElementById('popupConquista');
@@ -179,27 +115,10 @@
     document.addEventListener('DOMContentLoaded', () => {
       console.log('✅ DOM Pronto - Iniciando...');
 
-      // Adicionar listeners para Leitura e Método no sidebar
-      const nivelLeitura = document.getElementById('nivelLeitura');
-      const nivelMetodo = document.getElementById('nivelMetodo');
-      if (nivelLeitura) {
-        console.log('✅ Listener adicionado em #nivelLeitura');
-        nivelLeitura.addEventListener('click', () => {
-          console.log('🎯 Clicou em Leitura');
-          abrirPopupLeituraMetodo('leitura');
-        });
-      } else {
-        console.warn('⚠️ #nivelLeitura não encontrado');
-      }
-      if (nivelMetodo) {
-        console.log('✅ Listener adicionado em #nivelMetodo');
-        nivelMetodo.addEventListener('click', () => {
-          console.log('🎯 Clicou em Método');
-          abrirPopupLeituraMetodo('metodo');
-        });
-      } else {
-        console.warn('⚠️ #nivelMetodo não encontrado');
-      }
+      // Atualizar valores no sidebar com dados globais
+      const dados = obterDadosGlobais();
+      safeSet('nivelLeitura', dados.leitura !== 'N/D' ? dados.leitura : 'Não definido');
+      safeSet('nivelMetodo', dados.metodo !== 'N/D' ? dados.metodo : 'Não definido');
 
       // Carregar rótulos iniciais das lições
       atualizarRotulosLicoes();
@@ -212,10 +131,9 @@
       }
     });
 
-    // ESC para fechar popups
+    // ESC para fechar popups (somente conquistas agora)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        fecharPopupLeituraMetodo();
         fecharPopupConquista();
         if (typeof fecharPopup === 'function') fecharPopup();
         document.body.classList.remove('menu-open');
@@ -322,30 +240,18 @@
           Enviar nova lição
         </button>
         <div id="listaLicoes" class="lessons-list empty">
-          <!-- Modelo para integrar em licoes.js: Para cada lição dinamicamente gerada, use algo como:
+          <!-- Modelo para integração em licoes.js: Para cada lição dinamicamente gerada, use:
           <div class="licao-item">
-            <div class="lesson-score" onclick="abrirPopupLeituraMetodo('leitura')">Leitura</div>
-            <div class="lesson-number" id="numero-licao-1">96</div>
-            <div class="reading-method-label lesson-label" data-tipo="metodo" id="rotulo-licao-1"></div>
+            <!-- Número da lição grande -->
+            <div class="lesson-number">96</div>
+            <!-- Rótulo pequeno abaixo, preenchido com método (ex.: Bona) -->
+            <div class="reading-method-label lesson-label" data-tipo="metodo"></div>
           </div>
-          Ou clique em Método para outro. Após gerar, chame atualizarRotulosLicoes() para preencher.
+          Após gerar todas, chame atualizarRotulosLicoes() para exibir os valores salvos pelo professor.
           -->
         </div>
       </section>
     </main>
-  </div>
-
-  <!-- Popup para Leitura e Método -->
-  <div id="popupLeituraMetodo" class="popup" style="display:none;">
-    <div class="popup-content">
-      <span class="close-btn" onclick="fecharPopupLeituraMetodo()">×</span>
-      <h2>📖 Definir Leitura e Método</h2>
-      <label for="popupLeitura">Leitura (ex.: Bona):</label>
-      <input type="text" id="popupLeitura" placeholder="Digite sua leitura">
-      <label for="popupMetodo">Método (ex.: Amadeu Russo):</label>
-      <input type="text" id="popupMetodo" placeholder="Digite seu método">
-      <button onclick="salvarPopupLeituraMetodo()">💾 Salvar</button>
-    </div>
   </div>
 
   <!-- Modals Existentes -->
