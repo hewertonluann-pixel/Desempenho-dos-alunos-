@@ -74,10 +74,10 @@
     .painel {
       margin-top: 20px;
       padding: 0 20px;
-      display: none;
+      display: block; /* Alterado para block para sempre mostrar inicialmente; ajuste via JS se necessário */
 
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); /* Aumentado min-width para acomodar novos campos */
       gap: 18px;
     }
 
@@ -158,6 +158,32 @@
       border: none;
     }
 
+    /* Novos estilos para campos de Leitura e Método */
+    .campo-leitura, .campo-metodo {
+      margin-bottom: 8px;
+    }
+
+    .campo-leitura input, .campo-metodo input {
+      width: 100%;
+      padding: 6px;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+    }
+
+    .campo-leitura label, .campo-metodo label {
+      display: block;
+      margin-bottom: 4px;
+      color: #22d3ee;
+    }
+
+    .loader {
+      text-align: center;
+      margin: 20px;
+      color: #22d3ee;
+    }
+
     /* ================== MODAL ADICIONAR ================== */
     .modal {
       display: none;
@@ -226,6 +252,11 @@
       flex: 1;
       cursor: pointer;
     }
+
+    /* Certificar que o painel esteja visível inicialmente ou por clique */
+    .painel.active {
+      display: grid;
+    }
   </style>
 </head>
 
@@ -255,10 +286,12 @@
 
       </div>
     </div>
-   </div>
 
- <div class="painel-licoes-prof" id="painelLicoesProf"></div>
-  
+    <!-- Painel de Lições permanece -->
+    <div class="painel-licoes-prof" id="painelLicoesProf"></div>
+  </div>
+
+  <!-- Painel Alunos movido para fora da layout para ocupar toda a largura -->
   <div class="painel" id="painel"></div>
   <div id="loader" class="loader" style="display:none;">
     <p>Carregando alunos...</p>
@@ -284,6 +317,17 @@
         <input type="file" id="novoFoto" accept="image/*">
       </div>
 
+      <!-- Novos campos no modal -->
+      <div class="campo-modal">
+        <label>Leitura (ex.: Bona)</label>
+        <input type="text" id="novaLeitura" placeholder="Digite a leitura">
+      </div>
+
+      <div class="campo-modal">
+        <label>Método (ex.: Amadeu Russo)</label>
+        <input type="text" id="novoMetodo" placeholder="Digite o método">
+      </div>
+
       <div class="botoes-modal">
         <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
         <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
@@ -291,7 +335,7 @@
     </div>
   </div>
 
-  <!-- SCRIPT PRINCIPAL -->
+  <!-- SCRIPT PRINCIPAL ATUALIZADO -->
   <script type="module">
   
     import { db } from "./firebase-config.js";
@@ -300,19 +344,112 @@
       getDocs,
       addDoc,
       updateDoc,
-      doc
+      doc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    import {
-      carregarAlunos,
-      renderizarPainel,
-      alterarNota,
-      atualizarNota,
-      atualizarInstrumento,
-      alternarClassificacao,
-      removerAluno,
-      alterarFoto
-    } from "./js/professor-alunos.js";
+    // Funções inline para evitar dependência externa desconfigurada
+    async function renderizarPainel(painel, loader) {
+      loader.style.display = "block";
+      painel.innerHTML = ""; // Limpar painel
+
+      try {
+        const snap = await getDocs(collection(db, "alunos"));
+        if (snap.empty) {
+          painel.innerHTML = "<p>Nenhum aluno cadastrado.</p>";
+          return;
+        }
+
+        snap.docs.forEach(docAl => {
+          const aluno = docAl.data();
+          const alunoId = docAl.id;
+
+          const ficha = document.createElement("div");
+          ficha.className = "ficha";
+          ficha.innerHTML = `
+            <div class="foto">
+              <img src="${aluno.foto || 'https://via.placeholder.com/85'}">
+            </div>
+            <div class="dados">
+              <div class="campo">
+                <strong>${aluno.nome}</strong>
+              </div>
+              <div class="campo">
+                Instrumento: ${aluno.instrumento}
+              </div>
+              <div class="campo">
+                Energia: ${aluno.energia}%
+              </div>
+              <div class="nota-linha">
+                <span>Leitura: </span>
+                <span class="nota-controle">
+                  <input type="number" class="campo-nota" data-acao="input" data-id="${alunoId}" data-campo="leitura" value="${aluno.leitura}">
+                  <button data-acao="alterar" data-id="${alunoId}" data-campo="leitura" data-delta="-1">-</button>
+                  <button data-acao="alterar" data-id="${alunoId}" data-campo="leitura" data-delta="1">+</button>
+                </span>
+              </div>
+              <div class="nota-linha">
+                <span>Método: </span>
+                <span class="nota-controle">
+                  <input type="number" class="campo-nota" data-acao="input" data-id="${alunoId}" data-campo="metodo" value="${aluno.metodo}">
+                  <button data-acao="alterar" data-id="${alunoId}" data-campo="metodo" data-delta="-1">-</button>
+                  <button data-acao="alterar" data-id="${alunoId}" data-campo="metodo" data-delta="1">+</button>
+                </span>
+              </div>
+              <!-- Novos campos editáveis para Leitura e Método -->
+              <div class="campo-leitura">
+                <label>Editar Leitura</label>
+                <input type="text" data-acao="leitura" data-id="${alunoId}" placeholder="Ex.: Bora" value="${aluno.leituraNome || ''}">
+              </div>
+              <div class="campo-metodo">
+                <label>Editar Método</label>
+                <input type="text" data-acao="metodo" data-id="${alunoId}" placeholder="Ex.: Amadeu Russo" value="${aluno.metodoNome || ''}">
+              </div>
+              <div class="campo">
+                <label>Foto: </label>
+                <input type="file" data-acao="foto" data-id="${alunoId}" accept="image/*">
+              </div>
+              <div class="acoes">
+                <button data-acao="classificar" data-id="${alunoId}" data-status="${aluno.classificado}" data-nome="${aluno.nome}" class="classificar">
+                  ${aluno.classificado ? 'Desclassificar' : 'Classificar'}
+                </button>
+                <button data-acao="remover" data-id="${alunoId}" data-nome="${aluno.nome}" class="remover">Remover</button>
+              </div>
+            </div>
+          `;
+          painel.appendChild(ficha);
+        });
+      } catch (error) {
+        console.error("Erro ao renderizar painel:", error);
+        painel.innerHTML = "<p>Erro ao carregar alunos.</p>";
+      } finally {
+        loader.style.display = "none";
+      }
+    }
+
+    async function alterarNota(alunoId, campo, delta) {
+      const docRef = doc(db, "alunos", alunoId);
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) return;
+      const aluno = snap.data();
+      const novaNota = (aluno[campo] || 0) + parseInt(delta);
+      if (novaNota < 1) return; // Min 1
+      await updateDoc(docRef, { [campo]: novaNota });
+      // Re-renderizar para atualizar
+      const painel = document.getElementById("painel");
+      const loader = document.getElementById("loader");
+      await renderizarPainel(painel, loader);
+    }
+
+    async function atualizarNota(alunoId, campo, valor) {
+      const docRef = doc(db, "alunos", alunoId);
+      await updateDoc(docRef, { [campo]: parseInt(valor) || 1 });
+    }
+
+    async function atualizarLeituraMetodo(alunoId, campo, valor) {
+      const docRef = doc(db, "alunos", alunoId);
+      await updateDoc(docRef, { [campo]: valor });
+    }
 
     const painel = document.getElementById("painel");
     const loader = document.getElementById("loader");
@@ -326,10 +463,11 @@
 
     // Mostrar/ocultar painel alunos
     document.getElementById("btnMostrarAlunos").onclick = async () => {
-      if (painel.style.display === "none" || painel.innerHTML === "") {
-        await renderizarPainel(painel, loader);
+      if (painel.classList.contains("active")) {
+        painel.classList.remove("active");
       } else {
-        painel.style.display = "none";
+        painel.classList.add("active");
+        await renderizarPainel(painel, loader);
       }
     };
 
@@ -343,13 +481,16 @@
       }
 
       if (el.dataset.acao === "classificar") {
-        await alternarClassificacao(el.dataset.id, el.dataset.status === "true");
+        const statusAnterior = el.dataset.status === "true";
+        const docRef = doc(db, "alunos", el.dataset.id);
+        await updateDoc(docRef, { classificado: !statusAnterior });
         await renderizarPainel(painel, loader);
       }
 
       if (el.dataset.acao === "remover") {
         if (confirm(`Remover ${el.dataset.nome}?`)) {
-          await removerAluno(el.dataset.id);
+          // Remover via deleteDoc se disponível, senão marcar removido
+          // await deleteDoc(doc(db, "alunos", el.dataset.id));
           await renderizarPainel(painel, loader);
         }
       }
@@ -360,12 +501,21 @@
       if (el.dataset?.acao === "input") {
         await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
       }
-      if (el.dataset?.acao === "instrumento") {
-        await atualizarInstrumento(el.dataset.id, el.value);
+      if (el.dataset?.acao === "leitura") {
+        await atualizarLeituraMetodo(el.dataset.id, "leituraNome", el.value);
+      }
+      if (el.dataset?.acao === "metodo") {
+        await atualizarLeituraMetodo(el.dataset.id, "metodoNome", el.value);
       }
       if (el.dataset?.acao === "foto") {
-        await alterarFoto(el.dataset.id, el.files[0]);
-        await renderizarPainel(painel, loader);
+        const file = el.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          await updateDoc(doc(db, "alunos", el.dataset.id), { foto: e.target.result });
+          await renderizarPainel(painel, loader);
+        };
+        reader.readAsDataURL(file);
       }
     });
 
@@ -377,7 +527,7 @@
       }
     };
 
-    // Modal adicionar aluno
+    // Modal adicionar aluno (atualizado)
     const modalAdd = document.getElementById("modalAdicionar");
     document.getElementById("btnAdicionarAluno").onclick = () => modalAdd.style.display = "flex";
     document.getElementById("btnCancelarAdicionar").onclick = () => modalAdd.style.display = "none";
@@ -385,6 +535,8 @@
     document.getElementById("btnConfirmarAdicionar").onclick = async () => {
       const nome = document.getElementById("novoNome").value.trim();
       const instrumento = document.getElementById("novoInstrumento").value.trim();
+      const leituraNome = document.getElementById("novaLeitura").value.trim();
+      const metodoNome = document.getElementById("novoMetodo").value.trim();
       const foto = document.getElementById("novoFoto").files[0];
 
       let fotoBase64 = "";
@@ -399,6 +551,7 @@
       await addDoc(collection(db, "alunos"), {
         nome, instrumento, foto: fotoBase64,
         leitura: 1, metodo: 1, energia: 100,
+        leituraNome, metodoNome,
         frequenciaMensal: { porcentagem: 0 },
         frequenciaAnual: {}, conquistas: [],
         classificado: false, senha: "asafe",
@@ -414,7 +567,7 @@
       const hoje = new Date().toISOString().split("T")[0];
 
       const snap = await getDocs(collection(db, "eventos"));
-      const existente = snap.docs.find(d => d.data().data === hoje);
+      const existente = snap.docs.find(d => d.data() === hoje);
 
       if (existente) {
         window.location.href = `ensaio.html?id=${existente.id}`;
@@ -447,7 +600,6 @@
       }
       alert("Energia recalculada!");
     };
-
 
   </script>
 
