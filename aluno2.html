@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"></noscript>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap</noscript>
 
   <style>
     :root{--neon-cyan:#22d3ee;--neon-blue:#38bdf8;--dark-bg:#0a0f1f;--card-bg:rgba(17,24,39,0.95);--glow:0 0 20px rgba(34,211,238,0.4);}*{box-sizing:border-box;}body{margin:0;background:linear-gradient(135deg,#0a0f1f 0%,#0b1025 50%,#1a0d2e 100%);font-family:"Inter","Segoe UI",sans-serif;color:#e2e8f0;overflow-x:hidden;position:relative;}body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 20% 80%,rgba(34,211,238,.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(56,189,248,.08) 0%,transparent 50%);animation:nebula 8s ease-in-out infinite alternate;z-index:-1;pointer-events:none;}@keyframes nebula{0%{opacity:.6;transform:scale(1);}100%{opacity:1;transform:scale(1.1);}}.main-container{display:flex;min-height:100vh;animation:fadeIn .8s ease-out;}@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.sidebar{width:280px;flex-shrink:0;padding:20px;background:var(--card-bg);backdrop-filter:blur(12px);border-right:1px solid rgba(56,189,248,.2);overflow-y:auto;animation:slideInLeft .6s ease-out;}@keyframes slideInLeft{from{transform:translateX(-20px);opacity:0;}to{transform:translateX(0);opacity:1;}}@media (max-width:768px){.sidebar{position:fixed;top:0;left:0;height:100vh;z-index:1000;transform:translateX(-100%);transition:transform .3s ease;}.sidebar.open{transform:translateX(0);}.main-container{padding-left:0;}body.menu-open::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:999;backdrop-filter:blur(4px);}}.card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:16px;padding:24px;margin-bottom:24px;border:1px solid rgba(56,189,248,.2);box-shadow:var(--glow),0 8px 32px rgba(0,0,0,.3);transition:all .3s ease;animation:cardRise .5s ease-out forwards;opacity:0;transform:translateY(20px);}.card:nth-child(1){animation-delay:.1s;}.card:nth-child(2){animation-delay:.2s;}.card:nth-child(3){animation-delay:.3s;}@keyframes cardRise{to{opacity:1;transform:translateY(0);}}.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(34,211,238,.3);border-color:var(--neon-cyan);}.skeleton{background:linear-gradient(90deg,#1f2937 25%,#374151 50%,#1f2937 75%);background-size:200% 100%;animation:loading 1.5s infinite;border-radius:8px;}@keyframes loading{0%{background-position:200% 0;}100%{background-position:-200% 0;}}button{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-blue));border:none;border-radius:12px;padding:12px 20px;color:#0a0f1f;font-weight:600;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;}button:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--glow);}button:disabled{opacity:.6;cursor:not-allowed;}.popup,.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:2000;animation:modalFade .3s ease-out;}@keyframes modalFade{from{opacity:0;}to{opacity:1;}}.popup-content,.modal-content{background:var(--card-bg);border-radius:20px;padding:32px;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--glow),0 20px 60px rgba(0,0,0,.5);}.close-button,.close-btn{float:right;font-size:28px;cursor:pointer;color:#9ca3af;transition:color .3s;margin-top:-16px;}.close-button:hover,.close-btn:hover{color:var(--neon-cyan);}.content-area{flex:1;padding:20px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--neon-cyan) transparent;}.content-area::-webkit-scrollbar{width:6px;}.content-area::-webkit-scrollbar-track{background:transparent;}.content-area::-webkit-scrollbar-thumb{background:var(--neon-cyan);border-radius:3px;}@media (max-width:768px){.content-area{padding:16px;}.card{padding:20px;margin-bottom:20px;}}.mobile-menu-btn{display:none;position:fixed;top:16px;left:16px;z-index:1001;background:var(--neon-cyan);border-radius:50%;width:48px;height:48px;color:#0a0f1f;}@media (max-width:768px){.mobile-menu-btn{display:block;}}
@@ -31,6 +31,16 @@
       margin-top: 10px;
       font-size: 14px;
       color: #9ca3af;
+    }
+
+    /* Para tornar o placar clicável */
+    .placar {
+      cursor: pointer;
+      border: 1px solid rgba(56,189,248,.2);
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px 0;
+      background: rgba(17,24,39,0.8);
     }
   </style>
 
@@ -56,26 +66,32 @@
 
     // Função para abrir popup de definição de Leitura/Método
     window.abrirPopupLeituraMetodo = function(placarId) {
+      console.log('Abrindo popup para placar:', placarId);  // Debug
       currentPlacarId = placarId;
       const popup = document.getElementById('popupLeituraMetodo');
-      popup.style.display = 'flex';
+      if (popup) {
+        popup.classList.add('active');  // Adiciona classe para mostrar
+        popup.style.display = 'flex';
 
-      // Preencher inputs com valores salvos se existirem
-      const data = localStorage.getItem(`leituraMetodo_${placarId}`);
-      if (data) {
-        const { leitura, metodo } = JSON.parse(data);
-        document.getElementById('popupLeitura').value = leitura;
-        document.getElementById('popupMetodo').value = metodo;
+        // Preencher inputs com valores salvos se existirem
+        const data = localStorage.getItem(`leituraMetodo_${placarId}`);
+        if (data) {
+          const { leitura, metodo } = JSON.parse(data);
+          document.getElementById('popupLeitura').value = leitura || '';
+          document.getElementById('popupMetodo').value = metodo || '';
+        } else {
+          document.getElementById('popupLeitura').value = '';
+          document.getElementById('popupMetodo').value = '';
+        }
       } else {
-        document.getElementById('popupLeitura').value = '';
-        document.getElementById('popupMetodo').value = '';
+        console.error('Popup não encontrado!');
       }
     };
 
     // Função para salvar e fechar popup
     window.salvarPopupLeituraMetodo = function() {
-      const leitura = document.getElementById('popupLeitura').value;
-      const metodo = document.getElementById('popupMetodo').value;
+      const leitura = document.getElementById('popupLeitura').value.trim();
+      const metodo = document.getElementById('popupMetodo').value.trim();
       if (currentPlacarId) {
         localStorage.setItem(`leituraMetodo_${currentPlacarId}`, JSON.stringify({ leitura, metodo }));
         atualizarDisplayPlacar(currentPlacarId);
@@ -85,28 +101,59 @@
 
     // Função para fechar popup
     window.fecharPopupLeituraMetodo = function() {
-      document.getElementById('popupLeituraMetodo').style.display = 'none';
+      const popup = document.getElementById('popupLeituraMetodo');
+      if (popup) {
+        popup.classList.remove('active');
+        popup.style.display = 'none';
+      }
       currentPlacarId = null;
     };
 
     // Função para atualizar o display abaixo do placar
     function atualizarDisplayPlacar(placarId) {
       const data = localStorage.getItem(`leituraMetodo_${placarId}`);
-      if (data) {
-        const { leitura, metodo } = JSON.parse(data);
-        const displayEl = document.getElementById(`display_${placarId}`);
-        if (displayEl) {
-          displayEl.innerHTML = `<strong>Leitura:</strong> ${leitura}<br><strong>Método:</strong> ${metodo}`;
+      const displayEl = document.getElementById(`display_${placarId}`);
+      if (displayEl) {
+        if (data) {
+          const { leitura, metodo } = JSON.parse(data);
+          displayEl.innerHTML = `<strong>Leitura:</strong> ${leitura || 'N/A'}<br><strong>Método:</strong> ${metodo || 'N/A'}`;
+        } else {
+          displayEl.innerHTML = '';
         }
       }
     }
 
+    // Função para adicionar event listeners aos placares dinâmicos
+    window.adicionarOnClickPlacar = function(placarId) {
+      const el = document.getElementById(`placar_${placarId}`);
+      if (el) {
+        el.addEventListener('click', function() {
+          abrirPopupLeituraMetodo(placarId);
+        });
+      }
+    };
+
+    // Eventos ao carregar DOM
     document.addEventListener('DOMContentLoaded', () => {
       console.log('✅ DOM pronto! Principais IDs OK.');
       if (typeof iniciarPainelAluno === 'function') iniciarPainelAluno();
 
-      // Após carregar listas, você pode chamar atualizarDisplayPlacar para cada placar (ex.: integrar em aluno.js ou licoes.js)
-      // Exemplo hipotético: assumeremos que os placares têm IDs dinâmicos, e você chama atualizarDisplayPlacar lá.
+      // Adicionar onclick para o placar estático em Evolução
+      const evolPlacar = document.getElementById('evolucaoPlacar');
+      if (evolPlacar) {
+        evolPlacar.addEventListener('click', () => abrirPopupLeituraMetodo('evolucaoPlacar'));
+      }
+
+      // Carregar displays para placares existentes (padronizar em seu JS)
+      ['evolucaoPlacar'].forEach(id => atualizarDisplayPlacar(id));
+
+      // ESC fecha popups
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          fecharPopupLeituraMetodo();
+          // Outros...
+        }
+      });
     });
   </script>
 </head>
@@ -197,8 +244,8 @@
       <section class="evolucao-section card">
         <h2>📈 Evolução Técnica</h2>
         <div id="painelEvolucao"></div>
-        <!-- Placar clicável, assumindo que o contador numérico está aqui (adicione onclick em licoes.js ou grafico-evolucao.js) -->
-        <div id="evolucaoPlacar" onclick="abrirPopupLeituraMetodo('evolucaoPlacar')">Contador Numérico Aqui (Clique para definir Leitura/Método)</div>
+        <!-- Placar clicável em Evolução Técnica -->
+        <div id="evolucaoPlacar" class="placar">Contador Numérico/Placar (Clique para definir Leitura/Método)</div>
         <div id="display_evolucaoPlacar" class="reading-method-display"></div>
       </section>
 
@@ -211,12 +258,13 @@
           Enviar nova lição
         </button>
         <div id="listaLicoes" class="lessons-list empty">
-          <!-- Exemplo de placar individual (remova ou ajuste; integre em licoes.js) -->
-          <!-- <div class="licao-item"> -->
-          <!--   <div class="placar" id="placar1" onclick="abrirPopupLeituraMetodo('placar1')">Placar/Contador da Lição 1</div> -->
-          <!--   <div id="display_placar1" class="reading-method-display"></div> -->
-          <!-- </div> -->
-          <!-- Repita para cada lição, com IDs únicos -->
+          <!-- Em licoes.js, ao criar cada lição dinamicamente:
+< div class="licao-item">
+  <div id="placar_${licaoId}" class="placar">Placar/Contador da Lição ${licaoId}</div>
+  <div id="display_placar_${licaoId}" class="reading-method-display"></div>
+</div>
+
+E após criar, chame: adicionarOnClickPlacar(`${licaoId}`); atualizarDisplayPlacar(`placar_${licaoId}`); -->
         </div>
       </section>
     </main>
@@ -266,9 +314,23 @@
   <script src="grafico-evolucao.js"></script>
   <script>
     // Mobile + ESC
-    const mobileBtn=document.getElementById('mobileMenuBtn'),sidebar=document.getElementById('sidebar');
-    if(window.innerWidth<=768){mobileBtn.onclick=()=>{document.body.classList.toggle('menu-open');sidebar.classList.toggle('open');};}
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.body.classList.remove('menu-open');sidebar.classList.remove('open');fecharPopup?.();fecharPopupConquista?.();fecharPopupLeituraMetodo?.();}});
+    const mobileBtn = document.getElementById('mobileMenuBtn'), sidebar = document.getElementById('sidebar');
+    if (window.innerWidth <= 768) {
+      mobileBtn.addEventListener('click', () => {
+        document.body.classList.toggle('menu-open');
+        sidebar.classList.toggle('open');
+      });
+    }
+    // ESC para fechar
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.body.classList.remove('menu-open');
+        sidebar.classList.remove('open');
+        if (typeof fecharPopup === 'function') fecharPopup();
+        if (typeof fecharPopupConquista === 'function') fecharPopupConquista();
+        fecharPopupLeituraMetodo();
+      }
+    });
   </script>
   <script type="module" src="aluno.js"></script>
   <script type="module" src="navegacao.js"></script>
