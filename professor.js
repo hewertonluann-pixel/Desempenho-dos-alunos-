@@ -6,7 +6,7 @@ import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } 
 
 // Configurações do Firebase — SUBSTITUA COM SUAS CHAVES REAIS (não commit placeholders!)
 const firebaseConfig = {
-  apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",  // Exemplo real — use o do seu projeto
+  apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
   authDomain: "asafenotas-5cf3f.firebaseapp.com",
   projectId: "asafenotas-5cf3f",
   storageBucket: "asafenotas-5cf3f.appspot.com",
@@ -135,7 +135,7 @@ async function setupModalAdicionar() {
       await addDoc(collection(db, "alunos"), novoAluno);
       modal.classList.remove("ativo");
       mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado!`);
-      renderizarPainel(); // Próximo: sem await pois renderizarPainel trata
+      renderizarPainel();
     } catch (error) {
       console.error("Erro ao adicionar aluno:", error);
       mostrarMensagem("mensagemInfo", "❌ Erro ao adicionar aluno. Verifique conexão.");
@@ -201,7 +201,7 @@ async function carregarAlunos() {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
   } catch (error) {
     console.error("❌ Erro ao carregar alunos:", error);
-    throw error; // Propaga para renderizarPainel
+    throw error;
   }
 }
 
@@ -217,37 +217,35 @@ export async function renderizarPainel() {
     const alunos = await carregarAlunos();
     painel.innerHTML = alunos.map(aluno => `
       <div class="ficha">
-        <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : '<div style="width:100%; height:100%; background:#666; display:flex; align-items:center; justify-content:center; color:#fff;">Sem foto</div>'}</div>
-        <div class="name">${aluno.nome}</div>
-        <div class="metodos">
-          <span class="link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || ''}')">${aluno.leituraNome || 'Método de Solfejo'}</span><br>
-          <span class="link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || ''}')">${aluno.metodoNome || 'Método Instrumental'}</span>
+        <div class="foto-and-camera">
+          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : '<div style="width:100%; height:100%; background:#666; display:flex; align-items:center; justify-content:center; color:#fff;">Sem foto</div>'}</div>
+          <button class="btn-camera" onclick="selecionarFoto('${aluno.id}')">📷</button>
+          <input type="file" id="foto-${aluno.id}" accept="image/*" style="display:none;" onchange="atualizarFoto('${aluno.id}', this.files[0])" />
         </div>
-        <div class="divider"></div>
+        <div class="name"><strong>${aluno.nome}</strong></div>
         <div class="campo nota-linha">
-          <label>Leitura (Nota)</label>
+          <label>Leitura</label>
           <div class="nota-controle">
             <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
             <input class="campo-nota" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
             <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
           </div>
         </div>
+        <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || ''}')">${aluno.leituraNome || 'Método de Solfejo'}</div>
+        <div class="divider"></div>
         <div class="campo nota-linha">
-          <label>Método (Nota)</label>
+          <label>Método</label>
           <div class="nota-controle">
             <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
             <input class="campo-nota" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
             <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
           </div>
         </div>
+        <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || ''}')">${aluno.metodoNome || 'Método Instrumental'}</div>
         <div class="divider"></div>
         <div class="campo">
           <label>Instrumento</label>
           <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)">
-        </div>
-        <div class="campo">
-          <label class="alterar-foto">📷 Fotos</label>
-          <input type="file" accept="image/*" onchange="atualizarFoto('${aluno.id}', this.files[0])">
         </div>
         <div class="acoes">
           <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
@@ -261,12 +259,16 @@ export async function renderizarPainel() {
     console.log("✅ Painel renderizado com sucesso.");
   } catch (error) {
     console.error("❌ Erro ao renderizar painel:", error);
-    loader.style.display = "none"; // Garante ocultar loader
+    loader.style.display = "none";
     painel.innerHTML = `<p style="color:#ff7777; padding:20px;">❌ Falha ao carregar alunos. Erro: ${error.message}. Verifique conexão com Firestore.</p>`;
     mostrarMensagem("mensagemInfo", "❌ Erro ao carregar alunos. Tente recarregar a página.");
   }
 }
 window.renderizarPainel = renderizarPainel;
+
+window.selecionarFoto = function(id) {
+  document.getElementById(`foto-${id}`).click();
+};
 
 window.alterarNota = async function(id, campo, delta) {
   try {
@@ -285,7 +287,7 @@ window.alterarNota = async function(id, campo, delta) {
 window.atualizarNota = async function(id, campo, valor) {
   try {
     let v = parseInt(valor);
-    if (isNaN(v) || v < 1) v = 1; if (v > 130) v = 130;
+    if (isNa giữaNaN(v) || v < 1) v = 1; if (v > 130) v = 130;
     await updateDoc(doc(db, "alunos", id), { [campo]: v });
     mostrarMensagem("mensagemSucesso", `✅ Nota atualizada!`);
   } catch (error) {
@@ -297,7 +299,7 @@ window.atualizarNota = async function(id, campo, valor) {
 window.atualizarCampo = async function(id, campo, valor) {
   try {
     await updateDoc(doc(db, "alunos", id), { [campo]: valor });
-    mostrarMensagem("mensagemSucesso", `✅ ${campo.charAt(0).toUpperCase() + campo.slice(1)} atualizado!`);
+    mostrarMensagem("mensagens Sucesso", `✅ ${campo.charAt(0).toUpperCase() + campo.slice(1)} atualizado!`);
   } catch (error) {
     console.error("Erro ao atualizar campo:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
@@ -362,7 +364,7 @@ window.abrirModalInstrumental = function(alunoId, valorAtual) {
 // ========== EVENTOS PRINCIPAIS ==========
 async function criarEventoGenerico() {
   try {
-    const hoje = new Date().toISOString().split("T")[0];
+    const hoje = new Date().toISTOISOString().split("T")[0];
     const snap = await getDocs(collection(db, "eventos"));
     const existente = snap.docs.find(doc => doc.data().data === hoje);
     if (existente) {
@@ -405,10 +407,10 @@ document.getElementById("btnRecalcularEnergia").addEventListener("click", async 
       if (freq >= 80) energia = 100;
       else if (freq >= 50) energia = 70;
       else if (freq >= 30) energia = 40;
-      await updateDoc(doc(db, "alunos", docAl.id), { energia });
+      await updateDoc(docAl.ref, { energia });
       total++;
     }
-    mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alunos!`);
+    mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alumnos!`);
   } catch (error) {
     console.error("Erro ao recalcular energia:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro no recálculo.");
