@@ -4,17 +4,26 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// Configurações do Firebase (assuma separado para segurança)
+// Configurações do Firebase — SUBSTITUA COM SUAS CHAVES REAIS (não commit placeholders!)
 const firebaseConfig = {
-  apiKey: "Sua_API_Key", // Substitua com firebase-config.js se separado
-  authDomain: "seu-domínio.firebaseapp.com",
-  projectId: "seu-projeto-id",
-  storageBucket: "seu-projeto-id.appspot.com",
-  messagingSenderId: "seu-id",
-  appId: "seu-app-id",
+  apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",  // Exemplo real — use o do seu projeto
+  authDomain: "asafenotas-5cf3f.firebaseapp.com",
+  projectId: "asafenotas-5cf3f",
+  storageBucket: "asafenotas-5cf3f.appspot.com",
+  messagingSenderId: "312062581585",
+  appId: "1:312062581585:web:432ff63a527dd86fc1170",
+  measurementId: "G-Z6G6D4RKZQ"
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
+let app, db;
+try {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  console.log("✅ Firebase inicializado com sucesso.");
+} catch (error) {
+  console.error("❌ Erro na inicialização do Firebase:", error);
+  alert("Erro crítico: Firebase não pôde ser inicializado. Verifique credenciais.");
+}
 
 // ========== UTILITÁRIOS ==========
 function mostrarMensagem(id, texto) {
@@ -105,7 +114,7 @@ async function setupModalAdicionar() {
     }
 
     let fotoBase64 = "";
-    if (fotoFile && fotoFile.size < 2 * 1024 * 1024) { // Limitação de tamanho
+    if (fotoFile && fotoFile.size < 2 * 1024 * 1024) {
       fotoBase64 = await new Promise(res => {
         const reader = new FileReader();
         reader.onload = e => res(e.target.result);
@@ -116,17 +125,21 @@ async function setupModalAdicionar() {
       return;
     }
 
-    const novoAluno = {
-      nome, instrumento, foto: fotoBase64, leituraNome, metodoNome,
-      senha: "asafe", leitura: 1, metodo: 1, energia: 100,
-      frequenciaMensal: { porcentagem: 0 }, frequenciaAnual: {}, conquistas: [],
-      classificado: false, criadoEm: new Date().toISOString(),
-    };
-
-    await addDoc(collection(db, "alunos"), novoAluno);
-    modal.classList.remove("ativo");
-    mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado!`);
-    renderizarPainel();
+    try {
+      const novoAluno = {
+        nome, instrumento, foto: fotoBase64, leituraNome, metodoNome,
+        senha: "asafe", leitura: 1, metodo: 1, energia: 100,
+        frequenciaMensal: { porcentagem: 0 }, frequenciaAnual: {}, conquistas: [],
+        classificado: false, criadoEm: new Date().toISOString(),
+      };
+      await addDoc(collection(db, "alunos"), novoAluno);
+      modal.classList.remove("ativo");
+      mostrarMensagem("mensagemSucesso", `🎉 Aluno ${nome} adicionado!`);
+      renderizarPainel(); // Próximo: sem await pois renderizarPainel trata
+    } catch (error) {
+      console.error("Erro ao adicionar aluno:", error);
+      mostrarMensagem("mensagemInfo", "❌ Erro ao adicionar aluno. Verifique conexão.");
+    }
   };
 }
 
@@ -141,9 +154,14 @@ function setupModalSolfejo() {
   btnSalvar.onclick = async () => {
     const valor = document.getElementById("editSolfejo").value.trim();
     if (currentAlunoId) {
-      await updateDoc(doc(db, "alunos", currentAlunoId), { leituraNome: valor });
-      mostrarMensagem("mensagemSucesso", "✅ Método de Solfejo atualizado!");
-      renderizarPainel();
+      try {
+        await updateDoc(doc(db, "alunos", currentAlunoId), { leituraNome: valor });
+        mostrarMensagem("mensagemSucesso", "✅ Método de Solfejo atualizado!");
+        renderizarPainel();
+      } catch (error) {
+        console.error("Erro ao atualizar Solfejo:", error);
+        mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+      }
     }
     modal.classList.remove("ativo");
   };
@@ -160,9 +178,14 @@ function setupModalInstrumental() {
   btnSalvar.onclick = async () => {
     const valor = document.getElementById("editInstrumental").value.trim();
     if (currentAlunoId) {
-      await updateDoc(doc(db, "alunos", currentAlunoId), { metodoNome: valor });
-      mostrarMensagem("mensagemSucesso", "✅ Método Instrumental atualizado!");
-      renderizarPainel();
+      try {
+        await updateDoc(doc(db, "alunos", currentAlunoId), { metodoNome: valor });
+        mostrarMensagem("mensagemSucesso", "✅ Método Instrumental atualizado!");
+        renderizarPainel();
+      } catch (error) {
+        console.error("Erro ao atualizar Instrumental:", error);
+        mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+      }
     }
     modal.classList.remove("ativo");
   };
@@ -170,82 +193,115 @@ function setupModalInstrumental() {
 
 // ========== FUNÇÕES DE ALUNOS ==========
 async function carregarAlunos() {
-  const snapshot = await getDocs(collection(db, "alunos"));
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
+  console.log("🟡 Iniciando carga de alunos...");
+  try {
+    if (!db) throw new Error("Firebase não inicializado.");
+    const snapshot = await getDocs(collection(db, "alunos"));
+    console.log("✅ Alunos carregados:", snapshot.docs.length);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
+  } catch (error) {
+    console.error("❌ Erro ao carregar alunos:", error);
+    throw error; // Propaga para renderizarPainel
+  }
 }
 
 export async function renderizarPainel() {
+  console.log("🟡 Renderizando painel de alunos...");
   const loader = document.getElementById("loader");
   const painel = document.getElementById("painel");
+
   loader.style.display = "flex";
   painel.style.display = "none";
 
-  const alunos = await carregarAlunos();
-  painel.innerHTML = alunos.map(aluno => `
-    <div class="ficha">
-      <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : '<div style="width:100%; height:100%; background:#666; display:flex; align-items:center; justify-content:center; color:#fff;">Sem foto</div>'}</div>
-      <div class="name">${aluno.nome}</div>
-      <div class="metodos">
-        <span class="link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || ''}')">${aluno.leituraNome || 'Método de Solfejo'}</span><br>
-        <span class="link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || ''}')">${aluno.metodoNome || 'Método Instrumental'}</span>
-      </div>
-      <div class="divider"></div>
-      <div class="campo nota-linha">
-        <label>Leitura (Nota)</label>
-        <div class="nota-controle">
-          <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
-          <input class="campo-nota" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
-          <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
+  try {
+    const alunos = await carregarAlunos();
+    painel.innerHTML = alunos.map(aluno => `
+      <div class="ficha">
+        <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : '<div style="width:100%; height:100%; background:#666; display:flex; align-items:center; justify-content:center; color:#fff;">Sem foto</div>'}</div>
+        <div class="name">${aluno.nome}</div>
+        <div class="metodos">
+          <span class="link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || ''}')">${aluno.leituraNome || 'Método de Solfejo'}</span><br>
+          <span class="link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || ''}')">${aluno.metodoNome || 'Método Instrumental'}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="campo nota-linha">
+          <label>Leitura (Nota)</label>
+          <div class="nota-controle">
+            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
+            <input class="campo-nota" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
+            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
+          </div>
+        </div>
+        <div class="campo nota-linha">
+          <label>Método (Nota)</label>
+          <div class="nota-controle">
+            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
+            <input class="campo-nota" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
+            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="campo">
+          <label>Instrumento</label>
+          <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)">
+        </div>
+        <div class="campo">
+          <label class="alterar-foto">📷 Fotos</label>
+          <input type="file" accept="image/*" onchange="atualizarFoto('${aluno.id}', this.files[0])">
+        </div>
+        <div class="acoes">
+          <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
+          <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
         </div>
       </div>
-      <div class="campo nota-linha">
-        <label>Método (Nota)</label>
-        <div class="nota-controle">
-          <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
-          <input class="campo-nota" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
-          <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="campo">
-        <label>Instrumento</label>
-        <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)">
-      </div>
-      <div class="campo">
-        <label class="alterar-foto">📷 Fotos</label>
-        <input type="file" accept="image/*" onchange="atualizarFoto('${aluno.id}', this.files[0])">
-      </div>
-      <div class="acoes">
-        <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
-        <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
-      </div>
-    </div>
-  `).join("");
+    `).join("");
 
-  loader.style.display = "none";
-  painel.style.display = "flex";
+    loader.style.display = "none";
+    painel.style.display = "flex";
+    console.log("✅ Painel renderizado com sucesso.");
+  } catch (error) {
+    console.error("❌ Erro ao renderizar painel:", error);
+    loader.style.display = "none"; // Garante ocultar loader
+    painel.innerHTML = `<p style="color:#ff7777; padding:20px;">❌ Falha ao carregar alunos. Erro: ${error.message}. Verifique conexão com Firestore.</p>`;
+    mostrarMensagem("mensagemInfo", "❌ Erro ao carregar alunos. Tente recarregar a página.");
+  }
 }
 window.renderizarPainel = renderizarPainel;
 
 window.alterarNota = async function(id, campo, delta) {
-  const input = document.getElementById(`${campo}-${id}`);
-  let v = parseInt(input.value) + delta;
-  if (v < 1) v = 1; if (v > 130) v = 130;
-  input.value = v;
-  await updateDoc(doc(db, "alunos", id), { [campo]: v });
-  mostrarMensagem("mensagemSucesso", `✅ Nota ajustada!`);
+  try {
+    const input = document.getElementById(`${campo}-${id}`);
+    let v = parseInt(input.value) + delta;
+    if (v < 1) v = 1; if (v > 130) v = 130;
+    input.value = v;
+    await updateDoc(doc(db, "alunos", id), { [campo]: v });
+    mostrarMensagem("mensagemSucesso", `✅ Nota ajustada!`);
+  } catch (error) {
+    console.error("Erro ao ajustar nota:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+  }
 };
 
 window.atualizarNota = async function(id, campo, valor) {
-  let v = parseInt(valor);
-  if (isNaN(v) || v < 1) v = 1; if (v > 130) v = 130;
-  await updateDoc(doc(db, "alunos", id), { [campo]: v });
-  mostrarMensagem("mensagemSucesso", `✅ Nota atualizada!`);
+  try {
+    let v = parseInt(valor);
+    if (isNaN(v) || v < 1) v = 1; if (v > 130) v = 130;
+    await updateDoc(doc(db, "alunos", id), { [campo]: v });
+    mostrarMensagem("mensagemSucesso", `✅ Nota atualizada!`);
+  } catch (error) {
+    console.error("Erro ao atualizar nota:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+  }
 };
 
 window.atualizarCampo = async function(id, campo, valor) {
-  await updateDoc(doc(db, "alunos", id), { [campo]: valor });
-  mostrarMensagem("mensagemSucesso", `✅ ${campo.charAt(0).toUpperCase() + campo.slice(1)} atualizado!`);
+  try {
+    await updateDoc(doc(db, "alunos", id), { [campo]: valor });
+    mostrarMensagem("mensagemSucesso", `✅ ${campo.charAt(0).toUpperCase() + campo.slice(1)} atualizado!`);
+  } catch (error) {
+    console.error("Erro ao atualizar campo:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+  }
 };
 
 window.atualizarFoto = async function(id, file) {
@@ -253,26 +309,41 @@ window.atualizarFoto = async function(id, file) {
     mostrarMensagem("mensagemInfo", "⚠️ Arquivo inválido (image <2MB)!");
     return;
   }
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    await updateDoc(doc(db, "alunos", id), { foto: e.target.result });
-    mostrarMensagem("mensagemSucesso", "✅ Foto atualizada!");
-    renderizarPainel();
-  };
-  reader.readAsDataURL(file);
+  try {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      await updateDoc(doc(db, "alunos", id), { foto: e.target.result });
+      mostrarMensagem("mensagemSucesso", "✅ Foto atualizada!");
+      renderizarPainel();
+    };
+    reader.readAsDataURL(file);
+  } catch (error) {
+    console.error("Erro ao atualizar foto:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+  }
 };
 
 window.alternarClassificacao = async function(id, classificado) {
-  await updateDoc(doc(db, "alunos", id), { classificado: !classificado });
-  renderizarPainel();
-  mostrarMensagem("mensagemSucesso", classificado ? "📤 Desclassificado!" : "🎯 Classificado!");
+  try {
+    await updateDoc(doc(db, "alunos", id), { classificado: !classificado });
+    renderizarPainel();
+    mostrarMensagem("mensagemSucesso", classificado ? "📤 Desclassificado!" : "🎯 Classificado!");
+  } catch (error) {
+    console.error("Erro ao alternar classificação:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+  }
 };
 
 window.confirmarRemocao = async function(id, nome) {
   if (!confirm(`Tem certeza de que deseja remover o aluno ${nome}?`)) return;
-  await deleteDoc(doc(db, "alunos", id));
-  mostrarMensagem("mensagemSucesso", `🗑️ ${nome} removido!`);
-  renderizarPainel();
+  try {
+    await deleteDoc(doc(db, "alunos", id));
+    mostrarMensagem("mensagemSucesso", `🗑️ ${nome} removido!`);
+    renderizarPainel();
+  } catch (error) {
+    console.error("Erro ao remover aluno:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na remoção.");
+  }
 };
 
 // ========== MODAIS ========== 
@@ -290,22 +361,30 @@ window.abrirModalInstrumental = function(alunoId, valorAtual) {
 
 // ========== EVENTOS PRINCIPAIS ==========
 async function criarEventoGenerico() {
-  const hoje = new Date().toISOString().split("T")[0];
-  const snap = await getDocs(collection(db, "eventos"));
-  const existente = snap.docs.find(doc => doc.data().data === hoje);
-  if (existente) {
-    mostrarMensagem("mensagemInfo", "📅 Já existe evento para hoje!");
-    setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 1500);
-    return;
+  try {
+    const hoje = new Date().toISOString().split("T")[0];
+    const snap = await getDocs(collection(db, "eventos"));
+    const existente = snap.docs.find(doc => doc.data().data === hoje);
+    if (existente) {
+      mostrarMensagem("mensagemInfo", "📅 Já existe evento para hoje!");
+      setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 1500);
+      return;
+    }
+    const novoEvento = await addDoc(collection(db, "eventos"), {
+      data: hoje, observacoes: "", presencas: [], tipo: "pendente"
+    });
+    mostrarMensagem("mensagemSucesso", "🆕 Evento criado!");
+    setTimeout(() => window.location.href = `ensaio.html?id=${novoEvento.id}`, 1500);
+  } catch (error) {
+    console.error("Erro ao criar evento:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro ao criar evento.");
   }
-  const novoEvento = await addDoc(collection(db, "eventos"), {
-    data: hoje, observacoes: "", presencas: [], tipo: "pendente"
-  });
-  mostrarMensagem("mensagemSucesso", "🆕 Evento criado!");
-  setTimeout(() => window.location.href = `ensaio.html?id=${novoEvento.id}`, 1500);
 }
 
-document.getElementById("btnMostrarAlunos").addEventListener("click", renderizarPainel);
+document.getElementById("btnMostrarAlunos").addEventListener("click", () => {
+  console.log("🟢 Botão Gerenciar Alunos clicado");
+  renderizarPainel();
+});
 
 document.getElementById("btnModoAluno").addEventListener("click", () => {
   const usuario = new URLSearchParams(window.location.search).get("usuario") || "Professor";
@@ -316,29 +395,39 @@ document.getElementById("btnCriarEvento").addEventListener("click", criarEventoG
 
 document.getElementById("btnRecalcularEnergia").addEventListener("click", async () => {
   mostrarMensagem("mensagemInfo", "⚙️ Recalculando energia...");
-  const snap = await getDocs(collection(db, "alunos"));
-  let total = 0;
-  for (const docAl of snap.docs) {
-    const aluno = docAl.data();
-    const freq = aluno.frequenciaMensal?.porcentagem || 0;
-    let energia = 10;
-    if (freq >= 80) energia = 100;
-    else if (freq >= 50) energia = 70;
-    else if (freq >= 30) energia = 40;
-    await updateDoc(doc(db, "alunos", docAl.id), { energia });
-    total++;
+  try {
+    const snap = await getDocs(collection(db, "alunos"));
+    let total = 0;
+    for (const docAl of snap.docs) {
+      const aluno = docAl.data();
+      const freq = aluno.frequenciaMensal?.porcentagem || 0;
+      let energia = 10;
+      if (freq >= 80) energia = 100;
+      else if (freq >= 50) energia = 70;
+      else if (freq >= 30) energia = 40;
+      await updateDoc(doc(db, "alunos", docAl.id), { energia });
+      total++;
+    }
+    mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alunos!`);
+  } catch (error) {
+    console.error("Erro ao recalcular energia:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro no recálculo.");
   }
-  mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alunos!`);
 });
 
 // ========== INIT ==========
 document.addEventListener("DOMContentLoaded", () => {
-  // Exibir professor logado
+  if (!app || !db) {
+    console.error("❌ Firebase não carregado corretamente.");
+    alert("Erro crítico: Firebase não inicializado. Verifique console e recarregue.");
+    return;
+  }
+
+  console.log("🟢 Página professor carregada.");
   const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
   document.getElementById("usuarioLogado").textContent =
     user?.nome ? `Professor logado: ${user.nome}` : "Professor";
 
-  // Setup modais
   setupModalAdicionar();
   setupModalSolfejo();
   setupModalInstrumental();
