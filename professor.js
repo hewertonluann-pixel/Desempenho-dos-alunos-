@@ -1,5 +1,6 @@
+javascript
 // ========== professor.js ==========
-// Versão final corrigida: Firebase importa-fied de firebase-config.js, sem duplicações
+// Versão final corrigida: Sem duplicação de funções/scripts, CSS загружeno
 
 import { app, db } from "./firebase-config.js";
 import {
@@ -20,7 +21,7 @@ function mostrarMensagem(id, texto) {
   }
 }
 
-// Declarar currentAlunoId apenas uma vez, no topo
+// Declarar currentAlunoId apenas uma vez no topo
 let currentAlunoId = null;
 
 // ========== CARREGAR MÓDULO ==========
@@ -36,10 +37,10 @@ export async function carregarModulo(nome) {
   try {
     const response = await fetch(`modules/${nome}.html`);
     if (!response.ok) throw new Error(`Módulo ${nome}.html não encontrado (status ${response.status}).`);
-    
+
     const html = await response.text();
     conteudo.innerHTML = html;
-    
+
     await import(`./modules/${nome}.js`);
     console.log(`✅ Módulo "${nome}" carregado.`);
   } catch (erro) {
@@ -178,7 +179,7 @@ async function carregarAlunos() {
   console.log("🟡 Carregando alunos...");
   try {
     const snap = await getDocs(collection(db, "alunos"));
-    console.log(`✅ ${snap.docs.length} alunos carregados.`);
+    console.log(`✅ ${snap.docs.length} alunos carregado(s).`);
     return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
   } catch (error) {
     console.error("❌ Erro ao carregar alunos:", error);
@@ -338,10 +339,6 @@ window.confirmarRemocao = async function(id, nome) {
   }
 };
 
-function setupModalSolfejo() {
-  // Reald declarada apenas uma vez acima
-}
-
 window.abrirModalSolfejo = function(alunoId, valorAtual) {
   currentAlunoId = alunoId;
   const input = document.getElementById("editSolfejo");
@@ -469,6 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!document.getElementById("mensagemInfo")) console.warn("❌ #mensagemInfo não encontrado.");
 });
 
+// ========== EXPORT ==========
 export function setupModalsAlunos() {
   setupModalAdicionar();
   setupModalSolfejo();
