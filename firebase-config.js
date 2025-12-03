@@ -14,5 +14,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// 👇 ESSENCIAL
+// 👇 ESSENCIAL: Exportar app
+export const app = initializeApp(firebaseConfig);  // Remova duplicata, use const app = initializeApp...
 export const db = getFirestore(app);
