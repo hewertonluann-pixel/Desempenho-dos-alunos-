@@ -41,7 +41,7 @@
     }
     .recalcular-energia:hover { background-color: #1e40af; }
 
-    /* ===== Modal Geral (Adicionar e Editais) ===== */
+    /* ===== Modal Geral ===== */
     .modal {
       display: none;
       position: fixed;
@@ -147,7 +147,7 @@
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    /* ===== Cards Otimizados ===== */
+    /* ===== Cards ===== */
     .painel {
       display: flex;
       flex-wrap: wrap;
@@ -159,7 +159,7 @@
       border: 2px solid rgba(56, 189, 248, 0.3);
       padding: 20px;
       border-radius: 16px;
-      width: 450px; /* Otimizado, maior para caber tudo */
+      width: 450px;
       box-shadow: 0 12px 50px rgba(0,0,0,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       display: flex;
@@ -218,25 +218,24 @@
     }
     .nota-controle {
       display: flex;
-      gap: 8px;
+      gap: 8px; /* Mesmo gap anterior para alinhamento horizontal */
       align-items: center;
     }
     .campo-nota {
-      width: 45px; /* Diminuído, fonte intacta */
+      width: 50px; /* Revertido ao tamanho original do exemplo, fonte mantida */
       padding: 4px;
-      border-radius: 4px;
+      border-radius: 6px;
       background: #1e293b;
       color: #fff;
       border: 1px solid #334155;
       text-align: center;
       font-size: 1em;
-      font-weight: bold;
     }
     .botao-nota {
       background: #22c55e; /* Verde para + */
       color: #fff;
       border: none;
-      width: 40px; /* Aumentado de 30 para 40 */
+      width: 40px; /* Mantido aumentado */
       height: 40px;
       border-radius: 50%;
       cursor: pointer;
@@ -290,7 +289,7 @@
     }
     .remover:hover { background: #b91c1c; }
 
-    /* Separator sutil */
+    /* Divider */
     .divider {
       height: 1px;
       background: rgba(255,255,255,0.2);
@@ -308,8 +307,7 @@
         max-width: 450px;
       }
       .nota-controle {
-        flex-direction: column;
-        gap: 5px;
+        flex-wrap: wrap; /* Permite quebra se necessário em mobile */
       }
       .botoes {
         flex-direction: column;
