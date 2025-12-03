@@ -287,7 +287,8 @@ window.alterarNota = async function(id, campo, delta) {
 window.atualizarNota = async function(id, campo, valor) {
   try {
     let v = parseInt(valor);
-    if (isNa giữaNaN(v) || v < 1) v = 1; if (v > 130) v = 130;
+    if (isNaN(v) || v < 1) v = 1; // CORREÇÃO: Era "isNa giữaNaN(v)" - agora "isNaN(v)"
+    if (v > 130) v = 130;
     await updateDoc(doc(db, "alunos", id), { [campo]: v });
     mostrarMensagem("mensagemSucesso", `✅ Nota atualizada!`);
   } catch (error) {
@@ -299,7 +300,7 @@ window.atualizarNota = async function(id, campo, valor) {
 window.atualizarCampo = async function(id, campo, valor) {
   try {
     await updateDoc(doc(db, "alunos", id), { [campo]: valor });
-    mostrarMensagem("mensagens Sucesso", `✅ ${campo.charAt(0).toUpperCase() + campo.slice(1)} atualizado!`);
+    mostrarMensagem("mensagemSucesso", `✅ ${campo.charAt(0).toUpperCase() + campo.slice(1)} atualizado!`);
   } catch (error) {
     console.error("Erro ao atualizar campo:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
@@ -364,7 +365,7 @@ window.abrirModalInstrumental = function(alunoId, valorAtual) {
 // ========== EVENTOS PRINCIPAIS ==========
 async function criarEventoGenerico() {
   try {
-    const hoje = new Date().toISTOISOString().split("T")[0];
+    const hoje = new Date().toISOString().split("T")[0];
     const snap = await getDocs(collection(db, "eventos"));
     const existente = snap.docs.find(doc => doc.data().data === hoje);
     if (existente) {
@@ -410,7 +411,7 @@ document.getElementById("btnRecalcularEnergia").addEventListener("click", async 
       await updateDoc(docAl.ref, { energia });
       total++;
     }
-    mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alumnos!`);
+    mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alunos!`);
   } catch (error) {
     console.error("Erro ao recalcular energia:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro no recálculo.");
