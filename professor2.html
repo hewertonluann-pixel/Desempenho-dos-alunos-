@@ -163,14 +163,18 @@
       box-shadow: 0 12px 50px rgba(0,0,0,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       display: flex;
-      gap: 15px;
-      align-items: center;
+      flex-direction: column;  /* Alterado para coluna */
+      align-items: center;     /* Centraliza os itens */
+      gap: 15px;              /* Gap entre foto e info */
     }
     .ficha:hover {
       transform: translateY(-8px);
       box-shadow: 0 15px 60px rgba(0,0,0,0.5);
     }
 
+    .foto {
+      margin-bottom: 10px;  /* Espaço abaixo da foto */
+    }
     .foto img {
       width: 90px;
       height: 90px;
@@ -180,15 +184,20 @@
       box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     }
 
-    .info-principal { flex: 1; }
+    .info-principal {
+      width: 100%;
+      flex: 1;
+    }
     .nome {
       font-size: 1.5em;
       font-weight: bold;
       color: #22d3ee;
       margin-bottom: 10px;
+      text-align: center;
     }
     .metodos {
       margin-bottom: 15px;
+      text-align: center;
     }
     .link-edit {
       color: #38bdf8;
@@ -218,11 +227,11 @@
     }
     .nota-controle {
       display: flex;
-      gap: 8px; /* Mesmo gap anterior para alinhamento horizontal */
+      gap: 8px;
       align-items: center;
     }
     .campo-nota {
-      width: 50px; /* Revertido ao tamanho original do exemplo, fonte mantida */
+      width: 50px;
       padding: 4px;
       border-radius: 6px;
       background: #1e293b;
@@ -235,7 +244,7 @@
       background: #22c55e; /* Verde para + */
       color: #fff;
       border: none;
-      width: 40px; /* Mantido aumentado */
+      width: 40px;
       height: 40px;
       border-radius: 50%;
       cursor: pointer;
@@ -307,7 +316,7 @@
         max-width: 450px;
       }
       .nota-controle {
-        flex-wrap: wrap; /* Permite quebra se necessário em mobile */
+        flex-wrap: wrap;
       }
       .botoes {
         flex-direction: column;
