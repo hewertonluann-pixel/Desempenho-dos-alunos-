@@ -7,147 +7,278 @@
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    /* Modal Styles (small inline para UI crítica, mova se preferir) */
+    /* ============ LAYOUT E MODAIS (como antes) ============ */
+    /* Copie ou mantenha os estilos inline existentes */
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      color: #22d3ee;
+    }
+
+    .layout-professor {
+      display: flex;
+      gap: 20px;
+      padding: 15px 20px;
+      margin-top: 20px;
+    }
+
+    .coluna-botoes-prof {
+      flex: 0 0 250px;
+    }
+
+    .card-botoes-prof {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 14px;
+      padding: 18px 16px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 0 20px rgba(15, 118, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-botoes-prof button {
+      width: 100%;
+      padding: 12px;
+      background: #0ea5e9;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .card-botoes-prof button:hover {
+      background: #0284c7;
+    }
+
+    .titulo-card-prof {
+      text-align: center;
+      color: #22d3ee;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      inset: 0;
       background: rgba(0, 0, 0, 0.7);
       justify-content: center;
       align-items: center;
-      z-index: 9999;
-      backdrop-filter: blur(4px);
+      z-index: 99999;
     }
-    .modal.ativo {
-      display: flex;
-      animation: aparecer 0.3s ease;
-    }
-    .modal-content {
-      background: rgba(20, 20, 35, 0.95);
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
-      width: 90%;
-      max-width: 400px;
-      color: #fff;
+
+    .modal-conteudo {
+      background: linear-gradient(145deg, #1e1e1e, #262738);
+      padding: 26px 24px;
+      border-radius: 14px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.7);
       text-align: center;
+      width: 92%;
+      max-width: 420px;
+      color: #f9fafb;
     }
-    .modal-content h2 {
-      color: #00ffcc;
-      margin-bottom: 15px;
-      text-shadow: 0 0 8px #00ffcc;
+
+    .campo-modal {
+      margin-bottom: 12px;
+      text-align: left;
     }
-    .modal-content input {
+
+    .campo-modal input {
       width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background-color: rgba(255,255,255,0.1);
-      color: white;
-      text-align: center;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #e2e8f0;
     }
+
     .botoes-modal {
       display: flex;
-      justify-content: center;
       gap: 10px;
       margin-top: 15px;
     }
-    .botoes-modal button {
-      background: linear-gradient(145deg, #00bfff, #007acc);
+
+    .btn-adicionar {
+      background: #22c55e;
+      color: #022c22;
       border: none;
-      color: #fff;
-      padding: 8px 16px;
+      padding: 10px;
       border-radius: 8px;
+      flex: 1;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
-    .botoes-modal button:hover {
-      background: linear-gradient(145deg, #00e6e6, #00aaff);
-      transform: scale(1.05);
-    }
-    .fechar-modal {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 24px;
-      color: #00ffcc;
+
+    .btn-cancelar {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      flex: 1;
       cursor: pointer;
     }
   </style>
 </head>
+
 <body>
+  <!-- NAV -->
+  <script type="module" src="navegacao.js"></script>
+
   <h1>Painel Gerencial 🎶</h1>
-  <div class="usuario-logado" id="usuarioLogado"></div>
+  <div id="usuarioLogado" style="text-align:center; opacity:0.85;"></div>
 
-  <!-- Botões principais -->
-  <div class="botoes">
-    <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
-    <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
-    <button id="btnModoAluno">🎓 Modo Aluno</button>
-    <button id="btnCriarEvento">📋 Chamada</button>
-    <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Eventos</button>
-    <button onclick="exportarPDF()">📄 Exportar PDF</button>
-    <button id="btnRecalcularEnergia" class="recalcular-energia">🔄 Recalcular Energia (Frequência)</button>
+  <div class="layout-professor">
+    <!-- ⭐ MENU LATERAL -->
+    <div class="coluna-botoes-prof">
+      <div class="card-botoes-prof">
+        <h2 class="titulo-card-prof">Menu do Professor</h2>
+        <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
+        <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
+        <button id="btnModoAluno">🎓 Modo Aluno</button>
+        <button id="btnCriarChamada">📋 Chamada do Dia</button>
+        <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
+        <button id="btnMostrarLicoes">🎪🧪 Gerenciar Lições</button> <!-- ADICIONADO: Botão para painel de lições -->
+        <button onclick="exportarPDF()">📄 Exportar PDF</button>
+        <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div style="flex: 1;">
+      <div class="painel-licoes-prof" id="painelLicoesProf"></div> <!-- ADICIONADO: Painel de lições -->
+      <div class="painel" id="painel"></div>
+      <div id="loader" class="loader" style="display:none;">
+        <div class="spinner"></div>
+        <p>Carregando alunos...</p>
+      </div>
+    </div>
   </div>
 
-  <!-- Mensagens -->
-  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
-  <div id="mensagemInfo" class="mensagem-info"></div>
-
-  <!-- Loader -->
-  <div id="loader" class="loader" style="display:none;">
-    <div class="spinner"></div>
-    <p>Carregando alunos...</p>
-  </div>
-
-  <!-- Painel -->
-  <div class="painel" id="painel" style="display:none;"></div>
-
-  <!-- Modal Adicionar -->
+  <!-- MODAL ADICIONAR -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
-      <input type="text" id="novoNome" placeholder="Nome do aluno" required />
-      <input type="text" id="novoInstrumento" placeholder="Instrumento" required />
-      <input type="file" id="novoFoto" accept="image/*" style="margin-top:10px;" />
-      <input type="text" id="novaLeitura" placeholder="Método de Solfejo (ex.: Bona)" style="margin-top:10px;" />
-      <input type="text" id="novoMetodo" placeholder="Método Instrumental (ex.: Amadeu Russo)" style="margin-top:10px;" />
+      <div class="campo-modal">
+        <label>Nome</label>
+        <input type="text" id="novoNome">
+      </div>
+      <div class="campo-modal">
+        <label>Instrumento</label>
+        <input type="text" id="novoInstrumento">
+      </div>
+      <div class="campo-modal">
+        <label>Foto</label>
+        <input type="file" id="novoFoto" accept="image/*">
+      </div>
       <div class="botoes-modal">
-        <button id="btnConfirmarAdicionar" class="btn-salvar">✅ Adicionar</button>
-        <button id="btnCancelarAdicionar" class="btn-cancelar">❌ Cancelar</button>
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Solfejo -->
-  <div id="modalSolfejo" class="modal">
-    <div class="modal-conteudo">
-      <span class="fechar-modal" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
-      <h2>✏️ Método de Solfejo</h2>
-      <input type="text" id="editSolfejo" placeholder="Digite o método (ex.: Bona)" />
-      <div class="botoes-modal">
-        <button id="btnSalvarSolfejo" class="btn-salvar">💾 Salvar</button>
-        <button id="btnCancelSolfejo" class="btn-cancelar">❌ Cancelar</button>
-      </div>
-    </div>
-  </div>
+  <!-- SCRIPT PRINCIPAL -->
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      collection,
+      getDocs,
+      addDoc,
+      updateDoc,
+      doc,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-  <!-- Modal Instrumental -->
-  <div id="modalInstrumental" class="modal">
-    <div class="modal-conteudo">
-      <span class="fechar-modal" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
-      <h2>🎵 Método Instrumental</h2>
-      <input type="text" id="editInstrumental" placeholder="Digite o método (ex.: Amadeu Russo)" />
-      <div class="botoes-modal">
-        <button id="btnSalvarInstrumental" class="btn-salvar">💾 Salvar</button>
-        <button id="btnCancelInstrumental" class="btn-cancelar">❌ Cancelar</button>
-      </div>
-    </div>
-  </div>
+    import { renderizarPainel, setupModalsAlunos } from "./professor.js"; // Importar funções refatoradas
 
-  <!-- Scripts -->
-  <script type="module" src="professor.js"></script>
+    // ========= EVENTOS ==========
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+      document.getElementById("usuarioLogado").textContent =
+        user?.nome ? `Professor logado: ${user.nome}` : "Professor";
+
+      // Setup modais de alunos
+      setupModalsAlunos();
+    });
+
+    // Mostrar painel alunos
+    document.getElementById("btnMostrarAlunos").onclick = () => {
+      const painel = document.getElementById("painel");
+      if (painel.style.display === "none" || painel.innerHTML === "") {
+        renderizarPainel();
+      } else {
+        painel.style.display = "none";
+      }
+    };
+
+    // Mostra/oculta painel lições
+    document.getElementById("btnMostrarLicoes").onclick = () => {
+      const painelLicoes = document.getElementById("painelLicoesProf");
+      if (painelLicoes.innerHTML === "") {
+        // Carregar lições dinamicamente
+        importarEExecutarLicoes();
+      } else {
+        painelLicoes.innerHTML = ""; // Ocultar
+      }
+    };
+
+    async function importarEExecutarLicoes() {
+      try {
+        const { carregarLicoesProf, setupModalsLicoes } = await import("./professor-licoes.js");
+        await carregarLicoesProf(document.getElementById("painelLicoesProf"));
+        setupModalsLicoes(); // Setup eventos
+      } catch (error) {
+        console.error("Erro ao carregar painel lições:", error);
+      }
+    }
+
+    // Criar/Abrir chamada do dia
+    document.getElementById("btnCriarChamada").onclick = async () => {
+      const hoje = new Date().toISOString().split("T")[0];
+      const snap = await getDocs(collection(db, "eventos"));
+      const existente = snap.docs.find(d => d.data().data === hoje);
+
+      if (existente) {
+        window.location.href = `ensaio.html?id=${existente.id}`;
+        return;
+      }
+
+      const novoEvento = await addDoc(collection(db, "eventos"), {
+        data: hoje, observacoes: "", presencas: [], tipo: "pendente"
+      });
+      window.location.href = `ensaio.html?id=${novoEvento.id}`;
+    };
+
+    // Recalcular energia
+    document.getElementById("btnRecalcularEnergia").onclick = async () => {
+      const snap = await getDocs(collection(db, "alunos"));
+      let total = 0;
+      for (const docAl of snap.docs) {
+        const aluno = docAl.data();
+        const freq = aluno.frequenciaMensal?.porcentagem || 0;
+        let energia = 10;
+        if (freq >= 80) energia = 100;
+        else if (freq >= 50) energia = 70;
+        else if (freq >= 30) energia = 40;
+        await updateDoc(doc(db, "alunos", docAl.id), { energia });
+        total++;
+      }
+      alert(`Energia recalculada para ${total} alunos!`);
+    };
+  </script>
+
+  <script type="module" src="professor-licoes.js"></script>
 </body>
 </html>
