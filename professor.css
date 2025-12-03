@@ -151,7 +151,13 @@ h1 {
   box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
 }
 
-/* ===== FOTO DO ALUNO ===== */
+/* ===== FOTO E BOTÃO CÂMERA ===== */
+.foto-and-camera {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
 .foto {
   width: 100%;
   height: 140px;
@@ -164,6 +170,38 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.btn-camera {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-camera:hover {
+  background: rgba(0, 255, 204, 0.8);
+}
+
+/* ===== NOME DO ALUNO (COM ÊNFASE) ===== */
+.name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #00ffcc;
+  text-align: center;
+  margin: 10px 0;
+  text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
 }
 
 /* ===== CAMPOS ===== */
@@ -256,25 +294,15 @@ h1 {
   background-color: #16a34a;
 }
 
-.metodos {
-  margin: 10px 0;
-}
-
-.link-edit {
-  color: #00ffcc;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 0.9em;
-}
-
-.link-edit:hover {
-  color: #00e6e6;
+.metodos, .divider {
+  display: none; /* Removido, pois métodos agora são campos dedicados */
 }
 
 .divider {
   height: 1px;
   background: rgba(0, 255, 204, 0.2);
   margin: 10px 0;
+  display: block;
 }
 
 .alterar-foto input {
@@ -284,7 +312,7 @@ h1 {
 .alterar-foto {
   cursor: pointer;
   font-size: 1.2rem;
-  color: #00ffcc;
+  display: none; /* Campo foto removido */
 }
 
 /* ===== LOADER ===== */
