@@ -1,192 +1,496 @@
-/* ============================================================
-   BOTÕES - UI/UX KIT MODERNO
-   ============================================================ */
+professor.css:
+/* ===== RESET ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-/* Estilo Base para TODOS os botões */
-button, 
-.botoes button,
-.recalcular-energia,
-.acoes button,
-.botoes-modal button {
-  font-family: 'Nunito', 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 12px 20px; /* Área de clique confortável */
-  border-radius: 8px; /* Cantos modernos, nem quadrados nem redondos demais */
-  border: 1px solid transparent; /* Previne pulo no layout se adicionar borda depois */
+/* ===== BASE ===== */
+body {
+  font-family: 'Nunito', sans-serif;
+  background-color: #12121f;
+  color: #f5f5f5;
+  padding: 20px;
+  text-align: center;
+  min-height: 100vh;
+}
+
+h1 {
+  color: #00ffcc;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+  margin-bottom: 10px;
+}
+
+.usuario-logado {
+  font-size: 1rem;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* ===== FORMULÁRIO DE CADASTRO ===== */
+.formulario {
+  max-width: 400px;
+  margin: 0 auto 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);
+}
+
+.formulario input[type="text"],
+.formulario input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.formulario input::placeholder {
+  color: #bbb;
+}
+
+.formulario button {
+  width: 100%;
+  background: linear-gradient(145deg, #00bfff, #007acc);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
-  
-  /* Transições suaves para estados (hover/active) */
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-  
-  /* Flexbox para centralizar ícones e textos */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  
-  /* Sombra suave para dar profundidade */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 
-              0 2px 4px -1px rgba(0, 0, 0, 0.1);
-  
-  letter-spacing: 0.02em; /* Melhora leitura em caixa alta ou negrito */
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
 }
 
-/* ================== VARIAÇÕES DE CORES ================== */
-
-/* 1. Botões Primários (Gradiente Azul/Ciano) 
-   Usado no menu principal e ações de confirmação */
-.botoes button,
-.recalcular-energia,
-.botoes-modal button {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); /* Azul Moderno */
-  color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+.formulario button:hover {
+  background: linear-gradient(145deg, #00ccff, #00aacc);
+  box-shadow: 0 0 18px rgba(0, 255, 204, 0.6);
+  transform: scale(1.05);
 }
 
-/* Hover (Passar o mouse) - Botão sobe levemente */
-.botoes button:hover,
-.recalcular-energia:hover,
-.botoes-modal button:hover {
-  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-  transform: translateY(-2px); /* Feedback tátil visual */
-  box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.4), 
-              0 4px 6px -2px rgba(0, 0, 0, 0.1); /* Brilho neon suave */
-}
-
-/* Active (Clicar) - Botão afunda */
-.botoes button:active,
-.recalcular-energia:active,
-.botoes-modal button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  filter: brightness(0.9);
-}
-
-/* ================== BOTÕES DE AÇÃO NO CARD (Pequenos) ================== */
-
-.acoes {
+/* ===== BOTÕES PRINCIPAIS ===== */
+.botoes {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 12px;
-  margin-top: 15px;
+  margin-bottom: 25px;
 }
 
-.acoes button {
-  padding: 8px 16px; /* Um pouco menor que os principais */
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 700;
+.botoes button {
+  background: linear-gradient(145deg, #00bfff, #007acc);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
 }
 
-/* Botão Remover (Vermelho Perigo - Desaturado para não arder os olhos) */
-.acoes .remover,
-.btn-cancelar, 
-.licao-acao .reprovada {
-  background: #ef4444; /* Red-500 */
+.botoes button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(145deg, #00ccff, #00aaff);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+}
+
+.botoes button:active {
+  transform: scale(0.96);
+}
+
+/* ===== RECALCULAR ENERGIA ===== */
+.recalcular-energia {
+  background: linear-gradient(145deg, #00bfff, #007acc);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
+}
+
+.recalcular-energia:hover {
+  transform: scale(1.05);
+  background: linear-gradient(145deg, #00ccff, #00aaff);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+}
+
+.recalcular-energia:active {
+  transform: scale(0.96);
+}
+
+/* ===== PAINEL DE ALUNOS ===== */
+.painel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  animation: aparecer 0.4s ease-out;
+}
+
+/* ===== FICHA DE ALUNO ===== */
+.ficha {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 204, 0.4);
+  border-radius: 12px;
+  padding: 16px;
+  width: 320px;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ficha:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
+}
+
+/* ===== FOTO E BOTÃO CÂMERA ===== */
+.foto-and-camera {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.foto {
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: rgba(0, 255, 204, 0.1);
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-camera {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
   color: white;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  font-size: 1.2rem;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.acoes .remover:hover,
-.btn-cancelar:hover,
-.licao-acao .reprovada:hover {
-  background: #dc2626; /* Red-600 */
-  box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
-  transform: translateY(-2px);
+.btn-camera:hover {
+  background: rgba(0, 255, 204, 0.8);
 }
 
-/* Botão Classificar/Salvar (Verde Sucesso) */
-.acoes .classificar,
-.btn-salvar,
-.btn-adicionar,
-.licao-acao .aprovada {
-  background: #10b981; /* Emerald-500 */
-  color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+/* ===== NOME DO ALUNO (COM ÊNFASE) ===== */
+.name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #00ffcc;
+  text-align: center;
+  margin: 10px 0;
+  text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);
 }
 
-.acoes .classificar:hover,
-.btn-salvar:hover,
-.btn-adicionar:hover,
-.licao-acao .aprovada:hover {
-  background: #059669; /* Emerald-600 */
-  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
-  transform: translateY(-2px);
+/* ===== CAMPOS ===== */
+.campo {
+  margin-bottom: 10px;
+  text-align: left;
 }
 
-/* ================== CONTROLES DE NOTA (+ / -) ================== */
+.campo label {
+  display: block;
+  font-size: 0.9rem;
+  color: #00ffcc;
+  margin-bottom: 5px;
+}
+
+/* ===== NOTAS ===== */
+.nota-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
 .nota-controle {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 4px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.05);
+  gap: 5px;
 }
 
 .botao-nota {
-  width: 36px;
-  height: 36px;
-  padding: 0;
+  width: 45px;
+  height: 45px;
+  font-size: 1.5rem;
+  border: none;
   border-radius: 8px;
-  font-size: 1.2rem;
-  background: rgba(56, 189, 248, 0.15); /* Fundo sutil */
-  color: #38bdf8; /* Texto Azul Neon */
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  box-shadow: none; /* Remove sombra pesada para botões pequenos */
+  background-color: #00bfff;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
 }
 
 .botao-nota:hover {
-  background: #38bdf8;
-  color: #0f172a;
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  transform: scale(1.1);
+  background-color: #00e6e6;
 }
 
 .campo-nota {
-  width: 50px;
-  height: 36px;
+  width: 45px;
+  height: 45px;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: transparent;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-/* ================== BOTÃO CÂMERA (Ícone flutuante) ================== */
-
-.btn-camera {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  padding: 0;
-  
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  font-size: 1.2rem;
-  
+/* ===== AÇÕES ===== */
+.acoes {
   display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.acoes button {
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.acoes .remover {
+  background-color: #ff4444;
+  color: white;
+}
+
+.acoes .remover:hover {
+  background-color: #ff6666;
+}
+
+.acoes .classificar {
+  background-color: #22c55e;
+  color: white;
+}
+
+.acoes .classificar:hover {
+  background-color: #16a34a;
+}
+
+.metodos, .divider {
+  display: none; /* Removido, pois métodos agora são campos dedicados */
+}
+
+.divider {
+  height: 1px;
+  background: rgba(0, 255, 204, 0.2);
+  margin: 10px 0;
+  display: block;
+}
+
+.alterar-foto input {
+  display: none;
+}
+
+.alterar-foto {
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: none; /* Campo foto removido */
+}
+
+/* ===== LOADER ===== */
+.loader {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: 0.3s ease;
-  z-index: 10;
+  gap: 12px;
+  color: #00ffcc;
+  font-size: 1.1rem;
+  margin-top: 30px;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
 }
 
-.btn-camera:hover {
-  background: #00ffcc;
-  color: #000;
-  transform: rotate(15deg) scale(1.1);
-  box-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
-  border-color: transparent;
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(0, 255, 204, 0.2);
+  border-top-color: #00ffcc;
+  border-radius: 50%;
+  animation: girar 1s linear infinite;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
 }
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes girar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== SCROLL PERSONALIZADO ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #00ffcc55;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #00ffcc88;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+  .formulario {
+    width: 90%;
+  }
+
+  .botoes {
+    flex-direction: column;
+  }
+
+  .botoes button {
+    width: 90%;
+    max-width: 400px;
+  }
+
+  .ficha {
+    width: 90%;
+  }
+}
+
+/* ===== MENSAGENS ===== */
+.mensagem-sucesso, .mensagem-info {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 9999;
+}
+
+.mensagem-sucesso { background: #00ffcc; color: #000; }
+.mensagem-info { background: #2563eb; color: #fff; }
+.mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
+
+/* ========= ESTILOS PARA PAINEL DE LIÇÕES ========= */
+.painel-licoes-prof {
+  display: none; /* Inicialmente oculto */
+}
+
+.painel-licoes-prof.show {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+  margin: 20px 0;
+}
+
+.licao-card {
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 255, 204, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.licao-card:hover {
+  transform: translateY(-2px);
+}
+
+.licao-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.licao-foto img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.licao-info {
+  flex: 1;
+}
+
+.licao-aluno {
+  font-weight: bold;
+  color: #22d3ee;
+}
+
+.licao-data {
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.licao-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.status-pendente { background: #eab308; color: #000; }
+.status-aprovada { background: #22c55e; color: #fff; }
+.status-reprovada { background: #dc2626; color: #fff; }
+
+.licao-acao button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.licao-acao .aprovada {
+  background: #22c55e;
+  color: #fff;
+}
+
+.licao-acao .reprovada {
+  background: #dc2626;
+  color: #fff;
+}
+
+/* ========= (Mantém estilos existentes do professor.css) ========= */
+
+* aguarde o professor.js
