@@ -1,4 +1,3 @@
-javascript
 // ========== professor.js ==========
 // Versão final corrigida: Sem duplicação de funções/scripts, CSS загружeno
 
