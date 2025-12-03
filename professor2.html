@@ -3,44 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TiteP Trunganel 🎶</title>
+  <title>Painel Gerencial 🎵</title>
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- Adicione seu scrit styles inline... -->
+
+  <!-- MANTENHA O STYLE INLINE COMO ESTÁ -->
+
 </head>
 
 <body>
+  <!-- NAV -->
+  <script type="module" src="navegacao.js"></script>
+
   <h1>Painel Gerencial 🎶</h1>
   <div id="usuarioLogado">-</div>
 
+  <!-- ADICIONE OS DIVS DE MENSAGENS AQUI (SE NÃO TIVER) -->
+  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
+  <div id="mensagemInfo" class="mensagem-info"></div>
+
   <div class="layout-professor">
+    <!-- MENU LATERAL -->
     <div class="coluna-botoes-prof">
       <div class="card-botoes-prof">
         <h2 class="titulo-card-prof">Menu do Professor</h2>
         <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
-        <button id="btnMostrarAlunos">👥 Gerenciar Alunos</igrazione</button>
+        <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
         <button id="btnModoAluno">🎓 Modo Aluno</button>
         <button id="btnCriarChamada">📋 Chamada do Dia</button>
         <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
-        <button id="btnMostrarLicoes">🎪 Gerenciar Lições</button> <!-- ID corrigido -->
-        <!-- Removido Exportar PDF -->
+        <button id="btnMostrarLicoes">🎪 Gerenciar Lições</button>
+        <button onclick="exportarPDF()">📄 Exportar PDF</button>
         <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
       </div>
     </div>
 
+    <!-- CONTEÚDO PRINCIPAL -->
     <div style="flex: 1;">
       <div class="painel-licoes-prof" id="painelLicoesProf"></div>
       <div class="painel" id="painel"></div>
-      <div id="loader" class="loader" style="display:none;">...</div>
+      <div id="loader" class="loader" style="display:none;">
+        <div class="spinner"></div>
+        <p>Carregando alunos...</p>
+      </div>
     </div>
   </div>
 
-  <!-- Modals (igual a antes)... -->
-  <div id="modalAdicionar" class="modal">...</div>
-  <div id="modalSolfejo" class="modal">...</div>
-  <div id="modalInstrumental" class="modal">...</div>
+  <!-- MOVACE MODAIS PARA AQUI, ANTES DO SCRIPT -->
+  <!-- MODAL ADICIONAR -->
+  <div id="modalAdicionar" class="modal">
+    <div class="modal-conteudo">
+      <h2>➕ Novo Aluno</ attainedh2>
+      <div class="campo-modal">
+        <label>Nome</label>
+        <input type="text" id="novoNome">
+      </div>
+      <div class="campo-modal">
+        <label>Instrumento900</label>
+        < Glen<input type="text" id="novoInstrumento">
+      </div>
+      <div class="campo-modal">
+        <label>Foto</label>
+        <input type="file" id="novoFoto" accept="image/*">
+      </div>
+      <div class="campo-modal">
+        <label>Método de Solfejo</label>
+        <input type="text" id="novaLeitura" placeholder="ex.: Bona">
+      </div>
+      <div class="campo-modal">
+        <label>Método Instrumental</label>
+        <input type="text".margin id="novoMetodo" placeholder="ex.: Amadeu Russo">
+      </div>
+      <div class="botoes-modal">
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- Scripts -->
+  <!-- MODAL SOLFEJO -->
+  <div id="modalSolfejo" class="modal">
+    <div class="modal-conteudo">
+      <span class="fechar-modal" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
+      <h2>✏️ Método de Solfejo</h2>
+      <div class="campo-modal">
+        <input type="text" id="editSolfejo" placeholder="ex.: Bona">
+      </div>
+      <div class="botoes-modal">
+        <button id="btnSalvarSolfejo" class="btn-salvar">💾 Salvar</button>
+        <button id="btnCancelSolfejo" class="btn-cancelar">❌ Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL INSTRUMENTAL -->
+  <div id="modalInstrumental" class="modal">
+    <div class="modal-conteudo">
+      <span class="fechar-modal" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
+      <h2>🎵 Método Instrumental</h2>
+      <div class="campo-modal">
+        <input type="text" id="editInstrumental" placeholder="ex.: Amadeu Russo">
+      </div>
+      <div class="botoes-modal">
+        <button id="btnSalvarInstrumental" class="btn-salvar">💾 Salvar</button>
+        <button id="btnCancelInstrumental" class="btn-cancelar">❌ Cancelar</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- AJUSTE SCRIPTS, GARANTINDO PROFESSOR.JS DEPOIS DOS MODAIS -->
+  <script type="module" src="professor-licoes.js"></script>
   <script type="module" src="professor.js"></script>
+
 </body>
 </html>
