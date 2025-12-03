@@ -103,6 +103,29 @@ h1 {
   transform: scale(0.96);
 }
 
+/* ===== RECALCULAR ENERGIA ===== */
+.recalcular-energia {
+  background: linear-gradient(145deg, #00bfff, #007acc);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
+}
+
+.recalcular-energia:hover {
+  transform: scale(1.05);
+  background: linear-gradient(145deg, #00ccff, #00aaff);
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+}
+
+.recalcular-energia:active {
+  transform: scale(0.96);
+}
+
 /* ===== PAINEL DE ALUNOS ===== */
 .painel {
   display: flex;
@@ -169,7 +192,6 @@ h1 {
   gap: 5px;
 }
 
-/* Botões de nota maiores */
 .botao-nota {
   width: 45px;
   height: 45px;
@@ -187,7 +209,6 @@ h1 {
   background-color: #00e6e6;
 }
 
-/* Campo de nota igual ao tamanho dos botões */
 .campo-nota {
   width: 45px;
   height: 45px;
@@ -226,6 +247,36 @@ h1 {
   background-color: #ff6666;
 }
 
+.acoes .classificar {
+  background-color: #22c55e;
+  color: white;
+}
+
+.acoes .classificar:hover {
+  background-color: #16a34a;
+}
+
+.metodos {
+  margin: 10px 0;
+}
+
+.link-edit {
+  color: #00ffcc;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.link-edit:hover {
+  color: #00e6e6;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(0, 255, 204, 0.2);
+  margin: 10px 0;
+}
+
 .alterar-foto input {
   display: none;
 }
@@ -233,6 +284,7 @@ h1 {
 .alterar-foto {
   cursor: pointer;
   font-size: 1.2rem;
+  color: #00ffcc;
 }
 
 /* ===== LOADER ===== */
@@ -306,3 +358,23 @@ h1 {
     width: 90%;
   }
 }
+
+/* ===== MENSAGENS ===== */
+.mensagem-sucesso, .mensagem-info {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 9999;
+}
+
+.mensagem-sucesso { background: #00ffcc; color: #000; }
+.mensagem-info { background: #2563eb; color: #fff; }
+.mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
