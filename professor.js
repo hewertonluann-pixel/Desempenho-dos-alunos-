@@ -6,13 +6,13 @@ import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, doc
 
 // Configurações do Firebase (substitua com suas chaves reais)
 const firebaseConfig = {
-  apiKey: "Sua_API_Key_Real", // Exemplo: "AIzaSyDdMRO..."
-  authDomain: "seu-projeto.firebaseapp.com",
-  projectId: "seu-projeto-id",
-  storageBucket: "seu-projeto-id.appspot.com",
-  messagingSenderId: "seu-messaging-sender-id",
-  appId: "seu-app-id",
-  measurementId: "seu-measurement-id" // Remova se não usar Analytics
+  apiKey: "AIzaSyDdMROcKph5I-ClMiOmPiBXgGpDxoF2dZc",
+  authDomain: "asafenotas-5cf3f.firebaseapp.com",
+  projectId: "asafenotas-5cf3f",
+  storageBucket: "asafenotas-5cf3f.appspot.com",
+  messagingSenderId: "312062581585",
+  appId: "1:312062581585:web:432ff63a527dd86fc1170",
+  measurementId: "G-Z6G6D4RKZQ"
 };
 
 // Inicializar Firebase
