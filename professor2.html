@@ -9,6 +9,92 @@
 
   <!-- MANTENHA O STYLE INLINE COMO ESTÁ -->
 
+<style>
+    /* ===== Mensagens ===== */
+    .mensagem-sucesso, .mensagem-info {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 9999;
+    }
+
+    .mensagem-sucesso { background: #16a34a; color: #fff; }
+    .mensagem-info { background: #2563eb; color: #fff; }
+    .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
+
+    /* ===== Botão Recalcular Energia ===== */
+    .recalcular-energia {
+      background-color: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .recalcular-energia:hover { background-color: #1e40af; }
+
+    /* ===== Modal ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-conteudo {
+      background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      color: #f0f0f0;
+    }
+
+    .botoes-modal {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 18px;
+      gap: 10px;
+    }
+
+    .botoes-modal button {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.3s;
+    }
+
+    .btn-adicionar { background: #16a34a; }
+    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
+    .btn-cancelar { background: #dc2626; }
+    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
+  </style>
+
+  
 </head>
 
 <body>
