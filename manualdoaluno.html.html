@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual do Aluno – Painel de Desempenho Musical</title>
+
+  <!-- Fonte -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-card: #141829;
+      --bg-card-soft: #181d31;
+      --primary: #00ffcc;
+      --primary-soft: rgba(0, 255, 204, 0.22);
+      --accent: #38bdf8;
+      --danger: #f97373;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Nunito", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 40%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+
+    .badge-app {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background-color: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--primary-soft);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .badge-app span.emoji {
+      font-size: 1rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      text-shadow: 0 0 16px rgba(0, 255, 204, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 span.emoji {
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 620px;
+    }
+
+    .xp-tag {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--primary-soft);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .xp-tag strong {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* BARRA DE ETAPAS (musical) */
+    .progress-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 24px 0;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(22, 33, 62, 0.9));
+      border: 1px solid var(--border);
+    }
+
+    .step {
+      flex: 1;
+      min-width: 130px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      position: relative;
+    }
+
+    .step-index {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 2px solid var(--primary-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--primary);
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    }
+
+    .step-title {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* LAYOUT PRINCIPAL */
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* COLUNA ESQUERDA: ETAPAS */
+    .panel {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 18px;
+      padding: 18px 18px 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 0 32px rgba(15, 23, 42, 0.9);
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+    }
+
+    .panel-subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .phase-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .phase-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phase-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 50%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .phase-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .phase-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 1.3rem;
+    }
+
+    .phase-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phase-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .phase-tag {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .xp-chip {
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: linear-gradient(145deg, rgba(34, 197, 94, 0.07), rgba(34, 197, 94, 0.16));
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .xp-chip span {
+      font-size: 0.9rem;
+    }
+
+    .phase-body {
+      position: relative;
+      z-index: 1;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .phase-body strong {
+      color: var(--text);
+    }
+
+    .phase-body ul {
+      margin-top: 6px;
+      padding-left: 18px;
+    }
+
+    .phase-body ul li {
+      margin-bottom: 4px;
+    }
+
+    .phase-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip span.emoji {
+      font-size: 1rem;
+    }
+
+    /* COLUNA DIREITA: HUD / LEGENDAS / FAQ */
+    .hud {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .hud-card {
+      background: var(--bg-card-soft);
+      border-radius: 16px;
+      padding: 14px 14px 14px;
+      border: 1px solid var(--border);
+    }
+
+    .hud-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+    }
+
+    .hud-body {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .hud-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .hud-item {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      padding: 8px 8px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hud-item-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .hud-item-header span.emoji {
+      font-size: 1.1rem;
+    }
+
+    .hud-item-body {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .pill span.dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .dot-green { background: #22c55e; }
+    .dot-yellow { background: #eab308; }
+    .dot-red { background: #ef4444; }
+
+    /* FAQ RÁPIDO */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .faq-item {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .faq-item strong {
+      color: var(--text);
+    }
+
+    /* FOOTER */
+    footer {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    footer span {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* BOTÃO DE VOLTAR (OPCIONAL) */
+    .back-link {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--primary-soft);
+      color: var(--primary);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      box-shadow: 0 0 18px rgba(0, 255, 204, 0.3);
+    }
+
+    .back-link:hover {
+      background: rgba(22, 30, 57, 1);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="badge-app">
+        <span class="emoji">🎵</span>
+        Painel de Desempenho Musical · Orquestra Filhos de Asafe
+      </div>
+      <h1><span class="emoji">🎼</span>Manual do Aluno</h1>
+      <p class="subtitle">
+        Use este manual como uma partitura de referência: ele mostra como ler o seu painel,
+        acompanhar sua evolução e cuidar do seu desempenho musical ao longo do tempo.
+      </p>
+      <div class="xp-tag">
+        🎧 <span>Progresso musical: cada acesso em que você consulta seus dados, organiza seus estudos e acompanha sua frequência conta como <strong>+1 XP</strong> na sua jornada.</span>
+      </div>
+    </header>
+
+    <!-- Etapas principais (musicais) -->
+    <section class="progress-steps" aria-label="Etapas principais de uso do sistema">
+      <div class="step">
+        <div class="step-index">1</div>
+        <div>
+          <div class="step-title">Entrar no painel</div>
+          <div>Nome e senha para acessar sua área.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-index">2</div>
+        <div>
+          <div class="step-title">Ler sua ficha musical</div>
+          <div>Foto, instrumento, leitura e método.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-index">3</div>
+        <div>
+          <div class="step-title">Observar sua energia</div>
+          <div>Barra de frequência mensal.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-index">4</div>
+        <div>
+          <div class="step-title">Ver conquistas</div>
+          <div>Badges de presença, estudo e palco.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-index">5</div>
+        <div>
+          <div class="step-title">Consultar frequência anual</div>
+          <div>Círculos mensais com resumo.</div>
+        </div>
+      </div>
+    </section>
+
+    <main class="layout">
+      <!-- COLUNA ESQUERDA: ETAPAS -->
+      <section class="panel" aria-label="Etapas de uso">
+        <h2 class="panel-title">Etapas de uso do painel 🎶</h2>
+        <p class="panel-subtitle">
+          Siga este roteiro sempre que acessar o sistema.  
+          Ao fazer isso com regularidade, você mantém sua organização em dia e acumula XP de forma natural.
+        </p>
+
+        <div class="phase-list">
+          <!-- Etapa 1 -->
+          <article class="phase-card">
+            <div class="phase-header">
+              <div class="phase-left">
+                <div class="phase-icon">🔐</div>
+                <div class="phase-meta">
+                  <div class="phase-title">1. Acesso ao sistema</div>
+                  <div class="phase-tag">Entrada segura no Painel de Desempenho</div>
+                </div>
+              </div>
+              <span class="xp-chip"><span>✨</span>+1 XP por acesso consciente</span>
+            </div>
+            <div class="phase-body">
+              Acesse a página inicial e preencha <strong>nome de usuário</strong> e <strong>senha</strong>.  
+              Em alguns casos, alunos classificados podem escolher entre entrar como <strong>Aluno</strong> ou <strong>Professor</strong>.
+              <ul>
+                <li>Use sempre seus próprios dados.</li>
+                <li>Evite compartilhar sua senha com outras pessoas.</li>
+              </ul>
+            </div>
+            <div class="phase-actions">
+              <div class="chip"><span class="emoji">✅</span>Login concluído</div>
+              <div class="chip"><span class="emoji">🔒</span>Dados protegidos</div>
+            </div>
+          </article>
+
+          <!-- Etapa 2 -->
+          <article class="phase-card">
+            <div class="phase-header">
+              <div class="phase-left">
+                <div class="phase-icon">🎴</div>
+                <div class="phase-meta">
+                  <div class="phase-title">2. Ler sua ficha musical</div>
+                  <div class="phase-tag">Foto, instrumento e pontuações</div>
+                </div>
+              </div>
+              <span class="xp-chip"><span>🎼</span>Organização de perfil</span>
+            </div>
+            <div class="phase-body">
+              Na ficha principal você visualiza:
+              <ul>
+                <li><strong>Foto</strong> – sua imagem no sistema;</li>
+                <li><strong>Instrumento</strong> – o naipe em que você atua;</li>
+                <li><strong>Nível geral</strong> – soma de Leitura (BONA) + Método;</li>
+                <li>Botões para <strong>Alterar foto</strong> e <strong>Alterar senha</strong>.</li>
+              </ul>
+            </div>
+            <div class="phase-actions">
+              <div class="chip"><span class="emoji">🖼️</span>Foto atualizada</div>
+              <div class="chip"><span class="emoji">🔑</span>Senha revisada quando necessário</div>
+            </div>
+          </article>
+
+          <!-- Etapa 3 -->
+          <article class="phase-card">
+            <div class="phase-header">
+              <div class="phase-left">
+                <div class="phase-icon">⚡</div>
+                <div class="phase-meta">
+                  <div class="phase-title">3. Acompanhar sua energia</div>
+                  <div class="phase-tag">Frequência mensal nos ensaios</div>
+                </div>
+              </div>
+              <span class="xp-chip"><span>📅</span>Presença gera XP</span>
+            </div>
+            <div class="phase-body">
+              A barra de energia mostra sua presença no mês:
+              <ul>
+                <li><strong>Verde</strong> – presença alta (80–100%).</li>
+                <li><strong>Amarelo</strong> – presença regular (40–79%).</li>
+                <li><strong>Vermelho</strong> – presença baixa (0–39%).</li>
+              </ul>
+              Quanto mais ensaios você participa, mais forte fica sua “energia” musical.
+            </div>
+            <div class="phase-actions">
+              <div class="chip"><span class="emoji">🗓️</span>Priorize os ensaios</div>
+              <div class="chip"><span class="emoji">📣</span>Converse com o professor em caso de dúvidas</div>
+            </div>
+          </article>
+
+          <!-- Etapa 4 -->
+          <article class="phase-card">
+            <div class="phase-header">
+              <div class="phase-left">
+                <div class="phase-icon">🏅</div>
+                <div class="phase-meta">
+                  <div class="phase-title">4. Ver suas conquistas</div>
+                  <div class="phase-tag">Reconhecimento da sua dedicação</div>
+                </div>
+              </div>
+              <span class="xp-chip"><span>⭐</span>Marcos da sua jornada</span>
+            </div>
+            <div class="phase-body">
+              O painel de conquistas mostra ícones desbloqueados ao longo do tempo.  
+              Exemplos:
+              <ul>
+                <li><strong>Presença Perfeita</strong> – 100% de frequência no mês;</li>
+                <li><strong>Leitor Dedicado</strong> – alto desempenho em Bona;</li>
+                <li><strong>Evolução Constante</strong> – soma expressiva entre leitura e método;</li>
+                <li><strong>Líder</strong> – quando você é classificado para funções de referência.</li>
+              </ul>
+            </div>
+            <div class="phase-actions">
+              <div class="chip"><span class="emoji">📘</span>Estude leitura e método</div>
+              <div class="chip"><span class="emoji">🎤</span>Participe das apresentações</div>
+            </div>
+          </article>
+
+          <!-- Etapa 5 -->
+          <article class="phase-card">
+            <div class="phase-header">
+              <div class="phase-left">
+                <div class="phase-icon">📅</div>
+                <div class="phase-meta">
+                  <div class="phase-title">5. Consultar frequência anual</div>
+                  <div class="phase-tag">Visão mês a mês</div>
+                </div>
+              </div>
+              <span class="xp-chip"><span>🎯</span>Consistência ao longo do ano</span>
+            </div>
+            <div class="phase-body">
+              Os círculos mensais representam sua frequência em cada mês.  
+              Ao clicar em um mês, aparece um resumo com:
+              <ul>
+                <li>Total de ensaios;</li>
+                <li>Quantos você participou;</li>
+                <li>Porcentagem de frequência.</li>
+              </ul>
+            </div>
+            <div class="phase-actions">
+              <div class="chip"><span class="emoji">👆</span>Clique nos meses</div>
+              <div class="chip"><span class="emoji">🧭</span>Acompanhe sua constância</div>
+            </div>
+          </article>
+
+          <!-- Etapa 6 -->
+          <article class="phase-card">
+            <div class="phase-header">
+              <div class="phase-left">
+                <div class="phase-icon">🎓</div>
+                <div class="phase-meta">
+                  <div class="phase-title">6. Quadro geral e liderança</div>
+                  <div class="phase-tag">Visão da orquestra como conjunto</div>
+                </div>
+              </div>
+              <span class="xp-chip"><span>🤝</span>XP coletivo</span>
+            </div>
+            <div class="phase-body">
+              O link para o quadro geral permite ver o desempenho da orquestra como um todo.  
+              Alunos classificados podem ter acesso ao modo professor, com funções adicionais de acompanhamento.
+            </div>
+            <div class="phase-actions">
+              <div class="chip"><span class="emoji">🎼</span>Use o ranking como inspiração</div>
+              <div class="chip"><span class="emoji">🤝</span>Ajude colegas a evoluir também</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- COLUNA DIREITA: HUD / LEGENDAS / FAQ -->
+      <aside class="hud" aria-label="Guia rápido, legendas e dicas">
+        <!-- HUD do Painel -->
+        <div class="hud-card">
+          <h3 class="hud-title">Visor principal do aluno 🎚️</h3>
+          <p class="hud-body">
+            Os indicadores do painel funcionam como um “mixer” do seu progresso: cada controle representa uma área importante.
+          </p>
+
+          <div class="hud-grid">
+            <div class="hud-item">
+              <div class="hud-item-header">
+                <span class="emoji">⚡</span>
+                Energia
+              </div>
+              <div class="hud-item-body">
+                Frequência mensal nos ensaios. É o termômetro da sua presença.
+              </div>
+            </div>
+
+            <div class="hud-item">
+              <div class="hud-item-header">
+                <span class="emoji">📘</span>
+                Leitura (BONA)
+              </div>
+              <div class="hud-item-body">
+                Mostra até onde você avançou no estudo de leitura musical.
+              </div>
+            </div>
+
+            <div class="hud-item">
+              <div class="hud-item-header">
+                <span class="emoji">🎯</span>
+                Método
+              </div>
+              <div class="hud-item-body">
+                Representa o progresso no método do seu instrumento.
+              </div>
+            </div>
+
+            <div class="hud-item">
+              <div class="hud-item-header">
+                <span class="emoji">🏆</span>
+                Conquistas
+              </div>
+              <div class="hud-item-body">
+                Badges que registram sua trajetória: presença, estudo e apresentações.
+              </div>
+            </div>
+          </div>
+
+          <div class="pill">
+            <span class="dot dot-green"></span> Frequência alta
+            <span class="dot dot-yellow"></span> Regular
+            <span class="dot dot-red"></span> Baixa
+          </div>
+        </div>
+
+        <!-- Boas práticas -->
+        <div class="hud-card">
+          <h3 class="hud-title">Boas práticas de estudo 🎼</h3>
+          <ul class="hud-body" style="margin-left: 16px; list-style: disc;">
+            <li>Acesse seu painel regularmente para acompanhar seus dados.</li>
+            <li>Use as informações para organizar estudo de leitura e método.</li>
+            <li>Se notar algo incoerente, converse com o professor com calma.</li>
+            <li>Trate o painel como seu “diário musical digital”.</li>
+          </ul>
+        </div>
+
+        <!-- FAQ rápido -->
+        <div class="hud-card">
+          <h3 class="hud-title">Perguntas rápidas ❓</h3>
+          <div class="faq-list">
+            <p class="faq-item">
+              <strong>Minha nota não mudou.</strong><br />
+              Somente o professor pode editar Leitura e Método. Em caso de dúvida, fale com ele.
+            </p>
+            <p class="faq-item">
+              <strong>Minha foto não aparece.</strong><br />
+              Verifique o formato (JPG/PNG) e tente reenviar.
+            </p>
+            <p class="faq-item">
+              <strong>Minha energia está baixa.</strong><br />
+              É um alerta sobre a frequência. Veja se houve faltas e planeje retomada.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      Manual do aluno · <span>Orquestra Filhos de Asafe</span> – Painel de Desempenho Musical.
+    </footer>
+  </div>
+
+  <!-- Ajuste o href se quiser voltar para outra tela (ex.: aluno.html) -->
+  <a href="index.html" class="back-link">
+    <span>⬅ Voltar ao painel</span>
+  </a>
+</body>
+</html>
