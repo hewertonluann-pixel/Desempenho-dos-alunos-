@@ -32,14 +32,15 @@
       font-size: 0.95rem;
     }
 
-    /* Adicionado: Botões de Meses */
+    /* Novo: Botões de Meses */
     .month-buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 24px; /* Adicionado após subtítulo */
+      margin-bottom: 24px;
     }
+
     .month-btn {
       background: linear-gradient(135deg, #22d3ee, #38bdf8);
       border: none;
@@ -51,13 +52,15 @@
       transition: all 0.3s ease;
       font-size: 0.85rem;
     }
+
     .month-btn:hover, .month-btn.selected {
       background: linear-gradient(135deg, #38bdf8, #22d3ee);
       transform: scale(1.05);
     }
+
     .month-btn.selected {
       background: #0ea5e9;
-      color: #ffffff; /* Ajustado para contraste */
+      color: #ffffff;
     }
 
     .grid-social {
@@ -205,11 +208,14 @@
         padding-inline: 40px;
       }
     }
+
+    /* Responsivo Mobile para Botões Meses */
     @media (max-width: 768px) {
       .month-buttons {
         gap: 5px;
         margin-bottom: 20px;
       }
+
       .month-btn {
         padding: 6px 10px;
         font-size: 0.75rem;
@@ -223,7 +229,7 @@
   <h1>👥 Painel Social da Orquestra</h1>
   <p class="subtitulo">Veja seus colegas, suas energias, níveis e conquistas. Toque em um card para abrir o painel completo.</p>
 
-  <!-- Adicionado: Botões de Meses -->
+  <!-- Novo: Botões de Meses -->
   <div class="month-buttons">
     <button class="month-btn" data-month="0">JAN</button>
     <button class="month-btn" data-month="1">FEV</button>
@@ -271,30 +277,32 @@
       const snap = await getDocs(collection(db, "alunos"));
       allAlunos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Ordenar por energia (maior primeiro)
+      // Opcional: ordenar por energia (maior primeiro)
       allAlunos.sort((a, b) =>
         (b.frequenciaMensal?.porcentagem ?? 0) -
         (a.frequenciaMensal?.porcentagem ?? 0)
       );
 
-      atualizarPresentesParaMes(new Date().getMonth()); // Mês atual por padrão
+      atualizarAlunosParaMes(new Date().getMonth()); // Mês atual por padrão
     }
 
-    function atualizarPresentesParaMes(monthIndex) {
-      // Filtrar alunos que têm presença no mês selecionado (assumindo frequenciaAnual como objeto {0: true/false})
+    async function atualizarAlunosParaMes(monthIndex) {
+      // Filtrar alunos que têm presença no mês selecionado (via frequenciaAnual[monthIndex] === true)
       const alunosDoMes = allAlunos.filter(aluno =>
         aluno.frequenciaAnual && aluno.frequenciaAnual[monthIndex] === true
       );
 
-      // Se nenhum aluno filtrado, mostrar placeholders ou mensagem (opcional: mostrar todos ou vazios)
-      // Aqui, se nenhum, mostramos todos (fallback)
+      // Se nenhum filtrado, mostrar todos (fallback)
       const alunosParaMostrar = alunosDoMes.length > 0 ? alunosDoMes : allAlunos;
 
       grid.innerHTML = alunosParaMostrar.map(aluno => {
-        const energia = aluno.frequenciaMensal?.porcentagem ?? 0;
+        // Energia do mês selecionado (fallback frequenciaMensal)
+        const energiaMensal = aluno.frequenciaAnual && aluno.frequenciaAnual[monthIndex] ? 
+          aluno.frequenciaAnual[monthIndex].porcentagem : aluno.frequenciaMensal?.porcentagem ?? 0;
+
         const total = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
         const conquistas = calcularConquistas(aluno);
-        const bgBarra = corBarraEnergia(energia);
+        const bgBarra = corBarraEnergia(energiaMensal);
 
         return `
           <div class="card-social"
@@ -315,11 +323,11 @@
               <div class="energia-mini">
                 <div class="energia-mini-label">
                   <span>⚡ Energia</span>
-                  <span>${energia}%</span>
+                  <span>${energiaMensal}%</span>
                 </div>
                 <div class="barra-energia-mini">
                   <div class="nivel-mini"
-                       style="width:${energia}%; background:${bgBarra};"></div>
+                       style="width:${energiaMensal}%; background:${bgBarra};"></div>
                 </div>
               </div>
 
@@ -341,21 +349,26 @@
 
       // Atualizar botão selecionado
       document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('selected'));
-      document.querySelector(`.month-btn[data-month="${monthIndex}"]`).classList.add('selected');
+      document.querySelector(`.month-btn[data-month="${monthIndex}"]`)?.classList.add('selected');
     }
 
-    carregarAlunos();
+    async function init() {
+      await carregarAlunos();
+    }
+
+    // Carregar página
+    document.addEventListener("DOMContentLoaded", init);
 
     // Event Listeners para Botões de Meses
     document.querySelectorAll('.month-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const month = parseInt(e.target.getAttribute('data-month'));
-        atualizarPresentesParaMes(month);
+      btn.addEventListener('click', async () => {
+        const month = parseInt(btn.getAttribute('data-month'));
+        await atualizarAlunosParaMes(month);
       });
     });
   </script>
 
-<script type="module" src="navegacao.js"></script>
+  <script type="module" src="navegacao.js"></script>
   
 </body>
 </html>
