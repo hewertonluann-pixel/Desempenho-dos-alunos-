@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- CSS Inline para Overrides e Formatação dos Cards na Versão Anterior (Foto Esquerda) -->
+  <!-- CSS Inline para Overrides e Formatação dos Cards com Foto no Topo e Infos Abaixo -->
   <style>
     /* ===== RESET E BASE ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -95,7 +95,7 @@
       animation: fadeIn 0.5s ease-out;
     }
 
-    /* Cards na Versão Anterior: Flex com Foto à Esquerda, Infos à Direita */
+    /* Cards com Foto no Topo e Infos Abaixo */
     .ficha {
       background: rgba(30, 41, 59, 0.95);
       border: 2px solid rgba(56, 189, 248, 0.3);
@@ -104,8 +104,9 @@
       box-shadow: 0 12px 50px rgba(0,0,0,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       display: flex;
-      gap: 15px;
+      flex-direction: column;
       align-items: center;
+      gap: 15px;
     }
     .ficha:hover {
       transform: translateY(-8px);
@@ -113,159 +114,179 @@
     }
 
     .foto {
-      width: 85px;
-      height: 85px;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: rgba(0, 255, 204, 0.1);
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(56, 189, 248, 0.6);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      position: relative;
     }
     .foto img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
     }
 
+    /* Botão Alterar Foto no Canto Superior Esquerdo */
+    .btn-camera {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: 25px;
+      height: 25px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: background 0.3s;
+      z-index: 10;
+    }
+    .btn-camera:hover { background: rgba(0,0,0,0.8); }
+
+    /* Infos Abaixo */
     .dados {
-      flex: 1;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
     }
 
     .campo {
+      width: 100%;
       margin-bottom: 12px;
-      text-align: left;
+      text-align: center;
     }
 
     .campo label {
       display: block;
-      font-size: 0.9rem;
-      color: #00ffcc;
+      font-weight: bold;
+      color: #22d3ee;
       margin-bottom: 5px;
     }
 
     .nota-linha {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
+      width: 100%;
     }
 
     .nota-controle {
       display: flex;
+      gap: 8px;
       align-items: center;
-      gap: 5px;
-    }
-
-    .botao-nota {
-      width: 45px;
-      height: 45px;
-      font-size: 1.5rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #00bfff;
-      color: #fff;
-      cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
-    }
-
-    .botao-nota:hover {
-      transform: scale(1.1);
-      background-color: #00e6e6;
     }
 
     .campo-nota {
-      width: 45px;
-      height: 45px;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: bold;
-      border-radius: 8px;
-      border: none;
-      background-color: rgba(255, 255, 255, 0.15);
-      color: #fff;
-    }
-
-    .campo input[type="text"],
-    .campo input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      outline: none;
-      background-color: rgba(255,255,255,0.1);
-      color: #fff;
-    }
-
-    .campo input::placeholder {
-      color: #bbb;
-    }
-
-    .alterar-foto input {
-      display: none;
-    }
-
-    .alterar-foto {
-      cursor: pointer;
-      font-size: 1.2rem;
-    }
-
-    .acoes {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .acoes button {
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      border: none;
+      width: 50px;
+      padding: 4px;
       border-radius: 6px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+      text-align: center;
+      font-size: 1em;
+    }
+
+    .botao-nota {
+      background: #22c55e; /* Verde para + */
+      color: #fff;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       cursor: pointer;
-      transition: 0.3s;
+      font-size: 1.8em;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    .botao-nota:hover { opacity: 0.9; transform: scale(1.1); }
+    .botao-nota[data-delta="-1"] { background: #dc2626; }
+
+    .campo input[type="text"], .campo input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
     }
 
-    .acoes .remover {
-      background-color: #ff4444;
-      color: white;
+    /* Links Edit Metodos */
+    .metodos {
+      margin-bottom: 10px;
     }
-
-    .acoes .remover:hover {
-      background-color: #ff6666;
-    }
-
-    /* Link Edit Metodos */
     .link-edit {
-      color: #00ffcc;
+      color: #38bdf8;
       text-decoration: underline;
       cursor: pointer;
+      transition: color 0.3s;
       font-size: 0.9em;
     }
-
-    .link-edit:hover {
-      color: #00e6e6;
-    }
+    .link-edit:hover { color: #22d3ee; }
 
     /* Divider */
     .divider {
       height: 1px;
-      background: rgba(0, 255, 204, 0.2);
+      background: rgba(255,255,255,0.2);
       margin: 10px 0;
+      width: 100%;
     }
+
+    /* Ações */
+    .acoes {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 10px;
+      width: 100%;
+    }
+    .classificar, .remover {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    .classificar {
+      background: #16a34a;
+      color: #fff;
+    }
+    .classificar:hover { background: #15803d; }
+    .remover {
+      background: #dc2626;
+      color: #fff;
+    }
+    .remover:hover { background: #b91c1c; }
 
     /* Loader */
     .loader {
       text-align: center;
       margin: 20px;
-      color: #00ffcc;
-      font-size: 1.1rem;
-      text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+      color: #22d3ee;
+      font-size: 1.2em;
     }
-
     .spinner {
       width: 50px;
       height: 50px;
-      border: 4px solid rgba(0, 255, 204, 0.2);
-      border-top-color: #00ffcc;
+      border: 4px solid rgba(34, 211, 238, 0.2);
+      border-top-color: #22d3ee;
       border-radius: 50%;
-      animation: girar 1s linear infinite;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
     }
 
     /* Mensagens */
@@ -283,8 +304,7 @@
       transition: opacity 0.4s ease;
       z-index: 9999;
     }
-
-    .mensagem-sucesso { background: #00ffcc; color: #000; }
+    .mensagem-sucesso { background: #16a34a; color: #fff; }
     .mensagem-info { background: #2563eb; color: #fff; }
     .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
 
@@ -292,115 +312,47 @@
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      inset: 0;
       background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
       justify-content: center;
       align-items: center;
-      z-index: 9999;
-      backdrop-filter: blur(4px);
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
     }
-
-    .modal.ativo {
-      display: flex;
-      animation: aparecer 0.3s ease;
-    }
-
-    .modal-conteudo {
-      background: rgba(20, 20, 35, 0.95);
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
-      width: 90%;
-      max-width: 400px;
-      color: #fff;
-      text-align: center;
-    }
-
-    .modal-conteudo h2 {
-      color: #00ffcc;
-      margin-bottom: 15px;
-      text-shadow: 0 0 8px #00ffcc;
-    }
-
-    .modal-conteudo input {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background-color: rgba(255,255,255,0.1);
-      color: white;
-      text-align: center;
-    }
-
     .botoes-modal {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
+      margin-top: 18px;
       gap: 10px;
-      margin-top: 15px;
     }
-
     .botoes-modal button {
-      background: linear-gradient(145deg, #00bfff, #007acc);
+      flex: 1;
+      padding: 10px 0;
       border: none;
-      color: #fff;
-      padding: 8px 16px;
       border-radius: 8px;
+      font-weight: bold;
       cursor: pointer;
-      transition: all 0.2s ease;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.3s;
     }
-
-    .botoes-modal button:hover {
-      background: linear-gradient(145deg, #00e6e6, #00aaff);
-      transform: scale(1.05);
-    }
-
-    .fechar-modal {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 24px;
-      color: #00ffcc;
-      cursor: pointer;
-    }
+    .btn-adicionar { background: #16a34a; }
+    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
+    .btn-cancelar { background: #dc2626; }
+    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
 
     /* Responsividade */
     @media (max-width: 768px) {
-      .formulario {
-        width: 90%;
-      }
-
-      .botoes {
-        flex-direction: column;
-      }
-
-      .botoes button {
-        width: 90%;
-        max-width: 400px;
-      }
-
-      .ficha {
-        flex-direction: column;
-      }
+      .layout-professor { flex-direction: column; }
+      .coluna-botoes-prof { width: 100%; margin-bottom: 20px; }
+      .painel.active { grid-template-columns: 1fr; }
+      .nota-controle { flex-wrap: wrap; justify-content: center; }
+      .acoes { flex-direction: column; }
     }
 
     /* Animações */
-    @keyframes girar {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes aparecer {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 
