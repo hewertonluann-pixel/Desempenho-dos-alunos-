@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- CSS Inline para Overrides e Melhorias UX/UI -->
+  <!-- CSS Inline para Overrides e Formatação dos Cards -->
   <style>
     /* ===== RESET E BASE ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', sans-serif; /* Melhor legibilidade */
+      font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
       color: #e2e8f0;
       padding: 20px;
@@ -33,7 +33,7 @@
       font-size: 1.1em;
     }
 
-    /* ===== LAYOUT PROFISSIONAL ===== */
+    /* ===== LAYOUT ===== */
     .layout-professor {
       display: flex;
       flex-direction: row;
@@ -41,18 +41,18 @@
       margin: 0 auto;
     }
 
-    /* Sidebar à Esquerda Empilhada */
+    /* Sidebar Empilhada à Esquerda */
     .coluna-botoes-prof {
-      flex: 0 0 180px; /* Espaço para empilhar botões */
-      position: sticky; /* Fixa durante scroll, mas mantém layout */
+      flex: 0 0 180px;
+      position: sticky;
       top: 20px;
       background: rgba(15, 23, 42, 0.95);
       border-radius: 16px;
       padding: 20px;
       border: 2px solid rgba(56, 189, 248, 0.4);
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      margin-right: 20px; /* Espaço para conteúdo */
-      z-index: 100; /* Sobreponhe background se necessário */
+      margin-right: 20px;
+      z-index: 100;
     }
     .titulo-card-prof {
       color: #22d3ee;
@@ -62,7 +62,7 @@
       font-weight: bold;
     }
     .coluna-botoes-prof button {
-      display: block; /* Empilha verticalmente */
+      display: block;
       width: 100%;
       margin-bottom: 15px;
       background: linear-gradient(135deg, #0ea5e9, #0284c7);
@@ -76,30 +76,26 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
     .coluna-botoes-prof button:hover {
-      transform: translateY(-3px) scale(1.02); /* Hover suave com scale */
+      transform: translateY(-3px) scale(1.02);
       box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-      background: linear-gradient(135deg, #0284c7, #0369a1);
     }
 
-    /* Conteúdo Principal */
-    .painel-alunos {
-      flex: 1;
-      position: relative;
-    }
+    /* Conteúdo */
+    .painel-alunos { flex: 1; }
 
-    /* Painel de Cards */
+    /* Painel Grid */
     .painel {
       display: none;
-      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); /* Otimizado para cards maiores */
+    }
+    .painel.active {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
       gap: 25px;
       margin-top: 30px;
-    }
-    .painel:active {
-      display: grid;
       animation: fadeIn 0.5s ease-out;
     }
 
-    /* Cards Profissionais */
+    /* Cards no Formato Anterior: Flex com Foto à Esquerda, Infos à Direita */
     .ficha {
       background: rgba(30, 41, 59, 0.95);
       border: 2px solid rgba(56, 189, 248, 0.3);
@@ -108,15 +104,14 @@
       box-shadow: 0 12px 50px rgba(0,0,0,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       display: flex;
-      gap: 20px;
+      gap: 15px;
       align-items: center;
     }
     .ficha:hover {
       transform: translateY(-8px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      box-shadow: 0 15px 60px rgba(0,0,0,0.5);
     }
 
-    /* Foto e Botão Alterar */
     .foto {
       width: 90px;
       height: 90px;
@@ -131,8 +126,8 @@
     /* Botão Alterar Foto no Canto Superior Esquerdo */
     .btn-camera {
       position: absolute;
-      top: 5px; /* Canto superior */
-      left: 5px; /* Esquerdo */
+      top: 5px;
+      left: 5px;
       width: 25px;
       height: 25px;
       background: rgba(0,0,0,0.6);
@@ -149,17 +144,16 @@
     }
     .btn-camera:hover { background: rgba(0,0,0,0.8); }
 
-    /* Infos do Aluno */
     .info-principal { flex: 1; }
     .nome {
-      font-size: 1.6em;
-      font-weight: 700;
+      font-size: 1.5em;
+      font-weight: bold;
       color: #22d3ee;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       text-align: center;
     }
     .metodos {
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       text-align: center;
     }
     .link-edit {
@@ -168,20 +162,25 @@
       cursor: pointer;
       transition: color 0.3s;
       font-size: 0.9em;
-      font-weight: 500;
     }
     .link-edit:hover { color: #22d3ee; }
 
-    /* Campos de Nota */
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.2);
+      margin: 10px 0;
+    }
+
+    /* Campos Dentro do Card */
     .campo {
       margin-bottom: 12px;
     }
     .campo label {
       display: block;
-      font-weight: 600;
+      font-weight: bold;
       color: #22d3ee;
       margin-bottom: 5px;
-      font-size: 0.95em;
     }
     .nota-linha {
       display: flex;
@@ -190,55 +189,55 @@
     }
     .nota-controle {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       align-items: center;
     }
     .campo-nota {
       width: 50px;
-      height: 40px;
-      text-align: center;
-      font-size: 1.1em;
-      font-weight: bold;
-      border-radius: 8px;
+      padding: 4px;
+      border-radius: 6px;
       background: #1e293b;
       color: #fff;
       border: 1px solid #334155;
+      text-align: center;
+      font-size: 1em;
     }
     .botao-nota {
-      width: 40px;
-      height: 40px;
-      background: #22c55e; /* Verde para + */
+      background: #22c55e;
       color: #fff;
       border: none;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 1.5em;
-      font-weight: bold;
+      font-size: 1.8em;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.3s ease;
       box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     }
-    .botao-nota:hover { transform: scale(1.1); opacity: 0.9; }
+    .botao-nota:hover { opacity: 0.9; transform: scale(1.1); }
     .botao-nota[data-delta="-1"] { background: #dc2626; }
 
-    /* Inputs */
     .campo input[type="text"], .campo input[type="file"] {
       width: 100%;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 8px;
+      border-radius: 6px;
       background: #1e293b;
       color: #fff;
       border: 1px solid #334155;
-      font-size: 0.95em;
     }
 
-    /* Ações */
+    /* Ações Dentro do Card */
     .acoes {
-      margin-top: 20px;
+      margin-top: 15px;
       display: flex;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
       border-top: 1px solid rgba(255,255,255,0.2);
-      padding-top: 15px;
+      padding-top: 10px;
     }
     .classificar, .remover {
       padding: 10px 16px;
@@ -247,33 +246,24 @@
       cursor: pointer;
       font-weight: bold;
       transition: all 0.3s ease;
-      font-size: 0.9em;
     }
     .classificar {
       background: #16a34a;
       color: #fff;
     }
-    .classificar:hover { background: #15803d; transform: scale(1.05); }
+    .classificar:hover { background: #15803d; }
     .remover {
       background: #dc2626;
       color: #fff;
     }
-    .remover:hover { background: #b91c1c; transform: scale(1.05); }
-
-    /* Separadores */
-    .divider {
-      height: 1px;
-      background: rgba(255,255,255,0.3);
-      margin: 15px 0;
-    }
+    .remover:hover { background: #b91c1c; }
 
     /* Loader */
     .loader {
       text-align: center;
-      margin: 30px;
+      margin: 20px;
       color: #22d3ee;
       font-size: 1.2em;
-      font-weight: 500;
     }
     .spinner {
       width: 50px;
@@ -281,26 +271,24 @@
       border: 4px solid rgba(34, 211, 238, 0.2);
       border-top-color: #22d3ee;
       border-radius: 50%;
-      animation: spin 1.2s linear infinite;
-      margin: 0 auto 15px;
-      box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
     }
 
-    /* Mensagens de Feedback */
+    /* Mensagens */
     .mensagem-sucesso, .mensagem-info {
       position: fixed;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 15px 25px;
-      border-radius: 10px;
+      padding: 12px 24px;
+      border-radius: 8px;
       font-weight: 600;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.4s ease;
       z-index: 9999;
-      font-size: 1em;
     }
     .mensagem-sucesso { background: #16a34a; color: #fff; }
     .mensagem-info { background: #2563eb; color: #fff; }
@@ -309,69 +297,42 @@
     /* Modal */
     .modal {
       display: none;
-    }
-    .modal.ativo {
-      display: flex;
-      justify-content: center;
-      align-items: center;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(6px);
-      animation: fadeIn 0.4s ease;
-      z-index: 2000;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
     }
-    .modal-conteudo {
-      background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-      width: 90%;
-      max-width: 450px;
-      color: #f0f0f0;
-      text-align: center;
-    }
-    .modal-conteudo h2 { color: #22d3ee; margin-bottom: 20px; }
     .botoes-modal {
       display: flex;
-      gap: 15px;
-      margin-top: 20px;
-      justify-content: flex-end;
+      justify-content: space-between;
+      margin-top: 18px;
+      gap: 10px;
     }
-    .btn-salvar, .btn-cancelar {
-      padding: 10px 20px;
-      border-radius: 10px;
+    .botoes-modal button {
+      flex: 1;
+      padding: 10px 0;
       border: none;
-      cursor: pointer;
+      border-radius: 8px;
       font-weight: bold;
-      transition: all 0.3s ease;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.3s;
     }
-    .btn-salvar { background: #16a34a; color: #fff; }
-    .btn-salvar:hover { background: #15803d; transform: scale(1.05); }
-    .btn-cancelar { background: #dc2626; color: #fff; }
-    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.05); }
-
-    /* Scrollbar Custom */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(34, 211, 238, 0.6);
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(34, 211, 238, 0.8); }
+    .btn-adicionar { background: #16a34a; }
+    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
+    .btn-cancelar { background: #dc2626; }
+    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
 
     /* Responsividade */
-    @media (max-width: 920px) {
+    @media (max-width: 768px) {
       .layout-professor { flex-direction: column; }
-      .coluna-botoes-prof { flex: none; width: 100%; margin-bottom: 20px; }
-      .painel { grid-template-columns: 1fr; }
-      .ficha { max-width: none; width: 100%; }
-    }
-    @media (max-width: 600px) {
-      .nota-controle { flex-wrap: wrap; justify-content: center; }
-      .campo-nota { width: 40px; height: 35px; }
-      .botao-nota { width: 35px; height: 35px; }
+      .coluna-botoes-prof { width: 100%; margin-bottom: 20px; }
+      .painel.active { grid-template-columns: 1fr; }
+      .ficha { flex-direction: column; text-align: center; }
     }
 
     /* Animações */
@@ -381,19 +342,16 @@
 </head>
 
 <body>
-  <!-- Nav -->
   <script type="module" src="navegacao.js"></script>
 
   <h1>Painel Gerencial 🎶</h1>
   <div id="usuarioLogado">-</div>
 
-  <!-- Mensagens -->
   <div id="mensagemSucesso" class="mensagem-sucesso"></div>
   <div id="mensagemInfo" class="mensagem-info"></div>
 
-  <!-- Layout Principal -->
   <div class="layout-professor">
-    <!-- Menu Lateral Empilhado à Esquerda -->
+    <!-- Sidebar Empilhada -->
     <div class="coluna-botoes-prof">
       <h2 class="titulo-card-prof">Menu Professor</h2>
       <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
@@ -402,10 +360,9 @@
       <button id="btnCriarEvento">📋 Chamada</button>
       <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
       <button onclick="exportarPDF()">📄 Exportar PDF</button>
-      <button id="btnRecalcularEnergia" class="recalcular-energia">🔄 Recalcular Energia</button>
+      <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
     </div>
 
-    <!-- Conteúdo Perfil/ Lições/ Cards -->
     <div class="painel-alunos">
       <div class="painel-licoes-prof" id="painelLicoesProf"></div>
       <div class="painel" id="painel"></div>
@@ -421,52 +378,52 @@
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
       <div class="campo-modal">
-        <label>Nome *</label>
-        <input type="text" id="novoNome" required>
+        <label>Nome</label>
+        <input type="text" id="novoNome">
       </div>
       <div class="campo-modal">
-        <label>Instrumento *</label>
-        <input type="text" id="novoInstrumento" required>
+        <label>Instrumento</label>
+        <input type="text" id="novoInstrumento">
       </div>
       <div class="campo-modal">
-        <label>Foto (opcional)</label>
+        <label>Foto</label>
         <input type="file" id="novoFoto" accept="image/*">
       </div>
       <div class="campo-modal">
-        <label>Método de Solfejo (ex.: Bona)</label>
-        <input type="text" id="novaLeitura" placeholder="Opcional">
+        <label>Método de Solfejo</label>
+        <input type="text" id="novaLeitura" placeholder="ex.: Bona">
       </div>
       <div class="campo-modal">
-        <label>Método Instrumental (ex.: Amadeu Russo)</label>
-        <input type="text" id="novoMetodo" placeholder="Opcional">
+        <label>Método Instrumental</label>
+        <input type="text" id="novoMetodo" placeholder="ex.: Amadeu Russo">
       </div>
       <div class="botoes-modal">
-        <button id="btnCancel">❌ Cancelar</button>
-        <button id="btnConfirm">✅ Adicionar</button>
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
       </div>
     </div>
   </div>
 
   <div id="modalSolfejo" class="modal">
     <div class="modal-conteudo">
-      <div class="fechar-modal" onclick="this.parentElement.style.display='none'">&times;</div>
+      <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>✏️ Método de Solfejo</h2>
       <input type="text" id="editSolfejo" placeholder="Digite o método">
       <div class="botoes-modal">
-        <button id="btnCancelSolfejo">❌ Cancelar</button>
-        <button id="btnSaveSolfejo">💾 Salvar</button>
+        <button id="btnCancelSolfejo">Cancelar</button>
+        <button id="btnSalvarSolfejo">Salvar</button>
       </div>
     </div>
   </div>
 
   <div id="modalInstrumental" class="modal">
     <div class="modal-conteudo">
-      <div class="fechar-modal" onclick="this.parentElement.style.display='none'">&times;</div>
+      <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>🎵 Método Instrumental</h2>
       <input type="text" id="editInstrumental" placeholder="Digite o método">
       <div class="botoes-modal">
-        <button id="btnCancelInstrumental">❌ Cancelar</button>
-        <button id="btnSaveInstrumental">💾 Salvar</button>
+        <button id="btnCancelInstrumental">Cancelar</button>
+        <button id="btnSalvarInstrumental">Salvar</button>
       </div>
     </div>
   </div>
