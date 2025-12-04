@@ -1,5 +1,5 @@
 // ========== professor.js ==========
-// Versão final corrigida: Sem duplicação de funções/scripts, CSS загружeno
+// Versão final corrigida: Com novo card aplicado no renderizarPainel
 
 import { app, db } from "./firebase-config.js";
 import {
@@ -202,46 +202,54 @@ export async function renderizarPainel() {
     const alunos = await carregarAlunos();
     painel.innerHTML = alunos.map(aluno => `
       <div class="ficha">
-        <div class="foto-and-camera">
-          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="Foto de ${aluno.nome}">` : '<p>Sem foto</p>'}</div>
+        <div class="foto-wrapper">
+          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="Foto de ${aluno.nome}">` : '<div class="avatar-placeholder">👤</div>'}</div>
           <button class="btn-camera" onclick="selecionarFoto('${aluno.id}')">📷</button>
-          <input type="file" id="foto-${aluno.id}" accept="image/*" style="display:none;" onchange="atualizarFoto('${aluno.id}', this.files[0])" />
+          <input type="file" id="foto-${aluno.id}" accept="image/*" style="display:none;" onchange="atualizarFoto('${aluno.id}', this.files[0])">
         </div>
-        <div class="name"><strong>${aluno.nome}</strong></div>
-        <div class="campo nota-linha">
-          <label>Leitura</label>
-          <div class="nota-controle">
-            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
-            <input class="campo-nota" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
-            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
+        <div class="nome-section">
+          <strong class="nome">${aluno.nome}</strong>
+        </div>
+        <div class="divider"></div>
+        <div class="notas-section">
+          <div class="nota-line extended">
+            <div class="label-group">
+              <label>Leitura</label>
+              <span class="metodo-text">${aluno.leituraNome || ''}</span>
+            </div>
+            <div class="nota-controls">
+              <button class="btn-decrease" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
+              <input class="nota-input" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
+              <button class="btn-increase" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
+            </div>
+          </div>
+          <div class="nota-line extended">
+            <div class="label-group">
+              <label>Método</label>
+              <span class="metodo-text">${aluno.metodoNome || ''}</span>
+            </div>
+            <div class="nota-controls">
+              <button class="btn-decrease" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
+              <input class="nota-input" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
+              <button class="btn-increase" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
+            </div>
           </div>
         </div>
-        <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || ''}')">${aluno.leituraNome || 'Método de Solfejo'}</div>
         <div class="divider"></div>
-        <div class="campo nota-linha">
-          <label>Método</label>
-          <div class="nota-controle">
-            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
-            <input class="campo-nota" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
-            <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
-          </div>
+        <div class="edit-section">
+          <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)" placeholder="Instrumento">
         </div>
-        <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || ''}')">${aluno.metodoNome || 'Método Instrumental'}</div>
         <div class="divider"></div>
-        <div class="campo">
-          <label>Instrumento</label>
-          <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)">
-        </div>
-        <div class="acoes">
-          <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
-          <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
+        <div class="actions">
+          <button class="btn-classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? '❌ Desclassificar' : '✅ Classificar'}</button>
+          <button class="btn-remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">🗑️ Remover</button>
         </div>
       </div>
     `).join("");
 
     loader.style.display = "none";
     painel.style.display = "flex";
-    console.log("✅ Painel de alunos renderizado.");
+    console.log("✅ Painel de alunos renderizado com novo card.");
   } catch (error) {
     console.error("❌ Erro ao renderizar painel:", error);
     loader.style.display = "none";
@@ -402,7 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  console.log("🟢 Página professor carregada.");
+  console.log("🟢 Página professor carregada com novo card.");
 
   const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
   const usuarioDiv = document.getElementById("usuarioLogado");
