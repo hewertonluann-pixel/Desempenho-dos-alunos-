@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Social 🎵 — Orquestra</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+  <!-- Reutiliza base visual do aluno (fonte, cores, etc) -->
+  <link rel="stylesheet" href="aluno.css" />
+
+  <style>
+    body {
+      background: #0b1020;
+      color: #e5e7eb;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #22d3ee;
+      margin-bottom: 4px;
+      font-size: 1.6rem;
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: #9ca3af;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .grid-social {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .card-social {
+      background: radial-gradient(circle at top left, #1f2937, #020617);
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(34, 211, 238, 0.22);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .card-social:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 35px rgba(8, 47, 73, 0.85);
+      border-color: rgba(56, 189, 248, 0.7);
+    }
+
+    .topo-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .foto-social {
+      width: 64px;
+      height: 64px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 2px solid rgba(34, 211, 238, 0.5);
+      flex-shrink: 0;
+      background: #020617;
+    }
+
+    .foto-social img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .info-principal {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .nome-aluno {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f9fafb;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .instrumento-aluno {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Linha de energia + números */
+    .linha-stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .energia-mini {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+    }
+
+    .energia-mini-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: #e5e7eb;
+    }
+
+    .barra-energia-mini {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+    }
+
+    .nivel-mini {
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .numeros-mini {
+      display: flex;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    .numeros-mini span {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* Conquistas */
+    .conquistas-social {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .conquistas-social .icones {
+      font-size: 1.2rem;
+    }
+
+    /* Responsivo: mais respiro em telas grandes */
+    @media (min-width: 1024px) {
+      body {
+        padding-inline: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>👥 Painel Social da Orquestra</h1>
+  <p class="subtitulo">Veja seus colegas, suas energias, níveis e conquistas. Toque em um card para abrir o painel completo.</p>
+
+  <div class="grid-social" id="gridSocial"></div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { mapaConquistas } from "./conquistas.js";
+
+    const grid = document.getElementById("gridSocial");
+
+    function calcularConquistas(aluno) {
+      const desbloqueadas = Object.values(mapaConquistas)
+        .filter(conquista => conquista.condicao(aluno))
+        .map(conquista => conquista.icone);
+
+      return desbloqueadas.length > 0 ? desbloqueadas.join(" ") : "—";
+    }
+
+    function corBarraEnergia(energia) {
+      if (energia < 40) {
+        return "linear-gradient(90deg, #f97373, #fb923c)";
+      } else if (energia < 80) {
+        return "linear-gradient(90deg, #facc15, #fef08a)";
+      } else {
+        return "linear-gradient(90deg, #22c55e, #4ade80)";
+      }
+    }
+
+    async function carregarAlunos() {
+      const snap = await getDocs(collection(db, "alunos"));
+      const alunos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Opcional: ordenar por energia (maior primeiro)
+      alunos.sort((a, b) =>
+        (b.frequenciaMensal?.porcentagem ?? 0) -
+        (a.frequenciaMensal?.porcentagem ?? 0)
+      );
+
+      grid.innerHTML = alunos.map(aluno => {
+        const energia = aluno.frequenciaMensal?.porcentagem ?? 0;
+        const total = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
+        const conquistas = calcularConquistas(aluno);
+
+        const bgBarra = corBarraEnergia(energia);
+
+        return `
+          <div class="card-social"
+               onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+
+            <div class="topo-card">
+              <div class="foto-social">
+                ${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}
+              </div>
+
+              <div class="info-principal">
+                <div class="nome-aluno">${aluno.nome}</div>
+                <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
+              </div>
+            </div>
+
+            <div class="linha-stats">
+              <div class="energia-mini">
+                <div class="energia-mini-label">
+                  <span>⚡ Energia</span>
+                  <span>${energia}%</span>
+                </div>
+                <div class="barra-energia-mini">
+                  <div class="nivel-mini"
+                       style="width:${energia}%; background:${bgBarra};"></div>
+                </div>
+              </div>
+
+              <div class="numeros-mini">
+                <span>📘 ${aluno.leitura ?? 0}</span>
+                <span>🎯 ${aluno.metodo ?? 0}</span>
+                <span>🧮 ${total}</span>
+              </div>
+            </div>
+
+            <div class="conquistas-social">
+              <span>🏆 Conquistas</span>
+              <span class="icones">${conquistas}</span>
+            </div>
+
+          </div>
+        `;
+      }).join("");
+    }
+
+    carregarAlunos();
+  </script>
+
+<script type="module" src="navegacao.js"></script>
+  
+</body>
+</html>
