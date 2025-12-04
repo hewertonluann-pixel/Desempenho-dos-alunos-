@@ -7,36 +7,12 @@
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- CSS Inline Atualizado para Toggle Sidebar e Melhorias Usabilidade -->
+  <!-- CSS Inline (Comparado: Mantido da Versão Fornecida, Adicionado Toggle Sidebar da Nova Versão) -->
   <style>
-    /* ===== RESET E BASE ===== */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-      color: #e2e8f0;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    h1 {
-      text-align: center;
-      color: #22d3ee;
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      font-weight: 700;
-    }
-    .usuario-logado {
-      text-align: center;
-      margin-bottom: 30px;
-      opacity: 0.85;
-      font-size: 1.1em;
-    }
-
-    /* ===== BOTÃO TOGGLE SIDEBAR (HAMBURGER PARA MOBILE) ===== */
+    /* ===== MELHORIAS UX PARA SIDEBAR TOGGLE ===== */
     .btn-toggle-sidebar {
-      display: none; /* Hidden em desktop */
-      position: fixed; /* Fixo no mobile */
+      display: none;
+      position: fixed;
       top: 20px;
       left: 20px;
       background: rgba(56, 189, 248, 0.8);
@@ -51,26 +27,12 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     .btn-toggle-sidebar:hover { background: rgba(56, 189, 248, 1); }
+    @media (max-width: 767px) { .btn-toggle-sidebar { display: block; } }
 
-    @media (max-width: 767px) {
-      .btn-toggle-sidebar {
-        display: block; /* Visible em mobile */
-      }
-    }
-
-    /* ===== LAYOUT ACTUALIZADO ===== */
-    .layout-professor {
-      display: flex;
-      flex-direction: row;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    /* Sidebar Empilhada (Agora toggleable em mobile) */
+    /* Sidebar Responsiva com Toggle */
     .coluna-botoes-prof {
-      transition: transform 0.3s ease; /* Animação para toggle */
+      transition: transform 0.3s ease;
     }
-    /* Desktop: Sempre visível */
     @media (min-width: 768px) {
       .coluna-botoes-prof {
         flex: 0 0 180px;
@@ -85,7 +47,6 @@
         z-index: 100;
       }
     }
-    /* Mobile: Toggle hide/show */
     @media (max-width: 767px) {
       .coluna-botoes-prof {
         position: fixed;
@@ -95,14 +56,26 @@
         width: 250px;
         background: rgba(15, 23, 42, 0.95);
         border-radius: 0 16px 16px 0;
-        padding: 60px 20px 20px; /* Espaço para btn toggle */
+        padding: 60px 20px 20px;
         border: 2px solid rgba(56, 189, 248, 0.4);
         box-shadow: 4px 0 20px rgba(0,0,0,0.3);
         z-index: 1000;
-        transform: translateX(-100%); /* Hidden por default */
+        transform: translateX(-100%);
       }
-      .coluna-botoes-prof.open { transform: translateX(0); } /* Show on toggle */
+      .coluna-botoes-prof.open { transform: translateX(0); }
     }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.visible { opacity: 1; display: block; }
 
     .titulo-card-prof {
       color: #22d3ee;
@@ -128,27 +101,13 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
     .coluna-botoes-prof button:hover { transform: translateY(-3px) scale(1.02); }
-    .coluna-botoes-prof button:focus { outline: 2px solid #22d3ee; outline-offset: 2px; }
 
-    /* Overlay para Mobile quando Sidebar Open */
-    @media (max-width: 767px) {
-      .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      .sidebar-overlay.visible { opacity: 1; display: block; }
-    }
-
-    /* Conteúdo */
+    /* Layout */
+    .layout-professor { display: flex; flex-direction: row; max-width: 1400px; margin: 0 auto; }
     .painel-alunos { flex: 1; }
 
-    /* Painel Grid Atualizado */
+    /* Painel Grid */
+    .painel { display: none; }
     .painel.active {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -157,7 +116,7 @@
       animation: fadeIn 0.5s ease-out;
     }
 
-    /* ===== CARDS (LAYOUT MANTIDO INALTERADO, MESMO EM MOBILE) ===== */
+    /* ===== CARDS EXATAMENTE COMO VERSÃO FORNECIDA ===== */
     .ficha {
       background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.9));
       border: 2px solid rgba(56, 189, 248, 0.4);
@@ -171,120 +130,320 @@
       align-items: center;
       gap: 6px;
     }
-    .ficha:hover { transform: translateY(-4px) scale(1.01); }
-
-    /* Foto e Btn Camera */
-    .foto-wrapper { position: relative; margin-bottom: 6px; }
-    .foto img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(56, 189, 248, 0.6); }
-    .btn-camera {
-      position: absolute; top: 8px; right: 8px;
-      width: 24px; height: 24px; background: rgba(0,0,0,0.8); color: white; border: none; border-radius: 50%;
-      cursor: pointer; font-size: 12px; transition: all 0.3s ease; z-index: 20;
+    .ficha:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.5);
+      border-color: rgba(34, 211, 238, 0.6);
     }
-    .btn-camera:hover { transform: scale(1.1); }
 
-    /* Nome e Dividers */
-    .nome-section { text-align: center; margin-bottom: 4px; }
-    .nome { font-size: 1.3em; font-weight: bold; color: #22d3ee; }
-    .divider { height: 1px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); margin: 4px 0; width: 80%; }
+    .foto-wrapper {
+      position: relative;
+      margin-bottom: 6px;
+    }
+    .foto {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border: 2px solid rgba(56, 189, 248, 0.6);
+    }
+    .foto img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      background: rgba(56, 189, 248, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #22d3ee;
+      font-size: 35px;
+    }
 
-    /* Notas com Separação */
-    .notas-section { width: 100%; }
+    .btn-camera {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      z-index: 20;
+    }
+    .btn-camera:hover {
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }
+
+    .nome-section {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .nome {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #22d3ee;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+      margin: 4px 0;
+      width: 80%;
+    }
+
+    .notas-section { width: 100%; gap: 0; }
     .nota-line.extended {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
     .nota-line.extended:last-child { margin-bottom: 0; }
-    .label-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .label-group label { font-weight: bold; color: #22d3ee; font-size: 0.85em; }
-    .metodo-text { font-size: 0.8em; color: #38bdf8; font-style: italic; text-align: center; }
-    .nota-controls { display: flex; align-items: center; gap: 6px; }
+    .label-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .label-group label {
+      font-weight: bold;
+      color: #22d3ee;
+      font-size: 0.85em;
+    }
+    .metodo-text {
+      font-size: 0.8em;
+      color: #38bdf8;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .nota-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
     .btn-decrease, .btn-increase {
-      width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer; color: white;
-      font-size: 16px; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     .btn-decrease { background: #dc2626; }
     .btn-increase { background: #22c55e; }
-    .nota-input { width: 40px; height: 32px; text-align: center; border-radius: 6px; background: #1e293b; color: #fff; border: 1px solid #334155; }
+    .btn-decrease:hover { background: #b91c1c; transform: scale(1.1); }
+    .btn-increase:hover { background: #16a34a; transform: scale(1.1); }
 
-    /* Edit e Ações */
-    .edit-section input { width: 100%; padding: 6px; border-radius: 6px; background: #1e293b; color: #fff; text-align: center; }
-    .edit-section input::placeholder { color: #22d3ee; font-style: italic; }
+    .nota-input {
+      width: 40px;
+      height: 32px;
+      text-align: center;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #fff;
+      font-size: 1em;
+      font-weight: bold;
+    }
 
-    .actions { display: flex; gap: 8px; justify-content: center; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; margin-top: 8px; }
-    .btn-classificar, .btn-remover { flex: 1; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: #fff; transition: all 0.3s ease; }
+    .edit-section {
+      width: 100%;
+    }
+    .edit-section input {
+      width: 100%;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #fff;
+      font-size: 0.9em;
+      text-align: center;
+    }
+    .edit-section input::placeholder {
+      color: #22d3ee;
+      font-style: italic;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+    .btn-classificar, .btn-remover {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+      transition: all 0.3s ease;
+      font-size: 0.85em;
+    }
     .btn-classificar { background: #16a34a; }
+    .btn-classificar:hover { background: #15803d; transform: translateY(-1px); }
     .btn-remover { background: #dc2626; }
+    .btn-remover:hover { background: #b91c1c; transform: translateY(-1px); }
 
-    /* ===== LOADER, MENSAGENS, MODALS (MANTIDOS COM APERFEIÇOAMENTOS USAB ILIDADE) ===== */
-    .loader { text-align: center; margin: 20px; color: #22d3ee; }
-    .spinner { width: 50px; height: 50px; border: 4px solid rgba(34, 211, 238, 0.2); border-top-color: #22d3ee; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+    /* Loader */
+    .loader {
+      text-align: center;
+      margin: 20px;
+      color: #22d3ee;
+      font-size: 1.2em;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(34, 211, 238, 0.2);
+      border-top-color: #22d3ee;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
 
+    /* Mensagens */
     .mensagem-sucesso, .mensagem-info {
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px;
-      font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.25); opacity: 0; transition: opacity 0.4s ease; z-index: 9999;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      z-index: 9999;
     }
     .mensagem-sucesso { background: #16a34a; color: #fff; }
     .mensagem-info { background: #2563eb; color: #fff; }
     .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
 
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.3s ease; }
-    .modal-conteudo { background: linear-gradient(145deg, #1e1e1e, #2a2a2a); padding: 30px; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 400px; color: #f0f0f0; }
-    .modal-conteudo h2 { color: #22d3ee; margin-bottom: 20px; }
-    .botoes-modal { display: flex; gap: 15px; margin-top: 20px; justify-content: flex-end; }
-    .btn-salvar, .btn-cancelar { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; color: #fff; transition: all 0.3s ease; }
-    .btn-salvar { background: #16a34a; }
-    .btn-salvar:hover { background: #15803d; transform: translateY(-2px); }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+    .botoes-modal {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 18px;
+      gap: 10px;
+    }
+    .botoes-modal button {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.3s;
+    }
+    .btn-adicionar { background: #16a34a; }
+    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
     .btn-cancelar { background: #dc2626; }
-    .btn-cancelar:hover { background: #b91c1c; transform: translateY(-2px); }
+    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
 
-    /* ===== MELHORIAS USABILIDADE ===== */
-    /* Focus Visível para Navegação Teclado */
-    button:focus, input:focus { outline: 2px solid #22d3ee; outline-offset: 2px; }
-    /* Aria Labels para Botões (Em JS ou HTML, aqui exemplo) */
-    /* Touch-Friendly: Botões >=44px Touch Target */
-    /* Performance: Lazy Load Imagens se necessário */
-    /* Acessibilidade: Alt Text em Imagens */
-
-    /* ===== RESPONSIVIDADE (LAYOUT CARDS MANTIDO INALTERADO) ===== */
-    /* Nota: Layout dos Cards NÃO Muda em Mobile, apenas container ajusta se necessário para visualização */
-    @media (max-width: 767px) {
-      .layout-professor { gap: 10px; }
-      /* Sidebar Toggle Logic also handles display */
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .layout-professor { flex-direction: column; }
+      .coluna-botoes-prof { width: 100%; margin-bottom: 20px; }
+      .painel.active { grid-template-columns: 1fr; }
+      .nota-controls { flex-direction: column; gap: 3px; }
+      .nota-input { width: 100%; margin: 3px 0; }
     }
 
     /* Animações */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Reset/Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: #e2e8f0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: #22d3ee;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      font-weight: 700;
+    }
+    .usuario-logado {
+      text-align: center;
+      margin-bottom: 30px;
+      opacity: 0.85;
+      font-size: 1.1em;
+    }
   </style>
 </head>
 
 <body>
-  <!-- Botão Toggle Sidebar (Mobile) -->
+  <!-- Botão Toggle Sidebar (Addicionado para Mobile) -->
   <button class="btn-toggle-sidebar" id="btnToggleSidebar">☰</button>
-
   <!-- Overlay para Mobile -->
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <!-- Nav -->
   <script type="module" src="navegacao.js"></script>
 
-  <!-- LAYOUT PRINCIAL UNCHANGED, Sidebar Toggle Added -->
   <h1>Painel Gerencial 🎶</h1>
   <div id="usuarioLogado">-</div>
 
   <div id="mensagemSucesso" class="mensagem-sucesso"></div>
   <div id="mensagemInfo" class="mensagem-info"></div>
 
+  <!-- Layout (Restante como Versão Fornecida) -->
   <div class="layout-professor">
     <div class="coluna-botoes-prof" id="sidebar">
       <h2 class="titulo-card-prof">Menu Professor</h2>
-      <button id="btnAdicionarAluno" aria-label="Adicionar novo aluno">➕ Adicionar Aluno</button>
-      <button id="btnMostrarAlunos" aria-label="Gerenciar alunos existentes">👥 Gerenciar Alunos</button>
-      <button id="btnModoAluno" aria-label="Alternar para modo aluno">🎓 Modo Aluno</button>
-      <button id="btnCriarChamada" aria-label="Criar nova chamada">📋 Chamada</button>
-      <button onclick="window.location.href='gerenciar-eventos.html'" aria-label="Gerenciar chamadas passadas">🗂️ Gerenciar Chamadas</button>
-      <button onclick="exportarPDF()" aria-label="Exportar dados para PDF">📄 Exportar PDF</button>
-      <button id="btnRecalcularEnergia" aria-label="Recalcular energia baseada em frequência">⚡ Recalcular Energia</button>
+      <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
+      <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
+      <button id="btnModoAluno">🎓 Modo Aluno</button>
+      <button id="btnCriarChamada">📋 Chamada</button>
+      <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
+      <button onclick="exportarPDF()">📄 Exportar PDF</button>
+      <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
     </div>
 
     <div class="painel-alunos">
@@ -297,43 +456,42 @@
     </div>
   </div>
 
-  <!-- Modais MANTIDOS -->
+  <!-- Modais (Mantidos da Versão Fornecida) -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
       <div class="campo-modal">
-        <label for="novoNome">Nome</label>
-        <input type="text" id="novoNome" placeholder="Nome completo">
+        <label>Nome</label>
+        <input type="text" id="novoNome">
       </div>
       <div class="campo-modal">
-        <label for="novoInstrumento">Instrumento</label>
-        <input type="text" id="novoInstrumento" placeholder="Ex.: Violino">
+        <label>Instrumento</label>
+        <input type="text" id="novoInstrumento">
       </div>
       <div class="campo-modal">
-        <label for="novoFoto">Foto (opcional)</label>
+        <label>Foto</label>
         <input type="file" id="novoFoto" accept="image/*">
       </div>
       <div class="campo-modal">
-        <label for="novaLeitura">Método de Solfejo</label>
+        <label>Método de Solfejo</label>
         <input type="text" id="novaLeitura" placeholder="ex.: Bona">
       </div>
       <div class="campo-modal">
-        <label for="novoMetodo">Método Instrumental</label>
+        <label>Método Instrumental</label>
         <input type="text" id="novoMetodo" placeholder="ex.: Amadeu Russo">
       </div>
       <div class="botoes-modal">
-        <button id="btnCancel">❌ Cancelar</button>
-        <button id="btnConfirm">✅ Adicionar</button>
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">✅ Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">❌ Cancelar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Solfejo -->
   <div id="modalSolfejo" class="modal">
     <div class="modal-conteudo">
-      <span class="fechar-modal" onclick="this.parentElement.style.display='none'">&times;</span>
+      <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>✏️ Método de Solfejo</h2>
-      <input type="text" id="editSolfejo" placeholder="Digite o método" required>
+      <input type="text" id="editSolfejo" placeholder="Digite o método">
       <div class="botoes-modal">
         <button id="btnCancelSolfejo">❌ Cancelar</button>
         <button id="btnSalvarSolfejo">💾 Salvar</button>
@@ -341,12 +499,11 @@
     </div>
   </div>
 
-  <!-- Modal Instrumental -->
   <div id="modalInstrumental" class="modal">
     <div class="modal-conteudo">
-      <span class="fechar-modal" onclick="this.parentElement.style.display='none'">&times;</span>
+      <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>🎵 Método Instrumental</h2>
-      <input type="text" id="editInstrumental" placeholder="Digite o método" required>
+      <input type="text" id="editInstrumental" placeholder="Digite o método">
       <div class="botoes-modal">
         <button id="btnCancelInstrumental">❌ Cancelar</button>
         <button id="btnSalvarInstrumental">💾 Salvar</button>
@@ -354,9 +511,8 @@
     </div>
   </div>
 
-  <!-- SCRIPT INLINE PARA TOGGLE SIDEBAR E MELHORIAS JS -->
+  <!-- Script Inline para Toggle Sidebar (Adicionado da Nova Versão) -->
   <script>
-    // Toggle Sidebar para Mobile
     document.addEventListener('DOMContentLoaded', () => {
       const btnToggle = document.getElementById('btnToggleSidebar');
       const sidebar = document.getElementById('sidebar');
@@ -368,7 +524,6 @@
           overlay.classList.toggle('visible');
         });
 
-        // Close on overlay click or outside
         if (overlay) {
           overlay.addEventListener('click', () => {
             sidebar.classList.remove('open');
@@ -376,7 +531,6 @@
           });
         }
 
-        // ESC key to close
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open');
@@ -384,12 +538,10 @@
           }
         });
       }
-
-      // Melhorias Usabilidade: Loading States, Error Handling, etc.
-      // (Integrate with professor.js)
     });
   </script>
 
+  <!-- Scripts JS (Mantidos da Versão Fornecida) -->
   <script type="module" src="professor-licoes.js"></script>
   <script type="module" src="professor.js"></script>
 </body>
