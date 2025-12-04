@@ -7,99 +7,82 @@
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- CSS Inline Updated: Menu Não Retrátil, Desktop à Esquerda, Mobile Below "Professor: Hewerton" -->
+  <!-- CSS Inline Updated for Uniform Horizontal Note Controls and Repositioned Toggle -->
   <style>
-    /* ===== BASE ===== */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-      color: #e2e8f0;
+    /* ===== MELHORIAS: TOGGLE BELOW NAV, CONTROLES ALWAYS HORIZONTAL ===== */
+    .btn-toggle-sidebar {
+      display: none;
+      position: relative;
+      margin: 70px auto 20px; /* Below nav, adjust if nav height differs */
+      background: rgba(56, 189, 248, 0.8);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .btn-toggle-sidebar:hover { background: rgba(56, 189, 248, 1); }
+    @media (max-width: 767px) { .btn-toggle-sidebar { display: block; } }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.visible { opacity: 1; display: block; }
+
+    /* Coluna botoes unchanged, but added transition for toggle */
+    .coluna-botoes-prof {
+      flex: 0 0 180px;
+      position: sticky;
+      top: 20px;
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: 16px;
       padding: 20px;
-      min-height: 100vh;
+      border: 2px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      margin-right: 20px;
+      z-index: 100;
+      transition: transform 0.3s ease;
     }
-    h1 {
-      text-align: center;
-      color: #22d3ee;
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      font-weight: 700;
-    }
-    .usuario-logado {
-      text-align: center;
-      margin-bottom: 20px;
-      opacity: 0.85;
-      font-size: 1.1em;
-    }
-
-    .layout-professor {
-      display: flex;
-      flex-direction: row;
-      max-width: 1400px;
-      margin: 0 auto;
-      gap: 20px;
-      justify-content: center;
-    }
-    .painel-alunos { flex: 1; min-width: 0; }
-
-    .painel { display: none; }
-    .painel.active {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-      gap: 25px;
-      margin-top: 20px;
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    /* Desktop: Sidebar à Esquerda, Sempre Visível */
-    @media (min-width: 769px) { /* Desktop */
+    @media (max-width: 767px) {
       .coluna-botoes-prof {
-        flex: 0 0 180px;
-        position: sticky;
-        top: 20px;
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 250px;
         background: rgba(15, 23, 42, 0.95);
-        border-radius: 16px;
-        padding: 20px;
+        border-radius: 0 16px 16px 0;
+        padding: 60px 20px 20px;
         border: 2px solid rgba(56, 189, 248, 0.4);
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        margin-right: 20px;
-        z-index: 100;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+        z-index: 1000;
+        transform: translateX(-100%);
       }
-    }
-
-    /* Mobile: Sidebar Sempre Visível Below "Professor: Hewerton" */
-    @media (max-width: 768px) { /* Mobile */
-      .layout-professor { flex-direction: column; }
-      .coluna-botoes-prof {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: 16px;
-        padding: 20px;
-        border: 2px solid rgba(56, 189, 248, 0.4);
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-      }
-      .painel.active {
-        grid-template-columns: 1fr;
-        margin-top: 20px;
-      }
+      .coluna-botoes-prof.open { transform: translateX(0); }
     }
 
     .titulo-card-prof {
       color: #22d3ee;
       font-size: 1.4em;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       text-align: center;
       font-weight: bold;
     }
 
     .coluna-botoes-prof button {
+      display: block;
       width: 100%;
+      margin-bottom: 15px;
       background: linear-gradient(135deg, #0ea5e9, #0284c7);
       border: none;
       border-radius: 12px;
@@ -112,7 +95,20 @@
     }
     .coluna-botoes-prof button:hover { transform: translateY(-3px) scale(1.02); }
 
-    /* ===== CARDS Exatos ===== */
+    /* Layout Principal */
+    .layout-professor { display: flex; flex-direction: row; max-width: 1400px; margin: 0 auto; }
+    .painel-alunos { flex: 1; }
+
+    .painel { display: none; }
+    .painel.active {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* ===== CARDS EXATOS DA VERSÃO FORNECIDA (UNALTERED EXCEPT FOR ALWAYS HORIZONTAL NOTE CONTROLS) ===== */
     .ficha {
       background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.9));
       border: 2px solid rgba(56, 189, 248, 0.4);
@@ -132,14 +128,34 @@
       border-color: rgba(34, 211, 238, 0.6);
     }
 
-    .foto-wrapper { position: relative; margin-bottom: 6px; }
-    .foto img {
+    .foto-wrapper {
+      position: relative;
+      margin-bottom: 6px;
+    }
+    .foto {
       width: 90px;
       height: 90px;
       border-radius: 50%;
-      object-fit: cover;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       border: 2px solid rgba(56, 189, 248, 0.6);
     }
+    .foto img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .avatar-placeholder {
+      width: 100%;
+      height: 100%;
+      background: rgba(56, 189, 248, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #22d3ee;
+      font-size: 35px;
+    }
+
     .btn-camera {
       position: absolute;
       top: 8px;
@@ -151,14 +167,27 @@
       border: none;
       border-radius: 50%;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 12px;
       transition: all 0.3s ease;
       z-index: 20;
     }
-    .btn-camera:hover { background: rgba(0,0,0,0.9); transform: scale(1.1); }
+    .btn-camera:hover {
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }
 
-    .nome-section { text-align: center; margin-bottom: 4px; }
-    .nome { font-size: 1.3em; font-weight: bold; color: #22d3ee; }
+    .nome-section {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .nome {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #22d3ee;
+    }
 
     .divider {
       height: 1px;
@@ -181,10 +210,24 @@
       align-items: center;
       gap: 2px;
     }
-    .label-group label { font-weight: bold; color: #22d3ee; font-size: 0.85em; }
-    .metodo-text { font-size: 0.8em; color: #38bdf8; font-style: italic; text-align: center; }
+    .label-group label {
+      font-weight: bold;
+      color: #22d3ee;
+      font-size: 0.85em;
+    }
+    .metodo-text {
+      font-size: 0.8em;
+      color: #38bdf8;
+      font-style: italic;
+      text-align: center;
+    }
 
-    .nota-controls { display: flex; align-items: center; gap: 6px; }
+    /* CONTROLES NOTA: ALWAYS HORIZONTAL (REMOVED FLEX-DIRECTION: COLUMN FOR MOBILE) */
+    .nota-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px; /* Same as desktop */
+    }
     .btn-decrease, .btn-increase {
       width: 32px;
       height: 32px;
@@ -194,6 +237,9 @@
       color: white;
       font-size: 16px;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.3s ease;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
@@ -207,19 +253,29 @@
       height: 32px;
       text-align: center;
       border-radius: 6px;
+      border: 1px solid #334155;
       background: #1e293b;
       color: #fff;
-      border: 1px solid #334155;
+      font-size: 1em;
       font-weight: bold;
     }
 
+    .edit-section {
+      width: 100%;
+    }
     .edit-section input {
       width: 100%;
       padding: 6px;
       border-radius: 6px;
+      border: 1px solid #334155;
       background: #1e293b;
       color: #fff;
+      font-size: 0.9em;
       text-align: center;
+    }
+    .edit-section input::placeholder {
+      color: #22d3ee;
+      font-style: italic;
     }
 
     .actions {
@@ -240,16 +296,19 @@
       font-weight: bold;
       color: #fff;
       transition: all 0.3s ease;
+      font-size: 0.85em;
     }
     .btn-classificar { background: #16a34a; }
     .btn-classificar:hover { background: #15803d; transform: translateY(-1px); }
     .btn-remover { background: #dc2626; }
     .btn-remover:hover { background: #b91c1c; transform: translateY(-1px); }
 
+    /* Loader */
     .loader {
       text-align: center;
       margin: 20px;
       color: #22d3ee;
+      font-size: 1.2em;
     }
     .spinner {
       width: 50px;
@@ -261,6 +320,7 @@
       margin: 0 auto 10px;
     }
 
+    /* Mensagens */
     .mensagem-sucesso, .mensagem-info {
       position: fixed;
       top: 20px;
@@ -278,6 +338,7 @@
     .mensagem-info { background: #2563eb; color: #fff; }
     .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
 
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -289,22 +350,81 @@
       z-index: 1000;
       animation: fadeIn 0.3s ease;
     }
-    .botoes-modal button { background: #16a34a; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; }
-    .botoes-modal button:hover { background: #15803d; }
+    .botoes-modal {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 18px;
+      gap: 10px;
+    }
+    .botoes-modal button {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.3s;
+    }
+    .btn-adicionar { background: #16a34a; }
+    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
+    .btn-cancelar { background: #dc2626; }
+    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
 
+    /* Responsividade: Grid adjusts, but note controls ALWAYS horizontal */
+    @media (max-width: 768px) {
+      .layout-professor { flex-direction: column; }
+      .coluna-botoes-prof { width: 100%; margin-bottom: 20px; }
+      .painel.active { grid-template-columns: 1fr; }
+      /* Note: No change to .nota-controls flex-direction */
+    }
+
+    /* Animações */
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Reset/Base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: #e2e8f0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: #22d3ee;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      font-weight: 700;
+    }
+    .usuario-logado {
+      text-align: center;
+      margin-bottom: 30px;
+      opacity: 0.85;
+      font-size: 1.1em;
+    }
   </style>
 </head>
 
 <body>
+  <!-- Botão Toggle (Repositioned Below Nav) -->
+  <button class="btn-toggle-sidebar" id="btnToggleSidebar">☰</button>
+  <!-- Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <!-- Nav -->
   <script type="module" src="navegacao.js"></script>
 
+  <!-- Rest of HTML same as your version, with mods above -->
   <h1>Painel Gerencial 🎶</h1>
-  <div id="usuarioLogado">Professor: Hewerton</div>
+  <div id="usuarioLogado">-</div>
 
-  <!-- Mobile: Sidebar Below User Info; Desktop: Side Left -->
+  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
+  <div id="mensagemInfo" class="mensagem-info"></div>
+
   <div class="layout-professor">
     <div class="coluna-botoes-prof" id="sidebar">
       <h2 class="titulo-card-prof">Menu Professor</h2>
@@ -313,9 +433,10 @@
       <button id="btnModoAluno">🎓 Modo Aluno</button>
       <button id="btnCriarChamada">📋 Chamada</button>
       <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
+      <button onclick="exportarPDF()">📄 Exportar PDF</button>
+      <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
     </div>
 
-    <!-- Painel de Cards Abaixo -->
     <div class="painel-alunos">
       <div class="painel-licoes-prof" id="painelLicoesProf"></div>
       <div class="painel" id="painel"></div>
@@ -326,19 +447,34 @@
     </div>
   </div>
 
-  <div id="mensagemSucesso" class="mensagem-sucesso"></div>
-  <div id="mensagemInfo" class="mensagem-info"></div>
-
   <!-- Modais -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
-      <div class="campo-modal"><label>Nome</label><input type="text" id="novoNome"></div>
-      <div class="campo-modal"><label>Instrumento</label><input type="text" id="novoInstrumento"></div>
-      <div class="campo-modal"><label>Foto</label><input type="file" id="novoFoto" accept="image/*"></div>
-      <div class="campo-modal"><label>Método de Solfejo</label><input type="text" id="novaLeitura" placeholder="ex.: Bona"></div>
-      <div class="campo-modal"><label>Método Instrumental</label><input type="text" id="novoMetodo" placeholder="ex.: Amadeu Russo"></div>
-      <div class="botoes-modal"><button id="btnConfirmarAdicionar">✅ Adicionar</button><button id="btnCancelarAdicionar">❌ Cancelar</button></div>
+      <div class="campo-modal">
+        <label>Nome</label>
+        <input type="text" id="novoNome">
+      </div>
+      <div class="campo-modal">
+        <label>Instrumento</label>
+        <input type="text" id="novoInstrumento">
+      </div>
+      <div class="campo-modal">
+        <label>Foto</label>
+        <input type="file" id="novoFoto" accept="image/*">
+      </div>
+      <div class="campo-modal">
+        <label>Método de Solfejo</label>
+        <input type="text" id="novaLeitura" placeholder="ex.: Bona">
+      </div>
+      <div class="campo-modal">
+        <label>Método Instrumental</label>
+        <input type="text" id="novoMetodo" placeholder="ex.: Amadeu Russo">
+      </div>
+      <div class="botoes-modal">
+        <button id="btnConfirmarAdicionar" class="btn-adicionar">✅ Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn-cancelar">❌ Cancelar</button>
+      </div>
     </div>
   </div>
 
@@ -347,7 +483,10 @@
       <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>✏️ Método de Solfejo</h2>
       <input type="text" id="editSolfejo" placeholder="Digite o método">
-      <div class="botoes-modal"><button id="btnCancelSolfejo">❌ Cancelar</button><button id="btnSalvarSolfejo">💾 Salvar</button></div>
+      <div class="botoes-modal">
+        <button id="btnCancelSolfejo">❌ Cancelar</button>
+        <button id="btnSalvarSolfejo">💾 Salvar</button>
+      </div>
     </div>
   </div>
 
@@ -356,9 +495,42 @@
       <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>🎵 Método Instrumental</h2>
       <input type="text" id="editInstrumental" placeholder="Digite o método">
-      <div class="botoes-modal"><button id="btnCancelInstrumental">❌ Cancelar</button><button id="btnSalvarInstrumental">💾 Salvar</button></div>
+      <div class="botoes-modal">
+        <button id="btnCancelInstrumental">❌ Cancelar</button>
+        <button id="btnSalvarInstrumental">💾 Salvar</button>
+      </div>
     </div>
   </div>
+
+  <!-- Script Toggle -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnToggle = document.getElementById('btnToggleSidebar');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+
+      if (btnToggle && sidebar) {
+        btnToggle.addEventListener('click', () => {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('visible');
+        });
+
+        if (overlay) {
+          overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('visible');
+          });
+        }
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('visible');
+          }
+        });
+      }
+    });
+  </script>
 
   <!-- Scripts -->
   <script type="module" src="professor-licoes.js"></script>
