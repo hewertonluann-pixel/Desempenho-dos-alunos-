@@ -7,26 +7,59 @@
   <link rel="stylesheet" href="professor.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- CSS Inline Updated for Uniform Horizontal Note Controls and Repositioned Toggle -->
+  <!-- CSS Inline Updated for Floating Arrow Toggle and Intro Text -->
   <style>
-    /* ===== MELHORIAS: TOGGLE BELOW NAV, CONTROLES ALWAYS HORIZONTAL ===== */
+    /* ===== Botão Toggle Como Seta Flutuante à Esquerda ===== */
     .btn-toggle-sidebar {
       display: none;
-      position: relative;
-      margin: 70px auto 20px; /* Below nav, adjust if nav height differs */
-      background: rgba(56, 189, 248, 0.8);
+      position: fixed;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
       color: #fff;
       border: none;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 18px;
+      border-radius: 50%;
+      width: 50px; /* Larger for visibility */
+      height: 50px; /* Larger */
+      font-size: 24px; /* Large arrow */
       cursor: pointer;
-      transition: background 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1010;
+      content: '<'; /* Arrow */
     }
-    .btn-toggle-sidebar:hover { background: rgba(56, 189, 248, 1); }
+    .btn-toggle-sidebar:hover {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      transform: translateY(-50%) scale(1.1); /* Scale for clicable feel */
+    }
     @media (max-width: 767px) { .btn-toggle-sidebar { display: block; } }
 
+    /* Texto de Introdução */
+    .intro-section {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 16px;
+      border: 2px solid rgba(56, 189, 248, 0.4);
+      color: #e2e8f0;
+    }
+    .intro-section p {
+      font-size: 1.2em;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+    .intro-motivational {
+      font-style: italic;
+      color: #22d3ee;
+      margin-top: 15px;
+    }
+
+    /* Rest of CSS from provided version remains exact */
+
+    /* ===== MELHORIAS: TOGGLE BELOW NAV, CONTROLES ALWAYS HORIZONTAL ===== */
     .sidebar-overlay {
       display: none;
       position: fixed;
@@ -82,7 +115,7 @@
     .coluna-botoes-prof button {
       display: block;
       width: 100%;
-      margin-bottom: 15px;
+      margin-bottom: 15px; /* Maintain distance between buttons */
       background: linear-gradient(135deg, #0ea5e9, #0284c7);
       border: none;
       border-radius: 12px;
@@ -376,7 +409,7 @@
     @media (max-width: 768px) {
       .layout-professor { flex-direction: column; }
       .coluna-botoes-prof { width: 100%; margin-bottom: 20px; }
-      .painel.active { grid-templatedv-columns: 1fr; }
+      .painel.active { grid-template-columns: 1fr; }
       /* Note: No change to .nota-controls flex-direction */
     }
 
@@ -411,15 +444,21 @@
 </head>
 
 <body>
-  <!-- Botão Toggle (Repositioned Below Nav) -->
-  <button class="btn-toggle-sidebar" id="btnToggleSidebar">☰</button>
+  <!-- Botão Toggle Como Seta Flutuante à Esquerda -->
+  <button class="btn-toggle-sidebar" id="btnToggleSidebar">&lt;</button> <!-- Changed to < arrow -->
   <!-- Overlay -->
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Texto de Introdução -->
+  <div class="intro-section">
+    <p>Bem-vindo ao Painel Gerencial! Aqui você pode gerenciar alunos, chamadas e muito mais. Utilize os menus ao lado para acesso rápido a todas as funcionalidades disponíveis.</p>
+    <p class="intro-motivational">A liderança é a arte de transformar visões em realidade – inspire e guie seus alunos com confiança!</p>
+  </div>
 
   <!-- Nav -->
   <script type="module" src="navegacao.js"></script>
 
-  <!-- Rest of HTML same as your version, with mods above -->
+  <!-- Rest of HTML same as your version -->
   <h1>Painel Gerencial 🎶</h1>
   <div id="usuarioLogado">-</div>
 
@@ -434,8 +473,8 @@
       <button id="btnModoAluno">🎓 Modo Aluno</button>
       <button id="btnCriarChamada">📋 Chamada</button>
       <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
-      <button onclick="exportarPDF()">📄 Exportar PDF</button>
-      <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
+      <!-- REMOVED: <button onclick="exportarPDF()">📄 Exportar PDF</button> -->
+      <!-- REMOVED: <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button> -->
     </div>
 
     <div class="painel-alunos">
@@ -514,12 +553,15 @@
         btnToggle.addEventListener('click', () => {
           sidebar.classList.toggle('open');
           overlay.classList.toggle('visible');
+          // Rotate arrow on open
+          btnToggle.textContent = sidebar.classList.contains('open') ? '>' : '<';
         });
 
         if (overlay) {
           overlay.addEventListener('click', () => {
             sidebar.classList.remove('open');
             overlay.classList.remove('visible');
+            btnToggle.textContent = '<';
           });
         }
 
@@ -527,9 +569,19 @@
           if (e.key === 'Escape' && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open');
             overlay.classList.remove('visible');
+            btnToggle.textContent = '<';
           }
         });
       }
+
+      // Hide intro after first menu click
+      const btns = document.querySelectorAll('.coluna-botoes-prof button');
+      btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const intro = document.querySelector('.intro-section');
+          if (intro) intro.style.display = 'none';
+        });
+      });
     });
   </script>
 
