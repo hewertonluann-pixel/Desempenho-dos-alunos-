@@ -138,6 +138,37 @@ window.fecharPopupFrequencia = () => {
 };
 
 /* ========================================================
+    5. CONQUISTAS (CORREÇÃO: FUNCIONANDO AGORA)
+   ======================================================== */
+window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
+  console.log('🔍 Abrindo popup de conquista:', titulo);
+  const popup = document.getElementById('popupConquista');
+  if (!popup) {
+    console.error('❌ Modal de conquista não encontrado!');
+    return;
+  }
+
+  // Preencher com dados
+  safeSet('conquistaIcone', icone || '🏆');
+  safeSet('conquistaTitulo', titulo || 'Conquista');
+  safeSet('conquistaDescricao', descricao || 'Descrição não disponível.');
+  safeHTML('conquistaDetalhes', detalhes ? detalhes.map(item => `<li>${item}</li>`).join('') : '');
+
+  // Mostrar modal
+  popup.style.display = 'flex';
+  popup.classList.add('active');
+};
+
+window.fecharPopupConquista = function() {
+  const popup = document.getElementById('popupConquista');
+  if (popup) {
+    popup.style.display = 'none';
+    popup.classList.remove('active');
+    console.log('✅ Popup de conquista fechado.');
+  }
+};
+
+/* ========================================================
     6. CALCULAR ENERGIA (Frequência do mês)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
@@ -259,8 +290,5 @@ window.enviarNovaFoto = () => {
 window.acessarModoProfessor = () => {
   window.location.href = "professor.html";
 };
-
-window.abrirPopupConquista = key => console.log("Abrir", key);
-window.fecharPopupConquista = () => console.log("Fechar conquista");
 
 document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
