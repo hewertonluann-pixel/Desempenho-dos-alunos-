@@ -1,13 +1,14 @@
 // ========== professor.js ==========
 // Versão final corrigida: Com edição de métodos Solfejo e Instrumental nos cards
+// CORREÇÃO: Removido 'app' do import para evitar "app is not defined"
 
 import { db } from "./firebase-config.js";
 import {
   collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-if (!db || !app) {
-  console.error("❌ Firebase DB/App não carregado.");
+if (!db) {
+  console.error("❌ Firebase DB não carregado.");
 }
 
 // ========== UTILITÁRIOS ==========
@@ -94,8 +95,8 @@ function setupModalAdicionar() {
         nome,
         instrumento,
         foto: fotoBase64,
-        leituraNome: "Bona",  // PADRÃO ATUALIZADO
-        metodoNome: "Método", // PADRÃO ATUALIZADO
+        leituraNome: "Bona",  // PADRÃO
+        metodoNome: "Método", // PADRÃO
         leitura: 1,
         metodo: 1,
         energia: 100,
@@ -217,7 +218,7 @@ export async function renderizarPainel() {
               <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
             </div>
           </div>
-          <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || 'Bona'}')">${aluno.leituraNome || 'Bona'}</div> <!-- LABEL CLICÁVEL ABAIXO DE "Leitura" -->
+          <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || 'Bona'}')">${aluno.leituraNome || 'Bona'}</div>
           <div class="divider"></div>
           <div class="campo nota-linha">
             <label>Método</label>
@@ -227,7 +228,7 @@ export async function renderizarPainel() {
               <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
             </div>
           </div>
-          <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || 'Método'}')">${aluno.metodoNome || 'Método'}</div> <!-- LABEL CLICÁVEL ABAIXO DE "Método" -->
+          <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || 'Método'}')">${aluno.metodoNome || 'Método'}</div>
           <div class="divider"></div>
           <div class="campo">
             <label>Instrumento</label>
