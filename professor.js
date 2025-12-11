@@ -1,7 +1,7 @@
 // ========== professor.js ==========
-// Versão final corrigida: Com novo card aplicado no renderizarPainel
+// Versão final corrigida: Com edição de métodos Solfejo e Instrumental nos cards
 
-import { app, db } from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 import {
   collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
@@ -94,8 +94,8 @@ function setupModalAdicionar() {
         nome,
         instrumento,
         foto: fotoBase64,
-        leituraNome: "",
-        metodoNome: "",
+        leituraNome: "Bona",  // PADRÃO ATUALIZADO
+        metodoNome: "Método", // PADRÃO ATUALIZADO
         leitura: 1,
         metodo: 1,
         energia: 100,
@@ -202,54 +202,48 @@ export async function renderizarPainel() {
     const alunos = await carregarAlunos();
     painel.innerHTML = alunos.map(aluno => `
       <div class="ficha">
-        <div class="foto-wrapper">
-          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="Foto de ${aluno.nome}">` : '<div class="avatar-placeholder">👤</div>'}</div>
+        <div class="foto-and-camera">
+          <div class="foto">${aluno.foto ? `<img src="${aluno.foto}" alt="Foto de ${aluno.nome}">` : '<p>Sem foto</p>'}</div>
           <button class="btn-camera" onclick="selecionarFoto('${aluno.id}')">📷</button>
-          <input type="file" id="foto-${aluno.id}" accept="image/*" style="display:none;" onchange="atualizarFoto('${aluno.id}', this.files[0])">
+          <input type="file" id="foto-${aluno.id}" accept="image/*" style="display:none;" onchange="atualizarFoto('${aluno.id}', this.files[0])" />
         </div>
-        <div class="nome-section">
-          <strong class="nome">${aluno.nome}</strong>
-        </div>
-        <div class="divider"></div>
-        <div class="notas-section">
-          <div class="nota-line extended">
-            <div class="label-group">
-              <label>Leitura</label>
-              <span class="metodo-text">${aluno.leituraNome || ''}</span>
-            </div>
-            <div class="nota-controls">
-              <button class="btn-decrease" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
-              <input class="nota-input" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
-              <button class="btn-increase" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
+        <div class="dados">
+          <div class="campo"><label>${aluno.nome}</label></div>
+          <div class="campo nota-linha">
+            <label>Leitura</label>
+            <div class="nota-controle">
+              <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', -1)">−</button>
+              <input class="campo-nota" type="number" id="leitura-${aluno.id}" value="${aluno.leitura || 1}" onchange="atualizarNota('${aluno.id}','leitura',this.value)">
+              <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
             </div>
           </div>
-          <div class="nota-line extended">
-            <div class="label-group">
-              <label>Método</label>
-              <span class="metodo-text">${aluno.metodoNome || ''}</span>
-            </div>
-            <div class="nota-controls">
-              <button class="btn-decrease" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
-              <input class="nota-input" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
-              <button class="btn-increase" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
+          <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || 'Bona'}')">${aluno.leituraNome || 'Bona'}</div> <!-- LABEL CLICÁVEL ABAIXO DE "Leitura" -->
+          <div class="divider"></div>
+          <div class="campo nota-linha">
+            <label>Método</label>
+            <div class="nota-controle">
+              <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', -1)">−</button>
+              <input class="campo-nota" type="number" id="metodo-${aluno.id}" value="${aluno.metodo || 1}" onchange="atualizarNota('${aluno.id}','metodo',this.value)">
+              <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
             </div>
           </div>
-        </div>
-        <div class="divider"></div>
-        <div class="edit-section">
-          <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)" placeholder="Instrumento">
-        </div>
-        <div class="divider"></div>
-        <div class="actions">
-          <button class="btn-classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? '❌ Desclassificar' : '✅ Classificar'}</button>
-          <button class="btn-remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">🗑️ Remover</button>
+          <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || 'Método'}')">${aluno.metodoNome || 'Método'}</div> <!-- LABEL CLICÁVEL ABAIXO DE "Método" -->
+          <div class="divider"></div>
+          <div class="campo">
+            <label>Instrumento</label>
+            <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)">
+          </div>
+          <div class="acoes">
+            <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
+            <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
+          </div>
         </div>
       </div>
     `).join("");
 
     loader.style.display = "none";
     painel.style.display = "flex";
-    console.log("✅ Painel de alunos renderizado com novo card.");
+    console.log("✅ Painel de alunos renderizado com métodos editáveis.");
   } catch (error) {
     console.error("❌ Erro ao renderizar painel:", error);
     loader.style.display = "none";
@@ -349,7 +343,7 @@ window.confirmarRemocao = async function(id, nome) {
 window.abrirModalSolfejo = function(alunoId, valorAtual) {
   currentAlunoId = alunoId;
   const input = document.getElementById("editSolfejo");
-  if (input) input.value = valorAtual || "";
+  if (input) input.value = valorAtual || "Bona";
   const modal = document.getElementById("modalSolfejo");
   if (modal) modal.classList.add("ativo");
   else console.warn("❌ Modal Solfejo não encontrado.");
@@ -358,7 +352,7 @@ window.abrirModalSolfejo = function(alunoId, valorAtual) {
 window.abrirModalInstrumental = function(alunoId, valorAtual) {
   currentAlunoId = alunoId;
   const input = document.getElementById("editInstrumental");
-  if (input) input.value = valorAtual || "";
+  if (input) input.value = valorAtual || "Método";
   const modal = document.getElementById("modalInstrumental");
   if (modal) modal.classList.add("ativo");
   else console.warn("❌ Modal Instrumental não encontrado.");
@@ -410,7 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  console.log("🟢 Página professor carregada com novo card.");
+  console.log("🟢 Página professor carregada.");
 
   const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
   const usuarioDiv = document.getElementById("usuarioLogado");
@@ -439,38 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnCriarChamada = document.getElementById("btnCriarChamada");
   if (btnCriarChamada) btnCriarChamada.onclick = criarEventoGenerico;
-
-  const btnRecalcular = document.getElementById("btnRecalcularEnergia");
-  if (btnRecalcular) {
-    btnRecalcular.onclick = async () => {
-      mostrarMensagem("mensagemInfo", "⚙️ Recalculando energia...");
-      try {
-        const snap = await getDocs(collection(db, "alunos"));
-        let total = 0;
-        for (const docAl of snap.docs) {
-          try {
-            const aluno = docAl.data();
-            const freq = aluno.frequenciaMensal?.porcentagem || 0;
-            let energia = 10;
-            if (freq >= 80) energia = 100;
-            else if (freq >= 50) energia = 70;
-            else if (freq >= 30) energia = 40;
-            await updateDoc(docAl.ref, { energia });
-            total++;
-          } catch (innerError) {
-            console.error(`Erro ao atualizar energia para ${docAl.id}:`, innerError);
-          }
-        }
-        mostrarMensagem("mensagemSucesso", `⚡ Energia recalculada para ${total} alunos!`);
-      } catch (error) {
-        console.error("Erro geral no recálculo:", error);
-        mostrarMensagem("mensagemInfo", "❌ Erro no recálculo. Verifique conexão.");
-      }
-    };
-  }
-
-  if (!document.getElementById("mensagemSucesso")) console.warn("❌ #mensagemSucesso não encontrado.");
-  if (!document.getElementById("mensagemInfo")) console.warn("❌ #mensagemInfo não encontrado.");
 });
 
 // ========== EXPORT ==========
