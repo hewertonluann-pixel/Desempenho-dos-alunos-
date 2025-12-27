@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Aluno</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="aluno.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+</head>
+
+<body>
+
+  <div class="main-container">
+    <aside class="sidebar">
+      <div class="profile-card">
+        <div class="photo-upload">
+          <img id="fotoAluno" src="https://via.placeholder.com/150" alt="Foto do aluno" class="profile-photo">
+          <label for="novaFoto" class="upload-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+       viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+  </svg>
+</label>
+
+          <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" style="display: none;" />
+        </div>
+        <h1 class="aluno-name" id="nomeAluno">Nome do Aluno</h1>
+        <p class="instrument" id="instrumentoAluno">Instrumento</p>
+        <div class="level-info">
+          <span class="level-label">Nível Geral</span>
+          <span class="level-value" id="nivelGeral">0</span>
+        </div>
+        <div class="level-details">
+          <div class="detail-item">
+            <span class="detail-label">Leitura</span>
+            <span class="detail-value" id="nivelLeitura">0</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Método</span>
+            <span class="detail-value" id="nivelMetodo">0</span>
+          </div>
+        </div>
+        <button class="btn-change-password" onclick="abrirPopup()">🔒 Alterar Senha</button>
+        <button class="btn-professor-mode" id="modoProfessorBtn" style="display:none;" onclick="acessarModoProfessor()">👨‍🏫 Modo Professor</button>
+      </div>
+      
+      <div class="social-link-card">
+        <a href="painel-social.html" class="social-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Painel Social da Orquestra
+        </a>
+      </div>
+    </aside>
+
+    <main class="content-area">
+      
+      <!-- ENERGIA / FREQUÊNCIA MENSAL -->
+      <section class="energy-section card">
+        <h2>⚡ Energia (Frequência do Mês)</h2>
+        <div class="energy-bar-wrapper">
+          <div class="energy-bar">
+            <div class="energy-level" id="barraEnergia"></div>
+          </div>
+          <span class="energy-value" id="valorEnergia">0%</span>
+        </div>
+      </section>
+
+      <!-- CONQUISTAS -->
+      <section class="achievements-section card">
+        <h2>🏆 <a href="manual.html" target="_blank" style="color: inherit; text-decoration: none;">Conquistas</a></h2>
+        <div class="achievements-grid" id="grade-conquistas">
+          <!-- Conquistas serão injetadas aqui -->
+        </div>
+      </section>
+
+      <!-- FREQUÊNCIA ANUAL -->
+      <section class="frequency-section card">
+        <h2>📅 Frequência Anual</h2>
+        <div class="year-control">
+          <button id="anoAnterior" class="arrow-btn">&lt;</button>
+          <span id="anoAtualTexto" class="current-year"></span>
+          <button id="anoProximo" class="arrow-btn">&gt;</button>
+        </div>
+        <div class="frequency-grid" id="gradeFrequencia">
+          <!-- Gráficos de frequência serão injetados aqui -->
+        </div>
+      </section>
+
+
+<!-- EVOLUÇÃO TÉCNICA -->
+<section class="evolucao-section card">
+  <h2>📈 Evolução Técnica</h2>
+  <div id="painelEvolucao"></div>
+</section>
+      
+      <!-- LIÇÕES ENVIADAS -->
+      <section class="lessons-section card">
+        <h2>🎤 Lições Enviadas</h2>
+        <button class="btn-send-lesson" onclick="abrirModalEnviarLicao()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+          Enviar nova lição
+        </button>
+        <div id="listaLicoes" class="lessons-list">
+          <!-- Lições serão injetadas aqui -->
+        </div>
+      </section>
+
+    </main>
+  </div> <!-- main-container -->
+
+
+  <!-- ============================================================
+       MODAIS E POPUPS
+       ============================================================ -->
+  
+  <!-- POPUP FREQUÊNCIA -->
+  <div id="popupFrequencia" class="popup" style="display:none;">
+    <div class="popup-content"></div>
+  </div>
+
+  <!-- Popup de Detalhes da Conquista -->
+  <div id="popupConquista" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="fecharPopupConquista()">&times;</span>
+      <div class="conquista-header">
+        <span id="conquistaIcone" class="achievement-icon"></span>
+        <h2 id="conquistaTitulo"></h2>
+      </div>
+      <p id="conquistaDescricao"></p>
+      <h3>Detalhes da Conquista:</h3>
+      <ul id="conquistaDetalhes">
+        <!-- Detalhes preenchidos pelo JS -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- POPUP SENHA -->
+  <div id="popupSenha" class="popup" style="display:none;">
+    <div class="popup-content">
+      <h2>Alterar Senha</h2>
+      <input type="password" id="novaSenha" placeholder="Nova senha" />
+      <button onclick="salvarSenha()">Salvar</button>
+      <p id="mensagemSenha"></p>
+      <span class="close-btn" onclick="fecharPopup()">×</span>
+    </div>
+  </div>
+
+ <!-- =================== GRAFICO ===================================-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="grafico-evolucao.js"></script>
+
+<!-- =================== SCRIPTS DO PAINEL =========================-->
+<script type="module" src="aluno3.js"></script>
+<script type="module" src="navegacao.js"></script>
+<script src="js/recorder.js"></script>
+<script type="module" src="licoes.js"></script>
+
+ 
+
+  
+</body>
+</html>
