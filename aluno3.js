@@ -126,11 +126,15 @@ export function abrirPopupFrequencia(info, destino) {
   };
 
   destino.querySelector(".popup-content").innerHTML = `
-    <h3>Frequência de ${meses[info.mes]}</h3>
-    <p>Chamadas no mês: <strong>${info.totalEventos}</strong></p>
-    <p>Presente em: <strong>${info.presencasAluno}</strong></p>
-    <p>Frequência: <strong>${info.percentual}%</strong></p>
-    <button onclick="fecharPopupFrequencia()">Fechar</button>
+    <h3 class="popup-title">Frequência de ${meses[info.mes]}</h3>
+    <div class="popup-stats">
+      <p>Chamadas no mês: <span>${info.totalEventos}</span></p>
+      <p>Presente em: <span>${info.presencasAluno}</span></p>
+    </div>
+    <div class="popup-result">
+      <p>Frequência: <strong>${info.percentual}%</strong></p>
+    </div>
+    <button onclick="fecharPopupFrequencia()" class="btn-cancelar">Fechar</button>
   `;
 
   destino.style.display = "flex";

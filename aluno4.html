@@ -142,9 +142,11 @@
     <div class="popup-content">
       <h2>Alterar Senha</h2>
       <input type="password" id="novaSenha" placeholder="Nova senha" />
-      <button onclick="salvarSenha()">Salvar</button>
       <p id="mensagemSenha"></p>
-      <span class="close-btn" onclick="fecharPopup()">×</span>
+      <div class="botoes-modal">
+        <button onclick="salvarSenha()" class="btn-adicionar">Salvar</button>
+        <button onclick="fecharPopup()" class="btn-cancelar">Cancelar</button>
+      </div>
     </div>
   </div>
 
