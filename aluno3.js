@@ -19,15 +19,11 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista } from "./conquistas.js";
-
-window.abrirPopupConquista = abrirPopupConquista;
-window.fecharPopupConquista = fecharPopupConquista;
+import { gerarPainelConquistas } from "./conquistas.js";
 import { carregarHistoricoProgressoAluno } from "./evolucao.js";
 
-// Variáveis globais para armazenar o estado
+// Variável global para armazenar o ano atual de visualização
 let anoVisualizacao = new Date().getFullYear();
-let alunoAtual = null;
 
 /* ========================================================
     1. OBTER ALUNO LOGADO (pela URL)
@@ -122,8 +118,9 @@ export async function montarGraficoFrequencia(aluno, ano) {
 // Função global para mudar o ano
 window.mudarAno = async (delta) => {
   anoVisualizacao += delta;
-  if (alunoAtual) {
-    await montarGraficoFrequencia(alunoAtual, anoVisualizacao);
+  const aluno = await carregarAlunoAtual();
+  if (aluno) {
+    await montarGraficoFrequencia(aluno, anoVisualizacao);
   }
 };
 
@@ -152,7 +149,36 @@ window.fecharPopupFrequencia = () => {
   document.getElementById("popupFrequencia").style.display = "none";
 };
 
+/* ========================================================
+    5. CONQUISTAS (Mantido o código original)
+   ======================================================== */
+window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
+  console.log('🔍 Abrindo popup de conquista:', titulo);
+  const popup = document.getElementById('popupConquista');
+  if (!popup) {
+    console.error('❌ Modal de conquista não encontrado!');
+    return;
+  }
 
+  // Preencher com dados
+  // safeSet('conquistaIcone', icone || '🏆'); // Removido para evitar erro de safeSet
+  // safeSet('conquistaTitulo', titulo || 'Conquista'); // Removido para evitar erro de safeSet
+  // safeSet('conquistaDescricao', descricao || 'Descrição não disponível.'); // Removido para evitar erro de safeSet
+  // safeHTML('conquistaDetalhes', detalhes ? detalhes.map(item => `<li>${item}</li>`).join('') : ''); // Removido para evitar erro de safeHTML
+
+  // Mostrar modal
+  popup.style.display = 'flex';
+  popup.classList.add('active');
+};
+
+window.fecharPopupConquista = function() {
+  const popup = document.getElementById('popupConquista');
+  if (popup) {
+    popup.style.display = 'none';
+    popup.classList.remove('active');
+    console.log('✅ Popup de conquista fechado.');
+  }
+};
 
 /* ========================================================
     6. CALCULAR ENERGIA (Frequência do mês)
@@ -180,8 +206,9 @@ export async function calcularEnergiaDoAluno(aluno) {
 /* ========================================================
     7. INICIALIZAÇÃO FINAL
    ======================================================== */
-export async function iniciarPainelAluno() {  const aluno = alunoAtual;
-  if (!alunoAtual) return;
+export async function iniciarPainelAluno() {
+  const aluno = await carregarAlunoAtual();
+  if (!aluno) return;
 
   // =====================================================
   // 🔥 CONTROLE DE PERMISSÃO (mostrar / esconder funções)
@@ -211,25 +238,25 @@ export async function iniciarPainelAluno() {  const aluno = alunoAtual;
 
   // =====================================================
 
-  montarPainelAluno(alunoAtual);
-  await montarGraficoFrequencia(alunoAtual, anoVisualizacao); // Passa o ano de visualização
+  montarPainelAluno(aluno);
+  await montarGraficoFrequencia(aluno, anoVisualizacao); // Passa o ano de visualização
 
-  const energia = await calcularEnergiaDoAluno(alunoAtual);
+  const energia = await calcularEnergiaDoAluno(aluno);
 
   // Histórico real
-  const historico = await carregarHistoricoProgressoAluno(alunoAtual);
+  const historico = await carregarHistoricoProgressoAluno(aluno);
 
   // Gráfico histórico
   const destinoGrafico = document.getElementById("painelEvolucao");
   if (window.gerarGraficoEvolucao) {
-    gerarGraficoEvolucao(alunoAtual, energia, destinoGrafico, historico);
+    gerarGraficoEvolucao(aluno, energia, destinoGrafico, historico);
   }
 
-  gerarPainelConquistas(alunoAtual, document.getElementById("grade-conquistas"));
+  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
 
   // Carregar lições (SOMENTE se dono da página)
   if (ehDonoDaPagina) {
-    await carregarLicoesAluno(alunoAtual.nome);
+    await carregarLicoesAluno(aluno.nome);
   }
 }
 
@@ -249,7 +276,7 @@ window.fecharPopup = () => {
 window.salvarSenha = async () => {
   const novaSenha = document.getElementById("novaSenha").value;
   const mensagem = document.getElementById("mensagemSenha");
-  const aluno = alunoAtual;
+  const aluno = await carregarAlunoAtual();
 
   if (novaSenha.length < 6) {
     mensagem.textContent = "A senha deve ter pelo menos 6 caracteres.";
