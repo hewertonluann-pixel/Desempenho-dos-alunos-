@@ -169,7 +169,7 @@ window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
   // safeSet('conquistaDescricao', descricao || 'Descrição não disponível.'); // Removido para evitar erro de safeSet
   // safeHTML('conquistaDetalhes', detalhes ? detalhes.map(item => `<li>${item}</li>`).join('') : ''); // Removido para evitar erro de safeHTML
 
-  Mostrar modal
+  // Mostrar modal
   popup.style.display = 'flex';
   popup.classList.add('active');
 };
