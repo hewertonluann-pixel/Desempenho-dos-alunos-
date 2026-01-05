@@ -19,7 +19,7 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas } from "./conquistas.js";
+import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista } from "./conquistas.js";
 import { carregarHistoricoProgressoAluno } from "./evolucao.js";
 
 // Variável global para armazenar o ano atual de visualização
@@ -28,6 +28,9 @@ let anoVisualizacao = new Date().getFullYear();
 /* ========================================================
     1. OBTER ALUNO LOGADO (pela URL)
    ======================================================== */
+
+window.abrirPopupConquista = abrirPopupConquista;
+window.fecharPopupConquista = fecharPopupConquista;
 export async function carregarAlunoAtual() {
   const params = new URLSearchParams(window.location.search);
   const nomeAluno = params.get("nome");
