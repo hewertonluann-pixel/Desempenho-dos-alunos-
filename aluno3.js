@@ -19,10 +19,7 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista } from "./conquistas.js";
-
-window.abrirPopupConquista = abrirPopupConquista;
-window.fecharPopupConquista = fecharPopupConquista;
+import { gerarPainelConquistas } from "./conquistas.js";
 import { carregarHistoricoProgressoAluno } from "./evolucao.js";
 
 // Variável global para armazenar o ano atual de visualização

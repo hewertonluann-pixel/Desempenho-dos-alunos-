@@ -109,7 +109,7 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
   conquistasDesbloqueadas.forEach(info => {
     const card = document.createElement("div");
     card.className = `achievement-card ${info.raridade}`;
-    card.setAttribute("onclick", `abrirPopupConquista(\'${info.key}\')`);
+    card.setAttribute("onclick", `window.abrirPopupConquista(\'${info.key}\')`);
     card.innerHTML = `
       <span class="achievement-icon">${info.icone}</span>
       <span class="achievement-name">${info.titulo}</span>
