@@ -6,7 +6,7 @@
 // 🏆 Mapa de Conquistas (Regras e Detalhes)
 export const mapaConquistas = {
   presenca_perfeita: {
-    icone: "⭐",
+    icone: "🎖️",
     titulo: "Presença Perfeita",
     raridade: "ouro",
     descricao: "Concedida a quem comparece a 100% dos ensaios do mês.",
