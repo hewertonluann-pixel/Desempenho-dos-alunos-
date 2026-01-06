@@ -61,8 +61,7 @@ export const mapaConquistas = {
 
 export const abrirPopupConquista = (key) => {
   const conquista = mapaConquistas[key];
-  console.log('🔍 Tentando abrir pop-up para a chave:', key);
-  console.log('🔍 Conquista encontrada:', conquista);
+
   if (!conquista) return;
 
   document.getElementById("conquistaTitulo").textContent = conquista.titulo;
