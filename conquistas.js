@@ -23,7 +23,7 @@ export const mapaConquistas = {
   },
   musico_pontual: {
     icone: "🎯",
-    titulo: "Músico Pontual",
+    titulo: "Músico Esforçado",
     raridade: "prata",
     descricao: "Obtida com frequência mensal acima de 80%.",
     detalhes: ["Comparecer na maioria dos ensaios.", "Evitar faltas repetidas.", "Reflete disciplina e responsabilidade."],
