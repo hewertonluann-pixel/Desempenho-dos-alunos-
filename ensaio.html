@@ -357,8 +357,22 @@
     const btnCancelar = document.getElementById("btnCancelar");
     const loader = document.getElementById("loader");
 
+    /**
+     * Retorna a data atual no fuso horário de Brasília (GMT-3) no formato ISO (YYYY-MM-DD).
+     */
     function hojeISO() {
-      return new Date().toISOString().split("T")[0];
+      const agora = new Date();
+      // Converte para o fuso horário de Brasília (America/Sao_Paulo)
+      const brasilia = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(agora);
+      
+      // O formato retornado por Intl é DD/MM/YYYY, precisamos converter para YYYY-MM-DD
+      const [dia, mes, ano] = brasilia.split('/');
+      return `${ano}-${mes}-${dia}`;
     }
 
     function formatarDataBrasileira(iso) {
@@ -393,81 +407,72 @@
         return;
       }
 
-      const ref = doc(db, "eventos", eventoId);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) {
+      const docSnap = await getDoc(doc(db, "eventos", eventoId));
+      if (docSnap.exists()) {
+        const dados = docSnap.data();
+        dataEvento = dados.data;
+        spanData.textContent = formatarDataBrasileira(dataEvento);
+        observacoesEl.value = dados.observacoes || "";
+
+        const presencasSalvas = dados.presencas || [];
+        alunos.forEach((aluno) => {
+          const p = presencasSalvas.find((ps) => ps.nome === aluno.nome);
+          if (p) aluno.presenca = p.presenca;
+        });
+      } else {
         dataEvento = hojeISO();
         spanData.textContent = formatarDataBrasileira(dataEvento);
-        return;
       }
-
-      const dados = snap.data();
-      dataEvento = dados.data || hojeISO();
-      spanData.textContent = formatarDataBrasileira(dataEvento);
-      observacoesEl.value = dados.observacoes || "";
-
-      const mapaPresencas = {};
-      (dados.presencas || []).forEach((p) => {
-        if (p && p.nome) mapaPresencas[p.nome] = p.presenca;
-      });
-
-      alunos.forEach((a) => {
-        a.presenca = mapaPresencas[a.nome] || "";
-      });
     }
 
     function atualizarClasseCard(card, aluno) {
-      card.classList.remove("vazio", "presente", "ausente");
-      const estado = aluno.presenca || "vazio";
-      card.classList.add(estado);
-
+      card.classList.remove("presente", "ausente", "vazio");
       const chip = card.querySelector(".chip-status");
-      if (!chip) return;
 
-      chip.classList.remove("presente", "ausente");
-      if (!aluno.presenca) {
-        chip.textContent = "Não marcado";
-      } else if (aluno.presenca === "presente") {
+      if (aluno.presenca === "presente") {
+        card.classList.add("presente");
         chip.textContent = "Presente";
-        chip.classList.add("presente");
+        chip.className = "chip-status presente";
       } else if (aluno.presenca === "ausente") {
+        card.classList.add("ausente");
         chip.textContent = "Ausente";
-        chip.classList.add("ausente");
+        chip.className = "chip-status ausente";
+      } else {
+        card.classList.add("vazio");
+        chip.textContent = "Pendente";
+        chip.className = "chip-status";
       }
     }
 
-    function focarProximoCard(indiceAtual) {
-      const proximo = document.querySelector(
-        `.container-aluno[data-index="${indiceAtual + 1}"]`
-      );
-      if (!proximo) return;
+    function focarProximoCard(indexAtual) {
+      const cards = document.querySelectorAll(".container-aluno");
+      cards[indexAtual].classList.remove("focado");
 
-      document.querySelectorAll(".container-aluno.focado")
-        .forEach((c) => c.classList.remove("focado"));
-
-      proximo.classList.add("focado");
-      proximo.scrollIntoView({ behavior: "smooth", block: "center" });
+      const proximoIndex = indexAtual + 1;
+      if (proximoIndex < cards.length) {
+        const proximo = cards[proximoIndex];
+        proximo.classList.add("focado");
+        proximo.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }
 
     function renderizarAlunos() {
       painel.innerHTML = "";
       alunos.forEach((aluno, index) => {
         const card = document.createElement("div");
-        card.className = "container-aluno " + (aluno.presenca || "vazio");
-        card.dataset.index = index;
+        card.className = "container-aluno";
+        card.setAttribute("data-index", index);
 
         const fotoWrap = document.createElement("div");
         fotoWrap.className = "foto-aluno";
-
         if (aluno.foto) {
           const img = document.createElement("img");
           img.src = aluno.foto;
-          img.alt = aluno.nome;
           fotoWrap.appendChild(img);
         } else {
           const span = document.createElement("span");
           span.className = "foto-placeholder";
-          span.textContent = "🎵";
+          span.textContent = "👤";
           fotoWrap.appendChild(span);
         }
 
@@ -478,26 +483,26 @@
         nomeDiv.className = "nome";
         nomeDiv.textContent = aluno.nome;
 
-        const instrDiv = document.createElement("div");
-        instrDiv.className = "instrumento";
-        instrDiv.textContent = aluno.instrumento || "Sem instrumento";
+        const instDiv = document.createElement("div");
+        instDiv.className = "instrumento";
+        instDiv.textContent = aluno.instrumento;
 
         const statusLinha = document.createElement("div");
         statusLinha.className = "status-linha";
 
         const chip = document.createElement("span");
         chip.className = "chip-status";
-        chip.textContent = "Não marcado";
+        chip.textContent = "Pendente";
 
         const hint = document.createElement("span");
         hint.className = "hint";
-        hint.textContent = "Toque p/ marcar";
+        hint.textContent = "Toque para mudar";
 
         statusLinha.appendChild(chip);
         statusLinha.appendChild(hint);
 
         dadosDiv.appendChild(nomeDiv);
-        dadosDiv.appendChild(instrDiv);
+        dadosDiv.appendChild(instDiv);
         dadosDiv.appendChild(statusLinha);
 
         card.appendChild(fotoWrap);
@@ -672,6 +677,4 @@
   
 </body>
 </html>
-
-
-
+Como testar e usar os recursos do conector GitHub - Manus
