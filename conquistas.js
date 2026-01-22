@@ -11,7 +11,7 @@ export const mapaConquistas = {
     raridade: "ouro",
     descricao: "Concedida a quem comparece a 100% dos ensaios do mês.",
     detalhes: ["Não faltar nenhum ensaio.", "Compromisso e constância exemplar.", "Atualizada mensalmente."],
-    condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 100
+    condicao: (aluno) => (aluno.frequenciaMensal && aluno.frequenciaMensal.porcentagem >= 100)
   },
   leitor_dedicado: {
     icone: "📘",
@@ -27,7 +27,7 @@ export const mapaConquistas = {
     raridade: "prata",
     descricao: "Obtida com frequência mensal acima de 80%.",
     detalhes: ["Comparecer na maioria dos ensaios.", "Evitar faltas repetidas.", "Reflete disciplina e responsabilidade."],
-    condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 80
+    condicao: (aluno) => (aluno.frequenciaMensal && aluno.frequenciaMensal.porcentagem >= 80)
   },
   evolucao_constante: {
     icone: "🔥",
@@ -60,22 +60,44 @@ export const mapaConquistas = {
 // --------------------------------------
 
 export const abrirPopupConquista = (key) => {
+  // Debug: Imprime a key e verifica se existe
+  console.log(`Tentando abrir pop-up para conquista: "${key}"`);
+  
   const conquista = mapaConquistas[key];
+  if (!conquista) {
+    console.error(`Conquista "${key}" não encontrada no mapa. Verifique o onclick ou dados do aluno.`);
+    alert(`Erro: Conquista "${key}" indefinida. Contate administrador.`);
+    return;
+  }
 
-  if (!conquista) return;
+  // Debug: Confirma que conquista foi encontrada
+  console.log(`Conquista encontrada: ${conquista.titulo}`);
 
-  document.getElementById("conquistaTitulo").textContent = conquista.titulo;
-  document.getElementById("conquistaIcone").textContent = conquista.icone;
-  document.getElementById("conquistaDescricao").textContent = conquista.descricao;
+  // Verifica se elementos DOM existem
+  const tituloEl = document.getElementById("conquistaTitulo");
+  const iconeEl = document.getElementById("conquistaIcone");
+  const descEl = document.getElementById("conquistaDescricao");
+  const ulEl = document.getElementById("conquistaDetalhes");
 
-  const ul = document.getElementById("conquistaDetalhes");
-  ul.innerHTML = "";
+  if (!tituloEl || !iconeEl || !descEl || !ulEl) {
+    console.error("Elementos DOM do pop-up de conquistas não encontrados. Verifique carregamento do HTML.");
+    alert("Erro interno: Elementos do pop-up não carregados.");
+    return;
+  }
+
+  // Preenche os elementos
+  tituloEl.textContent = conquista.titulo;
+  iconeEl.textContent = conquista.icone;
+  descEl.textContent = conquista.descricao;
+
+  ulEl.innerHTML = "";
   conquista.detalhes.forEach(detalhe => {
     const li = document.createElement("li");
     li.textContent = detalhe;
-    ul.appendChild(li);
+    ulEl.appendChild(li);
   });
 
+  // Abre o modal
   document.getElementById("popupConquista").style.display = "flex";
 };
 
@@ -88,7 +110,13 @@ export const fecharPopupConquista = () => {
 // --------------------------------------
 
 export function gerarPainelConquistas(aluno, elementoAlvo) {
-  if (!elementoAlvo) return;
+  // Debug: Imprime dados do aluno para verificar
+  console.log("Dados do aluno para conquistas:", aluno);
+  
+  if (!elementoAlvo) {
+    console.error("Elemento alvo para conquistas não fornecido.");
+    return;
+  }
   elementoAlvo.innerHTML = "";
 
   // 1. Calcular as conquistas desbloqueadas
@@ -96,21 +124,23 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
   
   for (const key in mapaConquistas) {
     const conquista = mapaConquistas[key];
-    // Simplificação: se a condição for atendida, a conquista é desbloqueada (nível 1)
-    if (conquista.condicao(aluno)) {
+    // Verifica se condição é atendida (com fallback seguro)
+    if (conquista.condicao && conquista.condicao(aluno)) {
       conquistasDesbloqueadas.push({
         key: key,
         ...conquista,
-        nivel: 1 // Assumindo nível 1 para simplificar
+        nivel: 1 // Assumindo nível 1
       });
     }
   }
+
+  console.log(`Conquistas desbloqueadas: ${conquistasDesbloqueadas.map(c => c.titulo).join(", ") || "Nenhuma"}`);
 
   // 2. Renderizar os cards
   conquistasDesbloqueadas.forEach(info => {
     const card = document.createElement("div");
     card.className = `achievement-card ${info.raridade}`;
-    card.setAttribute("onclick", `abrirPopupConquista(\'${info.key}\')`);
+    card.setAttribute("onclick", `window.abrirPopupConquista('${info.key}')`); // Melhoria: força window. para compatibilidade
     card.innerHTML = `
       <span class="achievement-icon">${info.icone}</span>
       <span class="achievement-name">${info.titulo}</span>
