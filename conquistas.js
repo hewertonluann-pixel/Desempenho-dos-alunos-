@@ -60,28 +60,31 @@ export const mapaConquistas = {
 // --------------------------------------
 
 export const abrirPopupConquista = (key) => {
-  // Debug: Imprime a key e verifica se existe
-  console.log(`Tentando abrir pop-up para conquista: "${key}"`);
-  
-  const conquista = mapaConquistas[key];
-  if (!conquista) {
-    console.error(`Conquista "${key}" não encontrada no mapa. Verifique o onclick ou dados do aluno.`);
-    alert(`Erro: Conquista "${key}" indefinida. Contate administrador.`);
+  console.log(`🔍 Tentando abrir popup de conquista para key: ${key}`); // Debug - remova após testar
+
+  if (!key || typeof key !== 'string') {
+    console.error(`🚫 Key undefined ou inválida: ${key}. Verifique renderização dos cards.`);
+    alert('Erro: Conquista indefinida. Verifique dados.');
     return;
   }
 
-  // Debug: Confirma que conquista foi encontrada
-  console.log(`Conquista encontrada: ${conquista.titulo}`);
+  const conquista = mapaConquistas[key];
+  if (!conquista) {
+    console.error(`🚫 Conquista com key "${key}" não encontrada no mapa.`);
+    alert(`Erro: Conquista "${key}" não encontrada.`);
+    return;
+  }
 
-  // Verifica se elementos DOM existem
+  // Verifica elementos DOM
   const tituloEl = document.getElementById("conquistaTitulo");
   const iconeEl = document.getElementById("conquistaIcone");
   const descEl = document.getElementById("conquistaDescricao");
   const ulEl = document.getElementById("conquistaDetalhes");
+  const popupEl = document.getElementById("popupConquista");
 
-  if (!tituloEl || !iconeEl || !descEl || !ulEl) {
-    console.error("Elementos DOM do pop-up de conquistas não encontrados. Verifique carregamento do HTML.");
-    alert("Erro interno: Elementos do pop-up não carregados.");
+  if (!tituloEl || !iconeEl || !descEl || !ulEl || !popupEl) {
+    console.error("🚫 Elementos DOM do pop-up não encontrados. Verifique HTML.");
+    alert("Erro interno: Pop-up não carregou.");
     return;
   }
 
@@ -97,12 +100,13 @@ export const abrirPopupConquista = (key) => {
     ulEl.appendChild(li);
   });
 
-  // Abre o modal
-  document.getElementById("popupConquista").style.display = "flex";
+  popupEl.style.display = "flex";
 };
 
 export const fecharPopupConquista = () => {
-  document.getElementById("popupConquista").style.display = "none";
+  const popupEl = document.getElementById("popupConquista");
+  if (popupEl) popupEl.style.display = "none";
+  console.log("✅ Popup de conquista fechado.");
 };
 
 // --------------------------------------
@@ -110,37 +114,42 @@ export const fecharPopupConquista = () => {
 // --------------------------------------
 
 export function gerarPainelConquistas(aluno, elementoAlvo) {
-  // Debug: Imprime dados do aluno para verificar
-  console.log("Dados do aluno para conquistas:", aluno);
-  
-  if (!elementoAlvo) {
-    console.error("Elemento alvo para conquistas não fornecido.");
+  console.log("📊 Gerando painel de conquistas para aluno:", aluno); // Debug
+
+  if (!elementoAlvo || !aluno) {
+    console.error("🚫 Elemento alvo ou aluno não fornecido.");
     return;
   }
   elementoAlvo.innerHTML = "";
 
-  // 1. Calcular as conquistas desbloqueadas
   const conquistasDesbloqueadas = [];
-  
   for (const key in mapaConquistas) {
     const conquista = mapaConquistas[key];
-    // Verifica se condição é atendida (com fallback seguro)
     if (conquista.condicao && conquista.condicao(aluno)) {
       conquistasDesbloqueadas.push({
         key: key,
         ...conquista,
-        nivel: 1 // Assumindo nível 1
+        nivel: 1
       });
     }
   }
 
-  console.log(`Conquistas desbloqueadas: ${conquistasDesbloqueadas.map(c => c.titulo).join(", ") || "Nenhuma"}`);
+  console.log("🏆 Conquistas desbloqueadas:", conquistasDesbloqueadas.map(c => c.titulo));
 
-  // 2. Renderizar os cards
   conquistasDesbloqueadas.forEach(info => {
+    if (!info.key) {
+      console.warn("⚠️ Key ausente para conquista:", info);
+      return;
+    }
+
     const card = document.createElement("div");
     card.className = `achievement-card ${info.raridade}`;
-    card.setAttribute("onclick", `window.abrirPopupConquista('${info.key}')`); // Melhoria: força window. para compatibilidade
+
+    // 🔥 Solução: Use addEventListener em vez de onclick inline
+    card.addEventListener("click", () => {
+      abrirPopupConquista(info.key);
+    });
+
     card.innerHTML = `
       <span class="achievement-icon">${info.icone}</span>
       <span class="achievement-name">${info.titulo}</span>
@@ -148,8 +157,7 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
     `;
     elementoAlvo.appendChild(card);
   });
-  
-  // Se não houver conquistas, exibe uma mensagem
+
   if (conquistasDesbloqueadas.length === 0) {
     elementoAlvo.innerHTML = "<p style='text-align: center; color: #aaa;'>Nenhuma conquista desbloqueada ainda. Continue estudando!</p>";
   }
