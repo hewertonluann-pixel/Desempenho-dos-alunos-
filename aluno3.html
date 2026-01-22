@@ -142,7 +142,10 @@
     <div class="popup-content">
       <h2>Alterar Senha</h2>
       <input type="password" id="novaSenha" placeholder="Nova senha" />
-      <button onclick="salvarSenha()">Salvar</button>
+      <div class="popup-buttons"> <!-- Grupo de botões para organização -->
+        <button onclick="fecharPopup()" class="btn-cancelar">Cancelar</button> <!-- Novo botão Cancelar -->
+        <button onclick="salvarSenha()" class="btn-salvar">Salvar</button>
+      </div>
       <p id="mensagemSenha"></p>
       <span class="close-btn" onclick="fecharPopup()">×</span>
     </div>
@@ -153,7 +156,7 @@
 <script src="grafico-evolucao.js"></script>
 
 <!-- =================== SCRIPTS DO PAINEL =========================-->
-<<script type="module" src="aluno3.js?v=1"></script>
+<script type="module" src="aluno3.js?v=1"></script>
 <script type="module" src="navegacao.js"></script>
 <script src="js/recorder.js"></script>
 <script type="module" src="licoes.js?v=1"></script>
