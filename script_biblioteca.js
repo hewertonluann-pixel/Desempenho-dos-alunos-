@@ -1,258 +1,177 @@
-// Variáveis globais
-let userRole = 'student'; // 'student' ou 'teacher'
-let currentCollection = null;
+// script_biblioteca.js
+import { db } from './firebase-config.js';
+import {
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+
+const storage = getStorage();
+
+// Estado
+let userRole = 'student';
+let currentCollectionId = null;
 let collections = [];
 
-// Coleções padrão
-const defaultCollections = ['Métodos', 'Músicas', 'Hinos da Harpa'];
-
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-    loadCollections();
-    setupEventListeners();
-    renderCollections();
-    updateUIBasedOnRole();
+// INIT
+document.addEventListener('DOMContentLoaded', async () => {
+  setupEventListeners();
+  await loadCollections();
+  renderCollections();
+  updateUIBasedOnRole();
 });
 
-// Configurar Event Listeners
+// ROLE
 function setupEventListeners() {
-    document.getElementById('user-role').addEventListener('change', (e) => {
-        userRole = e.target.value;
-        updateUIBasedOnRole();
-    });
-}
-
-// Atualizar UI baseado no papel do usuário
-function updateUIBasedOnRole() {
-    const uploadSections = document.querySelectorAll('.upload-section.is-teacher');
-    const deleteBtns = document.querySelectorAll('.delete-btn.is-teacher');
-    const newCollectionSection = document.querySelector('.new-collection-section.is-teacher');
-
-    if (userRole === 'teacher') {
-        uploadSections.forEach(section => section.style.display = 'block');
-        deleteBtns.forEach(btn => btn.style.display = 'inline-block');
-        if (newCollectionSection) newCollectionSection.style.display = 'block';
-    } else {
-        uploadSections.forEach(section => section.style.display = 'none');
-        deleteBtns.forEach(btn => btn.style.display = 'none');
-        if (newCollectionSection) newCollectionSection.style.display = 'none';
-    }
-}
-
-// Carregar coleções do localStorage
-function loadCollections() {
-    const stored = localStorage.getItem('biblioteca_collections');
-    if (stored) {
-        collections = JSON.parse(stored);
-    } else {
-        // Inicializar com coleções padrão
-        collections = defaultCollections.map(name => ({
-            name: name,
-            documents: []
-        }));
-        saveCollections();
-    }
-}
-
-// Salvar coleções no localStorage
-function saveCollections() {
-    localStorage.setItem('biblioteca_collections', JSON.stringify(collections));
-}
-
-// Renderizar coleções
-function renderCollections() {
-    const grid = document.getElementById('collections-grid');
-    grid.innerHTML = '';
-
-    collections.forEach((collection, index) => {
-        const card = document.createElement('div');
-        card.className = 'collection-card';
-        card.onclick = () => openCollection(index);
-
-        const docCount = collection.documents ? collection.documents.length : 0;
-        const icon = getCollectionIcon(collection.name);
-
-        card.innerHTML = `
-            <h3>${icon} ${collection.name}</h3>
-            <p>Coleção de documentos</p>
-            <div class="doc-count">${docCount} documento${docCount !== 1 ? 's' : ''}</div>
-        `;
-
-        grid.appendChild(card);
-    });
-}
-
-// Obter ícone baseado no nome da coleção
-function getCollectionIcon(name) {
-    const icons = {
-        'Métodos': '📖',
-        'Músicas': '🎵',
-        'Hinos da Harpa': '🎶'
-    };
-    return icons[name] || '📄';
-}
-
-// Abrir coleção
-function openCollection(index) {
-    currentCollection = index;
-    document.getElementById('collections-view').classList.add('hidden');
-    document.getElementById('collection-view').classList.add('active');
-    document.getElementById('collection-title').textContent = `${getCollectionIcon(collections[index].name)} ${collections[index].name}`;
-    renderDocuments();
-}
-
-// Voltar para coleções
-function backToCollections() {
-    currentCollection = null;
-    document.getElementById('collections-view').classList.remove('hidden');
-    document.getElementById('collection-view').classList.remove('active');
-    document.getElementById('pdf-file').value = '';
-    document.getElementById('file-name').textContent = '';
-}
-
-// Atualizar nome do arquivo selecionado
-function updateFileName() {
-    const fileInput = document.getElementById('pdf-file');
-    const fileName = fileInput.files[0] ? fileInput.files[0].name : '';
-    document.getElementById('file-name').textContent = fileName;
-}
-
-// Fazer upload de documento
-function uploadDocument() {
-    const fileInput = document.getElementById('pdf-file');
-    const file = fileInput.files[0];
-
-    if (!file) {
-        alert('Por favor, selecione um arquivo PDF');
-        return;
-    }
-
-    if (file.type !== 'application/pdf') {
-        alert('Por favor, selecione um arquivo PDF válido');
-        return;
-    }
-
-    // Ler o arquivo como Data URL
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const document = {
-            id: Date.now(),
-            name: file.name,
-            size: file.size,
-            uploadDate: new Date().toLocaleDateString('pt-BR'),
-            data: e.target.result // Data URL do PDF
-        };
-
-        collections[currentCollection].documents.push(document);
-        saveCollections();
-        renderDocuments();
-
-        // Limpar input
-        fileInput.value = '';
-        document.getElementById('file-name').textContent = '';
-        alert('Documento enviado com sucesso!');
-    };
-
-    reader.readAsDataURL(file);
-}
-
-// Renderizar documentos
-function renderDocuments() {
-    const container = document.getElementById('documents-container');
-    const collection = collections[currentCollection];
-    const documents = collection.documents || [];
-
-    container.innerHTML = '';
-
-    if (documents.length === 0) {
-        container.innerHTML = '<div class="empty-message">Nenhum documento nesta coleção</div>';
-        return;
-    }
-
-    documents.forEach((doc, index) => {
-        const item = document.createElement('div');
-        item.className = 'document-item';
-
-        const sizeKB = (doc.size / 1024).toFixed(2);
-
-        item.innerHTML = `
-            <div class="document-info">
-                <div class="document-name">📄 ${doc.name}</div>
-                <div class="document-meta">
-                    Tamanho: ${sizeKB} KB | Enviado em: ${doc.uploadDate}
-                </div>
-            </div>
-            <div class="document-actions">
-                <button class="download-btn" onclick="downloadDocument(${currentCollection}, ${index})">⬇️ Baixar</button>
-                <button class="delete-btn is-teacher" onclick="deleteDocument(${currentCollection}, ${index})">🗑️ Deletar</button>
-            </div>
-        `;
-
-        container.appendChild(item);
-    });
-
+  document.getElementById('user-role').addEventListener('change', e => {
+    userRole = e.target.value;
     updateUIBasedOnRole();
+  });
 }
 
-// Baixar documento
-function downloadDocument(collectionIndex, docIndex) {
-    const doc = collections[collectionIndex].documents[docIndex];
-    
-    // Criar um link temporário para download
-    const link = document.createElement('a');
-    link.href = doc.data;
-    link.download = doc.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+function updateUIBasedOnRole() {
+  document.querySelectorAll('.upload-section.is-teacher')
+    .forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
+
+  document.querySelectorAll('.delete-btn.is-teacher')
+    .forEach(el => el.style.display = userRole === 'teacher' ? 'inline-block' : 'none');
+
+  const newCol = document.querySelector('.new-collection-section.is-teacher');
+  if (newCol) newCol.style.display = userRole === 'teacher' ? 'block' : 'none';
 }
 
-// Deletar documento
-function deleteDocument(collectionIndex, docIndex) {
-    if (confirm(`Tem certeza que deseja deletar "${collections[collectionIndex].documents[docIndex].name}"?`)) {
-        collections[collectionIndex].documents.splice(docIndex, 1);
-        saveCollections();
-        renderDocuments();
-    }
+// 🔥 FIRESTORE
+async function loadCollections() {
+  collections = [];
+  const snap = await getDocs(collection(db, 'biblioteca_colecoes'));
+  snap.forEach(docSnap => {
+    collections.push({ id: docSnap.id, ...docSnap.data() });
+  });
 }
 
-// Criar nova coleção
-function createNewCollection() {
-    const input = document.getElementById('new-collection-name');
-    const name = input.value.trim();
+function renderCollections() {
+  const grid = document.getElementById('collections-grid');
+  grid.innerHTML = '';
 
-    if (!name) {
-        alert('Por favor, digite um nome para a coleção');
-        return;
-    }
+  collections.forEach(col => {
+    const card = document.createElement('div');
+    card.className = 'collection-card';
+    card.onclick = () => openCollection(col.id, col.nome);
 
-    if (collections.some(c => c.name.toLowerCase() === name.toLowerCase())) {
-        alert('Uma coleção com este nome já existe');
-        return;
-    }
-
-    collections.push({
-        name: name,
-        documents: []
-    });
-
-    saveCollections();
-    renderCollections();
-    input.value = '';
-    alert(`Coleção "${name}" criada com sucesso!`);
+    card.innerHTML = `
+      <h3>📁 ${col.nome}</h3>
+      <p>Coleção de documentos</p>
+    `;
+    grid.appendChild(card);
+  });
 }
 
-// Função para limpar dados (apenas para desenvolvimento/teste)
-function clearAllData() {
-    if (confirm('Tem certeza que deseja limpar todos os dados? Esta ação não pode ser desfeita.')) {
-        localStorage.removeItem('biblioteca_collections');
-        collections = defaultCollections.map(name => ({
-            name: name,
-            documents: []
-        }));
-        saveCollections();
-        backToCollections();
-        renderCollections();
-        alert('Todos os dados foram limpos');
+async function openCollection(id, name) {
+  currentCollectionId = id;
+  document.getElementById('collections-view').classList.add('hidden');
+  document.getElementById('collection-view').classList.add('active');
+  document.getElementById('collection-title').textContent = `📁 ${name}`;
+  await renderDocuments();
+}
+
+function backToCollections() {
+  currentCollectionId = null;
+  document.getElementById('collections-view').classList.remove('hidden');
+  document.getElementById('collection-view').classList.remove('active');
+}
+
+// 📄 DOCUMENTOS
+async function renderDocuments() {
+  const container = document.getElementById('documents-container');
+  container.innerHTML = '';
+
+  const docsRef = collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos');
+  const snap = await getDocs(docsRef);
+
+  if (snap.empty) {
+    container.innerHTML = '<div class="empty-message">Nenhum documento nesta coleção</div>';
+    return;
+  }
+
+  snap.forEach(d => {
+    const data = d.data();
+    const item = document.createElement('div');
+    item.className = 'document-item';
+
+    item.innerHTML = `
+      <div class="document-info">
+        <div class="document-name">📄 ${data.nome}</div>
+        <div class="document-meta">${(data.tamanho / 1024).toFixed(2)} KB</div>
+      </div>
+      <div class="document-actions">
+        <a class="download-btn" href="${data.url}" target="_blank">⬇️ Baixar</a>
+        <button class="delete-btn is-teacher" onclick="deleteDocument('${d.id}', '${data.storagePath}')">🗑️</button>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+
+  updateUIBasedOnRole();
+}
+
+// ⬆️ UPLOAD
+async function uploadDocument() {
+  const file = document.getElementById('pdf-file').files[0];
+  if (!file || file.type !== 'application/pdf') return alert('Selecione um PDF válido');
+
+  const path = `biblioteca/${currentCollectionId}/${file.name}`;
+  const storageRef = ref(storage, path);
+
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
+
+  await addDoc(
+    collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos'),
+    {
+      nome: file.name,
+      tamanho: file.size,
+      url,
+      storagePath: path,
+      criadoEm: serverTimestamp()
     }
+  );
+
+  alert('Documento enviado!');
+  renderDocuments();
+}
+
+// 🗑️ DELETE
+async function deleteDocument(docId, storagePath) {
+  if (!confirm('Deseja excluir este documento?')) return;
+
+  await deleteObject(ref(storage, storagePath));
+  await deleteDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', docId));
+
+  renderDocuments();
+}
+
+// ➕ COLEÇÃO
+async function createNewCollection() {
+  const input = document.getElementById('new-collection-name');
+  if (!input.value.trim()) return;
+
+  await addDoc(collection(db, 'biblioteca_colecoes'), {
+    nome: input.value.trim(),
+    criadoEm: serverTimestamp()
+  });
+
+  input.value = '';
+  await loadCollections();
+  renderCollections();
 }
