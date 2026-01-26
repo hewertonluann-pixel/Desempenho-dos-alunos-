@@ -1,4 +1,4 @@
-// script_biblioteca.js
+// script_biblioteca.js -- atualizado combuscas
 import { db } from './firebase-config.js';
 import {
   collection,
@@ -29,6 +29,11 @@ let collections = [];
 // Coleções iniciais que devem existir
 const INITIAL_COLLECTIONS = ['Métodos', 'Hinos da Harpa', 'Músicas'];
 
+// Novas variáveis para pesquisa e ordenação
+let currentDocuments = []; // Array global com documentos carregados
+let searchTerm = ''; // Termo de pesquisa atual
+let sortCriterion = 'name-asc'; // Critério de ordenação padrão
+
 // INIT
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
@@ -36,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadCollections();
   renderCollections();
   updateUIBasedOnRole();
+  setupSearchSortListeners(); // Adiciona listeners para pesquisa e ordenação
 });
 
 // Garantir que as coleções iniciais existam
@@ -120,6 +126,11 @@ async function openCollection(id, name) {
 
 function backToCollections() {
   currentCollectionId = null;
+  currentDocuments = []; // Reseta documentos ao voltar
+  searchTerm = ''; // Reseta pesquisa
+  sortCriterion = 'name-asc'; // Reseta ordenação
+  document.getElementById('search-input').value = ''; // Limpa input
+  document.getElementById('sort-select').value = 'name-asc'; // Reseta select
   document.getElementById('collections-view').style.display = 'block';
   document.getElementById('collection-view').classList.remove('active');
 }
@@ -132,15 +143,36 @@ async function renderDocuments() {
   const docsRef = collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos');
   const snap = await getDocs(docsRef);
 
+  currentDocuments = []; // Reseta array
+  snap.forEach(d => {
+    const data = d.data();
+    currentDocuments.push({
+      id: d.id,
+      nome: data.nome,
+      tamanho: data.tamanho,
+      url: data.url,
+      storagePath: data.storagePath,
+      criadoEm: data.criadoEm
+    });
+  });
+
+  renderDocumentsFiltered(); // Renderiza com filtros iniciais
+}
+
+// Nova função para renderizar com filtros e ordenação
+function renderDocumentsFiltered() {
+  const filteredDocs = filterDocuments(searchTerm);
+  const sortedDocs = sortDocuments(filteredDocs);
+
+  const container = document.getElementById('documents-container');
   container.innerHTML = '';
 
-  if (snap.empty) {
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-style:italic;">Nenhum documento nesta coleção</div>';
+  if (sortedDocs.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-style:italic;">Nenhum documento encontrado</div>';
     return;
   }
 
-  snap.forEach(d => {
-    const data = d.data();
+  sortedDocs.forEach(doc => {
     const item = document.createElement('div');
     item.className = 'document-item';
 
@@ -148,13 +180,13 @@ async function renderDocuments() {
       <div class="doc-info">
         <span class="doc-icon">📄</span>
         <div class="doc-details">
-          <span class="doc-name">${data.nome}</span>
-          <span class="doc-meta">${(data.tamanho / 1024).toFixed(1)} KB</span>
+          <span class="doc-name">${doc.nome}</span>
+          <span class="doc-meta">${new Date(doc.criadoEm.toDate()).toLocaleDateString()} | ${(doc.tamanho / 1024).toFixed(1)} KB</span>
         </div>
       </div>
       <div class="doc-actions">
-        <a class="btn-download" href="${data.url}" target="_blank">Baixar</a>
-        <button class="btn-delete" onclick="deleteDocument('${d.id}', '${data.storagePath}')">
+        <a class="btn-download" href="${doc.url}" target="_blank">Baixar</a>
+        <button class="btn-delete" onclick="deleteDocument('${doc.id}', '${doc.storagePath}')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
         </button>
       </div>
@@ -163,6 +195,48 @@ async function renderDocuments() {
   });
 
   updateUIBasedOnRole();
+}
+
+// Função para filtrar documentos por termo de pesquisa (substring, case-insensitive)
+function filterDocuments(term) {
+  if (!term.trim()) return currentDocuments;
+  return currentDocuments.filter(doc =>
+    doc.nome.toLowerCase().includes(term.toLowerCase())
+  );
+}
+
+// Função para ordenar documentos
+function sortDocuments(docs) {
+  const sorted = [...docs]; // Cópia
+
+  switch (sortCriterion) {
+    case 'name-asc':
+      return sorted.sort((a, b) => a.nome.localeCompare(b.nome));
+    case 'name-desc':
+      return sorted.sort((a, b) => b.nome.localeCompare(a.nome));
+    case 'date-desc':
+      return sorted.sort((a, b) => b.criadoEm.toDate() - a.criadoEm.toDate());
+    case 'date-asc':
+      return sorted.sort((a, b) => a.criadoEm.toDate() - b.criadoEm.toDate());
+    default:
+      return sorted;
+  }
+}
+
+// Função para configurar listeners de pesquisa e ordenação
+function setupSearchSortListeners() {
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+
+  searchInput.addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderDocumentsFiltered();
+  });
+
+  sortSelect.addEventListener('change', (e) => {
+    sortCriterion = e.target.value;
+    renderDocumentsFiltered();
+  });
 }
 
 // Atualizar nome do arquivo selecionado
@@ -216,7 +290,7 @@ async function uploadDocument() {
     document.getElementById('file-name').textContent = '';
     uploadBtn.disabled = false;
     uploadBtn.textContent = 'Enviar PDF';
-    await renderDocuments();
+    await renderDocuments(); // Recarrega dados e renderiza
   } catch (error) {
     console.error('❌ Erro ao fazer upload:', error);
     alert('❌ Erro ao fazer upload do documento');
@@ -234,7 +308,7 @@ async function deleteDocument(docId, storagePath) {
     await deleteObject(ref(storage, storagePath));
     await deleteDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', docId));
     alert('✅ Documento excluído com sucesso!');
-    await renderDocuments();
+    await renderDocuments(); // Recarrega após deletar
   } catch (error) {
     console.error('❌ Erro ao excluir documento:', error);
     alert('❌ Erro ao excluir o documento');
