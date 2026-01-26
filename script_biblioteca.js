@@ -67,14 +67,13 @@ function setupEventListeners() {
 }
 
 function updateUIBasedOnRole() {
-  document.querySelectorAll('.upload-section.is-teacher')
+  // Mostrar/Esconder seções de professor
+  document.querySelectorAll('.is-teacher')
     .forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
 
-  document.querySelectorAll('.delete-btn.is-teacher')
-    .forEach(el => el.style.display = userRole === 'teacher' ? 'inline-block' : 'none');
-
-  const newCol = document.querySelector('.new-collection-section.is-teacher');
-  if (newCol) newCol.style.display = userRole === 'teacher' ? 'block' : 'none';
+  // Mostrar/Esconder botões de deletar
+  document.querySelectorAll('.btn-delete')
+    .forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
 }
 
 // 🔥 FIRESTORE
@@ -84,6 +83,13 @@ async function loadCollections() {
   snap.forEach(docSnap => {
     collections.push({ id: docSnap.id, ...docSnap.data() });
   });
+}
+
+function getCollectionIcon(name) {
+    if (name.includes('Métodos')) return '📚';
+    if (name.includes('Harpa')) return '📖';
+    if (name.includes('Músicas')) return '🎵';
+    return '📁';
 }
 
 function renderCollections() {
@@ -96,8 +102,9 @@ function renderCollections() {
     card.onclick = () => openCollection(col.id, col.nome);
 
     card.innerHTML = `
-      <h3>📁 ${col.nome}</h3>
-      <p>Coleção de documentos</p>
+      <span class="icon-folder">${getCollectionIcon(col.nome)}</span>
+      <h3>${col.nome}</h3>
+      <p>Toque para abrir</p>
     `;
     grid.appendChild(card);
   });
@@ -105,28 +112,30 @@ function renderCollections() {
 
 async function openCollection(id, name) {
   currentCollectionId = id;
-  document.getElementById('collections-view').classList.add('hidden');
+  document.getElementById('collections-view').style.display = 'none';
   document.getElementById('collection-view').classList.add('active');
-  document.getElementById('collection-title').textContent = `📁 ${name}`;
+  document.getElementById('collection-title').textContent = name;
   await renderDocuments();
 }
 
 function backToCollections() {
   currentCollectionId = null;
-  document.getElementById('collections-view').classList.remove('hidden');
+  document.getElementById('collections-view').style.display = 'block';
   document.getElementById('collection-view').classList.remove('active');
 }
 
 // 📄 DOCUMENTOS
 async function renderDocuments() {
   const container = document.getElementById('documents-container');
-  container.innerHTML = '';
+  container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">Carregando documentos...</div>';
 
   const docsRef = collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos');
   const snap = await getDocs(docsRef);
 
+  container.innerHTML = '';
+
   if (snap.empty) {
-    container.innerHTML = '<div class="empty-message">Nenhum documento nesta coleção</div>';
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-style:italic;">Nenhum documento nesta coleção</div>';
     return;
   }
 
@@ -136,13 +145,18 @@ async function renderDocuments() {
     item.className = 'document-item';
 
     item.innerHTML = `
-      <div class="document-info">
-        <div class="document-name">📄 ${data.nome}</div>
-        <div class="document-meta">${(data.tamanho / 1024).toFixed(2)} KB</div>
+      <div class="doc-info">
+        <span class="doc-icon">📄</span>
+        <div class="doc-details">
+          <span class="doc-name">${data.nome}</span>
+          <span class="doc-meta">${(data.tamanho / 1024).toFixed(1)} KB</span>
+        </div>
       </div>
-      <div class="document-actions">
-        <a class="download-btn" href="${data.url}" target="_blank">⬇️ Baixar</a>
-        <button class="delete-btn is-teacher" onclick="deleteDocument('${d.id}', '${data.storagePath}')">🗑️</button>
+      <div class="doc-actions">
+        <a class="btn-download" href="${data.url}" target="_blank">Baixar</a>
+        <button class="btn-delete" onclick="deleteDocument('${d.id}', '${data.storagePath}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+        </button>
       </div>
     `;
     container.appendChild(item);
@@ -201,13 +215,14 @@ async function uploadDocument() {
     document.getElementById('pdf-file').value = '';
     document.getElementById('file-name').textContent = '';
     uploadBtn.disabled = false;
-    uploadBtn.textContent = 'Enviar';
+    uploadBtn.textContent = 'Enviar PDF';
     await renderDocuments();
   } catch (error) {
     console.error('❌ Erro ao fazer upload:', error);
     alert('❌ Erro ao fazer upload do documento');
-    document.querySelector('.upload-btn').disabled = false;
-    document.querySelector('.upload-btn').textContent = 'Enviar';
+    const uploadBtn = document.querySelector('.upload-btn');
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'Enviar PDF';
   }
 }
 
@@ -250,7 +265,7 @@ async function createNewCollection() {
   }
 }
 
-// Expor funções globalmente para que possam ser chamadas do HTML
+// Expor funções globalmente
 window.updateFileName = updateFileName;
 window.uploadDocument = uploadDocument;
 window.deleteDocument = deleteDocument;
