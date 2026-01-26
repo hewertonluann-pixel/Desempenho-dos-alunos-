@@ -161,3 +161,50 @@ body {
     .screen { padding: 10px; }
     .hud-resumo { flex-direction: column; }
 }
+
+/* Pesquisa e Ordenação */
+.search-sort-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.search-input {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--ink);
+    font-size: 0.9rem;
+    outline: none;
+    min-width: 200px;
+    flex: 1;
+}
+
+.search-input::placeholder {
+    color: var(--muted);
+}
+
+.sort-select {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--ink);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .search-sort-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input {
+        min-width: auto;
+    }
+}
