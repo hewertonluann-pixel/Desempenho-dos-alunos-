@@ -1,0 +1,66 @@
+/* loader.css */
+
+/* Estilos do Body para o Loader */
+.loader-active {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #000000, #000080); /* Degrade escuro de preto puro a azul escuro profundo */
+    font-family: Arial, sans-serif;
+    color: #fff; /* Texto branco para contraste */
+    overflow: hidden; /* Evita scroll durante o carregamento */
+}
+
+/* Estilos do Loader */
+#global-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999; /* Garante que fique acima de tudo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #000000, #000080);
+    transition: opacity 0.5s ease-out;
+}
+
+.spinner-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.spinner {
+    width: 100%;
+    height: 100%;
+    border: 5px solid #191970; /* Azul meia-noite escuro */
+    border-top: 5px solid #4169E1; /* Azul real para um toque de brilho */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#emoji-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px; /* Maior para emojis */
+    font-weight: bold;
+    color: #00BFFF; /* Azul brilhante para destaque no fundo escuro */
+    text-shadow: 1px 1px 2px rgba(0, 191, 255, 0.6); /* Sombra mais intensa para maior visibilidade */
+}
+
+/* Classe para esconder o loader */
+.loader-hidden {
+    opacity: 0;
+    pointer-events: none; /* Permite clicar no conteúdo por baixo */
+}

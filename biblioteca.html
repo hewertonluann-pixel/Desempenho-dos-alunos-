@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioteca - Orquestra Filhos de Asafe</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="loader.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
     <style>
         :root {
@@ -558,6 +559,13 @@
     </style>
 </head>
 <body>
+    <!-- Global Loader -->
+    <div id="global-loader">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <div id="emoji-container">🎷</div>
+        </div>
+    </div>
     <header class="nav-header">
         <h1>📚 Biblioteca</h1>
         <select id="user-role" class="user-role-selector" style="display: none;">
@@ -659,6 +667,7 @@
         </a>
     </nav>-->
 
+    <script src="loader.js"></script>
     <script type="module" src="script_biblioteca.js"></script>
     <script type="module" src="navegacao.js"></script>
 </body>

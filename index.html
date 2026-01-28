@@ -6,6 +6,7 @@
   <title>Login — Orquestra Filhos de Asafe</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="loader.css">
 
   <style>
     * { box-sizing: border-box; }
@@ -166,6 +167,13 @@
 </head>
 
 <body>
+  <!-- Global Loader -->
+  <div id="global-loader">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div id="emoji-container">🎷</div>
+    </div>
+  </div>
   <div class="login-card">
     <div class="titulo">🎵 Orquestra Filhos de Asafe</div>
 
@@ -227,9 +235,12 @@
       setTimeout(() => {
         btnEntrar.disabled = false;
         loadingSpinner.style.display = 'none';
+        // Esconde o loader global após o login
+        window.hideLoader();
       }, 5000);
     });
   </script>
+  <script src="loader.js"></script>
   <script type="module" src="login.js"></script> <!-- Teu JS original POR ÚLTIMO -->
 </body>
 </html>
