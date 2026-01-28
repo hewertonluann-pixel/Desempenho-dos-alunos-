@@ -4,6 +4,7 @@
 const emojis = ['🎷', '🎻', '🎺', '🎶', '🥁', '🎵', '🎹'];
 let emojiIndex = 0;
 let emojiInterval;
+let loaderHidden = false;
 
 // Versículos de louvor
 const verses = [
@@ -41,6 +42,9 @@ function displayRandomVerse() {
 }
 
 function hideLoader() {
+    if (loaderHidden) return; // Evita múltiplas chamadas
+    loaderHidden = true;
+    
     const loader = document.getElementById('global-loader');
     if (loader) {
         clearInterval(emojiInterval);
@@ -53,6 +57,28 @@ function hideLoader() {
     }
 }
 
+// Função para verificar se a página está completamente carregada
+function checkPageReady() {
+    // Verifica se o documento está pronto
+    if (document.readyState === 'complete') {
+        return true;
+    }
+    
+    // Verifica se há elementos críticos carregados
+    const criticalElements = document.querySelectorAll('[data-critical]');
+    if (criticalElements.length > 0) {
+        let allLoaded = true;
+        criticalElements.forEach(el => {
+            if (!el.dataset.loaded) {
+                allLoaded = false;
+            }
+        });
+        return allLoaded;
+    }
+    
+    return false;
+}
+
 // Inicia o loader assim que o script é carregado
 document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('loader-active');
@@ -60,21 +86,32 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Esconde o loader quando a página está completamente carregada
-// Aguarda o evento 'load' que garante que todos os recursos (imagens, scripts, etc) foram carregados
+// Aguarda o evento 'load' que garante que todos os recursos foram carregados
 window.addEventListener('load', () => {
-    // Aguarda um pequeno delay para garantir que o DOM foi renderizado completamente
+    // Aguarda um pouco mais para garantir que o DOM foi renderizado completamente
+    // e que todos os scripts foram executados
     setTimeout(() => {
         hideLoader();
-    }, 1000); // 1 segundo de delay para garantir renderização completa
+    }, 2000); // 2 segundos de delay para garantir renderização completa
 });
 
-// Fallback: se por algum motivo o 'load' não disparar, esconde após 10 segundos
+// Fallback: se por algum motivo o 'load' não disparar, esconde após 15 segundos
+// Isso garante que o loader não fique preso indefinidamente
 setTimeout(() => {
-    const loader = document.getElementById('global-loader');
-    if (loader && !loader.classList.contains('loader-hidden')) {
+    if (!loaderHidden) {
         hideLoader();
     }
-}, 10000);
+}, 15000);
+
+// Monitoramento contínuo: se a página ficar pronta antes do tempo esperado, esconde
+const readyCheckInterval = setInterval(() => {
+    if (!loaderHidden && checkPageReady()) {
+        clearInterval(readyCheckInterval);
+        setTimeout(() => {
+            hideLoader();
+        }, 500);
+    }
+}, 500);
 
 // Exporta a função para ser chamada quando o conteúdo principal estiver pronto
 window.hideLoader = hideLoader;

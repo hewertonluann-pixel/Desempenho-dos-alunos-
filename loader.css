@@ -65,6 +65,7 @@
     text-align: center;
     max-width: 400px;
     padding: 0 20px;
+    transition: all 0.3s ease;
 }
 
 #verse-text {
@@ -74,12 +75,51 @@
     font-style: italic;
     font-weight: 300;
     margin-bottom: 8px;
+    transition: font-size 0.3s ease;
 }
 
 #verse-reference {
     font-size: 0.85rem;
     color: #94a3b8;
     font-weight: 500;
+    transition: font-size 0.3s ease;
+}
+
+/* Versículo maior em tablets */
+@media (min-width: 768px) {
+    #verse-container {
+        max-width: 600px;
+        margin-top: 40px;
+    }
+    
+    #verse-text {
+        font-size: 1.2rem;
+        line-height: 1.8;
+    }
+    
+    #verse-reference {
+        font-size: 0.95rem;
+        margin-top: 12px;
+    }
+}
+
+/* Versículo ainda maior em desktops */
+@media (min-width: 1024px) {
+    #verse-container {
+        max-width: 700px;
+        margin-top: 50px;
+    }
+    
+    #verse-text {
+        font-size: 1.4rem;
+        line-height: 2;
+        letter-spacing: 0.3px;
+    }
+    
+    #verse-reference {
+        font-size: 1.05rem;
+        margin-top: 16px;
+    }
 }
 
 /* Classe para esconder o loader */
