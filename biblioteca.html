@@ -32,10 +32,9 @@
             background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #000 100%);
             color: var(--ink);
             min-height: 100vh;
-            padding-bottom: 80px; /* Espaço para a nav mobile */
+            padding-bottom: 80px;
         }
 
-        /* Barra de Navegação Superior */
         .nav-header {
             background: rgba(11, 18, 32, 0.8);
             backdrop-filter: blur(10px);
@@ -112,8 +111,10 @@
         .collection-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 4px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
             background: var(--azul);
             opacity: 0.5;
         }
@@ -136,7 +137,6 @@
             margin-bottom: 10px;
         }
 
-        /* Visualização da Coleção */
         .collection-view {
             display: none;
             animation: fadeIn 0.3s ease;
@@ -174,140 +174,57 @@
             font-size: 1.5rem;
         }
 
-        /* Seção de Professor */
+        .search-sort-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .search-input {
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--ink);
+            font-size: 0.9rem;
+            outline: none;
+            min-width: 200px;
+            flex: 1;
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        .sort-select {
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--ink);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
         .teacher-section {
             background: var(--azul-suave);
-            border: 1px dashed var(--azul);
+            border: 1px solid var(--azul);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 20px;
             display: none;
         }
 
+        .teacher-section.new-col-section {
+            margin-bottom: 30px;
+        }
+
         .teacher-section h3 {
             margin: 0 0 10px;
             font-size: 1rem;
             color: var(--azul);
-        }
-
-        .upload-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .file-input-label {
-            background: var(--azul);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .upload-btn {
-            background: var(--verde);
-            color: var(--bg);
-            border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        .upload-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Lista de Documentos */
-        .documents-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .document-item {
-            background: var(--card-alt);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.2s;
-        }
-
-        .document-item:hover {
-            background: var(--azul-suave);
-        }
-
-        .doc-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
-        }
-
-        .doc-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .doc-details {
-            min-width: 0;
-        }
-
-        .doc-name {
-            display: block;
-            font-weight: 600;
-            color: var(--ink);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .doc-meta {
-            font-size: 0.75rem;
-            color: var(--muted);
-        }
-
-        .doc-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-download {
-            background: var(--azul-escuro);
-            color: var(--azul);
-            border: 1px solid var(--border);
-            padding: 6px 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--vermelho);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            padding: 6px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: none;
-        }
-
-        /* Nova Coleção */
-        .new-col-section {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 30px;
-            display: none;
         }
 
         .new-col-input {
@@ -331,51 +248,233 @@
             cursor: pointer;
         }
 
-        /* Navegação Mobile Inferior */
-        .mobile-nav {
+        .upload-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .file-input-label,
+        .file-input-label-audio {
+            background: var(--azul);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .file-input-label-audio {
+            background: var(--verde);
+            color: var(--bg);
+        }
+
+        .file-input-audio {
+            margin-top: 10px;
+        }
+
+        .file-input-audio small {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 0.7rem;
+        }
+
+        .upload-btn {
+            background: var(--verde);
+            color: var(--bg);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .documents-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .document-item {
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .document-item:hover {
+            background: var(--azul-suave);
+        }
+
+        .doc-name {
+            font-weight: 600;
+            color: var(--ink);
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .audio-player {
+            display: inline-block;
+            min-width: 200px;
+            max-width: 250px;
+            width: 100%;
+        }
+
+        audio {
+            height: 40px;
+            border-radius: 6px;
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            outline: none;
+            width: 100%;
+        }
+
+        .doc-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            background: var(--azul-escuro);
+            color: var(--azul);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-edit {
+            background: var(--verde);
+            color: var(--bg);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--vermelho);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .modal {
+            display: none;
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
             width: 100%;
-            background: rgba(11, 18, 32, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 0.7rem;
-            gap: 4px;
+        .modal-content {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
-        .nav-item.active {
+        .modal h3 {
             color: var(--azul);
+            margin-top: 0;
         }
 
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
+        .modal .file-input-label-audio {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .btn-close {
+            background: var(--vermelho);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .btn-remove-audio {
+            background: var(--vermelho);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 10px;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* Responsividade */
+        @media (min-width: 800px) {
+            .document-item {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .doc-name {
+                flex: 1;
+                text-align: left;
+                margin-bottom: 0;
+            }
+
+            .doc-buttons {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+                flex-shrink: 0;
+            }
+        }
+
         @media (max-width: 600px) {
             .collections-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .upload-controls {
                 flex-direction: column;
                 align-items: stretch;
@@ -383,6 +482,29 @@
 
             .new-col-input {
                 max-width: none;
+            }
+
+            .search-sort-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                min-width: auto;
+            }
+
+            .doc-buttons {
+                gap: 10px;
+            }
+
+            .audio-player,
+            audio {
+                max-width: 100%;
+                min-width: 150px;
+            }
+
+            .modal-content {
+                padding: 15px;
             }
         }
 
@@ -446,7 +568,7 @@
 
     <div class="container">
         <!-- Seção de Nova Coleção (Professor) -->
-        <div class="new-col-section is-teacher">
+        <div class="new-col-section teacher-section is-teacher">
             <h3>➕ Criar Nova Coleção</h3>
             <input type="text" id="new-collection-name" class="new-col-input" placeholder="Nome da coleção (ex: Partituras)">
             <button class="btn-create-col" onclick="createNewCollection()">Criar Coleção</button>
@@ -471,26 +593,34 @@
 
             <div class="collection-header">
                 <h2 id="collection-title">Nome da Coleção</h2>
-               
-                <!-- Adicione logo após <h2 id="collection-title">Nome da Coleção</h2> -->
-<div class="search-sort-controls">
-    <input type="text" id="search-input" class="search-input" placeholder="Pesquisar por nome...">
-    <select id="sort-select" class="sort-select">
-        <option value="name-asc">Nome (A-Z)</option>
-        <option value="name-desc">Nome (Z-A)</option>
-        <option value="date-desc">Data (Mais Recente)</option>
-        <option value="date-asc">Data (Mais Antigo)</option>
-    </select>
-</div>
-                
+
+                <!-- Busca e Ordenação -->
+                <div class="search-sort-controls">
+                    <input type="text" id="search-input" class="search-input" placeholder="Pesquisar por nome...">
+                    <select id="sort-select" class="sort-select">
+                        <option value="name-asc">Nome (A-Z)</option>
+                        <option value="name-desc">Nome (Z-A)</option>
+                        <option value="date-desc">Data (Mais Recente)</option>
+                        <option value="date-asc">Data (Mais Antigo)</option>
+                    </select>
+                </div>
+
                 <!-- Upload (Professor) -->
                 <div class="teacher-section is-teacher">
-                    <h3>📤 Upload de PDF</h3>
+                    <h3>📤 Upload de PDF e Áudio</h3>
                     <div class="upload-controls">
-                        <label for="pdf-file" class="file-input-label">Selecionar Arquivo</label>
+                        <label for="pdf-file" class="file-input-label">Selecionar PDF</label>
                         <input type="file" id="pdf-file" accept=".pdf" onchange="updateFileName()" style="display: none;">
                         <span id="file-name" style="font-size: 0.8rem; color: var(--muted);"></span>
-                        <button class="upload-btn" onclick="uploadDocument()">Enviar PDF</button>
+
+                        <div class="file-input-audio">
+                            <label for="audio-file" class="file-input-label-audio">Selecionar Áudio (MP3/WAV)</label>
+                            <input type="file" id="audio-file" accept=".mp3,.wav,.ogg" onchange="updateAudioFileName()" style="display: none;">
+                            <span id="audio-file-name" style="font-size: 0.8rem; color: var(--muted);"></span>
+                            <small>(Opcional: faça upload de um arquivo de áudio para ouvir durante a leitura)</small>
+                        </div>
+
+                        <button class="upload-btn" onclick="uploadDocument()">Enviar</button>
                     </div>
                 </div>
 
@@ -501,24 +631,34 @@
         </div>
     </div>
 
+    <!-- Modal para Gerenciar Áudio -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <button class="btn-close" onclick="closeModal()">X</button>
+            <h3>🎵 Gerenciar Áudio</h3>
+            <label for="edit-audio-file" class="file-input-label-audio" style="display: block;">Selecionar/Substituir Áudio</label>
+            <input type="file" id="edit-audio-file" accept=".mp3,.wav,.ogg" style="display: none;">
+            <button class="upload-btn" onclick="saveAudio()" style="margin-top: 10px;">Salvar Áudio</button>
+            <button class="btn-remove-audio" onclick="removeAudio()">Remover Áudio</button>
+        </div>
+    </div>
+
     <!-- Navegação Mobile -->
-   <!-- <nav class="mobile-nav">
-        <a href="aluno.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <nav class="mobile-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 18, 32, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000;">
+        <a href="aluno.html" class="nav-item" style="display: flex; flex-direction: column; align-items: center; color: var(--muted); text-decoration: none; font-size: 0.7rem; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             Início
         </a>
-        <a href="biblioteca.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <a href="biblioteca.html" class="nav-item" style="display: flex; flex-direction: column; align-items: center; color: var(--azul); text-decoration: none; font-size: 0.7rem; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             Biblioteca
         </a>
-        <a href="painel-social.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <a href="painel-social.html" class="nav-item" style="display: flex; flex-direction: column; align-items: center; color: var(--muted); text-decoration: none; font-size: 0.7rem; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Social
         </a>
     </nav>
--->
+
     <script type="module" src="script_biblioteca.js"></script>
-    <script type="module" src="navegacao.js"></script>
-    
 </body>
 </html>
