@@ -1,4 +1,4 @@
-// script_biblioteca.js
+// script_biblioteca.js -- atualizado combuscas
 import { db } from './firebase-config.js';
 import {
   collection,
@@ -30,6 +30,11 @@ let documents = [];
 // Coleções iniciais que devem existir
 const INITIAL_COLLECTIONS = ['Métodos', 'Hinos da Harpa', 'Músicas'];
 
+// Novas variáveis para pesquisa e ordenação
+let currentDocuments = []; // Array global com documentos carregados
+let searchTerm = ''; // Termo de pesquisa atual
+let sortCriterion = 'name-asc'; // Critério de ordenação padrão
+
 // INIT
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
@@ -37,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadCollections();
   renderCollections();
   updateUIBasedOnRole();
+  setupSearchSortListeners(); // Adiciona listeners para pesquisa e ordenação
 });
 
 // Garantir que as coleções iniciais existam
@@ -217,6 +223,48 @@ function renderDocumentsFiltered(docsToRender) {
   });
 
   updateUIBasedOnRole();
+}
+
+// Função para filtrar documentos por termo de pesquisa (substring, case-insensitive)
+function filterDocuments(term) {
+  if (!term.trim()) return currentDocuments;
+  return currentDocuments.filter(doc =>
+    doc.nome.toLowerCase().includes(term.toLowerCase())
+  );
+}
+
+// Função para ordenar documentos
+function sortDocuments(docs) {
+  const sorted = [...docs]; // Cópia
+
+  switch (sortCriterion) {
+    case 'name-asc':
+      return sorted.sort((a, b) => a.nome.localeCompare(b.nome));
+    case 'name-desc':
+      return sorted.sort((a, b) => b.nome.localeCompare(a.nome));
+    case 'date-desc':
+      return sorted.sort((a, b) => b.criadoEm.toDate() - a.criadoEm.toDate());
+    case 'date-asc':
+      return sorted.sort((a, b) => a.criadoEm.toDate() - b.criadoEm.toDate());
+    default:
+      return sorted;
+  }
+}
+
+// Função para configurar listeners de pesquisa e ordenação
+function setupSearchSortListeners() {
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+
+  searchInput.addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderDocumentsFiltered();
+  });
+
+  sortSelect.addEventListener('change', (e) => {
+    sortCriterion = e.target.value;
+    renderDocumentsFiltered();
+  });
 }
 
 // Atualizar nome do arquivo selecionado
