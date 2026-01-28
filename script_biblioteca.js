@@ -54,8 +54,8 @@ function checkUserAuth() {
   if (usuarioLogado) {
     try {
       const user = JSON.parse(usuarioLogado);
-      if (user.tipo === 'professor') {
-        // Se for professor, mostra o seletor e permite trocar
+      // Professor é identificado por tipo 'professor' OU pela flag 'classificado: true'
+      if (user.tipo === 'professor' || user.classificado === true) { 
         userRole = 'teacher';
         if (roleSelector) {
           roleSelector.style.display = 'block';
@@ -204,9 +204,10 @@ function filterAndSortDocuments() {
   } else if (sortBy === 'name-desc') {
     filtered.sort((a, b) => b.nome.localeCompare(a.nome));
   } else if (sortBy === 'date-desc') {
-    filtered.sort((a, b) => (b.criadoEm?.seconds || 0) - (a.criadoEm?.seconds || 0));
+    // Usar toDate() para garantir comparação correta de timestamps
+    filtered.sort((a, b) => (b.criadoEm?.toDate() || 0) - (a.criadoEm?.toDate() || 0));
   } else if (sortBy === 'date-asc') {
-    filtered.sort((a, b) => (a.criadoEm?.seconds || 0) - (b.criadoEm?.seconds || 0));
+    filtered.sort((a, b) => (a.criadoEm?.toDate() || 0) - (b.criadoEm?.toDate() || 0));
   }
 
   renderDocumentsFiltered(filtered);
