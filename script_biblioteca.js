@@ -37,6 +37,7 @@ let sortCriterion = 'name-asc'; // Critério de ordenação padrão
 
 // INIT
 document.addEventListener('DOMContentLoaded', async () => {
+  checkUserAuth();
   setupEventListeners();
   await ensureInitialCollections();
   await loadCollections();
@@ -44,6 +45,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateUIBasedOnRole();
   setupSearchSortListeners(); // Adiciona listeners para pesquisa e ordenação
 });
+
+// Verificar Autenticação e Papel
+function checkUserAuth() {
+  const usuarioLogado = localStorage.getItem("usuarioAtual");
+  const roleSelector = document.getElementById('user-role');
+  
+  if (usuarioLogado) {
+    try {
+      const user = JSON.parse(usuarioLogado);
+      if (user.tipo === 'professor') {
+        // Se for professor, mostra o seletor e permite trocar
+        userRole = 'teacher';
+        if (roleSelector) {
+          roleSelector.style.display = 'block';
+          roleSelector.value = 'teacher';
+        }
+      } else {
+        // Se for aluno, esconde o seletor e trava no modo student
+        userRole = 'student';
+        if (roleSelector) roleSelector.style.display = 'none';
+      }
+    } catch (e) {
+      console.error("Erro ao ler usuário logado:", e);
+      userRole = 'student';
+      if (roleSelector) roleSelector.style.display = 'none';
+    }
+  } else {
+    // Se não houver usuário logado (acesso direto), assume aluno por segurança
+    userRole = 'student';
+    if (roleSelector) roleSelector.style.display = 'none';
+  }
+}
 
 // Garantir que as coleções iniciais existam
 async function ensureInitialCollections() {
