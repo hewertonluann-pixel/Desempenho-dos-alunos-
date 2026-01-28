@@ -2,10 +2,14 @@
 // Salvar usuário logado corretamente
 // ===============================
 
-export function salvarUsuarioAtual(nome, tipo = "aluno") {
+export function salvarUsuarioAtual(usuario) {
+  // Garante que o objeto tenha pelo menos o tipo, se não tiver
+  if (!usuario.tipo) {
+    usuario.tipo = usuario.classificado ? "professor" : "aluno";
+  }
   localStorage.setItem(
     "usuarioAtual",
-    JSON.stringify({ nome, tipo })
+    JSON.stringify(usuario)
   );
 }
 
