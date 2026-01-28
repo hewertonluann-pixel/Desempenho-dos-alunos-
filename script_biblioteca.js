@@ -219,14 +219,18 @@ function renderDocuments() {
 
 function renderDocumentsFiltered(docsToRender) {
   const container = document.getElementById('documents-container');
+  if (!container) return;
   container.innerHTML = '';
 
-  if (docsToRender.length === 0) {
+  // Garante que docsToRender seja um array
+  const docs = Array.isArray(docsToRender) ? docsToRender : [];
+
+  if (docs.length === 0) {
     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-style:italic;">Nenhum documento encontrado</div>';
     return;
   }
 
-  docsToRender.forEach(d => {
+  docs.forEach(d => {
     const item = document.createElement('div');
     item.className = 'document-item';
 
@@ -292,12 +296,12 @@ function setupSearchSortListeners() {
 
   searchInput.addEventListener('input', (e) => {
     searchTerm = e.target.value;
-    renderDocumentsFiltered();
+    filterAndSortDocuments();
   });
 
   sortSelect.addEventListener('change', (e) => {
     sortCriterion = e.target.value;
-    renderDocumentsFiltered();
+    filterAndSortDocuments();
   });
 }
 
