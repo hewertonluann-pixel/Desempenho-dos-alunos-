@@ -338,21 +338,25 @@ function inserirModalLicao() {
   document.getElementById("btnOuvirLicao").onclick = ouvirGravacao;
   document.getElementById("btnEnviarLicao").onclick = enviarLicao;
 
-  document.getElementById("btnFecharViewLicao").onclick = () => {
-    modalView.classList.remove("ativo");
-    const audio = document.getElementById("viewLicaoAudio");
-    if (audio) audio.pause();
-  };
-  
-  // Fechar ao clicar fora do conteúdo
+  // Eventos de fechamento usando delegação e funções globais
+  document.getElementById("btnFecharViewLicao").onclick = fecharViewLicao;
   modalView.onclick = (e) => {
-    if (e.target === modalView) {
-      modalView.classList.remove("ativo");
-      const audio = document.getElementById("viewLicaoAudio");
-      if (audio) audio.pause();
-    }
+    if (e.target === modalView) fecharViewLicao();
   };
 }
+
+function fecharViewLicao() {
+  const modalView = document.getElementById("modalViewLicao");
+  if (modalView) {
+    modalView.classList.remove("ativo");
+    const audio = document.getElementById("viewLicaoAudio");
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }
+}
+window.fecharViewLicao = fecharViewLicao;
 
 function abrirModalEnviarLicao() {
   const modal = document.getElementById("modalLicao");
@@ -816,3 +820,4 @@ document.addEventListener("DOMContentLoaded", () => {
 window.abrirModalEnviarLicao = abrirModalEnviarLicao;
 window.abrirLicao = abrirLicao;
 window.excluirLicao = excluirLicao;
+window.fecharViewLicao = fecharViewLicao;
