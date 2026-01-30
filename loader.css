@@ -63,14 +63,19 @@
 #verse-container {
     margin-top: 30px;
     text-align: center;
-    max-width: 400px;
-    padding: 20px;
+    width: 90%; /* Ocupa a maior parte da largura em telas pequenas */
+    max-width: 850px; /* Aumentado para permitir um formato bem horizontal em telas grandes */
+    padding: 25px 40px; /* Mais padding lateral para reforçar a horizontalidade */
     transition: all 0.3s ease;
-    background: rgba(15, 23, 42, 0.6); /* Fundo escuro semi-transparente */
-    border: 1px solid rgba(56, 189, 248, 0.3); /* Borda azul suave */
-    border-radius: 12px; /* Cantos arredondados */
-    backdrop-filter: blur(8px); /* Efeito de desfoque no fundo */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Sombra para profundidade */
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #verse-text {
@@ -93,7 +98,7 @@
 /* Versículo maior em tablets */
 @media (min-width: 768px) {
     #verse-container {
-        max-width: 600px;
+        max-width: 750px;
         margin-top: 40px;
     }
     
