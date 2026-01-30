@@ -681,9 +681,14 @@ async function enviarLicao() {
     msg.className = "msg-licao ok";
   }
 
+  // Atualizar a lista de lições do aluno automaticamente
+  if (typeof carregarLicoesAluno === "function") {
+    carregarLicoesAluno(alunoNome);
+  }
+
   setTimeout(() => {
     fecharModalLicao();
-  }, 1200);
+  }, 1500);
 }
 
 /* ==========================
