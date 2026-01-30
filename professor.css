@@ -451,3 +451,22 @@ h1 {
 .mensagem-info.visivel {
   opacity: 1;
 }
+
+/* Estilos para o Painel de Avaliação */
+.card-avaliacao {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-avaliacao:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  border-color: rgba(56, 189, 248, 0.5) !important;
+}
+.card-avaliacao button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+.card-avaliacao textarea:focus {
+  outline: none;
+  border-color: #22d3ee;
+  box-shadow: 0 0 5px rgba(34, 211, 238, 0.3);
+}

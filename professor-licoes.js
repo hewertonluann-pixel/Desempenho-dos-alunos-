@@ -1,5 +1,4 @@
-// professor-licoes.js – versão completa e integrada ao novo layout
-
+// professor-licoes.js – Versão para avaliação de lições com feedback
 import { db } from "./firebase-config.js";
 import {
   collection,
@@ -10,56 +9,47 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-let painelLicoesProf = null; // Referência global ao container do HTML
+let painelLicoesProf = null;
 
 function inserirPainel() {
-  painelLicoesProf = document.getElementById("painelLicoesProf"); // Usar ID fixo do HTML
+  painelLicoesProf = document.getElementById("painelLicoesProf");
   if (!painelLicoesProf) {
     console.error("❌ ERRO: painelLicoesProf não encontrado no HTML.");
     return;
   }
 
-  // Limpar conteúdo antes de inserir
-  painelLicoesProf.innerHTML = '';
-
-  // Criar conteúdo dentro do painel fixo
-  const card = document.createElement("div");
-  card.id = "cardSolicitacoesLicao";
-  card.className = "card-licoes"; // Classe opcional para CSS custom
-  card.style.background = "rgba(15,23,42,0.9)";
-  card.style.border = "1px solid rgba(56,189,248,0.3)";
-  card.style.borderRadius = "12px";
-  card.style.padding = "14px";
-  card.style.boxShadow = "0 0 18px rgba(15,118,255,0.35)";
-  card.style.marginBottom = "18px";
-
-  card.innerHTML = `
-    <h2 style="color:#22d3ee;margin:0 0 10px 0;font-size:1.1rem;">🔔 Solicitações de lição</h2>
-    <p style="opacity:0.8;font-size:0.85rem;margin-top:-6px;">Aprove ou reprove as lições enviadas pelos alunos.</p>
-    <button id="btnAtualizarSolicitacoes"
-      style="margin:8px 0 14px 0;width:100%;padding:8px;border-radius:8px;border:none;background:#0ea5e9;color:#fff;font-weight:600;cursor:pointer;">
-      Atualizar lista
-    </button>
-    <div id="listaSolicitacoesLicao" style="display:flex;flex-direction:column;gap:10px;"></div>
+  painelLicoesProf.innerHTML = `
+    <div id="cardSolicitacoesLicao" style="background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 0 18px rgba(15,118,255,0.35); margin-bottom: 30px;">
+      <h2 style="color:#22d3ee; margin:0 0 10px 0; font-size:1.4rem;">🎤 Avaliação de Lições</h2>
+      <p style="opacity:0.8; font-size:0.9rem; margin-bottom: 15px;">Ouça as lições enviadas e forneça feedback aos alunos.</p>
+      <button id="btnAtualizarSolicitacoes" style="margin-bottom: 20px; width:100%; padding:10px; border-radius:8px; border:none; background:#0ea5e9; color:#fff; font-weight:600; cursor:pointer; transition: background 0.3s;">
+        🔄 Atualizar Lista
+      </button>
+      <div id="listaSolicitacoesLicao" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:15px;"></div>
+    </div>
   `;
 
-  painelLicoesProf.appendChild(card);
-  painelLicoesProf.classList.add("show"); // Ativar grid no CSS
+  painelLicoesProf.style.display = "block";
+  
+  // Ocultar o painel de alunos ao mostrar o de lições
+  const painelAlunos = document.getElementById("painel");
+  if (painelAlunos) painelAlunos.style.display = "none";
 
   document.getElementById("btnAtualizarSolicitacoes").onclick = carregarSolicitacoes;
   carregarSolicitacoes();
 }
 
-// Função para mostrar/ocultar painel (chamada pelo botão no HTML)
 window.mostrarPainelLicoes = function() {
-  if (!painelLicoesProf) {
-    inserirPainel(); // Primeira vez, carrega
-  } else if (painelLicoesProf.innerHTML === '' || !painelLicoesProf.classList.contains("show")) {
-    inserirPainel(); // Recarregar se necessário
+  const painel = document.getElementById("painelLicoesProf");
+  if (!painel) return;
+
+  if (painel.style.display === "none") {
+    inserirPainel();
   } else {
-    // Ocultar: remover classe e limpar
-    painelLicoesProf.classList.remove("show");
-    painelLicoesProf.innerHTML = '';
+    painel.style.display = "none";
+    // Mostrar painel de alunos de volta
+    const painelAlunos = document.getElementById("painel");
+    if (painelAlunos) painelAlunos.style.display = "grid";
   }
 };
 
@@ -67,110 +57,87 @@ async function carregarSolicitacoes() {
   const lista = document.getElementById("listaSolicitacoesLicao");
   if (!lista) return;
 
-  lista.innerHTML = "<p>Carregando...</p>";
+  lista.innerHTML = "<p style='grid-column: 1/-1; text-align: center;'>⏳ Carregando lições pendentes...</p>";
 
   try {
     const q = query(
-      collection(db, "solicitacoesLicao"),
+      collection(db, "licoes"),
       where("status", "==", "pendente")
     );
 
     const snap = await getDocs(q);
 
     if (snap.empty) {
-      lista.innerHTML = "<p>Nenhuma solicitação pendente.</p>";
+      lista.innerHTML = "<p style='grid-column: 1/-1; text-align: center; opacity: 0.7;'>Nenhuma lição pendente para avaliação.</p>";
       return;
     }
 
     const itens = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     lista.innerHTML = itens.map(item => `
-      <div class="card-item-licao"
-        data-id="${item.id}"
-        data-tipolicao="${item.tipo}"
-        data-numerolicao="${item.numero}"
-        data-alunoid="${item.alunoId}">
-        
-        <div style="display:flex;justify-content:space-between;">
-          <strong>${item.alunoNome}</strong>
-          <span style="opacity:0.7;font-size:0.75rem;">
-            ${new Date(item.criadoEm).toLocaleString("pt-BR")}
-          </span>
+      <div class="card-avaliacao" style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="display:flex; justify-content:space-between; align-items: center;">
+          <strong style="color: #22d3ee; font-size: 1.1rem;">${item.alunoNome}</strong>
+          <span style="opacity:0.6; font-size:0.7rem;">${new Date(item.criadoEm).toLocaleDateString("pt-BR")}</span>
         </div>
 
-        <p style="margin:6px 0 4px 0;">
-          ${item.tipo === "leitura" ? "📘 BONA" : "🎯 Método"} — lição ${item.numero}
-        </p>
+        <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc;">
+          ${item.tipo === "leitura" ? "📘 Leitura (Bona)" : "🎯 Método Instrumental"} — Lição nº ${item.numero}
+        </div>
 
-        <audio controls src="${item.audioURL}" style="width:100%; margin-bottom:6px;"></audio>
+        <audio controls src="${item.audioURL}" style="width:100%; height: 35px; margin: 5px 0;"></audio>
 
-        ${item.texto ? `<p style="font-size:0.85rem;opacity:0.9;">💬 ${item.texto}</p>` : ""}
+        <div style="background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; font-size: 0.85rem; font-style: italic; color: #cbd5e1;">
+          "${item.texto || "Sem comentário do aluno."}"
+        </div>
 
-        <div style="display:flex;gap:10px;margin-top:6px;">
-          <button class="btnReprovarLicao"
-            style="flex:1;padding:8px;border:none;border-radius:6px;background:#fca5a5;color:#7f1d1d;font-weight:600;cursor:pointer;">
-            Reprovar
+        <textarea id="feedback-${item.id}" placeholder="Escreva o feedback para o aluno..." style="width: 100%; min-height: 60px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; padding: 8px; font-size: 0.85rem; resize: vertical;"></textarea>
+
+        <div style="display:flex; gap:10px;">
+          <button onclick="avaliarLicao('${item.id}', 'reprovada', '${item.alunoId}', '${item.tipo}', ${item.numero})" style="flex:1; padding:8px; border:none; border-radius:6px; background:#ef4444; color:#fff; font-weight:600; cursor:pointer; transition: opacity 0.2s;">
+            ❌ Reprovar
           </button>
-
-          <button class="btnAprovarLicao"
-            style="flex:1;padding:8px;border:none;border-radius:6px;background:#bbf7d0;color:#14532d;font-weight:600;cursor:pointer;">
-            Aprovar
+          <button onclick="avaliarLicao('${item.id}', 'aprovada', '${item.alunoId}', '${item.tipo}', ${item.numero})" style="flex:1; padding:8px; border:none; border-radius:6px; background:#22c55e; color:#fff; font-weight:600; cursor:pointer; transition: opacity 0.2s;">
+            ✅ Aprovar
           </button>
         </div>
       </div>
     `).join("");
 
-    // Eventos dos botões
-    lista.querySelectorAll(".btnAprovarLicao").forEach(btn => {
-      btn.onclick = () => tratar(btn.closest(".card-item-licao"), true);
-    });
-
-    lista.querySelectorAll(".btnReprovarLicao").forEach(btn => {
-      btn.onclick = () => tratar(btn.closest(".card-item-licao"), false);
-    });
-
   } catch (error) {
-    console.error("Erro ao carregar solicitações:", error);
-    lista.innerHTML = "<p>Erro ao carregar. Tente novamente.</p>";
+    console.error("Erro ao carregar lições:", error);
+    lista.innerHTML = "<p style='grid-column: 1/-1; text-align: center; color: #ef4444;'>Erro ao carregar lições. Verifique o console.</p>";
   }
 }
 
-async function tratar(card, aprovar) {
-  const id = card.dataset.id;
-  const tipo = card.dataset.tipolicao;
-  const numero = parseInt(card.dataset.numerolicao, 10);
-  const alunoId = card.dataset.alunoid;
+window.avaliarLicao = async function(id, novoStatus, alunoId, tipo, numero) {
+  const feedback = document.getElementById(`feedback-${id}`).value.trim();
+  
+  if (!confirm(`Deseja marcar esta lição como ${novoStatus.toUpperCase()}?`)) return;
 
   try {
-    if (aprovar) {
+    // 1. Atualizar o status da lição e adicionar feedback
+    await updateDoc(doc(db, "licoes", id), {
+      status: novoStatus,
+      observacaoProfessor: feedback,
+      avaliadoEm: new Date().toISOString()
+    });
+
+    // 2. Se aprovada, atualizar o progresso do aluno na ficha dele
+    if (novoStatus === 'aprovada') {
       await updateDoc(doc(db, "alunos", alunoId), {
         [tipo]: numero
       });
-
-      await updateDoc(doc(db, "solicitacoesLicao", id), {
-        status: "aprovado",
-        respondidoEm: new Date().toISOString()
-      });
-
-    } else {
-      await updateDoc(doc(db, "solicitacoesLicao", id), {
-        status: "reprovado",
-        respondidoEm: new Date().toISOString()
-      });
     }
 
-    card.style.opacity = "0.4";
-    card.style.pointerEvents = "none";
-
-    console.log(`Liçao ${aprovar ? 'aprovada' : 'reprovada'} para ${alunoId}`);
+    alert(`Lição ${novoStatus} com sucesso!`);
+    carregarSolicitacoes(); // Recarregar lista
+    
+    // Se o painel de alunos estiver carregado em algum lugar, pode ser necessário atualizar
+    if (window.renderizarPainel) window.renderizarPainel();
 
   } catch (error) {
-    console.error("Erro ao tratar lição:", error);
-    alert("Erro ao processar lição.");
+    console.error("Erro ao avaliar lição:", error);
+    alert("Erro ao processar avaliação.");
   }
-}
-
-// Inicialização opcional (se necessário sem DOMContentLoaded)
-document.addEventListener("DOMContentLoaded", () => {
-  // Não chama inserirPainel() aqui, pois o controle é via botão no HTML
-});
+};
