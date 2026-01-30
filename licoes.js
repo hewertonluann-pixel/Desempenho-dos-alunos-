@@ -10,7 +10,8 @@ import {
   where,
   getDocs,
   getDoc,
-  doc
+  doc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import {
   getStorage,
@@ -705,19 +706,34 @@ export async function carregarLicoesAluno(nomeAluno) {
     const card = document.createElement("div");
     card.className = "card-licao";
     card.innerHTML = `
-      <div><strong>Data:</strong> ${data}</div>
-      <div><strong>Tipo:</strong> ${l.tipo === "metodo" ? "Método" : "Leitura"}</div>
-      <div><strong>Lição nº:</strong> ${l.numero}</div>
-      <div><strong>Status:</strong> <span class="status ${l.status}">${l.status}</span></div>
-      ${
-        l.observacaoProfessor
-          ? `<div><strong>Obs. do professor:</strong> ${l.observacaoProfessor}</div>`
-          : ""
-      }
-      <button class="btn-ver" onclick="abrirLicao('${id}')">Ver lição</button>
+      <span class="status-badge ${l.status}">${l.status.toUpperCase()}</span>
+      <button class="btn-delete-licao" onclick="excluirLicao('${id}', '${nomeAluno}')">×</button>
+      
+      <div class="card-licao-content">
+        <div class="licao-tipo">${l.tipo === "metodo" ? "Método" : "Leitura"}</div>
+        <div class="licao-numero">Nº ${l.numero}</div>
+      </div>
+      
+      <button class="btn-ver-detalhes" onclick="abrirLicao('${id}')">Ver detalhes</button>
     `;
     lista.appendChild(card);
   });
+}
+
+/* ==========================
+   EXCLUSÃO DE UMA LIÇÃO
+   ========================== */
+async function excluirLicao(id, nomeAluno) {
+  if (!confirm("Tem certeza que deseja excluir esta lição enviada?")) return;
+
+  try {
+    await deleteDoc(doc(db, "licoes", id));
+    alert("Lição excluída com sucesso!");
+    carregarLicoesAluno(nomeAluno);
+  } catch (e) {
+    console.error("Erro ao excluir lição:", e);
+    alert("Erro ao excluir lição.");
+  }
 }
 
 /* ==========================
@@ -744,10 +760,26 @@ async function abrirLicao(id) {
     ? new Date(l.criadoEm).toLocaleString("pt-BR")
     : "";
 
-  infoEl.textContent = `${l.tipo === "metodo" ? "Método" : "Leitura"} — lição nº ${l.numero} — ${data}`;
+  infoEl.innerHTML = `
+    <strong>Tipo:</strong> ${l.tipo === "metodo" ? "Método" : "Leitura"}<br>
+    <strong>Lição nº:</strong> ${l.numero}<br>
+    <strong>Data:</strong> ${data}
+  `;
+  
   if (obsEl) {
-    obsEl.textContent = l.texto ? `Comentário: ${l.texto}` : "";
+    obsEl.innerHTML = `
+      <div style="margin-top:10px; padding:10px; background:rgba(255,255,255,0.05); border-radius:8px; font-size:0.9rem;">
+        <strong>Seu comentário:</strong><br>
+        ${l.texto || "<i>Sem comentário</i>"}
+      </div>
+      ${l.observacaoProfessor ? `
+      <div style="margin-top:10px; padding:10px; background:rgba(34,211,238,0.1); border-radius:8px; border-left:4px solid #22d3ee; font-size:0.9rem;">
+        <strong>Feedback do Professor:</strong><br>
+        ${l.observacaoProfessor}
+      </div>` : ""}
+    `;
   }
+  
   audioEl.src = l.audioURL || "";
   audioEl.load();
 
@@ -765,3 +797,4 @@ document.addEventListener("DOMContentLoaded", () => {
 // tornar funções globais para o HTML (onclick)
 window.abrirModalEnviarLicao = abrirModalEnviarLicao;
 window.abrirLicao = abrirLicao;
+window.excluirLicao = excluirLicao;
