@@ -340,6 +340,17 @@ function inserirModalLicao() {
 
   document.getElementById("btnFecharViewLicao").onclick = () => {
     modalView.classList.remove("ativo");
+    const audio = document.getElementById("viewLicaoAudio");
+    if (audio) audio.pause();
+  };
+  
+  // Fechar ao clicar fora do conteúdo
+  modalView.onclick = (e) => {
+    if (e.target === modalView) {
+      modalView.classList.remove("ativo");
+      const audio = document.getElementById("viewLicaoAudio");
+      if (audio) audio.pause();
+    }
   };
 }
 
@@ -756,9 +767,16 @@ async function abrirLicao(id) {
 
   if (!modal || !infoEl || !audioEl) return;
 
-  const data = l.criadoEm
-    ? new Date(l.criadoEm).toLocaleString("pt-BR")
-    : "";
+  let data = "";
+  if (l.criadoEm) {
+    const d = new Date(l.criadoEm);
+    if (!isNaN(d.getTime())) {
+      data = d.toLocaleString("pt-BR");
+    } else {
+      // Tentar tratar se for uma string de data simples
+      data = l.criadoEm;
+    }
+  }
 
   infoEl.innerHTML = `
     <strong>Tipo:</strong> ${l.tipo === "metodo" ? "Método" : "Leitura"}<br>
