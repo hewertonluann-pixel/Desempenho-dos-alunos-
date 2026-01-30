@@ -4,7 +4,7 @@
 
 import { db } from "./firebase-config.js";
 import {
-  collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc
+  collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 if (!db) {
@@ -434,7 +434,78 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnCriarChamada = document.getElementById("btnCriarChamada");
   if (btnCriarChamada) btnCriarChamada.onclick = criarEventoGenerico;
+
+  const btnAtualizarComprometimento = document.getElementById("btnAtualizarComprometimento");
+  if (btnAtualizarComprometimento) btnAtualizarComprometimento.onclick = atualizarComprometimentoGeral;
 });
+
+// ========== ATUALIZAR COMPROMETIMENTO GERAL ==========
+async function atualizarComprometimentoGeral() {
+  const btn = document.getElementById("btnAtualizarComprometimento");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "⏳ Atualizando...";
+  }
+
+  try {
+    console.log("🟡 Iniciando atualização de comprometimento...");
+    
+    // 1. Obter todos os eventos do ano atual
+    const anoAtual = new Date().getFullYear();
+    const snapEventos = await getDocs(collection(db, "eventos"));
+    const eventosAno = snapEventos.docs
+      .map(d => d.data())
+      .filter(d => d.data && d.data.startsWith(`${anoAtual}-`));
+
+    // 2. Agrupar por mês para pegar o mês atual
+    const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
+    const chaveMesAtual = `${anoAtual}-${mesAtual}`;
+    const eventosMesAtual = eventosAno.filter(e => e.data.startsWith(chaveMesAtual));
+
+    // 3. Obter todos os alunos
+    const snapAlunos = await getDocs(collection(db, "alunos"));
+    
+    let atualizados = 0;
+    for (const alunoDoc of snapAlunos.docs) {
+      const alunoData = alunoDoc.data();
+      const nomeAluno = alunoData.nome;
+
+      // Calcular frequência do mês atual
+      let presencasNoMes = 0;
+      eventosMesAtual.forEach(ev => {
+        const presenca = ev.presencas?.find(p => p.nome === nomeAluno);
+        if (presenca && presenca.presenca === "presente") {
+          presencasNoMes++;
+        }
+      });
+
+      const totalEventosMes = eventosMesAtual.length;
+      const percentualMes = totalEventosMes > 0 
+        ? Math.round((presencasNoMes / totalEventosMes) * 100) 
+        : 0;
+
+      // Atualizar no Firestore
+      await updateDoc(doc(db, "alunos", alunoDoc.id), {
+        "frequenciaMensal.porcentagem": percentualMes,
+        "frequenciaMensal.totalEventos": totalEventosMes,
+        "frequenciaMensal.presencas": presencasNoMes,
+        ultimaAtualizacaoComprometimento: serverTimestamp()
+      });
+      atualizados++;
+    }
+
+    mostrarMensagem("mensagemSucesso", `⚡ Comprometimento de ${atualizados} alunos atualizado!`);
+    console.log(`✅ Atualização concluída: ${atualizados} alunos.`);
+  } catch (error) {
+    console.error("❌ Erro ao atualizar comprometimento:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização. Verifique o console.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "⚡ Atualizar Comprometimento";
+    }
+  }
+}
 
 // ========== EXPORT ==========
 export function setupModalsAlunos() {
