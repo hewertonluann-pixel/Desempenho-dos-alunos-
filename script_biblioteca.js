@@ -118,6 +118,9 @@ function updateUIBasedOnRole() {
 
   document.querySelectorAll('.btn-edit')
     .forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
+
+  document.querySelectorAll('.btn-delete-collection')
+    .forEach(el => el.style.display = userRole === 'teacher' ? 'flex' : 'none');
 }
 
 // 🔥 FIRESTORE
@@ -143,15 +146,59 @@ function renderCollections() {
   collections.forEach(col => {
     const card = document.createElement('div');
     card.className = 'collection-card';
-    card.onclick = () => openCollection(col.id, col.nome);
+    
+    // O clique no card abre a coleção, mas o clique no botão de deletar não deve abrir
+    card.onclick = (e) => {
+      if (e.target.closest('.btn-delete-collection')) return;
+      openCollection(col.id, col.nome);
+    };
 
     card.innerHTML = `
+      <button class="btn-delete-collection" onclick="deleteCollection('${col.id}', '${col.nome}')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+      </button>
       <span class="icon-folder">${getCollectionIcon(col.nome)}</span>
       <h3>${col.nome}</h3>
       <p>Toque para abrir</p>
     `;
     grid.appendChild(card);
   });
+  
+  updateUIBasedOnRole();
+}
+
+async function deleteCollection(id, name) {
+  if (!confirm(`⚠️ ATENÇÃO: Tem certeza que deseja excluir a coleção "${name}"?\n\nIsso removerá permanentemente todos os documentos e áudios contidos nela.`)) return;
+
+  try {
+    // 1. Carregar todos os documentos da coleção para deletar os arquivos no Storage
+    const docsRef = collection(db, 'biblioteca_colecoes', id, 'documentos');
+    const snap = await getDocs(docsRef);
+    
+    for (const d of snap.docs) {
+      const data = d.data();
+      // Deletar PDF
+      if (data.storagePath) {
+        try { await deleteObject(ref(storage, data.storagePath)); } catch(e) { console.warn('Erro ao deletar PDF no storage:', e); }
+      }
+      // Deletar Áudio
+      if (data.audioStoragePath) {
+        try { await deleteObject(ref(storage, data.audioStoragePath)); } catch(e) { console.warn('Erro ao deletar áudio no storage:', e); }
+      }
+      // Deletar documento no Firestore
+      await deleteDoc(doc(db, 'biblioteca_colecoes', id, 'documentos', d.id));
+    }
+
+    // 2. Deletar a coleção principal
+    await deleteDoc(doc(db, 'biblioteca_colecoes', id));
+
+    alert(`✅ Coleção "${name}" excluída com sucesso!`);
+    await loadCollections();
+    renderCollections();
+  } catch (error) {
+    console.error('❌ Erro ao excluir coleção:', error);
+    alert('❌ Erro ao excluir a coleção. Verifique o console.');
+  }
 }
 
 async function openCollection(id, name) {
@@ -555,6 +602,7 @@ window.uploadDocument = uploadDocument;
 window.deleteDocument = deleteDocument;
 window.backToCollections = backToCollections;
 window.createNewCollection = createNewCollection;
+window.deleteCollection = deleteCollection;
 window.openEditModal = openEditModal;
 window.closeModal = closeModal;
 window.saveAudio = saveAudio;
