@@ -39,11 +39,11 @@ function inserirPainel() {
   carregarSolicitacoes();
 }
 
-window.mostrarPainelLicoes = function() {
+export function mostrarPainelLicoes() {
   const painel = document.getElementById("painelLicoesProf");
   if (!painel) return;
 
-  if (painel.style.display === "none") {
+  if (painel.style.display === "none" || painel.innerHTML === "") {
     inserirPainel();
   } else {
     painel.style.display = "none";
@@ -51,7 +51,8 @@ window.mostrarPainelLicoes = function() {
     const painelAlunos = document.getElementById("painel");
     if (painelAlunos) painelAlunos.style.display = "grid";
   }
-};
+}
+window.mostrarPainelLicoes = mostrarPainelLicoes;
 
 async function carregarSolicitacoes() {
   const lista = document.getElementById("listaSolicitacoesLicao");
