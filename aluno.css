@@ -442,100 +442,116 @@ body {
 }
 
 .lessons-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
+  margin-top: 15px;
+}
+
+/* 2 por linha em smartphones pequenos */
+@media (max-width: 480px) {
+  .lessons-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .card-licao {
-  background: var(--card);
-  padding: 15px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+  border: 1px solid rgba(56, 189, 248, 0.2);
   border-radius: 10px;
-  border: 1px solid var(--border);
+  padding: 10px;
+  position: relative;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
+  min-height: 130px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.card-licao div {
-  text-align: left;
-}
-
-.card-licao strong {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.card-licao span {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.card-licao .status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.card-licao .status.aprovada { background: var(--verde-suave); color: var(--verde); }
-.card-licao .status.pendente { background: var(--azul-suave); color: var(--azul); }
-.card-licao .status.reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-.card-licao .btn-ver {
-  background: linear-gradient(135deg, #0099e6, #0077cc);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.card-licao .btn-ver:hover {
-  background: linear-gradient(135deg, #00b3ff, #0099e6);
+.card-licao:hover {
   transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.5);
 }
 
-.lesson-card {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.status-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 0.75rem; /* Aumentado de 0.55rem para 0.75rem */
+  font-weight: 900;    /* Aumentado o peso da fonte */
+  padding: 3px 7px;   /* Aumentado o preenchimento */
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-.lesson-info {
-  text-align: left;
-}
+.status-badge.pendente { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.status-badge.aprovada { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+.status-badge.reprovada { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
-.lesson-title {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.lesson-date {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.lesson-status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
+.btn-delete-licao {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ef4444;
+  border: 1px solid #ef4444;
+  color: white;
+  font-size: 0.9rem;
   font-weight: bold;
-  text-transform: uppercase;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
 
-.status-aprovada { background: var(--verde-suave); color: var(--verde); }
-.status-pendente { background: var(--azul-suave); color: var(--azul); }
-.status-reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
+.btn-delete-licao:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.card-licao-content {
+  margin-top: 22px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.licao-tipo {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.licao-numero {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 2px 0;
+}
+
+.btn-ver-detalhes {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  padding: 5px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-ver-detalhes:hover {
+  background: #38bdf8;
+  color: #0f172a;
+}
 
 /* ============================================================
    MODAIS E POPUPS
@@ -551,103 +567,50 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
-.popup-content {
-  background: var(--card-alt);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-  width: 90%;
-  max-width: 500px;
-  position: relative;
-  animation: fadeInScale 0.3s ease-out;
-}
-
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.popup-content h3 {
-  margin-top: 0;
-  color: var(--azul);
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
-
-.popup-content p {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-.close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 1.8rem;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: var(--ink);
-}
-
-/* ============================================================
-   MODAL DE CONQUISTA
-   ============================================================ */
-
+/* --- MODAL/POPUP CONQUISTAS --- */
 .modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1001; /* Sit on top */
+  display: none; /* Escondido por padrão */
+  position: fixed;
+  z-index: 1000;
   left: 0;
   top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
-  backdrop-filter: blur(5px);
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.8); /* Fundo escuro */
   justify-content: center;
   align-items: center;
 }
 
 .modal-content {
-  background-color: var(--card-alt);
+  background-color: #2a2a2a;
   margin: auto;
   padding: 30px;
-  border: 1px solid var(--border);
+  border: 1px solid #444;
   width: 80%;
   max-width: 500px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
   position: relative;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  color: #fff;
 }
 
 .close-button {
-  color: var(--muted);
+  color: #aaa;
+  float: right;
   font-size: 28px;
   font-weight: bold;
+  cursor: pointer;
   position: absolute;
   top: 10px;
-  right: 20px;
-  cursor: pointer;
+  right: 15px;
 }
 
 .close-button:hover,
 .close-button:focus {
-  color: var(--ink);
+  color: #fff;
   text-decoration: none;
   cursor: pointer;
 }
@@ -655,409 +618,34 @@ body {
 .conquista-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 15px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
 }
 
 .conquista-header h2 {
-  color: var(--azul);
+  margin: 0;
   font-size: 1.8rem;
-  margin: 0;
-  border-bottom: none;
-  padding-bottom: 0;
+  color: var(--azul);
 }
 
-.achievement-icon {
-  font-size: 3rem;
+.conquista-header .achievement-icon {
+  font-size: 2.5rem;
+  margin-right: 15px;
 }
 
-.modal-content h3 {
-  color: var(--ink);
-  font-size: 1.1rem;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.modal-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.modal-content ul li {
-  background-color: var(--card);
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-content ul li strong {
-  color: var(--ink);
-}
-
-/* ============================================================
-   MODAL DE ENVIO DE LIÇÃO
-   ============================================================ */
-
-.modal-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-@keyframes aparecerLicao {
-  from { opacity: 0; transform: scale(0.98); }
-  to   { opacity: 1; transform: scale(1); }
-}
-.modal-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
-  position: relative;
-}
-.modal-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
-}
-.modal-licao-sub {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 12px;
-}
-.linha-campos {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.linha-campos label {
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-.linha-campos select,
-.linha-campos input[type="text"],
-.linha-campos input[type="number"] {
-  background: #020617;
-  border-radius: 8px;
-  border: 1px solid #1f2937;
-  color: #e5e7eb;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  flex: 1;
-}
-.linha-campos select:focus,
-.linha-campos input[type="text"]:focus,
-.linha-campos input[type="number"]:focus {
-  outline: none;
-  border-color: #22d3ee;
-  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2);
-}
-.linha-campos button {
-  background: #22d3ee;
-  color: #020617;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.linha-campos button:hover {
-  background: #0ea5e9;
-}
-.modal-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-licao-botoes .cancelar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-licao-botoes .cancelar:hover {
-  background: #475569;
-}
-.modal-licao-botoes .enviar {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-}
-.modal-licao-botoes .enviar:hover {
-  background: #0099e6;
-}
-
-/* Visualização de Áudio */
-.audio-player-container {
-  margin-top: 10px;
-  background: #1f2937;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.audio-player-container audio {
-  flex-grow: 1;
-  width: 100%;
-}
-.audio-player-container button {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* Onda de áudio */
-#audio-waveform {
-  height: 50px;
-  width: 100%;
-  background: #0f172a;
-  border-radius: 8px;
-  margin-top: 10px;
-  overflow: hidden;
-  position: relative;
-}
-#audio-waveform canvas {
-  width: 100%;
-  height: 100%;
-}
-#timer-gravacao {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  padding: 2px 5px;
-  border-radius: 3px;
-  font-size: 0.7rem;
-}
-
-/* ============================================================
-   MODAL DE VISUALIZAÇÃO DE LIÇÃO
-   ============================================================ */
-
-.modal-view-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-view-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-.modal-view-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
-  position: relative;
-}
-.modal-view-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
-}
-.modal-view-licao-conteudo p {
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
-.modal-view-licao-conteudo audio {
-  width: 100%;
+#conquistaDetalhes {
+  list-style-type: disc;
+  padding-left: 20px;
   margin-top: 10px;
 }
-.modal-view-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-view-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-view-licao-botoes .fechar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-view-licao-botoes .fechar:hover {
-  background: #475569;
-}
 
-/* ============================================================
-   CONTENT AREA - LIÇÕES ENVIADAS
-   ============================================================ */
-
-.lessons-section {
-  grid-column: span 2;
-}
-
-.btn-send-lesson {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  background: var(--azul);
-  color: white;
-  font-weight: 600;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: background 0.2s;
-}
-
-.btn-send-lesson:hover {
-  background: #0099e6;
-}
-
-.lessons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.card-licao {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-licao div {
-  text-align: left;
-}
-
-.card-licao strong {
-  font-weight: 600;
-  color: var(--ink);
+#conquistaDetalhes li {
   margin-bottom: 5px;
+  color: #ccc;
 }
 
-.card-licao span {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.card-licao .status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.card-licao .status.aprovada { background: var(--verde-suave); color: var(--verde); }
-.card-licao .status.pendente { background: var(--azul-suave); color: var(--azul); }
-.card-licao .status.reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-.card-licao .btn-ver {
-  background: linear-gradient(135deg, #0099e6, #0077cc);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.card-licao .btn-ver:hover {
-  background: linear-gradient(135deg, #00b3ff, #0099e6);
-  transform: translateY(-2px);
-}
-
-.lesson-card {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lesson-info {
-  text-align: left;
-}
-
-.lesson-title {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.lesson-date {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.lesson-status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.status-aprovada { background: var(--verde-suave); color: var(--verde); }
-.status-pendente { background: var(--azul-suave); color: var(--azul); }
-.status-reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-/* ============================================================
-   MODAIS E POPUPS
-   ============================================================ */
-
-.popup {
+/* --- FIM MODAL/POPUP CONQUISTAS --- */
   position: fixed;
   top: 0;
   left: 0;
@@ -1072,1531 +660,117 @@ body {
 
 .popup-content {
   background: var(--card-alt);
-  padding: 25px;
+  padding: 30px;
   border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
   width: 90%;
-  max-width: 500px;
   position: relative;
-  animation: fadeInScale 0.3s ease-out;
+  text-align: center;
 }
 
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.popup-content h3 {
-  margin-top: 0;
+.popup-content h2 {
   color: var(--azul);
-  font-size: 1.2rem;
-  margin-bottom: 15px;
+  margin-top: 0;
+  margin-bottom: 20px;
 }
 
-.popup-content p {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 10px;
+.popup-content input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--azul-escuro);
+  color: var(--ink);
+}
+
+.popup-content button {
+  background: var(--azul);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.popup-content button:hover {
+  background: #0099e6;
 }
 
 .close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 1.8rem;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: var(--ink);
-}
-
-/* ============================================================
-   MODAL DE CONQUISTA
-   ============================================================ */
-
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1001; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
-  backdrop-filter: blur(5px);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: var(--card-alt);
-  margin: auto;
-  padding: 30px;
-  border: 1px solid var(--border);
-  width: 80%;
-  max-width: 500px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  position: relative;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.close-button {
-  color: var(--muted);
-  font-size: 28px;
-  font-weight: bold;
-  position: absolute;
   top: 10px;
-  right: 20px;
-  cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-  color: var(--ink);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.conquista-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 15px;
-}
-
-.conquista-header h2 {
-  color: var(--azul);
-  font-size: 1.8rem;
-  margin: 0;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.achievement-icon {
-  font-size: 3rem;
-}
-
-.modal-content h3 {
-  color: var(--ink);
-  font-size: 1.1rem;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.modal-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.modal-content ul li {
-  background-color: var(--card);
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-content ul li strong {
-  color: var(--ink);
-}
-
-/* ============================================================
-   MODAL DE ENVIO DE LIÇÃO
-   ============================================================ */
-
-.modal-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-@keyframes aparecerLicao {
-  from { opacity: 0; transform: scale(0.98); }
-  to   { opacity: 1; transform: scale(1); }
-}
-.modal-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
-  position: relative;
-}
-.modal-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
-}
-.modal-licao-sub {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 12px;
-}
-.linha-campos {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.linha-campos label {
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-.linha-campos select,
-.linha-campos input[type="text"],
-.linha-campos input[type="number"] {
-  background: #020617;
-  border-radius: 8px;
-  border: 1px solid #1f2937;
-  color: #e5e7eb;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  flex: 1;
-}
-.linha-campos select:focus,
-.linha-campos input[type="text"]:focus,
-.linha-campos input[type="number"]:focus {
-  outline: none;
-  border-color: #22d3ee;
-  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2);
-}
-.linha-campos button {
-  background: #22d3ee;
-  color: #020617;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.linha-campos button:hover {
-  background: #0ea5e9;
-}
-.modal-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-licao-botoes .cancelar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-licao-botoes .cancelar:hover {
-  background: #475569;
-}
-.modal-licao-botoes .enviar {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-}
-.modal-licao-botoes .enviar:hover {
-  background: #0099e6;
-}
-
-/* Visualização de Áudio */
-.audio-player-container {
-  margin-top: 10px;
-  background: #1f2937;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.audio-player-container audio {
-  flex-grow: 1;
-  width: 100%;
-}
-.audio-player-container button {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* Onda de áudio */
-#audio-waveform {
-  height: 50px;
-  width: 100%;
-  background: #0f172a;
-  border-radius: 8px;
-  margin-top: 10px;
-  overflow: hidden;
-  position: relative;
-}
-#audio-waveform canvas {
-  width: 100%;
-  height: 100%;
-}
-#timer-gravacao {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  padding: 2px 5px;
-  border-radius: 3px;
-  font-size: 0.7rem;
-}
-
-/* ============================================================
-   MODAL DE VISUALIZAÇÃO DE LIÇÃO
-   ============================================================ */
-
-.modal-view-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-view-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-.modal-view-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
-  position: relative;
-}
-.modal-view-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
-}
-.modal-view-licao-conteudo p {
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
-.modal-view-licao-conteudo audio {
-  width: 100%;
-  margin-top: 10px;
-}
-.modal-view-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-view-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-view-licao-botoes .fechar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-view-licao-botoes .fechar:hover {
-  background: #475569;
-}
-
-/* ============================================================
-   CONTENT AREA - LIÇÕES ENVIADAS
-   ============================================================ */
-
-.lessons-section {
-  grid-column: span 2;
-}
-
-.btn-send-lesson {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  background: var(--azul);
-  color: white;
-  font-weight: 600;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: background 0.2s;
-}
-
-.btn-send-lesson:hover {
-  background: #0099e6;
-}
-
-.lessons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.card-licao {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-licao div {
-  text-align: left;
-}
-
-.card-licao strong {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.card-licao span {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.card-licao .status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.card-licao .status.aprovada { background: var(--verde-suave); color: var(--verde); }
-.card-licao .status.pendente { background: var(--azul-suave); color: var(--azul); }
-.card-licao .status.reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-.card-licao .btn-ver {
-  background: linear-gradient(135deg, #0099e6, #0077cc);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.card-licao .btn-ver:hover {
-  background: linear-gradient(135deg, #00b3ff, #0099e6);
-  transform: translateY(-2px);
-}
-
-.lesson-card {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lesson-info {
-  text-align: left;
-}
-
-.lesson-title {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.lesson-date {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.lesson-status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.status-aprovada { background: var(--verde-suave); color: var(--verde); }
-.status-pendente { background: var(--azul-suave); color: var(--azul); }
-.status-reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-/* ============================================================
-   MODAIS E POPUPS
-   ============================================================ */
-
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.popup-content {
-  background: var(--card-alt);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-  width: 90%;
-  max-width: 500px;
-  position: relative;
-  animation: fadeInScale 0.3s ease-out;
-}
-
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
-  to { transform: scale(1); }
-}
-
-.popup-content h3 {
-  margin-top: 0;
-  color: var(--azul);
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
-
-.popup-content p {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-.close-btn {
-  position: absolute;
-  top: 15px;
   right: 15px;
-  font-size: 1.8rem;
-  color: var(--muted);
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: var(--ink);
+  color: var(--muted);
 }
 
 /* ============================================================
-   MODAL DE CONQUISTA
+   RESPONSIVIDADE
    ============================================================ */
 
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1001; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
-  backdrop-filter: blur(5px);
-  justify-content: center;
-  align-items: center;
+@media (max-width: 1024px) {
+  .main-container {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .profile-card {
+    flex-grow: 1;
+    min-width: 300px;
+  }
+
+  .social-link-card {
+    width: 100%;
+  }
+
+  .content-area {
+    grid-template-columns: 1fr;
+  }
+
+  .energy-section, .frequency-section, .lessons-section {
+    grid-column: span 1;
+  }
+
+  .frequency-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-.modal-content {
-  background-color: var(--card-alt);
-  margin: auto;
-  padding: 30px;
-  border: 1px solid var(--border);
-  width: 80%;
-  max-width: 500px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  position: relative;
-  animation: slideIn 0.3s ease-out;
+@media (max-width: 600px) {
+  .sidebar {
+    flex-direction: column;
+  }
+
+  .profile-card {
+    min-width: auto;
+  }
+
+  .frequency-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-@keyframes slideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
 
-.close-button {
-  color: var(--muted);
-  font-size: 28px;
-  font-weight: bold;
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-  color: var(--ink);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.conquista-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 15px;
-}
-
-.conquista-header h2 {
-  color: var(--azul);
-  font-size: 1.8rem;
-  margin: 0;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.achievement-icon {
-  font-size: 3rem;
-}
-
-.modal-content h3 {
-  color: var(--ink);
-  font-size: 1.1rem;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.modal-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.modal-content ul li {
-  background-color: var(--card);
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-content ul li strong {
-  color: var(--ink);
-}
-
-/* ============================================================
-   MODAL DE ENVIO DE LIÇÃO
-   ============================================================ */
-
-.modal-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-@keyframes aparecerLicao {
-  from { opacity: 0; transform: scale(0.98); }
-  to   { opacity: 1; transform: scale(1); }
-}
-.modal-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
+/* Painel de evolução técnica */
+#painelEvolucao {
+  width: 100%;
+  min-height: 260px;
+  max-height: 260px; 
   position: relative;
 }
-.modal-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
+#painelEvolucao canvas {
+  width: 100% !important;
+  height: 240px !important;
 }
-.modal-licao-sub {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 12px;
-}
-.linha-campos {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.linha-campos label {
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-.linha-campos select,
-.linha-campos input[type="text"],
-.linha-campos input[type="number"] {
-  background: #020617;
-  border-radius: 8px;
-  border: 1px solid #1f2937;
-  color: #e5e7eb;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  flex: 1;
-}
-.linha-campos select:focus,
-.linha-campos input[type="text"]:focus,
-.linha-campos input[type="number"]:focus {
-  outline: none;
-  border-color: #22d3ee;
-  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2);
-}
-.linha-campos button {
-  background: #22d3ee;
-  color: #020617;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.linha-campos button:hover {
-  background: #0ea5e9;
-}
-.modal-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-licao-botoes .cancelar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-licao-botoes .cancelar:hover {
-  background: #475569;
-}
-.modal-licao-botoes .enviar {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-}
-.modal-licao-botoes .enviar:hover {
-  background: #0099e6;
-}
-
-/* Visualização de Áudio */
-.audio-player-container {
-  margin-top: 10px;
-  background: #1f2937;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.audio-player-container audio {
-  flex-grow: 1;
-  width: 100%;
-}
-.audio-player-container button {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* Onda de áudio */
-#audio-waveform {
-  height: 50px;
-  width: 100%;
-  background: #0f172a;
-  border-radius: 8px;
-  margin-top: 10px;
-  overflow: hidden;
-  position: relative;
-}
-#audio-waveform canvas {
-  width: 100%;
-  height: 100%;
-}
-#timer-gravacao {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  padding: 2px 5px;
-  border-radius: 3px;
-  font-size: 0.7rem;
-}
-
-/* ============================================================
-   MODAL DE VISUALIZAÇÃO DE LIÇÃO
-   ============================================================ */
-
-.modal-view-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-view-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-.modal-view-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
-  position: relative;
-}
-.modal-view-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
-}
-.modal-view-licao-conteudo p {
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
-.modal-view-licao-conteudo audio {
-  width: 100%;
-  margin-top: 10px;
-}
-.modal-view-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-view-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-view-licao-botoes .fechar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-view-licao-botoes .fechar:hover {
-  background: #475569;
-}
-
-/* ============================================================
-   CONTENT AREA - LIÇÕES ENVIADAS
-   ============================================================ */
-
-.lessons-section {
-  grid-column: span 2;
-}
-
-.btn-send-lesson {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  background: var(--azul);
-  color: white;
-  font-weight: 600;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: background 0.2s;
-}
-
-.btn-send-lesson:hover {
-  background: #0099e6;
-}
-
-.lessons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.card-licao {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-licao div {
-  text-align: left;
-}
-
-.card-licao strong {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.card-licao span {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.card-licao .status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.card-licao .status.aprovada { background: var(--verde-suave); color: var(--verde); }
-.card-licao .status.pendente { background: var(--azul-suave); color: var(--azul); }
-.card-licao .status.reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-.card-licao .btn-ver {
-  background: linear-gradient(135deg, #0099e6, #0077cc);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.card-licao .btn-ver:hover {
-  background: linear-gradient(135deg, #00b3ff, #0099e6);
-  transform: translateY(-2px);
-}
-
-.lesson-card {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lesson-info {
-  text-align: left;
-}
-
-.lesson-title {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.lesson-date {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.lesson-status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.status-aprovada { background: var(--verde-suave); color: var(--verde); }
-.status-pendente { background: var(--azul-suave); color: var(--azul); }
-.status-reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-/* ============================================================
-   MODAIS E POPUPS
-   ============================================================ */
-
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.popup-content {
-  background: var(--card-alt);
-  padding: 25px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-  width: 90%;
-  max-width: 500px;
-  position: relative;
-  animation: fadeInScale 0.3s ease-out;
-}
-
-@keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.popup-content h3 {
-  margin-top: 0;
-  color: var(--azul);
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
-
-.popup-content p {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-.close-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 1.8rem;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: var(--ink);
-}
-
-/* ============================================================
-   MODAL DE CONQUISTA
-   ============================================================ */
-
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1001; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
-  backdrop-filter: blur(5px);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: var(--card-alt);
-  margin: auto;
-  padding: 30px;
-  border: 1px solid var(--border);
-  width: 80%;
-  max-width: 500px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  position: relative;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.close-button {
-  color: var(--muted);
-  font-size: 28px;
-  font-weight: bold;
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-  color: var(--ink);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.conquista-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 15px;
-}
-
-.conquista-header h2 {
-  color: var(--azul);
-  font-size: 1.8rem;
-  margin: 0;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.achievement-icon {
-  font-size: 3rem;
-}
-
-.modal-content h3 {
-  color: var(--ink);
-  font-size: 1.1rem;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.modal-content ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.modal-content ul li {
-  background-color: var(--card);
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-  color: var(--muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-content ul li strong {
-  color: var(--ink);
-}
-
-/* ============================================================
-   MODAL DE ENVIO DE LIÇÃO
-   ============================================================ */
-
-.modal-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-@keyframes aparecerLicao {
-  from { opacity: 0; transform: scale(0.98); }
-  to   { opacity: 1; transform: scale(1); }
-}
-.modal-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
-  position: relative;
-}
-.modal-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
-}
-.modal-licao-sub {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 12px;
-}
-.linha-campos {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.linha-campos label {
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-.linha-campos select,
-.linha-campos input[type="text"],
-.linha-campos input[type="number"] {
-  background: #020617;
-  border-radius: 8px;
-  border: 1px solid #1f2937;
-  color: #e5e7eb;
-  padding: 6px 8px;
-  font-size: 0.85rem;
-  flex: 1;
-}
-.linha-campos select:focus,
-.linha-campos input[type="text"]:focus,
-.linha-campos input[type="number"]:focus {
-  outline: none;
-  border-color: #22d3ee;
-  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.2);
-}
-.linha-campos button {
-  background: #22d3ee;
-  color: #020617;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.linha-campos button:hover {
-  background: #0ea5e9;
-}
-.modal-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-licao-botoes .cancelar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-licao-botoes .cancelar:hover {
-  background: #475569;
-}
-.modal-licao-botoes .enviar {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-}
-.modal-licao-botoes .enviar:hover {
-  background: #0099e6;
-}
-
-/* Visualização de Áudio */
-.audio-player-container {
-  margin-top: 10px;
-  background: #1f2937;
-  border-radius: 8px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.audio-player-container audio {
-  flex-grow: 1;
-  width: 100%;
-}
-.audio-player-container button {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* Onda de áudio */
-#audio-waveform {
-  height: 50px;
-  width: 100%;
-  background: #0f172a;
-  border-radius: 8px;
-  margin-top: 10px;
-  overflow: hidden;
-  position: relative;
-}
-#audio-waveform canvas {
-  width: 100%;
-  height: 100%;
-}
-#timer-gravacao {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: rgba(0,0,0,0.5);
-  color: white;
-  padding: 2px 5px;
-  border-radius: 3px;
-  font-size: 0.7rem;
-}
-
-/* ============================================================
-   MODAL DE VISUALIZAÇÃO DE LIÇÃO
-   ============================================================ */
-
-.modal-view-licao {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-.modal-view-licao.ativo {
-  display: flex;
-  animation: aparecerLicao 0.25s ease;
-}
-.modal-view-licao-conteudo {
-  background: linear-gradient(145deg,#020617,#111827);
-  border-radius: 14px;
-  padding: 20px 18px;
-  width: 95%;
-  max-width: 420px;
-  color: #e5e7eb;
-  box-shadow: 0 0 25px rgba(15,118,255,0.5);
-  border: 1px solid rgba(56,189,248,0.4);
-  position: relative;
-}
-.modal-view-licao-conteudo h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #22d3ee;
-}
-.modal-view-licao-conteudo p {
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
-.modal-view-licao-conteudo audio {
-  width: 100%;
-  margin-top: 10px;
-}
-.modal-view-licao-botoes {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
-.modal-view-licao-botoes button {
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.modal-view-licao-botoes .fechar {
-  background: #334155;
-  color: #e2e8f0;
-  border: none;
-}
-.modal-view-licao-botoes .fechar:hover {
-  background: #475569;
-}
-
-/* ============================================================
-   CONTENT AREA - LIÇÕES ENVIADAS
-   ============================================================ */
-
-.lessons-section {
-  grid-column: span 2;
-}
-
-.btn-send-lesson {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  background: var(--azul);
-  color: white;
-  font-weight: 600;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: background 0.2s;
-}
-
-.btn-send-lesson:hover {
-  background: #0099e6;
-}
-
-.lessons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.card-licao {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-licao div {
-  text-align: left;
-}
-
-.card-licao strong {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.card-licao span {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.card-licao .status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.card-licao .status.aprovada { background: var(--verde-suave); color: var(--verde); }
-.card-licao .status.pendente { background: var(--azul-suave); color: var(--azul); }
-.card-licao .status.reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-.card-licao .btn-ver {
-  background: linear-gradient(135deg, #0099e6, #0077cc);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.card-licao .btn-ver:hover {
-  background: linear-gradient(135deg, #00b3ff, #0099e6);
-  transform: translateY(-2px);
-}
-
-.lesson-card {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lesson-info {
-  text-align: left;
-}
-
-.lesson-title {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.lesson-date {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.lesson-status {
-  font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.status-aprovada { background: var(--verde-suave); color: var(--verde); }
-.status-pendente { background: var(--azul-suave); color: var(--azul); }
-.status-reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
