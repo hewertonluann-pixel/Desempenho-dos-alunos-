@@ -372,7 +372,12 @@
       
       // O formato retornado por Intl é DD/MM/YYYY, precisamos converter para YYYY-MM-DD
       const [dia, mes, ano] = brasilia.split('/');
-      return `${ano}-${mes}-${dia}`;
+      const dataFormatada = `${ano}-${mes}-${dia}`;
+      
+      // Log para debug
+      console.log(`[DEBUG] Data Brasília: ${dataFormatada} | Hora UTC: ${agora.toISOString()}`);
+      
+      return dataFormatada;
     }
 
     function formatarDataBrasileira(iso) {
