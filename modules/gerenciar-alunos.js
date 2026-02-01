@@ -5,6 +5,7 @@ import {
   atualizarNota,
   atualizarInstrumento,
   alternarClassificacao,
+  alternarAtivo,
   removerAluno,
   alterarFoto
 } from "../js/professor-alunos.js";
@@ -36,6 +37,10 @@ painel.addEventListener("click", async (e) => {
   }
   if (el.dataset.acao === "classificar") {
     await alternarClassificacao(el.dataset.id, el.dataset.status === "true");
+    await renderizarPainel(painel, loader);
+  }
+  if (el.dataset.acao === "alternarAtivo") {
+    await alternarAtivo(el.dataset.id, el.dataset.status === "true");
     await renderizarPainel(painel, loader);
   }
 });
@@ -85,6 +90,7 @@ document.getElementById("confirmAddAluno").onclick = async () => {
     frequenciaAnual: {},
     conquistas: [],
     classificado: false,
+    ativo: true,
     senha: "asafe",
     criadoEm: new Date().toISOString()
   });

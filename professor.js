@@ -475,6 +475,10 @@ async function atualizarComprometimentoGeral() {
     let atualizados = 0;
     for (const alunoDoc of snapAlunos.docs) {
       const alunoData = alunoDoc.data();
+      
+      // Se o aluno estiver desativado, ignoramos ele no cálculo de comprometimento
+      if (alunoData.ativo === false) continue;
+
       const nomeAluno = alunoData.nome;
 
       // Calcular frequência do mês atual

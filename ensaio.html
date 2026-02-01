@@ -391,6 +391,7 @@
     async function carregarAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
       alunos = snap.docs
+        .filter((d) => d.data().ativo !== false) // Filtra apenas alunos ativos
         .map((d) => ({
           id: d.id,
           nome: d.data().nome,
@@ -610,6 +611,10 @@
       const alunosSnap = await getDocs(collection(db, "alunos"));
       for (const docSnap of alunosSnap.docs) {
         const dados = docSnap.data();
+        
+        // Se o aluno estiver desativado, não atualizamos a frequência dele com base neste evento
+        if (dados.ativo === false) continue;
+
         const nome = dados.nome;
         const presencasAluno = contagemPorAluno[nome] || 0;
         const percentual = Math.round((presencasAluno / totalEventosMes) * 100);

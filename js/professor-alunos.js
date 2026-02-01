@@ -111,6 +111,14 @@ function criarFichaHTML(aluno) {
             ${aluno.classificado ? "Desclassificar" : "Classificar"}
           </button>
 
+          <button class="classificar"
+            style="background: ${aluno.ativo === false ? "#22c55e" : "#f59e0b"}; color: #fff;"
+            data-acao="alternarAtivo"
+            data-id="${aluno.id}"
+            data-status="${aluno.ativo !== false}">
+            ${aluno.ativo === false ? "Ativar" : "Desativar"}
+          </button>
+
           <label for="foto-${aluno.id}" class="classificar" style="cursor:pointer; background:#0ea5e9; color:#fff;">
             Alterar Foto
           </label>
@@ -205,6 +213,15 @@ export async function atualizarInstrumento(id, novoInstrumento) {
 export async function alternarClassificacao(id, classificadoAtual) {
   await updateDoc(doc(db, "alunos", id), {
     classificado: !classificadoAtual
+  });
+}
+
+/* ============================================================
+   7.1 ATIVAR / DESATIVAR ALUNO
+   ============================================================ */
+export async function alternarAtivo(id, ativoAtual) {
+  await updateDoc(doc(db, "alunos", id), {
+    ativo: !ativoAtual
   });
 }
 

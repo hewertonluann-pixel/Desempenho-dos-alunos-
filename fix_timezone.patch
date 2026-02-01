@@ -1,0 +1,646 @@
+diff --git a/aluno.js b/aluno.js
+index 8413c1d..09f4648 100644
+--- a/aluno.js
++++ b/aluno.js
+@@ -98,7 +98,11 @@ export function atualizarEnergiaVisual(valor) {
+     4. GRÁFICO FREQUÊNCIA ANUAL
+    ======================================================== */
+ export async function montarGraficoFrequencia(aluno) {
+-  const anoAtual = new Date().getFullYear();
++  // Usando fuso horário de Brasília (GMT-3)
++  const anoAtual = parseInt(new Intl.DateTimeFormat('pt-BR', {
++    timeZone: 'America/Sao_Paulo',
++    year: 'numeric'
++  }).format(new Date()), 10);
+   const destino = document.getElementById("gradeFrequencia");
+   const destinoPopup = document.getElementById("popupFrequencia");
+ 
+@@ -172,9 +176,13 @@ window.fecharPopupConquista = function() {
+     6. CALCULAR ENERGIA (Frequência do mês)
+    ======================================================== */
+ export async function calcularEnergiaDoAluno(aluno) {
+-  const hoje = new Date();
+-  const ano = hoje.getFullYear();
+-  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
++  // Usando fuso horário de Brasília (GMT-3)
++  const brasilia = new Intl.DateTimeFormat('pt-BR', {
++    timeZone: 'America/Sao_Paulo',
++    year: 'numeric',
++    month: '2-digit'
++  }).format(new Date());
++  const [mes, ano] = brasilia.split('/');
+ 
+   const snap = await getDocs(collection(db, "eventos"));
+   const eventosAno = snap.docs.map(d => d.data());
+diff --git a/dashboard-professor.js b/dashboard-professor.js
+index 592168e..001fe9f 100644
+--- a/dashboard-professor.js
++++ b/dashboard-professor.js
+@@ -42,8 +42,15 @@ async function carregarDadosDashboard() {
+   const energiaMedia = totalAlunos > 0 ? Math.round(somaEnergia / totalAlunos) : 0;
+ 
+   // Ensaios do mês atual
++  // Usando fuso horário de Brasília (GMT-3)
+   const hoje = new Date();
+-  const mesAtual = hoje.toISOString().slice(0,7); // YYYY-MM
++  const brasilia = new Intl.DateTimeFormat('pt-BR', {
++    timeZone: 'America/Sao_Paulo',
++    year: 'numeric',
++    month: '2-digit'
++  }).format(hoje);
++  const [mes, ano] = brasilia.split('/');
++  const mesAtual = `${ano}-${mes}`; // YYYY-MM
+   let totalEnsaiosMes = 0;
+ 
+   eventosSnap.forEach(doc => {
+diff --git a/ensaio.html b/ensaio.html
+index 288296e..be8c350 100644
+--- a/ensaio.html
++++ b/ensaio.html
+@@ -357,12 +357,14 @@
+     const btnCancelar = document.getElementById("btnCancelar");
+     const loader = document.getElementById("loader");
+ 
++    /**
++     * Retorna a data atual no fuso horário de Brasília (GMT-3) no formato ISO (YYYY-MM-DD).
++     */
+     /**
+      * Retorna a data atual no fuso horário de Brasília (GMT-3) no formato ISO (YYYY-MM-DD).
+      */
+     function hojeISO() {
+       const agora = new Date();
+-      // Converte para o fuso horário de Brasília (America/Sao_Paulo)
+       const brasilia = new Intl.DateTimeFormat('pt-BR', {
+         timeZone: 'America/Sao_Paulo',
+         year: 'numeric',
+@@ -370,14 +372,8 @@
+         day: '2-digit'
+       }).format(agora);
+       
+-      // O formato retornado por Intl é DD/MM/YYYY, precisamos converter para YYYY-MM-DD
+       const [dia, mes, ano] = brasilia.split('/');
+-      const dataFormatada = `${ano}-${mes}-${dia}`;
+-      
+-      // Log para debug
+-      console.log(`[DEBUG] Data Brasília: ${dataFormatada} | Hora UTC: ${agora.toISOString()}`);
+-      
+-      return dataFormatada;
++      return `${ano}-${mes}-${dia}`;
+     }
+ 
+     function formatarDataBrasileira(iso) {
+diff --git a/modules/chamada.js b/modules/chamada.js
+index 7171475..1e508a4 100644
+--- a/modules/chamada.js
++++ b/modules/chamada.js
+@@ -121,7 +121,13 @@ painel.addEventListener("click", e => {
+ 
+ /* ===== SALVAR ===== */
+ document.getElementById("btnSalvarChamada").onclick = async () => {
+-  const hoje = new Date().toISOString().split("T")[0];
++  // Usando fuso horário de Brasília (GMT-3)
++  const hoje = new Intl.DateTimeFormat('pt-BR', {
++    timeZone: 'America/Sao_Paulo',
++    year: 'numeric',
++    month: '2-digit',
++    day: '2-digit'
++  }).format(new Date()).split('/').reverse().join('-');
+ 
+   const presencas = alunos.map(a => ({
+     nome: a.nome,
+diff --git a/professor.js b/professor.js
+index a8b56e2..39ad450 100644
+--- a/professor.js
++++ b/professor.js
+@@ -363,7 +363,14 @@ window.abrirModalInstrumental = function(alunoId, valorAtual) {
+ async function criarEventoGenerico() {
+   try {
+     console.log("🟡 Criando chamada do dia...");
+-    const hoje = new Date().toISOString().split("T")[0];
++    // Usando fuso horário de Brasília (GMT-3)
++    const hoje = new Intl.DateTimeFormat('pt-BR', {
++      timeZone: 'America/Sao_Paulo',
++      year: 'numeric',
++      month: '2-digit',
++      day: '2-digit'
++    }).format(new Date()).split('/').reverse().join('-');
++    
+     const snap = await getDocs(collection(db, "eventos"));
+     const existente = snap.docs.find(doc => doc.data().data === hoje);
+     if (existente) {
+diff --git a/professor1.html b/professor1.html
+index 3bd304d..398ef12 100644
+--- a/professor1.html
++++ b/professor1.html
+@@ -1,241 +1,247 @@
+-<!DOCTYPE html>
+-<html lang="pt-BR">
+-<head>
+-  <meta charset="UTF-8" />
+-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-  <title>Painel Gerencial 🎵</title>
+-
+-  <link rel="stylesheet" href="professor.css" />
+-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+-
+-  
+-</head>
+-
+-<body>
+-
+-  <!-- NAV -->
+-  <script type="module" src="navegacao.js"></script>
+-
+-  <h1>Painel Gerencial 🎶</h1>
+-  <div id="usuarioLogado" style="text-align:center; opacity:0.85;"></div>
+-
+-  <div class="layout-professor">
+-
+-    <!-- ⭐ MENU LATERAL -->
+-    <div class="coluna-botoes-prof">
+-      <div class="card-botoes-prof">
+-
+-        <h2 class="titulo-card-prof">Menu do Professor</h2>
+-
+-        <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
+-        <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
+-        <button id="btnModoAluno">🎓 Modo Aluno</button>
+-        <button id="btnCriarChamada">📋 Chamada do Dia</button>
+-        <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
+-        <button onclick="exportarPDF()">📄 Exportar PDF</button>
+-        <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
+-
+-      </div>
+-    </div>
+-   </div>
+-
+- <div class="painel-licoes-prof" id="painelLicoesProf"></div>
+-  
+-  <div class="painel" id="painel"></div>
+-  <div id="loader" class="loader" style="display:none;">
+-    <p>Carregando alunos...</p>
+-  </div>
+-
+-  <!-- MODAL ADICIONAR -->
+-  <div id="modalAdicionar" class="modal">
+-    <div class="modal-conteudo">
+-      <h2>➕ Novo Aluno</h2>
+-
+-      <div class="campo-modal">
+-        <label>Nome</label>
+-        <input type="text" id="novoNome">
+-      </div>
+-
+-      <div class="campo-modal">
+-        <label>Instrumento</label>
+-        <input type="text" id="novoInstrumento">
+-      </div>
+-
+-      <div class="campo-modal">
+-        <label>Foto</label>
+-        <input type="file" id="novoFoto" accept="image/*">
+-      </div>
+-
+-      <div class="botoes-modal">
+-        <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
+-        <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
+-      </div>
+-    </div>
+-  </div>
+-
+-  <!-- SCRIPT PRINCIPAL -->
+-  <script type="module">
+-  
+-    import { db } from "./firebase-config.js";
+-    import {
+-      collection,
+-      getDocs,
+-      addDoc,
+-      updateDoc,
+-      doc
+-    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+-
+-    import {
+-      carregarAlunos,
+-      renderizarPainel,
+-      alterarNota,
+-      atualizarNota,
+-      atualizarInstrumento,
+-      alternarClassificacao,
+-      removerAluno,
+-      alterarFoto
+-    } from "./js/professor-alunos.js";
+-
+-    const painel = document.getElementById("painel");
+-    const loader = document.getElementById("loader");
+-
+-    // Identifica professor logado
+-    document.addEventListener("DOMContentLoaded", () => {
+-      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+-      document.getElementById("usuarioLogado").textContent =
+-        user?.nome ? `Professor logado: ${user.nome}` : "Professor";
+-    });
+-
+-    // Mostrar/ocultar painel alunos
+-    document.getElementById("btnMostrarAlunos").onclick = async () => {
+-      if (painel.style.display === "none" || painel.innerHTML === "") {
+-        await renderizarPainel(painel, loader);
+-      } else {
+-        painel.style.display = "none";
+-      }
+-    };
+-
+-    // Eventos de ações nos cards
+-    painel.addEventListener("click", async (e) => {
+-      const el = e.target;
+-      if (!el.dataset?.acao) return;
+-
+-      if (el.dataset.acao === "alterar") {
+-        await alterarNota(el.dataset.id, el.dataset.campo, el.dataset.delta);
+-      }
+-
+-      if (el.dataset.acao === "classificar") {
+-        await alternarClassificacao(el.dataset.id, el.dataset.status === "true");
+-        await renderizarPainel(painel, loader);
+-      }
+-
+-      if (el.dataset.acao === "remover") {
+-        if (confirm(`Remover ${el.dataset.nome}?`)) {
+-          await removerAluno(el.dataset.id);
+-          await renderizarPainel(painel, loader);
+-        }
+-      }
+-    });
+-
+-    painel.addEventListener("change", async (e) => {
+-      const el = e.target;
+-      if (el.dataset?.acao === "input") {
+-        await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
+-      }
+-      if (el.dataset?.acao === "instrumento") {
+-        await atualizarInstrumento(el.dataset.id, el.value);
+-      }
+-      if (el.dataset?.acao === "foto") {
+-        await alterarFoto(el.dataset.id, el.files[0]);
+-        await renderizarPainel(painel, loader);
+-      }
+-    });
+-
+-    // Modo aluno
+-    document.getElementById("btnModoAluno").onclick = () => {
+-      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+-      if (user.nome) {
+-        window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
+-      }
+-    };
+-
+-    // Modal adicionar aluno
+-    const modalAdd = document.getElementById("modalAdicionar");
+-    document.getElementById("btnAdicionarAluno").onclick = () => modalAdd.style.display = "flex";
+-    document.getElementById("btnCancelarAdicionar").onclick = () => modalAdd.style.display = "none";
+-
+-    document.getElementById("btnConfirmarAdicionar").onclick = async () => {
+-      const nome = document.getElementById("novoNome").value.trim();
+-      const instrumento = document.getElementById("novoInstrumento").value.trim();
+-      const foto = document.getElementById("novoFoto").files[0];
+-
+-      let fotoBase64 = "";
+-      if (foto) {
+-        fotoBase64 = await new Promise(res => {
+-          const reader = new FileReader();
+-          reader.onload = e => res(e.target.result);
+-          reader.readAsDataURL(foto);
+-        });
+-      }
+-
+-      await addDoc(collection(db, "alunos"), {
+-        nome, instrumento, foto: fotoBase64,
+-        leitura: 1, metodo: 1, energia: 100,
+-        frequenciaMensal: { porcentagem: 0 },
+-        frequenciaAnual: {}, conquistas: [],
+-        classificado: false, senha: "asafe",
+-        criadoEm: new Date().toISOString()
+-      });
+-
+-      modalAdd.style.display = "none";
+-      await renderizarPainel(painel, loader);
+-    };
+-
+-    // Criar/Abrir chamada do dia (unificado)
+-    document.getElementById("btnCriarChamada").onclick = async () => {
+-      const hoje = new Date().toISOString().split("T")[0];
+-
+-      const snap = await getDocs(collection(db, "eventos"));
+-      const existente = snap.docs.find(d => d.data().data === hoje);
+-
+-      if (existente) {
+-        window.location.href = `ensaio.html?id=${existente.id}`;
+-        return;
+-      }
+-
+-      const novo = await addDoc(collection(db, "eventos"), {
+-        data: hoje,
+-        observacoes: "",
+-        presencas: []
+-      });
+-
+-      window.location.href = `ensaio.html?id=${novo.id}`;
+-    };
+-
+-    // Recalcular energia
+-    document.getElementById("btnRecalcularEnergia").onclick = async () => {
+-      const snap = await getDocs(collection(db, "alunos"));
+-
+-      for (const docAluno of snap.docs) {
+-        const aluno = docAluno.data();
+-        const freq = aluno.frequenciaMensal?.porcentagem ?? 0;
+-
+-        let energia = 10;
+-        if (freq >= 80) energia = 100;
+-        else if (freq >= 50) energia = 70;
+-        else if (freq >= 30) energia = 40;
+-
+-        await updateDoc(doc(db, "alunos", docAluno.id), { energia });
+-      }
+-      alert("Energia recalculada!");
+-    };
+-
+-
+-  </script>
+-
+-  <script type="module" src="professor-licoes.js"></script>
+-  
+-</body>
+-</html>
+-
+-
++<!DOCTYPE html>
++<html lang="pt-BR">
++<head>
++  <meta charset="UTF-8" />
++  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++  <title>Painel Gerencial 🎵</title>
++
++  <link rel="stylesheet" href="professor.css" />
++  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
++
++  
++</head>
++
++<body>
++
++  <!-- NAV -->
++  <script type="module" src="navegacao.js"></script>
++
++  <h1>Painel Gerencial 🎶</h1>
++  <div id="usuarioLogado" style="text-align:center; opacity:0.85;"></div>
++
++  <div class="layout-professor">
++
++    <!-- ⭐ MENU LATERAL -->
++    <div class="coluna-botoes-prof">
++      <div class="card-botoes-prof">
++
++        <h2 class="titulo-card-prof">Menu do Professor</h2>
++
++        <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
++        <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
++        <button id="btnModoAluno">🎓 Modo Aluno</button>
++        <button id="btnCriarChamada">📋 Chamada do Dia</button>
++        <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
++        <button onclick="exportarPDF()">📄 Exportar PDF</button>
++        <button id="btnRecalcularEnergia">⚡ Recalcular Energia</button>
++
++      </div>
++    </div>
++   </div>
++
++ <div class="painel-licoes-prof" id="painelLicoesProf"></div>
++  
++  <div class="painel" id="painel"></div>
++  <div id="loader" class="loader" style="display:none;">
++    <p>Carregando alunos...</p>
++  </div>
++
++  <!-- MODAL ADICIONAR -->
++  <div id="modalAdicionar" class="modal">
++    <div class="modal-conteudo">
++      <h2>➕ Novo Aluno</h2>
++
++      <div class="campo-modal">
++        <label>Nome</label>
++        <input type="text" id="novoNome">
++      </div>
++
++      <div class="campo-modal">
++        <label>Instrumento</label>
++        <input type="text" id="novoInstrumento">
++      </div>
++
++      <div class="campo-modal">
++        <label>Foto</label>
++        <input type="file" id="novoFoto" accept="image/*">
++      </div>
++
++      <div class="botoes-modal">
++        <button id="btnConfirmarAdicionar" class="btn-adicionar">Adicionar</button>
++        <button id="btnCancelarAdicionar" class="btn-cancelar">Cancelar</button>
++      </div>
++    </div>
++  </div>
++
++  <!-- SCRIPT PRINCIPAL -->
++  <script type="module">
++  
++    import { db } from "./firebase-config.js";
++    import {
++      collection,
++      getDocs,
++      addDoc,
++      updateDoc,
++      doc
++    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
++
++    import {
++      carregarAlunos,
++      renderizarPainel,
++      alterarNota,
++      atualizarNota,
++      atualizarInstrumento,
++      alternarClassificacao,
++      removerAluno,
++      alterarFoto
++    } from "./js/professor-alunos.js";
++
++    const painel = document.getElementById("painel");
++    const loader = document.getElementById("loader");
++
++    // Identifica professor logado
++    document.addEventListener("DOMContentLoaded", () => {
++      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
++      document.getElementById("usuarioLogado").textContent =
++        user?.nome ? `Professor logado: ${user.nome}` : "Professor";
++    });
++
++    // Mostrar/ocultar painel alunos
++    document.getElementById("btnMostrarAlunos").onclick = async () => {
++      if (painel.style.display === "none" || painel.innerHTML === "") {
++        await renderizarPainel(painel, loader);
++      } else {
++        painel.style.display = "none";
++      }
++    };
++
++    // Eventos de ações nos cards
++    painel.addEventListener("click", async (e) => {
++      const el = e.target;
++      if (!el.dataset?.acao) return;
++
++      if (el.dataset.acao === "alterar") {
++        await alterarNota(el.dataset.id, el.dataset.campo, el.dataset.delta);
++      }
++
++      if (el.dataset.acao === "classificar") {
++        await alternarClassificacao(el.dataset.id, el.dataset.status === "true");
++        await renderizarPainel(painel, loader);
++      }
++
++      if (el.dataset.acao === "remover") {
++        if (confirm(`Remover ${el.dataset.nome}?`)) {
++          await removerAluno(el.dataset.id);
++          await renderizarPainel(painel, loader);
++        }
++      }
++    });
++
++    painel.addEventListener("change", async (e) => {
++      const el = e.target;
++      if (el.dataset?.acao === "input") {
++        await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
++      }
++      if (el.dataset?.acao === "instrumento") {
++        await atualizarInstrumento(el.dataset.id, el.value);
++      }
++      if (el.dataset?.acao === "foto") {
++        await alterarFoto(el.dataset.id, el.files[0]);
++        await renderizarPainel(painel, loader);
++      }
++    });
++
++    // Modo aluno
++    document.getElementById("btnModoAluno").onclick = () => {
++      const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
++      if (user.nome) {
++        window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
++      }
++    };
++
++    // Modal adicionar aluno
++    const modalAdd = document.getElementById("modalAdicionar");
++    document.getElementById("btnAdicionarAluno").onclick = () => modalAdd.style.display = "flex";
++    document.getElementById("btnCancelarAdicionar").onclick = () => modalAdd.style.display = "none";
++
++    document.getElementById("btnConfirmarAdicionar").onclick = async () => {
++      const nome = document.getElementById("novoNome").value.trim();
++      const instrumento = document.getElementById("novoInstrumento").value.trim();
++      const foto = document.getElementById("novoFoto").files[0];
++
++      let fotoBase64 = "";
++      if (foto) {
++        fotoBase64 = await new Promise(res => {
++          const reader = new FileReader();
++          reader.onload = e => res(e.target.result);
++          reader.readAsDataURL(foto);
++        });
++      }
++
++      await addDoc(collection(db, "alunos"), {
++        nome, instrumento, foto: fotoBase64,
++        leitura: 1, metodo: 1, energia: 100,
++        frequenciaMensal: { porcentagem: 0 },
++        frequenciaAnual: {}, conquistas: [],
++        classificado: false, senha: "asafe",
++        criadoEm: new Date().toISOString()
++      });
++
++      modalAdd.style.display = "none";
++      await renderizarPainel(painel, loader);
++    };
++
++    // Criar/Abrir chamada do dia (unificado)
++    document.getElementById("btnCriarChamada").onclick = async () => {
++      // Usando fuso horário de Brasília (GMT-3)
++      const hoje = new Intl.DateTimeFormat('pt-BR', {
++        timeZone: 'America/Sao_Paulo',
++        year: 'numeric',
++        month: '2-digit',
++        day: '2-digit'
++      }).format(new Date()).split('/').reverse().join('-');
++
++      const snap = await getDocs(collection(db, "eventos"));
++      const existente = snap.docs.find(d => d.data().data === hoje);
++
++      if (existente) {
++        window.location.href = `ensaio.html?id=${existente.id}`;
++        return;
++      }
++
++      const novo = await addDoc(collection(db, "eventos"), {
++        data: hoje,
++        observacoes: "",
++        presencas: []
++      });
++
++      window.location.href = `ensaio.html?id=${novo.id}`;
++    };
++
++    // Recalcular energia
++    document.getElementById("btnRecalcularEnergia").onclick = async () => {
++      const snap = await getDocs(collection(db, "alunos"));
++
++      for (const docAluno of snap.docs) {
++        const aluno = docAluno.data();
++        const freq = aluno.frequenciaMensal?.porcentagem ?? 0;
++
++        let energia = 10;
++        if (freq >= 80) energia = 100;
++        else if (freq >= 50) energia = 70;
++        else if (freq >= 30) energia = 40;
++
++        await updateDoc(doc(db, "alunos", docAluno.id), { energia });
++      }
++      alert("Energia recalculada!");
++    };
++
++
++  </script>
++
++  <script type="module" src="professor-licoes.js"></script>
++  
++</body>
++</html>
++
++
+diff --git a/utils.js b/utils.js
+new file mode 100644
+index 0000000..3e61855
+--- /dev/null
++++ b/utils.js
+@@ -0,0 +1,17 @@
++/**
++ * Retorna a data atual no fuso horário de Brasília (GMT-3) no formato ISO (YYYY-MM-DD).
++ * Esta função garante que, mesmo após as 21:00 UTC, a data correta de Brasília seja mantida.
++ */
++export function hojeISO() {
++  const agora = new Date();
++  const brasilia = new Intl.DateTimeFormat('pt-BR', {
++    timeZone: 'America/Sao_Paulo',
++    year: 'numeric',
++    month: '2-digit',
++    day: '2-digit'
++  }).format(agora);
++  
++  // O formato retornado por Intl é DD/MM/YYYY, precisamos converter para YYYY-MM-DD
++  const [dia, mes, ano] = brasilia.split('/');
++  return `${ano}-${mes}-${dia}`;
++}
