@@ -42,8 +42,15 @@ async function carregarDadosDashboard() {
   const energiaMedia = totalAlunos > 0 ? Math.round(somaEnergia / totalAlunos) : 0;
 
   // Ensaios do mês atual
+  // Usando fuso horário de Brasília (GMT-3)
   const hoje = new Date();
-  const mesAtual = hoje.toISOString().slice(0,7); // YYYY-MM
+  const brasilia = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit'
+  }).format(hoje);
+  const [mes, ano] = brasilia.split('/');
+  const mesAtual = `${ano}-${mes}`; // YYYY-MM
   let totalEnsaiosMes = 0;
 
   eventosSnap.forEach(doc => {

@@ -363,7 +363,14 @@ window.abrirModalInstrumental = function(alunoId, valorAtual) {
 async function criarEventoGenerico() {
   try {
     console.log("🟡 Criando chamada do dia...");
-    const hoje = new Date().toISOString().split("T")[0];
+    // Usando fuso horário de Brasília (GMT-3)
+    const hoje = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(new Date()).split('/').reverse().join('-');
+    
     const snap = await getDocs(collection(db, "eventos"));
     const existente = snap.docs.find(doc => doc.data().data === hoje);
     if (existente) {

@@ -98,7 +98,11 @@ export function atualizarEnergiaVisual(valor) {
     4. GRÁFICO FREQUÊNCIA ANUAL
    ======================================================== */
 export async function montarGraficoFrequencia(aluno) {
-  const anoAtual = new Date().getFullYear();
+  // Usando fuso horário de Brasília (GMT-3)
+  const anoAtual = parseInt(new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric'
+  }).format(new Date()), 10);
   const destino = document.getElementById("gradeFrequencia");
   const destinoPopup = document.getElementById("popupFrequencia");
 
@@ -172,9 +176,13 @@ window.fecharPopupConquista = function() {
     6. CALCULAR ENERGIA (Frequência do mês)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
-  const hoje = new Date();
-  const ano = hoje.getFullYear();
-  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+  // Usando fuso horário de Brasília (GMT-3)
+  const brasilia = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit'
+  }).format(new Date());
+  const [mes, ano] = brasilia.split('/');
 
   const snap = await getDocs(collection(db, "eventos"));
   const eventosAno = snap.docs.map(d => d.data());

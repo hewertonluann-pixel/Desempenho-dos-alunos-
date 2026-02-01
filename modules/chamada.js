@@ -121,7 +121,13 @@ painel.addEventListener("click", e => {
 
 /* ===== SALVAR ===== */
 document.getElementById("btnSalvarChamada").onclick = async () => {
-  const hoje = new Date().toISOString().split("T")[0];
+  // Usando fuso horário de Brasília (GMT-3)
+  const hoje = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date()).split('/').reverse().join('-');
 
   const presencas = alunos.map(a => ({
     nome: a.nome,
