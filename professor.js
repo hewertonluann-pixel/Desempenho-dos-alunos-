@@ -236,6 +236,11 @@ export async function renderizarPainel() {
           </div>
           <div class="acoes">
             <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
+            <button class="classificar" 
+              style="background: ${aluno.ativo === false ? '#22c55e' : '#f59e0b'}; color: #fff;" 
+              onclick="alternarAtivo('${aluno.id}', ${aluno.ativo !== false})">
+              ${aluno.ativo === false ? 'Ativar' : 'Desativar'}
+            </button>
             <button class="remover" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')">Remover</button>
           </div>
         </div>
@@ -325,6 +330,17 @@ window.alternarClassificacao = async function(id, classificado) {
     mostrarMensagem("mensagemSucesso", classificado ? "📤 Desclassificado!" : "🎯 Classificado!");
   } catch (error) {
     console.error("Erro ao alternar classificação:", error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+  }
+};
+
+window.alternarAtivo = async function(id, ativo) {
+  try {
+    await updateDoc(doc(db, "alunos", id), { ativo: !ativo });
+    renderizarPainel();
+    mostrarMensagem("mensagemSucesso", ativo ? "⏸️ Aluno Desativado!" : "▶️ Aluno Ativado!");
+  } catch (error) {
+    console.error("Erro ao alternar status ativo:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
   }
 };
