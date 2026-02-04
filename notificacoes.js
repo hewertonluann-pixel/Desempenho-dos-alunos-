@@ -190,8 +190,10 @@ export async function carregarNotificacoesIniciais() {
     );
 
     const licoesSnapshot = await getDocs(licoesQuery);
-    licoesSnapshot.forEach((doc) => {
-      const licao = doc.data();
+    const docs = licoesSnapshot.docs;
+    // Inverter a ordem para que o prepend coloque a mais recente no topo por último
+    for (let i = docs.length - 1; i >= 0; i--) {
+      const licao = docs[i].data();
       const tempoFormatado = formatarTempoRelativo(licao.dataEnvio);
       adicionarNotificacao(
         "envio",
@@ -199,7 +201,7 @@ export async function carregarNotificacoesIniciais() {
         `<strong>${licao.nomeAluno || "Aluno"}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`,
         tempoFormatado
       );
-    });
+    }
 
   } catch (erro) {
     console.error("Erro ao carregar notificações iniciais:", erro);
