@@ -39,7 +39,7 @@ function formatarTempoRelativo(dataFirebase) {
 }
 
 /**
- * Adiciona uma notificação à lista
+ * Adiciona uma notificação à lista (sempre no topo)
  */
 export function adicionarNotificacao(tipo, icone, texto, tempo = null) {
   const lista = document.getElementById("listaNotificacoes");
@@ -64,105 +64,94 @@ export function adicionarNotificacao(tipo, icone, texto, tempo = null) {
 }
 
 /**
- * Carrega notificações de atividades recentes (lições, downloads, níveis)
+ * Carrega notificações de atividades recentes com ordenação global correta
  */
 export async function carregarNotificacoes() {
   const lista = document.getElementById("listaNotificacoes");
   if (!lista) return;
 
   try {
-    // Buscar lições recentes (últimas 10)
-    const licoesRef = collection(db, "licoes");
-    const licoesQuery = query(
-      licoesRef,
-      orderBy("dataEnvio", "desc"),
-      limit(10)
-    );
+    // 1. CARREGAMENTO INICIAL UNIFICADO
+    const todasNotificacoes = [];
 
-    onSnapshot(licoesQuery, (snapshot) => {
+    // Buscar lições
+    const licoesSnap = await getDocs(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(15)));
+    licoesSnap.forEach(doc => {
+      const d = doc.data();
+      todasNotificacoes.push({
+        data: d.dataEnvio,
+        tipo: "envio",
+        icone: "📘",
+        texto: `<strong>${d.nomeAluno || "Aluno"}</strong> enviou a lição <em>${d.titulo || "Sem título"}</em>`
+      });
+      
+      if (d.status === "aprovada" && d.avaliadoEm) {
+        todasNotificacoes.push({
+          data: d.avaliadoEm,
+          tipo: "aprovacao",
+          icone: "✅",
+          texto: `<strong>${d.nomeAluno || "Aluno"}</strong> foi aprovado na lição <em>${d.titulo || "Sem título"}</em>`
+        });
+      } else if (d.status === "rejeitada" && d.avaliadoEm) {
+        todasNotificacoes.push({
+          data: d.avaliadoEm,
+          tipo: "rejeicao",
+          icone: "❌",
+          texto: `<strong>${d.nomeAluno || "Aluno"}</strong> teve a lição <em>${d.titulo || "Sem título"}</em> devolvida`
+        });
+      }
+    });
+
+    // Buscar downloads
+    const downloadsSnap = await getDocs(query(collection(db, "downloads"), orderBy("data", "desc"), limit(10)));
+    downloadsSnap.forEach(doc => {
+      const d = doc.data();
+      todasNotificacoes.push({
+        data: d.data,
+        tipo: "download",
+        icone: "⬇️",
+        texto: `<strong>${d.nomeAluno || "Aluno"}</strong> baixou: <em>${d.nomeArquivo || "Arquivo"}</em>`
+      });
+    });
+
+    // Ordenar todas as notificações pela data (mais antiga para mais recente para o prepend funcionar)
+    todasNotificacoes.sort((a, b) => {
+      const dateA = a.data instanceof Timestamp ? a.data.toDate() : new Date(a.data);
+      const dateB = b.data instanceof Timestamp ? b.data.toDate() : new Date(b.data);
+      return dateA - dateB;
+    });
+
+    // Limpar lista antes de inserir (caso haja algo)
+    lista.innerHTML = "";
+
+    // Inserir no DOM (prepend fará a mais recente ficar no topo)
+    todasNotificacoes.forEach(n => {
+      adicionarNotificacao(n.tipo, n.icone, n.texto, formatarTempoRelativo(n.data));
+    });
+
+    // 2. CONFIGURAR LISTENERS PARA TEMPO REAL (apenas para novas adições)
+    const agora = Timestamp.now();
+
+    // Listener de lições
+    onSnapshot(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(1)), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
-        const licao = change.doc.data();
-        
         if (change.type === "added") {
-          const tempoFormatado = formatarTempoRelativo(licao.dataEnvio);
-          adicionarNotificacao(
-            "envio",
-            "📘",
-            `<strong>${licao.nomeAluno || "Aluno"}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`,
-            tempoFormatado
-          );
-        }
-        
-        if (change.type === "modified" && licao.status) {
-          if (licao.status === "aprovada") {
-            const tempoAprovacao = formatarTempoRelativo(licao.avaliadoEm);
-            adicionarNotificacao(
-              "aprovacao",
-              "✅",
-              `<strong>${licao.nomeAluno || "Aluno"}</strong> foi aprovado na lição <em>${licao.titulo || "Sem título"}</em>`,
-              tempoAprovacao
-            );
-          } else if (licao.status === "rejeitada") {
-            const tempoRejeicao = formatarTempoRelativo(licao.avaliadoEm);
-            adicionarNotificacao(
-              "rejeicao",
-              "❌",
-              `<strong>${licao.nomeAluno || "Aluno"}</strong> teve a lição <em>${licao.titulo || "Sem título"}</em> devolvida`,
-              tempoRejeicao
-            );
+          const licao = change.doc.data();
+          // Só adicionar se for realmente novo (pós-carregamento)
+          if (licao.dataEnvio && licao.dataEnvio.toMillis() > agora.toMillis()) {
+            adicionarNotificacao("envio", "📘", `<strong>${licao.nomeAluno || "Aluno"}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`, "agora mesmo");
           }
         }
       });
     });
 
-    // Buscar downloads de PDFs recentes (se houver log)
-    const downloadsRef = collection(db, "downloads");
-    const downloadsQuery = query(
-      downloadsRef,
-      orderBy("data", "desc"),
-      limit(10)
-    );
-
-    onSnapshot(downloadsQuery, (snapshot) => {
+    // Listener de downloads
+    onSnapshot(query(collection(db, "downloads"), orderBy("data", "desc"), limit(1)), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
-          const download = change.doc.data();
-          const tempoFormatado = formatarTempoRelativo(download.data);
-          adicionarNotificacao(
-            "download",
-            "⬇️",
-            `<strong>${download.nomeAluno || "Aluno"}</strong> baixou: <em>${download.nomeArquivo || "Arquivo"}</em>`,
-            tempoFormatado
-          );
-        }
-      });
-    });
-
-    // Buscar progressos de nível recentes
-    const progressoRef = collection(db, "progresso");
-    const progressoQuery = query(
-      progressoRef,
-      orderBy("dataAtualizacao", "desc"),
-      limit(10)
-    );
-
-    onSnapshot(progressoQuery, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "modified") {
-          const progresso = change.doc.data();
-          
-          // Verificar se houve avanço de nível
-          if (progresso.nivelLeitura || progresso.nivelMetodo) {
-            const tempoFormatado = formatarTempoRelativo(progresso.dataAtualizacao);
-            const tipo = progresso.nivelLeitura ? "Leitura" : "Método";
-            const nivel = progresso.nivelLeitura || progresso.nivelMetodo;
-            
-            adicionarNotificacao(
-              "nivel",
-              "🚀",
-              `<strong>${progresso.nomeAluno || "Aluno"}</strong> avançou para o <em>Nível ${nivel}</em> de ${tipo}`,
-              tempoFormatado
-            );
+          const d = change.doc.data();
+          if (d.data && d.data.toMillis() > agora.toMillis()) {
+            adicionarNotificacao("download", "⬇️", `<strong>${d.nomeAluno || "Aluno"}</strong> baixou: <em>${d.nomeArquivo || "Arquivo"}</em>`, "agora mesmo");
           }
         }
       });
@@ -170,41 +159,6 @@ export async function carregarNotificacoes() {
 
   } catch (erro) {
     console.error("Erro ao carregar notificações:", erro);
-  }
-}
-
-/**
- * Carrega notificações iniciais (sem listener em tempo real)
- */
-export async function carregarNotificacoesIniciais() {
-  const lista = document.getElementById("listaNotificacoes");
-  if (!lista) return;
-
-  try {
-    // Buscar lições recentes
-    const licoesRef = collection(db, "licoes");
-    const licoesQuery = query(
-      licoesRef,
-      orderBy("dataEnvio", "desc"),
-      limit(5)
-    );
-
-    const licoesSnapshot = await getDocs(licoesQuery);
-    const docs = licoesSnapshot.docs;
-    // Inverter a ordem para que o prepend coloque a mais recente no topo por último
-    for (let i = docs.length - 1; i >= 0; i--) {
-      const licao = docs[i].data();
-      const tempoFormatado = formatarTempoRelativo(licao.dataEnvio);
-      adicionarNotificacao(
-        "envio",
-        "📘",
-        `<strong>${licao.nomeAluno || "Aluno"}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`,
-        tempoFormatado
-      );
-    }
-
-  } catch (erro) {
-    console.error("Erro ao carregar notificações iniciais:", erro);
   }
 }
 
