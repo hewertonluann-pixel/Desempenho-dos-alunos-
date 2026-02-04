@@ -240,11 +240,11 @@ body {
    ============================================================ */
 
 .energy-section {
-  grid-column: span 2;
+  grid-column: span 1;
 }
 
 .notifications-section {
-  grid-column: span 2;
+  grid-column: span 1;
 }
 
 .energy-bar-wrapper {
