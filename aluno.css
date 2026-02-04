@@ -278,7 +278,7 @@ body {
    ============================================================ */
 
 .notifications-section {
-  grid-column: 1 / -1;
+  /* Permitir que fique ao lado da barra de comprometimento */
 }
 
 .lista-notificacoes {
@@ -426,6 +426,10 @@ body {
   display: block;
   font-size: 0.7rem;
   color: var(--muted);
+}
+
+.achievements-section {
+  grid-column: 1 / -1;
 }
 
 /* Raridades */
