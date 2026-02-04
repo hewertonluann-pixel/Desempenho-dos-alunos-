@@ -110,7 +110,7 @@ export async function carregarNotificacoes() {
           adicionarNotificacao(
             "download",
             "⬇️",
-            `<strong>${download.nomeAluno || "Aluno"}</strong> baixou o método <em>${download.nomeArquivo || "Arquivo"}</em>`,
+            `<strong>${download.nomeAluno || "Aluno"}</strong> baixou: <em>${download.nomeArquivo || "Arquivo"}</em>`,
             tempoFormatado
           );
         }
