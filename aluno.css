@@ -58,7 +58,7 @@ body {
 .content-area {
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 7fr 3fr;
   gap: 20px;
   align-content: start; /* Para que as sections não se estiquem */
 }
