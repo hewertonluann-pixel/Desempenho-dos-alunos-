@@ -58,7 +58,7 @@ body {
 .content-area {
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   align-content: start; /* Para que as sections não se estiquem */
 }
@@ -240,6 +240,10 @@ body {
    ============================================================ */
 
 .energy-section {
+  grid-column: span 2;
+}
+
+.notifications-section {
   grid-column: span 2;
 }
 
@@ -435,7 +439,7 @@ body {
 }
 
 .achievements-section {
-  grid-column: 1 / -1;
+  grid-column: span 1;
 }
 
 /* Raridades */
@@ -448,9 +452,12 @@ body {
    ============================================================ */
 
 .frequency-section {
-  grid-column: span 2;
+  grid-column: span 1;
 }
 
+.evolucao-section {
+  grid-column: span 1;
+}
 .year-control {
   display: flex;
   justify-content: center;
@@ -537,7 +544,7 @@ body {
    ============================================================ */
 
 .lessons-section {
-  grid-column: span 2;
+  grid-column: span 1;
 }
 
 .btn-send-lesson {
@@ -859,7 +866,7 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .energy-section, .frequency-section, .lessons-section {
+  .energy-section, .frequency-section, .lessons-section, .achievements-section, .evolucao-section, .notifications-section {
     grid-column: span 1;
   }
 
