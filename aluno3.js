@@ -21,6 +21,7 @@ import {
 import { carregarLicoesAluno } from "./licoes.js";
 import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista } from "./conquistas.js";
 import { carregarHistoricoProgressoAluno } from "./evolucao.js";
+import { carregarNotificacoes } from "./notificacoes.js";
 
 // Variável global para armazenar o ano atual de visualização
 let anoVisualizacao = new Date().getFullYear();
@@ -242,6 +243,10 @@ export async function iniciarPainelAluno() {
   // =====================================================
 
   montarPainelAluno(aluno);
+  
+  // Carregar notificações em tempo real
+  carregarNotificacoes();
+  
   await montarGraficoFrequencia(aluno, anoVisualizacao); // Passa o ano de visualização
 
   const energia = await calcularEnergiaDoAluno(aluno);

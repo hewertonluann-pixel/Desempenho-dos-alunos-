@@ -274,6 +274,102 @@ body {
 }
 
 /* ============================================================
+   CONTENT AREA - NOTIFICAÇÕES
+   ============================================================ */
+
+.notifications-section {
+  grid-column: 1 / -1;
+}
+
+.lista-notificacoes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notificacao {
+  display: flex;
+  gap: 12px;
+  background: var(--card);
+  padding: 12px;
+  border-radius: 12px;
+  animation: fadeIn 0.4s ease;
+  border-left: 4px solid var(--azul);
+  transition: all 0.3s ease;
+}
+
+.notificacao:hover {
+  background: var(--card-alt);
+  transform: translateX(4px);
+}
+
+.notificacao .icone {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.notificacao .conteudo {
+  font-size: 0.95rem;
+  flex-grow: 1;
+}
+
+.notificacao .conteudo strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.notificacao .conteudo em {
+  color: var(--azul);
+  font-style: italic;
+}
+
+.notificacao small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.notificacao.envio { border-left-color: var(--verde); }
+.notificacao.download { border-left-color: var(--azul); }
+.notificacao.nivel { border-left-color: var(--amarelo); }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar customizado */
+.lista-notificacoes::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-notificacoes::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lista-notificacoes::-webkit-scrollbar-thumb {
+  background: var(--azul-suave);
+  border-radius: 3px;
+}
+
+.lista-notificacoes::-webkit-scrollbar-thumb:hover {
+  background: var(--azul);
+}
+
+/* ============================================================
    CONTENT AREA - CONQUISTAS
    ============================================================ */
 
