@@ -81,8 +81,9 @@ export async function carregarNotificacoes() {
 
     onSnapshot(licoesQuery, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
+        const licao = change.doc.data();
+        
         if (change.type === "added") {
-          const licao = change.doc.data();
           const tempoFormatado = formatarTempoRelativo(licao.dataEnvio);
           adicionarNotificacao(
             "envio",
@@ -90,6 +91,26 @@ export async function carregarNotificacoes() {
             `<strong>${licao.nomeAluno || "Aluno"}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`,
             tempoFormatado
           );
+        }
+        
+        if (change.type === "modified" && licao.status) {
+          if (licao.status === "aprovada") {
+            const tempoAprovacao = formatarTempoRelativo(licao.avaliadoEm);
+            adicionarNotificacao(
+              "aprovacao",
+              "✅",
+              `<strong>${licao.nomeAluno || "Aluno"}</strong> foi aprovado na lição <em>${licao.titulo || "Sem título"}</em>`,
+              tempoAprovacao
+            );
+          } else if (licao.status === "rejeitada") {
+            const tempoRejeicao = formatarTempoRelativo(licao.avaliadoEm);
+            adicionarNotificacao(
+              "rejeicao",
+              "❌",
+              `<strong>${licao.nomeAluno || "Aluno"}</strong> teve a lição <em>${licao.titulo || "Sem título"}</em> devolvida`,
+              tempoRejeicao
+            );
+          }
         }
       });
     });
@@ -192,7 +213,9 @@ export function adicionarNotificacaoTeste(tipo = "envio") {
   const tipos = {
     envio: { icone: "📘", texto: "<strong>Aluno Teste</strong> enviou a lição <em>Método 20</em>" },
     download: { icone: "⬇️", texto: "<strong>Aluno Teste</strong> baixou o método <em>Arban Completo</em>" },
-    nivel: { icone: "🚀", texto: "<strong>Aluno Teste</strong> avançou para o <em>Nível 35</em> de leitura" }
+    nivel: { icone: "🚀", texto: "<strong>Aluno Teste</strong> avançou para o <em>Nível 35</em> de leitura" },
+    aprovacao: { icone: "✅", texto: "<strong>Aluno Teste</strong> foi aprovado na lição <em>Método 61</em>" },
+    rejeicao: { icone: "❌", texto: "<strong>Aluno Teste</strong> teve a lição <em>Método 61</em> devolvida" }
   };
 
   const notif = tipos[tipo] || tipos.envio;

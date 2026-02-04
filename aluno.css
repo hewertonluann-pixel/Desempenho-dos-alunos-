@@ -354,6 +354,12 @@ body {
 .notificacao.nivel { border-left-color: #ff9800; }
 .notificacao.nivel .icone { background: rgba(255, 152, 0, 0.15); }
 
+.notificacao.aprovacao { border-left-color: #10b981; }
+.notificacao.aprovacao .icone { background: rgba(16, 185, 129, 0.15); }
+
+.notificacao.rejeicao { border-left-color: #ef4444; }
+.notificacao.rejeicao .icone { background: rgba(239, 68, 68, 0.15); }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
