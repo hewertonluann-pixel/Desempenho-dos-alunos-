@@ -250,11 +250,16 @@ async function loadDocuments() {
 }
 
 function filterAndSortDocuments() {
-  const searchTerm = document.getElementById('search-input').value.toLowerCase();
-  const sortBy = document.getElementById('sort-select').value;
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+  
+  if (!searchInput || !sortSelect) return;
+
+  const term = searchInput.value.toLowerCase();
+  const sortBy = sortSelect.value;
 
   let filtered = documents.filter(doc =>
-    doc.nome.toLowerCase().includes(searchTerm)
+    doc.nome.toLowerCase().includes(term)
   );
 
   // Ordenação
@@ -263,7 +268,6 @@ function filterAndSortDocuments() {
   } else if (sortBy === 'name-desc') {
     filtered.sort((a, b) => b.nome.localeCompare(a.nome));
   } else if (sortBy === 'date-desc') {
-    // Usar toDate() para garantir comparação correta de timestamps
     filtered.sort((a, b) => (b.criadoEm?.toDate() || 0) - (a.criadoEm?.toDate() || 0));
   } else if (sortBy === 'date-asc') {
     filtered.sort((a, b) => (a.criadoEm?.toDate() || 0) - (b.criadoEm?.toDate() || 0));
