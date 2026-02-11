@@ -339,17 +339,92 @@ function sortDocuments(docs) {
 
 // Função para configurar listeners de pesquisa e ordenação
 function setupSearchSortListeners() {
-  const searchInput = document.getElementById('search-input');
-  const sortSelect = document.getElementById('sort-select');
+  const globalSearch = document.getElementById('global-search-input');
+  if (globalSearch) {
+    globalSearch.addEventListener('input', e => {
+      const term = e.target.value.toLowerCase().trim();
+      if (term.length > 0) {
+        performGlobalSearch(term);
+      } else {
+        renderCollections(); // Volta ao normal se limpar a busca
+      }
+    });
+  }
+}
 
-  searchInput.addEventListener('input', (e) => {
-    searchTerm = e.target.value;
-    filterAndSortDocuments();
-  });
+async function performGlobalSearch(term) {
+  const grid = document.getElementById('collections-grid');
+  grid.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); width:100%;">Pesquisando em toda a biblioteca...</div>';
+  
+  try {
+    let allResults = [];
+    
+    // Percorrer todas as coleções para buscar documentos
+    for (const col of collections) {
+      const docsRef = collection(db, 'biblioteca_colecoes', col.id, 'documentos');
+      const snap = await getDocs(docsRef);
+      
+      snap.forEach(d => {
+        const data = d.data();
+        if (data.nome.toLowerCase().includes(term)) {
+          allResults.push({
+            id: d.id,
+            collectionId: col.id,
+            collectionName: col.nome,
+            ...data
+          });
+        }
+      });
+    }
 
-  sortSelect.addEventListener('change', (e) => {
-    sortCriterion = e.target.value;
-    filterAndSortDocuments();
+    renderGlobalSearchResults(allResults);
+  } catch (error) {
+    console.error('Erro na busca global:', error);
+    grid.innerHTML = '<div style="text-align:center; padding:20px; color:var(--vermelho); width:100%;">Erro ao realizar busca</div>';
+  }
+}
+
+function renderGlobalSearchResults(results) {
+  const grid = document.getElementById('collections-grid');
+  grid.innerHTML = '';
+
+  if (results.length === 0) {
+    grid.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); width:100%;">Nenhum documento encontrado com este nome</div>';
+    return;
+  }
+
+  // Header para os resultados
+  const header = document.createElement('div');
+  header.style.cssText = 'grid-column: 1 / -1; padding: 10px; color: var(--azul); font-weight: 600; border-bottom: 1px solid var(--border); margin-bottom: 10px;';
+  header.textContent = `Resultados encontrados (${results.length})`;
+  grid.appendChild(header);
+
+  results.forEach(d => {
+    const item = document.createElement('div');
+    item.className = 'document-item';
+    item.style.cssText = 'background: var(--card); width: 100%; margin-bottom: 0;';
+
+    let audioHTML = '';
+    if (d.audioUrl) {
+      audioHTML = `
+        <div class="audio-player">
+          <audio controls>
+            <source src="${d.audioUrl}" type="audio/mpeg">
+          </audio>
+        </div>
+      `;
+    }
+
+    item.innerHTML = `
+      <div style="font-size: 0.7rem; color: var(--muted); margin-bottom: 5px; text-transform: uppercase;">Coleção: ${d.collectionName}</div>
+      <div class="doc-name" style="text-align: left; font-size: 1rem;">${d.nome}</div>
+      ${audioHTML}
+      <div class="doc-buttons" style="justify-content: flex-start; margin-top: 10px;">
+        <a class="btn-download" href="${d.url}" target="_blank" onclick="registrarDownload('${d.id}', '${d.nome}')" style="padding: 5px 12px; font-size: 0.8rem;">📥 Baixar PDF</a>
+        <button class="btn-view" onclick="window.open('${d.url}', '_blank')" style="padding: 5px 12px; font-size: 0.8rem;">👁️ Ver</button>
+      </div>
+    `;
+    grid.appendChild(item);
   });
 }
 
