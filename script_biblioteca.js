@@ -39,6 +39,7 @@ let sortCriterion = 'name-asc'; // Critério de ordenação padrão
 document.addEventListener('DOMContentLoaded', async () => {
   checkUserAuth();
   setupEventListeners();
+  setupGlobalSearch(); // Configura a busca global
   await ensureInitialCollections();
   await loadCollections();
   renderCollections();
@@ -624,3 +625,113 @@ window.closeModal = closeModal;
 window.saveAudio = saveAudio;
 window.removeAudio = removeAudio;
 window.filterAndSortDocuments = filterAndSortDocuments;
+
+// 🔍 BUSCA GLOBAL
+function setupGlobalSearch() {
+  const globalInput = document.getElementById('global-search-input');
+  const clearBtn = document.getElementById('clear-global-search');
+
+  if (!globalInput) return;
+
+  globalInput.addEventListener('input', async (e) => {
+    const term = e.target.value.trim().toLowerCase();
+    
+    if (term.length > 0) {
+      clearBtn.style.display = 'block';
+      await performGlobalSearch(term);
+    } else {
+      clearGlobalSearch();
+    }
+  });
+
+  clearBtn.addEventListener('click', clearGlobalSearch);
+}
+
+async function performGlobalSearch(term) {
+  const resultsContainer = document.getElementById('global-results-container');
+  const resultsView = document.getElementById('global-search-results');
+  const countDisplay = document.getElementById('results-count');
+  
+  resultsView.style.display = 'block';
+  resultsContainer.innerHTML = '<div style="text-align:center; padding:20px;">🔍 Pesquisando em todas as coleções...</div>';
+
+  try {
+    let allResults = [];
+    
+    // Pesquisar em cada coleção carregada
+    for (const col of collections) {
+      const docsRef = collection(db, 'biblioteca_colecoes', col.id, 'documentos');
+      const snap = await getDocs(docsRef);
+      
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.nome.toLowerCase().includes(term)) {
+          allResults.push({
+            id: docSnap.id,
+            collectionId: col.id,
+            collectionName: col.nome,
+            ...data
+          });
+        }
+      });
+    }
+
+    renderGlobalResults(allResults);
+    countDisplay.textContent = `${allResults.length} ${allResults.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`;
+    
+  } catch (error) {
+    console.error('Erro na busca global:', error);
+    resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:var(--vermelho);">Erro ao realizar a busca.</div>';
+  }
+}
+
+function renderGlobalResults(results) {
+  const container = document.getElementById('global-results-container');
+  container.innerHTML = '';
+
+  if (results.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-style:italic;">Nenhum documento encontrado com este nome.</div>';
+    return;
+  }
+
+  results.forEach(d => {
+    const item = document.createElement('div');
+    item.className = 'document-item';
+
+    let audioHTML = '';
+    if (d.audioUrl) {
+      audioHTML = `
+        <div class="audio-player">
+          <audio controls>
+            <source src="${d.audioUrl}" type="audio/mpeg">
+          </audio>
+        </div>
+      `;
+    }
+
+    item.innerHTML = `
+      <div class="doc-info" style="flex: 1;">
+        <span class="search-result-collection">${d.collectionName}</span>
+        <div class="doc-name" style="text-align: left; font-size: 1rem;">${d.nome}</div>
+      </div>
+      ${audioHTML}
+      <div class="doc-buttons">
+        <a class="btn-download" href="${d.url}" target="_blank">📥 Baixar PDF</a>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function clearGlobalSearch() {
+  const globalInput = document.getElementById('global-search-input');
+  const clearBtn = document.getElementById('clear-global-search');
+  const resultsView = document.getElementById('global-search-results');
+  
+  if (globalInput) globalInput.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (resultsView) resultsView.style.display = 'none';
+}
+
+// Expor funções de busca global
+window.clearGlobalSearch = clearGlobalSearch;
