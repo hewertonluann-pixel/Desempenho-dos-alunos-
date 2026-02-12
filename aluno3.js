@@ -26,6 +26,32 @@ import { carregarNotificacoes } from "./notificacoes.js";
 // Variável global para armazenar o ano atual de visualização
 let anoVisualizacao = new Date().getFullYear();
 
+// Array de versículos bíblicos para alternância
+const versiculos = [
+  { texto: "Tudo que tem fôlego louve ao Senhor. Aleluia!", referencia: "Salmo 150:6" },
+  { texto: "Cantai ao Senhor um cântico novo, porque ele tem feito maravilhas.", referencia: "Salmo 98:1" },
+  { texto: "Louvai ao Senhor com harpa; cantai a ele com saltério de dez cordas.", referencia: "Salmo 33:2" },
+  { texto: "Servi ao Senhor com alegria; e entrai diante dele com canto.", referencia: "Salmo 100:2" },
+  { texto: "Cantarei ao Senhor enquanto eu viver; cantarei louvores ao meu Deus enquanto eu existir.", referencia: "Salmo 104:33" },
+  { texto: "Alegrai-vos sempre no Senhor; outra vez digo, alegrai-vos.", referencia: "Filipenses 4:4" },
+  { texto: "Falando entre vós em salmos, e hinos, e cânticos espirituais; cantando e salmodiando ao Senhor no vosso coração.", referencia: "Efésios 5:19" },
+  { texto: "Seja o Senhor engrandecido, que ama a prosperidade do seu servo.", referencia: "Salmo 35:27" }
+];
+
+// Função para exibir versículo aleatório
+function exibirVersiculoAleatorio() {
+  const indiceAleatorio = Math.floor(Math.random() * versiculos.length);
+  const versiculoSelecionado = versiculos[indiceAleatorio];
+  
+  const quoteElement = document.querySelector('.quote');
+  const referenceElement = document.querySelector('.reference');
+  
+  if (quoteElement && referenceElement) {
+    quoteElement.textContent = `"${versiculoSelecionado.texto}"`;
+    referenceElement.textContent = versiculoSelecionado.referencia;
+  }
+}
+
 /* ========================================================
     1. OBTER ALUNO LOGADO (pela URL)
    ======================================================== */
@@ -434,4 +460,7 @@ window.abrirConfiguracoes = () => {
   }
 };
 
-document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
+document.addEventListener("DOMContentLoaded", () => {
+  exibirVersiculoAleatorio();
+  iniciarPainelAluno();
+});
