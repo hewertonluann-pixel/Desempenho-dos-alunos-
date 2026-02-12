@@ -29,6 +29,9 @@ let urlAudioTemp = null;
 let timerId = null;
 let segundos = 0;
 
+// Cache do ID do aluno para evitar múltiplas queries
+let alunoIdCache = null;
+
 /* ==========================
    ESTILOS E MODAL DE ENVIO
    ========================== */
@@ -759,9 +762,35 @@ async function enviarLicao() {
     msg.className = "msg-licao";
   }
 
-  // Usar dados do localStorage (já validados no login)
-  const alunoId = usuario.id || usuario.uid;
   const alunoNome = usuario.nome;
+  
+  // Buscar ID do aluno (com cache para evitar múltiplas queries)
+  let alunoId = alunoIdCache;
+  
+  if (!alunoId) {
+    try {
+      const q = query(collection(db, "alunos"), where("nome", "==", alunoNome));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        if (msg) {
+          msg.textContent = "Aluno não encontrado no banco de dados.";
+          msg.className = "msg-licao err";
+        }
+        return;
+      }
+      
+      alunoId = snap.docs[0].id;
+      alunoIdCache = alunoId; // Salvar no cache
+    } catch (erro) {
+      console.error("Erro ao buscar aluno:", erro);
+      if (msg) {
+        msg.textContent = "Erro ao buscar dados do aluno.";
+        msg.className = "msg-licao err";
+      }
+      return;
+    }
+  }
 
   // Upload do áudio no Storage
   const caminho = `licoes/${alunoId}/${tipo}_${numero}_${Date.now()}.webm`;
