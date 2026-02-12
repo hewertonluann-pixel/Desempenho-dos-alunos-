@@ -226,33 +226,70 @@ function inserirModalLicao() {
       animation: aparecerLicao 0.25s ease;
     }
     .modal-view-conteudo {
-      background: #020617;
-      border-radius: 14px;
-      padding: 16px 14px;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border-radius: 16px;
+      padding: 24px;
       width: 95%;
-      max-width: 360px;
+      max-width: 480px;
       color: #e5e7eb;
-      border: 1px solid rgba(56,189,248,0.4);
+      border: 2px solid rgba(56,189,248,0.5);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+      position: relative;
     }
     .modal-view-conteudo h3 {
       margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 1rem;
+      margin-bottom: 16px;
+      font-size: 1.3rem;
       color: #38bdf8;
+      text-align: center;
+      border-bottom: 2px solid rgba(56,189,248,0.3);
+      padding-bottom: 12px;
     }
     .modal-view-conteudo p {
+      font-size: 0.9rem;
+      margin: 8px 0;
+      line-height: 1.5;
+    }
+    .comentario-box {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 4px solid #38bdf8;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+      font-size: 0.9rem;
+    }
+    .comentario-box strong {
+      color: #38bdf8;
+      display: block;
+      margin-bottom: 6px;
       font-size: 0.85rem;
-      margin: 4px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .comentario-professor {
+      background: rgba(250, 204, 21, 0.08);
+      border-left: 4px solid #facc15;
+    }
+    .comentario-professor strong {
+      color: #facc15;
     }
     .btn-fechar-view {
-      margin-top: 10px;
+      margin-top: 16px;
       width: 100%;
-      border-radius: 8px;
-      border: none;
-      padding: 8px 0;
-      background: #111827;
-      color: #e5e7eb;
+      border-radius: 10px;
+      border: 2px solid rgba(56,189,248,0.3);
+      padding: 12px 0;
+      background: rgba(56, 189, 248, 0.1);
+      color: #38bdf8;
       cursor: pointer;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+    .btn-fechar-view:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      transform: translateY(-2px);
     }
   `;
   document.head.appendChild(estilo);
@@ -335,9 +372,18 @@ function inserirModalLicao() {
   document.getElementById("btnEnviarLicao").onclick = enviarLicao;
   
   // Fechar modal de visualização
-  document.getElementById("btnFecharViewLicao").onclick = () => {
+  const fecharModalView = () => {
     modalView.classList.remove("ativo");
   };
+  
+  document.getElementById("btnFecharViewLicao").addEventListener("click", fecharModalView);
+  
+  // Fechar ao clicar fora do conteúdo
+  modalView.addEventListener("click", (e) => {
+    if (e.target === modalView) {
+      fecharModalView();
+    }
+  });
 }
 
 function abrirModalEnviarLicao() {
@@ -686,14 +732,18 @@ async function abrirLicao(id) {
     ? new Date(l.criadoEm).toLocaleString("pt-BR")
     : "";
 
-  infoEl.innerHTML = `<strong>${l.tipo === "metodo" ? "Método" : "Leitura"} — lição nº ${l.numero}</strong><br><small>${data}</small>`;
+  infoEl.innerHTML = `<strong>${l.tipo === "metodo" ? "Método" : "Leitura"} — lição nº ${l.numero}</strong><br><small style="opacity: 0.7;">${data}</small>`;
   
   if (textoEl) {
-    textoEl.innerHTML = l.texto ? `<strong>Comentário do aluno:</strong><br>${l.texto}` : "";
+    textoEl.innerHTML = l.texto 
+      ? `<div class="comentario-box"><strong>💬 Comentário do aluno</strong>${l.texto}</div>` 
+      : "";
   }
   
   if (obsProfEl) {
-    obsProfEl.innerHTML = l.observacaoProfessor ? `<strong>Observações do professor:</strong><br>${l.observacaoProfessor}` : "";
+    obsProfEl.innerHTML = l.observacaoProfessor 
+      ? `<div class="comentario-box comentario-professor"><strong>⭐ Observações do professor</strong>${l.observacaoProfessor}</div>` 
+      : "";
   }
   
   audioEl.src = l.audioURL || "";
