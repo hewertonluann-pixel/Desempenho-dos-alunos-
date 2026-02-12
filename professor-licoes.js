@@ -49,7 +49,7 @@ async function carregarSolicitacoes() {
   lista.innerHTML = "Carregando...";
 
   const q = query(
-    collection(db, "solicitacoesLicao"),
+    collection(db, "licoes"),
     where("status", "==", "pendente")
   );
 
@@ -119,13 +119,13 @@ async function tratar(card, aprovar) {
       [tipo]: numero
     });
 
-    await updateDoc(doc(db, "solicitacoesLicao", id), {
+    await updateDoc(doc(db, "licoes", id), {
       status: "aprovado",
       respondidoEm: new Date().toISOString()
     });
 
   } else {
-    await updateDoc(doc(db, "solicitacoesLicao", id), {
+    await updateDoc(doc(db, "licoes", id), {
       status: "reprovado",
       respondidoEm: new Date().toISOString()
     });
