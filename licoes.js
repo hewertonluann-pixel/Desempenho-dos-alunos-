@@ -801,11 +801,20 @@ async function enviarLicao() {
   };
 
   try {
-    // Upload e obtenção da URL em paralelo (otimizado)
+    console.log("Iniciando upload...", { alunoId, caminho, tamanho: blobAtual.size });
+    
+    // Upload do áudio
+    if (msg) msg.textContent = "Enviando áudio...";
     await uploadBytes(arquivoRef, blobAtual, metadata);
+    console.log("✅ Upload concluído");
+    
+    // Obter URL pública
+    if (msg) msg.textContent = "Obtendo URL do áudio...";
     const audioURL = await getDownloadURL(arquivoRef);
+    console.log("✅ URL obtida:", audioURL);
 
-    // Criar registro na coleção UNIFICADA "licoes"
+    // Criar registro no Firestore
+    if (msg) msg.textContent = "Salvando lição no banco...";
     await addDoc(collection(db, "licoes"), {
       alunoId,
       alunoNome,
@@ -818,6 +827,7 @@ async function enviarLicao() {
       observacaoProfessor: "",
       criadoEm: new Date().toISOString()
     });
+    console.log("✅ Lição salva no Firestore");
 
     if (msg) {
       msg.textContent = "✅ Lição enviada para avaliação!";
@@ -829,9 +839,26 @@ async function enviarLicao() {
     }, 1200);
     
   } catch (erro) {
-    console.error("Erro ao enviar lição:", erro);
+    console.error("❌ Erro ao enviar lição:", erro);
+    console.error("Detalhes:", { code: erro.code, message: erro.message, stack: erro.stack });
+    
     if (msg) {
-      msg.textContent = "Erro ao enviar lição. Tente novamente.";
+      let mensagemErro = "Erro ao enviar lição.";
+      
+      // Mensagens específicas por tipo de erro
+      if (erro.code === "storage/unauthorized") {
+        mensagemErro = "Erro de permissão. Verifique as regras do Storage.";
+      } else if (erro.code === "storage/canceled") {
+        mensagemErro = "Upload cancelado.";
+      } else if (erro.code === "storage/unknown") {
+        mensagemErro = "Erro desconhecido. Verifique sua conexão.";
+      } else if (erro.message && erro.message.includes("CORS")) {
+        mensagemErro = "Erro de CORS. Aguarde alguns minutos e tente novamente.";
+      } else if (erro.message && erro.message.includes("network")) {
+        mensagemErro = "Erro de rede. Verifique sua conexão.";
+      }
+      
+      msg.textContent = mensagemErro;
       msg.className = "msg-licao err";
     }
   }
