@@ -311,4 +311,12 @@ window.acessarModoProfessor = () => {
   window.location.href = "professor.html";
 };
 
+window.abrirConfiguracoes = () => {
+  const params = new URLSearchParams(window.location.search);
+  const nomeAluno = params.get("nome");
+  if (nomeAluno) {
+    window.location.href = `configuracoes.html?nome=${encodeURIComponent(nomeAluno)}`;
+  }
+};
+
 document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
