@@ -110,8 +110,9 @@ function inserirNavbar() {
         <div id="menuBtn" class="menu-btn">☰</div>
 
         <div id="navLinks" class="nav-links">
-          <a id="navInicio" href="#">Início</a>
-          <a href="painel-social.html">Amigos</a>
+          <a id="navInicio" href="#">İnício</a>
+          <a href="painel-social.html">Comunidade</a>
+          <a href="biblioteca.html">Biblioteca</a>
           <a id="navProfessor" href="professor.html" style="display:none;">Professor</a>
           <a id="navSair" href="#" style="color:#f87171;">Sair</a>
         </div>
