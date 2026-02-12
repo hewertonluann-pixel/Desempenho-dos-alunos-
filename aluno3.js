@@ -329,7 +329,9 @@ export async function calcularEnergiaDoAluno(aluno) {
       const eventosDoMes = grupos[chave];
       eventosDoMes.forEach(evento => {
         totalEventosAno++;
-        if (evento.presencas && evento.presencas.includes(aluno.nome)) {
+        // Usar a mesma lógica da barra mensal (presencas é array de objetos)
+        const hit = evento.presencas.find(p => p.nome === aluno.nome);
+        if (hit && hit.presenca === "presente") {
           totalPresencasAno++;
         }
       });
@@ -340,10 +342,7 @@ export async function calcularEnergiaDoAluno(aluno) {
     ? Math.round((totalPresencasAno / totalEventosAno) * 100) 
     : 0;
 
-  console.log(`[DEBUG] Aluno: ${aluno.nome}`);
-  console.log(`[DEBUG] Total eventos ano ${anoAtual}: ${totalEventosAno}`);
-  console.log(`[DEBUG] Total presenças ano: ${totalPresencasAno}`);
-  console.log(`[DEBUG] Energia anual: ${energiaAnual}%`);
+
 
   atualizarEnergiaVisual(energiaMensal, energiaAnual);
 
