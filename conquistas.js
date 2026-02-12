@@ -75,16 +75,53 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
 
   regrasDeConquistas.forEach((c) => {
     const desbloqueado = c.condicao(aluno);
-    const slot = document.createElement("div");
-    slot.classList.add("slot");
-    if (desbloqueado) slot.classList.add("desbloqueado");
+    
+    // Criar card de conquista
+    const card = document.createElement("div");
+    card.classList.add("achievement-card");
+    card.classList.add(desbloqueado ? "desbloqueado" : "bloqueado");
 
-    // Mostra o ícone ou um marcador de bloqueado
-    slot.textContent = desbloqueado ? c.icone : "🔒";
+    // Ícone
+    const icone = document.createElement("div");
+    icone.classList.add("achievement-icon");
+    icone.textContent = desbloqueado ? c.icone : "🔒";
 
-    // Tooltip simples com o título
-    slot.title = c.titulo + (c.descricao ? " — " + c.descricao : "");
-    elementoAlvo.appendChild(slot);
+    // Nome da conquista
+    const nome = document.createElement("div");
+    nome.classList.add("achievement-name");
+    nome.textContent = c.titulo;
+
+    card.appendChild(icone);
+    card.appendChild(nome);
+
+    // Adicionar evento de clique para abrir modal
+    if (desbloqueado) {
+      card.addEventListener("click", () => {
+        abrirPopupConquista(
+          c.icone,
+          c.titulo,
+          c.descricao || "Conquista desbloqueada!",
+          [
+            `Raridade: ${c.raridade.toUpperCase()}`,
+            `Status: Desbloqueada ✅`
+          ]
+        );
+      });
+    } else {
+      card.addEventListener("click", () => {
+        abrirPopupConquista(
+          "🔒",
+          c.titulo,
+          c.descricao || "Continue progredindo para desbloquear esta conquista!",
+          [
+            `Raridade: ${c.raridade.toUpperCase()}`,
+            `Status: Bloqueada 🔒`
+          ]
+        );
+      });
+    }
+
+    elementoAlvo.appendChild(card);
   });
 }
 
