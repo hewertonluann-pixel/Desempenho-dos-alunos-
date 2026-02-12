@@ -327,11 +327,11 @@ export async function calcularEnergiaDoAluno(aluno) {
 
   // Calcular frequência anual (média de presença no ano)
   let totalPresencas = 0;
-  let totalEventosAno = 0;
+  let totalEventosAno = eventosAnoAtual.length;
   
   eventosAnoAtual.forEach(evento => {
+    // Verificar se o aluno está na lista de presenças
     if (evento.presencas && Array.isArray(evento.presencas)) {
-      totalEventosAno++;
       if (evento.presencas.includes(aluno.nome)) {
         totalPresencas++;
       }
