@@ -101,10 +101,8 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
           c.icone,
           c.titulo,
           c.descricao || "Conquista desbloqueada!",
-          [
-            `Raridade: ${c.raridade.toUpperCase()}`,
-            `Status: Desbloqueada ✅`
-          ]
+          [], // Detalhes vazios pois agora são mostrados nos boxes
+          c.raridade
         );
       });
     } else {
@@ -113,10 +111,8 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
           "🔒",
           c.titulo,
           c.descricao || "Continue progredindo para desbloquear esta conquista!",
-          [
-            `Raridade: ${c.raridade.toUpperCase()}`,
-            `Status: Bloqueada 🔒`
-          ]
+          [`Objetivo: ${c.descricao}`],
+          c.raridade
         );
       });
     }

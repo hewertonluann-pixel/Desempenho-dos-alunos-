@@ -141,14 +141,61 @@ export function abrirPopupFrequencia(info, destino) {
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
 
+  // Buscar conquistas de frequência do mês
+  const conquistasFrequencia = [];
+  if (info.percentual >= 100) {
+    conquistasFrequencia.push({
+      icone: '⭐',
+      titulo: 'Presença Perfeita',
+      raridade: 'ouro'
+    });
+  }
+  if (info.percentual >= 80 && info.percentual < 100) {
+    conquistasFrequencia.push({
+      icone: '🎯',
+      titulo: 'Músico Esforçado',
+      raridade: 'prata'
+    });
+  }
+
+  const conquistasHTML = conquistasFrequencia.length > 0 
+    ? `
+      <div class="modal-conquistas-section">
+        <h4>🏆 Conquistas do Mês</h4>
+        <div class="modal-conquistas-list">
+          ${conquistasFrequencia.map(c => `
+            <div class="mini-achievement ${c.raridade}">
+              <span class="mini-achievement-icon">${c.icone}</span>
+              <span class="mini-achievement-name">${c.titulo}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `
+    : '';
+
   destino.querySelector(".modal-content .modal-body").innerHTML = `
-    <h2>Frequência de ${meses[info.mes]}</h2>
-    <div style="display: flex; flex-direction: column; gap: 10px; text-align: center;">
-      <p>Chamadas no mês: <strong style="color: var(--azul);">${info.totalEventos}</strong></p>
-      <p>Presente em: <strong style="color: var(--verde);">${info.presencasAluno}</strong></p>
-      <p>Frequência: <strong style="color: var(--azul); font-size: 1.2rem;">${info.percentual}%</strong></p>
+    <div class="modal-header-icon">📅</div>
+    <h2 class="modal-title">Frequência de ${meses[info.mes]}</h2>
+    
+    <div class="modal-stats-grid">
+      <div class="stat-box">
+        <div class="stat-label">Chamadas</div>
+        <div class="stat-value">${info.totalEventos}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Presenças</div>
+        <div class="stat-value stat-success">${info.presencasAluno}</div>
+      </div>
+      <div class="stat-box stat-highlight">
+        <div class="stat-label">Frequência</div>
+        <div class="stat-value stat-primary">${info.percentual}%</div>
+      </div>
     </div>
-    <button onclick="fecharPopupFrequencia()" class="btn-salvar" style="margin-top: 15px;">Fechar</button>
+    
+    ${conquistasHTML}
+    
+    <button onclick="fecharPopupFrequencia()" class="btn-fechar-modal">Fechar</button>
   `;
 
   destino.style.display = "flex";
@@ -161,16 +208,52 @@ window.fecharPopupFrequencia = () => {
 /* ========================================================
     5. CONQUISTAS (MODAL PADRONIZADO)
    ======================================================== */
-window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
+window.abrirPopupConquista = function(icone, titulo, descricao, detalhes, raridade = 'bronze') {
   const popup = document.getElementById('popupConquista');
   if (!popup) return;
 
-  document.getElementById('conquistaIcone').textContent = icone || '🏆';
-  document.getElementById('conquistaTitulo').textContent = titulo || 'Conquista';
-  document.getElementById('conquistaDescricao').textContent = descricao || 'Descrição não disponível.';
-  
-  const listaDetalhes = document.getElementById('conquistaDetalhes');
-  listaDetalhes.innerHTML = detalhes ? detalhes.map(item => `<li>${item}</li>`).join('') : '';
+  // Mapear cores de borda por raridade
+  const coresBorda = {
+    'ouro': '#fbbf24',
+    'prata': '#94a3b8',
+    'bronze': '#cd7f32'
+  };
+
+  // Detectar se está bloqueada pelo ícone
+  const bloqueada = icone === '🔒';
+
+  const modalBody = popup.querySelector('.modal-content .modal-body');
+  modalBody.innerHTML = `
+    <div class="modal-header-icon">${icone || '🏆'}</div>
+    <h2 class="modal-title">${titulo || 'Conquista'}</h2>
+    
+    <div class="modal-stats-grid">
+      <div class="stat-box" style="border-color: ${coresBorda[raridade]}; box-shadow: 0 0 15px ${coresBorda[raridade]}40;">
+        <div class="stat-label">Raridade</div>
+        <div class="stat-value" style="color: ${coresBorda[raridade]};">${raridade.toUpperCase()}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Status</div>
+        <div class="stat-value ${bloqueada ? '' : 'stat-success'}">${bloqueada ? '🔒 BLOQUEADA' : '✅ DESBLOQUEADA'}</div>
+      </div>
+    </div>
+    
+    <div class="modal-conquistas-section">
+      <h4>📝 Descrição</h4>
+      <p style="color: var(--ink); font-size: 0.9rem; line-height: 1.6;">${descricao || 'Descrição não disponível.'}</p>
+    </div>
+    
+    ${detalhes && detalhes.length > 0 ? `
+      <div class="modal-conquistas-section">
+        <h4>✨ Detalhes</h4>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          ${detalhes.map(item => `<li style="padding: 8px 12px; background: var(--card-alt); border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; color: var(--muted); border-left: 3px solid var(--azul);">${item}</li>`).join('')}
+        </ul>
+      </div>
+    ` : ''}
+    
+    <button onclick="fecharPopupConquista()" class="btn-fechar-modal">Fechar</button>
+  `;
 
   popup.style.display = 'flex';
 };
