@@ -84,6 +84,82 @@
             font-size: 0.9rem;
         }
 
+        /* Busca Global Moderna */
+        .global-search-container {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(145deg, #0b1220, #020617);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 4px 4px 4px 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--azul);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .search-box svg {
+            color: var(--azul);
+            flex-shrink: 0;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus-within svg {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 4px var(--azul));
+        }
+
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--ink);
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 12px 8px;
+        }
+
+        .search-box input::placeholder {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .search-box button {
+            background: var(--azul-escuro);
+            color: var(--azul);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .search-box button:hover {
+            background: var(--vermelho);
+            color: white;
+            border-color: var(--vermelho);
+            transform: scale(1.1);
+        }
+
         /* Grid de Coleções */
         .collections-grid {
             display: grid;
