@@ -170,12 +170,14 @@ body {
 }
 
 .detail-method-name {
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 500;
   text-transform: capitalize;
-  margin-top: 2px;
-  opacity: 0.9;
+  margin-top: 4px;
+  opacity: 0.85;
+  text-align: center;
+  display: block;
 }
 
 .btn-change-password, .btn-professor-mode {
