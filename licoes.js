@@ -318,7 +318,8 @@ function inserirModalLicao() {
     <div class="modal-view-conteudo">
       <h3>📜 Detalhes da lição</h3>
       <p id="viewLicaoInfo"></p>
-      <p id="viewLicaoObs"></p>
+      <p id="viewLicaoTexto"></p>
+      <p id="viewLicaoObsProf"></p>
       <audio id="viewLicaoAudio" controls style="width:100%; margin-top:6px;"></audio>
       <button class="btn-fechar-view" id="btnFecharViewLicao">Fechar</button>
     </div>
@@ -332,7 +333,8 @@ function inserirModalLicao() {
   document.getElementById("btnPararLicao").onclick = pararGravacao;
   document.getElementById("btnOuvirLicao").onclick = ouvirGravacao;
   document.getElementById("btnEnviarLicao").onclick = enviarLicao;
-
+  
+  // Fechar modal de visualização
   document.getElementById("btnFecharViewLicao").onclick = () => {
     modalView.classList.remove("ativo");
   };
@@ -674,7 +676,8 @@ async function abrirLicao(id) {
   const l = snap.data();
   const modal = document.getElementById("modalViewLicao");
   const infoEl = document.getElementById("viewLicaoInfo");
-  const obsEl = document.getElementById("viewLicaoObs");
+  const textoEl = document.getElementById("viewLicaoTexto");
+  const obsProfEl = document.getElementById("viewLicaoObsProf");
   const audioEl = document.getElementById("viewLicaoAudio");
 
   if (!modal || !infoEl || !audioEl) return;
@@ -683,10 +686,16 @@ async function abrirLicao(id) {
     ? new Date(l.criadoEm).toLocaleString("pt-BR")
     : "";
 
-  infoEl.textContent = `${l.tipo === "metodo" ? "Método" : "Leitura"} — lição nº ${l.numero} — ${data}`;
-  if (obsEl) {
-    obsEl.textContent = l.texto ? `Comentário: ${l.texto}` : "";
+  infoEl.innerHTML = `<strong>${l.tipo === "metodo" ? "Método" : "Leitura"} — lição nº ${l.numero}</strong><br><small>${data}</small>`;
+  
+  if (textoEl) {
+    textoEl.innerHTML = l.texto ? `<strong>Comentário do aluno:</strong><br>${l.texto}` : "";
   }
+  
+  if (obsProfEl) {
+    obsProfEl.innerHTML = l.observacaoProfessor ? `<strong>Observações do professor:</strong><br>${l.observacaoProfessor}` : "";
+  }
+  
   audioEl.src = l.audioURL || "";
   audioEl.load();
 
