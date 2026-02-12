@@ -103,32 +103,70 @@
       text-overflow: ellipsis;
     }
 
-    /* Linha de energia + números */
-    .linha-stats {
+    /* Nível Geral em Destaque */
+    .nivel-geral-destaque {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 4px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(56, 189, 248, 0.08));
+      border-radius: 10px;
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      margin-top: 8px;
+    }
+
+    .label-nivel {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #22d3ee;
+    }
+
+    .valor-nivel {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f9fafb;
+    }
+
+    /* Níveis Secundários (Leitura e Método) */
+    .niveis-secundarios {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
-      font-size: 0.8rem;
+      margin-top: 8px;
     }
 
-    .energia-mini {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      flex: 1;
-    }
-
-    .energia-mini-label {
+    .nivel-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.78rem;
-      color: #e5e7eb;
+      padding: 6px 10px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #9ca3af;
     }
 
-    .barra-energia-mini {
+    .nivel-item .valor {
+      font-weight: 600;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+    }
+
+    /* Barras de Comprometimento */
+    .barra-comprometimento {
+      margin-top: 8px;
+    }
+
+    .barra-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      margin-bottom: 4px;
+    }
+
+    .barra-container {
       width: 100%;
       height: 6px;
       border-radius: 999px;
@@ -136,29 +174,18 @@
       overflow: hidden;
     }
 
-    .nivel-mini {
+    .barra-preenchimento {
       height: 100%;
       width: 0%;
       transition: width 0.4s ease;
-    }
-
-    .numeros-mini {
-      display: flex;
-      gap: 10px;
-      font-size: 0.78rem;
-      color: #9ca3af;
-      white-space: nowrap;
-    }
-
-    .numeros-mini span {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
+      border-radius: 999px;
     }
 
     /* Conquistas */
     .conquistas-social {
-      margin-top: 4px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(34, 211, 238, 0.15);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -167,7 +194,10 @@
     }
 
     .conquistas-social .icones {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
     }
 
     /* Responsivo: mais respiro em telas grandes */
@@ -222,11 +252,13 @@
       );
 
       grid.innerHTML = alunos.map(aluno => {
-        const energia = aluno.frequenciaMensal?.porcentagem ?? 0;
+        const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
+        const energiaGeral = aluno.frequenciaGeral?.porcentagem ?? 0;
         const total = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
         const conquistas = calcularConquistas(aluno);
 
-        const bgBarra = corBarraEnergia(energia);
+        const bgBarraMensal = corBarraEnergia(energiaMensal);
+        const bgBarraGeral = corBarraEnergia(energiaGeral);
 
         return `
           <div class="card-social"
@@ -243,25 +275,49 @@
               </div>
             </div>
 
-            <div class="linha-stats">
-              <div class="energia-mini">
-                <div class="energia-mini-label">
-                  <span>⚡ Energia</span>
-                  <span>${energia}%</span>
-                </div>
-                <div class="barra-energia-mini">
-                  <div class="nivel-mini"
-                       style="width:${energia}%; background:${bgBarra};"></div>
-                </div>
-              </div>
+            <!-- Nível Geral em Destaque -->
+            <div class="nivel-geral-destaque">
+              <span class="label-nivel">🎯 Nível Geral</span>
+              <span class="valor-nivel">${total}</span>
+            </div>
 
-              <div class="numeros-mini">
-                <span>📘 ${aluno.leitura ?? 0}</span>
-                <span>🎯 ${aluno.metodo ?? 0}</span>
-                <span>🧮 ${total}</span>
+            <!-- Leitura e Método -->
+            <div class="niveis-secundarios">
+              <div class="nivel-item">
+                <span>📘 Leitura</span>
+                <span class="valor">${aluno.leitura ?? 0}</span>
+              </div>
+              <div class="nivel-item">
+                <span>🎵 Método</span>
+                <span class="valor">${aluno.metodo ?? 0}</span>
               </div>
             </div>
 
+            <!-- Barra Mensal -->
+            <div class="barra-comprometimento">
+              <div class="barra-label">
+                <span>📅 Mensal</span>
+                <span>${energiaMensal}%</span>
+              </div>
+              <div class="barra-container">
+                <div class="barra-preenchimento"
+                     style="width:${energiaMensal}%; background:${bgBarraMensal};"></div>
+              </div>
+            </div>
+
+            <!-- Barra Geral -->
+            <div class="barra-comprometimento">
+              <div class="barra-label">
+                <span>📊 Geral</span>
+                <span>${energiaGeral}%</span>
+              </div>
+              <div class="barra-container">
+                <div class="barra-preenchimento"
+                     style="width:${energiaGeral}%; background:${bgBarraGeral};"></div>
+              </div>
+            </div>
+
+            <!-- Conquistas -->
             <div class="conquistas-social">
               <span>🏆 Conquistas</span>
               <span class="icones">${conquistas}</span>
