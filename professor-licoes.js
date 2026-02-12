@@ -20,6 +20,17 @@ function inserirPainel() {
   // Adicionar estilos CSS para os cards
   const estilo = document.createElement("style");
   estilo.textContent = `
+    .grid-licoes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+      .grid-licoes {
+        grid-template-columns: 1fr;
+      }
+    }
     .card-licao-prof {
       background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.9));
       border: 2px solid rgba(56, 189, 248, 0.4);
@@ -27,7 +38,10 @@ function inserirPainel() {
       padding: 14px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       transition: all 0.3s ease;
-      margin-bottom: 14px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
     }
     .card-licao-prof:hover {
       transform: translateY(-2px);
@@ -187,7 +201,7 @@ function inserirPainel() {
       style="margin:8px 0 14px 0;width:100%;padding:8px;border-radius:8px;border:none;background:#0ea5e9;color:#fff;font-weight:600;cursor:pointer;">
       Atualizar lista
     </button>
-    <div id="listaSolicitacoesLicao" style="display:flex;flex-direction:column;gap:10px;"></div>
+    <div id="listaSolicitacoesLicao" class="grid-licoes"></div>
   `;
 
   destino.appendChild(card);
