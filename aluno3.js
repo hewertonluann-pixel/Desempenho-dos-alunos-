@@ -241,6 +241,38 @@ export async function iniciarPainelAluno() {
   }
 
   // =====================================================
+  // 🔄 REORDENAR PAINÉIS CONFORME PREFERÊNCIA
+  // =====================================================
+  const ordemPaineis = aluno.ordemPaineis || [
+    "comprometimento",
+    "notificacoes",
+    "frequencia",
+    "conquistas",
+    "licoes",
+    "evolucao"
+  ];
+
+  const contentArea = document.querySelector(".content-area");
+  if (contentArea) {
+    const mapaPaineis = {
+      comprometimento: contentArea.querySelector(".energy-section"),
+      notificacoes: contentArea.querySelector(".notifications-section"),
+      frequencia: contentArea.querySelector(".frequency-section"),
+      conquistas: contentArea.querySelector(".achievements-section"),
+      licoes: contentArea.querySelector(".lessons-section"),
+      evolucao: contentArea.querySelector(".evolucao-section")
+    };
+
+    // Reordenar os painéis conforme a ordem salva
+    ordemPaineis.forEach(id => {
+      const painel = mapaPaineis[id];
+      if (painel) {
+        contentArea.appendChild(painel);
+      }
+    });
+  }
+
+  // =====================================================
 
   montarPainelAluno(aluno);
   

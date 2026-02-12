@@ -305,3 +305,107 @@ input:checked + .slider:before {
     font-size: 0.8rem;
   }
 }
+
+
+/* ========== DRAG AND DROP LIST ========== */
+.drag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.drag-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  cursor: grab;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.drag-item:hover {
+  border-color: var(--azul);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+  transform: translateY(-2px);
+}
+
+.drag-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.4);
+}
+
+.drag-handle {
+  font-size: 1.5rem;
+  color: var(--muted);
+  margin-right: 15px;
+  cursor: grab;
+}
+
+.drag-item.dragging .drag-handle {
+  cursor: grabbing;
+}
+
+.drag-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.drag-icon {
+  font-size: 1.8rem;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--azul-suave);
+  border-radius: 10px;
+}
+
+.drag-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.drag-order {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--azul);
+  background: var(--azul-suave);
+  padding: 6px 14px;
+  border-radius: 8px;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* ========== RESPONSIVIDADE DRAG ========== */
+@media (max-width: 768px) {
+  .drag-item {
+    padding: 14px 16px;
+  }
+
+  .drag-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .drag-name {
+    font-size: 0.95rem;
+  }
+
+  .drag-order {
+    font-size: 1rem;
+    padding: 5px 12px;
+    min-width: 45px;
+  }
+}
