@@ -104,8 +104,8 @@ export function montarPainelAluno(aluno) {
   document.getElementById("nivelGeral").textContent = leitura + metodo;
   
   // Preencher nomes dos métodos
-  const nomeMetodoLeitura = aluno.metodoLeitura || "-";
-  const nomeMetodoInstrumental = aluno.metodoInstrumental || "-";
+  const nomeMetodoLeitura = aluno.solfejoNome || "-";
+  const nomeMetodoInstrumental = aluno.metodoNome || "-";
   document.getElementById("nomeMetodoLeitura").textContent = nomeMetodoLeitura;
   document.getElementById("nomeMetodoInstrumental").textContent = nomeMetodoInstrumental;
 
