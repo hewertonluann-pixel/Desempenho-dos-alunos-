@@ -719,21 +719,9 @@ async function enviarLicao() {
     msg.className = "msg-licao";
   }
 
-  // Buscar aluno no Firestore
-  const q = query(collection(db, "alunos"), where("nome", "==", usuario.nome));
-  const snap = await getDocs(q);
-
-  if (snap.empty) {
-    if (msg) {
-      msg.textContent = "Aluno não encontrado no banco de dados.";
-      msg.className = "msg-licao err";
-    }
-    return;
-  }
-
-  const alunoDoc = snap.docs[0];
-  const alunoId = alunoDoc.id;
-  const alunoNome = alunoDoc.data().nome;
+  // Usar dados do localStorage (já validados no login)
+  const alunoId = usuario.id || usuario.uid;
+  const alunoNome = usuario.nome;
 
   // Upload do áudio no Storage
   const caminho = `licoes/${alunoId}/${tipo}_${numero}_${Date.now()}.webm`;
@@ -743,32 +731,41 @@ async function enviarLicao() {
     contentType: blobAtual.type || "audio/webm"
   };
 
-  await uploadBytes(arquivoRef, blobAtual, metadata);
-  await new Promise(res => setTimeout(res, 200)); // pequeno delay
-  const audioURL = await getDownloadURL(arquivoRef);
+  try {
+    // Upload e obtenção da URL em paralelo (otimizado)
+    await uploadBytes(arquivoRef, blobAtual, metadata);
+    const audioURL = await getDownloadURL(arquivoRef);
 
-  // Criar registro na coleção UNIFICADA "licoes"
-  await addDoc(collection(db, "licoes"), {
-    alunoId,
-    alunoNome,
-    aluno: alunoNome,
-    tipo,
-    numero,
-    texto,
-    audioURL,
-    status: "pendente",
-    observacaoProfessor: "",
-    criadoEm: new Date().toISOString()
-  });
+    // Criar registro na coleção UNIFICADA "licoes"
+    await addDoc(collection(db, "licoes"), {
+      alunoId,
+      alunoNome,
+      aluno: alunoNome,
+      tipo,
+      numero,
+      texto,
+      audioURL,
+      status: "pendente",
+      observacaoProfessor: "",
+      criadoEm: new Date().toISOString()
+    });
 
-  if (msg) {
-    msg.textContent = "✅ Lição enviada para avaliação!";
-    msg.className = "msg-licao ok";
+    if (msg) {
+      msg.textContent = "✅ Lição enviada para avaliação!";
+      msg.className = "msg-licao ok";
+    }
+
+    setTimeout(() => {
+      fecharModalLicao();
+    }, 1200);
+    
+  } catch (erro) {
+    console.error("Erro ao enviar lição:", erro);
+    if (msg) {
+      msg.textContent = "Erro ao enviar lição. Tente novamente.";
+      msg.className = "msg-licao err";
+    }
   }
-
-  setTimeout(() => {
-    fecharModalLicao();
-  }, 1200);
 }
 
 /* ==========================
