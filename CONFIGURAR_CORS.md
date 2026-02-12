@@ -51,7 +51,7 @@ gcloud config set project asafenotas-5cf3f
 Use o arquivo `cors.json` que está na raiz do projeto:
 
 ```bash
-gsutil cors set cors.json gs://asafenotas-5cf3f.appspot.com
+gsutil cors set cors.json gs://asafenotas-5cf3f.firebasestorage.app
 ```
 
 ---
@@ -59,7 +59,7 @@ gsutil cors set cors.json gs://asafenotas-5cf3f.appspot.com
 ### **5. Verificar se foi aplicado**
 
 ```bash
-gsutil cors get gs://asafenotas-5cf3f.appspot.com
+gsutil cors get gs://asafenotas-5cf3f.firebasestorage.app
 ```
 
 Você deve ver a configuração aplicada.
@@ -102,7 +102,7 @@ Edite o `cors.json` e adicione mais URLs:
 
 Depois aplique novamente:
 ```bash
-gsutil cors set cors.json gs://asafenotas-5cf3f.appspot.com
+gsutil cors set cors.json gs://asafenotas-5cf3f.firebasestorage.app
 ```
 
 ---
