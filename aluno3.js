@@ -303,44 +303,47 @@ window.fecharPopupConquista = function() {
     6. CALCULAR ENERGIA (Frequência do mês)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
-  const hoje = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
-  const dataAtual = new Date(hoje);
-  const ano = dataAtual.getFullYear();
-  const mes = String(dataAtual.getMonth() + 1).padStart(2, "0");
-
   const snap = await getDocs(collection(db, "eventos"));
   const todosEventos = snap.docs.map(d => d.data());
   
-  // Filtrar eventos do ano vigente
-  const eventosAnoAtual = todosEventos.filter(e => {
-    if (!e.data) return false;
-    const anoEvento = e.data.substring(0, 4);
-    return anoEvento === String(ano);
-  });
+  // Obter ano e mês atual no fuso de Brasília
+  const agora = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  const dataAtual = new Date(agora);
+  const anoAtual = dataAtual.getFullYear();
+  const mesAtual = String(dataAtual.getMonth() + 1).padStart(2, "0");
 
-  // Calcular frequência mensal (mês atual)
-  const grupos = agruparEventosPorMes(eventosAnoAtual);
-  const chaveMes = `${ano}-${mes}`;
+  // Calcular frequência mensal
+  const grupos = agruparEventosPorMes(todosEventos);
+  const chaveMes = `${anoAtual}-${mesAtual}`;
   const eventosMes = grupos[chaveMes] || [];
   const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
   const energiaMensal = freqMensal.percentual;
 
-  // Calcular frequência anual (média de presença no ano)
-  let totalPresencas = 0;
-  let totalEventosAno = eventosAnoAtual.length;
+  // Calcular frequência anual (todos os meses do ano)
+  let totalPresencasAno = 0;
+  let totalEventosAno = 0;
   
-  eventosAnoAtual.forEach(evento => {
-    // Verificar se o aluno está na lista de presenças
-    if (evento.presencas && Array.isArray(evento.presencas)) {
-      if (evento.presencas.includes(aluno.nome)) {
-        totalPresencas++;
-      }
+  Object.keys(grupos).forEach(chave => {
+    // Verificar se a chave pertence ao ano atual (formato: "YYYY-MM")
+    if (chave.startsWith(String(anoAtual))) {
+      const eventosDoMes = grupos[chave];
+      eventosDoMes.forEach(evento => {
+        totalEventosAno++;
+        if (evento.presencas && evento.presencas.includes(aluno.nome)) {
+          totalPresencasAno++;
+        }
+      });
     }
   });
   
   const energiaAnual = totalEventosAno > 0 
-    ? Math.round((totalPresencas / totalEventosAno) * 100) 
+    ? Math.round((totalPresencasAno / totalEventosAno) * 100) 
     : 0;
+
+  console.log(`[DEBUG] Aluno: ${aluno.nome}`);
+  console.log(`[DEBUG] Total eventos ano ${anoAtual}: ${totalEventosAno}`);
+  console.log(`[DEBUG] Total presenças ano: ${totalPresencasAno}`);
+  console.log(`[DEBUG] Energia anual: ${energiaAnual}%`);
 
   atualizarEnergiaVisual(energiaMensal, energiaAnual);
 
