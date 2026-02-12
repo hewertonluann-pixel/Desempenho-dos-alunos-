@@ -281,6 +281,41 @@ export async function iniciarPainelAluno() {
   }
 
   // =====================================================
+  // 👁️ PREFERÊNCIAS DE VISUALIZAÇÃO
+  // =====================================================
+  const preferencias = aluno.preferencias || {};
+  
+  if (preferencias.comprometimento === false) {
+    const painelComprometimento = document.querySelector(".energy-section");
+    if (painelComprometimento) painelComprometimento.style.display = "none";
+  }
+  
+  if (preferencias.frequencia === false) {
+    const painelFrequencia = document.querySelector(".frequency-section");
+    if (painelFrequencia) painelFrequencia.style.display = "none";
+  }
+  
+  if (preferencias.conquistas === false) {
+    const painelConquistas = document.querySelector(".achievements-section");
+    if (painelConquistas) painelConquistas.style.display = "none";
+  }
+  
+  if (preferencias.evolucao === false) {
+    const painelEvolucao = document.querySelector(".evolution-section");
+    if (painelEvolucao) painelEvolucao.style.display = "none";
+  }
+  
+  if (preferencias.notificacoes === false) {
+    const painelNotificacoes = document.querySelector(".notifications-section");
+    if (painelNotificacoes) painelNotificacoes.style.display = "none";
+  }
+  
+  if (preferencias.licoes === false && ehDonoDaPagina) {
+    const painelLicoes = document.querySelector(".lessons-section");
+    if (painelLicoes) painelLicoes.style.display = "none";
+  }
+
+  // =====================================================
 
   montarPainelAluno(aluno);
   await montarGraficoFrequencia(aluno);
@@ -345,6 +380,14 @@ window.enviarNovaFoto = () => {
 
 window.acessarModoProfessor = () => {
   window.location.href = "professor.html";
+};
+
+window.abrirConfiguracoes = () => {
+  const params = new URLSearchParams(window.location.search);
+  const nomeAluno = params.get("nome");
+  if (nomeAluno) {
+    window.location.href = `configuracoes.html?nome=${encodeURIComponent(nomeAluno)}`;
+  }
 };
 
 document.addEventListener("DOMContentLoaded", iniciarPainelAluno);

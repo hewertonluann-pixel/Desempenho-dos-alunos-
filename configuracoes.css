@@ -1,0 +1,307 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+:root {
+  --bg: #020617;
+  --card: #0b1220;
+  --card-alt: #0f172a;
+  --border: rgba(56, 189, 248, 0.25);
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+  --azul: #0ea5e9;
+  --azul-escuro: #1e293b;
+  --azul-suave: rgba(56, 189, 248, 0.2);
+  --verde: #22c55e;
+  --amarelo: #facc15;
+  --vermelho: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #000 100%);
+  color: var(--ink);
+  padding: 0;
+  min-height: 100vh;
+}
+
+.config-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.config-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border);
+}
+
+.config-header h1 {
+  font-size: 2.5rem;
+  color: var(--azul);
+  margin: 0 0 10px 0;
+}
+
+.config-subtitle {
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.config-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.config-section {
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.section-header {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--azul-suave);
+}
+
+.section-header h2 {
+  font-size: 1.8rem;
+  color: var(--azul);
+  margin: 0 0 8px 0;
+}
+
+.section-description {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ========== INPUTS ========== */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--azul);
+}
+
+.input-group input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px var(--azul-suave);
+}
+
+/* ========== BOTÕES ========== */
+.btn-primary, .btn-secondary {
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-primary {
+  background: var(--azul);
+  color: white;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.btn-primary:hover {
+  background: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+}
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--azul);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--azul-escuro);
+  border-color: var(--azul);
+}
+
+/* ========== MENSAGENS ========== */
+.mensagem-feedback {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  min-height: 20px;
+}
+
+/* ========== TOGGLE LIST ========== */
+.toggle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.toggle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.toggle-item:hover {
+  border-color: var(--azul);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
+.toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.toggle-icon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--azul-suave);
+  border-radius: 12px;
+}
+
+.toggle-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.toggle-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ========== SWITCH TOGGLE ========== */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #334155;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--azul);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* ========== AÇÕES ========== */
+.config-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* ========== RESPONSIVIDADE ========== */
+@media (max-width: 768px) {
+  .config-container {
+    padding: 20px 15px;
+  }
+
+  .config-header h1 {
+    font-size: 2rem;
+  }
+
+  .config-section {
+    padding: 20px;
+  }
+
+  .toggle-info {
+    gap: 12px;
+  }
+
+  .toggle-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .toggle-info h3 {
+    font-size: 1rem;
+  }
+
+  .toggle-info p {
+    font-size: 0.8rem;
+  }
+}
