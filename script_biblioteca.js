@@ -637,7 +637,7 @@ function setupGlobalSearch() {
     const term = e.target.value.trim().toLowerCase();
     
     if (term.length > 0) {
-      clearBtn.style.display = 'block';
+      // Botão limpar removido conforme solicitado
       await performGlobalSearch(term);
     } else {
       clearGlobalSearch();
@@ -677,7 +677,7 @@ async function performGlobalSearch(term) {
     }
 
     renderGlobalResults(allResults);
-    countDisplay.textContent = `${allResults.length} ${allResults.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`;
+    // Contagem removida conforme solicitado
     
   } catch (error) {
     console.error('Erro na busca global:', error);
