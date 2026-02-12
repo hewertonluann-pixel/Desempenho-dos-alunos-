@@ -725,10 +725,10 @@ body {
   transform: translateY(-4px);
 }
 
-/* Borda azul padrão para todos os cards */
+/* Borda consistente com os outros painéis (sem efeito neon) */
 .card-licao { 
-  border: 2px solid #3b82f6; 
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); 
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
 }
 
 .status-badge {
