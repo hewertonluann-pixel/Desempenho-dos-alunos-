@@ -834,8 +834,11 @@ async function enviarLicao() {
       msg.className = "msg-licao ok";
     }
 
+    // Atualizar a lista de lições para mostrar a nova lição
     setTimeout(() => {
       fecharModalLicao();
+      // Recarregar a lista de lições do aluno
+      carregarLicoesAluno(alunoNome);
     }, 1200);
     
   } catch (erro) {
