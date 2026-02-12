@@ -74,27 +74,106 @@ function inserirModalLicao() {
       opacity: 0.8;
       margin-bottom: 12px;
     }
-    .linha-campos {
+    /* Toggle de tipo de lição */
+    .tipo-licao-section {
+      margin-bottom: 14px;
+    }
+    .tipo-licao-label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .toggle-tipo-licao {
       display: flex;
       gap: 8px;
-      margin-bottom: 8px;
-      align-items: center;
-      flex-wrap: wrap;
     }
-    .linha-campos label {
-      font-size: 0.8rem;
-      opacity: 0.9;
-    }
-    .linha-campos select,
-    .linha-campos input {
-      background: #020617;
-      border-radius: 8px;
-      border: 1px solid #1f2937;
-      color: #e5e7eb;
-      padding: 6px 8px;
-      font-size: 0.85rem;
+    .toggle-btn {
       flex: 1;
-      min-width: 0;
+      padding: 10px 16px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 2px solid rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .toggle-btn:hover {
+      border-color: rgba(56, 189, 248, 0.6);
+      background: rgba(15, 23, 42, 1);
+    }
+    .toggle-btn.active {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border-color: #22d3ee;
+      color: #fff;
+      box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+    }
+    
+    /* Número da lição */
+    .numero-licao-section {
+      margin-bottom: 14px;
+    }
+    .numero-licao-label {
+      display: block;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .numero-licao-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-numero-menos,
+    .btn-numero-mais {
+      width: 40px;
+      height: 40px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 2px solid rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      color: #22d3ee;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-numero-menos:hover,
+    .btn-numero-mais:hover {
+      background: rgba(14, 165, 233, 0.2);
+      border-color: #22d3ee;
+      transform: scale(1.05);
+    }
+    .btn-numero-menos:active,
+    .btn-numero-mais:active {
+      transform: scale(0.95);
+    }
+    #numeroLicao {
+      flex: 1;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      background: rgba(15, 23, 42, 0.8);
+      border: 2px solid rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      color: #22d3ee;
+      padding: 10px;
+      height: 40px;
+    }
+    #numeroLicao:focus {
+      outline: none;
+      border-color: #22d3ee;
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
     }
     .modal-licao-texto {
       width: 100%;
@@ -305,16 +384,30 @@ function inserirModalLicao() {
         Grave ou envie um áudio com a lição que você estudou. Seu professor irá ouvir e aprovar.
       </div>
 
-      <div class="linha-campos">
-        <label for="tipoLicao">Tipo:</label>
-        <select id="tipoLicao">
-          <option value="leitura">BONA (Leitura)</option>
-          <option value="metodo">Método</option>
-        </select>
-
-        <label for="numeroLicao">Lição nº:</label>
-        <input type="number" id="numeroLicao" min="1" max="200" value="1">
+      <!-- Toggle de tipo de lição -->
+      <div class="tipo-licao-section">
+        <label class="tipo-licao-label">Tipo de lição:</label>
+        <div class="toggle-tipo-licao">
+          <button type="button" class="toggle-btn active" data-tipo="leitura" id="btnLeitura">
+            📘 Leitura (Bona)
+          </button>
+          <button type="button" class="toggle-btn" data-tipo="metodo" id="btnMetodo">
+            🎯 Método
+          </button>
+        </div>
       </div>
+
+      <!-- Número da lição -->
+      <div class="numero-licao-section">
+        <label class="numero-licao-label">Número da lição:</label>
+        <div class="numero-licao-input-wrapper">
+          <button type="button" class="btn-numero-menos" id="btnNumeroMenos">−</button>
+          <input type="number" id="numeroLicao" min="1" max="200" value="1">
+          <button type="button" class="btn-numero-mais" id="btnNumeroMais">+</button>
+        </div>
+      </div>
+      
+      <input type="hidden" id="tipoLicao" value="leitura">
 
       <textarea id="textoLicao" class="modal-licao-texto" placeholder="Comentário opcional sobre a lição (dúvidas, dificuldades, etc.)"></textarea>
 
@@ -370,6 +463,42 @@ function inserirModalLicao() {
   document.getElementById("btnPararLicao").onclick = pararGravacao;
   document.getElementById("btnOuvirLicao").onclick = ouvirGravacao;
   document.getElementById("btnEnviarLicao").onclick = enviarLicao;
+  
+  // Toggle de tipo de lição
+  const btnLeitura = document.getElementById("btnLeitura");
+  const btnMetodo = document.getElementById("btnMetodo");
+  const tipoLicaoHidden = document.getElementById("tipoLicao");
+  
+  btnLeitura.onclick = () => {
+    btnLeitura.classList.add("active");
+    btnMetodo.classList.remove("active");
+    tipoLicaoHidden.value = "leitura";
+  };
+  
+  btnMetodo.onclick = () => {
+    btnMetodo.classList.add("active");
+    btnLeitura.classList.remove("active");
+    tipoLicaoHidden.value = "metodo";
+  };
+  
+  // Botões de incremento/decremento de número
+  const numeroInput = document.getElementById("numeroLicao");
+  const btnNumeroMenos = document.getElementById("btnNumeroMenos");
+  const btnNumeroMais = document.getElementById("btnNumeroMais");
+  
+  btnNumeroMenos.onclick = () => {
+    const valorAtual = parseInt(numeroInput.value) || 1;
+    if (valorAtual > 1) {
+      numeroInput.value = valorAtual - 1;
+    }
+  };
+  
+  btnNumeroMais.onclick = () => {
+    const valorAtual = parseInt(numeroInput.value) || 1;
+    if (valorAtual < 200) {
+      numeroInput.value = valorAtual + 1;
+    }
+  };
   
   // Fechar modal de visualização
   const fecharModalView = () => {
