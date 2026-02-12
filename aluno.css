@@ -1,0 +1,618 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/* ============================================================
+   TEMA BASE E VARIÁVEIS
+   ============================================================ */
+:root {
+  --bg: #020617;
+  --card: #0b1220;
+  --card-alt: #0f172a;
+  --border: rgba(56, 189, 248, 0.25);
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+
+  --azul: #0ea5e9;
+  --azul-escuro: #1e293b;
+  --azul-suave: rgba(56, 189, 248, 0.2);
+
+  --verde: #22c55e;
+  --verde-suave: rgba(34, 197, 94, 0.25);
+  --amarelo: #facc15;
+  --vermelho: #ef4444;
+  --vermelho-suave: rgba(239, 68, 68, 0.25);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #000 100%);
+  color: var(--ink);
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   LAYOUT PRINCIPAL — SIDEBAR + CONTEÚDO
+   ============================================================ */
+
+.main-container {
+  display: flex;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
+  gap: 20px;
+}
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.content-area {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  align-content: start; /* Para que as sections não se estiquem */
+}
+
+/* ============================================================
+   ESTILO DOS CARDS
+   ============================================================ */
+
+.card {
+  background: var(--card-alt);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: var(--azul);
+  font-size: 1.4rem;
+  border-bottom: 1px solid var(--azul-suave);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+/* ============================================================
+   SIDEBAR - PROFILE CARD
+   ============================================================ */
+
+.profile-card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--azul-suave);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.photo-upload {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 15px;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--azul);
+}
+
+.upload-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--azul);
+  color: white;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.upload-icon:hover {
+  background: #0099e6;
+}
+
+.aluno-name {
+  font-size: 1.8rem;
+  margin: 0 0 5px;
+  color: var(--ink);
+}
+
+.instrument {
+  color: var(--muted);
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.level-info {
+  background: var(--azul-escuro);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.level-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.level-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--azul);
+}
+
+.level-details {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  background: var(--card-alt);
+  padding: 10px 15px;
+  border-radius: 8px;
+  flex-basis: 45%;
+}
+
+.detail-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.detail-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  display: block;
+}
+
+.method-name {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--azul);
+  margin-top: 5px;
+  line-height: 1.2;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-change-password, .btn-professor-mode {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.btn-change-password {
+  background: var(--azul-escuro);
+  color: var(--azul);
+  border: 1px solid var(--azul-suave);
+}
+
+.btn-change-password:hover {
+  background: #1f3047;
+}
+
+.btn-professor-mode {
+  background: var(--verde);
+  color: var(--bg);
+}
+
+.btn-professor-mode:hover {
+  background: #16a34a;
+}
+
+.social-link-card {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 16px;
+  border: 1px solid var(--azul-suave);
+  text-align: center;
+}
+
+.social-link {
+  color: var(--azul);
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ============================================================
+   CONTENT AREA - ENERGIA
+   ============================================================ */
+
+.energy-section {
+  grid-column: span 2;
+}
+
+.energy-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.energy-bar {
+  flex-grow: 1;
+  height: 20px;
+  background: var(--azul-escuro);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.energy-level {
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease, background 0.3s ease;
+  /* Cores definidas via JS, mas o fallback é bom */
+  background: var(--azul); 
+}
+
+.energy-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  width: 60px;
+  text-align: right;
+}
+
+/* ============================================================
+   CONTENT AREA - CONQUISTAS
+   ============================================================ */
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.achievement-card {
+  background: var(--card);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: transform 0.2s;
+}
+
+.achievement-card:hover {
+  transform: translateY(-2px);
+}
+
+.achievement-icon {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+.achievement-name {
+  display: block;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.achievement-count {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* Raridades */
+.achievement-card.rara { border-color: var(--azul); }
+.achievement-card.epica { border-color: #9333ea; } /* Roxo */
+.achievement-card.lendaria { border-color: #f59e0b; } /* Laranja */
+
+/* ============================================================
+   CONTENT AREA - FREQUÊNCIA ANUAL
+   ============================================================ */
+
+.frequency-section {
+  grid-column: span 2;
+}
+
+.year-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.arrow-btn {
+  background: var(--azul-escuro);
+  border: 1px solid var(--azul-suave);
+  color: var(--ink);
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.arrow-btn:hover {
+  background: #1f3047;
+}
+
+.current-year {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 20px;
+  color: var(--azul);
+}
+
+.frequency-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+  text-align: center;
+}
+
+.month-card {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.month-card:hover {
+  transform: scale(1.05);
+}
+
+.month-name {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+/* Estilo do círculo de progresso (simulação com CSS) */
+.month-progress {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: conic-gradient(var(--azul) calc(var(--p) * 1%), var(--azul-escuro) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-progress::before {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: var(--card-alt);
+  border-radius: 50%;
+}
+
+.progress-value {
+  position: relative;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ============================================================
+   CONTENT AREA - LIÇÕES ENVIADAS
+   ============================================================ */
+
+.lessons-section {
+  grid-column: span 2;
+}
+
+.btn-send-lesson {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: var(--azul);
+  color: white;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: background 0.2s;
+}
+
+.btn-send-lesson:hover {
+  background: #0099e6;
+}
+
+.lessons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lesson-card {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lesson-info {
+  text-align: left;
+}
+
+.lesson-title {
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 5px;
+}
+
+.lesson-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.lesson-status {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-aprovada { background: var(--verde-suave); color: var(--verde); }
+.status-pendente { background: var(--azul-suave); color: var(--azul); }
+.status-reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
+
+/* ============================================================
+   MODAIS E POPUPS
+   ============================================================ */
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: var(--card-alt);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+}
+
+.popup-content h2 {
+  color: var(--azul);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.popup-content input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--azul-escuro);
+  color: var(--ink);
+}
+
+.popup-content button {
+  background: var(--azul);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.popup-content button:hover {
+  background: #0099e6;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+/* ============================================================
+   RESPONSIVIDADE
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .main-container {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .profile-card {
+    flex-grow: 1;
+    min-width: 300px;
+  }
+
+  .social-link-card {
+    width: 100%;
+  }
+
+  .content-area {
+    grid-template-columns: 1fr;
+  }
+
+  .energy-section, .frequency-section, .lessons-section {
+    grid-column: span 1;
+  }
+
+  .frequency-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    flex-direction: column;
+  }
+
+  .profile-card {
+    min-width: auto;
+  }
+
+  .frequency-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

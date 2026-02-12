@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciar Chamadas - Orquestra Filhos de Asafe</title>
+  <link rel="stylesheet" href="professor.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+    .voltar {
+      display: inline-block;
+      text-decoration: none;
+      background-color: #4caf50;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .voltar:hover {
+      background-color: #388e3c;
+      transform: translateY(-1px);
+    }
+    .lista {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .evento {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      border: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .evento h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #111827;
+    }
+    .evento p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #4b5563;
+    }
+    .acoes {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .acoes button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .acoes button:active {
+      transform: scale(0.97);
+    }
+    .btn-abrir {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .btn-excluir {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .vazio {
+      text-align: center;
+      font-style: italic;
+      color: #6b7280;
+      margin-top: 20px;
+    }
+    .info {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <a href="professor.html" class="voltar">⬅️ Voltar ao Painel do Professor</a>
+  <h1>🎵 Gerenciar Chamadas</h1>
+  <div class="info">Aqui você encontra todas as chamadas já registradas (ensaios, apresentações, etc.).</div>
+
+  <div class="lista" id="listaEventos"></div>
+  <p class="vazio" id="msgVazio" style="display:none;">Nenhuma chamada registrada até o momento.</p>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      collection,
+      getDocs,
+      deleteDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const lista = document.getElementById("listaEventos");
+    const msgVazio = document.getElementById("msgVazio");
+
+    function formatarData(iso) {
+      if (!iso) return "--/--/----";
+      const [ano, mes, dia] = iso.split("-");
+      return `${dia}/${mes}/${ano}`;
+    }
+
+    async function carregarEventos() {
+      lista.innerHTML = "";
+      msgVazio.style.display = "none";
+
+      const snap = await getDocs(collection(db, "eventos"));
+      const eventos = [];
+      snap.forEach(d => {
+        const dados = d.data();
+        eventos.push({
+          id: d.id,
+          data: dados.data || "",
+          observacoes: dados.observacoes || ""
+        });
+      });
+
+      eventos.sort((a, b) => {
+        return new Date(b.data || "1970-01-01") - new Date(a.data || "1970-01-01");
+      });
+
+      if (!eventos.length) {
+        msgVazio.style.display = "block";
+        return;
+      }
+
+      lista.innerHTML = eventos.map(e => {
+        const titulo = e.data ? `Chamada - ${formatarData(e.data)}` : "Chamada sem data";
+        const obs = e.observacoes ? e.observacoes : "";
+        return `
+          <div class="evento">
+            <h3>${titulo}</h3>
+            ${obs ? `<p><strong>Obs.:</strong> ${obs}</p>` : ""}
+            <div class="acoes">
+              <button class="btn-abrir" onclick="abrirEvento('${e.id}')">📋 Abrir chamada</button>
+              <button class="btn-excluir" onclick="excluirEvento('${e.id}')">🗑️ Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.abrirEvento = function(id) {
+      window.location.href = `ensaio.html?id=${id}`;
+    };
+
+    window.excluirEvento = async function(id) {
+      const confirma = confirm("Deseja realmente excluir esta chamada?");
+      if (!confirma) return;
+
+      await deleteDoc(doc(db, "eventos", id));
+      alert("Chamada excluída com sucesso!");
+      carregarEventos();
+    };
+
+    carregarEventos();
+  </script>
+
+  <script type="module" src="navegacao.js"></script>
+</body>
+</html>

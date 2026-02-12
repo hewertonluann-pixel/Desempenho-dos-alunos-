@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Orquestra Filhos de Asafe</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, #0a0f1f, #0b1025);
+      font-family: "Segoe UI", sans-serif;
+      color: #e2e8f0;
+    }
+
+    .login-card {
+      background: #111827;
+      padding: 28px;
+      width: 320px;
+      border-radius: 16px;
+      box-shadow: 0 0 35px rgba(34, 211, 238, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+    }
+
+    .titulo {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      color: #22d3ee;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: none;
+      background: #1f2937;
+      color: #e5e7eb;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus {
+      border: 1px solid #22d3ee;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #22d3ee;
+      color: #0a0f1f;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 12px;
+    }
+    button:hover {
+      background: #38bdf8;
+    }
+
+    .erro {
+      color: #f87171;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .switch {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.8;
+      cursor: pointer;
+    }
+    .switch:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-card">
+    <div class="titulo">🎵 Orquestra Filhos de Asafe</div>
+
+    <input type="text" id="nome" placeholder="Seu nome" />
+    <input type="password" id="senha" placeholder="Senha" />
+
+    <button id="btnEntrar">Entrar</button>
+
+    <div id="erro" class="erro"></div>
+
+    <div id="switchLogin" class="switch">Entrar como Professor</div>
+  </div>
+
+  <script type="module" src="login.js"></script>
+
+</body>
+</html>

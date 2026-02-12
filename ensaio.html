@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chamada do dia - Orquestra Filhos de Asafe</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #0b1220;
+      --card-alt: #020617;
+      --border: #1e293b;
+      --ink: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
+      --danger: #f97373;
+      --danger-soft: rgba(248, 113, 113, 0.18);
+      --neutral-soft: rgba(148, 163, 184, 0.14);
+      --chip-bg: #0f172a;
+      --chip-ink: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 16px 12px 4px;
+      font-size: 1.4rem;
+    }
+
+    .subtitulo {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding: 0 12px;
+    }
+
+    .data-evento {
+      text-align: center;
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: #e2e8f0;
+      font-size: 0.9rem;
+    }
+
+    .wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 6px 10px 72px;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .info {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 4px 0 10px;
+    }
+
+    .lista-alunos {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      padding-bottom: 4px;
+      overscroll-behavior: contain;
+    }
+
+    /* CARD DO ALUNO */
+    .container-aluno {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.65);
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+
+    .container-aluno.vazio {
+      background: var(--card-alt);
+      border-color: #111827;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.55);
+    }
+
+    .container-aluno.presente {
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.35), var(--card));
+      border-color: var(--accent);
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.45);
+    }
+
+    .container-aluno.ausente {
+      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.35), var(--card));
+      border-color: var(--danger);
+      box-shadow: 0 8px 22px rgba(248, 113, 113, 0.4);
+    }
+
+    .container-aluno:active {
+      transform: scale(0.98);
+    }
+
+    .container-aluno.focado {
+      outline: 2px solid #38bdf8;
+      outline-offset: 1px;
+    }
+
+    .foto-aluno {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid #1e293b;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .foto-aluno img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .foto-placeholder {
+      font-size: 1.3rem;
+      color: #64748b;
+    }
+
+    .dados-aluno {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .nome {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #e5e7eb;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .instrumento {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .status-linha {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .chip-status {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--chip-bg);
+      color: var(--chip-ink);
+      border: 1px solid #1f2937;
+    }
+
+    .chip-status.presente {
+      background: var(--accent-soft);
+      color: #bbf7d0;
+      border-color: #22c55e;
+    }
+
+    .chip-status.ausente {
+      background: var(--danger-soft);
+      color: #fecaca;
+      border-color: #f97373;
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ÁREA DE OBSERVAÇÕES */
+    .observacoes-area {
+      margin-top: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      padding: 10px;
+    }
+
+    .label-observacoes {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      resize: vertical;
+      background: #020617;
+      color: var(--ink);
+    }
+
+    textarea::placeholder {
+      color: #64748b;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.25);
+    }
+
+    /* RODAPÉ FIXO PARA AÇÕES */
+    .footer-acoes {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 10px 10px;
+      background: linear-gradient(to top, rgba(15,23,42,0.96), rgba(15,23,42,0.85), transparent);
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .footer-acoes button {
+      flex: 1;
+      max-width: 260px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .footer-acoes button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-salvar {
+      background: #22c55e;
+      color: #022c22;
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.6);
+    }
+
+    .btn-salvar[disabled] {
+      opacity: 0.6;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .btn-cancelar {
+      background: #1f2937;
+      color: #e5e7eb;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .loader {
+      text-align: center;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) {
+      .wrap {
+        padding-bottom: 80px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 Chamada do dia</h1>
+  <div class="subtitulo">Toque no aluno para marcar Presente / Ausente. A lista avança sozinha. 😊</div>
+  <div class="data-evento">Data da chamada: <span id="dataEvento">--/--/----</span></div>
+
+  <div class="wrap">
+    <div class="info" id="infoCarregando">Carregando alunos...</div>
+
+    <div class="lista-alunos" id="painelAlunos"></div>
+
+    <div class="observacoes-area">
+      <label class="label-observacoes" for="observacoes">Observações (tipo de encontro, local, detalhes...)</label>
+      <textarea id="observacoes" placeholder="Ex.: Ensaio geral, preparação para apresentação na praça."></textarea>
+    </div>
+
+    <div class="loader" id="loader" style="display:none;">
+      Salvando chamada e atualizando frequências...
+    </div>
+  </div>
+
+  <!-- BOTÕES FIXOS -->
+  <div class="footer-acoes">
+    <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
+    <button id="btnSalvar" class="btn-salvar">💾 Salvar chamada</button>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      collection,
+      getDocs,
+      getDoc,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const params = new URLSearchParams(window.location.search);
+    let eventoId = params.get("id") || null;
+    let alunos = [];
+    let dataEvento = null;
+
+    const painel = document.getElementById("painelAlunos");
+    const spanData = document.getElementById("dataEvento");
+    const infoCarregando = document.getElementById("infoCarregando");
+    const observacoesEl = document.getElementById("observacoes");
+    const btnSalvar = document.getElementById("btnSalvar");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const loader = document.getElementById("loader");
+
+    function hojeISO() {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    function formatarDataBrasileira(iso) {
+      if (!iso) return "--/--/----";
+      const [ano, mes, dia] = iso.split("-");
+      return `${dia}/${mes}/${ano}`;
+    }
+
+    function proximoEstadoPresenca(atual) {
+      // vazio -> presente -> ausente -> vazio
+      if (!atual || atual === "") return "presente";
+      if (atual === "presente") return "ausente";
+      return "";
+    }
+
+    async function carregarAlunos() {
+      const snap = await getDocs(collection(db, "alunos"));
+      alunos = snap.docs
+        .map((d) => {
+          const dados = d.data();
+          return {
+            id: d.id,
+            nome: dados.nome,
+            instrumento: dados.instrumento || "",
+            foto: dados.foto || "",
+            presenca: "" // será preenchido pelo evento, se existir
+          };
+        })
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    }
+
+    async function carregarEventoSeExistir() {
+      if (!eventoId) {
+        dataEvento = hojeISO();
+        spanData.textContent = formatarDataBrasileira(dataEvento);
+        return;
+      }
+
+      const ref = doc(db, "eventos", eventoId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        dataEvento = hojeISO();
+        spanData.textContent = formatarDataBrasileira(dataEvento);
+        return;
+      }
+
+      const dados = snap.data();
+      dataEvento = dados.data || hojeISO();
+      spanData.textContent = formatarDataBrasileira(dataEvento);
+      observacoesEl.value = dados.observacoes || "";
+
+      const mapaPresencas = {};
+      (dados.presencas || []).forEach((p) => {
+        if (p && p.nome) mapaPresencas[p.nome] = p.presenca;
+      });
+
+      alunos.forEach((a) => {
+        a.presenca = mapaPresencas[a.nome] || "";
+      });
+    }
+
+    function atualizarClasseCard(card, aluno) {
+      card.classList.remove("vazio", "presente", "ausente");
+      const estado = aluno.presenca || "vazio";
+      card.classList.add(estado);
+
+      const chip = card.querySelector(".chip-status");
+      if (!chip) return;
+
+      chip.classList.remove("presente", "ausente");
+      if (!aluno.presenca) {
+        chip.textContent = "Não marcado";
+      } else if (aluno.presenca === "presente") {
+        chip.textContent = "Presente";
+        chip.classList.add("presente");
+      } else if (aluno.presenca === "ausente") {
+        chip.textContent = "Ausente";
+        chip.classList.add("ausente");
+      }
+    }
+
+    function focarProximoCard(indiceAtual) {
+      const proximo = document.querySelector(
+        '.container-aluno[data-index="' + (indiceAtual + 1) + '"]'
+      );
+      if (!proximo) return;
+
+      document
+        .querySelectorAll(".container-aluno.focado")
+        .forEach((c) => c.classList.remove("focado"));
+
+      proximo.classList.add("focado");
+      proximo.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function renderizarAlunos() {
+      painel.innerHTML = "";
+      alunos.forEach((aluno, index) => {
+        const card = document.createElement("div");
+        card.className = "container-aluno " + (aluno.presenca || "vazio");
+        card.dataset.index = index;
+
+        const fotoWrap = document.createElement("div");
+        fotoWrap.className = "foto-aluno";
+
+        if (aluno.foto) {
+          const img = document.createElement("img");
+          img.src = aluno.foto;
+          img.alt = aluno.nome;
+          fotoWrap.appendChild(img);
+        } else {
+          const span = document.createElement("span");
+          span.className = "foto-placeholder";
+          span.textContent = "🎵";
+          fotoWrap.appendChild(span);
+        }
+
+        const dadosDiv = document.createElement("div");
+        dadosDiv.className = "dados-aluno";
+
+        const nomeDiv = document.createElement("div");
+        nomeDiv.className = "nome";
+        nomeDiv.textContent = aluno.nome;
+
+        const instrDiv = document.createElement("div");
+        instrDiv.className = "instrumento";
+        instrDiv.textContent = aluno.instrumento || "Sem instrumento";
+
+        const statusLinha = document.createElement("div");
+        statusLinha.className = "status-linha";
+
+        const chip = document.createElement("span");
+        chip.className = "chip-status";
+        chip.textContent = "Não marcado";
+
+        const hint = document.createElement("span");
+        hint.className = "hint";
+        hint.textContent = "Toque p/ marcar";
+
+        statusLinha.appendChild(chip);
+        statusLinha.appendChild(hint);
+
+        dadosDiv.appendChild(nomeDiv);
+        dadosDiv.appendChild(instrDiv);
+        dadosDiv.appendChild(statusLinha);
+
+        card.appendChild(fotoWrap);
+        card.appendChild(dadosDiv);
+
+        card.addEventListener("click", () => {
+          const novoEstado = proximoEstadoPresenca(aluno.presenca);
+          aluno.presenca = novoEstado;
+          atualizarClasseCard(card, aluno);
+          focarProximoCard(index);
+        });
+
+        painel.appendChild(card);
+        atualizarClasseCard(card, aluno);
+      });
+
+      // Foca o primeiro por padrão
+      const primeiro = document.querySelector('.container-aluno[data-index="0"]');
+      if (primeiro) {
+        primeiro.classList.add("focado");
+        primeiro.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    async function inicializar() {
+      infoCarregando.textContent = "Carregando alunos...";
+      await carregarAlunos();
+      await carregarEventoSeExistir();
+      infoCarregando.style.display = "none";
+      renderizarAlunos();
+    }
+
+    async function salvarPresencas() {
+      try {
+        btnSalvar.disabled = true;
+        loader.style.display = "block";
+
+        const observacoes = observacoesEl.value.trim();
+        const presencas = alunos.map((a) => ({
+          nome: a.nome,
+          instrumento: a.instrumento || "",
+          presenca: a.presenca || "ausente"
+        }));
+
+        if (!dataEvento) dataEvento = hojeISO();
+
+        if (eventoId) {
+          await updateDoc(doc(db, "eventos", eventoId), {
+            data: dataEvento,
+            observacoes,
+            presencas
+          });
+        } else {
+          const novo = await addDoc(collection(db, "eventos"), {
+            data: dataEvento,
+            observacoes,
+            presencas
+          });
+          eventoId = novo.id;
+        }
+
+        await recalcularFrequenciasDoMes(dataEvento);
+
+        alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
+        window.location.href = "professor.html";
+      } catch (e) {
+        console.error(e);
+        alert("Ocorreu um erro ao salvar a chamada.");
+      } finally {
+        btnSalvar.disabled = false;
+        loader.style.display = "none";
+      }
+    }
+
+    async function recalcularFrequenciasDoMes(dataISO) {
+      const [ano, mes] = dataISO.split("-");
+      const chaveMes = `${ano}-${mes}`;
+
+      const eventosSnap = await getDocs(collection(db, "eventos"));
+      const eventosMes = [];
+      eventosSnap.forEach((docSnap) => {
+        const dados = docSnap.data();
+        if (!dados.data) return;
+        if (dados.data.startsWith(chaveMes)) {
+          eventosMes.push(dados);
+        }
+      });
+
+      const totalEventosMes = eventosMes.length;
+      if (!totalEventosMes) return;
+
+      const contagemPorAluno = {};
+      eventosMes.forEach((ev) => {
+        (ev.presencas || []).forEach((p) => {
+          if (!p || !p.nome) return;
+          if (!contagemPorAluno[p.nome]) contagemPorAluno[p.nome] = 0;
+          if (p.presenca === "presente") contagemPorAluno[p.nome]++;
+        });
+      });
+
+      const mesesSiglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+      const idxMes = parseInt(mes, 10) - 1;
+      const siglaMes = mesesSiglas[idxMes] || mes;
+
+      const alunosSnap = await getDocs(collection(db, "alunos"));
+      for (const docSnap of alunosSnap.docs) {
+        const dados = docSnap.data();
+        const nome = dados.nome;
+        const presencasAluno = contagemPorAluno[nome] || 0;
+        const percentual = Math.round((presencasAluno / totalEventosMes) * 100);
+
+        const historico = Array.isArray(dados.presencas) ? [...dados.presencas] : [];
+        let registroMes = historico.find((r) => r.mes === chaveMes);
+        if (!registroMes) {
+          registroMes = {
+            mes: chaveMes,
+            totalEnsaios: totalEventosMes,
+            presencasAluno,
+            percentual
+          };
+          historico.push(registroMes);
+        } else {
+          registroMes.totalEnsaios = totalEventosMes;
+          registroMes.presencasAluno = presencasAluno;
+          registroMes.percentual = percentual;
+        }
+
+        const frequenciaMensal = {
+          porcentagem: percentual,
+          totalEventos: totalEventosMes,
+          presencas: presencasAluno
+        };
+
+        const frequenciaAnual = dados.frequenciaAnual || {};
+        frequenciaAnual[siglaMes] = {
+          percentual,
+          totalEnsaios: totalEventosMes,
+          presencasAluno
+        };
+
+        await updateDoc(doc(db, "alunos", docSnap.id), {
+          presencas: historico,
+          frequenciaMensal,
+          frequenciaAnual
+        });
+      }
+    }
+
+    async function cancelarEvento() {
+      if (!eventoId) {
+        if (confirm("Cancelar e voltar ao painel do professor?")) {
+          window.location.href = "professor.html";
+        }
+        return;
+      }
+
+      const confirma = confirm("Deseja cancelar e excluir esta chamada?");
+      if (!confirma) return;
+
+      await deleteDoc(doc(db, "eventos", eventoId));
+      alert("Chamada excluída com sucesso.");
+      window.location.href = "professor.html";
+    }
+
+    btnSalvar.addEventListener("click", salvarPresencas);
+    btnCancelar.addEventListener("click", cancelarEvento);
+
+    inicializar();
+  </script>
+
+  <script type="module" src="navegacao.js"></script>
+</body>
+</html>
