@@ -152,6 +152,9 @@ body {
   padding: 10px 15px;
   border-radius: 8px;
   flex-basis: 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .detail-label {
@@ -164,6 +167,15 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--ink);
+}
+
+.detail-method-name {
+  font-size: 0.7rem;
+  color: var(--azul);
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-top: 2px;
+  opacity: 0.9;
 }
 
 .btn-change-password, .btn-professor-mode {

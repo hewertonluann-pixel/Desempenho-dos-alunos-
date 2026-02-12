@@ -102,6 +102,12 @@ export function montarPainelAluno(aluno) {
   document.getElementById("nivelLeitura").textContent = leitura;
   document.getElementById("nivelMetodo").textContent = metodo;
   document.getElementById("nivelGeral").textContent = leitura + metodo;
+  
+  // Preencher nomes dos métodos
+  const nomeMetodoLeitura = aluno.metodoLeitura || "-";
+  const nomeMetodoInstrumental = aluno.metodoInstrumental || "-";
+  document.getElementById("nomeMetodoLeitura").textContent = nomeMetodoLeitura;
+  document.getElementById("nomeMetodoInstrumental").textContent = nomeMetodoInstrumental;
 
   if (aluno.classificado === true) {
     document.getElementById("modoProfessorBtn").style.display = "block";
