@@ -303,23 +303,48 @@ window.fecharPopupConquista = function() {
     6. CALCULAR ENERGIA (Frequência do mês)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
-  const hoje = new Date();
-  const ano = hoje.getFullYear();
-  const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+  const hoje = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  const dataAtual = new Date(hoje);
+  const ano = dataAtual.getFullYear();
+  const mes = String(dataAtual.getMonth() + 1).padStart(2, "0");
 
   const snap = await getDocs(collection(db, "eventos"));
-  const eventosAno = snap.docs.map(d => d.data());
+  const todosEventos = snap.docs.map(d => d.data());
+  
+  // Filtrar eventos do ano vigente
+  const eventosAnoAtual = todosEventos.filter(e => {
+    if (!e.data) return false;
+    const anoEvento = e.data.substring(0, 4);
+    return anoEvento === String(ano);
+  });
 
-  const grupos = agruparEventosPorMes(eventosAno);
+  // Calcular frequência mensal (mês atual)
+  const grupos = agruparEventosPorMes(eventosAnoAtual);
   const chaveMes = `${ano}-${mes}`;
   const eventosMes = grupos[chaveMes] || [];
+  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
+  const energiaMensal = freqMensal.percentual;
 
-  const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
-  const energia = freq.percentual;
+  // Calcular frequência anual (média de presença no ano)
+  let totalPresencas = 0;
+  let totalEventosAno = 0;
+  
+  eventosAnoAtual.forEach(evento => {
+    if (evento.presencas && Array.isArray(evento.presencas)) {
+      totalEventosAno++;
+      if (evento.presencas.includes(aluno.nome)) {
+        totalPresencas++;
+      }
+    }
+  });
+  
+  const energiaAnual = totalEventosAno > 0 
+    ? Math.round((totalPresencas / totalEventosAno) * 100) 
+    : 0;
 
-  atualizarEnergiaVisual(energia);
+  atualizarEnergiaVisual(energiaMensal, energiaAnual);
 
-  return energia;
+  return energiaMensal;
 }
 
 /* ========================================================
