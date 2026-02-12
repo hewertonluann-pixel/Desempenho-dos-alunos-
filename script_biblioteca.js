@@ -637,7 +637,7 @@ function setupGlobalSearch() {
     const term = e.target.value.trim().toLowerCase();
     
     if (term.length > 0) {
-      // Botão limpar removido conforme solicitado
+      clearBtn.style.display = 'block';
       await performGlobalSearch(term);
     } else {
       clearGlobalSearch();
