@@ -10,7 +10,8 @@ import {
   where,
   getDocs,
   getDoc,
-  doc
+  doc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import {
   getStorage,
@@ -910,11 +911,28 @@ export async function carregarLicoesAluno(nomeAluno) {
     const btnDelete = document.createElement("button");
     btnDelete.className = "btn-delete-licao";
     btnDelete.textContent = "×";
-    btnDelete.onclick = (e) => {
+    btnDelete.onclick = async (e) => {
       e.stopPropagation();
       if (confirm(`Deseja realmente excluir a lição ${l.tipo === "metodo" ? "Método" : "Leitura"} nº ${l.numero}?`)) {
-        // Implementar função de deletar futuramente
-        alert("Função de exclusão em desenvolvimento.");
+        try {
+          // Deletar do Firestore
+          await deleteDoc(doc(db, "licoes", id));
+          console.log("✅ Lição deletada:", id);
+          
+          // Remover o card da interface
+          card.style.opacity = "0";
+          card.style.transform = "scale(0.8)";
+          setTimeout(() => {
+            card.remove();
+            // Verificar se ainda há lições
+            if (lista.children.length === 0) {
+              lista.innerHTML = "<p style='font-size:0.9rem; opacity:0.8;'>Nenhuma lição enviada ainda.</p>";
+            }
+          }, 300);
+        } catch (erro) {
+          console.error("❌ Erro ao deletar lição:", erro);
+          alert("Erro ao deletar lição. Tente novamente.");
+        }
       }
     };
     
