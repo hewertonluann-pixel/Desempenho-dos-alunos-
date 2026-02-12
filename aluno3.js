@@ -8,7 +8,9 @@ import {
   collection,
   getDocs,
   doc,
-  updateDoc
+  updateDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 import {
@@ -477,8 +479,79 @@ window.salvarSenha = async () => {
 /* ========================================================
     9. FOTO / MODO PROFESSOR
    ======================================================== */
-window.enviarNovaFoto = () => {
-  alert("Upload de foto ainda não implementado.");
+window.enviarNovaFoto = async () => {
+  const input = document.getElementById("novaFoto");
+  const file = input?.files[0];
+  
+  if (!file) {
+    console.log("⚠️ Nenhum arquivo selecionado");
+    return;
+  }
+  
+  // Obter o nome do aluno logado
+  let usuario;
+  try {
+    usuario = JSON.parse(localStorage.getItem("usuarioAtual"));
+  } catch {
+    usuario = null;
+  }
+  
+  if (!usuario || !usuario.nome) {
+    alert("Sessão inválida. Faça login novamente.");
+    return;
+  }
+  
+  try {
+    // Converter imagem para base64
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        // Buscar o documento do aluno
+        const q = query(collection(db, "alunos"), where("nome", "==", usuario.nome));
+        const snap = await getDocs(q);
+        
+        if (snap.empty) {
+          alert("Aluno não encontrado.");
+          return;
+        }
+        
+        const alunoId = snap.docs[0].id;
+        
+        // Atualizar a foto no Firestore
+        await updateDoc(doc(db, "alunos", alunoId), {
+          foto: e.target.result
+        });
+        
+        // Atualizar a foto na interface
+        const fotoImg = document.getElementById("fotoAluno");
+        if (fotoImg) fotoImg.src = e.target.result;
+        
+        console.log("✅ Foto atualizada com sucesso!");
+        
+        // Feedback visual temporário
+        const label = document.querySelector('label[for="novaFoto"]');
+        if (label) {
+          const originalHTML = label.innerHTML;
+          label.innerHTML = '<span style="color:#22d3ee;font-size:1.2rem;">✓</span>';
+          setTimeout(() => {
+            label.innerHTML = originalHTML;
+          }, 2000);
+        }
+      } catch (erro) {
+        console.error("❌ Erro ao atualizar foto:", erro);
+        alert("Erro ao atualizar foto. Tente novamente.");
+      }
+    };
+    
+    reader.onerror = () => {
+      alert("Erro ao ler o arquivo de imagem.");
+    };
+    
+    reader.readAsDataURL(file);
+  } catch (erro) {
+    console.error("❌ Erro ao processar foto:", erro);
+    alert("Erro ao processar foto. Tente novamente.");
+  }
 };
 
 window.acessarModoProfessor = () => {
