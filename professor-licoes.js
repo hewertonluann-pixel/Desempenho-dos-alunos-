@@ -23,11 +23,11 @@ function inserirPainel() {
     .card-licao-prof {
       background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.9));
       border: 2px solid rgba(56, 189, 248, 0.4);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 12px;
+      padding: 14px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.4);
       transition: all 0.3s ease;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
     .card-licao-prof:hover {
       transform: translateY(-2px);
@@ -37,109 +37,93 @@ function inserirPainel() {
     .licao-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid rgba(56, 189, 248, 0.3);
+      align-items: flex-start;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .licao-aluno-info {
+      flex: 1;
     }
     .licao-aluno {
-      font-size: 1.3em;
+      font-size: 1.1em;
       font-weight: bold;
       color: #22d3ee;
+      margin-bottom: 2px;
     }
-    .licao-data {
-      font-size: 0.85em;
+    .licao-instrumento {
+      font-size: 0.8em;
       color: #94a3b8;
       font-style: italic;
     }
-    .licao-info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .licao-info-box {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-    }
-    .licao-info-label {
+    .licao-data {
       font-size: 0.75em;
       color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      text-align: right;
+    }
+    .licao-info-linha {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      font-size: 0.85em;
+    }
+    .licao-info-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .licao-info-label {
+      color: #94a3b8;
+      font-size: 0.9em;
     }
     .licao-info-value {
-      font-size: 1.1em;
       font-weight: bold;
       color: #38bdf8;
     }
     .licao-audio-section {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 16px;
-    }
-    .licao-audio-section h4 {
-      margin: 0 0 10px 0;
-      color: #22d3ee;
-      font-size: 0.95em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      margin-bottom: 10px;
     }
     .licao-audio-section audio {
       width: 100%;
-      margin-top: 8px;
+      height: 32px;
     }
     .licao-comentario-aluno {
       background: rgba(56, 189, 248, 0.08);
-      border-left: 4px solid #38bdf8;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-    }
-    .licao-comentario-aluno h4 {
-      margin: 0 0 8px 0;
-      color: #38bdf8;
+      border-left: 3px solid #38bdf8;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
       font-size: 0.85em;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .licao-comentario-aluno p {
-      margin: 0;
       color: #e2e8f0;
-      font-size: 0.9em;
-      line-height: 1.5;
+      line-height: 1.4;
+    }
+    .licao-comentario-aluno strong {
+      color: #38bdf8;
+      font-size: 0.8em;
+      display: block;
+      margin-bottom: 4px;
     }
     .licao-resposta-prof {
       background: rgba(250, 204, 21, 0.08);
-      border: 2px solid rgba(250, 204, 21, 0.3);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 16px;
-    }
-    .licao-resposta-prof h4 {
-      margin: 0 0 10px 0;
-      color: #facc15;
-      font-size: 0.95em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 10px;
     }
     .licao-resposta-prof textarea {
       width: 100%;
-      min-height: 80px;
+      min-height: 60px;
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(250, 204, 21, 0.3);
-      border-radius: 8px;
-      padding: 10px;
+      border-radius: 6px;
+      padding: 8px;
       color: #e2e8f0;
-      font-size: 0.9em;
+      font-size: 0.85em;
       font-family: inherit;
       resize: vertical;
     }
@@ -150,22 +134,17 @@ function inserirPainel() {
     }
     .licao-acoes {
       display: flex;
-      gap: 12px;
-      justify-content: flex-end;
+      gap: 8px;
     }
     .licao-acoes button {
       flex: 1;
-      padding: 12px 20px;
+      padding: 8px 16px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       font-weight: 600;
-      font-size: 0.95em;
+      font-size: 0.85em;
       cursor: pointer;
       transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
     .btn-reprovar-licao {
       background: linear-gradient(135deg, #dc2626, #b91c1c);
@@ -235,9 +214,34 @@ async function carregarSolicitacoes() {
     return;
   }
 
-  const itens = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  // Buscar dados completos dos alunos
+  const itens = await Promise.all(
+    snap.docs.map(async (docSnap) => {
+      const licaoData = { id: docSnap.id, ...docSnap.data() };
+      
+      // Buscar dados do aluno
+      const alunoSnap = await getDocs(
+        query(collection(db, "alunos"), where("nome", "==", licaoData.alunoNome))
+      );
+      
+      if (!alunoSnap.empty) {
+        const alunoData = alunoSnap.docs[0].data();
+        licaoData.instrumento = alunoData.instrumento || "N/A";
+        licaoData.solfejoNome = alunoData.solfejoNome || "Bona";
+        licaoData.metodoNome = alunoData.metodoNome || "N/A";
+      }
+      
+      return licaoData;
+    })
+  );
 
-  lista.innerHTML = itens.map(item => `
+  lista.innerHTML = itens.map(item => {
+    // Determinar o nome do método baseado no tipo
+    const nomeMetodo = item.tipo === "leitura" 
+      ? (item.solfejoNome || "Bona")
+      : (item.metodoNome || "N/A");
+    
+    return `
     <div class="card-licao-prof"
       data-id="${item.id}"
       data-tipolicao="${item.tipo}"
@@ -246,46 +250,42 @@ async function carregarSolicitacoes() {
       
       <!-- Cabeçalho -->
       <div class="licao-header">
-        <div class="licao-aluno">🎵 ${item.alunoNome}</div>
+        <div class="licao-aluno-info">
+          <div class="licao-aluno">🎵 ${item.alunoNome}</div>
+          <div class="licao-instrumento">${item.instrumento || "N/A"}</div>
+        </div>
         <div class="licao-data">${new Date(item.criadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</div>
       </div>
 
       <!-- Informações da lição -->
-      <div class="licao-info-grid">
-        <div class="licao-info-box">
-          <div class="licao-info-label">Tipo</div>
-          <div class="licao-info-value">${item.tipo === "leitura" ? "📘 Leitura" : "🎯 Método"}</div>
+      <div class="licao-info-linha">
+        <div class="licao-info-item">
+          <span class="licao-info-label">${nomeMetodo}</span>
+          <span class="licao-info-value">#${item.numero}</span>
         </div>
-        <div class="licao-info-box">
-          <div class="licao-info-label">Lição Nº</div>
-          <div class="licao-info-value">${item.numero}</div>
-        </div>
-        <div class="licao-info-box">
-          <div class="licao-info-label">Status</div>
-          <div class="licao-info-value" style="color: #facc15;">⏳ Pendente</div>
+        <div class="licao-info-item">
+          <span class="licao-info-value" style="color: #facc15;">⏳ Pendente</span>
         </div>
       </div>
 
       <!-- Áudio -->
       <div class="licao-audio-section">
-        <h4>🎧 Áudio da lição</h4>
         <audio controls src="${item.audioURL}"></audio>
       </div>
 
       <!-- Comentário do aluno -->
       ${item.texto ? `
         <div class="licao-comentario-aluno">
-          <h4>💬 Comentário do aluno</h4>
-          <p>${item.texto}</p>
+          <strong>💬 Comentário:</strong>
+          ${item.texto}
         </div>
       ` : ""}
 
       <!-- Campo de resposta do professor -->
       <div class="licao-resposta-prof">
-        <h4>✍️ Feedback do professor</h4>
         <textarea 
           class="textarea-feedback-prof" 
-          placeholder="Escreva aqui seu feedback para o aluno (opcional)...">${item.observacaoProfessor || ""}</textarea>
+          placeholder="Feedback (opcional)...">${item.observacaoProfessor || ""}</textarea>
       </div>
 
       <!-- Botões de ação -->
@@ -298,7 +298,8 @@ async function carregarSolicitacoes() {
         </button>
       </div>
     </div>
-  `).join("");
+  `;
+  }).join("");
 
   // Eventos dos botões
   lista.querySelectorAll(".btnAprovarLicao").forEach(btn => {
