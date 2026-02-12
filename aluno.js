@@ -1,8 +1,8 @@
 // aluno.js
 // ==========================================
 // PAINEL DO ALUNO — Sistema Unificado
-// Trabalha com a coleção "eventos" e o aluno
-// Atualiza frequência, energia, conquistas e gráficos
+// Atualiza frequência, energia, conquistas,
+// gráfico de evolução histórica (Bona / Método)
 // ==========================================
 
 import { db } from "./firebase-config.js";
@@ -17,11 +17,12 @@ import {
   obterEventosDoAno,
   agruparEventosPorMes,
   calcularFrequenciaMensalParaAluno,
-  gerarPainelFrequencia,
-  calcularEnergia
+  gerarPainelFrequencia
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
+import { gerarPainelConquistas } from "./conquistas.js";
+import { carregarHistoricoProgressoAluno } from "./evolucao.js";
 
 /* ========================================================
     1. OBTER ALUNO LOGADO (pela URL)
@@ -31,7 +32,6 @@ export async function carregarAlunoAtual() {
   const nomeAluno = params.get("nome");
 
   if (!nomeAluno) {
-    // Se não houver nome na URL, redireciona para o login
     window.location.href = "index.html";
     return null;
   }
@@ -56,93 +56,70 @@ export async function carregarAlunoAtual() {
 }
 
 /* ========================================================
-    2. EXIBIR DADOS DO ALUNO (Adaptado para o novo HTML)
+    2. EXIBIR DADOS DO ALUNO
    ======================================================== */
 export function montarPainelAluno(aluno) {
-  // Sidebar
-  document.getElementById("nomeAluno").textContent = aluno.nome || "Aluno";
+  document.getElementById("nomeAluno").textContent = aluno.nome;
   document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "Não definido";
 
-  // Foto (IMG)
   const fotoImg = document.getElementById("fotoAluno");
-  if (fotoImg) {
-    fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
-    fotoImg.alt = `Foto de ${aluno.nome}`;
-  }
+  if (fotoImg) fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
 
-  // Leitura e Método
   const leitura = aluno.leitura ?? 0;
   const metodo = aluno.metodo ?? 0;
 
   document.getElementById("nivelLeitura").textContent = leitura;
   document.getElementById("nivelMetodo").textContent = metodo;
+  document.getElementById("nivelGeral").textContent = leitura + metodo;
 
-  // Preencher nomes dos métodos
-  const elLeitura = document.getElementById("metodoLeitura");
-  const elInstrumental = document.getElementById("metodoInstrumental");
-  if (elLeitura) elLeitura.textContent = aluno.metodoLeitura || "---";
-  if (elInstrumental) elInstrumental.textContent = aluno.metodoInstrumental || "---";
-
-  // NÍVEL TOTAL (soma)
-  const nivel = leitura + metodo;
-  document.getElementById("nivelGeral").textContent = nivel;
-
-  // Modo Professor
   if (aluno.classificado === true) {
     document.getElementById("modoProfessorBtn").style.display = "block";
   }
-
-  // Energia visual
-  atualizarEnergiaVisual(aluno.energia ?? 10);
-  
-  // Conquistas (simulação)
-  carregarConquistas(aluno.conquistas || {});
 }
 
 /* ========================================================
-    3. ATUALIZAR ENERGIA NO PAINEL DO ALUNO (Adaptado para o novo HTML)
+    3. ATUALIZAR ENERGIA BARRA
    ======================================================== */
-export function atualizarEnergiaVisual(valor) {
-  const barra = document.getElementById("barraEnergia");
-  const numero = document.getElementById("valorEnergia");
+export function atualizarEnergiaVisual(valor, tipo = "mensal") {
+  const sufixo = tipo === "geral" ? "Geral" : "Mensal";
+  const barra = document.getElementById("barraEnergia" + sufixo);
+  const numero = document.getElementById("valorEnergia" + sufixo);
 
   if (!barra || !numero) return;
 
   barra.style.width = valor + "%";
   numero.textContent = valor + "%";
 
-  // Cores baseadas nas variáveis CSS (verde, amarelo, vermelho)
+  // Cores baseadas no valor
   if (valor >= 80) barra.style.backgroundColor = "var(--verde)";
   else if (valor >= 40) barra.style.backgroundColor = "var(--amarelo)";
   else barra.style.backgroundColor = "var(--vermelho)";
 }
 
 /* ========================================================
-    4. CARREGAR GRÁFICO DE FREQUÊNCIA ANUAL
+    4. GRÁFICO FREQUÊNCIA ANUAL
    ======================================================== */
-// Mantido o código original, pois a lógica de dados é a mesma.
 export async function montarGraficoFrequencia(aluno) {
-  const anoAtual = new Date().getFullYear();
-
-  const destinoGrafico = document.getElementById("gradeFrequencia");
+  // Usando fuso horário de Brasília (GMT-3)
+  const anoAtual = parseInt(new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric'
+  }).format(new Date()), 10);
+  const destino = document.getElementById("gradeFrequencia");
   const destinoPopup = document.getElementById("popupFrequencia");
 
-  if (!destinoGrafico) return;
+  if (!destino) return;
 
-  // O novo HTML usa o ID 'gradeFrequencia'
   await gerarPainelFrequencia(
     aluno,
     anoAtual,
-    destinoGrafico,
+    destino,
     dadosPopup => abrirPopupFrequencia(dadosPopup, destinoPopup)
   );
 }
 
-/* ========================================================
-    5. POPUP (detalhes do mês)
-   ======================================================== */
-// Mantido o código original, mas o HTML do popup foi simplificado no novo HTML.
-export function abrirPopupFrequencia(info, destino) {
+/* POPUP FREQUÊNCIA */
+export async function abrirPopupFrequencia(info, destino) {
   if (!destino) return;
 
   const meses = {
@@ -151,15 +128,56 @@ export function abrirPopupFrequencia(info, destino) {
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
 
-  // O novo HTML usa a classe 'popup-content'
-  destino.querySelector(".popup-content").innerHTML = `
-    <h3>Frequência de ${meses[info.mes] || info.mes}</h3>
+  // Obter conquistas do mês
+  const aluno = await carregarAlunoAtual();
+  const { mapaConquistas } = await import("./conquistas.js");
+  
+  // Simular o estado do aluno naquele mês para as conquistas de frequência
+  const alunoSimulado = { 
+    ...aluno, 
+    frequenciaMensal: { porcentagem: info.percentual } 
+  };
 
-    <p>Chamadas no mês: <strong>${info.totalEventos}</strong></p>
-    <p>Presente em: <strong>${info.presencasAluno}</strong></p>
-    <p>Frequência: <strong>${info.percentual}%</strong></p>
+  const conquistasMes = [];
+  if (mapaConquistas.presenca_perfeita.condicao(alunoSimulado)) conquistasMes.push(mapaConquistas.presenca_perfeita);
+  if (mapaConquistas.musico_pontual.condicao(alunoSimulado)) conquistasMes.push(mapaConquistas.musico_pontual);
 
-    <button onclick="fecharPopupFrequencia()">Fechar</button>
+  destino.querySelector(".modal-content").innerHTML = `
+    <span class="close-button" onclick="fecharPopupFrequencia()">&times;</span>
+    <h2 style="margin-bottom: 5px;">Frequência</h2>
+    <p style="text-align:center; color:var(--muted); margin-bottom:20px;">${meses[info.mes]} / 2026</p>
+    
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-label">Chamadas</span>
+        <span class="stat-value">${info.totalEventos}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Presenças</span>
+        <span class="stat-value">${info.presencasAluno}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Frequência</span>
+        <span class="stat-value">${info.percentual}%</span>
+      </div>
+    </div>
+
+    <div class="modal-conquistas-section">
+      <h4>Medalhas do Mês</h4>
+      <div class="modal-conquistas-list">
+        ${conquistasMes.length > 0 
+          ? conquistasMes.map(c => `
+              <div class="mini-achievement ${c.raridade}">
+                <span>${c.icone}</span>
+                <span>${c.titulo}</span>
+              </div>
+            `).join('')
+          : `<p style="font-size:0.8rem; color:var(--muted); text-align:center; width:100%;">Nenhuma medalha conquistada neste mês.</p>`
+        }
+      </div>
+    </div>
+
+    <button class="btn-fechar-modal" onclick="fecharPopupFrequencia()">FECHAR</button>
   `;
 
   destino.style.display = "flex";
@@ -170,44 +188,124 @@ window.fecharPopupFrequencia = () => {
 };
 
 /* ========================================================
-    6. CALCULAR ENERGIA DO ALUNO (baseado no mês atual)
+    5. CONQUISTAS (CORREÇÃO: FUNCIONANDO AGORA)
    ======================================================== */
-// Mantido o código original.
+window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
+  console.log('🔍 Abrindo popup de conquista:', titulo);
+  const popup = document.getElementById('popupConquista');
+  if (!popup) {
+    console.error('❌ Modal de conquista não encontrado!');
+    return;
+  }
+
+  // Preencher com dados
+  safeSet('conquistaIcone', icone || '🏆');
+  safeSet('conquistaTitulo', titulo || 'Conquista');
+  safeSet('conquistaDescricao', descricao || 'Descrição não disponível.');
+  safeHTML('conquistaDetalhes', detalhes ? detalhes.map(item => `<li>${item}</li>`).join('') : '');
+
+  // Mostrar modal
+  popup.style.display = 'flex';
+  popup.classList.add('active');
+};
+
+window.fecharPopupConquista = function() {
+  const popup = document.getElementById('popupConquista');
+  if (popup) {
+    popup.style.display = 'none';
+    popup.classList.remove('active');
+    console.log('✅ Popup de conquista fechado.');
+  }
+};
+
+/* ========================================================
+    6. CALCULAR ENERGIA (Frequência do mês e ano)
+   ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
-  const hoje = new Date();
-  const ano = hoje.getFullYear();
-  const mesAtual = String(hoje.getMonth() + 1).padStart(2, "0");
+  // Usando fuso horário de Brasília (GMT-3)
+  const brasilia = new Intl.DateTimeFormat('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit'
+  }).format(new Date());
+  const [mesAtual, anoAtual] = brasilia.split('/');
 
-  const eventosAno = await obterEventosDoAno(ano);
+  const eventosAno = await obterEventosDoAno(anoAtual);
+  
+  // 1. Cálculo Mensal
   const grupos = agruparEventosPorMes(eventosAno);
-
-  const chaveMes = `${ano}-${mesAtual}`;
+  const chaveMes = `${anoAtual}-${mesAtual}`;
   const eventosMes = grupos[chaveMes] || [];
+  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
+  
+  atualizarEnergiaVisual(freqMensal.percentual, "mensal");
 
-  const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
+  // 2. Cálculo Geral (Anual)
+  const freqGeral = calcularFrequenciaMensalParaAluno(eventosAno, aluno.nome);
+  atualizarEnergiaVisual(freqGeral.percentual, "geral");
 
-  const energia = calcularEnergia(freq.percentual);
-
-  atualizarEnergiaVisual(energia);
-
-  return energia;
+  return freqMensal.percentual;
 }
 
 /* ========================================================
-    7. INICIALIZAÇÃO DA PÁGINA DO ALUNO
+    7. INICIALIZAÇÃO FINAL
    ======================================================== */
 export async function iniciarPainelAluno() {
   const aluno = await carregarAlunoAtual();
   if (!aluno) return;
 
+  // =====================================================
+  // 🔥 CONTROLE DE PERMISSÃO (mostrar / esconder funções)
+  // =====================================================
+  const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+  const ehDonoDaPagina = usuario.nome && usuario.nome === aluno.nome;
+
+  // Ocultar botão de alterar senha
+  if (!ehDonoDaPagina) {
+    const btnSenha = document.querySelector(".btn-change-password");
+    if (btnSenha) btnSenha.style.display = "none";
+  }
+
+  // Ocultar edição de foto
+  if (!ehDonoDaPagina) {
+    const labelFoto = document.querySelector('label[for="novaFoto"]');
+    const inputFoto = document.getElementById("novaFoto");
+    if (labelFoto) labelFoto.style.display = "none";
+    if (inputFoto) inputFoto.style.display = "none";
+  }
+
+  // 🔥 Ocultar painel de lições inteiramente
+  if (!ehDonoDaPagina) {
+    const painelLicoes = document.querySelector(".lessons-section");
+    if (painelLicoes) painelLicoes.style.display = "none";
+  }
+
+  // =====================================================
+
   montarPainelAluno(aluno);
   await montarGraficoFrequencia(aluno);
-  await calcularEnergiaDoAluno(aluno);
-  await carregarLicoesAluno(aluno.nome); // preenche a aba de lições
+
+  const energia = await calcularEnergiaDoAluno(aluno);
+
+  // Histórico real
+  const historico = await carregarHistoricoProgressoAluno(aluno);
+
+  // Gráfico histórico
+  const destinoGrafico = document.getElementById("painelEvolucao");
+  if (window.gerarGraficoEvolucao) {
+    gerarGraficoEvolucao(aluno, energia, destinoGrafico, historico);
+  }
+
+  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
+
+  // Carregar lições (SOMENTE se dono da página)
+  if (ehDonoDaPagina) {
+    await carregarLicoesAluno(aluno.nome);
+  }
 }
 
 /* ========================================================
-    8. FUNÇÕES DE POPUP DE SENHA (Simplificado)
+    8. POPUP SENHA
    ======================================================== */
 window.abrirPopup = () => {
   document.getElementById("popupSenha").style.display = "flex";
@@ -221,84 +319,32 @@ window.fecharPopup = () => {
 
 window.salvarSenha = async () => {
   const novaSenha = document.getElementById("novaSenha").value;
-  const mensagemSenha = document.getElementById("mensagemSenha");
-  const aluno = await carregarAlunoAtual(); // Recarrega o aluno para obter o ID
+  const mensagem = document.getElementById("mensagemSenha");
+  const aluno = await carregarAlunoAtual();
 
-  if (!novaSenha || novaSenha.length < 6) {
-    mensagemSenha.textContent = "A senha deve ter pelo menos 6 caracteres.";
+  if (novaSenha.length < 6) {
+    mensagem.textContent = "A senha deve ter pelo menos 6 caracteres.";
     return;
   }
 
-  if (aluno && aluno.id) {
-    try {
-      const alunoRef = doc(db, "alunos", aluno.id);
-      await updateDoc(alunoRef, {
-        senha: novaSenha // ATENÇÃO: Isso é inseguro em produção!
-      });
-      mensagemSenha.textContent = "Senha alterada com sucesso!";
-      setTimeout(fecharPopup, 2000);
-    } catch (error) {
-      console.error("Erro ao salvar a senha:", error);
-      mensagemSenha.textContent = "Erro ao salvar a senha. Tente novamente.";
-    }
+  try {
+    await updateDoc(doc(db, "alunos", aluno.id), { senha: novaSenha });
+    mensagem.textContent = "Senha alterada com sucesso!";
+    setTimeout(() => fecharPopup(), 2000);
+  } catch (e) {
+    mensagem.textContent = "Erro ao alterar senha.";
   }
 };
 
 /* ========================================================
-    9. FUNÇÕES DE FOTO E MODO PROFESSOR
+    9. FOTO / MODO PROFESSOR
    ======================================================== */
 window.enviarNovaFoto = () => {
-  alert("Funcionalidade de upload de foto precisa ser implementada.");
-  // A lógica de upload de foto precisa ser implementada, pois não estava no código original.
+  alert("Upload de foto ainda não implementado.");
 };
 
 window.acessarModoProfessor = () => {
   window.location.href = "professor.html";
 };
 
-/* ========================================================
-    10. CONQUISTAS (Simulação para o novo HTML)
-   ======================================================== */
-const mapaConquistas = {
-  presencaPerfeita: { icone: "⭐", nome: "Presença Perfeita", raridade: "lendaria" },
-  leituraAlta: { icone: "📘", nome: "Leitura Avançada", raridade: "rara" },
-  metodoAlto: { icone: "🎯", nome: "Método Concluído", raridade: "epica" },
-  // ... outras conquistas
-};
-
-function carregarConquistas(conquistas) {
-  const gradeConquistas = document.getElementById("grade-conquistas");
-  if (!gradeConquistas) return;
-  
-  gradeConquistas.innerHTML = ""; // Limpa a grade
-
-  // Simulação de dados de conquistas para preencher o novo HTML
-  const conquistasSimuladas = {
-    presencaPerfeita: 1,
-    leituraAlta: 2,
-    metodoAlto: 1
-  };
-
-  for (const key in conquistasSimuladas) {
-    if (conquistasSimuladas[key] > 0 && mapaConquistas[key]) {
-      const info = mapaConquistas[key];
-      const card = document.createElement("div");
-      card.className = `achievement-card ${info.raridade}`;
-      card.innerHTML = `
-        <span class="achievement-icon">${info.icone}</span>
-        <span class="achievement-name">${info.nome}</span>
-        ${conquistasSimuladas[key] > 1 ? `<span class="achievement-count">x${conquistasSimuladas[key]}</span>` : ''}
-      `;
-      gradeConquistas.appendChild(card);
-    }
-  }
-}
-
-/* ========================================================
-    11. EXECUTAR AUTOMATICAMENTE AO CARREGAR A PÁGINA
-   ======================================================== */
 document.addEventListener("DOMContentLoaded", iniciarPainelAluno);
-
-// A função abrirModalEnviarLicao será implementada em licoes.js
-// A função carregarLicoesAluno será implementada em licoes.js
-// A função de navegação (como logout) será implementada em navegacao.js

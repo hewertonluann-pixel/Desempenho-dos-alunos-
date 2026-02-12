@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
-/* ============================================================
-   TEMA BASE E VARIÁVEIS
-   ============================================================ */
 :root {
   --bg: #020617;
   --card: #0b1220;
@@ -10,11 +7,9 @@
   --border: rgba(56, 189, 248, 0.25);
   --ink: #e2e8f0;
   --muted: #94a3b8;
-
   --azul: #0ea5e9;
   --azul-escuro: #1e293b;
   --azul-suave: rgba(56, 189, 248, 0.2);
-
   --verde: #22c55e;
   --verde-suave: rgba(34, 197, 94, 0.25);
   --amarelo: #facc15;
@@ -35,10 +30,6 @@ body {
   min-height: 100vh;
 }
 
-/* ============================================================
-   LAYOUT PRINCIPAL — SIDEBAR + CONTEÚDO
-   ============================================================ */
-
 .main-container {
   display: flex;
   max-width: 1600px;
@@ -58,14 +49,10 @@ body {
 .content-area {
   flex-grow: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 7fr 3fr;
   gap: 20px;
-  align-content: start; /* Para que as sections não se estiquem */
+  align-content: start;
 }
-
-/* ============================================================
-   ESTILO DOS CARDS
-   ============================================================ */
 
 .card {
   background: var(--card-alt);
@@ -83,10 +70,6 @@ body {
   padding-bottom: 10px;
   margin-bottom: 15px;
 }
-
-/* ============================================================
-   SIDEBAR - PROFILE CARD
-   ============================================================ */
 
 .profile-card {
   background: var(--card);
@@ -125,10 +108,6 @@ body {
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
-}
-
-.upload-icon:hover {
-  background: #0099e6;
 }
 
 .aluno-name {
@@ -185,18 +164,6 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--ink);
-  display: block;
-}
-
-.method-name {
-  display: block;
-  font-size: 0.7rem;
-  color: var(--azul);
-  margin-top: 5px;
-  line-height: 1.2;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .btn-change-password, .btn-professor-mode {
@@ -216,17 +183,9 @@ body {
   border: 1px solid var(--azul-suave);
 }
 
-.btn-change-password:hover {
-  background: #1f3047;
-}
-
 .btn-professor-mode {
   background: var(--verde);
   color: var(--bg);
-}
-
-.btn-professor-mode:hover {
-  background: #16a34a;
 }
 
 .social-link-card {
@@ -247,48 +206,143 @@ body {
   gap: 8px;
 }
 
-/* ============================================================
-   CONTENT AREA - ENERGIA
-   ============================================================ */
-
-.energy-section {
-  grid-column: span 2;
+/* COMPROMETIMENTO (NOVO DESIGN CÁPSULA) */
+.capsule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  margin-top: 25px;
+  margin-bottom: 15px;
 }
 
-.energy-bar-wrapper {
+.capsule-wrapper {
+  position: relative;
+}
+
+.capsule {
+  position: relative;
+  height: 76px;
+  border-radius: 999px;
+  padding-left: 86px;
+  padding-right: 22px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.04),
+    0 10px 28px rgba(0,0,0,.55);
 }
 
-.energy-bar {
-  flex-grow: 1;
-  height: 20px;
-  background: var(--azul-escuro);
-  border-radius: 10px;
+.capsule.blue { background: #0a2a3a; }
+.capsule.green { background: #0f2f1d; }
+
+.capsule-title {
+  position: absolute;
+  top: -22px;
+  left: 20px;
+  font-size: 13px;
+  color: #bfc7d5;
+}
+
+.capsule-circle {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.05),
+    0 4px 12px rgba(0,0,0,.6);
+}
+
+.capsule-bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(255,255,255,.15);
+  border-radius: 999px;
   overflow: hidden;
 }
 
-.energy-level {
+.capsule-fill {
   height: 100%;
-  width: 0%;
-  transition: width 0.4s ease, background 0.3s ease;
-  /* Cores definidas via JS, mas o fallback é bom */
-  background: var(--azul); 
+  transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.energy-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--ink);
-  width: 60px;
-  text-align: right;
+.blue-circle {
+  border: 3px solid #00bcd4;
+  color: #8fefff;
 }
 
-/* ============================================================
-   CONTENT AREA - CONQUISTAS
-   ============================================================ */
+.blue-fill {
+  background: #00bcd4;
+}
 
+.green-circle {
+  border: 3px solid #4caf50;
+  color: #bdf5c8;
+}
+
+.green-fill {
+  background: #4caf50;
+}
+
+@media (max-width: 700px) {
+  .capsule-grid {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+}
+
+.quote-container {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(56, 189, 248, 0.1);
+  text-align: center;
+}
+
+.quote {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.reference {
+  font-size: 0.75rem;
+  color: var(--azul);
+  font-weight: 600;
+}
+
+/* NOTIFICAÇÕES */
+.lista-notificacoes {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notificacao {
+  display: flex;
+  gap: 10px;
+  background: rgba(42, 42, 61, 0.8);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 4px solid var(--azul);
+}
+
+/* CONQUISTAS */
 .achievements-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -301,13 +355,7 @@ body {
   border-radius: 8px;
   text-align: center;
   font-size: 0.9rem;
-  font-weight: 500;
   border: 1px solid transparent;
-  transition: transform 0.2s;
-}
-
-.achievement-card:hover {
-  transform: translateY(-2px);
 }
 
 .achievement-icon {
@@ -316,33 +364,7 @@ body {
   margin-bottom: 5px;
 }
 
-.achievement-name {
-  display: block;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.achievement-count {
-  display: block;
-  font-size: 0.7rem;
-  color: var(--muted);
-}
-
-/* Raridades */
-.achievement-card.rara { border-color: var(--azul); }
-.achievement-card.epica { border-color: #9333ea; } /* Roxo */
-.achievement-card.lendaria { border-color: #f59e0b; } /* Laranja */
-
-/* ============================================================
-   CONTENT AREA - FREQUÊNCIA ANUAL
-   ============================================================ */
-
-.frequency-section {
-  grid-column: span 2;
-}
-
+/* FREQUÊNCIA ANUAL */
 .year-control {
   display: flex;
   justify-content: center;
@@ -357,13 +379,6 @@ body {
   padding: 5px 10px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 1.2rem;
-  line-height: 1;
-  transition: background 0.2s;
-}
-
-.arrow-btn:hover {
-  background: #1f3047;
 }
 
 .current-year {
@@ -376,243 +391,407 @@ body {
 .frequency-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 15px;
+  gap: 20px;
   text-align: center;
+  padding: 10px 0;
 }
 
 .month-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
   transition: transform 0.2s;
 }
 
 .month-card:hover {
-  transform: scale(1.05);
+  transform: translateY(-5px);
 }
 
-.month-name {
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-bottom: 5px;
-}
-
-/* Estilo do círculo de progresso (simulação com CSS) */
-.month-progress {
-  position: relative;
+.pie-chart {
   width: 60px;
   height: 60px;
-  margin: 0 auto;
   border-radius: 50%;
   background: conic-gradient(var(--azul) calc(var(--p) * 1%), var(--azul-escuro) 0);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.month-progress::before {
-  content: '';
-  position: absolute;
-  width: 50px;
-  height: 50px;
+.pie-center {
+  width: 44px;
+  height: 44px;
   background: var(--card-alt);
   border-radius: 50%;
-}
-
-.progress-value {
-  position: relative;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-/* ============================================================
-   CONTENT AREA - LIÇÕES ENVIADAS
-   ============================================================ */
-
-.lessons-section {
-  grid-column: span 2;
-}
-
-.btn-send-lesson {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px;
-  background: var(--azul);
-  color: white;
-  font-weight: 600;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: background 0.2s;
+  z-index: 2;
 }
 
-.btn-send-lesson:hover {
-  background: #0099e6;
-}
-
-.lessons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.lesson-card {
-  background: var(--card);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.lesson-info {
-  text-align: left;
-}
-
-.lesson-title {
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 5px;
-}
-
-.lesson-date {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.lesson-status {
+.pie-value {
   font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-weight: bold;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.month-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
   text-transform: uppercase;
 }
 
-.status-aprovada { background: var(--verde-suave); color: var(--verde); }
-.status-pendente { background: var(--azul-suave); color: var(--azul); }
-.status-reprovada { background: var(--vermelho-suave); color: var(--vermelho); }
-
-/* ============================================================
-   MODAIS E POPUPS
-   ============================================================ */
-
-.popup {
+/* MODAIS PADRONIZADOS */
+.modal, .popup {
+  display: none;
   position: fixed;
-  top: 0;
+  z-index: 2000;
   left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
+  background-color: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(8px);
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
 }
 
-.popup-content {
-  background: var(--card-alt);
+.modal-content, .popup-content {
+  background: var(--card);
   padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-  text-align: center;
-}
-
-.popup-content h2 {
-  color: var(--azul);
-  margin-top: 0;
-  margin-bottom: 20px;
-}
-
-.popup-content input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 8px;
+  border-radius: 24px;
+  width: 95%;
+  max-width: 450px;
   border: 1px solid var(--border);
-  background: var(--azul-escuro);
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   color: var(--ink);
 }
 
-.popup-content button {
+.close-button, .close-btn {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-alt);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  border: none;
+}
+
+.modal h2, .popup-content h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: var(--azul);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-body input, .popup-content input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 10px;
+  color: var(--ink);
+  width: 100%;
+}
+
+.modal-buttons, .popup-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-salvar, .btn-cancelar, .popup-content button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-salvar, .popup-content button {
   background: var(--azul);
   color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
 }
 
-.popup-content button:hover {
-  background: #0099e6;
-}
-
-.close-btn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 1.5rem;
-  cursor: pointer;
+.btn-cancelar {
+  background: var(--card-alt);
   color: var(--muted);
+  border: 1px solid var(--border);
 }
 
-/* ============================================================
-   RESPONSIVIDADE
-   ============================================================ */
+.conquista-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+}
 
+#conquistaDetalhes {
+  list-style: none;
+  padding: 0;
+}
+
+#conquistaDetalhes li {
+  padding: 8px 12px;
+  background: var(--card-alt);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  border-left: 3px solid var(--azul);
+}
+
+/* RESPONSIVIDADE */
 @media (max-width: 1024px) {
-  .main-container {
-    flex-direction: column;
-    padding: 10px;
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .profile-card {
-    flex-grow: 1;
-    min-width: 300px;
-  }
-
-  .social-link-card {
-    width: 100%;
-  }
-
-  .content-area {
-    grid-template-columns: 1fr;
-  }
-
-  .energy-section, .frequency-section, .lessons-section {
-    grid-column: span 1;
-  }
-
-  .frequency-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  .main-container { flex-direction: column; }
+  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; }
+  .content-area { grid-template-columns: 1fr; }
+  .frequency-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (max-width: 600px) {
-  .sidebar {
-    flex-direction: column;
-  }
+  .sidebar { flex-direction: column; }
+  .frequency-grid { grid-template-columns: repeat(3, 1fr); }
+}
 
-  .profile-card {
-    min-width: auto;
-  }
+#painelEvolucao { width: 100%; min-height: 260px; max-height: 260px; position: relative; }
+#painelEvolucao canvas { width: 100% !important; height: 240px !important; }
 
-  .frequency-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+/* LIÇÕES ENVIADAS - ESTILO PRINT */
+.lessons-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.card-licao {
+  background: #0f172a;
+  border-radius: 12px;
+  padding: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.2s;
+}
+
+.card-licao:hover {
+  transform: translateY(-3px);
+}
+
+/* Bordas coloridas por status */
+.card-licao:has(.status-badge.pendente) { border: 1px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+.card-licao:has(.status-badge.reprovada) { border: 1px solid #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+.card-licao:has(.status-badge.aprovada) { border: 1px solid #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
+
+.status-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.status-badge.pendente { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.status-badge.reprovada { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+.status-badge.aprovada { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+
+.btn-delete-licao {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.btn-delete-licao:hover { opacity: 1; }
+
+.card-licao-content {
+  margin-bottom: 10px;
+}
+
+.licao-tipo {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.licao-numero {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+
+.btn-ver-detalhes {
+  background: transparent;
+  color: #38bdf8;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+}
+
+.btn-ver-detalhes:hover {
+  color: #7dd3fc;
+}
+
+/* ALINHAMENTO BOTÕES COMUNIDADE E BIBLIOTECA */
+.sidebar-buttons-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.sidebar-buttons-row .social-link-card {
+  flex: 1;
+  margin: 0;
+}
+
+/* NOVO MODAL DE FREQUÊNCIA */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat-box {
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  padding: 15px 10px;
+  border-radius: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--azul);
+}
+
+.modal-conquistas-section {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.modal-conquistas-section h4 {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 5px;
+}
+
+.modal-conquistas-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.mini-achievement {
+  background: var(--card-alt);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mini-achievement.ouro { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+.mini-achievement.prata { border-color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
+
+.btn-fechar-modal {
+  width: 100%;
+  margin-top: 25px;
+  padding: 12px;
+  background: var(--azul-escuro);
+  color: var(--azul);
+  border: 1px solid var(--azul-suave);
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-fechar-modal:hover {
+  background: var(--azul);
+  color: white;
+}
+
+/* LEGENDAS COMPROMETIMENTO */
+.legend-circle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.legend-circle.blue {
+  background-color: #00bcd4;
+  box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
+}
+
+.legend-circle.green {
+  background-color: #4caf50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+.capsule-title {
+  display: flex;
+  align-items: center;
 }
