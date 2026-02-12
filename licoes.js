@@ -628,18 +628,33 @@ export async function carregarLicoesAluno(nomeAluno) {
 
     const card = document.createElement("div");
     card.className = "card-licao";
-    card.innerHTML = `
-      <div><strong>Data:</strong> ${data}</div>
-      <div><strong>Tipo:</strong> ${l.tipo === "metodo" ? "Método" : "Leitura"}</div>
-      <div><strong>Lição nº:</strong> ${l.numero}</div>
-      <div><strong>Status:</strong> <span class="status ${l.status}">${l.status}</span></div>
-      ${
-        l.observacaoProfessor
-          ? `<div><strong>Obs. do professor:</strong> ${l.observacaoProfessor}</div>`
-          : ""
+    
+    // Badge de status
+    const statusClass = l.status === "pendente" ? "pendente" : l.status === "aprovada" ? "aprovada" : "reprovada";
+    const statusTexto = l.status === "pendente" ? "PENDENTE" : l.status === "aprovada" ? "APROVADA" : "REPROVADA";
+    
+    // Botão de deletar (X)
+    const btnDelete = document.createElement("button");
+    btnDelete.className = "btn-delete-licao";
+    btnDelete.textContent = "×";
+    btnDelete.onclick = (e) => {
+      e.stopPropagation();
+      if (confirm(`Deseja realmente excluir a lição ${l.tipo === "metodo" ? "Método" : "Leitura"} nº ${l.numero}?`)) {
+        // Implementar função de deletar futuramente
+        alert("Função de exclusão em desenvolvimento.");
       }
-      <button class="btn-ver" onclick="abrirLicao('${id}')">Ver lição</button>
+    };
+    
+    card.innerHTML = `
+      <div class="status-badge ${statusClass}">${statusTexto}</div>
+      <div class="card-licao-content">
+        <div class="licao-tipo">${l.tipo === "metodo" ? "MÉTODO" : "LEITURA"}</div>
+        <div class="licao-numero">Nº ${l.numero}</div>
+      </div>
+      <button class="btn-ver-detalhes" onclick="abrirLicao('${id}')">Ver detalhes</button>
     `;
+    
+    card.insertBefore(btnDelete, card.firstChild);
     lista.appendChild(card);
   });
 }
