@@ -577,12 +577,29 @@ function atualizarTempo() {
   segundos++;
   const m = String(Math.floor(segundos / 60)).padStart(2, "0");
   const s = String(segundos % 60).padStart(2, "0");
+  
+  // Estimar tamanho do arquivo (24kbps = 3KB/s aproximadamente)
+  const tamanhoEstimadoKB = Math.round(segundos * 3);
+  const tamanhoEstimadoMB = (tamanhoEstimadoKB / 1024).toFixed(2);
+  
   const tempoEl = document.getElementById("tempoGravacao");
-  if (tempoEl) tempoEl.textContent = `${m}:${s}`;
+  if (tempoEl) {
+    if (tamanhoEstimadoKB < 1024) {
+      tempoEl.textContent = `${m}:${s} (~${tamanhoEstimadoKB}KB)`;
+    } else {
+      tempoEl.textContent = `${m}:${s} (~${tamanhoEstimadoMB}MB)`;
+    }
+  }
 
   const wave = document.getElementById("waveBar");
   if (wave) {
     wave.style.transform = `scaleX(${Math.min(1, segundos / 30)})`;
+  }
+  
+  // Alertar se estiver perto do limite (5MB)
+  const status = document.getElementById("statusGravador");
+  if (tamanhoEstimadoKB > 4 * 1024 && status) {
+    status.textContent = "⚠ Perto do limite de 5MB. Finalize em breve.";
   }
 }
 
@@ -602,8 +619,23 @@ async function iniciarGravacao() {
   }
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
+    // Configurar áudio com qualidade otimizada (menor tamanho)
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 16000  // Reduz de 48kHz para 16kHz (suficiente para voz)
+      }
+    });
+    
+    // Tentar usar codec mais eficiente
+    let options = { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 24000 }; // 24kbps (baixo)
+    
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      options = { mimeType: 'audio/webm', audioBitsPerSecond: 24000 };
+    }
+    
+    mediaRecorder = new MediaRecorder(stream, options);
     chunks = [];
     blobAtual = null;
     segundos = 0;
@@ -623,12 +655,20 @@ async function iniciarGravacao() {
         blobAtual = null;
         return;
       }
+      
+      // Verificar tamanho máximo (5MB)
+      const tamanhoMB = (blob.size / 1024 / 1024).toFixed(2);
+      if (blob.size > 5 * 1024 * 1024) {
+        if (status) status.textContent = `⚠ Áudio muito grande (${tamanhoMB}MB). Máximo: 5MB. Grave um áudio mais curto.`;
+        blobAtual = null;
+        return;
+      }
 
       blobAtual = blob;
       urlAudioTemp = URL.createObjectURL(blob);
 
       if (btnOuvir) btnOuvir.disabled = false;
-      if (status) status.textContent = "Gravação concluída! Você pode ouvir antes de enviar.";
+      if (status) status.textContent = `Gravação concluída! (${tamanhoMB}MB) Você pode ouvir antes de enviar.`;
     };
 
     mediaRecorder.start();
