@@ -816,6 +816,10 @@ async function enviarLicao() {
 
     // Criar registro no Firestore
     if (msg) msg.textContent = "Salvando lição no banco...";
+    const agora = new Date();
+    const tipoTexto = tipo === "leitura" ? "Leitura" : "Método";
+    const titulo = `${tipoTexto} nº ${numero}`;
+    
     await addDoc(collection(db, "licoes"), {
       alunoId,
       alunoNome,
@@ -824,9 +828,11 @@ async function enviarLicao() {
       numero,
       texto,
       audioURL,
+      titulo,
       status: "pendente",
       observacaoProfessor: "",
-      criadoEm: new Date().toISOString()
+      criadoEm: agora.toISOString(),
+      dataEnvio: Timestamp.fromDate(agora)
     });
     console.log("✅ Lição salva no Firestore");
 

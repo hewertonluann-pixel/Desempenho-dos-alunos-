@@ -85,14 +85,14 @@ export async function carregarNotificacoes() {
         texto: `<strong>${d.nomeAluno || "Aluno"}</strong> enviou a lição <em>${d.titulo || "Sem título"}</em>`
       });
       
-      if (d.status === "aprovada" && d.avaliadoEm) {
+      if (d.status === "aprovado" && d.avaliadoEm) {
         todasNotificacoes.push({
           data: d.avaliadoEm,
           tipo: "aprovacao",
           icone: "✅",
           texto: `<strong>${d.nomeAluno || "Aluno"}</strong> foi aprovado na lição <em>${d.titulo || "Sem título"}</em>`
         });
-      } else if (d.status === "rejeitada" && d.avaliadoEm) {
+      } else if (d.status === "reprovado" && d.avaliadoEm) {
         todasNotificacoes.push({
           data: d.avaliadoEm,
           tipo: "rejeicao",

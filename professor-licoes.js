@@ -7,7 +7,8 @@ import {
   where,
   getDocs,
   updateDoc,
-  doc
+  doc,
+  Timestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 function inserirPainel() {
@@ -342,18 +343,22 @@ async function tratar(card, aprovar) {
     });
 
     // Atualizar status da lição com feedback
+    const agora = new Date();
     await updateDoc(doc(db, "licoes", id), {
       status: "aprovado",
       observacaoProfessor: feedback,
-      respondidoEm: new Date().toISOString()
+      respondidoEm: agora.toISOString(),
+      avaliadoEm: Timestamp.fromDate(agora)
     });
 
   } else {
     // Atualizar status da lição como reprovada com feedback
+    const agora = new Date();
     await updateDoc(doc(db, "licoes", id), {
       status: "reprovado",
       observacaoProfessor: feedback,
-      respondidoEm: new Date().toISOString()
+      respondidoEm: agora.toISOString(),
+      avaliadoEm: Timestamp.fromDate(agora)
     });
   }
 
