@@ -66,8 +66,14 @@ async function registrarDownload(nomeArquivo) {
   }
 }
 
-// Expor função globalmente para uso inline
-window.registrarDownload = registrarDownload;
+// Event delegation para registrar downloads
+document.addEventListener('click', (e) => {
+  const downloadBtn = e.target.closest('.btn-download');
+  if (downloadBtn && downloadBtn.hasAttribute('data-nome-arquivo')) {
+    const nomeArquivo = downloadBtn.getAttribute('data-nome-arquivo');
+    registrarDownload(nomeArquivo);
+  }
+});
 
 // Verificar Autenticação e Papel
 function checkUserAuth() {
@@ -336,7 +342,7 @@ function renderDocumentsFiltered(docsToRender) {
       <div class="doc-name">${d.nome}</div>
       ${audioHTML}
       <div class="doc-buttons">
-        <a class="btn-download" href="${d.url}" target="_blank" onclick="registrarDownload('${d.nome.replace(/'/g, "\\'")}')">📥 Baixar PDF</a>
+        <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${d.nome}">📥 Baixar PDF</a>
         <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
         <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
@@ -738,7 +744,7 @@ function renderGlobalResults(results) {
       </div>
       ${audioHTML}
       <div class="doc-buttons">
-        <a class="btn-download" href="${d.url}" target="_blank" onclick="registrarDownload('${d.nome.replace(/'/g, "\\'")}')">📥 Baixar PDF</a>
+        <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${d.nome}">📥 Baixar PDF</a>
       </div>
     `;
     container.appendChild(item);
