@@ -101,8 +101,9 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
           c.icone,
           c.titulo,
           c.descricao || "Conquista desbloqueada!",
-          [], // Detalhes vazios pois agora são mostrados nos boxes
-          c.raridade
+          [], // Detalhes vazios
+          c.raridade,
+          c.descricao // Condição
         );
       });
     } else {
@@ -110,9 +111,10 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
         abrirPopupConquista(
           "🔒",
           c.titulo,
-          c.descricao || "Continue progredindo para desbloquear esta conquista!",
-          [`Objetivo: ${c.descricao}`],
-          c.raridade
+          "Continue progredindo para desbloquear esta conquista!",
+          [],
+          c.raridade,
+          c.descricao || "Condição não especificada" // Condição
         );
       });
     }
@@ -148,7 +150,7 @@ regrasDeConquistas.forEach(c => {
 // 📦 Funções de popup de conquistas
 // --------------------------------------
 
-export function abrirPopupConquista(icone, titulo, descricao, detalhes) {
+export function abrirPopupConquista(icone, titulo, descricao, detalhes, raridade = 'bronze', condicao = null, progresso = null) {
   console.log('🔍 Abrindo popup de conquista:', titulo);
   const popup = document.getElementById('popupConquista');
   if (!popup) {
@@ -156,11 +158,48 @@ export function abrirPopupConquista(icone, titulo, descricao, detalhes) {
     return;
   }
 
-  // Preencher com dados
-  safeSet('conquistaIcone', icone || '🏆');
-  safeSet('conquistaTitulo', titulo || 'Conquista');
-  safeSet('conquistaDescricao', descricao || 'Descrição não disponível.');
-  safeHTML('conquistaDetalhes', detalhes ? detalhes.map(item => `<li>${item}</li>`).join('') : '');
+  // Preencher símbolo
+  safeSet('conquistaIconeModal', icone || '🏆');
+  
+  // Preencher nome
+  safeSet('conquistaNomeModal', titulo || 'Conquista');
+  
+  // Preencher nível (baseado na raridade)
+  const niveis = {
+    'ouro': 'Nível 3 - Ouro 🥇',
+    'prata': 'Nível 2 - Prata 🥈',
+    'bronze': 'Nível 1 - Bronze 🥉'
+  };
+  safeSet('conquistaNivelModal', niveis[raridade] || 'Nível 1');
+  
+  // Preencher descrição
+  safeSet('conquistaDescricaoModal', descricao || 'Descrição não disponível.');
+  
+  // Preencher condição
+  if (condicao) {
+    safeSet('conquistaCondicaoModal', condicao);
+  } else {
+    // Usar descrição como condição se não fornecida
+    safeSet('conquistaCondicaoModal', descricao || 'Condição não especificada.');
+  }
+  
+  // Mostrar/ocultar seção de progresso
+  const progressoSection = document.getElementById('conquistaProgressoSection');
+  if (progresso && progressoSection) {
+    progressoSection.style.display = 'block';
+    
+    const progressoFill = document.getElementById('conquistaProgressoFill');
+    const progressoText = document.getElementById('conquistaProgressoText');
+    
+    if (progressoFill) {
+      progressoFill.style.width = `${progresso.porcentagem}%`;
+    }
+    if (progressoText) {
+      progressoText.textContent = `${progresso.atual} / ${progresso.total}`;
+    }
+  } else if (progressoSection) {
+    progressoSection.style.display = 'none';
+  }
 
   // Mostrar modal
   popup.style.display = 'flex';

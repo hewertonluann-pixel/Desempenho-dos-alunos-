@@ -174,18 +174,40 @@
   </div>
 
   <!-- Popup de Detalhes da Conquista -->
-  <div id="popupConquista" class="modal">
-    <div class="modal-content">
+  <div id="popupConquista" class="modal" style="display:none;">
+    <div class="modal-content modal-conquista">
       <span class="close-button" onclick="fecharPopupConquista()">&times;</span>
-      <div class="conquista-header">
-        <span id="conquistaIcone" class="achievement-icon"></span>
-        <h2 id="conquistaTitulo"></h2>
+      
+      <!-- Cabeçalho com símbolo grande -->
+      <div class="conquista-header-modal">
+        <div class="conquista-simbolo-grande" id="conquistaIconeModal">🏆</div>
+        <h2 class="conquista-nome-modal" id="conquistaNomeModal">Nome da Conquista</h2>
+        <div class="conquista-nivel-badge" id="conquistaNivelModal">Nível 1</div>
       </div>
-      <p id="conquistaDescricao"></p>
-      <h3>Detalhes da Conquista:</h3>
-      <ul id="conquistaDetalhes">
-        <!-- Detalhes preenchidos pelo JS -->
-      </ul>
+      
+      <!-- Descrição -->
+      <div class="conquista-descricao-section">
+        <h3 class="conquista-section-title">📝 Descrição</h3>
+        <p class="conquista-descricao-text" id="conquistaDescricaoModal">Descrição detalhada da conquista.</p>
+      </div>
+      
+      <!-- Condição -->
+      <div class="conquista-condicao-section">
+        <h3 class="conquista-section-title">🎯 Condição para Obter</h3>
+        <div class="conquista-condicao-box" id="conquistaCondicaoModal">
+          Condição necessária para conquistar este achievement.
+        </div>
+      </div>
+      
+      <!-- Progresso (se aplicável) -->
+      <div class="conquista-progresso-section" id="conquistaProgressoSection" style="display:none;">
+        <h3 class="conquista-section-title">📊 Seu Progresso</h3>
+        <div class="conquista-progresso-bar">
+          <div class="conquista-progresso-fill" id="conquistaProgressoFill" style="width: 0%;"></div>
+        </div>
+        <p class="conquista-progresso-text" id="conquistaProgressoText">0 / 100</p>
+      </div>
+      
     </div>
   </div>
 
