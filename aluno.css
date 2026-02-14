@@ -403,21 +403,22 @@ body {
   padding: 10px 8px;
   border-radius: 8px;
   text-align: center;
-  border: 1.5px solid rgba(56, 189, 248, 0.2);
+  border: 1px solid var(--border);
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
 }
 
 .achievement-card:hover {
   transform: translateY(-4px);
-  border-color: #38bdf8;
-  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
 
 .achievement-card.desbloqueado {
-  border-color: #facc15;
-  box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+  /* Sem borda dourada - padrão dos painéis */
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
 }
 
 .achievement-card.bloqueado {
@@ -427,8 +428,7 @@ body {
 
 .achievement-card.bloqueado:hover {
   transform: none;
-  border-color: rgba(56, 189, 248, 0.2);
-  box-shadow: none;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
 }
 
 .achievement-icon {

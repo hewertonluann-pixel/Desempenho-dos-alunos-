@@ -18,6 +18,7 @@ export const regrasDeConquistas = [
     titulo: "Presença Perfeita",
     icone: "⭐",
     descricao: "Compareceu a todos os ensaios do mês.",
+    regraLogica: "Frequência mensal >= 100%",
     raridade: "ouro",
     condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 100
   },
@@ -26,6 +27,7 @@ export const regrasDeConquistas = [
     titulo: "Leitor Dedicado",
     icone: "📘",
     descricao: "Atingiu alto desempenho em leitura musical.",
+    regraLogica: "Nível de leitura >= 50",
     raridade: "prata",
     condicao: (aluno) => aluno.leitura >= 50
   },
@@ -34,6 +36,7 @@ export const regrasDeConquistas = [
     titulo: "Músico Pontual",
     icone: "🎯",
     descricao: "Manteve presença consistente nos ensaios.",
+    regraLogica: "Frequência mensal >= 80%",
     raridade: "prata",
     condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 80
   },
@@ -42,6 +45,7 @@ export const regrasDeConquistas = [
     titulo: "Evolução Constante",
     icone: "🔥",
     descricao: "Somou 100 pontos ou mais entre leitura e método.",
+    regraLogica: "(Leitura + Método) >= 100",
     raridade: "ouro",
     condicao: (aluno) => (aluno.leitura + aluno.metodo) >= 100
   },
@@ -50,14 +54,16 @@ export const regrasDeConquistas = [
     titulo: "Veterano de Palco",
     icone: "🎤",
     descricao: "Participou de mais de 20 apresentações.",
+    regraLogica: "Frequência total >= 20 ensaios",
     raridade: "ouro",
     condicao: (aluno) => aluno.frequenciaTotal >= 20
   },
   {
-    id: "espirito_grupo",
-    titulo: "Espírito de Grupo",
-    icone: "🤝",
-    descricao: "Demonstrou comprometimento e colaboração.",
+    id: "lider",
+    titulo: "Líder",
+    icone: "👔",
+    descricao: "Demonstrou liderança e comprometimento exemplar.",
+    regraLogica: "Classificado = true",
     raridade: "bronze",
     condicao: (aluno) => aluno.classificado === true
   }
@@ -103,7 +109,7 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
           c.descricao || "Conquista desbloqueada!",
           [], // Detalhes vazios
           c.raridade,
-          c.descricao // Condição
+          c.regraLogica || c.descricao // Regra lógica
         );
       });
     } else {
@@ -114,7 +120,7 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
           "Continue progredindo para desbloquear esta conquista!",
           [],
           c.raridade,
-          c.descricao || "Condição não especificada" // Condição
+          c.regraLogica || "Condição não especificada" // Regra lógica
         );
       });
     }
