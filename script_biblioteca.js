@@ -69,9 +69,17 @@ async function registrarDownload(nomeArquivo) {
 // Event delegation para registrar downloads
 document.addEventListener('click', (e) => {
   const downloadBtn = e.target.closest('.btn-download');
-  if (downloadBtn && downloadBtn.hasAttribute('data-nome-arquivo')) {
-    const nomeArquivo = downloadBtn.getAttribute('data-nome-arquivo');
-    registrarDownload(nomeArquivo);
+  if (downloadBtn) {
+    console.log('🔵 Botão de download clicado');
+    console.log('Atributo data-nome-arquivo:', downloadBtn.getAttribute('data-nome-arquivo'));
+    
+    if (downloadBtn.hasAttribute('data-nome-arquivo')) {
+      const nomeArquivo = downloadBtn.getAttribute('data-nome-arquivo');
+      console.log('📥 Registrando download:', nomeArquivo);
+      registrarDownload(nomeArquivo);
+    } else {
+      console.warn('⚠️ Botão de download sem data-nome-arquivo. Verifique se o cache foi limpo.');
+    }
   }
 });
 
