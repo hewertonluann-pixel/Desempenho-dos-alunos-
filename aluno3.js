@@ -177,30 +177,56 @@ export function abrirPopupFrequencia(info, destino) {
 
   // Buscar conquistas de frequência do mês
   const conquistasFrequencia = [];
+  
+  // Frequência 100% desbloqueia MÚLTIPLAS conquistas
   if (info.percentual >= 100) {
     conquistasFrequencia.push({
       icone: '⭐',
       titulo: 'Presença Perfeita',
-      raridade: 'ouro'
+      raridade: 'ouro',
+      descricao: 'Participou de todos os ensaios do mês sem nenhuma falta. Comprometimento exemplar!'
+    });
+    conquistasFrequencia.push({
+      icone: '⏰',
+      titulo: 'Músico Pontual',
+      raridade: 'ouro',
+      descricao: 'Demonstrou pontualidade e dedicação máxima ao comparecer a 100% dos ensaios.'
     });
   }
-  if (info.percentual >= 80 && info.percentual < 100) {
+  // Frequência entre 80% e 99%
+  else if (info.percentual >= 80) {
     conquistasFrequencia.push({
       icone: '🎯',
       titulo: 'Músico Esforçado',
-      raridade: 'prata'
+      raridade: 'prata',
+      descricao: 'Manteve frequência acima de 80%, mostrando comprometimento e disciplina.'
+    });
+  }
+  // Frequência entre 60% e 79%
+  else if (info.percentual >= 60) {
+    conquistasFrequencia.push({
+      icone: '📈',
+      titulo: 'Em Progresso',
+      raridade: 'bronze',
+      descricao: 'Continue melhorando! Você está no caminho certo para alcançar uma frequência ainda maior.'
     });
   }
 
   const conquistasHTML = conquistasFrequencia.length > 0 
     ? `
       <div class="modal-conquistas-section">
-        <h4>🏆 Conquistas do Mês</h4>
-        <div class="modal-conquistas-list">
+        <h4>🏆 Conquistas Desbloqueadas</h4>
+        <div class="conquistas-cards-grid">
           ${conquistasFrequencia.map(c => `
-            <div class="mini-achievement ${c.raridade}">
-              <span class="mini-achievement-icon">${c.icone}</span>
-              <span class="mini-achievement-name">${c.titulo}</span>
+            <div class="conquista-card ${c.raridade}">
+              <div class="conquista-card-header">
+                <span class="conquista-card-icon">${c.icone}</span>
+                <div class="conquista-card-info">
+                  <h5 class="conquista-card-titulo">${c.titulo}</h5>
+                  <span class="conquista-card-raridade">${c.raridade.toUpperCase()}</span>
+                </div>
+              </div>
+              <p class="conquista-card-descricao">${c.descricao}</p>
             </div>
           `).join('')}
         </div>

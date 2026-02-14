@@ -916,6 +916,111 @@ body {
 .mini-achievement.ouro { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
 .mini-achievement.prata { border-color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
 
+/* Cards de conquistas (novo layout com descrição) */
+.conquistas-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+@media (min-width: 768px) {
+  .conquistas-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.conquista-card {
+  background: var(--card-alt);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.conquista-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.conquista-card.ouro {
+  border-color: #fbbf24;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, var(--card-alt) 100%);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.conquista-card.prata {
+  border-color: #94a3b8;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.15) 0%, var(--card-alt) 100%);
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.3);
+}
+
+.conquista-card.bronze {
+  border-color: #cd7f32;
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, var(--card-alt) 100%);
+  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.3);
+}
+
+.conquista-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.conquista-card-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.conquista-card-info {
+  flex: 1;
+}
+
+.conquista-card-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 4px 0;
+}
+
+.conquista-card-raridade {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.conquista-card.ouro .conquista-card-raridade {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid #fbbf24;
+}
+
+.conquista-card.prata .conquista-card-raridade {
+  background: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+  border: 1px solid #94a3b8;
+}
+
+.conquista-card.bronze .conquista-card-raridade {
+  background: rgba(205, 127, 50, 0.2);
+  color: #cd7f32;
+  border: 1px solid #cd7f32;
+}
+
+.conquista-card-descricao {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 .btn-fechar-modal {
   width: 100%;
   margin-top: 25px;
