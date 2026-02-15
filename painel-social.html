@@ -211,7 +211,7 @@
 
 <body>
 
-  <h1>👥 Painel Social da Orquestra</h1>
+  <h1>🎶 Comunidade Asafe</h1>
   <p class="subtitulo">Veja seus colegas, suas energias, níveis e conquistas. Toque em um card para abrir o painel completo.</p>
 
   <div class="grid-social" id="gridSocial"></div>
@@ -281,11 +281,21 @@
         })
       );
 
-      // Opcional: ordenar por energia mensal (maior primeiro)
-      alunosComEnergia.sort((a, b) =>
-        (b.frequenciaMensal?.porcentagem ?? 0) -
-        (a.frequenciaMensal?.porcentagem ?? 0)
-      );
+      // Ordenar: 1) Maestro, 2) Líderes (classificados), 3) Por comprometimento (energia anual)
+      alunosComEnergia.sort((a, b) => {
+        // 1. Maestro sempre primeiro
+        const aMaestro = a.instrumento === "Maestro" ? 1 : 0;
+        const bMaestro = b.instrumento === "Maestro" ? 1 : 0;
+        if (aMaestro !== bMaestro) return bMaestro - aMaestro;
+        
+        // 2. Líderes (classificados) depois do maestro
+        const aLider = a.classificado === true ? 1 : 0;
+        const bLider = b.classificado === true ? 1 : 0;
+        if (aLider !== bLider) return bLider - aLider;
+        
+        // 3. Demais alunos por energia anual (comprometimento)
+        return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
+      });
 
       grid.innerHTML = alunosComEnergia.map(aluno => {
         const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
