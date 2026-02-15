@@ -174,7 +174,7 @@ export function abrirPopupConquista(icone, titulo, descricao, detalhes, raridade
   const niveis = {
     'ouro': 'Ouro 🥇',
     'prata': 'Prata 🥈',
-    'bronze': 'Bronze 🥉'
+    'bronze': 'Bronze 🥉',
     'lendário': 'Lendário 💎'
   };
   safeSet('conquistaNivelModal', niveis[raridade] || 'Nível 1');
