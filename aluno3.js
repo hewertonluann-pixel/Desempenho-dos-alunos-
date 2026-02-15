@@ -175,52 +175,38 @@ export function abrirPopupFrequencia(info, destino) {
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
 
-  // Buscar conquistas de frequência do mês
+  // Buscar conquistas de frequência do mês (alinhado com painel de conquistas)
   const conquistasFrequencia = [];
   
-  // Frequência 100%
+  // Frequência 100% - desbloqueia DUAS conquistas
   if (info.percentual >= 100) {
     conquistasFrequencia.push({
       icone: '⭐',
-      titulo: 'Presença Perfeita',
-      raridade: 'ouro',
-      descricao: 'Participou de todos os ensaios do mês sem nenhuma falta. Comprometimento exemplar!'
+      titulo: 'Presença Perfeita'
+    });
+    conquistasFrequencia.push({
+      icone: '🎯',
+      titulo: 'Músico Pontual'
     });
   }
-  // Frequência entre 80% e 99%
+  // Frequência entre 80% e 99% - apenas Músico Pontual
   else if (info.percentual >= 80) {
     conquistasFrequencia.push({
       icone: '🎯',
-      titulo: 'Músico Esforçado',
-      raridade: 'prata',
-      descricao: 'Manteve frequência acima de 80%, mostrando comprometimento e disciplina.'
+      titulo: 'Músico Pontual'
     });
   }
-  // Frequência entre 60% e 79%
-  else if (info.percentual >= 60) {
-    conquistasFrequencia.push({
-      icone: '📈',
-      titulo: 'Em Progresso',
-      raridade: 'bronze',
-      descricao: 'Continue melhorando! Você está no caminho certo para alcançar uma frequência ainda maior.'
-    });
-  }
+  // Abaixo de 80% - nenhuma conquista
 
   const conquistasHTML = conquistasFrequencia.length > 0 
     ? `
       <div class="modal-conquistas-section">
         <h4>🏆 Conquistas Desbloqueadas</h4>
-        <div class="conquistas-cards-grid">
+        <div class="modal-conquistas-list">
           ${conquistasFrequencia.map(c => `
-            <div class="conquista-card ${c.raridade}">
-              <div class="conquista-card-header">
-                <span class="conquista-card-icon">${c.icone}</span>
-                <div class="conquista-card-info">
-                  <h5 class="conquista-card-titulo">${c.titulo}</h5>
-                  <span class="conquista-card-raridade">${c.raridade.toUpperCase()}</span>
-                </div>
-              </div>
-              <p class="conquista-card-descricao">${c.descricao}</p>
+            <div class="mini-achievement">
+              <span class="mini-achievement-icon">${c.icone}</span>
+              <span class="mini-achievement-name">${c.titulo}</span>
             </div>
           `).join('')}
         </div>
@@ -229,8 +215,7 @@ export function abrirPopupFrequencia(info, destino) {
     : '';
 
   destino.querySelector(".modal-content .modal-body").innerHTML = `
-    <div class="modal-header-icon">📅</div>
-    <h2 class="modal-title">Frequência de ${meses[info.mes]}</h2>
+    <h2 class="modal-title">📅 Frequência de ${meses[info.mes]}</h2>
     
     <div class="modal-stats-grid">
       <div class="stat-box">
