@@ -404,10 +404,55 @@ export async function iniciarPainelAluno() {
     if (inputFoto) inputFoto.style.display = "none";
   }
 
-  // 🔥 Ocultar painel de lições inteiramente
-  if (!ehDonoDaPagina) {
-    const painelLicoes = document.querySelector(".lessons-section");
-    if (painelLicoes) painelLicoes.style.display = "none";
+  // =====================================================
+  // 👁️ APLICAR PREFERÊNCIAS DE VISIBILIDADE
+  // =====================================================
+  const preferencias = aluno.preferencias || {
+    comprometimento: true,
+    frequencia: true,
+    conquistas: true,
+    evolucao: true,
+    notificacoes: true,
+    licoes: true
+  };
+
+  const contentArea = document.querySelector(".content-area");
+  if (contentArea) {
+    const mapaPaineis = {
+      comprometimento: contentArea.querySelector(".energy-section"),
+      notificacoes: contentArea.querySelector(".notifications-section"),
+      frequencia: contentArea.querySelector(".frequency-section"),
+      conquistas: contentArea.querySelector(".achievements-section"),
+      licoes: contentArea.querySelector(".lessons-section"),
+      evolucao: contentArea.querySelector(".evolucao-section")
+    };
+
+    // Aplicar visibilidade baseada nas preferências
+    Object.keys(mapaPaineis).forEach(id => {
+      const painel = mapaPaineis[id];
+      if (painel) {
+        // Regra especial para lições: só visível se for dono da página E estiver habilitado
+        if (id === "licoes") {
+          if (!ehDonoDaPagina || preferencias[id] === false) {
+            painel.style.display = "none";
+            console.log(`❌ Painel "${id}" ocultado (permissão: ${ehDonoDaPagina}, preferência: ${preferencias[id]})`);
+          } else {
+            painel.style.display = "";
+            console.log(`✅ Painel "${id}" visível`);
+          }
+        }
+        // Demais painéis: apenas verificar preferência
+        else {
+          if (preferencias[id] === false) {
+            painel.style.display = "none";
+            console.log(`❌ Painel "${id}" ocultado (preferência desabilitada)`);
+          } else {
+            painel.style.display = "";
+            console.log(`✅ Painel "${id}" visível`);
+          }
+        }
+      }
+    });
   }
 
   // =====================================================
@@ -422,7 +467,6 @@ export async function iniciarPainelAluno() {
     "evolucao"
   ];
 
-  const contentArea = document.querySelector(".content-area");
   if (contentArea) {
     const mapaPaineis = {
       comprometimento: contentArea.querySelector(".energy-section"),
@@ -433,10 +477,10 @@ export async function iniciarPainelAluno() {
       evolucao: contentArea.querySelector(".evolucao-section")
     };
 
-    // Reordenar os painéis conforme a ordem salva
+    // Reordenar os painéis conforme a ordem salva (apenas os visíveis)
     ordemPaineis.forEach(id => {
       const painel = mapaPaineis[id];
-      if (painel) {
+      if (painel && painel.style.display !== "none") {
         contentArea.appendChild(painel);
       }
     });
