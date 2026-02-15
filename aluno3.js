@@ -177,30 +177,56 @@ export function abrirPopupFrequencia(info, destino) {
 
   // Buscar conquistas de frequência do mês
   const conquistasFrequencia = [];
+  
+  // Frequência 100% desbloqueia MÚLTIPLAS conquistas
   if (info.percentual >= 100) {
     conquistasFrequencia.push({
       icone: '⭐',
       titulo: 'Presença Perfeita',
-      raridade: 'ouro'
+      raridade: 'ouro',
+      descricao: 'Participou de todos os ensaios do mês sem nenhuma falta. Comprometimento exemplar!'
+    });
+    conquistasFrequencia.push({
+      icone: '⏰',
+      titulo: 'Músico Pontual',
+      raridade: 'ouro',
+      descricao: 'Demonstrou pontualidade e dedicação máxima ao comparecer a 100% dos ensaios.'
     });
   }
-  if (info.percentual >= 80 && info.percentual < 100) {
+  // Frequência entre 80% e 99%
+  else if (info.percentual >= 80) {
     conquistasFrequencia.push({
       icone: '🎯',
       titulo: 'Músico Esforçado',
-      raridade: 'prata'
+      raridade: 'prata',
+      descricao: 'Manteve frequência acima de 80%, mostrando comprometimento e disciplina.'
+    });
+  }
+  // Frequência entre 60% e 79%
+  else if (info.percentual >= 60) {
+    conquistasFrequencia.push({
+      icone: '📈',
+      titulo: 'Em Progresso',
+      raridade: 'bronze',
+      descricao: 'Continue melhorando! Você está no caminho certo para alcançar uma frequência ainda maior.'
     });
   }
 
   const conquistasHTML = conquistasFrequencia.length > 0 
     ? `
       <div class="modal-conquistas-section">
-        <h4>🏆 Conquistas do Mês</h4>
-        <div class="modal-conquistas-list">
+        <h4>🏆 Conquistas Desbloqueadas</h4>
+        <div class="conquistas-cards-grid">
           ${conquistasFrequencia.map(c => `
-            <div class="mini-achievement ${c.raridade}">
-              <span class="mini-achievement-icon">${c.icone}</span>
-              <span class="mini-achievement-name">${c.titulo}</span>
+            <div class="conquista-card ${c.raridade}">
+              <div class="conquista-card-header">
+                <span class="conquista-card-icon">${c.icone}</span>
+                <div class="conquista-card-info">
+                  <h5 class="conquista-card-titulo">${c.titulo}</h5>
+                  <span class="conquista-card-raridade">${c.raridade.toUpperCase()}</span>
+                </div>
+              </div>
+              <p class="conquista-card-descricao">${c.descricao}</p>
             </div>
           `).join('')}
         </div>
@@ -378,10 +404,55 @@ export async function iniciarPainelAluno() {
     if (inputFoto) inputFoto.style.display = "none";
   }
 
-  // 🔥 Ocultar painel de lições inteiramente
-  if (!ehDonoDaPagina) {
-    const painelLicoes = document.querySelector(".lessons-section");
-    if (painelLicoes) painelLicoes.style.display = "none";
+  // =====================================================
+  // 👁️ APLICAR PREFERÊNCIAS DE VISIBILIDADE
+  // =====================================================
+  const preferencias = aluno.preferencias || {
+    comprometimento: true,
+    frequencia: true,
+    conquistas: true,
+    evolucao: true,
+    notificacoes: true,
+    licoes: true
+  };
+
+  const contentArea = document.querySelector(".content-area");
+  if (contentArea) {
+    const mapaPaineis = {
+      comprometimento: contentArea.querySelector(".energy-section"),
+      notificacoes: contentArea.querySelector(".notifications-section"),
+      frequencia: contentArea.querySelector(".frequency-section"),
+      conquistas: contentArea.querySelector(".achievements-section"),
+      licoes: contentArea.querySelector(".lessons-section"),
+      evolucao: contentArea.querySelector(".evolucao-section")
+    };
+
+    // Aplicar visibilidade baseada nas preferências
+    Object.keys(mapaPaineis).forEach(id => {
+      const painel = mapaPaineis[id];
+      if (painel) {
+        // Regra especial para lições: só visível se for dono da página E estiver habilitado
+        if (id === "licoes") {
+          if (!ehDonoDaPagina || preferencias[id] === false) {
+            painel.style.display = "none";
+            console.log(`❌ Painel "${id}" ocultado (permissão: ${ehDonoDaPagina}, preferência: ${preferencias[id]})`);
+          } else {
+            painel.style.display = "";
+            console.log(`✅ Painel "${id}" visível`);
+          }
+        }
+        // Demais painéis: apenas verificar preferência
+        else {
+          if (preferencias[id] === false) {
+            painel.style.display = "none";
+            console.log(`❌ Painel "${id}" ocultado (preferência desabilitada)`);
+          } else {
+            painel.style.display = "";
+            console.log(`✅ Painel "${id}" visível`);
+          }
+        }
+      }
+    });
   }
 
   // =====================================================
@@ -396,7 +467,6 @@ export async function iniciarPainelAluno() {
     "evolucao"
   ];
 
-  const contentArea = document.querySelector(".content-area");
   if (contentArea) {
     const mapaPaineis = {
       comprometimento: contentArea.querySelector(".energy-section"),
@@ -407,10 +477,10 @@ export async function iniciarPainelAluno() {
       evolucao: contentArea.querySelector(".evolucao-section")
     };
 
-    // Reordenar os painéis conforme a ordem salva
+    // Reordenar os painéis conforme a ordem salva (apenas os visíveis)
     ordemPaineis.forEach(id => {
       const painel = mapaPaineis[id];
-      if (painel) {
+      if (painel && painel.style.display !== "none") {
         contentArea.appendChild(painel);
       }
     });
