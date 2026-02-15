@@ -657,6 +657,148 @@ body {
 @media (max-width: 600px) {
   .sidebar { flex-direction: column; }
   .frequency-grid { grid-template-columns: repeat(3, 1fr); }
+  
+  /* Otimizações gerais mobile */
+  .modal-content, .popup-content {
+    padding: 20px;
+    width: 92%;
+    max-width: 100%;
+    border-radius: 16px;
+  }
+  
+  .modal-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .stat-box {
+    padding: 14px 10px;
+  }
+  
+  .stat-label {
+    font-size: 0.7rem;
+  }
+  
+  .stat-value {
+    font-size: 1.3rem;
+  }
+  
+  .modal-title {
+    font-size: 1.3rem;
+  }
+  
+  .modal-header-icon {
+    font-size: 2.5rem;
+  }
+  
+  .btn-fechar-modal {
+    padding: 14px;
+    font-size: 0.95rem;
+  }
+  
+  /* Otimizações touch-friendly para botões */
+  .btn-send-lesson {
+    padding: 18px;
+    font-size: 0.95rem;
+    min-height: 48px; /* Tamanho mínimo recomendado para touch */
+  }
+  
+  .btn-change-password,
+  .btn-professor-mode,
+  .btn-salvar,
+  .btn-cancelar {
+    padding: 14px;
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+  
+  .btn-ver-detalhes {
+    padding: 10px 14px;
+    min-height: 40px;
+  }
+  
+  /* Aumentar área de toque dos botões de controle de ano */
+  .arrow-btn {
+    padding: 12px 16px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Cards de lições maiores em mobile */
+  .lessons-list {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  
+  .card-licao {
+    min-height: 140px;
+  }
+  
+  /* Achievement cards com melhor toque */
+  .achievement-card {
+    min-height: 100px;
+    padding: 12px;
+  }
+  
+  .achievement-icon {
+    font-size: 2rem;
+  }
+  
+  .achievement-name {
+    font-size: 0.8rem;
+  }
+  
+  /* Melhorar espaçamento dos painéis em mobile */
+  .card {
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  
+  .card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 14px;
+  }
+  
+  /* Capsule grid mais compacto em mobile */
+  .capsule-grid {
+    gap: 25px;
+  }
+  
+  .capsule-circle {
+    width: 60px;
+    height: 60px;
+    font-size: 0.85rem;
+  }
+  
+  /* Sidebar mais compacta */
+  .profile-section {
+    padding: 16px;
+  }
+  
+  .profile-name {
+    font-size: 1.3rem;
+  }
+  
+  .profile-instrument {
+    font-size: 0.85rem;
+  }
+  
+  /* Notificações mais legíveis */
+  .lista-notificacoes li {
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+  
+  /* Melhorar legibilidade do grid de frequência */
+  .frequency-month {
+    font-size: 0.7rem;
+  }
+  
+  .frequency-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 0.7rem;
+  }
 }
 
 #painelEvolucao { width: 100%; min-height: 260px; max-height: 260px; position: relative; }
@@ -927,6 +1069,30 @@ body {
 @media (min-width: 768px) {
   .conquistas-cards-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Otimizações mobile para cards de conquistas */
+@media (max-width: 767px) {
+  .conquistas-cards-grid {
+    gap: 12px;
+  }
+  
+  .conquista-card {
+    padding: 14px;
+  }
+  
+  .conquista-card-icon {
+    font-size: 2rem;
+  }
+  
+  .conquista-card-titulo {
+    font-size: 0.95rem;
+  }
+  
+  .conquista-card-descricao {
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
 }
 

@@ -178,19 +178,13 @@ export function abrirPopupFrequencia(info, destino) {
   // Buscar conquistas de frequência do mês
   const conquistasFrequencia = [];
   
-  // Frequência 100% desbloqueia MÚLTIPLAS conquistas
+  // Frequência 100%
   if (info.percentual >= 100) {
     conquistasFrequencia.push({
       icone: '⭐',
       titulo: 'Presença Perfeita',
       raridade: 'ouro',
       descricao: 'Participou de todos os ensaios do mês sem nenhuma falta. Comprometimento exemplar!'
-    });
-    conquistasFrequencia.push({
-      icone: '⏰',
-      titulo: 'Músico Pontual',
-      raridade: 'ouro',
-      descricao: 'Demonstrou pontualidade e dedicação máxima ao comparecer a 100% dos ensaios.'
     });
   }
   // Frequência entre 80% e 99%
