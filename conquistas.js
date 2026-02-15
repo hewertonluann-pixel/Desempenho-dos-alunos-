@@ -64,7 +64,7 @@ export const regrasDeConquistas = [
     icone: "👔",
     descricao: "Demonstrou liderança e comprometimento exemplar.",
     regraLogica: "Classificado como líder pelo maestro",
-    raridade: "lendário",
+    raridade: "lendario",
     condicao: (aluno) => aluno.classificado === true
   }
 ];
@@ -175,7 +175,7 @@ export function abrirPopupConquista(icone, titulo, descricao, detalhes, raridade
     'ouro': 'Ouro 🥇',
     'prata': 'Prata 🥈',
     'bronze': 'Bronze 🥉',
-    'lendário': 'Lendário 💎'
+    'lendario': 'Lendário 💎'
   };
   safeSet('conquistaNivelModal', niveis[raridade] || 'Nível 1');
   
