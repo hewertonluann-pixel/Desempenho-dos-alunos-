@@ -181,19 +181,22 @@ export function abrirPopupFrequencia(info, destino) {
   // Frequência 100% - desbloqueia DUAS conquistas
   if (info.percentual >= 100) {
     conquistasFrequencia.push({
-      icone: '⭐',
-      titulo: 'Presença Perfeita'
+      icone: '🏅',
+      titulo: 'Presença Perfeita',
+      descricao: 'Concedida a quem comparece a 100% dos ensaios do mês.'
     });
     conquistasFrequencia.push({
       icone: '🎯',
-      titulo: 'Músico Pontual'
+      titulo: 'Músico Esforçado',
+      descricao: 'Obtida com frequência mensal acima de 80%.'
     });
   }
-  // Frequência entre 80% e 99% - apenas Músico Pontual
+  // Frequência entre 80% e 99% - apenas Músico Esforçado
   else if (info.percentual >= 80) {
     conquistasFrequencia.push({
       icone: '🎯',
-      titulo: 'Músico Pontual'
+      titulo: 'Músico Esforçado',
+      descricao: 'Obtida com frequência mensal acima de 80%.'
     });
   }
   // Abaixo de 80% - nenhuma conquista
@@ -201,12 +204,15 @@ export function abrirPopupFrequencia(info, destino) {
   const conquistasHTML = conquistasFrequencia.length > 0 
     ? `
       <div class="modal-conquistas-section">
-        <h4>🏆 Conquistas Desbloqueadas</h4>
-        <div class="modal-conquistas-list">
+        <h4>🏆 Conquistas do Mês</h4>
+        <div class="conquistas-mes-list">
           ${conquistasFrequencia.map(c => `
-            <div class="mini-achievement">
-              <span class="mini-achievement-icon">${c.icone}</span>
-              <span class="mini-achievement-name">${c.titulo}</span>
+            <div class="conquista-mes-card">
+              <div class="conquista-mes-icon">${c.icone}</div>
+              <div class="conquista-mes-info">
+                <div class="conquista-mes-titulo">${c.titulo}</div>
+                <div class="conquista-mes-descricao">${c.descricao}</div>
+              </div>
             </div>
           `).join('')}
         </div>
