@@ -667,24 +667,53 @@ body {
   }
   
   .modal-stats-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
   
   .stat-box {
-    padding: 14px 10px;
+    padding: 10px 8px;
+    min-height: auto;
   }
   
   .stat-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.3px;
   }
   
   .stat-value {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+    font-weight: 800;
   }
   
   .modal-title {
     font-size: 1.3rem;
+    margin-bottom: 14px;
+  }
+  
+  /* Seção de conquistas mais compacta */
+  .modal-conquistas-section {
+    margin-top: 16px;
+  }
+  
+  .modal-conquistas-section h4 {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+  }
+  
+  .modal-conquistas-list {
+    gap: 8px;
+  }
+  
+  .mini-achievement {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    border-radius: 16px;
+  }
+  
+  .mini-achievement-icon {
+    font-size: 1rem;
   }
   
   .modal-header-icon {
