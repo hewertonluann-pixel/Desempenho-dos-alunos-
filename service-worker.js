@@ -1,4 +1,5 @@
-const CACHE_NAME = "painel-orquestra-cache-v12";
+
+const CACHE_NAME = "painel-orquestra-cache-v13";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -6,7 +7,10 @@ const urlsToCache = [
   "/professor.html",
   "/aluno.css",
   "/conquistas.js",
-  "/professor.css"
+  "/professor.css",
+  "/gerenciar-eventos.html",
+  "/ensaio.html",
+  "/exportar-chamada.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -28,8 +32,9 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(event.request).then((response) => {
+      // Retorna do cache se encontrar, senão tenta o fetch
       return response || fetch(event.request).catch(() => {
-        // Fallback silencioso se o fetch falhar
+        // Fallback silencioso se o fetch falhar (ex: offline e não está no cache)
         return null;
       });
     })
