@@ -89,6 +89,10 @@
       background: #ef4444;
       color: #ffffff;
     }
+    .btn-exportar {
+      background: #10b981;
+      color: #ffffff;
+    }
     .vazio {
       text-align: center;
       font-style: italic;
@@ -101,12 +105,25 @@
       color: #6b7280;
       margin-bottom: 10px;
     }
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+    button:active {
+      transform: scale(0.97);
+    }
   </style>
 </head>
 <body>
   <a href="professor.html" class="voltar">⬅️ Voltar ao Painel do Professor</a>
   <h1>🎵 Gerenciar Chamadas</h1>
   <div class="info">Aqui você encontra todas as chamadas já registradas (ensaios, apresentações, etc.).</div>
+  
+  <div style="max-width: 780px; margin: 0 auto 16px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+    <button onclick="criarEventoDataPersonalizada()" style="padding: 8px 16px; background: #8b5cf6; color: white; border: none; border-radius: 999px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;">
+      📅 Criar Evento com Data Personalizada
+    </button>
+  </div>
 
   <div class="lista" id="listaEventos"></div>
   <p class="vazio" id="msgVazio" style="display:none;">Nenhuma chamada registrada até o momento.</p>
@@ -117,8 +134,10 @@
       collection,
       getDocs,
       deleteDoc,
-      doc
+      doc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
     const lista = document.getElementById("listaEventos");
     const msgVazio = document.getElementById("msgVazio");
@@ -162,6 +181,7 @@
             ${obs ? `<p><strong>Obs.:</strong> ${obs}</p>` : ""}
             <div class="acoes">
               <button class="btn-abrir" onclick="abrirEvento('${e.id}')">📋 Abrir chamada</button>
+              <button class="btn-exportar" onclick="exportarEvento('${e.id}')">📸 Exportar</button>
               <button class="btn-excluir" onclick="excluirEvento('${e.id}')">🗑️ Excluir</button>
             </div>
           </div>
@@ -180,6 +200,52 @@
       await deleteDoc(doc(db, "eventos", id));
       alert("Chamada excluída com sucesso!");
       carregarEventos();
+    };
+
+    window.exportarEvento = async function(id) {
+      try {
+        // Carregar dados do evento
+        const eventoDoc = await getDoc(doc(db, "eventos", id));
+        if (!eventoDoc.exists()) {
+          alert("❌ Evento não encontrado!");
+          return;
+        }
+
+        const dados = eventoDoc.data();
+        
+        // Redirecionar para ensaio.html com parâmetro de exportação
+        window.location.href = `ensaio.html?id=${id}&exportar=true`;
+      } catch (e) {
+        console.error(e);
+        alert("❌ Erro ao exportar chamada.");
+      }
+    };
+
+    window.criarEventoDataPersonalizada = function() {
+      const dataInput = prompt("📅 Digite a data do evento no formato DD/MM/AAAA:");
+      if (!dataInput) return;
+
+      // Validar formato DD/MM/AAAA
+      const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+      const match = dataInput.match(regex);
+      
+      if (!match) {
+        alert("❌ Formato inválido! Use DD/MM/AAAA (ex: 15/03/2024)");
+        return;
+      }
+
+      const [_, dia, mes, ano] = match;
+      const dataISO = `${ano}-${mes}-${dia}`;
+
+      // Validar se é uma data válida
+      const dataObj = new Date(dataISO);
+      if (isNaN(dataObj.getTime())) {
+        alert("❌ Data inválida!");
+        return;
+      }
+
+      // Redirecionar para ensaio.html com a data personalizada
+      window.location.href = `ensaio.html?data=${dataISO}`;
     };
 
     carregarEventos();

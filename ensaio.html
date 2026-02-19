@@ -665,18 +665,10 @@
     }
 
     async function cancelarEvento() {
-      if (!eventoId) {
-        if (confirm("Cancelar e voltar ao painel do professor?")) {
-          window.location.href = "professor.html";
-        }
-        return;
-      }
-
-      const confirma = confirm("Deseja cancelar e excluir esta chamada?");
+      const confirma = confirm("⚠️ Deseja sair sem salvar as alterações?");
       if (!confirma) return;
 
-      await deleteDoc(doc(db, "eventos", eventoId));
-      alert("Chamada excluída com sucesso.");
+      // Apenas redirecionar sem excluir
       window.location.href = "professor.html";
     }
 
