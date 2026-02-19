@@ -91,18 +91,16 @@ function checkUserAuth() {
   if (usuarioLogado) {
     try {
       const user = JSON.parse(usuarioLogado);
-      // Professor é identificado por tipo 'professor' OU pela flag 'classificado: true'
-      if (user.tipo === 'professor' || user.classificado === true) { 
-        userRole = 'teacher';
-        if (roleSelector) {
-          roleSelector.style.display = 'block';
-          roleSelector.value = 'teacher';
-        }
-      } else {
-        // Se for aluno, esconde o seletor e trava no modo student
-        userRole = 'student';
-        if (roleSelector) roleSelector.style.display = 'none';
-      }
+      // Professor é identificado pela flag 'classificado: true'
+     if (user.classificado === true) {
+    userRole = 'teacher';
+    roleSelector.style.display = 'block';
+    roleSelector.value = 'teacher';
+} else {
+    userRole = 'student';
+    roleSelector.style.display = 'none';
+}
+
     } catch (e) {
       console.error("Erro ao ler usuário logado:", e);
       userRole = 'student';
