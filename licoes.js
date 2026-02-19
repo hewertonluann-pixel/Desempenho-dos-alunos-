@@ -949,7 +949,7 @@ export async function carregarLicoesAluno(nomeAluno) {
         <div class="licao-tipo">${l.tipo === "metodo" ? "MÉTODO" : "LEITURA"}</div>
         <div class="licao-numero">Nº ${l.numero}</div>
       </div>
-      <button class="btn-ver-detalhes" onclick="abrirLicao('${id}')">Ver detalhes</button>
+      <button class="btn-ver-detalhes" onclick="abrirLicao('${id}')">Detalhes</button>
     `;
     
     card.insertBefore(btnDelete, card.firstChild);

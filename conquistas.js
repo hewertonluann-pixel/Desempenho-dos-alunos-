@@ -16,7 +16,7 @@ export const regrasDeConquistas = [
   {
     id: "presenca_perfeita",
     titulo: "Presença Perfeita",
-    icone: "⭐",
+    icone: "🎖️",
     descricao: "Compareceu a todos os ensaios do mês.",
     regraLogica: "Frequência mensal >= 100%",
     raridade: "ouro",
@@ -27,7 +27,7 @@ export const regrasDeConquistas = [
     titulo: "Leitor Dedicado",
     icone: "📘",
     descricao: "Atingiu alto desempenho em leitura musical.",
-    regraLogica: "Nível de leitura >= 50",
+    regraLogica: "Nível de leitura >= 60",
     raridade: "prata",
     condicao: (aluno) => aluno.leitura >= 50
   },
@@ -63,8 +63,8 @@ export const regrasDeConquistas = [
     titulo: "Líder",
     icone: "👔",
     descricao: "Demonstrou liderança e comprometimento exemplar.",
-    regraLogica: "Classificado = true",
-    raridade: "bronze",
+    regraLogica: "Classificado como líder pelo maestro",
+    raridade: "lendario",
     condicao: (aluno) => aluno.classificado === true
   }
 ];
@@ -172,9 +172,10 @@ export function abrirPopupConquista(icone, titulo, descricao, detalhes, raridade
   
   // Preencher nível (baseado na raridade)
   const niveis = {
-    'ouro': 'Nível 3 - Ouro 🥇',
-    'prata': 'Nível 2 - Prata 🥈',
-    'bronze': 'Nível 1 - Bronze 🥉'
+    'ouro': 'Ouro 🥇',
+    'prata': 'Prata 🥈',
+    'bronze': 'Bronze 🥉',
+    'lendario': 'Lendário 💎'
   };
   safeSet('conquistaNivelModal', niveis[raridade] || 'Nível 1');
   
