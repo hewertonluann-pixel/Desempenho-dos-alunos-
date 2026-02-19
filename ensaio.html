@@ -1,12 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chamada do dia - Orquestra Filhos de Asafe</title>
-  <!-- Adicionando html2canvas para exportação de imagem -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
     :root {
@@ -87,6 +84,7 @@
       overscroll-behavior: contain;
     }
 
+    /* CARD DO ALUNO */
     .container-aluno {
       display: flex;
       gap: 10px;
@@ -95,7 +93,7 @@
       border-radius: 12px;
       background: var(--card);
       border: 1px solid var(--border);
-      box-shadow: 0 8px 20px rgba(15,23,42,0.65);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.65);
       cursor: pointer;
       transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
     }
@@ -103,19 +101,19 @@
     .container-aluno.vazio {
       background: var(--card-alt);
       border-color: #111827;
-      box-shadow: 0 4px 10px rgba(15,23,42,0.55);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.55);
     }
 
     .container-aluno.presente {
-      background: radial-gradient(circle at top left, rgba(34,197,94,0.35), var(--card));
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.35), var(--card));
       border-color: var(--accent);
-      box-shadow: 0 8px 22px rgba(34,197,94,0.45);
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.45);
     }
 
     .container-aluno.ausente {
-      background: radial-gradient(circle at top left, rgba(248,113,113,0.35), var(--card));
+      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.35), var(--card));
       border-color: var(--danger);
-      box-shadow: 0 8px 22px rgba(248,113,113,0.4);
+      box-shadow: 0 8px 22px rgba(248, 113, 113, 0.4);
     }
 
     .container-aluno:active {
@@ -162,7 +160,7 @@
 
     .nome {
       font-weight: 600;
-      font-size: 1.5rem;
+      font-size: 0.95rem;
       color: #e5e7eb;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -170,7 +168,7 @@
     }
 
     .instrumento {
-      font-size: 1rem;
+      font-size: 0.8rem;
       color: #9ca3af;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -213,9 +211,10 @@
       text-align: right;
     }
 
+    /* ÁREA DE OBSERVAÇÕES */
     .observacoes-area {
       margin-top: 10px;
-      background: rgba(15,23,42,0.9);
+      background: rgba(15, 23, 42, 0.9);
       border-radius: 12px;
       border: 1px solid #1f2937;
       padding: 10px;
@@ -251,6 +250,7 @@
       box-shadow: 0 0 0 1px rgba(56,189,248,0.25);
     }
 
+    /* RODAPÉ FIXO PARA AÇÕES */
     .footer-acoes {
       position: fixed;
       left: 0;
@@ -287,24 +287,19 @@
     .btn-salvar {
       background: #22c55e;
       color: #022c22;
-      box-shadow: 0 8px 22px rgba(34,197,94,0.6);
+      box-shadow: 0 8px 22px rgba(34, 197, 94, 0.6);
     }
 
     .btn-salvar[disabled] {
       opacity: 0.6;
+      box-shadow: none;
       cursor: default;
     }
 
     .btn-cancelar {
       background: #1f2937;
       color: #e5e7eb;
-      box-shadow: 0 8px 20px rgba(15,23,42,0.9);
-    }
-
-    .btn-exportar {
-      background: #0ea5e9;
-      color: white;
-      box-shadow: 0 8px 22px rgba(14, 165, 233, 0.4);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.9);
     }
 
     .loader {
@@ -312,6 +307,15 @@
       margin-top: 10px;
       color: var(--muted);
       font-size: 0.85rem;
+    }
+
+    @media (min-width: 768px) {
+      .wrap {
+        padding-bottom: 80px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
@@ -335,10 +339,10 @@
     </div>
   </div>
 
+  <!-- BOTÕES FIXOS -->
   <div class="footer-acoes">
     <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
     <button id="btnSalvar" class="btn-salvar">💾 Salvar chamada</button>
-    <button id="btnExportar" class="btn-exportar">🖼️ Exportar</button>
   </div>
 
   <script type="module">
@@ -349,9 +353,9 @@
       getDoc,
       addDoc,
       updateDoc,
+      deleteDoc,
       doc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-    import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
     const params = new URLSearchParams(window.location.search);
     let eventoId = params.get("id") || null;
@@ -364,23 +368,10 @@
     const observacoesEl = document.getElementById("observacoes");
     const btnSalvar = document.getElementById("btnSalvar");
     const btnCancelar = document.getElementById("btnCancelar");
-    const btnExportar = document.getElementById("btnExportar");
     const loader = document.getElementById("loader");
 
-    // Configurar botão de exportação
-    btnExportar.addEventListener("click", exportarChamada3Colunas);
-
     function hojeISO() {
-      const agora = new Date();
-      const brasilia = new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).format(agora);
-      
-      const [dia, mes, ano] = brasilia.split('/');
-      return `${ano}-${mes}-${dia}`;
+      return new Date().toISOString().split("T")[0];
     }
 
     function formatarDataBrasileira(iso) {
@@ -390,6 +381,7 @@
     }
 
     function proximoEstadoPresenca(atual) {
+      // vazio -> presente -> ausente -> vazio
       if (!atual || atual === "") return "presente";
       if (atual === "presente") return "ausente";
       return "";
@@ -398,14 +390,16 @@
     async function carregarAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
       alunos = snap.docs
-        .filter((d) => d.data().ativo !== false) // Filtra apenas alunos ativos
-        .map((d) => ({
-          id: d.id,
-          nome: d.data().nome,
-          instrumento: d.data().instrumento || "",
-          foto: d.data().foto || "",
-          presenca: ""
-        }))
+        .map((d) => {
+          const dados = d.data();
+          return {
+            id: d.id,
+            nome: dados.nome,
+            instrumento: dados.instrumento || "",
+            foto: dados.foto || "",
+            presenca: "" // será preenchido pelo evento, se existir
+          };
+        })
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
     }
 
@@ -416,72 +410,82 @@
         return;
       }
 
-      const docSnap = await getDoc(doc(db, "eventos", eventoId));
-      if (docSnap.exists()) {
-        const dados = docSnap.data();
-        dataEvento = dados.data;
-        spanData.textContent = formatarDataBrasileira(dataEvento);
-        observacoesEl.value = dados.observacoes || "";
-
-        const presencasSalvas = dados.presencas || [];
-        alunos.forEach((aluno) => {
-          const p = presencasSalvas.find((ps) => ps.nome === aluno.nome);
-          if (p) aluno.presenca = p.presenca;
-        });
-      } else {
+      const ref = doc(db, "eventos", eventoId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
         dataEvento = hojeISO();
         spanData.textContent = formatarDataBrasileira(dataEvento);
+        return;
       }
+
+      const dados = snap.data();
+      dataEvento = dados.data || hojeISO();
+      spanData.textContent = formatarDataBrasileira(dataEvento);
+      observacoesEl.value = dados.observacoes || "";
+
+      const mapaPresencas = {};
+      (dados.presencas || []).forEach((p) => {
+        if (p && p.nome) mapaPresencas[p.nome] = p.presenca;
+      });
+
+      alunos.forEach((a) => {
+        a.presenca = mapaPresencas[a.nome] || "";
+      });
     }
 
     function atualizarClasseCard(card, aluno) {
-      card.classList.remove("presente", "ausente", "vazio");
-      const chip = card.querySelector(".chip-status");
+      card.classList.remove("vazio", "presente", "ausente");
+      const estado = aluno.presenca || "vazio";
+      card.classList.add(estado);
 
-      if (aluno.presenca === "presente") {
-        card.classList.add("presente");
+      const chip = card.querySelector(".chip-status");
+      if (!chip) return;
+
+      chip.classList.remove("presente", "ausente");
+      if (!aluno.presenca) {
+        chip.textContent = "Não marcado";
+      } else if (aluno.presenca === "presente") {
         chip.textContent = "Presente";
-        chip.className = "chip-status presente";
+        chip.classList.add("presente");
       } else if (aluno.presenca === "ausente") {
-        card.classList.add("ausente");
         chip.textContent = "Ausente";
-        chip.className = "chip-status ausente";
-      } else {
-        card.classList.add("vazio");
-        chip.textContent = "Pendente";
-        chip.className = "chip-status";
+        chip.classList.add("ausente");
       }
     }
 
-    function focarProximoCard(indexAtual) {
-      const cards = document.querySelectorAll(".container-aluno");
-      cards[indexAtual].classList.remove("focado");
+    function focarProximoCard(indiceAtual) {
+      const proximo = document.querySelector(
+        '.container-aluno[data-index="' + (indiceAtual + 1) + '"]'
+      );
+      if (!proximo) return;
 
-      const proximoIndex = indexAtual + 1;
-      if (proximoIndex < cards.length) {
-        const proximo = cards[proximoIndex];
-        proximo.classList.add("focado");
-        proximo.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      document
+        .querySelectorAll(".container-aluno.focado")
+        .forEach((c) => c.classList.remove("focado"));
+
+      proximo.classList.add("focado");
+      proximo.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function renderizarAlunos() {
       painel.innerHTML = "";
       alunos.forEach((aluno, index) => {
         const card = document.createElement("div");
-        card.className = "container-aluno";
-        card.setAttribute("data-index", index);
+        card.className = "container-aluno " + (aluno.presenca || "vazio");
+        card.dataset.index = index;
 
         const fotoWrap = document.createElement("div");
         fotoWrap.className = "foto-aluno";
+
         if (aluno.foto) {
           const img = document.createElement("img");
           img.src = aluno.foto;
+          img.alt = aluno.nome;
           fotoWrap.appendChild(img);
         } else {
           const span = document.createElement("span");
           span.className = "foto-placeholder";
-          span.textContent = "👤";
+          span.textContent = "🎵";
           fotoWrap.appendChild(span);
         }
 
@@ -492,26 +496,26 @@
         nomeDiv.className = "nome";
         nomeDiv.textContent = aluno.nome;
 
-        const instDiv = document.createElement("div");
-        instDiv.className = "instrumento";
-        instDiv.textContent = aluno.instrumento;
+        const instrDiv = document.createElement("div");
+        instrDiv.className = "instrumento";
+        instrDiv.textContent = aluno.instrumento || "Sem instrumento";
 
         const statusLinha = document.createElement("div");
         statusLinha.className = "status-linha";
 
         const chip = document.createElement("span");
         chip.className = "chip-status";
-        chip.textContent = "Pendente";
+        chip.textContent = "Não marcado";
 
         const hint = document.createElement("span");
         hint.className = "hint";
-        hint.textContent = "Toque para mudar";
+        hint.textContent = "Toque p/ marcar";
 
         statusLinha.appendChild(chip);
         statusLinha.appendChild(hint);
 
         dadosDiv.appendChild(nomeDiv);
-        dadosDiv.appendChild(instDiv);
+        dadosDiv.appendChild(instrDiv);
         dadosDiv.appendChild(statusLinha);
 
         card.appendChild(fotoWrap);
@@ -528,6 +532,7 @@
         atualizarClasseCard(card, aluno);
       });
 
+      // Foca o primeiro por padrão
       const primeiro = document.querySelector('.container-aluno[data-index="0"]');
       if (primeiro) {
         primeiro.classList.add("focado");
@@ -618,10 +623,6 @@
       const alunosSnap = await getDocs(collection(db, "alunos"));
       for (const docSnap of alunosSnap.docs) {
         const dados = docSnap.data();
-        
-        // Se o aluno estiver desativado, não atualizamos a frequência dele com base neste evento
-        if (dados.ativo === false) continue;
-
         const nome = dados.nome;
         const presencasAluno = contagemPorAluno[nome] || 0;
         const percentual = Math.round((presencasAluno / totalEventosMes) * 100);
@@ -663,9 +664,11 @@
       }
     }
 
-    function cancelarEvento() {
-      const confirma = confirm("Cancelar alterações e voltar ao painel do professor?");
+    async function cancelarEvento() {
+      const confirma = confirm("⚠️ Deseja sair sem salvar as alterações?");
       if (!confirma) return;
+
+      // Apenas redirecionar sem excluir
       window.location.href = "professor.html";
     }
 
@@ -674,6 +677,7 @@
 
     inicializar();
   </script>
+
   <script type="module" src="navegacao.js"></script>
 </body>
 </html>

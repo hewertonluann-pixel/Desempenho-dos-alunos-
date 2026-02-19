@@ -27,11 +27,21 @@ let currentAlunoId = null;
 // ========== CARREGAR MÓDULO ==========
 export async function carregarModulo(nome) {
   const conteudo = document.getElementById("conteudo");
+  const painel = document.getElementById("painel");
+  const painelLicoes = document.getElementById("painelLicoesProf");
+  const intro = document.querySelector(".intro-section");
+
   if (!conteudo) {
     console.error("Elemento #conteudo não encontrado.");
     return;
   }
 
+  // Ocultar outros painéis
+  if (painel) painel.style.display = "none";
+  if (painelLicoes) painelLicoes.style.display = "none";
+  if (intro) intro.style.display = "none";
+  
+  conteudo.style.display = "block";
   conteudo.innerHTML = `<p>⏳ Carregando módulo "${nome}"...</p>`;
 
   try {
@@ -190,6 +200,12 @@ async function carregarAlunos() {
 export async function renderizarPainel() {
   const loader = document.getElementById("loader");
   const painel = document.getElementById("painel");
+  const conteudo = document.getElementById("conteudo");
+
+  if (conteudo) {
+    conteudo.innerHTML = "";
+    conteudo.style.display = "none";
+  }
 
   if (!loader || !painel) {
     console.error("❌ Elementos #loader ou #painel não encontrados.");

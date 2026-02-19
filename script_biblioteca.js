@@ -1,5 +1,4 @@
-
-// script_biblioteca.js -- atualizado com busca global e contagem de arquivos
+// script_biblioteca.js -- atualizado combuscas
 import { db } from './firebase-config.js';
 import {
   collection,
@@ -28,22 +27,60 @@ let currentCollectionId = null;
 let currentDocumentId = null;
 let collections = [];
 let documents = [];
-let allDocuments = []; // Para busca global
 
 // Coleções iniciais que devem existir
 const INITIAL_COLLECTIONS = ['Métodos', 'Hinos da Harpa', 'Músicas'];
+
+// Novas variáveis para pesquisa e ordenação
+let currentDocuments = []; // Array global com documentos carregados
+let searchTerm = ''; // Termo de pesquisa atual
+let sortCriterion = 'name-asc'; // Critério de ordenação padrão
 
 // INIT
 document.addEventListener('DOMContentLoaded', async () => {
   checkUserAuth();
   setupEventListeners();
+  setupGlobalSearch(); // Configura a busca global
   await ensureInitialCollections();
   await loadCollections();
   renderCollections();
   updateUIBasedOnRole();
-  
-  // Carregar todos os documentos para a busca global em segundo plano
-  loadAllDocuments();
+  setupSearchSortListeners(); // Adiciona listeners para pesquisa e ordenação
+});
+
+// Função para registrar download
+async function registrarDownload(nomeArquivo) {
+  try {
+    const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+    const nomeAluno = usuario.nome || "Visitante";
+    
+    await addDoc(collection(db, "downloads"), {
+      nomeAluno,
+      nomeArquivo,
+      data: Timestamp.fromDate(new Date())
+    });
+    
+    console.log("✅ Download registrado:", nomeArquivo);
+  } catch (erro) {
+    console.error("❌ Erro ao registrar download:", erro);
+  }
+}
+
+// Event delegation para registrar downloads
+document.addEventListener('click', (e) => {
+  const downloadBtn = e.target.closest('.btn-download');
+  if (downloadBtn) {
+    console.log('🔵 Botão de download clicado');
+    console.log('Atributo data-nome-arquivo:', downloadBtn.getAttribute('data-nome-arquivo'));
+    
+    if (downloadBtn.hasAttribute('data-nome-arquivo')) {
+      const nomeArquivo = downloadBtn.getAttribute('data-nome-arquivo');
+      console.log('📥 Registrando download:', nomeArquivo);
+      registrarDownload(nomeArquivo);
+    } else {
+      console.warn('⚠️ Botão de download sem data-nome-arquivo. Verifique se o cache foi limpo.');
+    }
+  }
 });
 
 // Verificar Autenticação e Papel
@@ -54,6 +91,7 @@ function checkUserAuth() {
   if (usuarioLogado) {
     try {
       const user = JSON.parse(usuarioLogado);
+      // Professor é identificado por tipo 'professor' OU pela flag 'classificado: true'
       if (user.tipo === 'professor' || user.classificado === true) { 
         userRole = 'teacher';
         if (roleSelector) {
@@ -61,6 +99,7 @@ function checkUserAuth() {
           roleSelector.value = 'teacher';
         }
       } else {
+        // Se for aluno, esconde o seletor e trava no modo student
         userRole = 'student';
         if (roleSelector) roleSelector.style.display = 'none';
       }
@@ -70,6 +109,7 @@ function checkUserAuth() {
       if (roleSelector) roleSelector.style.display = 'none';
     }
   } else {
+    // Se não houver usuário logado (acesso direto), assume aluno por segurança
     userRole = 'student';
     if (roleSelector) roleSelector.style.display = 'none';
   }
@@ -87,6 +127,7 @@ async function ensureInitialCollections() {
           nome: colName,
           criadoEm: serverTimestamp()
         });
+        console.log(`✅ Coleção "${colName}" criada com sucesso!`);
       }
     }
   } catch (error) {
@@ -96,34 +137,23 @@ async function ensureInitialCollections() {
 
 // ROLE
 function setupEventListeners() {
-  const roleSelector = document.getElementById('user-role');
-  if (roleSelector) {
-    roleSelector.addEventListener('change', e => {
-      userRole = e.target.value;
-      updateUIBasedOnRole();
-    });
-  }
+  document.getElementById('user-role').addEventListener('change', e => {
+    userRole = e.target.value;
+    updateUIBasedOnRole();
+  });
 
-  // Busca interna da coleção
-  const searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', filterAndSortDocuments);
-  }
-
-  const sortSelect = document.getElementById('sort-select');
-  if (sortSelect) {
-    sortSelect.addEventListener('change', filterAndSortDocuments);
-  }
-
-  // Busca Global
-  const globalSearchInput = document.getElementById('global-search-input');
-  if (globalSearchInput) {
-    globalSearchInput.addEventListener('input', handleGlobalSearch);
-  }
+  document.getElementById('search-input').addEventListener('input', filterAndSortDocuments);
+  document.getElementById('sort-select').addEventListener('change', filterAndSortDocuments);
 }
 
 function updateUIBasedOnRole() {
   document.querySelectorAll('.is-teacher')
+    .forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
+
+  document.querySelectorAll('.btn-delete')
+    .forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
+
+  document.querySelectorAll('.btn-edit')
     .forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
 
   document.querySelectorAll('.btn-delete-collection')
@@ -135,31 +165,19 @@ async function loadCollections() {
   collections = [];
   const snap = await getDocs(collection(db, 'biblioteca_colecoes'));
   
-  const collectionPromises = snap.docs.map(async (docSnap) => {
-    const colData = { id: docSnap.id, ...docSnap.data() };
-    // Buscar contagem de documentos
-    const docsSnap = await getDocs(collection(db, 'biblioteca_colecoes', docSnap.id, 'documentos'));
-    colData.fileCount = docsSnap.size;
-    return colData;
-  });
-
-  collections = await Promise.all(collectionPromises);
-}
-
-// Carregar todos os documentos de todas as coleções para busca global
-async function loadAllDocuments() {
-  allDocuments = [];
-  for (const col of collections) {
-    const docsSnap = await getDocs(collection(db, 'biblioteca_colecoes', col.id, 'documentos'));
-    docsSnap.forEach(d => {
-      allDocuments.push({ 
-        id: d.id, 
-        collectionId: col.id, 
-        collectionName: col.nome,
-        ...d.data() 
-      });
-    });
-  }
+  // Usar Promise.all para carregar a contagem de documentos de todas as coleções em paralelo
+  const collectionsWithCount = await Promise.all(snap.docs.map(async (docSnap) => {
+    const colData = docSnap.data();
+    const colId = docSnap.id;
+    
+    // Buscar a subcoleção de documentos para contar
+    const docsSnap = await getDocs(collection(db, 'biblioteca_colecoes', colId, 'documentos'));
+    const count = docsSnap.size;
+    
+    return { id: colId, ...colData, fileCount: count };
+  }));
+  
+  collections = collectionsWithCount;
 }
 
 function getCollectionIcon(name) {
@@ -171,13 +189,13 @@ function getCollectionIcon(name) {
 
 function renderCollections() {
   const grid = document.getElementById('collections-grid');
-  if (!grid) return;
   grid.innerHTML = '';
 
   collections.forEach(col => {
     const card = document.createElement('div');
     card.className = 'collection-card';
     
+    // O clique no card abre a coleção, mas o clique no botão de deletar não deve abrir
     card.onclick = (e) => {
       if (e.target.closest('.btn-delete-collection')) return;
       openCollection(col.id, col.nome);
@@ -189,8 +207,8 @@ function renderCollections() {
       </button>
       <span class="icon-folder">${getCollectionIcon(col.nome)}</span>
       <h3>${col.nome}</h3>
-      <span class="file-count">${col.fileCount || 0} arquivos</span>
-      <p>Toque para abrir</p>
+      <p class="file-count">${col.fileCount || 0} ${col.fileCount === 1 ? 'arquivo' : 'arquivos'}</p>
+      <p class="tap-hint">Toque para abrir</p>
     `;
     grid.appendChild(card);
   });
@@ -198,66 +216,37 @@ function renderCollections() {
   updateUIBasedOnRole();
 }
 
-// Busca Global
-function handleGlobalSearch(e) {
-  const term = e.target.value.toLowerCase().trim();
-  const resultsView = document.getElementById('search-results-view');
-  const resultsContainer = document.getElementById('global-search-results');
-  const collectionsGrid = document.getElementById('collections-grid');
-  const headerSection = document.querySelector('.header-section');
-
-  if (term.length < 2) {
-    resultsView.style.display = 'none';
-    collectionsGrid.style.opacity = '1';
-    if (headerSection) headerSection.style.display = 'block';
-    return;
-  }
-
-  resultsView.style.display = 'block';
-  collectionsGrid.style.opacity = '0.3';
-  if (headerSection) headerSection.style.display = 'none';
-
-  const filtered = allDocuments.filter(doc => 
-    doc.nome.toLowerCase().includes(term) || 
-    doc.collectionName.toLowerCase().includes(term)
-  );
-
-  renderDocumentList(filtered, resultsContainer);
-}
-
-window.clearGlobalSearch = () => {
-  const input = document.getElementById('global-search-input');
-  if (input) {
-    input.value = '';
-    handleGlobalSearch({ target: input });
-  }
-};
-
 async function deleteCollection(id, name) {
   if (!confirm(`⚠️ ATENÇÃO: Tem certeza que deseja excluir a coleção "${name}"?\n\nIsso removerá permanentemente todos os documentos e áudios contidos nela.`)) return;
 
   try {
+    // 1. Carregar todos os documentos da coleção para deletar os arquivos no Storage
     const docsRef = collection(db, 'biblioteca_colecoes', id, 'documentos');
     const snap = await getDocs(docsRef);
     
     for (const d of snap.docs) {
       const data = d.data();
+      // Deletar PDF
       if (data.storagePath) {
-        try { await deleteObject(ref(storage, data.storagePath)); } catch(e) {}
+        try { await deleteObject(ref(storage, data.storagePath)); } catch(e) { console.warn('Erro ao deletar PDF no storage:', e); }
       }
+      // Deletar Áudio
       if (data.audioStoragePath) {
-        try { await deleteObject(ref(storage, data.audioStoragePath)); } catch(e) {}
+        try { await deleteObject(ref(storage, data.audioStoragePath)); } catch(e) { console.warn('Erro ao deletar áudio no storage:', e); }
       }
+      // Deletar documento no Firestore
       await deleteDoc(doc(db, 'biblioteca_colecoes', id, 'documentos', d.id));
     }
 
+    // 2. Deletar a coleção principal
     await deleteDoc(doc(db, 'biblioteca_colecoes', id));
+
     alert(`✅ Coleção "${name}" excluída com sucesso!`);
     await loadCollections();
     renderCollections();
-    loadAllDocuments(); // Atualizar busca global
   } catch (error) {
     console.error('❌ Erro ao excluir coleção:', error);
+    alert('❌ Erro ao excluir a coleção. Verifique o console.');
   }
 }
 
@@ -267,6 +256,7 @@ async function openCollection(id, name) {
   document.getElementById('collection-view').classList.add('active');
   document.getElementById('collection-title').textContent = name;
   
+  // Limpar filtros
   document.getElementById('search-input').value = '';
   document.getElementById('sort-select').value = 'name-asc';
   
@@ -279,50 +269,61 @@ function backToCollections() {
   currentDocumentId = null;
   document.getElementById('collections-view').style.display = 'block';
   document.getElementById('collection-view').classList.remove('active');
-  
-  // Limpar campos de upload
-  const pdfInput = document.getElementById('pdf-file');
-  const audioInput = document.getElementById('audio-file');
-  if (pdfInput) pdfInput.value = '';
-  if (audioInput) audioInput.value = '';
-  
-  const fileName = document.getElementById('file-name');
-  const audioFileName = document.getElementById('audio-file-name');
-  if (fileName) fileName.textContent = '';
-  if (audioFileName) audioFileName.textContent = '';
+  document.getElementById('pdf-file').value = '';
+  document.getElementById('audio-file').value = '';
+  document.getElementById('file-name').textContent = '';
+  document.getElementById('audio-file-name').textContent = '';
 }
 
+// 📄 DOCUMENTOS
 async function loadDocuments() {
   documents = [];
-  if (!currentCollectionId) return;
   const docsRef = collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos');
   const snap = await getDocs(docsRef);
+
   snap.forEach(d => {
     documents.push({ id: d.id, ...d.data() });
   });
 }
 
 function filterAndSortDocuments() {
-  const term = document.getElementById('search-input').value.toLowerCase();
-  const sortBy = document.getElementById('sort-select').value;
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+  
+  if (!searchInput || !sortSelect) return;
 
-  let filtered = documents.filter(doc => doc.nome.toLowerCase().includes(term));
+  const term = searchInput.value.toLowerCase();
+  const sortBy = sortSelect.value;
 
-  if (sortBy === 'name-asc') filtered.sort((a, b) => a.nome.localeCompare(b.nome));
-  else if (sortBy === 'name-desc') filtered.sort((a, b) => b.nome.localeCompare(a.nome));
-  else if (sortBy === 'date-desc') filtered.sort((a, b) => (b.criadoEm?.toDate() || 0) - (a.criadoEm?.toDate() || 0));
-  else if (sortBy === 'date-asc') filtered.sort((a, b) => (a.criadoEm?.toDate() || 0) - (b.criadoEm?.toDate() || 0));
+  let filtered = documents.filter(doc =>
+    doc.nome.toLowerCase().includes(term)
+  );
 
-  renderDocumentList(filtered, document.getElementById('documents-container'));
+  // Ordenação
+  if (sortBy === 'name-asc') {
+    filtered.sort((a, b) => a.nome.localeCompare(b.nome));
+  } else if (sortBy === 'name-desc') {
+    filtered.sort((a, b) => b.nome.localeCompare(a.nome));
+  } else if (sortBy === 'date-desc') {
+    filtered.sort((a, b) => (b.criadoEm?.toDate() || 0) - (a.criadoEm?.toDate() || 0));
+  } else if (sortBy === 'date-asc') {
+    filtered.sort((a, b) => (a.criadoEm?.toDate() || 0) - (b.criadoEm?.toDate() || 0));
+  }
+
+  renderDocumentsFiltered(filtered);
 }
 
 function renderDocuments() {
   filterAndSortDocuments();
 }
 
-function renderDocumentList(docs, container) {
+function renderDocumentsFiltered(docsToRender) {
+  const container = document.getElementById('documents-container');
   if (!container) return;
   container.innerHTML = '';
+
+  // Garante que docsToRender seja um array
+  const docs = Array.isArray(docsToRender) ? docsToRender : [];
 
   if (docs.length === 0) {
     container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-style:italic;">Nenhum documento encontrado</div>';
@@ -339,53 +340,121 @@ function renderDocumentList(docs, container) {
         <div class="audio-player">
           <audio controls>
             <source src="${d.audioUrl}" type="audio/mpeg">
+            Seu navegador não suporta o elemento de áudio.
           </audio>
         </div>
       `;
     }
 
-    // Se for busca global, mostrar de qual coleção é
-    const collectionTag = d.collectionName ? `<small style="color:var(--azul); display:block; margin-bottom:5px;">📁 ${d.collectionName}</small>` : '';
-
     item.innerHTML = `
-      ${collectionTag}
       <div class="doc-name">${d.nome}</div>
       ${audioHTML}
       <div class="doc-buttons">
-        <a class="btn-download" href="${d.url}" target="_blank" onclick="registrarDownload('${d.id}', '${d.nome}')">📥 Baixar PDF</a>
-        <div class="is-teacher" style="display: ${userRole === 'teacher' ? 'flex' : 'none'}; gap: 10px;">
-          <button class="btn-edit" onclick="openEditModal('${d.id}', '${d.collectionId || currentCollectionId}')">🎵 Áudio</button>
-          <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.collectionId || currentCollectionId}')">🗑️</button>
-        </div>
+        <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${d.nome}">📥 Baixar PDF</a>
+        <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
+        <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+        </button>
       </div>
     `;
     container.appendChild(item);
   });
+
+  updateUIBasedOnRole();
 }
 
-// Funções de Upload e Gerenciamento (Mantidas as originais)
+// Função para filtrar documentos por termo de pesquisa (substring, case-insensitive)
+function filterDocuments(term) {
+  if (!term.trim()) return currentDocuments;
+  return currentDocuments.filter(doc =>
+    doc.nome.toLowerCase().includes(term.toLowerCase())
+  );
+}
+
+// Função para ordenar documentos
+function sortDocuments(docs) {
+  const sorted = [...docs]; // Cópia
+
+  switch (sortCriterion) {
+    case 'name-asc':
+      return sorted.sort((a, b) => a.nome.localeCompare(b.nome));
+    case 'name-desc':
+      return sorted.sort((a, b) => b.nome.localeCompare(a.nome));
+    case 'date-desc':
+      return sorted.sort((a, b) => b.criadoEm.toDate() - a.criadoEm.toDate());
+    case 'date-asc':
+      return sorted.sort((a, b) => a.criadoEm.toDate() - b.criadoEm.toDate());
+    default:
+      return sorted;
+  }
+}
+
+// Função para configurar listeners de pesquisa e ordenação
+function setupSearchSortListeners() {
+  const searchInput = document.getElementById('search-input');
+  const sortSelect = document.getElementById('sort-select');
+
+  searchInput.addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    filterAndSortDocuments();
+  });
+
+  sortSelect.addEventListener('change', (e) => {
+    sortCriterion = e.target.value;
+    filterAndSortDocuments();
+  });
+}
+
+// Atualizar nome do arquivo selecionado
+function updateFileName() {
+  const file = document.getElementById('pdf-file').files[0];
+  const nameSpan = document.getElementById('file-name');
+  if (file) {
+    nameSpan.textContent = `✅ ${file.name}`;
+  } else {
+    nameSpan.textContent = '';
+  }
+}
+
+function updateAudioFileName() {
+  const file = document.getElementById('audio-file').files[0];
+  const nameSpan = document.getElementById('audio-file-name');
+  if (file) {
+    nameSpan.textContent = `✅ ${file.name}`;
+  } else {
+    nameSpan.textContent = '';
+  }
+}
+
+// ⬆️ UPLOAD
 async function uploadDocument() {
   const pdfFile = document.getElementById('pdf-file').files[0];
   const audioFile = document.getElementById('audio-file').files[0];
 
-  if (!pdfFile) {
-    alert('❌ Selecione pelo menos o arquivo PDF');
+  if (!pdfFile || pdfFile.type !== 'application/pdf') {
+    alert('❌ Selecione um PDF válido');
     return;
   }
 
-  const btn = document.querySelector('.upload-btn');
-  btn.disabled = true;
-  btn.textContent = 'Enviando...';
+  if (!currentCollectionId) {
+    alert('❌ Nenhuma coleção selecionada');
+    return;
+  }
 
   try {
+    const uploadBtn = document.querySelector('.upload-btn');
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = '⏳ Enviando...';
+
+    // Upload do PDF
     const pdfPath = `biblioteca/${currentCollectionId}/${Date.now()}_${pdfFile.name}`;
     const pdfRef = ref(storage, pdfPath);
     await uploadBytes(pdfRef, pdfFile);
     const pdfUrl = await getDownloadURL(pdfRef);
 
+    // Upload do áudio (se fornecido)
     let audioUrl = null;
     let audioStoragePath = null;
-
     if (audioFile) {
       const audioPath = `biblioteca/${currentCollectionId}/${Date.now()}_audio_${audioFile.name}`;
       const audioRef = ref(storage, audioPath);
@@ -394,153 +463,311 @@ async function uploadDocument() {
       audioStoragePath = audioPath;
     }
 
-    await addDoc(collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos'), {
-      nome: pdfFile.name.replace('.pdf', ''),
-      url: pdfUrl,
-      storagePath: pdfPath,
-      audioUrl: audioUrl,
-      audioStoragePath: audioStoragePath,
-      criadoEm: serverTimestamp()
-    });
+    // Salvar no Firestore
+    await addDoc(
+      collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos'),
+      {
+        nome: pdfFile.name,
+        tamanho: pdfFile.size,
+        url: pdfUrl,
+        storagePath: pdfPath,
+        audioUrl: audioUrl || null,
+        audioStoragePath: audioStoragePath || null,
+        criadoEm: serverTimestamp()
+      }
+    );
 
     alert('✅ Documento enviado com sucesso!');
-    backToCollections();
-    await loadCollections();
-    renderCollections();
-    loadAllDocuments();
+    document.getElementById('pdf-file').value = '';
+    document.getElementById('audio-file').value = '';
+    document.getElementById('file-name').textContent = '';
+    document.getElementById('audio-file-name').textContent = '';
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'Enviar';
+    
+    await loadDocuments();
+    renderDocuments();
   } catch (error) {
-    console.error('Erro no upload:', error);
-    alert('❌ Erro ao enviar arquivo');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Enviar';
+    console.error('❌ Erro ao fazer upload:', error);
+    alert('❌ Erro ao fazer upload do documento');
+    const uploadBtn = document.querySelector('.upload-btn');
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'Enviar';
   }
 }
 
-async function deleteDocument(docId, colId) {
-  if (!confirm('Tem certeza que deseja excluir este documento?')) return;
-  const targetColId = colId || currentCollectionId;
-  
+// 🗑️ DELETE
+async function deleteDocument(docId, pdfPath, audioPath) {
+  if (!confirm('Deseja excluir este documento?')) return;
+
   try {
-    const docRef = doc(db, 'biblioteca_colecoes', targetColId, 'documentos', docId);
-    await deleteDoc(docRef);
-    alert('✅ Documento excluído!');
-    if (currentCollectionId) {
-      await loadDocuments();
-      renderDocuments();
+    await deleteObject(ref(storage, pdfPath));
+    if (audioPath) {
+      await deleteObject(ref(storage, audioPath));
     }
-    await loadCollections();
-    renderCollections();
-    loadAllDocuments();
+    await deleteDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', docId));
+    alert('✅ Documento excluído com sucesso!');
+    await loadDocuments();
+    renderDocuments();
   } catch (error) {
-    console.error('Erro ao deletar:', error);
+    console.error('❌ Erro ao excluir documento:', error);
+    alert('❌ Erro ao excluir o documento');
   }
 }
 
-// Modais e auxiliares
-window.updateFileName = () => {
-  const f = document.getElementById('pdf-file').files[0];
-  if (f) document.getElementById('file-name').textContent = `✅ ${f.name}`;
-};
-
-window.updateAudioFileName = () => {
-  const f = document.getElementById('audio-file').files[0];
-  if (f) document.getElementById('audio-file-name').textContent = `✅ ${f.name}`;
-};
-
-window.openEditModal = (docId, colId) => {
+// 🎵 MODAL DE ÁUDIO
+function openEditModal(docId) {
   currentDocumentId = docId;
-  currentCollectionId = colId; // Importante para o saveAudio
-  document.getElementById('edit-modal').style.display = 'flex';
-};
+  document.getElementById('edit-modal').style.display = 'block';
+}
 
-window.closeModal = () => {
+function closeModal() {
   document.getElementById('edit-modal').style.display = 'none';
-};
+  document.getElementById('edit-audio-file').value = '';
+  currentDocumentId = null;
+}
 
 async function saveAudio() {
   const audioFile = document.getElementById('edit-audio-file').files[0];
-  if (!audioFile) return alert('Selecione um arquivo');
-  
+
+  if (!audioFile) {
+    alert('❌ Selecione um arquivo de áudio');
+    return;
+  }
+
+  if (!currentDocumentId) {
+    alert('❌ Nenhum documento selecionado');
+    return;
+  }
+
   try {
-    const path = `biblioteca/${currentCollectionId}/${Date.now()}_audio_${audioFile.name}`;
-    const sRef = ref(storage, path);
-    await uploadBytes(sRef, audioFile);
-    const url = await getDownloadURL(sRef);
-
-    await updateDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', currentDocumentId), {
-      audioUrl: url,
-      audioStoragePath: path
-    });
-
-    alert('✅ Áudio atualizado!');
-    closeModal();
-    if (currentCollectionId) {
-      await loadDocuments();
-      renderDocuments();
+    const docData = documents.find(d => d.id === currentDocumentId);
+    if (!docData) {
+      alert('❌ Documento não encontrado');
+      return;
     }
-    loadAllDocuments();
-  } catch (e) {
-    console.error(e);
+
+    // Deletar áudio antigo se existir
+    if (docData.audioStoragePath) {
+      try {
+        await deleteObject(ref(storage, docData.audioStoragePath));
+      } catch (e) {
+        console.warn('Não foi possível deletar áudio antigo:', e);
+      }
+    }
+
+    // Upload do novo áudio
+    const audioPath = `biblioteca/${currentCollectionId}/${Date.now()}_audio_${audioFile.name}`;
+    const audioRef = ref(storage, audioPath);
+    await uploadBytes(audioRef, audioFile);
+    const audioUrl = await getDownloadURL(audioRef);
+
+    // Atualizar no Firestore
+    await updateDoc(
+      doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', currentDocumentId),
+      {
+        audioUrl: audioUrl,
+        audioStoragePath: audioPath
+      }
+    );
+
+    alert('✅ Áudio atualizado com sucesso!');
+    closeModal();
+    await loadDocuments();
+    renderDocuments();
+  } catch (error) {
+    console.error('❌ Erro ao salvar áudio:', error);
+    alert('❌ Erro ao salvar o áudio');
   }
 }
 
 async function removeAudio() {
-  if (!confirm('Remover áudio?')) return;
+  if (!confirm('Deseja remover o áudio deste documento?')) return;
+
+  if (!currentDocumentId) {
+    alert('❌ Nenhum documento selecionado');
+    return;
+  }
+
   try {
-    await updateDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', currentDocumentId), {
-      audioUrl: null,
-      audioStoragePath: null
-    });
-    alert('✅ Áudio removido!');
-    closeModal();
-    if (currentCollectionId) {
-      await loadDocuments();
-      renderDocuments();
+    const docData = documents.find(d => d.id === currentDocumentId);
+    if (!docData) {
+      alert('❌ Documento não encontrado');
+      return;
     }
-    loadAllDocuments();
-  } catch (e) {
-    console.error(e);
+
+    // Deletar áudio do Storage
+    if (docData.audioStoragePath) {
+      try {
+        await deleteObject(ref(storage, docData.audioStoragePath));
+      } catch (e) {
+        console.warn('Não foi possível deletar áudio:', e);
+      }
+    }
+
+    // Atualizar no Firestore
+    await updateDoc(
+      doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', currentDocumentId),
+      {
+        audioUrl: null,
+        audioStoragePath: null
+      }
+    );
+
+    alert('✅ Áudio removido com sucesso!');
+    closeModal();
+    await loadDocuments();
+    renderDocuments();
+  } catch (error) {
+    console.error('❌ Erro ao remover áudio:', error);
+    alert('❌ Erro ao remover o áudio');
   }
 }
 
+// ➕ COLEÇÃO
 async function createNewCollection() {
   const input = document.getElementById('new-collection-name');
-  if (!input.value.trim()) return;
+  if (!input.value.trim()) {
+    alert('❌ Digite um nome para a coleção');
+    return;
+  }
+
   try {
     await addDoc(collection(db, 'biblioteca_colecoes'), {
       nome: input.value.trim(),
       criadoEm: serverTimestamp()
     });
+
+    alert('✅ Coleção criada com sucesso!');
     input.value = '';
     await loadCollections();
     renderCollections();
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error('❌ Erro ao criar coleção:', error);
+    alert('❌ Erro ao criar a coleção');
   }
 }
 
-async function registrarDownload(docId, nome) {
-  try {
-    const user = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
-    await addDoc(collection(db, 'downloads'), {
-      nomeAluno: user.nome || 'Anônimo',
-      nomeArquivo: nome,
-      data: serverTimestamp(),
-      documentoId: docId
-    });
-  } catch (e) {}
-}
-
-// Expor globais
+// Expor funções globalmente
+window.updateFileName = updateFileName;
+window.updateAudioFileName = updateAudioFileName;
 window.uploadDocument = uploadDocument;
 window.deleteDocument = deleteDocument;
 window.backToCollections = backToCollections;
 window.createNewCollection = createNewCollection;
 window.deleteCollection = deleteCollection;
+window.openEditModal = openEditModal;
+window.closeModal = closeModal;
 window.saveAudio = saveAudio;
 window.removeAudio = removeAudio;
-window.openCollection = openCollection;
 window.filterAndSortDocuments = filterAndSortDocuments;
-window.registrarDownload = registrarDownload;
-window.handleGlobalSearch = handleGlobalSearch;
+
+// 🔍 BUSCA GLOBAL
+function setupGlobalSearch() {
+  const globalInput = document.getElementById('global-search-input');
+  const clearBtn = document.getElementById('clear-global-search');
+
+  if (!globalInput) return;
+
+  globalInput.addEventListener('input', async (e) => {
+    const term = e.target.value.trim().toLowerCase();
+    
+    if (term.length > 0) {
+      clearBtn.style.display = 'block';
+      await performGlobalSearch(term);
+    } else {
+      clearGlobalSearch();
+    }
+  });
+
+  clearBtn.addEventListener('click', clearGlobalSearch);
+}
+
+async function performGlobalSearch(term) {
+  const resultsContainer = document.getElementById('global-results-container');
+  const resultsView = document.getElementById('global-search-results');
+  const countDisplay = document.getElementById('results-count');
+  
+  resultsView.style.display = 'block';
+  resultsContainer.innerHTML = '<div style="text-align:center; padding:20px;">🔍 Pesquisando em todas as coleções...</div>';
+
+  try {
+    let allResults = [];
+    
+    // Pesquisar em cada coleção carregada
+    for (const col of collections) {
+      const docsRef = collection(db, 'biblioteca_colecoes', col.id, 'documentos');
+      const snap = await getDocs(docsRef);
+      
+      snap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.nome.toLowerCase().includes(term)) {
+          allResults.push({
+            id: docSnap.id,
+            collectionId: col.id,
+            collectionName: col.nome,
+            ...data
+          });
+        }
+      });
+    }
+
+    renderGlobalResults(allResults);
+    // Contagem removida conforme solicitado
+    
+  } catch (error) {
+    console.error('Erro na busca global:', error);
+    resultsContainer.innerHTML = '<div style="text-align:center; padding:20px; color:var(--vermelho);">Erro ao realizar a busca.</div>';
+  }
+}
+
+function renderGlobalResults(results) {
+  const container = document.getElementById('global-results-container');
+  container.innerHTML = '';
+
+  if (results.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted); font-style:italic;">Nenhum documento encontrado com este nome.</div>';
+    return;
+  }
+
+  results.forEach(d => {
+    const item = document.createElement('div');
+    item.className = 'document-item';
+
+    let audioHTML = '';
+    if (d.audioUrl) {
+      audioHTML = `
+        <div class="audio-player">
+          <audio controls>
+            <source src="${d.audioUrl}" type="audio/mpeg">
+          </audio>
+        </div>
+      `;
+    }
+
+    item.innerHTML = `
+      <div class="doc-info" style="flex: 1;">
+        <span class="search-result-collection">${d.collectionName}</span>
+        <div class="doc-name" style="text-align: left; font-size: 1rem;">${d.nome}</div>
+      </div>
+      ${audioHTML}
+      <div class="doc-buttons">
+        <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${d.nome}">📥 Baixar PDF</a>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function clearGlobalSearch() {
+  const globalInput = document.getElementById('global-search-input');
+  const clearBtn = document.getElementById('clear-global-search');
+  const resultsView = document.getElementById('global-search-results');
+  
+  if (globalInput) globalInput.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (resultsView) resultsView.style.display = 'none';
+}
+
+// Expor funções de busca global
+window.clearGlobalSearch = clearGlobalSearch;

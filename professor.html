@@ -488,10 +488,12 @@
       <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
       <button onclick="window.location.href='biblioteca.html'">📚 Biblioteca</button>
       <button id="btnAtualizarComprometimento">⚡ Atualizar Comprometimento</button>
+      <button onclick="carregarModulo('relatorio')">📊 Relatório Mensal</button>
       <!-- REMOVED: <button onclick="exportarPDF()">📄 Exportar PDF</button> -->
     </div>
 
     <div class="painel-alunos">
+      <div id="conteudo"></div>
       <div class="painel-licoes-prof" id="painelLicoesProf"></div>
       <div class="painel" id="painel"></div>
       <div id="loader" class="loader" style="display:none;">

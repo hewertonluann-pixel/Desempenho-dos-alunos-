@@ -27,85 +27,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* ===== MODAL ADICIONAR ALUNO ===== :ro */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(4px);
-}
-
-.modal.ativo {
-  display: flex;
-  animation: aparecer 0.3s ease;
-}
-
-.modal-conteudo {
-  background: rgba(20, 20, 35, 0.95);
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
-  width: 90%;
-  max-width: 400px;
-  color: #fff;
-  text-align: center;
-}
-
-.modal-conteudo h2 {
-  color: #00ffcc;
-  margin-bottom: 15px;
-  text-shadow: 0 0 8px #00ffcc;
-}
-
-.modal-conteudo input {
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  text-align: center;
-}
-
-.botoes-modal {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.botoes-modal button {
-  background: linear-gradient(145deg, #00bfff, #007acc);
-  border: none;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.botoes-modal button:hover {
-  background: linear-gradient(145deg, #00e6e6, #00aaff);
-  transform: scale(1.05);
-}
-
-.fechar-modal {
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 24px;
-  color: #00ffcc;
-  cursor: pointer;
-}
-
 /* ===== FORMULÁRIO DE CADASTRO ===== */
 .formulario {
   max-width: 400px;
@@ -288,14 +209,12 @@ h1 {
 }
 
 .acoes button {
-  padding: 6px 8px;
-  font-size: 0.8rem;
+  padding: 8px 10px;
+  font-size: 0.9rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: 0.3s;
-  flex: 1;
-  white-space: nowrap;
 }
 
 .acoes .remover {
@@ -386,89 +305,4 @@ h1 {
   .ficha {
     width: 90%;
   }
-}
-
-/* ===== BOTÃO RECALCULAR ENERGIA ===== */
-.recalcular-energia {
-  background: linear-gradient(145deg, #00bfff, #007acc);
-  border: none;
-  color: #fff;
-  padding: 10px 18px;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
-}
-
-.recalcular-energia:hover {
-  transform: scale(1.05);
-  background: linear-gradient(145deg, #00ccff, #00aaff);
-  box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
-}
-
-.recalcular-energia:active {
-  transform: scale(0.96);
-}
-
-/* ===== MENSAGEM DE SUCESSO ===== */
-.mensagem-sucesso {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #00ffcc;
-  color: #000;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-  z-index: 9999;
-}
-
-.mensagem-sucesso.visivel {
-  opacity: 1;
-}
-
-.mensagem-info {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #2563eb;
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-  z-index: 9999;
-}
-
-.mensagem-info.visivel {
-  opacity: 1;
-}
-
-/* Estilos para o Painel de Avaliação */
-.card-avaliacao {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.card-avaliacao:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-  border-color: rgba(56, 189, 248, 0.5) !important;
-}
-.card-avaliacao button:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
-}
-.card-avaliacao textarea:focus {
-  outline: none;
-  border-color: #22d3ee;
-  box-shadow: 0 0 5px rgba(34, 211, 238, 0.3);
 }

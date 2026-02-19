@@ -56,8 +56,7 @@ btnEntrar.addEventListener("click", async () => {
       return;
     }
 
-    // Salva o objeto completo do aluno, incluindo 'classificado' se existir
-    salvarUsuarioAtual(aluno);
+    salvarUsuarioAtual(aluno.nome, "aluno");
 
     window.location.href = `aluno.html?nome=${encodeURIComponent(aluno.nome)}`;
   }
@@ -79,8 +78,7 @@ btnEntrar.addEventListener("click", async () => {
       return;
     }
 
-    // Salva o objeto completo do professor
-    salvarUsuarioAtual(prof);
+    salvarUsuarioAtual(prof.nome, "professor");
 
     window.location.href = "professor.html";
   }

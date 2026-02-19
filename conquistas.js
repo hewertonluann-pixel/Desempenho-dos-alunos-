@@ -3,162 +3,221 @@
 // Sistema modular de conquistas do painel do aluno
 // --------------------------------------
 
-// 🏆 Mapa de Conquistas (Regras e Detalhes)
-export const mapaConquistas = {
-  presenca_perfeita: {
-    icone: "🎖️",
+// 🏆 Cada conquista tem:
+// id → identificador único (não muda)
+// titulo → nome exibido
+// icone → emoji ou ícone visual
+// descricao → texto explicativo (opcional, útil para tooltips)
+// condicao → função que retorna true/false com base nos dados do aluno
+// raridade → nível de dificuldade (para uso futuro)
+// --------------------------------------
+
+export const regrasDeConquistas = [
+  {
+    id: "presenca_perfeita",
     titulo: "Presença Perfeita",
+    icone: "🎖️",
+    descricao: "Compareceu a todos os ensaios do mês.",
+    regraLogica: "Frequência mensal >= 100%",
     raridade: "ouro",
-    descricao: "Concedida a quem comparece a 100% dos ensaios do mês.",
-    detalhes: ["Não faltar nenhum ensaio.", "Compromisso e constância exemplar.", "Atualizada mensalmente."],
-    condicao: (aluno) => (aluno.frequenciaMensal && aluno.frequenciaMensal.porcentagem >= 100)
+    condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 100
   },
-  leitor_dedicado: {
-    icone: "📘",
+  {
+    id: "leitor_dedicado",
     titulo: "Leitor Dedicado",
+    icone: "📘",
+    descricao: "Atingiu alto desempenho em leitura musical.",
+    regraLogica: "Nível de leitura >= 60",
     raridade: "prata",
-    descricao: "Atingida por alunos com Leitura ≥ 50 pontos.",
-    detalhes: ["Estudo contínuo da leitura musical (BONA).", "Requer evolução técnica constante.", "Indicador de boa leitura rítmica e melódica."],
     condicao: (aluno) => aluno.leitura >= 50
   },
-  musico_pontual: {
+  {
+    id: "musico_pontual",
+    titulo: "Músico Pontual",
     icone: "🎯",
-    titulo: "Músico Esforçado",
+    descricao: "Manteve presença consistente nos ensaios.",
+    regraLogica: "Frequência mensal >= 80%",
     raridade: "prata",
-    descricao: "Obtida com frequência mensal acima de 80%.",
-    detalhes: ["Comparecer na maioria dos ensaios.", "Evitar faltas repetidas.", "Reflete disciplina e responsabilidade."],
-    condicao: (aluno) => (aluno.frequenciaMensal && aluno.frequenciaMensal.porcentagem >= 80)
+    condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 80
   },
-  evolucao_constante: {
-    icone: "🔥",
+  {
+    id: "evolucao_constante",
     titulo: "Evolução Constante",
+    icone: "🔥",
+    descricao: "Somou 100 pontos ou mais entre leitura e método.",
+    regraLogica: "(Leitura + Método) >= 100",
     raridade: "ouro",
-    descricao: "Conquistada quando Leitura + Método ≥ 100 pontos.",
-    detalhes: ["Avanço equilibrado nas duas áreas.", "Indicador de estudo consistente.", "Mostra domínio progressivo."],
     condicao: (aluno) => (aluno.leitura + aluno.metodo) >= 100
   },
-  veterano_palco: {
-    icone: "🎤",
+  {
+    id: "veterano_palco",
     titulo: "Veterano de Palco",
+    icone: "🎤",
+    descricao: "Participou de mais de 20 apresentações.",
+    regraLogica: "Frequência total >= 20 ensaios",
     raridade: "ouro",
-    descricao: "Para quem participou de 20 ou mais apresentações.",
-    detalhes: ["Experiência em eventos oficiais.", "Presença em oportunidades musicais.", "Confiança no palco."],
     condicao: (aluno) => aluno.frequenciaTotal >= 20
   },
-  lider: {
-    icone: "🧑‍🏫",
+  {
+    id: "lider",
     titulo: "Líder",
-    raridade: "lendaria",
-    descricao: "Conquista atribuída pelo professor ao aluno que demonstra postura de liderança.",
-    detalhes: ["Líder de naipe / monitor / auxiliar.", "Critério: maturidade, cooperação e exemplo.", "Não é automática — depende do professor."],
+    icone: "👔",
+    descricao: "Demonstrou liderança e comprometimento exemplar.",
+    regraLogica: "Classificado como líder pelo maestro",
+    raridade: "lendario",
     condicao: (aluno) => aluno.classificado === true
-  },
-};
+  }
+];
 
 // --------------------------------------
-// 🔧 Funções de Pop-up
-// --------------------------------------
-
-export const abrirPopupConquista = (key) => {
-  console.log(`🔍 Tentando abrir popup de conquista para key: ${key}`); // Debug - remova após testar
-
-  if (!key || typeof key !== 'string') {
-    console.error(`🚫 Key undefined ou inválida: ${key}. Verifique renderização dos cards.`);
-    alert('Erro: Conquista indefinida. Verifique dados.');
-    return;
-  }
-
-  const conquista = mapaConquistas[key];
-  if (!conquista) {
-    console.error(`🚫 Conquista com key "${key}" não encontrada no mapa.`);
-    alert(`Erro: Conquista "${key}" não encontrada.`);
-    return;
-  }
-
-  // Verifica elementos DOM
-  const tituloEl = document.getElementById("conquistaTitulo");
-  const iconeEl = document.getElementById("conquistaIcone");
-  const descEl = document.getElementById("conquistaDescricao");
-  const ulEl = document.getElementById("conquistaDetalhes");
-  const popupEl = document.getElementById("popupConquista");
-
-  if (!tituloEl || !iconeEl || !descEl || !ulEl || !popupEl) {
-    console.error("🚫 Elementos DOM do pop-up não encontrados. Verifique HTML.");
-    alert("Erro interno: Pop-up não carregou.");
-    return;
-  }
-
-  // Preenche os elementos
-  tituloEl.textContent = conquista.titulo;
-  iconeEl.textContent = conquista.icone;
-  descEl.textContent = conquista.descricao;
-
-  ulEl.innerHTML = "";
-  conquista.detalhes.forEach(detalhe => {
-    const li = document.createElement("li");
-    li.textContent = detalhe;
-    ulEl.appendChild(li);
-  });
-
-  popupEl.style.display = "flex";
-};
-
-export const fecharPopupConquista = () => {
-  const popupEl = document.getElementById("popupConquista");
-  if (popupEl) popupEl.style.display = "none";
-  console.log("✅ Popup de conquista fechado.");
-};
-
-// --------------------------------------
-// 🔧 Função de Renderização
+// 🔧 Função utilitária (opcional)
+// Para uso futuro: gera o painel automaticamente com base na lista acima.
 // --------------------------------------
 
 export function gerarPainelConquistas(aluno, elementoAlvo) {
-  console.log("📊 Gerando painel de conquistas para aluno:", aluno); // Debug
+  if (!elementoAlvo) return;
 
-  if (!elementoAlvo || !aluno) {
-    console.error("🚫 Elemento alvo ou aluno não fornecido.");
-    return;
-  }
   elementoAlvo.innerHTML = "";
 
-  const conquistasDesbloqueadas = [];
-  for (const key in mapaConquistas) {
-    const conquista = mapaConquistas[key];
-    if (conquista.condicao && conquista.condicao(aluno)) {
-      conquistasDesbloqueadas.push({
-        key: key,
-        ...conquista,
-        nivel: 1
+  regrasDeConquistas.forEach((c) => {
+    const desbloqueado = c.condicao(aluno);
+    
+    // Criar card de conquista
+    const card = document.createElement("div");
+    card.classList.add("achievement-card");
+    card.classList.add(desbloqueado ? "desbloqueado" : "bloqueado");
+
+    // Ícone
+    const icone = document.createElement("div");
+    icone.classList.add("achievement-icon");
+    icone.textContent = desbloqueado ? c.icone : "🔒";
+
+    // Nome da conquista
+    const nome = document.createElement("div");
+    nome.classList.add("achievement-name");
+    nome.textContent = c.titulo;
+
+    card.appendChild(icone);
+    card.appendChild(nome);
+
+    // Adicionar evento de clique para abrir modal
+    if (desbloqueado) {
+      card.addEventListener("click", () => {
+        abrirPopupConquista(
+          c.icone,
+          c.titulo,
+          c.descricao || "Conquista desbloqueada!",
+          [], // Detalhes vazios
+          c.raridade,
+          c.regraLogica || c.descricao // Regra lógica
+        );
+      });
+    } else {
+      card.addEventListener("click", () => {
+        abrirPopupConquista(
+          "🔒",
+          c.titulo,
+          "Continue progredindo para desbloquear esta conquista!",
+          [],
+          c.raridade,
+          c.regraLogica || "Condição não especificada" // Regra lógica
+        );
       });
     }
-  }
 
-  console.log("🏆 Conquistas desbloqueadas:", conquistasDesbloqueadas.map(c => c.titulo));
-
-  conquistasDesbloqueadas.forEach(info => {
-    if (!info.key) {
-      console.warn("⚠️ Key ausente para conquista:", info);
-      return;
-    }
-
-    const card = document.createElement("div");
-    card.className = `achievement-card ${info.raridade}`;
-
-    // 🔥 Solução: Use addEventListener em vez de onclick inline
-    card.addEventListener("click", () => {
-      abrirPopupConquista(info.key);
-    });
-
-    card.innerHTML = `
-      <span class="achievement-icon">${info.icone}</span>
-      <span class="achievement-name">${info.titulo}</span>
-      ${info.nivel > 1 ? `<span class="achievement-count">x${info.nivel}</span>` : ''}
-    `;
     elementoAlvo.appendChild(card);
   });
+}
 
-  if (conquistasDesbloqueadas.length === 0) {
-    elementoAlvo.innerHTML = "<p style='text-align: center; color: #aaa;'>Nenhuma conquista desbloqueada ainda. Continue estudando!</p>";
+
+// --------------------------------------
+// 🔧 Funções auxiliares para uso global
+// --------------------------------------
+
+// Função auxiliar para definir texto de forma segura
+function safeSet(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+// Função auxiliar para definir HTML de forma segura
+function safeHTML(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+
+// Mapa de conquistas para acesso rápido por ID
+export const mapaConquistas = {};
+regrasDeConquistas.forEach(c => {
+  mapaConquistas[c.id] = c;
+});
+
+// --------------------------------------
+// 📦 Funções de popup de conquistas
+// --------------------------------------
+
+export function abrirPopupConquista(icone, titulo, descricao, detalhes, raridade = 'bronze', condicao = null, progresso = null) {
+  console.log('🔍 Abrindo popup de conquista:', titulo);
+  const popup = document.getElementById('popupConquista');
+  if (!popup) {
+    console.error('❌ Modal de conquista não encontrado!');
+    return;
+  }
+
+  // Preencher símbolo
+  safeSet('conquistaIconeModal', icone || '🏆');
+  
+  // Preencher nome
+  safeSet('conquistaNomeModal', titulo || 'Conquista');
+  
+  // Preencher nível (baseado na raridade)
+  const niveis = {
+    'ouro': 'Ouro 🥇',
+    'prata': 'Prata 🥈',
+    'bronze': 'Bronze 🥉',
+    'lendario': 'Lendário 💎'
+  };
+  safeSet('conquistaNivelModal', niveis[raridade] || 'Nível 1');
+  
+  // Preencher descrição
+  safeSet('conquistaDescricaoModal', descricao || 'Descrição não disponível.');
+  
+  // Preencher condição
+  if (condicao) {
+    safeSet('conquistaCondicaoModal', condicao);
+  } else {
+    // Usar descrição como condição se não fornecida
+    safeSet('conquistaCondicaoModal', descricao || 'Condição não especificada.');
+  }
+  
+  // Mostrar/ocultar seção de progresso
+  const progressoSection = document.getElementById('conquistaProgressoSection');
+  if (progresso && progressoSection) {
+    progressoSection.style.display = 'block';
+    
+    const progressoFill = document.getElementById('conquistaProgressoFill');
+    const progressoText = document.getElementById('conquistaProgressoText');
+    
+    if (progressoFill) {
+      progressoFill.style.width = `${progresso.porcentagem}%`;
+    }
+    if (progressoText) {
+      progressoText.textContent = `${progresso.atual} / ${progresso.total}`;
+    }
+  } else if (progressoSection) {
+    progressoSection.style.display = 'none';
+  }
+
+  // Mostrar modal
+  popup.style.display = 'flex';
+  popup.classList.add('active');
+}
+
+export function fecharPopupConquista() {
+  const popup = document.getElementById('popupConquista');
+  if (popup) {
+    popup.style.display = 'none';
+    popup.classList.remove('active');
+    console.log('✅ Popup de conquista fechado.');
   }
 }

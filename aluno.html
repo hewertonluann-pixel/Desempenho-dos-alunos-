@@ -29,14 +29,13 @@
         <div class="photo-upload">
           <img id="fotoAluno" src="https://via.placeholder.com/150" alt="Foto do aluno" class="profile-photo">
           <label for="novaFoto" class="upload-icon">
-  <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
-       viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
-  </svg>
-</label>
-
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+            </svg>
+          </label>
           <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" style="display: none;" />
         </div>
         <h1 class="aluno-name" id="nomeAluno">Nome do Aluno</h1>
@@ -49,41 +48,65 @@
           <div class="detail-item">
             <span class="detail-label">Leitura</span>
             <span class="detail-value" id="nivelLeitura">0</span>
+            <span class="detail-method-name" id="nomeMetodoLeitura">-</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Método</span>
             <span class="detail-value" id="nivelMetodo">0</span>
+            <span class="detail-method-name" id="nomeMetodoInstrumental">-</span>
           </div>
         </div>
-        <button class="btn-change-password" onclick="abrirPopup()">🔒 Alterar Senha</button>
+        <button class="btn-change-password" onclick="abrirConfiguracoes()">⚙️ Configurações</button>
         <button class="btn-professor-mode" id="modoProfessorBtn" style="display:none;" onclick="acessarModoProfessor()">👨‍🏫 Modo Professor</button>
       </div>
       
-      <div class="social-link-card">
-        <a href="painel-social.html" class="social-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          Comunidade
-        </a>
-      </div>
-      
-      <div class="social-link-card">
-        <a href="biblioteca.html" class="social-link">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-          Biblioteca
-        </a>
+      <div class="sidebar-buttons-row">
+        <div class="social-link-card">
+          <a href="painel-social.html" class="social-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Comunidade
+          </a>
+        </div>
+        
+        <div class="social-link-card">
+          <a href="biblioteca.html" class="social-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            Biblioteca
+          </a>
+        </div>
       </div>
     </aside>
 
     <main class="content-area">
       
-      <!-- ENERGIA / FREQUÊNCIA MENSAL -->
+      <!-- COMPROMETIMENTO (NOVO DESIGN CÁPSULA) -->
       <section class="energy-section card">
-        <h2>⚡ Comprometimento </h2>
-        <div class="energy-bar-wrapper">
-          <div class="energy-bar">
-            <div class="energy-level" id="barraEnergia"></div>
+        <h2>Comprometimento</h2>
+        <div class="capsule-grid">
+          <!-- GERAL -->
+          <div class="capsule-wrapper">
+            <div class="capsule-title"><span class="legend-circle blue"></span> Geral [2026]</div>
+            <div class="capsule blue">
+              <div class="capsule-circle blue-circle" id="valorEnergiaGeral">0%</div>
+              <div class="capsule-bar">
+                <div class="capsule-fill blue-fill" id="barraEnergiaGeral"></div>
+              </div>
+            </div>
           </div>
-          <span class="energy-value" id="valorEnergia">0%</span>
+          <!-- MENSAL -->
+          <div class="capsule-wrapper">
+            <div class="capsule-title"><span class="legend-circle green"></span> Mensal [Fevereiro]</div>
+            <div class="capsule green">
+              <div class="capsule-circle green-circle" id="valorEnergiaMensal">0%</div>
+              <div class="capsule-bar">
+                <div class="capsule-fill green-fill" id="barraEnergiaMensal"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="quote-container">
+          <p class="quote">"Tudo que tem fôlego louve ao Senhor. Aleluia!"</p>
+          <span class="reference">Salmo 150:6</span>
         </div>
       </section>
 
@@ -118,7 +141,7 @@
 
       <!-- LIÇÕES ENVIADAS -->
       <section class="lessons-section card">
-        <h2>🎤 Lições Enviadas</h2>
+        <h2>🎼Lições Enviadas</h2>
         <button class="btn-send-lesson" onclick="abrirModalEnviarLicao()">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
           Enviar nova lição
@@ -139,60 +162,89 @@
 
 
   <!-- ============================================================
-       MODAIS E POPUPS
+       MODAIS E POPUPS PADRONIZADOS
        ============================================================ -->
   
   <!-- POPUP FREQUÊNCIA -->
-  <div id="popupFrequencia" class="popup" style="display:none;">
-    <div class="popup-content"></div>
+  <div id="popupFrequencia" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-body"></div>
+    </div>
   </div>
 
   <!-- Popup de Detalhes da Conquista -->
-  <div id="popupConquista" class="modal">
-    <div class="modal-content">
+  <div id="popupConquista" class="modal" style="display:none;">
+    <div class="modal-content modal-conquista">
       <span class="close-button" onclick="fecharPopupConquista()">&times;</span>
-      <div class="conquista-header">
-        <span id="conquistaIcone" class="achievement-icon"></span>
-        <h2 id="conquistaTitulo"></h2>
+      
+      <!-- Cabeçalho com símbolo grande -->
+      <div class="conquista-header-modal">
+        <div class="conquista-simbolo-grande" id="conquistaIconeModal">🏆</div>
+        <h2 class="conquista-nome-modal" id="conquistaNomeModal">Nome da Conquista</h2>
+        <div class="conquista-nivel-badge" id="conquistaNivelModal">Nível 1</div>
       </div>
-      <p id="conquistaDescricao"></p>
-      <h3>Detalhes da Conquista:</h3>
-      <ul id="conquistaDetalhes">
-        <!-- Detalhes preenchidos pelo JS -->
-      </ul>
+      
+      <!-- Descrição -->
+      <div class="conquista-descricao-section">
+        <h3 class="conquista-section-title">📝 Descrição</h3>
+        <p class="conquista-descricao-text" id="conquistaDescricaoModal">Descrição detalhada da conquista.</p>
+      </div>
+      
+      <!-- Condição -->
+      <div class="conquista-condicao-section">
+        <h3 class="conquista-section-title">🎯 Condição para Obter</h3>
+        <div class="conquista-condicao-box" id="conquistaCondicaoModal">
+          Condição necessária para conquistar este achievement.
+        </div>
+      </div>
+      
+      <!-- Progresso (se aplicável) -->
+      <div class="conquista-progresso-section" id="conquistaProgressoSection" style="display:none;">
+        <h3 class="conquista-section-title">📊 Seu Progresso</h3>
+        <div class="conquista-progresso-bar">
+          <div class="conquista-progresso-fill" id="conquistaProgressoFill" style="width: 0%;"></div>
+        </div>
+        <p class="conquista-progresso-text" id="conquistaProgressoText">0 / 100</p>
+      </div>
+      
+      <!-- Botão Fechar -->
+      <div class="conquista-footer">
+        <button class="btn-fechar-conquista" onclick="fecharPopupConquista()">Fechar</button>
+      </div>
+      
     </div>
   </div>
 
-  <!-- POPUP SENHA -->
-  <div id="popupSenha" class="popup" style="display:none;">
-    <div class="popup-content">
-      <h2>Alterar Senha</h2>
-      <input type="password" id="novaSenha" placeholder="Nova senha" />
-      <div class="popup-buttons"> <!-- Grupo de botões para organização -->
-        <button onclick="fecharPopup()" class="btn-cancelar">Cancelar</button> <!-- Novo botão Cancelar -->
-        <button onclick="salvarSenha()" class="btn-salvar">Salvar</button>
+  <!-- POPUP SENHA / CONFIGURAÇÕES -->
+  <div id="popupSenha" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close-button" onclick="fecharPopup()">&times;</span>
+      <h2>⚙️ Configurações</h2>
+      <div class="modal-body">
+        <label for="novaSenha">Alterar Senha</label>
+        <input type="password" id="novaSenha" placeholder="Nova senha" />
+        <div class="modal-buttons">
+          <button onclick="fecharPopup()" class="btn-cancelar">Cancelar</button>
+          <button onclick="salvarSenha()" class="btn-salvar">Salvar Alterações</button>
+        </div>
+        <p id="mensagemSenha"></p>
       </div>
-      <p id="mensagemSenha"></p>
-      <span class="close-btn" onclick="fecharPopup()">×</span>
     </div>
   </div>
 
- <<!-- =================== LOADER ==================================-->
-<script src="loader.js"></script>
+  <!-- LOADER -->
+  <script src="loader.js"></script>
 
-<!-- =================== GRAFICO ==================================-->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="grafico-evolucao.js"></script>
+  <!-- GRAFICO -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="grafico-evolucao.js"></script>
 
-<!-- =================== SCRIPTS DO PAINEL =========================-->
-<script type="module" src="notificacoes.js"></script>
-<script type="module" src="aluno3.js?v=1"></script>
-<script type="module" src="navegacao.js"></script>
-<script src="js/recorder.js"></script>
-<script type="module" src="licoes.js?v=1"></script>
+  <!-- SCRIPTS DO PAINEL -->
+  <script type="module" src="notificacoes.js"></script>
+  <script type="module" src="aluno3.js?v=3"></script>
+  <script type="module" src="navegacao.js"></script>
+  <script src="js/recorder.js"></script>
+  <script type="module" src="licoes.js?v=1"></script>
 
- 
-
-  
 </body>
 </html>

@@ -84,43 +84,80 @@
             font-size: 0.9rem;
         }
 
-        /* Nova Barra de Busca Global */
+        /* Busca Global Moderna */
         .global-search-container {
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .global-search-wrapper {
-            position: relative;
-            width: 100%;
             max-width: 600px;
+            margin: 20px auto;
         }
 
-        .global-search-input {
-            width: 100%;
-            background: var(--card);
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(145deg, #0b1220, #020617);
             border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 20px 12px 45px;
-            color: var(--ink);
-            font-size: 1rem;
-            outline: none;
+            border-radius: 16px;
+            padding: 4px 4px 4px 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--azul);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .search-box svg {
+            color: var(--azul);
+            flex-shrink: 0;
+            margin-right: 12px;
             transition: all 0.3s ease;
         }
 
-        .global-search-input:focus {
-            border-color: var(--azul);
-            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        .search-box:focus-within svg {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 4px var(--azul));
         }
 
-        .search-icon-svg {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--ink);
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 12px 8px;
+        }
+
+        .search-box input::placeholder {
             color: var(--muted);
-            pointer-events: none;
+            font-weight: 400;
+        }
+
+        .search-box button {
+            background: var(--azul-escuro);
+            color: var(--azul);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .search-box button:hover {
+            background: var(--vermelho);
+            color: white;
+            border-color: var(--vermelho);
+            transform: scale(1.1);
         }
 
         /* Grid de Coleções */
@@ -160,22 +197,27 @@
         }
 
         .collection-card h3 {
-            margin: 15px 0 5px;
+            margin: 15px 0 10px;
             color: var(--azul);
             font-size: 1.4rem;
-        }
-
-        .collection-card .file-count {
-            color: var(--muted);
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            display: block;
         }
 
         .collection-card p {
             color: var(--muted);
             font-size: 0.85rem;
             margin: 0;
+        }
+
+        .collection-card .file-count {
+            color: var(--azul);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .collection-card .tap-hint {
+            font-style: italic;
+            opacity: 0.8;
         }
 
         .icon-folder {
@@ -421,43 +463,41 @@
         }
 
         .btn-download {
-            background: var(--azul);
-            color: white;
+            background: var(--azul-escuro);
+            color: var(--azul);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
             text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 8px;
             font-size: 0.85rem;
             font-weight: 600;
-            transition: all 0.2s;
+            white-space: nowrap;
+            position: relative;
+            z-index: 2;
         }
 
-        .btn-download:hover {
-            background: #0099e6;
-            transform: scale(1.05);
-        }
-
-        .btn-edit, .btn-delete {
-            background: var(--azul-escuro);
-            color: var(--muted);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 8px;
+        .btn-edit {
+            background: var(--verde);
+            color: var(--bg);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: none;
         }
 
-        .btn-edit:hover {
-            color: var(--azul);
-            border-color: var(--azul);
-        }
-
-        .btn-delete:hover {
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
             color: var(--vermelho);
-            border-color: var(--vermelho);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -467,55 +507,167 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.8);
             z-index: 1000;
-            justify-content: center;
-            align-items: center;
         }
 
         .modal-content {
             background: var(--card);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
             max-width: 400px;
             width: 90%;
-            position: relative;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .modal h3 {
+            color: var(--azul);
+            margin-top: 0;
+        }
+
+        .modal .file-input-label-audio {
+            display: block;
+            margin: 10px 0;
         }
 
         .btn-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
+            background: var(--vermelho);
+            color: white;
             border: none;
-            color: var(--muted);
-            font-size: 1.2rem;
+            padding: 8px 15px;
+            border-radius: 6px;
             cursor: pointer;
+            float: right;
         }
 
         .btn-remove-audio {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--vermelho);
-            border: 1px solid var(--vermelho);
-            padding: 8px 15px;
-            border-radius: 8px;
+            background: var(--vermelho);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            font-weight: 600;
+            margin-left: 10px;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (min-width: 800px) {
+            .document-item {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .doc-name {
+                flex: 1;
+                text-align: left;
+                margin-bottom: 0;
+            }
+
+            .doc-buttons {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+                flex-shrink: 0;
+            }
         }
 
         @media (max-width: 600px) {
-            .nav-header h1 { font-size: 1rem; }
-            .container { padding: 15px; }
-            .search-sort-controls { flex-direction: column; align-items: stretch; }
-            .search-input { min-width: auto; }
-            .doc-buttons { gap: 10px; }
+            .collections-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .new-col-input {
+                max-width: none;
+            }
+
+            .search-sort-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                min-width: auto;
+            }
+
+            .doc-buttons {
+                gap: 10px;
+            }
+
+            .audio-player,
+            audio {
+                max-width: 100%;
+                min-width: 150px;
+            }
+
+            .modal-content {
+                padding: 15px;
+            }
         }
+
+/* Pesquisa e Ordenação */
+.search-sort-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.search-input {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--ink);
+    font-size: 0.9rem;
+    outline: none;
+    min-width: 200px;
+    flex: 1;
+}
+
+.search-input::placeholder {
+    color: var(--muted);
+}
+
+.sort-select {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--ink);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .search-sort-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input {
+        min-width: auto;
+    }
+}
+        
     </style>
 </head>
 <body>
@@ -530,7 +682,6 @@
             </div>
         </div>
     </div>
-
     <header class="nav-header">
         <h1>📚 Biblioteca</h1>
         <select id="user-role" class="user-role-selector" style="display: none;">
@@ -551,26 +702,24 @@
         <div id="collections-view">
             <div class="header-section">
                 <p>Selecione uma categoria para acessar os documentos</p>
-            </div>
-
-            <!-- Nova Barra de Busca Global -->
-            <div class="global-search-container">
-                <div class="global-search-wrapper">
-                    <svg class="search-icon-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="text" id="global-search-input" class="global-search-input" placeholder="Pesquisar em toda a biblioteca...">
+                
+                <!-- Busca Global -->
+                <div class="global-search-container">
+                    <div class="search-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="text" id="global-search-input" placeholder="Pesquisar em todas as coleções...">
+                        <button id="clear-global-search" style="display: none;">&times;</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Container para Resultados da Busca Global (escondido por padrão) -->
-            <div id="search-results-view" style="display: none; margin-bottom: 30px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="margin: 0; font-size: 1.2rem; color: var(--azul);">Resultados da Busca</h2>
-                    <button class="btn-edit" onclick="clearGlobalSearch()" style="padding: 5px 10px;">Limpar</button>
-                </div>
-                <div class="documents-list" id="global-search-results">
+            <!-- Resultados da Busca Global -->
+            <div id="global-search-results" class="global-search-results" style="display: none;">
+                <div id="global-results-container" class="documents-list">
                     <!-- Injetado via JS -->
                 </div>
-                <hr style="border: 0; border-top: 1px solid var(--border); margin: 30px 0;">
+                <div class="divider"></div>
+                <h3 class="section-title">Todas as Coleções</h3>
             </div>
 
             <div class="collections-grid" id="collections-grid">
@@ -588,9 +737,9 @@
             <div class="collection-header">
                 <h2 id="collection-title">Nome da Coleção</h2>
 
-                <!-- Busca e Ordenação Interna -->
+                <!-- Busca e Ordenação -->
                 <div class="search-sort-controls">
-                    <input type="text" id="search-input" class="search-input" placeholder="Pesquisar nesta coleção...">
+                    <input type="text" id="search-input" class="search-input" placeholder="Pesquisar por nome...">
                     <select id="sort-select" class="sort-select">
                         <option value="name-asc">Nome (A-Z)</option>
                         <option value="name-desc">Nome (Z-A)</option>
@@ -606,12 +755,14 @@
                         <label for="pdf-file" class="file-input-label">Selecionar PDF</label>
                         <input type="file" id="pdf-file" accept=".pdf" onchange="updateFileName()" style="display: none;">
                         <span id="file-name" style="font-size: 0.8rem; color: var(--muted);"></span>
+
                         <div class="file-input-audio">
                             <label for="audio-file" class="file-input-label-audio">Selecionar Áudio (MP3/WAV)</label>
                             <input type="file" id="audio-file" accept=".mp3,.wav,.ogg" onchange="updateAudioFileName()" style="display: none;">
                             <span id="audio-file-name" style="font-size: 0.8rem; color: var(--muted);"></span>
                             <small>(Opcional: faça upload de um arquivo de áudio para ouvir durante a leitura)</small>
                         </div>
+
                         <button class="upload-btn" onclick="uploadDocument()">Enviar</button>
                     </div>
                 </div>
@@ -634,6 +785,22 @@
             <button class="btn-remove-audio" onclick="removeAudio()">Remover Áudio</button>
         </div>
     </div>
+
+    <!-- Navegação Mobile 
+    <nav class="mobile-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 18, 32, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 1000;">
+        <a href="aluno.html" class="nav-item" style="display: flex; flex-direction: column; align-items: center; color: var(--muted); text-decoration: none; font-size: 0.7rem; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Início
+        </a>
+        <a href="biblioteca.html" class="nav-item" style="display: flex; flex-direction: column; align-items: center; color: var(--azul); text-decoration: none; font-size: 0.7rem; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Biblioteca
+        </a>
+        <a href="painel-social.html" class="nav-item" style="display: flex; flex-direction: column; align-items: center; color: var(--muted); text-decoration: none; font-size: 0.7rem; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Social
+        </a>
+    </nav>-->
 
     <script src="loader.js"></script>
     <script type="module" src="script_biblioteca.js"></script>

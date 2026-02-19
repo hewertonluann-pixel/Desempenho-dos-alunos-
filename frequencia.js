@@ -115,10 +115,12 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
       ...freq
     });
 
-    // O novo CSS usa a variável --p para o conic-gradient
+    // Gráfico de pizza (donut) com porcentagem centralizada
     mesCard.innerHTML = `
-      <div class="month-progress" style="--p: ${freq.percentual};">
-        <span class="progress-value">${freq.percentual}%</span>
+      <div class="pie-chart" style="--p: ${freq.percentual};">
+        <div class="pie-center">
+          <span class="pie-value">${freq.percentual}%</span>
+        </div>
       </div>
       <span class="month-name">${mesAbreviado}</span>
     `;

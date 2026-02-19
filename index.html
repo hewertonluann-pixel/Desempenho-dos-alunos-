@@ -4,247 +4,103 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — Orquestra Filhos de Asafe</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="loader.css">
 
   <style>
-    * { box-sizing: border-box; }
     body {
       margin: 0;
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(180deg, #0a0f1f 0%, #0b1025 50%, #1a0d2e 100%);
-      font-family: "Segoe UI", -apple-system, sans-serif;
+      background: linear-gradient(180deg, #0a0f1f, #0b1025);
+      font-family: "Segoe UI", sans-serif;
       color: #e2e8f0;
-      overflow: hidden;
-    }
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle at 20% 80%, rgba(34, 211, 238, 0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
-      animation: pulse 4s ease-in-out infinite alternate;
-      pointer-events: none;
-      z-index: 0;
-    }
-    @keyframes pulse {
-      0% { opacity: 0.5; transform: scale(1); }
-      100% { opacity: 1; transform: scale(1.05); }
     }
 
     .login-card {
-      background: rgba(17, 24, 39, 0.95);
-      backdrop-filter: blur(12px);
-      padding: 32px 28px;
-      width: min(90vw, 340px);
-      border-radius: 20px;
-      box-shadow: 
-        0 0 35px rgba(34, 211, 238, 0.25),
-        0 8px 32px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      animation: fadeInUp 0.6s ease-out;
-      position: relative;
-      z-index: 1;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+      background: #111827;
+      padding: 28px;
+      width: 320px;
+      border-radius: 16px;
+      box-shadow: 0 0 35px rgba(34, 211, 238, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.22);
     }
 
     .titulo {
       text-align: center;
-      font-size: clamp(1.3rem, 4vw, 1.5rem);
-      margin-bottom: 24px;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
       color: #22d3ee;
-      text-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
-      font-weight: 700;
     }
 
     input {
       width: 100%;
-      padding: 14px 16px;
+      padding: 12px;
       margin: 8px 0;
-      border-radius: 12px;
-      border: 1px solid rgba(55, 65, 81, 0.5);
-      background: rgba(31, 41, 55, 0.8);
+      border-radius: 8px;
+      border: none;
+      background: #1f2937;
       color: #e5e7eb;
-      font-size: 1rem;
-      transition: all 0.3s ease;
+      font-size: 0.95rem;
       outline: none;
     }
     input:focus {
-      border-color: #22d3ee;
-      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1);
-      background: rgba(31, 41, 55, 1);
+      border: 1px solid #22d3ee;
     }
-    input::placeholder { color: #6b7280; }
 
     button {
       width: 100%;
-      padding: 14px;
-      border-radius: 12px;
+      padding: 12px;
+      border-radius: 8px;
       border: none;
-      background: linear-gradient(135deg, #22d3ee, #38bdf8);
+      background: #22d3ee;
       color: #0a0f1f;
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      transition: 0.2s;
       margin-top: 12px;
     }
-    button:hover:not(:disabled) {
-      background: linear-gradient(135deg, #38bdf8, #60a5fa);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(34, 211, 238, 0.4);
+    button:hover {
+      background: #38bdf8;
     }
-    button:active:not(:disabled) { transform: translateY(0); }
-    button:disabled {
-      background: #4b5563;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 1s ease-in-out infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     .erro {
       color: #f87171;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       text-align: center;
-      margin-top: 12px;
-      padding: 8px;
-      background: rgba(248, 113, 113, 0.1);
-      border-radius: 8px;
-      border-left: 3px solid #f87171;
-      animation: shake 0.5s ease-in-out;
-      display: none;
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
+      margin-top: 10px;
     }
 
     .switch {
-      margin-top: 20px;
+      margin-top: 16px;
       text-align: center;
       font-size: 0.9rem;
-      opacity: 0.85;
+      opacity: 0.8;
       cursor: pointer;
-      padding: 8px 12px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
     }
-    .switch:hover { 
-      opacity: 1; 
-      background: rgba(34, 211, 238, 0.1); 
-    }
-    .switch.active { 
-      background: rgba(34, 211, 238, 0.2); 
-      color: #22d3ee;
-      font-weight: 500;
-    }
-
-    @media (max-width: 480px) {
-      .login-card { padding: 24px 20px; margin: 20px; }
+    .switch:hover {
+      opacity: 1;
     }
   </style>
 </head>
 
 <body>
-  <!-- Global Loader -->
-  <div id="global-loader">
-    <div class="spinner-container">
-      <div class="spinner"></div>
-      <div id="emoji-container">🎷</div>
-      <div id="verse-container">
-        <div id="verse-text"></div>
-        <div id="verse-reference"></div>
-      </div>
-    </div>
-  </div>
+
   <div class="login-card">
     <div class="titulo">🎵 Orquestra Filhos de Asafe</div>
 
-    <input type="text" id="nome" placeholder="Seu nome" autocomplete="name" />
-    <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" />
+    <input type="text" id="nome" placeholder="Seu nome" />
+    <input type="password" id="senha" placeholder="Senha" />
 
-    <button id="btnEntrar">
-      <span class="loading" id="loadingSpinner" style="display: none;"></span>
-      Entrar
-    </button>
+    <button id="btnEntrar">Entrar</button>
 
     <div id="erro" class="erro"></div>
 
     <div id="switchLogin" class="switch">Entrar como Professor</div>
   </div>
 
-  <script type="module">
-    // BÔNUS: Suporte a ENTER + Loading/Erro (não quebra teu login.js)
-    const nomeInput = document.getElementById('nome');
-    const senhaInput = document.getElementById('senha');
-    const btnEntrar = document.getElementById('btnEntrar');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const erroDiv = document.getElementById('erro');
-    const switchLogin = document.getElementById('switchLogin');
+  <script type="module" src="login.js"></script>
 
-    let modoProfessor = false;
-
-    // Switch Professor/Aluno
-    switchLogin.addEventListener('click', () => {
-      modoProfessor = !modoProfessor;
-      switchLogin.textContent = modoProfessor ? 'Entrar como Aluno' : 'Entrar como Professor';
-      switchLogin.classList.toggle('active');
-      // Se teu login.js usa uma var global, set aqui: window.modoProfessor = modoProfessor;
-    });
-
-    // Enter nos inputs ativa botão
-    [nomeInput, senhaInput].forEach(input => {
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') btnEntrar.click();
-      });
-    });
-
-    // Intercepta CLIQUE do teu login.js e adiciona loading
-    const originalClick = btnEntrar.onclick || btnEntrar.addEventListener.bind(btnEntrar, 'click');
-    btnEntrar.addEventListener('click', function handler(e) {
-      // Remove handler pra evitar loop
-      btnEntrar.removeEventListener('click', handler);
-      
-      // Loading ON
-      btnEntrar.disabled = true;
-      loadingSpinner.style.display = 'inline-block';
-      erroDiv.style.display = 'none';
-      
-      // Chama TUA LÓGICA (teu login.js roda aqui!)
-      if (typeof originalLogin === 'function') originalLogin(); // Se teu JS expõe função
-      // OU teu login.js já escuta o click e roda async
-      
-      // Exemplo de reset após 5s (ajusta pro teu Firebase promise)
-      setTimeout(() => {
-        btnEntrar.disabled = false;
-        loadingSpinner.style.display = 'none';
-        // Esconde o loader global após o login
-        window.hideLoader();
-      }, 5000);
-    });
-  </script>
-  <script src="loader.js"></script>
-  <script type="module" src="login.js"></script> <!-- Teu JS original POR ÚLTIMO -->
 </body>
 </html>

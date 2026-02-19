@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ Configurações - Orquestra</title>
+  <link rel="stylesheet" href="configuracoes.css">
+</head>
+<body>
+  <!-- Navegação -->
+  <script type="module" src="navegacao.js"></script>
+
+  <div class="config-container">
+    <header class="config-header">
+      <h1>⚙️ Configurações</h1>
+      <p class="config-subtitle">Personalize sua experiência no painel</p>
+    </header>
+
+    <main class="config-content">
+      <!-- Seção: Redefinir Senha -->
+      <section class="config-section">
+        <div class="section-header">
+          <h2>🔒 Segurança</h2>
+          <p class="section-description">Altere sua senha de acesso</p>
+        </div>
+        <div class="section-body">
+          <div class="input-group">
+            <label for="senhaAtual">Senha Atual</label>
+            <input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
+          </div>
+          <div class="input-group">
+            <label for="novaSenhaConfig">Nova Senha</label>
+            <input type="password" id="novaSenhaConfig" placeholder="Digite a nova senha (mín. 6 caracteres)">
+          </div>
+          <div class="input-group">
+            <label for="confirmarSenha">Confirmar Nova Senha</label>
+            <input type="password" id="confirmarSenha" placeholder="Confirme a nova senha">
+          </div>
+          <button class="btn-primary" id="btnSalvarSenha">💾 Salvar Nova Senha</button>
+          <p class="mensagem-feedback" id="mensagemSenha"></p>
+        </div>
+      </section>
+
+      <!-- Seção: Painéis Visíveis -->
+      <section class="config-section">
+        <div class="section-header">
+          <h2>👁️ Painéis Visíveis</h2>
+          <p class="section-description">Escolha quais seções deseja visualizar no seu painel</p>
+        </div>
+        <div class="section-body">
+          <div class="toggle-list">
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-icon">⚡</span>
+                <div>
+                  <h3>Comprometimento</h3>
+                  <p>Gráficos de presença mensal e anual</p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggleComprometimento" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-icon">📅</span>
+                <div>
+                  <h3>Frequência Anual</h3>
+                  <p>Visualização de presenças por mês</p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggleFrequencia" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-icon">🏆</span>
+                <div>
+                  <h3>Conquistas</h3>
+                  <p>Medalhas e conquistas desbloqueadas</p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggleConquistas" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-icon">📈</span>
+                <div>
+                  <h3>Evolução Técnica</h3>
+                  <p>Gráfico de progresso em leitura e método</p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggleEvolucao" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-icon">🔔</span>
+                <div>
+                  <h3>Atividades Recentes</h3>
+                  <p>Notificações de lições enviadas</p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggleNotificacoes" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-icon">📝</span>
+                <div>
+                  <h3>Lições Enviadas</h3>
+                  <p>Lista de lições pendentes e avaliadas</p>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="toggleLicoes" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="btnSalvarPreferencias">💾 Salvar Preferências</button>
+          <p class="mensagem-feedback" id="mensagemPreferencias"></p>
+        </div>
+      </section>
+
+      <!-- Seção: Ordem dos Painéis -->
+      <section class="config-section">
+        <div class="section-header">
+          <h2>🔄 Ordem dos Painéis</h2>
+          <p class="section-description">Arraste os painéis para reorganizar a ordem de exibição</p>
+        </div>
+        <div class="section-body">
+          <div class="drag-list" id="painelOrdemLista">
+            <!-- Os itens serão carregados dinamicamente -->
+          </div>
+          <button class="btn-primary" id="btnSalvarOrdem">💾 Salvar Ordem</button>
+          <p class="mensagem-feedback" id="mensagemOrdem"></p>
+        </div>
+      </section>
+
+      <!-- Botão Voltar -->
+      <div class="config-actions">
+        <button class="btn-secondary" onclick="voltarParaPainel()">← Voltar ao Painel</button>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="configuracoes.js"></script>
+</body>
+</html>
