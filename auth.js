@@ -2,10 +2,10 @@
 // Salvar usuário logado corretamente
 // ===============================
 
-export function salvarUsuarioAtual(nome, tipo = "aluno") {
+export function salvarUsuarioAtual(nome, tipo = "aluno", classificado = false) {
   localStorage.setItem(
     "usuarioAtual",
-    JSON.stringify({ nome, tipo })
+    JSON.stringify({ nome, tipo, classificado })
   );
 }
 
