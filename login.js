@@ -40,27 +40,30 @@ btnEntrar.addEventListener("click", async () => {
   }
 
   // Se login de aluno
-  if (modo === "aluno") {
-    const q = query(collection(db, "alunos"), where("nome", "==", nome));
-    const snap = await getDocs(q);
+if (modo === "aluno") {
+  const q = query(collection(db, "alunos"), where("nome", "==", nome));
+  const snap = await getDocs(q);
 
-    if (snap.empty) {
-      erro.textContent = "Aluno não encontrado.";
-      return;
-    }
-
-    const aluno = snap.docs[0].data();
-
-    if (aluno.senha !== senha) {
-      erro.textContent = "Senha incorreta.";
-      return;
-    }
-
-    salvarUsuarioAtual(aluno.nome, "aluno");
-
-    window.location.href = `aluno.html?nome=${encodeURIComponent(aluno.nome)}`;
+  if (snap.empty) {
+    erro.textContent = "Aluno não encontrado.";
+    return;
   }
 
+  const aluno = snap.docs[0].data();
+
+  if (aluno.senha !== senha) {
+    erro.textContent = "Senha incorreta.";
+    return;
+  }
+
+  salvarUsuarioAtual(
+    aluno.nome,
+    "aluno",
+    aluno.classificado === true
+  );
+
+  window.location.href = `aluno.html?nome=${encodeURIComponent(aluno.nome)}`;
+}
   // Se login de professor
   else {
     const q = query(collection(db, "usuarios"), where("nome", "==", nome));
