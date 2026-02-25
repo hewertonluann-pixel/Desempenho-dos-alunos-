@@ -1,0 +1,253 @@
+/* ===== MÓDULO RELATÓRIO MENSAL ===== */
+
+.titulo-modulo {
+  font-size: 1.6rem;
+  color: #00ffcc;
+  text-shadow: 0 0 12px #00ffccaa;
+  margin-bottom: 20px;
+}
+
+/* ===== FILTROS ===== */
+.relatorio-filtros {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(56,189,248,0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.relatorio-filtros label {
+  color: #94a3b8;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.relatorio-filtros input[type="month"] {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(56,189,248,0.35);
+  border-radius: 8px;
+  color: #e2e8f0;
+  padding: 8px 12px;
+  font-size: 0.9em;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.relatorio-filtros input[type="month"]:focus {
+  border-color: #22d3ee;
+}
+
+.btn-filtrar {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(14,165,233,0.3);
+}
+
+.btn-filtrar:hover {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  transform: translateY(-1px);
+}
+
+/* ===== LOADER ===== */
+.loader-relatorio {
+  text-align: center;
+  padding: 30px;
+  color: #22d3ee;
+  font-size: 1em;
+  text-shadow: 0 0 8px rgba(34,211,238,0.4);
+}
+
+/* ===== GRID DE CARDS ===== */
+.painel-relatorio {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* ===== CARD DO ALUNO ===== */
+.card-relatorio-aluno {
+  background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(51,65,85,0.9));
+  border: 1px solid rgba(56,189,248,0.3);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+.card-relatorio-aluno:hover {
+  transform: translateY(-3px);
+  border-color: rgba(34,211,238,0.5);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.4);
+}
+
+/* Foto */
+.card-rel-foto {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(56,189,248,0.5);
+  background: rgba(56,189,248,0.1);
+  flex-shrink: 0;
+}
+
+.card-rel-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-rel-foto .sem-foto {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  color: #22d3ee;
+}
+
+/* Nome e instrumento */
+.card-rel-nome {
+  font-size: 1em;
+  font-weight: 700;
+  color: #22d3ee;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.card-rel-instrumento {
+  font-size: 0.78em;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Indicadores resumidos */
+.card-rel-indicadores {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.card-rel-ind {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 6px 4px;
+  text-align: center;
+}
+
+.card-rel-ind .ind-label {
+  font-size: 0.68em;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.card-rel-ind .ind-valor {
+  font-size: 0.9em;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+/* Barra de comprometimento mensal */
+.card-rel-comp {
+  width: 100%;
+}
+
+.card-rel-comp-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75em;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.card-rel-comp-label span:last-child {
+  font-weight: 700;
+  color: #22d3ee;
+}
+
+.card-rel-barra-wrap {
+  background: rgba(255,255,255,0.08);
+  border-radius: 100px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.card-rel-barra-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.5s ease;
+}
+
+.barra-verde   { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.barra-amarelo { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.barra-vermelho{ background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+/* Métodos */
+.card-rel-metodos {
+  width: 100%;
+  font-size: 0.78em;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.card-rel-metodos span {
+  color: #38bdf8;
+  font-style: italic;
+}
+
+/* Botão Emitir Relatório */
+.btn-emitir-relatorio {
+  width: 100%;
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.88em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(14,165,233,0.3);
+  margin-top: 4px;
+}
+
+.btn-emitir-relatorio:hover {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(14,165,233,0.5);
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 600px) {
+  .painel-relatorio {
+    grid-template-columns: 1fr;
+  }
+  .relatorio-filtros {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
