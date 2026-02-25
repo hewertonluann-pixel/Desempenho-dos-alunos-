@@ -10,183 +10,97 @@
       margin: 0;
       height: 100vh;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(180deg, #0a0f1f 0%, #0b1025 50%, #1e1b4b 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #0a0f1f, #0b1025);
+      font-family: "Segoe UI", sans-serif;
       color: #e2e8f0;
-      overflow: hidden;
-    }
-
-    .logo {
-      width: 140px;
-      height: 140px;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 8px 25px rgba(34, 211, 238, 0.3));
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
     }
 
     .login-card {
-      background: rgba(17, 24, 39, 0.95);
-      backdrop-filter: blur(20px);
-      padding: 32px 28px;
-      width: 340px;
-      max-width: 90vw;
-      border-radius: 20px;
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.4),
-        0 0 60px rgba(34, 211, 238, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      transition: all 0.3s ease;
-    }
-
-    .login-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.5),
-        0 0 80px rgba(34, 211, 238, 0.2);
+      background: #111827;
+      padding: 28px;
+      width: 320px;
+      border-radius: 16px;
+      box-shadow: 0 0 35px rgba(34, 211, 238, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.22);
     }
 
     .titulo {
       text-align: center;
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 24px;
-      background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 2px 10px rgba(34, 211, 238, 0.3);
-    }
-
-    .inputs {
-      position: relative;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      color: #22d3ee;
     }
 
     input {
       width: 100%;
-      padding: 14px 16px;
+      padding: 12px;
       margin: 8px 0;
-      border-radius: 12px;
-      border: 1px solid rgba(55, 65, 81, 0.5);
-      background: rgba(31, 41, 55, 0.8);
+      border-radius: 8px;
+      border: none;
+      background: #1f2937;
       color: #e5e7eb;
-      font-size: 1rem;
+      font-size: 0.95rem;
       outline: none;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
     }
-
     input:focus {
-      border-color: #22d3ee;
-      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1);
-      transform: translateY(-1px);
-      background: rgba(31, 41, 55, 1);
-    }
-
-    input::placeholder {
-      color: #9ca3af;
-      opacity: 0.8;
+      border: 1px solid #22d3ee;
     }
 
     button {
       width: 100%;
-      padding: 14px;
-      border-radius: 12px;
+      padding: 12px;
+      border-radius: 8px;
       border: none;
-      background: linear-gradient(135deg, #22d3ee 0%, #38bdf8 100%);
+      background: #22d3ee;
       color: #0a0f1f;
-      font-size: 1.05rem;
-      font-weight: 700;
+      font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 16px;
-      box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);
-      position: relative;
-      overflow: hidden;
+      transition: 0.2s;
+      margin-top: 12px;
     }
-
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(34, 211, 238, 0.4);
-    }
-
-    button:active {
-      transform: translateY(0);
+      background: #38bdf8;
     }
 
     .erro {
       color: #f87171;
       font-size: 0.9rem;
       text-align: center;
-      margin-top: 12px;
-      padding: 8px;
-      background: rgba(248, 113, 113, 0.1);
-      border-radius: 8px;
-      border-left: 3px solid #f87171;
+      margin-top: 10px;
     }
 
-    @media (max-width: 480px) {
-      .login-card {
-        padding: 24px 20px;
-        width: 95vw;
-      }
-
-      .logo {
-        width: 120px;
-        height: 120px;
-      }
+    .switch {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.8;
+      cursor: pointer;
+    }
+    .switch:hover {
+      opacity: 1;
     }
   </style>
 </head>
 
 <body>
-  <img src="image.jpg" alt="Orquestra Filhos de Asafe" class="logo">
 
   <div class="login-card">
     <div class="titulo">🎵 Orquestra Filhos de Asafe</div>
 
-    <div class="inputs">
-      <input type="text" id="nome" placeholder="Seu nome" autocomplete="username" />
-      <input type="password" id="senha" placeholder="Senha" autocomplete="current-password" />
-    </div>
+    <input type="text" id="nome" placeholder="Seu nome" />
+    <input type="password" id="senha" placeholder="Senha" />
 
     <button id="btnEntrar">Entrar</button>
 
-    <div id="erro" class="erro" style="display: none;"></div>
+    <div id="erro" class="erro"></div>
+
+    <div id="switchLogin" class="switch">Entrar como Professor</div>
   </div>
 
   <script type="module" src="login.js"></script>
-  <script>
-    // Enter para login
-    document.addEventListener('DOMContentLoaded', () => {
-      const nomeInput = document.getElementById('nome');
-      const senhaInput = document.getElementById('senha');
-      const btnEntrar = document.getElementById('btnEntrar');
 
-      function handleLogin() {
-        btnEntrar.click();
-      }
-
-      nomeInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          senhaInput.focus();
-        }
-      });
-
-      senhaInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          handleLogin();
-        }
-      });
-    });
-  </script>
 </body>
 </html>
