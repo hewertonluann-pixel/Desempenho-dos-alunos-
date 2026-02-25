@@ -7,10 +7,10 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
   <style>
-    /* ===== CONFIGURAÇÃO A4 PARA IMPRESSÃO ===== */
+    /* ===== CONFIGURAÇÃO A4 RETRATO PARA IMPRESSÃO ===== */
     @page {
-      size: A4;
-      margin: 15mm;
+      size: A4 portrait;
+      margin: 12mm;
     }
 
     /* ===== RESET ===== */
@@ -107,11 +107,11 @@
     /* ===== PÁGINA DO RELATÓRIO ===== */
     .page {
       width: 100%;
-      max-width: 900px;
+      max-width: 210mm; /* Largura A4 portrait */
       background: #fff;
       color: #1a202c;
       margin: 0 auto;
-      padding: 30px 35px;
+      padding: 25px 30px;
       border-radius: 16px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
@@ -127,8 +127,8 @@
     }
 
     .rel-foto {
-      width: 100px;
-      height: 100px;
+      width: 90px;
+      height: 90px;
       border-radius: 12px;
       object-fit: cover;
       border: 3px solid #0ea5e9;
@@ -137,7 +137,7 @@
     }
 
     .rel-info h1 {
-      font-size: 1.8em;
+      font-size: 1.7em;
       font-weight: 700;
       color: #0f172a;
       margin-bottom: 4px;
@@ -159,12 +159,12 @@
       flex-shrink: 0;
     }
     .rel-logo .titulo-sistema {
-      font-size: 1em;
+      font-size: 0.95em;
       font-weight: 700;
       color: #0ea5e9;
     }
     .rel-logo .subtitulo-sistema {
-      font-size: 0.8em;
+      font-size: 0.78em;
       color: #64748b;
     }
 
@@ -179,10 +179,10 @@
       margin-top: 24px;
     }
 
-    /* ===== CARDS DE INDICADORES ===== */
+    /* ===== CARDS DE INDICADORES - OTIMIZADO PARA RETRATO ===== */
     .indicadores-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr); /* 2 colunas em vez de 3 */
       gap: 14px;
       margin-bottom: 24px;
     }
@@ -246,10 +246,10 @@
     .status-regrediu { background: #fee2e2; color: #991b1b; }
     .status-neutro   { background: #f1f5f9; color: #475569; }
 
-    /* ===== COMPROMETIMENTO ===== */
+    /* ===== COMPROMETIMENTO - OTIMIZADO PARA RETRATO ===== */
     .comprometimento-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr; /* 1 coluna para melhor aproveitamento vertical */
       gap: 14px;
       margin-bottom: 24px;
     }
@@ -257,12 +257,12 @@
     .comp-card {
       border: 1px solid #e2e8f0;
       border-radius: 12px;
-      padding: 16px;
+      padding: 18px;
       background: #f8fafc;
     }
 
     .comp-card h4 {
-      font-size: 0.85em;
+      font-size: 0.9em;
       font-weight: 600;
       color: #475569;
       text-transform: uppercase;
@@ -271,23 +271,23 @@
     }
 
     .comp-valor {
-      font-size: 2.2em;
+      font-size: 2.4em;
       font-weight: 800;
       color: #0f172a;
       line-height: 1;
     }
 
     .comp-detalhe {
-      font-size: 0.82em;
+      font-size: 0.85em;
       color: #64748b;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     .comp-barra-wrap {
-      margin-top: 10px;
+      margin-top: 12px;
       background: #e2e8f0;
       border-radius: 100px;
-      height: 8px;
+      height: 10px;
       overflow: hidden;
     }
     .comp-barra-fill {
@@ -305,10 +305,10 @@
       background: #f0f9ff;
       border: 1px solid #bae6fd;
       border-radius: 12px;
-      padding: 16px 20px;
+      padding: 18px 22px;
       margin-bottom: 24px;
       line-height: 1.7;
-      font-size: 0.92em;
+      font-size: 0.93em;
       color: #0f172a;
     }
 
@@ -329,6 +329,7 @@
       border-radius: 10px;
       padding: 8px 14px;
       font-size: 0.85em;
+      flex: 1 1 200px; /* Flexível para retrato */
     }
 
     .conquista-item.ouro    { border-color: #f59e0b; background: #fffbeb; }
@@ -360,12 +361,12 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.88em;
+      font-size: 0.87em;
     }
 
     th, td {
       border: 1px solid #e2e8f0;
-      padding: 8px 12px;
+      padding: 9px 12px;
       text-align: center;
     }
 
@@ -374,7 +375,7 @@
       font-weight: 700;
       color: #475569;
       text-transform: uppercase;
-      font-size: 0.8em;
+      font-size: 0.78em;
       letter-spacing: 0.05em;
     }
 
@@ -386,8 +387,8 @@
     /* ===== RODAPÉ ===== */
     .rel-footer {
       border-top: 2px solid #e2e8f0;
-      padding-top: 14px;
-      margin-top: 10px;
+      padding-top: 16px;
+      margin-top: 12px;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -397,16 +398,15 @@
 
     .assinatura-linha {
       border-top: 1px solid #94a3b8;
-      width: 200px;
+      width: 180px;
       text-align: center;
       padding-top: 6px;
       font-size: 0.85em;
       color: #475569;
     }
 
-    /* ===== IMPRESSÃO ===== */
+    /* ===== IMPRESSÃO A4 RETRATO ===== */
     @media print {
-      /* Esconde tudo exceto o wrapper de escala */
       body {
         background: white !important;
         margin: 0 !important;
@@ -415,33 +415,24 @@
       .top-bar { display: none !important; }
       #loader-relatorio { display: none !important; }
 
-      /* Remove decorações da página impressa */
       .page {
         box-shadow: none !important;
         border-radius: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
+        padding: 20px 25px !important;
+        margin: 0 !important;
       }
 
-      /* Wrapper de escala: ocupa a página inteira sem margens */
-      #print-scale-wrapper {
-        display: block !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        overflow: hidden !important;
-        background: white !important;
-      }
-
-      /* Impede qualquer quebra de página */
-      * {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
-
+      /* Controle fino de quebras de página */
+      .rel-header { page-break-inside: avoid; }
+      .indicadores-grid { page-break-inside: avoid; }
+      .comprometimento-grid { page-break-inside: avoid; }
+      table { page-break-inside: auto; }
+      
       @page {
-        size: A4 landscape;
-        margin: 0;
+        size: A4 portrait;
+        margin: 12mm;
       }
     }
 
@@ -451,6 +442,7 @@
       .comprometimento-grid { grid-template-columns: 1fr; }
       .rel-header { flex-direction: column; text-align: center; }
       .rel-logo { margin-left: 0; text-align: center; }
+      .page { padding: 20px 15px; }
     }
   </style>
 </head>
@@ -470,11 +462,6 @@
   <div id="loader-relatorio">
     <div class="spinner-rel"></div>
     <p>Carregando dados do aluno...</p>
-  </div>
-
-  <!-- WRAPPER DE ESCALA PARA IMPRESSÃO -->
-  <div id="print-scale-wrapper" style="display:none;">
-    <div id="print-scale-inner"></div>
   </div>
 
   <!-- PÁGINA DO RELATÓRIO (preenchida via JS) -->
@@ -657,35 +644,24 @@
       const fotoSrc = aluno.foto || "https://via.placeholder.com/100";
 
       // ===== REGRAS DOS INDICADORES =====
-
-      // Presença: status comparativo com mês anterior
       const stPresenca = gerarStatus(freqMes.percentual, freqMesAnterior.percentual);
-
-      // Presença: meta dinâmica
-      // - Se já for 100%: meta = 100% (manter)
-      // - Se > 80%: meta = 100% (subir ao topo)
-      // - Se <= 80%: meta = 80% (atingir o mínimo)
       let metaPresenca;
       if (freqMes.percentual >= 100) metaPresenca = 100;
       else if (freqMes.percentual > 80) metaPresenca = 100;
       else metaPresenca = 80;
 
-      // Leitura: se não há histórico anterior, repete o valor atual como "anterior"
       const leituraAtual   = aluno.leitura || 1;
-      const leituraAnterior = leituraAtual; // sem histórico disponível → repete
+      const leituraAnterior = leituraAtual;
       const leituraMeta    = leituraAtual + 2;
       const stLeitura      = gerarStatus(leituraAtual, leituraAnterior);
 
-      // Método: mesma lógica da leitura
       const metodoAtual    = aluno.metodo || 1;
-      const metodoAnterior = metodoAtual; // sem histórico disponível → repete
+      const metodoAnterior = metodoAtual;
       const metodoMeta     = metodoAtual + 2;
       const stMetodo       = gerarStatus(metodoAtual, metodoAnterior);
 
-      // Análise automática
       const analise = gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior);
 
-      // Conquistas HTML
       let conquistasHTML = "";
       if (conquistasMes.length > 0) {
         conquistasHTML = conquistasMes.map(c => `
@@ -701,7 +677,6 @@
         conquistasHTML = `<span class="sem-conquistas">Nenhuma conquista desbloqueada neste mês.</span>`;
       }
 
-      // Presença detalhada HTML
       let presencaHTML = "";
       if (presencaDetalhada.length > 0) {
         presencaHTML = presencaDetalhada.map(p => `
@@ -732,7 +707,6 @@
         <!-- INDICADORES DE PROGRESSO -->
         <div class="rel-titulo-secao">📈 Indicadores de Progresso</div>
         <div class="indicadores-grid">
-
           <div class="indicador-card">
             <h4>Presença no Mês</h4>
             <div class="indicador-valores">
@@ -762,13 +736,11 @@
             </div>
             <span class="indicador-status ${stMetodo.classe}">Unidade ${metodoAtual}</span>
           </div>
-
         </div>
 
         <!-- COMPROMETIMENTO -->
         <div class="rel-titulo-secao">⚡ Comprometimento</div>
         <div class="comprometimento-grid">
-
           <div class="comp-card">
             <h4>Comprometimento Mensal — ${nomeMes}</h4>
             <div class="comp-valor">${freqMes.percentual}%</div>
@@ -786,7 +758,6 @@
               <div class="comp-barra-fill fill-azul" style="width:${freqGeral.percentual}%"></div>
             </div>
           </div>
-
         </div>
 
         <!-- ANÁLISE -->
@@ -830,78 +801,10 @@
     }
   </script>
 
-  <!-- SCRIPT DE IMPRESSÃO COM ESCALA AUTOMÁTICA -->
+  <!-- SCRIPT SIMPLIFICADO PARA IMPRESSÃO A4 RETRATO -->
   <script>
     function imprimirRelatorio() {
-      const pagina = document.getElementById('pagina-relatorio');
-      if (!pagina || pagina.style.display === 'none') {
-        window.print();
-        return;
-      }
-
-      // Dimensões do conteúdo real
-      const conteudoW = pagina.scrollWidth;
-      const conteudoH = pagina.scrollHeight;
-
-      // Dimensões da folha A4 em px a 96dpi
-      // A4 landscape: 297mm x 210mm → ~1123px x 794px
-      // A4 portrait:  210mm x 297mm → ~794px x 1123px
-      // Usamos portrait pois o conteúdo é mais alto que largo
-      const folhaW = 794;
-      const folhaH = 1123;
-
-      // Calcular escala para encaixar tudo na folha
-      const escalaX = folhaW / conteudoW;
-      const escalaY = folhaH / conteudoH;
-      const escala  = Math.min(escalaX, escalaY, 1); // nunca ampliar, só reduzir
-
-      // Centralizar verticalmente
-      const offsetY = Math.max(0, (folhaH - conteudoH * escala) / 2);
-
-      // Montar wrapper de escala
-      const wrapper = document.getElementById('print-scale-wrapper');
-      const inner   = document.getElementById('print-scale-inner');
-
-      // Clonar o conteúdo para o wrapper
-      inner.innerHTML = '';
-      const clone = pagina.cloneNode(true);
-      clone.style.cssText = [
-        'display:block',
-        'position:absolute',
-        'top:0',
-        'left:0',
-        `width:${conteudoW}px`,
-        `transform-origin:top left`,
-        `transform:scale(${escala}) translateY(${offsetY / escala}px)`,
-        'box-shadow:none',
-        'border-radius:0',
-        'margin:0',
-        'padding:20px 30px',
-        'background:white'
-      ].join(';');
-      inner.appendChild(clone);
-
-      // Ajustar wrapper
-      wrapper.style.cssText = [
-        'display:block',
-        'position:fixed',
-        'top:0',
-        'left:0',
-        `width:${folhaW}px`,
-        `height:${folhaH}px`,
-        'background:white',
-        'overflow:hidden',
-        'z-index:99999'
-      ].join(';');
-
-      // Imprimir e restaurar
-      requestAnimationFrame(() => {
-        window.print();
-        setTimeout(() => {
-          wrapper.style.display = 'none';
-          inner.innerHTML = '';
-        }, 500);
-      });
+      window.print();
     }
   </script>
 
