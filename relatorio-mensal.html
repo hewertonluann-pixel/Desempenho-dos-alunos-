@@ -632,10 +632,31 @@
       const nomeMes = MESES[mesRel] || mesRel;
       const fotoSrc = aluno.foto || "https://via.placeholder.com/100";
 
-      // Status indicadores
+      // ===== REGRAS DOS INDICADORES =====
+
+      // Presença: status comparativo com mês anterior
       const stPresenca = gerarStatus(freqMes.percentual, freqMesAnterior.percentual);
-      const stLeitura  = gerarStatus(aluno.leitura || 0, 0); // sem histórico anterior disponível
-      const stMetodo   = gerarStatus(aluno.metodo || 0, 0);
+
+      // Presença: meta dinâmica
+      // - Se já for 100%: meta = 100% (manter)
+      // - Se > 80%: meta = 100% (subir ao topo)
+      // - Se <= 80%: meta = 80% (atingir o mínimo)
+      let metaPresenca;
+      if (freqMes.percentual >= 100) metaPresenca = 100;
+      else if (freqMes.percentual > 80) metaPresenca = 100;
+      else metaPresenca = 80;
+
+      // Leitura: se não há histórico anterior, repete o valor atual como "anterior"
+      const leituraAtual   = aluno.leitura || 1;
+      const leituraAnterior = leituraAtual; // sem histórico disponível → repete
+      const leituraMeta    = leituraAtual + 2;
+      const stLeitura      = gerarStatus(leituraAtual, leituraAnterior);
+
+      // Método: mesma lógica da leitura
+      const metodoAtual    = aluno.metodo || 1;
+      const metodoAnterior = metodoAtual; // sem histórico disponível → repete
+      const metodoMeta     = metodoAtual + 2;
+      const stMetodo       = gerarStatus(metodoAtual, metodoAnterior);
 
       // Análise automática
       const analise = gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior);
@@ -693,7 +714,7 @@
             <div class="indicador-valores">
               <div class="ind-val">Anterior<span>${freqMesAnterior.percentual}%</span></div>
               <div class="ind-val atual">Atual<span>${freqMes.percentual}%</span></div>
-              <div class="ind-val">Meta<span>90%</span></div>
+              <div class="ind-val">Meta<span>${metaPresenca}%</span></div>
             </div>
             <span class="indicador-status ${stPresenca.classe}">${stPresenca.texto}</span>
           </div>
@@ -701,21 +722,21 @@
           <div class="indicador-card">
             <h4>Leitura (${aluno.leituraNome || 'Bona'})</h4>
             <div class="indicador-valores">
-              <div class="ind-val">Anterior<span>—</span></div>
-              <div class="ind-val atual">Atual<span>Nível ${aluno.leitura || 1}</span></div>
-              <div class="ind-val">Meta<span>—</span></div>
+              <div class="ind-val">Anterior<span>Nível ${leituraAnterior}</span></div>
+              <div class="ind-val atual">Atual<span>Nível ${leituraAtual}</span></div>
+              <div class="ind-val">Meta<span>Nível ${leituraMeta}</span></div>
             </div>
-            <span class="indicador-status ${stLeitura.classe}">Nível ${aluno.leitura || 1}</span>
+            <span class="indicador-status ${stLeitura.classe}">Nível ${leituraAtual}</span>
           </div>
 
           <div class="indicador-card">
             <h4>Método (${aluno.metodoNome || 'Método'})</h4>
             <div class="indicador-valores">
-              <div class="ind-val">Anterior<span>—</span></div>
-              <div class="ind-val atual">Atual<span>Unid. ${aluno.metodo || 1}</span></div>
-              <div class="ind-val">Meta<span>—</span></div>
+              <div class="ind-val">Anterior<span>Unid. ${metodoAnterior}</span></div>
+              <div class="ind-val atual">Atual<span>Unid. ${metodoAtual}</span></div>
+              <div class="ind-val">Meta<span>Unid. ${metodoMeta}</span></div>
             </div>
-            <span class="indicador-status ${stMetodo.classe}">Unidade ${aluno.metodo || 1}</span>
+            <span class="indicador-status ${stMetodo.classe}">Unidade ${metodoAtual}</span>
           </div>
 
         </div>
