@@ -54,7 +54,7 @@
       flex-wrap: wrap;
     }
 
-    .btn-print {
+    .btn-print, .btn-jpg {
       background: linear-gradient(135deg, #0ea5e9, #0284c7);
       color: #fff;
       border: none;
@@ -66,10 +66,17 @@
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(14,165,233,0.3);
     }
-    .btn-print:hover {
+    .btn-print:hover, .btn-jpg:hover {
       background: linear-gradient(135deg, #0284c7, #0369a1);
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(14,165,233,0.5);
+    }
+    .btn-jpg {
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+    }
+    .btn-jpg:hover {
+      background: linear-gradient(135deg, #ca8a04, #a16207);
+      box-shadow: 0 6px 20px rgba(234,179,8,0.5);
     }
 
     .btn-voltar {
@@ -404,6 +411,34 @@
       color: #475569;
     }
 
+    /* ===== LOADING JPG ===== */
+    .exportando {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      color: white;
+      font-size: 1.2em;
+    }
+    .exportando.mostrar {
+      display: flex;
+    }
+    .spinner-export {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top-color: #eab308;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 20px;
+    }
+
     /* ===== IMPRESSÃO ===== */
     @media print {
       body {
@@ -444,6 +479,15 @@
     <div class="top-bar-actions">
       <button class="btn-voltar" onclick="history.back()">← Voltar</button>
       <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-jpg" id="btn-jpg">🖼️ Exportar JPG</button>
+    </div>
+  </div>
+
+  <!-- LOADING JPG -->
+  <div class="exportando" id="exportando">
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <div class="spinner-export"></div>
+      <span>Exportando para JPG... Aguarde</span>
     </div>
   </div>
 
@@ -455,6 +499,9 @@
 
   <!-- PÁGINA DO RELATÓRIO (preenchida via JS) -->
   <div class="page" id="pagina-relatorio" style="display:none;"></div>
+
+  <!-- html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- FIREBASE + SCRIPT -->
   <script type="module">
@@ -483,6 +530,56 @@
     } else {
       gerarRelatorio(alunoId, mesSelecionado);
     }
+
+    /* ===== EXPORTAR JPG ===== */
+    document.getElementById('btn-jpg').addEventListener('click', async function() {
+      const pagina = document.getElementById('pagina-relatorio');
+      const exportando = document.getElementById('exportando');
+      
+      if (pagina.style.display === 'none') {
+        alert('Aguarde o relatório carregar completamente antes de exportar.');
+        return;
+      }
+
+      // Mostrar loading
+      exportando.classList.add('mostrar');
+      
+      try {
+        // Configurações otimizadas para JPG de alta qualidade
+        const canvas = await html2canvas(pagina, {
+          scale: 2, // Alta resolução (2x)
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          width: pagina.scrollWidth,
+          height: pagina.scrollHeight,
+          logging: false,
+          letterRendering: true,
+          // Remove sombras para impressão mais limpa
+          onclone: (clonedDoc) => {
+            const pageClone = clonedDoc.getElementById('pagina-relatorio');
+            pageClone.style.boxShadow = 'none';
+            pageClone.style.borderRadius = '0';
+          }
+        });
+
+        // Converter para JPG
+        const link = document.createElement('a');
+        link.download = `relatorio_${alunoId}_${mesSelecionado || 'atual'}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.95); // 95% qualidade JPG
+        link.click();
+
+        // Fechar loading após 1s
+        setTimeout(() => {
+          exportando.classList.remove('mostrar');
+        }, 1000);
+
+      } catch (error) {
+        console.error('Erro ao exportar JPG:', error);
+        exportando.classList.remove('mostrar');
+        alert('Erro ao gerar imagem. Tente novamente.');
+      }
+    });
 
     /* ===== GERAR RELATÓRIO ===== */
     async function gerarRelatorio(id, mesChave) {
