@@ -1,810 +1,269 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relatório de Progresso Mensal</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Progresso Mensal</title>
 
-  <style>
-    /* ===== CONFIGURAÇÃO A4 PARA IMPRESSÃO ===== */
-    @page {
-      size: A4;
-      margin: 15mm;
-    }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    /* ===== RESET ===== */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f2f2f2;
+}
 
-    /* ===== TELA: TEMA ESCURO ===== */
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 20px;
-    }
+.top-bar{
+    width:100%;
+    background:#111;
+    padding:10px;
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
 
-    /* ===== BARRA SUPERIOR (NÃO IMPRESSA) ===== */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 900px;
-      margin: 0 auto 20px;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+.btn{
+    padding:8px 15px;
+    background:#444;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
 
-    .top-bar h1 {
-      color: #22d3ee;
-      font-size: 1.4em;
-      font-weight: 700;
-      text-shadow: 0 0 10px rgba(34,211,238,0.4);
-    }
+.page{
+    width:210mm;
+    min-height:297mm;
+    margin:20px auto;
+    background:white;
+    padding:30px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
 
-    .top-bar-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+.header{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    border-bottom:2px solid #ddd;
+    padding-bottom:15px;
+}
 
-    .btn-print {
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-size: 0.95em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(14,165,233,0.3);
-    }
-    .btn-print:hover {
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(14,165,233,0.5);
-    }
+.header img{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    object-fit:cover;
+}
 
-    .btn-voltar {
-      background: rgba(30,41,59,0.9);
-      color: #94a3b8;
-      border: 1px solid rgba(56,189,248,0.3);
-      border-radius: 10px;
-      padding: 10px 18px;
-      font-size: 0.9em;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn-voltar:hover {
-      color: #22d3ee;
-      border-color: rgba(34,211,238,0.6);
-    }
+h1{
+    margin:0;
+    font-size:24px;
+}
 
-    /* ===== LOADER ===== */
-    #loader-relatorio {
-      text-align: center;
-      padding: 60px 20px;
-      color: #22d3ee;
-    }
-    .spinner-rel {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(34,211,238,0.2);
-      border-top-color: #22d3ee;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+.mes{
+    margin-top:5px;
+    font-weight:bold;
+    color:#666;
+}
 
-    /* ===== PÁGINA DO RELATÓRIO ===== */
-    .page {
-      width: 100%;
-      max-width: 900px;
-      background: #fff;
-      color: #1a202c;
-      margin: 0 auto;
-      padding: 30px 35px;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
+.cards{
+    display:flex;
+    justify-content:space-between;
+    margin-top:30px;
+}
 
-    /* ===== CABEÇALHO DO RELATÓRIO ===== */
-    .rel-header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      border-bottom: 3px solid #0ea5e9;
-      padding-bottom: 20px;
-      margin-bottom: 24px;
-    }
+.card{
+    width:30%;
+    background:#fafafa;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    border:1px solid #ddd;
+}
 
-    .rel-foto {
-      width: 100px;
-      height: 100px;
-      border-radius: 12px;
-      object-fit: cover;
-      border: 3px solid #0ea5e9;
-      flex-shrink: 0;
-      background: #e2e8f0;
-    }
+.card h3{
+    margin-bottom:10px;
+}
 
-    .rel-info h1 {
-      font-size: 1.8em;
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 4px;
-    }
-    .rel-info .instrumento {
-      font-size: 1em;
-      color: #475569;
-      font-weight: 500;
-    }
-    .rel-info .periodo {
-      font-size: 0.9em;
-      color: #64748b;
-      margin-top: 4px;
-    }
+.valor{
+    font-size:26px;
+    font-weight:bold;
+    margin:5px 0;
+}
 
-    .rel-logo {
-      margin-left: auto;
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .rel-logo .titulo-sistema {
-      font-size: 1em;
-      font-weight: 700;
-      color: #0ea5e9;
-    }
-    .rel-logo .subtitulo-sistema {
-      font-size: 0.8em;
-      color: #64748b;
-    }
+.status{
+    font-weight:bold;
+    margin-top:5px;
+}
 
-    /* ===== SEÇÃO TÍTULO ===== */
-    .rel-titulo-secao {
-      font-size: 1.05em;
-      font-weight: 700;
-      color: #0f172a;
-      border-left: 4px solid #0ea5e9;
-      padding-left: 10px;
-      margin-bottom: 14px;
-      margin-top: 24px;
-    }
+.evoluiu{ color:green; }
+.estavel{ color:#888; }
+.regrediu{ color:red; }
 
-    /* ===== CARDS DE INDICADORES ===== */
-    .indicadores-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
-    }
+.meta{
+    font-size:14px;
+    margin-top:5px;
+    color:#555;
+}
 
-    .indicador-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 14px;
-      text-align: center;
-      background: #f8fafc;
-    }
+.section{
+    margin-top:35px;
+}
 
-    .indicador-card h4 {
-      font-size: 0.85em;
-      color: #475569;
-      margin-bottom: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+.section h2{
+    border-bottom:1px solid #ddd;
+    padding-bottom:5px;
+}
 
-    .indicador-valores {
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
+.ensaio{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    border-bottom:1px solid #eee;
+}
 
-    .ind-val {
-      flex: 1;
-      padding: 6px 4px;
-      border-radius: 8px;
-      background: #f1f5f9;
-      font-size: 0.78em;
-      color: #475569;
-    }
-    .ind-val span {
-      display: block;
-      font-size: 1.1em;
-      font-weight: 700;
-      color: #1e293b;
-      margin-top: 2px;
-    }
-    .ind-val.atual {
-      background: #dbeafe;
-      border: 2px solid #3b82f6;
-    }
-    .ind-val.atual span {
-      color: #1d4ed8;
-    }
+.presente{
+    color:green;
+}
 
-    .indicador-status {
-      font-size: 0.82em;
-      font-weight: 700;
-      padding: 5px 10px;
-      border-radius: 20px;
-      display: inline-block;
-    }
-    .status-evoluiu  { background: #dcfce7; color: #166534; }
-    .status-estavel  { background: #fef9c3; color: #854d0e; }
-    .status-regrediu { background: #fee2e2; color: #991b1b; }
-    .status-neutro   { background: #f1f5f9; color: #475569; }
+.falta{
+    color:red;
+}
 
-    /* ===== COMPROMETIMENTO ===== */
-    .comprometimento-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 24px;
+@media print{
+    body{
+        background:white;
     }
-
-    .comp-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
-      background: #f8fafc;
+    .top-bar{
+        display:none;
     }
-
-    .comp-card h4 {
-      font-size: 0.85em;
-      font-weight: 600;
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 12px;
+    .page{
+        box-shadow:none;
+        margin:0;
     }
-
-    .comp-valor {
-      font-size: 2.2em;
-      font-weight: 800;
-      color: #0f172a;
-      line-height: 1;
-    }
-
-    .comp-detalhe {
-      font-size: 0.82em;
-      color: #64748b;
-      margin-top: 4px;
-    }
-
-    .comp-barra-wrap {
-      margin-top: 10px;
-      background: #e2e8f0;
-      border-radius: 100px;
-      height: 8px;
-      overflow: hidden;
-    }
-    .comp-barra-fill {
-      height: 100%;
-      border-radius: 100px;
-      transition: width 0.5s ease;
-    }
-    .fill-verde  { background: linear-gradient(90deg, #22c55e, #16a34a); }
-    .fill-amarelo { background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .fill-vermelho { background: linear-gradient(90deg, #ef4444, #dc2626); }
-    .fill-azul { background: linear-gradient(90deg, #3b82f6, #2563eb); }
-
-    /* ===== ANÁLISE ===== */
-    .analise-box {
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-bottom: 24px;
-      line-height: 1.7;
-      font-size: 0.92em;
-      color: #0f172a;
-    }
-
-    /* ===== CONQUISTAS ===== */
-    .conquistas-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-
-    .conquista-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 8px 14px;
-      font-size: 0.85em;
-    }
-
-    .conquista-item.ouro    { border-color: #f59e0b; background: #fffbeb; }
-    .conquista-item.prata   { border-color: #94a3b8; background: #f8fafc; }
-    .conquista-item.lendario { border-color: #8b5cf6; background: #f5f3ff; }
-
-    .conquista-icone { font-size: 1.3em; }
-    .conquista-info strong {
-      display: block;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .conquista-info span {
-      font-size: 0.82em;
-      color: #64748b;
-    }
-
-    .sem-conquistas {
-      color: #94a3b8;
-      font-style: italic;
-      font-size: 0.9em;
-    }
-
-    /* ===== PRESENÇA DETALHADA ===== */
-    .presenca-section {
-      margin-bottom: 24px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.88em;
-    }
-
-    th, td {
-      border: 1px solid #e2e8f0;
-      padding: 8px 12px;
-      text-align: center;
-    }
-
-    th {
-      background: #f1f5f9;
-      font-weight: 700;
-      color: #475569;
-      text-transform: uppercase;
-      font-size: 0.8em;
-      letter-spacing: 0.05em;
-    }
-
-    tr:nth-child(even) td { background: #f8fafc; }
-
-    .td-presente { color: #16a34a; font-weight: 700; }
-    .td-ausente  { color: #dc2626; font-weight: 700; }
-
-    /* ===== RODAPÉ ===== */
-    .rel-footer {
-      border-top: 2px solid #e2e8f0;
-      padding-top: 14px;
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      font-size: 0.8em;
-      color: #94a3b8;
-    }
-
-    .assinatura-linha {
-      border-top: 1px solid #94a3b8;
-      width: 200px;
-      text-align: center;
-      padding-top: 6px;
-      font-size: 0.85em;
-      color: #475569;
-    }
-
-    /* ===== IMPRESSÃO ===== */
-    @media print {
-      body {
-        background: white !important;
-        padding: 0 !important;
-        color: #1a202c !important;
-      }
-      .top-bar { display: none !important; }
-      .page {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-        max-width: 100% !important;
-      }
-      .indicador-card,
-      .comp-card,
-      .conquista-item,
-      .analise-box {
-        break-inside: avoid;
-      }
-    }
-
-    /* ===== RESPONSIVIDADE ===== */
-    @media (max-width: 600px) {
-      .indicadores-grid { grid-template-columns: 1fr; }
-      .comprometimento-grid { grid-template-columns: 1fr; }
-      .rel-header { flex-direction: column; text-align: center; }
-      .rel-logo { margin-left: 0; text-align: center; }
-    }
-  </style>
+}
+</style>
 </head>
 
 <body>
 
-  <!-- BARRA SUPERIOR (NÃO IMPRESSA) -->
-  <div class="top-bar">
-    <h1>📊 Relatório de Progresso Mensal</h1>
-    <div class="top-bar-actions">
-      <button class="btn-voltar" onclick="history.back()">← Voltar</button>
-      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+<div class="top-bar">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    <button class="btn" id="btnJPG">🖼️ Exportar JPG</button>
+</div>
+
+<div class="page" id="pagina-relatorio">
+
+    <div class="header">
+        <img src="https://i.pravatar.cc/300" alt="Foto do aluno">
+        <div>
+            <h1>Relatório de Progresso Mensal</h1>
+            <div><strong>João Silva</strong> - Violino</div>
+            <div class="mes">Mês: Junho 2026</div>
+        </div>
     </div>
-  </div>
 
-  <!-- LOADER -->
-  <div id="loader-relatorio">
-    <div class="spinner-rel"></div>
-    <p>Carregando dados do aluno...</p>
-  </div>
+    <div class="cards">
 
-  <!-- PÁGINA DO RELATÓRIO (preenchida via JS) -->
-  <div class="page" id="pagina-relatorio" style="display:none;"></div>
+        <div class="card" id="cardPresenca"></div>
+        <div class="card" id="cardLeitura"></div>
+        <div class="card" id="cardMetodo"></div>
 
-  <!-- FIREBASE + SCRIPT -->
-  <script type="module">
-    import { db } from "./firebase-config.js";
-    import {
-      collection, getDocs, doc, getDoc
-    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    </div>
 
-    import { regrasDeConquistas } from "./conquistas.js";
+    <div class="section">
+        <h2>Análise do Desempenho</h2>
+        <p id="analiseTexto"></p>
+    </div>
 
-    /* ===== MESES ===== */
-    const MESES = {
-      "01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril",
-      "05":"Maio","06":"Junho","07":"Julho","08":"Agosto",
-      "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
-    };
+    <div class="section">
+        <h2>Presença nos Ensaios</h2>
+        <div id="listaEnsaios"></div>
+    </div>
 
-    /* ===== OBTER PARÂMETROS DA URL ===== */
-    const params = new URLSearchParams(window.location.search);
-    const alunoId = params.get("id");
-    const mesSelecionado = params.get("mes"); // "2026-02"
+</div>
 
-    if (!alunoId) {
-      document.getElementById("loader-relatorio").innerHTML =
-        `<p style="color:#ef4444;">❌ Nenhum aluno selecionado. Volte à página do professor.</p>`;
-    } else {
-      gerarRelatorio(alunoId, mesSelecionado);
-    }
+<script>
+const dados = {
+    presenca: { anterior:75, atual:85, meta:95 },
+    leitura: { anterior:60, atual:60, meta:80 },
+    metodo: { anterior:70, atual:65, meta:85 },
+    ensaios:[
+        {data:"03/06", presente:true},
+        {data:"10/06", presente:true},
+        {data:"17/06", presente:false},
+        {data:"24/06", presente:true},
+    ]
+};
 
-    /* ===== GERAR RELATÓRIO ===== */
-    async function gerarRelatorio(id, mesChave) {
-      try {
-        // 1. Carregar dados do aluno
-        const alunoSnap = await getDoc(doc(db, "alunos", id));
-        if (!alunoSnap.exists()) throw new Error("Aluno não encontrado.");
-        const aluno = { id: alunoSnap.id, ...alunoSnap.data() };
+function calcularStatus(anterior, atual){
+    if(atual > anterior) return {texto:"Evoluiu", classe:"evoluiu"};
+    if(atual < anterior) return {texto:"Regrediu", classe:"regrediu"};
+    return {texto:"Estável", classe:"estavel"};
+}
 
-        // 2. Determinar mês/ano
-        const agora = new Date();
-        const anoAtual = agora.getFullYear();
-        const mesAtual = String(agora.getMonth() + 1).padStart(2, "0");
-        const chave = mesChave || `${anoAtual}-${mesAtual}`;
-        const [anoRel, mesRel] = chave.split("-");
+function gerarCard(id, titulo, info){
+    const status = calcularStatus(info.anterior, info.atual);
+    document.getElementById(id).innerHTML = `
+        <h3>${titulo}</h3>
+        <div>Mês anterior: ${info.anterior}%</div>
+        <div class="valor">${info.atual}%</div>
+        <div class="status ${status.classe}">${status.texto}</div>
+        <div class="meta">Meta próxima: ${info.meta}%</div>
+    `;
+}
 
-        // 3. Carregar eventos do mês e do ano
-        const snapEventos = await getDocs(collection(db, "eventos"));
-        const todoEventos = snapEventos.docs.map(d => ({ id: d.id, ...d.data() }));
+gerarCard("cardPresenca","Presença",dados.presenca);
+gerarCard("cardLeitura","Leitura",dados.leitura);
+gerarCard("cardMetodo","Método",dados.metodo);
 
-        const eventosMes = todoEventos.filter(e => e.data && e.data.startsWith(chave));
-        const eventosAno = todoEventos.filter(e => e.data && e.data.startsWith(`${anoRel}-`));
+function gerarAnalise(){
+    let texto = "";
 
-        // 4. Calcular frequência mensal
-        const freqMes = calcularFrequencia(eventosMes, aluno.nome);
+    ["presenca","leitura","metodo"].forEach(tipo=>{
+        const s = calcularStatus(dados[tipo].anterior, dados[tipo].atual).texto;
+        if(s==="Evoluiu"){
+            texto += `Houve evolução em ${tipo}. Continue mantendo a disciplina e dedicação.\n\n`;
+        }
+        if(s==="Estável"){
+            texto += `${tipo} permaneceu estável. É importante buscar novos desafios.\n\n`;
+        }
+        if(s==="Regrediu"){
+            texto += `Foi identificada regressão em ${tipo}. É necessário reforçar treinos.\n\n`;
+        }
+    });
 
-        // 5. Calcular frequência geral (anual)
-        const freqGeral = calcularFrequencia(eventosAno, aluno.nome);
+    document.getElementById("analiseTexto").innerText = texto;
+}
 
-        // 6. Calcular conquistas do mês
-        const alunoSimuladoMes = {
-          ...aluno,
-          frequenciaMensal: { porcentagem: freqMes.percentual }
-        };
-        const conquistasMes = regrasDeConquistas.filter(c => c.condicao(alunoSimuladoMes));
+gerarAnalise();
 
-        // 7. Dados do mês anterior (para comparação)
-        const mesAnteriorChave = getMesAnterior(chave);
-        const eventosMesAnterior = todoEventos.filter(e => e.data && e.data.startsWith(mesAnteriorChave));
-        const freqMesAnterior = calcularFrequencia(eventosMesAnterior, aluno.nome);
-
-        // 8. Montar presença detalhada
-        const presencaDetalhada = eventosMes.map(ev => {
-          const p = ev.presencas?.find(x => x.nome === aluno.nome);
-          return {
-            data: formatarData(ev.data),
-            status: p?.presenca === "presente" ? "Presente" : "Ausente"
-          };
-        }).sort((a, b) => a.data.localeCompare(b.data));
-
-        // 9. Renderizar
-        renderizarRelatorio({
-          aluno, anoRel, mesRel,
-          freqMes, freqGeral, freqMesAnterior,
-          conquistasMes, presencaDetalhada, chave
-        });
-
-      } catch (err) {
-        console.error(err);
-        document.getElementById("loader-relatorio").innerHTML =
-          `<p style="color:#ef4444;">❌ Erro ao carregar relatório: ${err.message}</p>`;
-      }
-    }
-
-    /* ===== CALCULAR FREQUÊNCIA ===== */
-    function calcularFrequencia(eventos, nomeAluno) {
-      if (!eventos || eventos.length === 0) return { total: 0, presencas: 0, percentual: 0 };
-      const total = eventos.length;
-      const presencas = eventos.filter(ev => {
-        const p = ev.presencas?.find(x => x.nome === nomeAluno);
-        return p?.presenca === "presente";
-      }).length;
-      return { total, presencas, percentual: Math.round((presencas / total) * 100) };
-    }
-
-    /* ===== MÊS ANTERIOR ===== */
-    function getMesAnterior(chave) {
-      const [ano, mes] = chave.split("-").map(Number);
-      const d = new Date(ano, mes - 2, 1);
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    }
-
-    /* ===== FORMATAR DATA ===== */
-    function formatarData(iso) {
-      if (!iso) return "-";
-      const [a, m, d] = iso.split("-");
-      return `${d}/${m}/${a}`;
-    }
-
-    /* ===== STATUS COMPARATIVO ===== */
-    function gerarStatus(atual, anterior) {
-      if (anterior === 0 && atual === 0) return { texto: "— Sem dados", classe: "status-neutro" };
-      if (atual > anterior) return { texto: "▲ Evoluiu", classe: "status-evoluiu" };
-      if (atual === anterior) return { texto: "● Estável", classe: "status-estavel" };
-      return { texto: "▼ Regrediu", classe: "status-regrediu" };
-    }
-
-    /* ===== COR DA BARRA ===== */
-    function corBarra(pct) {
-      if (pct >= 80) return "fill-verde";
-      if (pct >= 50) return "fill-amarelo";
-      return "fill-vermelho";
-    }
-
-    /* ===== ANÁLISE AUTOMÁTICA ===== */
-    function gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior) {
-      const partes = [];
-
-      // Presença
-      if (freqMes.total === 0) {
-        partes.push("Não há registros de chamada para este mês.");
-      } else {
-        const stPres = gerarStatus(freqMes.percentual, freqMesAnterior.percentual);
-        if (stPres.classe === "status-evoluiu")
-          partes.push(`A frequência do aluno melhorou em relação ao mês anterior, atingindo ${freqMes.percentual}% de presença.`);
-        else if (stPres.classe === "status-estavel")
-          partes.push(`A frequência do aluno manteve-se estável em ${freqMes.percentual}% de presença.`);
-        else
-          partes.push(`A frequência do aluno apresentou queda em relação ao mês anterior, com ${freqMes.percentual}% de presença. Recomenda-se reforçar a regularidade nos ensaios.`);
-      }
-
-      // Leitura
-      const leitura = aluno.leitura || 0;
-      if (leitura >= 80) partes.push(`O nível de leitura musical está excelente (nível ${leitura}), demonstrando grande dedicação aos estudos de solfejo.`);
-      else if (leitura >= 40) partes.push(`O nível de leitura musical está em progressão (nível ${leitura}). Manter a prática constante garantirá evolução contínua.`);
-      else partes.push(`O nível de leitura musical (nível ${leitura}) indica que o aluno está nos estágios iniciais. Intensificar os estudos de solfejo é recomendado.`);
-
-      // Método
-      const metodo = aluno.metodo || 0;
-      if (metodo >= 80) partes.push(`O progresso no método instrumental é notável (unidade ${metodo}), evidenciando comprometimento exemplar.`);
-      else if (metodo >= 40) partes.push(`O progresso no método instrumental está avançando (unidade ${metodo}). Continuar com regularidade nos estudos.`);
-      else partes.push(`O método instrumental está na unidade ${metodo}. É importante manter foco e disciplina para acelerar o aprendizado.`);
-
-      // Comprometimento geral
-      if (freqGeral.percentual >= 85)
-        partes.push(`O comprometimento geral do aluno ao longo do ano é excelente (${freqGeral.percentual}%), sendo um exemplo de dedicação.`);
-      else if (freqGeral.percentual >= 60)
-        partes.push(`O comprometimento geral anual é satisfatório (${freqGeral.percentual}%), com espaço para melhoria na regularidade.`);
-      else if (freqGeral.total > 0)
-        partes.push(`O comprometimento geral anual (${freqGeral.percentual}%) requer atenção. Recomenda-se conversa motivacional com o aluno.`);
-
-      return partes.join(" ");
-    }
-
-    /* ===== RENDERIZAR RELATÓRIO ===== */
-    function renderizarRelatorio({ aluno, anoRel, mesRel, freqMes, freqGeral, freqMesAnterior, conquistasMes, presencaDetalhada, chave }) {
-      const nomeMes = MESES[mesRel] || mesRel;
-      const fotoSrc = aluno.foto || "https://via.placeholder.com/100";
-
-      // ===== REGRAS DOS INDICADORES =====
-
-      // Presença: status comparativo com mês anterior
-      const stPresenca = gerarStatus(freqMes.percentual, freqMesAnterior.percentual);
-
-      // Presença: meta dinâmica
-      // - Se já for 100%: meta = 100% (manter)
-      // - Se > 80%: meta = 100% (subir ao topo)
-      // - Se <= 80%: meta = 80% (atingir o mínimo)
-      let metaPresenca;
-      if (freqMes.percentual >= 100) metaPresenca = 100;
-      else if (freqMes.percentual > 80) metaPresenca = 100;
-      else metaPresenca = 80;
-
-      // Leitura: se não há histórico anterior, repete o valor atual como "anterior"
-      const leituraAtual   = aluno.leitura || 1;
-      const leituraAnterior = leituraAtual; // sem histórico disponível → repete
-      const leituraMeta    = leituraAtual + 2;
-      const stLeitura      = gerarStatus(leituraAtual, leituraAnterior);
-
-      // Método: mesma lógica da leitura
-      const metodoAtual    = aluno.metodo || 1;
-      const metodoAnterior = metodoAtual; // sem histórico disponível → repete
-      const metodoMeta     = metodoAtual + 2;
-      const stMetodo       = gerarStatus(metodoAtual, metodoAnterior);
-
-      // Análise automática
-      const analise = gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior);
-
-      // Conquistas HTML
-      let conquistasHTML = "";
-      if (conquistasMes.length > 0) {
-        conquistasHTML = conquistasMes.map(c => `
-          <div class="conquista-item ${c.raridade || ''}">
-            <span class="conquista-icone">${c.icone}</span>
-            <div class="conquista-info">
-              <strong>${c.titulo}</strong>
-              <span>${c.descricao}</span>
+function gerarEnsaios(){
+    const lista = document.getElementById("listaEnsaios");
+    dados.ensaios.forEach(e=>{
+        lista.innerHTML += `
+        <div class="ensaio">
+            <div>${e.data}</div>
+            <div class="${e.presente?'presente':'falta'}">
+                ${e.presente?'Presente':'Falta'}
             </div>
-          </div>
-        `).join("");
-      } else {
-        conquistasHTML = `<span class="sem-conquistas">Nenhuma conquista desbloqueada neste mês.</span>`;
-      }
-
-      // Presença detalhada HTML
-      let presencaHTML = "";
-      if (presencaDetalhada.length > 0) {
-        presencaHTML = presencaDetalhada.map(p => `
-          <tr>
-            <td>${p.data}</td>
-            <td class="${p.status === 'Presente' ? 'td-presente' : 'td-ausente'}">${p.status}</td>
-          </tr>
-        `).join("");
-      } else {
-        presencaHTML = `<tr><td colspan="2" style="color:#94a3b8; font-style:italic;">Nenhum registro de chamada neste mês.</td></tr>`;
-      }
-
-      const html = `
-        <!-- CABEÇALHO -->
-        <div class="rel-header">
-          <img src="${fotoSrc}" class="rel-foto" alt="Foto de ${aluno.nome}" onerror="this.src='https://via.placeholder.com/100'">
-          <div class="rel-info">
-            <h1>${aluno.nome}</h1>
-            <p class="instrumento">🎵 ${aluno.instrumento || "Instrumento não definido"}</p>
-            <p class="periodo">📅 Relatório de ${nomeMes} / ${anoRel}</p>
-          </div>
-          <div class="rel-logo">
-            <div class="titulo-sistema">Filhos de Asafe</div>
-            <div class="subtitulo-sistema">Sistema de Desempenho Musical</div>
-          </div>
         </div>
+        `;
+    });
+}
 
-        <!-- INDICADORES DE PROGRESSO -->
-        <div class="rel-titulo-secao">📈 Indicadores de Progresso</div>
-        <div class="indicadores-grid">
+gerarEnsaios();
 
-          <div class="indicador-card">
-            <h4>Presença no Mês</h4>
-            <div class="indicador-valores">
-              <div class="ind-val">Anterior<span>${freqMesAnterior.percentual}%</span></div>
-              <div class="ind-val atual">Atual<span>${freqMes.percentual}%</span></div>
-              <div class="ind-val">Meta<span>${metaPresenca}%</span></div>
-            </div>
-            <span class="indicador-status ${stPresenca.classe}">${stPresenca.texto}</span>
-          </div>
-
-          <div class="indicador-card">
-            <h4>Leitura (${aluno.leituraNome || 'Bona'})</h4>
-            <div class="indicador-valores">
-              <div class="ind-val">Anterior<span>Nível ${leituraAnterior}</span></div>
-              <div class="ind-val atual">Atual<span>Nível ${leituraAtual}</span></div>
-              <div class="ind-val">Meta<span>Nível ${leituraMeta}</span></div>
-            </div>
-            <span class="indicador-status ${stLeitura.classe}">Nível ${leituraAtual}</span>
-          </div>
-
-          <div class="indicador-card">
-            <h4>Método (${aluno.metodoNome || 'Método'})</h4>
-            <div class="indicador-valores">
-              <div class="ind-val">Anterior<span>Unid. ${metodoAnterior}</span></div>
-              <div class="ind-val atual">Atual<span>Unid. ${metodoAtual}</span></div>
-              <div class="ind-val">Meta<span>Unid. ${metodoMeta}</span></div>
-            </div>
-            <span class="indicador-status ${stMetodo.classe}">Unidade ${metodoAtual}</span>
-          </div>
-
-        </div>
-
-        <!-- COMPROMETIMENTO -->
-        <div class="rel-titulo-secao">⚡ Comprometimento</div>
-        <div class="comprometimento-grid">
-
-          <div class="comp-card">
-            <h4>Comprometimento Mensal — ${nomeMes}</h4>
-            <div class="comp-valor">${freqMes.percentual}%</div>
-            <div class="comp-detalhe">${freqMes.presencas} presença(s) de ${freqMes.total} chamada(s)</div>
-            <div class="comp-barra-wrap">
-              <div class="comp-barra-fill ${corBarra(freqMes.percentual)}" style="width:${freqMes.percentual}%"></div>
-            </div>
-          </div>
-
-          <div class="comp-card">
-            <h4>Comprometimento Geral — ${anoRel}</h4>
-            <div class="comp-valor">${freqGeral.percentual}%</div>
-            <div class="comp-detalhe">${freqGeral.presencas} presença(s) de ${freqGeral.total} chamada(s) no ano</div>
-            <div class="comp-barra-wrap">
-              <div class="comp-barra-fill fill-azul" style="width:${freqGeral.percentual}%"></div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- ANÁLISE -->
-        <div class="rel-titulo-secao">📝 Análise do Desempenho</div>
-        <div class="analise-box">${analise}</div>
-
-        <!-- CONQUISTAS DO MÊS -->
-        <div class="rel-titulo-secao">🏆 Conquistas do Mês</div>
-        <div class="conquistas-grid">${conquistasHTML}</div>
-
-        <!-- PRESENÇA DETALHADA -->
-        <div class="rel-titulo-secao">📋 Controle de Presença — ${nomeMes} ${anoRel}</div>
-        <div class="presenca-section">
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>${presencaHTML}</tbody>
-          </table>
-        </div>
-
-        <!-- RODAPÉ -->
-        <div class="rel-footer">
-          <div>
-            <div>Gerado em: ${new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' })}</div>
-            <div style="margin-top:4px;">Sistema Filhos de Asafe — Relatório de Progresso Mensal</div>
-          </div>
-          <div class="assinatura-linha">
-            Professor Responsável
-          </div>
-        </div>
-      `;
-
-      const pagina = document.getElementById("pagina-relatorio");
-      pagina.innerHTML = html;
-      pagina.style.display = "block";
-      document.getElementById("loader-relatorio").style.display = "none";
-    }
-  </script>
+document.getElementById("btnJPG").addEventListener("click", async ()=>{
+    const elemento = document.getElementById("pagina-relatorio");
+    const canvas = await html2canvas(elemento,{scale:3});
+    const link = document.createElement("a");
+    link.download = "relatorio.jpg";
+    link.href = canvas.toDataURL("image/jpeg",1.0);
+    link.click();
+});
+</script>
 
 </body>
 </html>
