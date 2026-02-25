@@ -406,23 +406,42 @@
 
     /* ===== IMPRESSÃO ===== */
     @media print {
+      /* Esconde tudo exceto o wrapper de escala */
       body {
         background: white !important;
+        margin: 0 !important;
         padding: 0 !important;
-        color: #1a202c !important;
       }
       .top-bar { display: none !important; }
+      #loader-relatorio { display: none !important; }
+
+      /* Remove decorações da página impressa */
       .page {
         box-shadow: none !important;
         border-radius: 0 !important;
-        padding: 0 !important;
-        max-width: 100% !important;
       }
-      .indicador-card,
-      .comp-card,
-      .conquista-item,
-      .analise-box {
-        break-inside: avoid;
+
+      /* Wrapper de escala: ocupa a página inteira sem margens */
+      #print-scale-wrapper {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+        background: white !important;
+      }
+
+      /* Impede qualquer quebra de página */
+      * {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      @page {
+        size: A4 landscape;
+        margin: 0;
       }
     }
 
@@ -443,7 +462,7 @@
     <h1>📊 Relatório de Progresso Mensal</h1>
     <div class="top-bar-actions">
       <button class="btn-voltar" onclick="history.back()">← Voltar</button>
-      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-print" onclick="imprimirRelatorio()">🖨️ Imprimir / Salvar PDF</button>
     </div>
   </div>
 
@@ -451,6 +470,11 @@
   <div id="loader-relatorio">
     <div class="spinner-rel"></div>
     <p>Carregando dados do aluno...</p>
+  </div>
+
+  <!-- WRAPPER DE ESCALA PARA IMPRESSÃO -->
+  <div id="print-scale-wrapper" style="display:none;">
+    <div id="print-scale-inner"></div>
   </div>
 
   <!-- PÁGINA DO RELATÓRIO (preenchida via JS) -->
@@ -803,6 +827,81 @@
       pagina.innerHTML = html;
       pagina.style.display = "block";
       document.getElementById("loader-relatorio").style.display = "none";
+    }
+  </script>
+
+  <!-- SCRIPT DE IMPRESSÃO COM ESCALA AUTOMÁTICA -->
+  <script>
+    function imprimirRelatorio() {
+      const pagina = document.getElementById('pagina-relatorio');
+      if (!pagina || pagina.style.display === 'none') {
+        window.print();
+        return;
+      }
+
+      // Dimensões do conteúdo real
+      const conteudoW = pagina.scrollWidth;
+      const conteudoH = pagina.scrollHeight;
+
+      // Dimensões da folha A4 em px a 96dpi
+      // A4 landscape: 297mm x 210mm → ~1123px x 794px
+      // A4 portrait:  210mm x 297mm → ~794px x 1123px
+      // Usamos portrait pois o conteúdo é mais alto que largo
+      const folhaW = 794;
+      const folhaH = 1123;
+
+      // Calcular escala para encaixar tudo na folha
+      const escalaX = folhaW / conteudoW;
+      const escalaY = folhaH / conteudoH;
+      const escala  = Math.min(escalaX, escalaY, 1); // nunca ampliar, só reduzir
+
+      // Centralizar verticalmente
+      const offsetY = Math.max(0, (folhaH - conteudoH * escala) / 2);
+
+      // Montar wrapper de escala
+      const wrapper = document.getElementById('print-scale-wrapper');
+      const inner   = document.getElementById('print-scale-inner');
+
+      // Clonar o conteúdo para o wrapper
+      inner.innerHTML = '';
+      const clone = pagina.cloneNode(true);
+      clone.style.cssText = [
+        'display:block',
+        'position:absolute',
+        'top:0',
+        'left:0',
+        `width:${conteudoW}px`,
+        `transform-origin:top left`,
+        `transform:scale(${escala}) translateY(${offsetY / escala}px)`,
+        'box-shadow:none',
+        'border-radius:0',
+        'margin:0',
+        'padding:20px 30px',
+        'background:white'
+      ].join(';');
+      inner.appendChild(clone);
+
+      // Ajustar wrapper
+      wrapper.style.cssText = [
+        'display:block',
+        'position:fixed',
+        'top:0',
+        'left:0',
+        `width:${folhaW}px`,
+        `height:${folhaH}px`,
+        'background:white',
+        'overflow:hidden',
+        'z-index:99999'
+      ].join(';');
+
+      // Imprimir e restaurar
+      requestAnimationFrame(() => {
+        window.print();
+        setTimeout(() => {
+          wrapper.style.display = 'none';
+          inner.innerHTML = '';
+        }, 500);
+      });
     }
   </script>
 
