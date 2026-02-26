@@ -354,25 +354,73 @@ body {
   border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
-/* NOTIFICAÇÕES */
+/* ============================================================
+   NOTIFICAÇÕES / ATIVIDADES RECENTES
+   ============================================================ */
 .lista-notificacoes {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 240px;
+  max-height: 320px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;           /* gap via margin-bottom no item */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56,189,248,.3) transparent;
 }
+
+.lista-notificacoes::-webkit-scrollbar       { width: 5px; }
+.lista-notificacoes::-webkit-scrollbar-track { background: transparent; }
+.lista-notificacoes::-webkit-scrollbar-thumb { background: rgba(56,189,248,.3); border-radius: 99px; }
 
 .notificacao {
   display: flex;
-  gap: 10px;
-  background: rgba(42, 42, 61, 0.8);
-  padding: 10px 12px;
-  border-radius: 10px;
-  border-left: 4px solid var(--azul);
+  align-items: flex-start;
+  gap: 12px;
+  background: #2a2a3d;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  animation: notifFadeIn .4s ease;
+}
+
+.notificacao:last-child { margin-bottom: 0; }
+
+/* Ícone grande e alinhado */
+.notificacao .icone {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Texto principal */
+.notificacao .conteudo {
+  font-size: .95rem;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+/* Timestamp */
+.notificacao .conteudo small {
+  display: block;
+  margin-top: 4px;
+  font-size: .75rem;
+  color: #aaa;
+}
+
+/* Bordas coloridas por tipo */
+.notificacao.envio     { border-left: 4px solid #4caf50; }
+.notificacao.download  { border-left: 4px solid #2196f3; }
+.notificacao.nivel     { border-left: 4px solid #ff9800; }
+.notificacao.aprovacao { border-left: 4px solid #22c55e; }
+.notificacao.rejeicao  { border-left: 4px solid #ef4444; }
+
+/* Animação de entrada */
+@keyframes notifFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* CONQUISTAS - ESTILO MODERNO */
@@ -802,8 +850,16 @@ body {
     font-size: 0.85rem;
   }
   
-  .lista-notificacoes li {
-    padding: 12px;
+  /* Notificações mobile */
+  .notificacao {
+    padding: 10px;
+  }
+  
+  .notificacao .icone {
+    font-size: 1.3rem;
+  }
+  
+  .notificacao .conteudo {
     font-size: 0.85rem;
   }
   
@@ -821,10 +877,10 @@ body {
 /* #painelEvolucao: sem altura forçada — controlado pelo .ev-grafico-wrap em grafico-evolucao.js */
 #painelEvolucao {
   width: 100%;
-  overflow: hidden;  /* garante que nada vaze para fora do card */
+  overflow: hidden;
 }
 
-//* LIÇÕES ENVIADAS - ESTILO MODERNO */
+/* LIÇÕES ENVIADAS - ESTILO MODERNO */
 .lessons-section {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border: 1px solid rgba(56, 189, 248, 0.3);
@@ -903,9 +959,9 @@ body {
   align-self: flex-start;
 }
 
-.status-badge.pendente { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.status-badge.pendente  { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
 .status-badge.reprovada { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-.status-badge.aprovada { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+.status-badge.aprovada  { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
 
 .btn-delete-licao {
   position: absolute;
@@ -1078,7 +1134,7 @@ body {
   font-weight: 600;
 }
 
-.mini-achievement.ouro { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
+.mini-achievement.ouro  { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
 .mini-achievement.prata { border-color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
 
 .conquistas-cards-grid {
@@ -1095,26 +1151,11 @@ body {
 }
 
 @media (max-width: 767px) {
-  .conquistas-cards-grid {
-    gap: 12px;
-  }
-  
-  .conquista-card {
-    padding: 14px;
-  }
-  
-  .conquista-card-icon {
-    font-size: 2rem;
-  }
-  
-  .conquista-card-titulo {
-    font-size: 0.95rem;
-  }
-  
-  .conquista-card-descricao {
-    font-size: 0.8rem;
-    line-height: 1.4;
-  }
+  .conquistas-cards-grid { gap: 12px; }
+  .conquista-card { padding: 14px; }
+  .conquista-card-icon { font-size: 2rem; }
+  .conquista-card-titulo { font-size: 0.95rem; }
+  .conquista-card-descricao { font-size: 0.8rem; line-height: 1.4; }
 }
 
 .conquista-card {
@@ -1162,9 +1203,7 @@ body {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.conquista-card-info {
-  flex: 1;
-}
+.conquista-card-info { flex: 1; }
 
 .conquista-card-titulo {
   font-size: 1rem;
@@ -1181,23 +1220,9 @@ body {
   display: inline-block;
 }
 
-.conquista-card.ouro .conquista-card-raridade {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
-  border: 1px solid #fbbf24;
-}
-
-.conquista-card.prata .conquista-card-raridade {
-  background: rgba(148, 163, 184, 0.2);
-  color: #94a3b8;
-  border: 1px solid #94a3b8;
-}
-
-.conquista-card.bronze .conquista-card-raridade {
-  background: rgba(205, 127, 50, 0.2);
-  color: #cd7f32;
-  border: 1px solid #cd7f32;
-}
+.conquista-card.ouro   .conquista-card-raridade { background: rgba(251,191,36,.2); color: #fbbf24; border: 1px solid #fbbf24; }
+.conquista-card.prata  .conquista-card-raridade { background: rgba(148,163,184,.2); color: #94a3b8; border: 1px solid #94a3b8; }
+.conquista-card.bronze .conquista-card-raridade { background: rgba(205,127,50,.2); color: #cd7f32; border: 1px solid #cd7f32; }
 
 .conquista-card-descricao {
   font-size: 0.85rem;
@@ -1236,20 +1261,10 @@ body {
   vertical-align: middle;
 }
 
-.legend-circle.blue {
-  background-color: #00bcd4;
-  box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
-}
+.legend-circle.blue  { background-color: #00bcd4; box-shadow: 0 0 8px rgba(0,188,212,.6); }
+.legend-circle.green { background-color: #4caf50; box-shadow: 0 0 8px rgba(76,175,80,.6); }
 
-.legend-circle.green {
-  background-color: #4caf50;
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-}
-
-.capsule-title {
-  display: flex;
-  align-items: center;
-}
+.capsule-title { display: flex; align-items: center; }
 
 /* ============================================================
    MODAL DE CONQUISTAS - DESIGN COMPLETO
@@ -1265,7 +1280,7 @@ body {
 }
 
 .conquista-header-modal {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(34, 211, 238, 0.1));
+  background: linear-gradient(135deg, rgba(14,165,233,.15), rgba(34,211,238,.1));
   border-bottom: 1px solid var(--border);
   padding: 30px 24px;
   text-align: center;
@@ -1276,19 +1291,13 @@ body {
   font-size: 5rem;
   line-height: 1;
   margin-bottom: 16px;
-  text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+  text-shadow: 0 0 20px rgba(34,211,238,.5);
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
-    transform: scale(1);
-    filter: brightness(1);
-  }
-  50% {
-    transform: scale(1.05);
-    filter: brightness(1.2);
-  }
+  0%,100% { transform: scale(1); filter: brightness(1); }
+  50%      { transform: scale(1.05); filter: brightness(1.2); }
 }
 
 .conquista-nome-modal {
@@ -1296,7 +1305,7 @@ body {
   font-weight: 700;
   color: #f9fafb;
   margin: 0 0 12px 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 
 .conquista-nivel-badge {
@@ -1307,19 +1316,17 @@ body {
   border-radius: 20px;
   font-size: 0.875rem;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 4px 12px rgba(14,165,233,.4);
 }
 
 .conquista-descricao-section,
 .conquista-condicao-section,
 .conquista-progresso-section {
   padding: 24px;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+  border-bottom: 1px solid rgba(56,189,248,.1);
 }
 
-.conquista-progresso-section {
-  border-bottom: none;
-}
+.conquista-progresso-section { border-bottom: none; }
 
 .conquista-section-title {
   font-size: 1rem;
@@ -1339,7 +1346,7 @@ body {
 }
 
 .conquista-condicao-box {
-  background: rgba(34, 211, 238, 0.08);
+  background: rgba(34,211,238,.08);
   border-left: 3px solid #22d3ee;
   padding: 14px 16px;
   border-radius: 8px;
@@ -1351,18 +1358,18 @@ body {
 .conquista-progresso-bar {
   width: 100%;
   height: 24px;
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15,23,42,.8);
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56,189,248,.2);
   margin-bottom: 8px;
 }
 
 .conquista-progresso-fill {
   height: 100%;
   background: linear-gradient(90deg, #0ea5e9, #22d3ee);
-  transition: width 0.5s ease;
-  box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+  transition: width .5s ease;
+  box-shadow: 0 0 10px rgba(34,211,238,.5);
 }
 
 .conquista-progresso-text {
@@ -1373,30 +1380,18 @@ body {
 }
 
 @media (max-width: 768px) {
-  .modal-conquista {
-    max-width: 95%;
-    margin: 20px auto;
-  }
-  
-  .conquista-simbolo-grande {
-    font-size: 4rem;
-  }
-  
-  .conquista-nome-modal {
-    font-size: 1.5rem;
-  }
-  
+  .modal-conquista { max-width: 95%; margin: 20px auto; }
+  .conquista-simbolo-grande { font-size: 4rem; }
+  .conquista-nome-modal { font-size: 1.5rem; }
   .conquista-descricao-section,
   .conquista-condicao-section,
-  .conquista-progresso-section {
-    padding: 18px;
-  }
+  .conquista-progresso-section { padding: 18px; }
 }
 
 .conquista-footer {
   padding: 20px 24px;
-  background: rgba(15, 23, 42, 0.5);
-  border-top: 1px solid rgba(56, 189, 248, 0.1);
+  background: rgba(15,23,42,.5);
+  border-top: 1px solid rgba(56,189,248,.1);
   display: flex;
   justify-content: center;
 }
@@ -1410,20 +1405,12 @@ body {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  transition: all .2s ease;
+  box-shadow: 0 4px 12px rgba(14,165,233,.3);
 }
 
-.btn-fechar-conquista:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.5);
-  filter: brightness(1.1);
-}
-
-.btn-fechar-conquista:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
-}
+.btn-fechar-conquista:hover  { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(14,165,233,.5); filter: brightness(1.1); }
+.btn-fechar-conquista:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(14,165,233,.4); }
 
 .conquistas-mes-list {
   display: flex;
@@ -1446,7 +1433,7 @@ body {
 .conquista-mes-card:hover {
   border-color: var(--azul);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 4px 12px rgba(56,189,248,.2);
 }
 
 .conquista-mes-icon {
@@ -1457,7 +1444,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(56, 189, 248, 0.1);
+  background: rgba(56,189,248,.1);
   border-radius: 10px;
 }
 
@@ -1482,22 +1469,8 @@ body {
 }
 
 @media (max-width: 600px) {
-  .conquista-mes-card {
-    padding: 12px;
-    gap: 10px;
-  }
-  
-  .conquista-mes-icon {
-    font-size: 2rem;
-    width: 44px;
-    height: 44px;
-  }
-  
-  .conquista-mes-titulo {
-    font-size: 0.95rem;
-  }
-  
-  .conquista-mes-descricao {
-    font-size: 0.8rem;
-  }
+  .conquista-mes-card { padding: 12px; gap: 10px; }
+  .conquista-mes-icon { font-size: 2rem; width: 44px; height: 44px; }
+  .conquista-mes-titulo { font-size: 0.95rem; }
+  .conquista-mes-descricao { font-size: 0.8rem; }
 }
