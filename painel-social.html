@@ -321,6 +321,22 @@
     }
 
     /* =============================================
+       SUBSEPARADOR (tipos dentro de bancada)
+       ============================================= */
+    .subseparador {
+      grid-column: 1 / -1;
+      padding: 6px 12px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      border-left: 3px solid rgba(34, 211, 238, 0.4);
+      background: rgba(15, 23, 42, 0.3);
+      border-radius: 4px;
+    }
+
+    /* =============================================
        CARDS SOCIAIS
        ============================================= */
     .card-social {
@@ -487,7 +503,7 @@
       .grid-principal {
         grid-template-columns: 1fr;
       }
-      .separador-bancada {
+      .separador-bancada, .subseparador {
         grid-column: 1;
       }
     }
@@ -531,13 +547,17 @@
     ];
 
     // ============================================================
-    // NORMALIZAR BANCADA: agrupar violas e violinos em "Cordas"
+    // NORMALIZAR BANCADA: agrupar violas/violinos em "Cordas",
+    // saxofones em "Saxofones"
     // ============================================================
     function normalizarBancada(instrumento) {
       if (!instrumento) return "Outros";
       const inst = instrumento.trim().toLowerCase();
       if (inst.includes("viola") || inst.includes("violino")) {
         return "Cordas";
+      }
+      if (inst.includes("sax")) {
+        return "Saxofones";
       }
       return instrumento.trim();
     }
@@ -597,6 +617,32 @@
         map.get(bancada).push(a);
       });
       return map;
+    }
+
+    // ============================================================
+    // AGRUPAR INTERNAMENTE POR TIPO (para Saxofones)
+    // ============================================================
+    function agruparPorTipo(alunos, bancadaNome) {
+      if (bancadaNome !== "Saxofones") {
+        return new Map([[bancadaNome, alunos]]);
+      }
+      const tipoMap = new Map();
+      alunos.forEach(a => {
+        const tipo = a.instrumento?.trim() || "Saxofone";
+        if (!tipoMap.has(tipo)) tipoMap.set(tipo, []);
+        tipoMap.get(tipo).push(a);
+      });
+      // Ordem padrão: Soprano, Alto, Tenor, Barítono
+      const ordem = ["Saxofone Soprano", "Saxofone Alto", "Saxofone Tenor", "Saxofone Barítono"];
+      const sorted = new Map();
+      ordem.forEach(t => {
+        if (tipoMap.has(t)) sorted.set(t, tipoMap.get(t));
+      });
+      // Adicionar qualquer outro tipo não previsto
+      tipoMap.forEach((v, k) => {
+        if (!sorted.has(k)) sorted.set(k, v);
+      });
+      return sorted;
     }
 
     // ============================================================
@@ -815,6 +861,16 @@
     }
 
     // ============================================================
+    // HTML: SUBSEPARADOR (tipo de instrumento)
+    // ============================================================
+    function htmlSubseparador(tipo, qtd) {
+      return `
+        <div class="subseparador">
+          ${tipo} <span style="color:#9ca3af;font-weight:500;">(${qtd})</span>
+        </div>`;
+    }
+
+    // ============================================================
     // RENDERIZAR TUDO
     // ============================================================
     function renderizarTudo(bancadaMap) {
@@ -831,18 +887,26 @@
         ${htmlRanking(bancadaMap, abaAtual, mesAtual)}
       `;
 
-      // 2. Demais bancadas em ordem alfabética, com separador entre cada
+      // 2. Demais bancadas em ordem alfabética
       const ordemBancadas = [...bancadaMap.keys()]
         .filter(k => k !== "Maestro")
         .sort((a, b) => a.localeCompare(b));
 
       ordemBancadas.forEach(nome => {
-        const alunos = bancadaMap.get(nome)
+        const alunosBancada = bancadaMap.get(nome)
           .slice()
           .sort((a, b) => (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0));
 
-        html += htmlSeparador(nome, alunos.length);
-        html += alunos.map(htmlCard).join("");
+        html += htmlSeparador(nome, alunosBancada.length);
+
+        // Para Saxofones, subdivide por tipo
+        const tipoMap = agruparPorTipo(alunosBancada, nome);
+        tipoMap.forEach((alunos, tipo) => {
+          if (tipoMap.size > 1) {
+            html += htmlSubseparador(tipo, alunos.length);
+          }
+          html += alunos.map(htmlCard).join("");
+        });
       });
 
       container.innerHTML = html;
