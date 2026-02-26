@@ -287,15 +287,15 @@
     }
 
     /* =============================================
-       SEPARADOR DE BANCADA (compacto)
+       SEPARADOR DE GRUPO (Saxofones, Metais, etc)
        ============================================= */
-    .separador-bancada {
+    .separador-grupo {
       grid-column: 1 / -1;
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 12px 0 8px;
-      margin-top: 8px;
+      margin-top: 16px;
     }
 
     .separador-linha {
@@ -306,7 +306,7 @@
 
     .separador-texto {
       font-size: 0.85rem;
-      font-weight: 600;
+      font-weight: 700;
       color: #22d3ee;
       display: flex;
       align-items: center;
@@ -318,6 +318,22 @@
       font-size: 0.7rem;
       color: #6b7280;
       font-weight: 500;
+    }
+
+    /* =============================================
+       SUBSEPARADOR (Soprano, Trompete, etc)
+       ============================================= */
+    .subseparador {
+      grid-column: 1 / -1;
+      padding: 6px 12px;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #9ca3af;
+      border-left: 3px solid rgba(34, 211, 238, 0.4);
+      background: rgba(15, 23, 42, 0.3);
+      border-radius: 4px;
     }
 
     /* =============================================
@@ -487,7 +503,7 @@
       .grid-principal {
         grid-template-columns: 1fr;
       }
-      .separador-bancada {
+      .separador-grupo, .subseparador {
         grid-column: 1;
       }
     }
@@ -531,31 +547,35 @@
     ];
 
     // ============================================================
-    // NORMALIZAR BANCADA: agrupar violas/violinos em "Cordas",
-    // saxofones em "Saxofones"
+    // CLASSIFICAR INSTRUMENTOS EM GRUPOS E SUBGRUPOS
     // ============================================================
-    function normalizarBancada(instrumento) {
-      if (!instrumento) return "Outros";
+    function classificarInstrumento(instrumento) {
+      if (!instrumento) return { grupo: "Outros", subgrupo: "Outros" };
       const inst = instrumento.trim().toLowerCase();
-      if (inst.includes("viola") || inst.includes("violino")) {
-        return "Cordas";
-      }
-      if (inst.includes("sax")) {
-        return "Saxofones";
-      }
-      return instrumento.trim();
-    }
 
-    // ============================================================
-    // ORDEM DE PRIORIDADE DE TIPOS DE SAXOFONE
-    // ============================================================
-    function ordemSaxofone(instrumento) {
-      const inst = instrumento.trim().toLowerCase();
-      if (inst.includes("soprano")) return 1;
-      if (inst.includes("alto")) return 2;
-      if (inst.includes("tenor")) return 3;
-      if (inst.includes("barítono")) return 4;
-      return 5;
+      // Cordas
+      if (inst.includes("viola") || inst.includes("violino")) {
+        return { grupo: "Cordas", subgrupo: instrumento.trim() };
+      }
+
+      // Saxofones
+      if (inst.includes("sax")) {
+        if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Saxofone Soprano", ordem: 1 };
+        if (inst.includes("alto")) return { grupo: "Saxofones", subgrupo: "Saxofone Alto", ordem: 2 };
+        if (inst.includes("tenor")) return { grupo: "Saxofones", subgrupo: "Saxofone Tenor", ordem: 3 };
+        if (inst.includes("barítono")) return { grupo: "Saxofones", subgrupo: "Saxofone Barítono", ordem: 4 };
+        return { grupo: "Saxofones", subgrupo: instrumento.trim(), ordem: 5 };
+      }
+
+      // Metais
+      if (inst.includes("trompete") || inst.includes("trombone") || inst.includes("tuba")) {
+        if (inst.includes("trompete")) return { grupo: "Metais", subgrupo: "Trompete", ordem: 1 };
+        if (inst.includes("trombone")) return { grupo: "Metais", subgrupo: "Trombone", ordem: 2 };
+        if (inst.includes("tuba")) return { grupo: "Metais", subgrupo: "Tuba", ordem: 3 };
+      }
+
+      // Instrumento isolado (sem agrupamento)
+      return { grupo: instrumento.trim(), subgrupo: null };
     }
 
     function corBarra(pct) {
@@ -605,14 +625,40 @@
       return Math.round((presencas / eventosMes.length) * 100);
     }
 
-    function agruparPorBancada(alunos) {
+    // ============================================================
+    // AGRUPAR POR GRUPOS (para ranking/badges)
+    // ============================================================
+    function agruparPorGrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => {
-        const bancada = normalizarBancada(a.instrumento);
-        if (!map.has(bancada)) map.set(bancada, []);
-        map.get(bancada).push(a);
+        const { grupo } = classificarInstrumento(a.instrumento);
+        if (!map.has(grupo)) map.set(grupo, []);
+        map.get(grupo).push(a);
       });
       return map;
+    }
+
+    // ============================================================
+    // AGRUPAR POR GRUPOS E SUBGRUPOS (para renderização)
+    // ============================================================
+    function agruparPorGrupoESubgrupo(alunos) {
+      const grupoMap = new Map();
+      alunos.forEach(a => {
+        const classif = classificarInstrumento(a.instrumento);
+        const { grupo, subgrupo } = classif;
+        
+        if (!grupoMap.has(grupo)) {
+          grupoMap.set(grupo, new Map());
+        }
+        
+        const subKey = subgrupo || grupo;
+        const subgrupoMap = grupoMap.get(grupo);
+        if (!subgrupoMap.has(subKey)) {
+          subgrupoMap.set(subKey, []);
+        }
+        subgrupoMap.get(subKey).push({ ...a, _classif: classif });
+      });
+      return grupoMap;
     }
 
     // ============================================================
@@ -621,7 +667,7 @@
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
       const mediaMensal = media(ativos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
-      const bancadas    = agruparPorBancada(ativos).size;
+      const grupos = agruparPorGrupo(ativos).size;
 
       return `
         <div class="painel-geral">
@@ -639,8 +685,8 @@
             <span class="stat-geral-valor">${mediaMensal}%</span>
           </div>
           <div class="stat-geral-item">
-            <span class="stat-geral-label">🎼 Bancadas</span>
-            <span class="stat-geral-valor">${bancadas}</span>
+            <span class="stat-geral-label">🎼 Grupos</span>
+            <span class="stat-geral-valor">${grupos}</span>
           </div>
         </div>`;
     }
@@ -648,32 +694,32 @@
     // ============================================================
     // HTML: BADGES
     // ============================================================
-    function htmlBadges(bancadaMap) {
-      const ordemBancadas = [...bancadaMap.keys()].sort((a, b) => {
+    function htmlBadges(grupoMap) {
+      const ordemGrupos = [...grupoMap.keys()].sort((a, b) => {
         if (a === "Maestro") return -1;
         if (b === "Maestro") return  1;
         return a.localeCompare(b);
       });
 
-      const badges = ordemBancadas.map(nome => {
-        const qtd = bancadaMap.get(nome).length;
+      const badges = ordemGrupos.map(nome => {
+        const qtd = grupoMap.get(nome).length;
         return `<span class="badge-instrumento"
-                      onclick="scrollParaBancada('${nome}')">
+                      onclick="scrollParaGrupo('${nome}')">
                   ${nome} <strong>${qtd}</strong>
                 </span>`;
       }).join("");
 
       return `
         <div class="badges-container">
-          <div class="badges-titulo">🎼 Bancadas</div>
+          <div class="badges-titulo">🎼 Grupos</div>
           <div class="badges-lista">${badges}</div>
         </div>`;
     }
 
     // ============================================================
     // HTML: RANKING
-    // ============================================ ================
-    function calcularMetricaBancada(alunos, aba, mes) {
+    // ============================================================
+    function calcularMetricaGrupo(alunos, aba, mes) {
       if (aba === "nivel") {
         return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
       }
@@ -687,15 +733,15 @@
       return 0;
     }
 
-    function htmlRanking(bancadaMap, aba, mes) {
-      const bancadas = [...bancadaMap.keys()].filter(k => k !== "Maestro");
-      let dados = bancadas.map(nome => {
-        const alunos = bancadaMap.get(nome);
+    function htmlRanking(grupoMap, aba, mes) {
+      const grupos = [...grupoMap.keys()].filter(k => k !== "Maestro");
+      let dados = grupos.map(nome => {
+        const alunos = grupoMap.get(nome);
         if (aba === "score") {
-          const raw = calcularMetricaBancada(alunos, "score", mes);
+          const raw = calcularMetricaGrupo(alunos, "score", mes);
           return { nome, nivel: raw.nivel, freq: raw.freq, score: null };
         }
-        return { nome, valor: calcularMetricaBancada(alunos, aba, mes) };
+        return { nome, valor: calcularMetricaGrupo(alunos, aba, mes) };
       });
 
       if (aba === "score") {
@@ -815,12 +861,12 @@
     }
 
     // ============================================================
-    // HTML: SEPARADOR DE BANCADA
+    // HTML: SEPARADORES
     // ============================================================
-    function htmlSeparador(nome, qtd) {
-      const id = `bancada-${nome.toLowerCase().replace(/\s+/g, "-")}`;
+    function htmlSeparadorGrupo(nome, qtd) {
+      const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
       return `
-        <div class="separador-bancada" id="${id}">
+        <div class="separador-grupo" id="${id}">
           <div class="separador-linha"></div>
           <div class="separador-texto">
             🎼 ${nome}
@@ -830,46 +876,61 @@
         </div>`;
     }
 
+    function htmlSubseparador(nome, qtd) {
+      return `
+        <div class="subseparador">
+          ${nome} <span style="color:#6b7280;font-weight:500;">(${qtd})</span>
+        </div>`;
+    }
+
     // ============================================================
     // RENDERIZAR TUDO
     // ============================================================
-    function renderizarTudo(bancadaMap) {
+    function renderizarTudo(grupoSubgrupoMap) {
       const container = document.getElementById("gridCompleto");
 
       // 1. Maestro + 3 blocos de info
-      const maestros = bancadaMap.get("Maestro") || [];
+      const maestros = grupoSubgrupoMap.get("Maestro")?.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
+
+      const grupoMapSimples = agruparPorGrupo(todosAtivos);
 
       let html = `
         ${maestroHTML}
         ${htmlPainelGeral(todosAtivos)}
-        ${htmlBadges(bancadaMap)}
-        ${htmlRanking(bancadaMap, abaAtual, mesAtual)}
+        ${htmlBadges(grupoMapSimples)}
+        ${htmlRanking(grupoMapSimples, abaAtual, mesAtual)}
       `;
 
-      // 2. Demais bancadas em ordem alfabética
-      const ordemBancadas = [...bancadaMap.keys()]
+      // 2. Demais grupos em ordem alfabética
+      const ordemGrupos = [...grupoSubgrupoMap.keys()]
         .filter(k => k !== "Maestro")
         .sort((a, b) => a.localeCompare(b));
 
-      ordemBancadas.forEach(nome => {
-        let alunosBancada = bancadaMap.get(nome).slice();
+      ordemGrupos.forEach(grupo => {
+        const subgrupoMap = grupoSubgrupoMap.get(grupo);
+        const totalAlunos = Array.from(subgrupoMap.values()).flat().length;
 
-        // Para Saxofones: ordenar por tipo (Soprano, Alto, Tenor, Barítono)
-        if (nome === "Saxofones") {
-          alunosBancada.sort((a, b) => {
-            const ordemA = ordemSaxofone(a.instrumento ?? "");
-            const ordemB = ordemSaxofone(b.instrumento ?? "");
-            if (ordemA !== ordemB) return ordemA - ordemB;
-            return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
-          });
-        } else {
-          // Demais bancadas: ordenar por energia
-          alunosBancada.sort((a, b) => (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0));
-        }
+        html += htmlSeparadorGrupo(grupo, totalAlunos);
 
-        html += htmlSeparador(nome, alunosBancada.length);
-        html += alunosBancada.map(htmlCard).join("");
+        // Ordenar subgrupos
+        const subgrupos = Array.from(subgrupoMap.entries()).sort((a, b) => {
+          const ordemA = a[1][0]?._classif?.ordem ?? 999;
+          const ordemB = b[1][0]?._classif?.ordem ?? 999;
+          if (ordemA !== ordemB) return ordemA - ordemB;
+          return a[0].localeCompare(b[0]);
+        });
+
+        subgrupos.forEach(([subgrupo, alunos]) => {
+          // Mostrar subseparador se houver mais de 1 subgrupo no grupo
+          if (subgrupoMap.size > 1) {
+            html += htmlSubseparador(subgrupo, alunos.length);
+          }
+          
+          // Ordenar alunos por energia
+          alunos.sort((a, b) => (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0));
+          html += alunos.map(htmlCard).join("");
+        });
       });
 
       container.innerHTML = html;
@@ -880,16 +941,16 @@
     // ============================================================
     window.trocarAba = function(aba) {
       abaAtual = aba;
-      renderizarTudo(agruparPorBancada(todosAtivos));
+      renderizarTudo(agruparPorGrupoESubgrupo(todosAtivos));
     };
 
     window.mudarMes = function(delta) {
       mesAtual = (mesAtual + delta + 12) % 12;
-      renderizarTudo(agruparPorBancada(todosAtivos));
+      renderizarTudo(agruparPorGrupoESubgrupo(todosAtivos));
     };
 
-    window.scrollParaBancada = function(nome) {
-      const id = `bancada-${nome.toLowerCase().replace(/\s+/g, "-")}`;
+    window.scrollParaGrupo = function(nome) {
+      const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
@@ -910,9 +971,9 @@
       });
 
       todosAtivos = alunos.filter(a => a.ativo !== false);
-      const bancadaMap = agruparPorBancada(todosAtivos);
+      const grupoSubgrupoMap = agruparPorGrupoESubgrupo(todosAtivos);
 
-      renderizarTudo(bancadaMap);
+      renderizarTudo(grupoSubgrupoMap);
     }
 
     carregarAlunos();
