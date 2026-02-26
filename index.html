@@ -6,81 +6,258 @@
   <title>Login — Orquestra Filhos de Asafe</title>
 
   <style>
+    /* ── Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(180deg, #0a0f1f, #0b1025);
-      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(160deg, #0a0f1f 0%, #0b1530 60%, #0a0f1f 100%);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: #e2e8f0;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Fundo decorativo animado */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -40%;
+      left: -20%;
+      width: 70vw;
+      height: 70vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,211,238,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      animation: pulse 8s ease-in-out infinite alternate;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: -30%;
+      right: -15%;
+      width: 55vw;
+      height: 55vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56,189,248,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      animation: pulse 10s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes pulse {
+      from { transform: scale(1); opacity: 0.6; }
+      to   { transform: scale(1.15); opacity: 1; }
+    }
+
+    /* ── Card ─────────────────────────────────────────── */
+    .login-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      width: 100%;
+      max-width: 380px;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      box-shadow:
+        0 0 0 1px rgba(34,211,238,0.08),
+        0 8px 40px rgba(0,0,0,0.5),
+        0 0 60px rgba(34,211,238,0.10);
+      padding: 38px 32px 32px;
+      animation: slideIn .45s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(24px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Logo / Cabeçalho ─────────────────────────────── */
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      font-size: 2.6rem;
+      line-height: 1;
+      display: block;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 10px rgba(34,211,238,0.5));
+    }
+    .titulo {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #22d3ee;
+      letter-spacing: .02em;
+      line-height: 1.3;
+    }
+    .subtitulo {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-top: 4px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Seletor de Perfil ────────────────────────────── */
+    .perfil-tabs {
+      display: flex;
+      background: #1f2937;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px;
+    }
+    .perfil-tab {
+      flex: 1;
+      padding: 9px 0;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .22s;
+      background: transparent;
+      color: #64748b;
+    }
+    .perfil-tab.ativo {
+      background: #22d3ee;
+      color: #0a0f1f;
+      box-shadow: 0 2px 10px rgba(34,211,238,0.35);
+    }
+    .perfil-tab:not(.ativo):hover {
+      background: rgba(34,211,238,0.1);
       color: #e2e8f0;
     }
 
-    .login-card {
-      background: #111827;
-      padding: 28px;
-      width: 320px;
-      border-radius: 16px;
-      box-shadow: 0 0 35px rgba(34, 211, 238, 0.18);
-      border: 1px solid rgba(56, 189, 248, 0.22);
+    /* ── Campos ───────────────────────────────────────── */
+    .campo {
+      position: relative;
+      margin-bottom: 14px;
     }
-
-    .titulo {
-      text-align: center;
-      font-size: 1.4rem;
-      margin-bottom: 20px;
-      color: #22d3ee;
+    .campo label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
     }
-
-    input {
+    .campo .icone {
+      position: absolute;
+      left: 12px;
+      bottom: 13px;
+      font-size: 1rem;
+      pointer-events: none;
+      opacity: .55;
+    }
+    .campo input {
       width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: none;
+      padding: 13px 12px 13px 38px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(56,189,248,0.15);
       background: #1f2937;
       color: #e5e7eb;
       font-size: 0.95rem;
       outline: none;
+      transition: border .2s, box-shadow .2s;
     }
-    input:focus {
-      border: 1px solid #22d3ee;
+    .campo input:focus {
+      border-color: #22d3ee;
+      box-shadow: 0 0 0 3px rgba(34,211,238,0.12);
     }
+    .campo input::placeholder { color: #4b5563; }
 
-    button {
+    /* Olho de senha */
+    .toggle-senha {
+      position: absolute;
+      right: 12px;
+      bottom: 13px;
+      font-size: 1rem;
+      cursor: pointer;
+      opacity: .45;
+      transition: opacity .2s;
+      user-select: none;
+    }
+    .toggle-senha:hover { opacity: .9; }
+
+    /* ── Botão ────────────────────────────────────────── */
+    #btnEntrar {
       width: 100%;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 14px;
+      border-radius: 10px;
       border: none;
-      background: #22d3ee;
+      background: linear-gradient(90deg, #22d3ee, #38bdf8);
       color: #0a0f1f;
       font-size: 1rem;
-      font-weight: bold;
+      font-weight: 700;
       cursor: pointer;
-      transition: 0.2s;
-      margin-top: 12px;
+      transition: transform .18s, box-shadow .18s, filter .18s;
+      margin-top: 6px;
+      letter-spacing: .03em;
+      box-shadow: 0 4px 20px rgba(34,211,238,0.30);
     }
-    button:hover {
-      background: #38bdf8;
+    #btnEntrar:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(34,211,238,0.42);
+    }
+    #btnEntrar:active {
+      transform: translateY(0);
+      filter: brightness(.95);
+    }
+    #btnEntrar:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
     }
 
+    /* Loading spinner no botão */
+    #btnEntrar .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(10,15,31,.3);
+      border-top-color: #0a0f1f;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Erro ─────────────────────────────────────────── */
     .erro {
       color: #f87171;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-align: center;
-      margin-top: 10px;
+      margin-top: 12px;
+      min-height: 20px;
+      transition: all .2s;
+    }
+    .erro:not(:empty) {
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 8px;
+      padding: 8px 12px;
     }
 
-    .switch {
-      margin-top: 16px;
+    /* ── Rodapé ───────────────────────────────────────── */
+    .rodape {
+      margin-top: 22px;
       text-align: center;
-      font-size: 0.9rem;
-      opacity: 0.8;
-      cursor: pointer;
+      font-size: 0.75rem;
+      color: #374151;
+      letter-spacing: .03em;
     }
-    .switch:hover {
-      opacity: 1;
+
+    /* ── Responsivo ───────────────────────────────────── */
+    @media (max-width: 420px) {
+      .login-card { padding: 28px 20px 24px; }
     }
   </style>
 </head>
@@ -88,19 +265,142 @@
 <body>
 
   <div class="login-card">
-    <div class="titulo">🎵 Orquestra Filhos de Asafe</div>
 
-    <input type="text" id="nome" placeholder="Seu nome" />
-    <input type="password" id="senha" placeholder="Senha" />
+    <!-- Cabeçalho -->
+    <div class="logo-wrap">
+      <span class="logo-icon">🎵</span>
+      <div class="titulo">Orquestra Filhos de Asafe</div>
+      <div class="subtitulo">Sistema de Desempenho</div>
+    </div>
 
+    <!-- Seletor de perfil -->
+    <div class="perfil-tabs" role="tablist" aria-label="Tipo de acesso">
+      <button class="perfil-tab ativo" id="tabAluno"     onclick="selecionarModo('aluno')"     aria-selected="true">🎶 Aluno</button>
+      <button class="perfil-tab"       id="tabProfessor" onclick="selecionarModo('professor')" aria-selected="false">🎓 Professor</button>
+    </div>
+
+    <!-- Campo Nome -->
+    <div class="campo">
+      <label for="nome">Nome</label>
+      <span class="icone">👤</span>
+      <input type="text" id="nome" placeholder="Seu nome completo" autocomplete="name" />
+    </div>
+
+    <!-- Campo Senha -->
+    <div class="campo">
+      <label for="senha">Senha</label>
+      <span class="icone">🔒</span>
+      <input type="password" id="senha" placeholder="Sua senha" autocomplete="current-password" />
+      <span class="toggle-senha" id="toggleSenha" title="Mostrar / ocultar senha">👁️</span>
+    </div>
+
+    <!-- Botão entrar -->
     <button id="btnEntrar">Entrar</button>
 
-    <div id="erro" class="erro"></div>
+    <!-- Mensagem de erro -->
+    <div id="erro" class="erro" role="alert" aria-live="polite"></div>
 
-    <div id="switchLogin" class="switch">Entrar como Professor</div>
+    <div class="rodape">Prefeitura Municipal de Diamantina</div>
   </div>
 
-  <script type="module" src="login.js"></script>
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { salvarUsuarioAtual, garantirFormato } from "./auth.js";
+    import {
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const nomeInput    = document.getElementById("nome");
+    const senhaInput   = document.getElementById("senha");
+    const btnEntrar    = document.getElementById("btnEntrar");
+    const erro         = document.getElementById("erro");
+    const toggleSenha  = document.getElementById("toggleSenha");
+    const tabAluno     = document.getElementById("tabAluno");
+    const tabProfessor = document.getElementById("tabProfessor");
+
+    let modo = "aluno";
+
+    garantirFormato();
+
+    /* ── Seletor de modo ───────────────────────────── */
+    window.selecionarModo = function(m) {
+      modo = m;
+      tabAluno.classList.toggle("ativo", m === "aluno");
+      tabProfessor.classList.toggle("ativo", m === "professor");
+      tabAluno.setAttribute("aria-selected", m === "aluno");
+      tabProfessor.setAttribute("aria-selected", m === "professor");
+      erro.textContent = "";
+      nomeInput.focus();
+    };
+
+    /* ── Toggle senha ──────────────────────────────── */
+    toggleSenha.addEventListener("click", () => {
+      const show = senhaInput.type === "password";
+      senhaInput.type = show ? "text" : "password";
+      toggleSenha.textContent = show ? "🙈" : "👁️";
+    });
+
+    /* ── Enter nos campos ──────────────────────────── */
+    nomeInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") senhaInput.focus();
+    });
+    senhaInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") btnEntrar.click();
+    });
+
+    /* ── Login ─────────────────────────────────────── */
+    btnEntrar.addEventListener("click", async () => {
+      const nome  = nomeInput.value.trim();
+      const senha = senhaInput.value.trim();
+
+      erro.textContent = "";
+
+      if (!nome || !senha) {
+        erro.textContent = "Preencha nome e senha.";
+        return;
+      }
+
+      // Estado de carregamento
+      btnEntrar.disabled = true;
+      btnEntrar.innerHTML = '<span class="spinner"></span>Aguarde...';
+
+      try {
+        if (modo === "aluno") {
+          const q    = query(collection(db, "alunos"), where("nome", "==", nome));
+          const snap = await getDocs(q);
+
+          if (snap.empty) { erro.textContent = "Aluno não encontrado."; return; }
+
+          const aluno = snap.docs[0].data();
+          if (aluno.senha !== senha) { erro.textContent = "Senha incorreta."; return; }
+
+          salvarUsuarioAtual(aluno.nome, "aluno", aluno.classificado === true);
+          window.location.href = `aluno.html?nome=${encodeURIComponent(aluno.nome)}`;
+
+        } else {
+          const q    = query(collection(db, "usuarios"), where("nome", "==", nome));
+          const snap = await getDocs(q);
+
+          if (snap.empty) { erro.textContent = "Professor não encontrado."; return; }
+
+          const prof = snap.docs[0].data();
+          if (prof.senha !== senha) { erro.textContent = "Senha incorreta."; return; }
+
+          salvarUsuarioAtual(prof.nome, "professor");
+          window.location.href = "professor.html";
+        }
+      } catch (err) {
+        erro.textContent = "Erro de conexão. Tente novamente.";
+        console.error(err);
+      } finally {
+        btnEntrar.disabled = false;
+        btnEntrar.innerHTML = "Entrar";
+      }
+    });
+  </script>
 
 </body>
 </html>
