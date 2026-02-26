@@ -321,22 +321,6 @@
     }
 
     /* =============================================
-       SUBSEPARADOR (tipos dentro de bancada)
-       ============================================= */
-    .subseparador {
-      grid-column: 1 / -1;
-      padding: 6px 12px;
-      margin-top: 4px;
-      margin-bottom: 4px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b7280;
-      border-left: 3px solid rgba(34, 211, 238, 0.4);
-      background: rgba(15, 23, 42, 0.3);
-      border-radius: 4px;
-    }
-
-    /* =============================================
        CARDS SOCIAIS
        ============================================= */
     .card-social {
@@ -503,7 +487,7 @@
       .grid-principal {
         grid-template-columns: 1fr;
       }
-      .separador-bancada, .subseparador {
+      .separador-bancada {
         grid-column: 1;
       }
     }
@@ -560,6 +544,18 @@
         return "Saxofones";
       }
       return instrumento.trim();
+    }
+
+    // ============================================================
+    // ORDEM DE PRIORIDADE DE TIPOS DE SAXOFONE
+    // ============================================================
+    function ordemSaxofone(instrumento) {
+      const inst = instrumento.trim().toLowerCase();
+      if (inst.includes("soprano")) return 1;
+      if (inst.includes("alto")) return 2;
+      if (inst.includes("tenor")) return 3;
+      if (inst.includes("barítono")) return 4;
+      return 5;
     }
 
     function corBarra(pct) {
@@ -620,32 +616,6 @@
     }
 
     // ============================================================
-    // AGRUPAR INTERNAMENTE POR TIPO (para Saxofones)
-    // ============================================================
-    function agruparPorTipo(alunos, bancadaNome) {
-      if (bancadaNome !== "Saxofones") {
-        return new Map([[bancadaNome, alunos]]);
-      }
-      const tipoMap = new Map();
-      alunos.forEach(a => {
-        const tipo = a.instrumento?.trim() || "Saxofone";
-        if (!tipoMap.has(tipo)) tipoMap.set(tipo, []);
-        tipoMap.get(tipo).push(a);
-      });
-      // Ordem padrão: Soprano, Alto, Tenor, Barítono
-      const ordem = ["Saxofone Soprano", "Saxofone Alto", "Saxofone Tenor", "Saxofone Barítono"];
-      const sorted = new Map();
-      ordem.forEach(t => {
-        if (tipoMap.has(t)) sorted.set(t, tipoMap.get(t));
-      });
-      // Adicionar qualquer outro tipo não previsto
-      tipoMap.forEach((v, k) => {
-        if (!sorted.has(k)) sorted.set(k, v);
-      });
-      return sorted;
-    }
-
-    // ============================================================
     // HTML: PAINEL GERAL
     // ============================================================
     function htmlPainelGeral(ativos) {
@@ -702,7 +672,7 @@
 
     // ============================================================
     // HTML: RANKING
-    // ============================================================
+    // ============================================ ================
     function calcularMetricaBancada(alunos, aba, mes) {
       if (aba === "nivel") {
         return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
@@ -861,16 +831,6 @@
     }
 
     // ============================================================
-    // HTML: SUBSEPARADOR (tipo de instrumento)
-    // ============================================================
-    function htmlSubseparador(tipo, qtd) {
-      return `
-        <div class="subseparador">
-          ${tipo} <span style="color:#9ca3af;font-weight:500;">(${qtd})</span>
-        </div>`;
-    }
-
-    // ============================================================
     // RENDERIZAR TUDO
     // ============================================================
     function renderizarTudo(bancadaMap) {
@@ -893,20 +853,23 @@
         .sort((a, b) => a.localeCompare(b));
 
       ordemBancadas.forEach(nome => {
-        const alunosBancada = bancadaMap.get(nome)
-          .slice()
-          .sort((a, b) => (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0));
+        let alunosBancada = bancadaMap.get(nome).slice();
+
+        // Para Saxofones: ordenar por tipo (Soprano, Alto, Tenor, Barítono)
+        if (nome === "Saxofones") {
+          alunosBancada.sort((a, b) => {
+            const ordemA = ordemSaxofone(a.instrumento ?? "");
+            const ordemB = ordemSaxofone(b.instrumento ?? "");
+            if (ordemA !== ordemB) return ordemA - ordemB;
+            return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
+          });
+        } else {
+          // Demais bancadas: ordenar por energia
+          alunosBancada.sort((a, b) => (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0));
+        }
 
         html += htmlSeparador(nome, alunosBancada.length);
-
-        // Para Saxofones, subdivide por tipo
-        const tipoMap = agruparPorTipo(alunosBancada, nome);
-        tipoMap.forEach((alunos, tipo) => {
-          if (tipoMap.size > 1) {
-            html += htmlSubseparador(tipo, alunos.length);
-          }
-          html += alunos.map(htmlCard).join("");
-        });
+        html += alunosBancada.map(htmlCard).join("");
       });
 
       container.innerHTML = html;
