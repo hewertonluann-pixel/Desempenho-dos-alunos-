@@ -39,7 +39,6 @@
       margin-bottom: 36px;
     }
 
-    /* No desktop com 5 colunas fixas */
     @media (min-width: 1400px) {
       .grid-principal {
         grid-template-columns: repeat(5, 1fr);
@@ -287,39 +286,36 @@
       flex-shrink: 0;
     }
 
-    .ranking-subinfo {
-      font-size: 0.6rem;
-      color: #6b7280;
-      display: none; /* oculto por padrão no card compacto */
-    }
-
     /* =============================================
-       SEÇÕES POR BANCADA
+       SEPARADOR DE BANCADA (compacto)
        ============================================= */
-    .bancada-section {
-      margin-bottom: 36px;
-    }
-
-    .bancada-header {
+    .separador-bancada {
+      grid-column: 1 / -1;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+      gap: 12px;
+      padding: 12px 0 8px;
+      margin-top: 8px;
     }
 
-    .bancada-titulo {
-      font-size: 1.05rem;
-      font-weight: 700;
+    .separador-linha {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(34,211,238,0.3), transparent);
+    }
+
+    .separador-texto {
+      font-size: 0.85rem;
+      font-weight: 600;
       color: #22d3ee;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      white-space: nowrap;
     }
 
-    .bancada-count {
-      font-size: 0.78rem;
+    .separador-count {
+      font-size: 0.7rem;
       color: #6b7280;
       font-weight: 500;
     }
@@ -487,10 +483,12 @@
       font-size: 0.95rem;
     }
 
-    /* Mobile */
     @media (max-width: 768px) {
       .grid-principal {
         grid-template-columns: 1fr;
+      }
+      .separador-bancada {
+        grid-column: 1;
       }
     }
 
@@ -505,13 +503,8 @@
   <h1>🎶 Comunidade Asafe</h1>
   <p class="subtitulo">Veja seus colegas, suas energias, níveis e conquistas. Toque em um card para abrir o painel completo.</p>
 
-  <!-- GRID PRINCIPAL: maestro + 3 blocos de info -->
-  <div class="grid-principal" id="gridPrincipal">
-    <!-- Será preenchido via JS -->
-  </div>
-
-  <!-- BANCADAS (demais instrumentos) -->
-  <div id="conteudoBancadas">
+  <!-- GRID CONTÍNUO -->
+  <div class="grid-principal" id="gridCompleto">
     <div class="loader-texto">⏳ Carregando alunos...</div>
   </div>
 
@@ -595,7 +588,7 @@
     }
 
     // ============================================================
-    // RENDERIZAR PAINEL GERAL (1 card)
+    // HTML: PAINEL GERAL
     // ============================================================
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
@@ -625,7 +618,7 @@
     }
 
     // ============================================================
-    // RENDERIZAR BADGES (1 card)
+    // HTML: BADGES
     // ============================================================
     function htmlBadges(bancadaMap) {
       const ordemBancadas = [...bancadaMap.keys()].sort((a, b) => {
@@ -635,10 +628,9 @@
       });
 
       const badges = ordemBancadas.map(nome => {
-        const qtd   = bancadaMap.get(nome).length;
-        const ancor = "bancada-" + nome.toLowerCase().replace(/\s+/g, "-");
+        const qtd = bancadaMap.get(nome).length;
         return `<span class="badge-instrumento"
-                      onclick="document.getElementById('${ancor}')?.scrollIntoView({behavior:'smooth',block:'start'})">
+                      onclick="scrollParaBancada('${nome}')">
                   ${nome} <strong>${qtd}</strong>
                 </span>`;
       }).join("");
@@ -651,7 +643,7 @@
     }
 
     // ============================================================
-    // RENDERIZAR RANKING (1 card)
+    // HTML: RANKING
     // ============================================================
     function calcularMetricaBancada(alunos, aba, mes) {
       if (aba === "nivel") {
@@ -728,7 +720,7 @@
     }
 
     // ============================================================
-    // CARD DO ALUNO
+    // HTML: CARD DO ALUNO
     // ============================================================
     function htmlCard(aluno) {
       const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
@@ -795,48 +787,53 @@
     }
 
     // ============================================================
-    // RENDERIZAR GRID PRINCIPAL (maestro + 3 blocos)
+    // HTML: SEPARADOR DE BANCADA
     // ============================================================
-    function renderizarGridPrincipal(bancadaMap) {
-      const container = document.getElementById("gridPrincipal");
+    function htmlSeparador(nome, qtd) {
+      const id = `bancada-${nome.toLowerCase().replace(/\s+/g, "-")}`;
+      return `
+        <div class="separador-bancada" id="${id}">
+          <div class="separador-linha"></div>
+          <div class="separador-texto">
+            🎼 ${nome}
+            <span class="separador-count">${qtd} aluno${qtd > 1 ? 's' : ''}</span>
+          </div>
+          <div class="separador-linha"></div>
+        </div>`;
+    }
+
+    // ============================================================
+    // RENDERIZAR TUDO
+    // ============================================================
+    function renderizarTudo(bancadaMap) {
+      const container = document.getElementById("gridCompleto");
+
+      // 1. Maestro + 3 blocos de info
       const maestros = bancadaMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
 
-      container.innerHTML = `
+      let html = `
         ${maestroHTML}
         ${htmlPainelGeral(todosAtivos)}
         ${htmlBadges(bancadaMap)}
         ${htmlRanking(bancadaMap, abaAtual, mesAtual)}
       `;
-    }
 
-    // ============================================================
-    // RENDERIZAR BANCADAS (demais instrumentos)
-    // ============================================================
-    function renderizarBancadas(bancadaMap) {
-      const container = document.getElementById("conteudoBancadas");
+      // 2. Demais bancadas em ordem alfabética, com separador entre cada
       const ordemBancadas = [...bancadaMap.keys()]
         .filter(k => k !== "Maestro")
         .sort((a, b) => a.localeCompare(b));
 
-      container.innerHTML = ordemBancadas.map(nome => {
+      ordemBancadas.forEach(nome => {
         const alunos = bancadaMap.get(nome)
           .slice()
           .sort((a, b) => (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0));
 
-        const ancor = "bancada-" + nome.toLowerCase().replace(/\s+/g, "-");
+        html += htmlSeparador(nome, alunos.length);
+        html += alunos.map(htmlCard).join("");
+      });
 
-        return `
-          <section class="bancada-section" id="${ancor}">
-            <div class="bancada-header">
-              <div class="bancada-titulo">🎼 ${nome}</div>
-              <span class="bancada-count">${alunos.length} aluno${alunos.length > 1 ? 's' : ''}</span>
-            </div>
-            <div class="grid-principal">
-              ${alunos.map(htmlCard).join("")}
-            </div>
-          </section>`;
-      }).join("");
+      container.innerHTML = html;
     }
 
     // ============================================================
@@ -844,14 +841,17 @@
     // ============================================================
     window.trocarAba = function(aba) {
       abaAtual = aba;
-      const bancadaMap = agruparPorBancada(todosAtivos);
-      renderizarGridPrincipal(bancadaMap);
+      renderizarTudo(agruparPorBancada(todosAtivos));
     };
 
     window.mudarMes = function(delta) {
       mesAtual = (mesAtual + delta + 12) % 12;
-      const bancadaMap = agruparPorBancada(todosAtivos);
-      renderizarGridPrincipal(bancadaMap);
+      renderizarTudo(agruparPorBancada(todosAtivos));
+    };
+
+    window.scrollParaBancada = function(nome) {
+      const id = `bancada-${nome.toLowerCase().replace(/\s+/g, "-")}`;
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     // ============================================================
@@ -873,8 +873,7 @@
       todosAtivos = alunos.filter(a => a.ativo !== false);
       const bancadaMap = agruparPorBancada(todosAtivos);
 
-      renderizarGridPrincipal(bancadaMap);
-      renderizarBancadas(bancadaMap);
+      renderizarTudo(bancadaMap);
     }
 
     carregarAlunos();
