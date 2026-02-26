@@ -416,7 +416,6 @@ body {
 }
 
 .achievement-card.desbloqueado {
-  /* Sem borda dourada - padrão dos painéis */
   border: 1px solid var(--border);
   box-shadow: 0 5px 18px rgba(0,0,0,0.4);
 }
@@ -658,7 +657,6 @@ body {
   .sidebar { flex-direction: column; }
   .frequency-grid { grid-template-columns: repeat(3, 1fr); }
   
-  /* Otimizações gerais mobile */
   .modal-content, .popup-content {
     padding: 20px;
     width: 92%;
@@ -691,7 +689,6 @@ body {
     margin-bottom: 14px;
   }
   
-  /* Seção de conquistas mais compacta */
   .modal-conquistas-section {
     margin-top: 16px;
   }
@@ -725,11 +722,10 @@ body {
     font-size: 0.95rem;
   }
   
-  /* Otimizações touch-friendly para botões */
   .btn-send-lesson {
     padding: 18px;
     font-size: 0.95rem;
-    min-height: 48px; /* Tamanho mínimo recomendado para touch */
+    min-height: 48px;
   }
   
   .btn-change-password,
@@ -746,14 +742,12 @@ body {
     min-height: 40px;
   }
   
-  /* Aumentar área de toque dos botões de controle de ano */
   .arrow-btn {
     padding: 12px 16px;
     min-width: 44px;
     min-height: 44px;
   }
   
-  /* Cards de lições maiores em mobile */
   .lessons-list {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
@@ -763,7 +757,6 @@ body {
     min-height: 140px;
   }
   
-  /* Achievement cards com melhor toque */
   .achievement-card {
     min-height: 100px;
     padding: 12px;
@@ -777,7 +770,6 @@ body {
     font-size: 0.8rem;
   }
   
-  /* Melhorar espaçamento dos painéis em mobile */
   .card {
     padding: 18px;
     margin-bottom: 16px;
@@ -788,7 +780,6 @@ body {
     margin-bottom: 14px;
   }
   
-  /* Capsule grid mais compacto em mobile */
   .capsule-grid {
     gap: 25px;
   }
@@ -799,7 +790,6 @@ body {
     font-size: 0.85rem;
   }
   
-  /* Sidebar mais compacta */
   .profile-section {
     padding: 16px;
   }
@@ -812,13 +802,11 @@ body {
     font-size: 0.85rem;
   }
   
-  /* Notificações mais legíveis */
   .lista-notificacoes li {
     padding: 12px;
     font-size: 0.85rem;
   }
   
-  /* Melhorar legibilidade do grid de frequência */
   .frequency-month {
     font-size: 0.7rem;
   }
@@ -830,8 +818,11 @@ body {
   }
 }
 
-#painelEvolucao { width: 100%; min-height: 260px; max-height: 260px; position: relative; }
-#painelEvolucao canvas { width: 100% !important; height: 240px !important; }
+/* #painelEvolucao: sem altura forçada — controlado pelo .ev-grafico-wrap em grafico-evolucao.js */
+#painelEvolucao {
+  width: 100%;
+  overflow: hidden;  /* garante que nada vaze para fora do card */
+}
 
 //* LIÇÕES ENVIADAS - ESTILO MODERNO */
 .lessons-section {
@@ -896,7 +887,6 @@ body {
   transform: translateY(-4px);
 }
 
-/* Borda consistente com os outros painéis (sem efeito neon) */
 .card-licao { 
   border: 1px solid var(--border);
   box-shadow: 0 5px 18px rgba(0,0,0,0.4);
@@ -1091,7 +1081,6 @@ body {
 .mini-achievement.ouro { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
 .mini-achievement.prata { border-color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
 
-/* Cards de conquistas (novo layout com descrição) */
 .conquistas-cards-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1105,7 +1094,6 @@ body {
   }
 }
 
-/* Otimizações mobile para cards de conquistas */
 @media (max-width: 767px) {
   .conquistas-cards-grid {
     gap: 12px;
@@ -1276,7 +1264,6 @@ body {
   overflow: hidden;
 }
 
-/* Cabeçalho do Modal */
 .conquista-header-modal {
   background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(34, 211, 238, 0.1));
   border-bottom: 1px solid var(--border);
@@ -1323,7 +1310,6 @@ body {
   box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
 }
 
-/* Seções de Conteúdo */
 .conquista-descricao-section,
 .conquista-condicao-section,
 .conquista-progresso-section {
@@ -1352,7 +1338,6 @@ body {
   margin: 0;
 }
 
-/* Caixa de Condição */
 .conquista-condicao-box {
   background: rgba(34, 211, 238, 0.08);
   border-left: 3px solid #22d3ee;
@@ -1363,7 +1348,6 @@ body {
   color: #e2e8f0;
 }
 
-/* Barra de Progresso */
 .conquista-progresso-bar {
   width: 100%;
   height: 24px;
@@ -1388,7 +1372,6 @@ body {
   margin: 0;
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
   .modal-conquista {
     max-width: 95%;
@@ -1410,7 +1393,6 @@ body {
   }
 }
 
-/* Footer do Modal de Conquistas */
 .conquista-footer {
   padding: 20px 24px;
   background: rgba(15, 23, 42, 0.5);
@@ -1443,7 +1425,6 @@ body {
   box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
 }
 
-/* Cards de Conquistas do Mês (modal de frequência) */
 .conquistas-mes-list {
   display: flex;
   flex-direction: column;
@@ -1500,7 +1481,6 @@ body {
   line-height: 1.4;
 }
 
-/* Responsivo para mobile */
 @media (max-width: 600px) {
   .conquista-mes-card {
     padding: 12px;
