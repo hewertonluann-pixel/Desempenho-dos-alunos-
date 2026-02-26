@@ -706,39 +706,58 @@ body {
   .frequency-grid { grid-template-columns: repeat(3, 1fr); }
   
   .modal-content, .popup-content {
-    padding: 20px;
+    padding: 16px;
     width: 92%;
     max-width: 100%;
     border-radius: 16px;
   }
-  
+
+  /* ===== CORREÇÃO: stat-grid em telas pequenas ===== */
+  /* Empilha em coluna única para evitar extrapolação */
   .modal-stats-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: 8px;
+    margin: 14px 0;
   }
-  
+
+  /* Cada caixa vira uma linha horizontal compacta */
   .stat-box {
-    padding: 10px 8px;
-    min-height: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    min-height: unset;
+    gap: 0;
   }
-  
+
   .stat-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.3px;
+    font-size: 0.72rem;
+    letter-spacing: 0;
+    white-space: nowrap;
+    text-align: left;
+    flex-shrink: 0;
   }
-  
+
   .stat-value {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 800;
+    text-align: right;
   }
+
+  /* Frequência (destaque) um pouco maior */
+  .stat-value.stat-primary {
+    font-size: 1.4rem;
+  }
+  /* ================================================= */
   
   .modal-title {
-    font-size: 1.3rem;
-    margin-bottom: 14px;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
   }
   
   .modal-conquistas-section {
-    margin-top: 16px;
+    margin-top: 14px;
   }
   
   .modal-conquistas-section h4 {
@@ -768,6 +787,7 @@ body {
   .btn-fechar-modal {
     padding: 14px;
     font-size: 0.95rem;
+    margin-top: 16px;
   }
   
   .btn-send-lesson {
