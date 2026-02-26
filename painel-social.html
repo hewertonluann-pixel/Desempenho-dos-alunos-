@@ -530,6 +530,18 @@
       "07","08","09","10","11","12"
     ];
 
+    // ============================================================
+    // NORMALIZAR BANCADA: agrupar violas e violinos em "Cordas"
+    // ============================================================
+    function normalizarBancada(instrumento) {
+      if (!instrumento) return "Outros";
+      const inst = instrumento.trim().toLowerCase();
+      if (inst.includes("viola") || inst.includes("violino")) {
+        return "Cordas";
+      }
+      return instrumento.trim();
+    }
+
     function corBarra(pct) {
       if (pct < 40)  return "linear-gradient(90deg,#f97373,#fb923c)";
       if (pct < 80)  return "linear-gradient(90deg,#facc15,#fef08a)";
@@ -580,9 +592,9 @@
     function agruparPorBancada(alunos) {
       const map = new Map();
       alunos.forEach(a => {
-        const inst = a.instrumento?.trim() || "Outros";
-        if (!map.has(inst)) map.set(inst, []);
-        map.get(inst).push(a);
+        const bancada = normalizarBancada(a.instrumento);
+        if (!map.has(bancada)) map.set(bancada, []);
+        map.get(bancada).push(a);
       });
       return map;
     }
@@ -593,7 +605,7 @@
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
       const mediaMensal = media(ativos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
-      const bancadas    = new Set(ativos.map(a => a.instrumento?.trim()).filter(Boolean)).size;
+      const bancadas    = agruparPorBancada(ativos).size;
 
       return `
         <div class="painel-geral">
