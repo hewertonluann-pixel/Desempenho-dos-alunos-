@@ -168,7 +168,7 @@
       transform: translateY(-1px);
       box-shadow: 0 6px 28px rgba(34,211,238,0.42);
     }
-    #btnEntrar:active  { transform: translateY(0); filter: brightness(.95); }
+    #btnEntrar:active   { transform: translateY(0); filter: brightness(.95); }
     #btnEntrar:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
     #btnEntrar .spinner {
@@ -227,7 +227,7 @@
     <div class="campo">
       <label for="nome">Nome</label>
       <span class="icone">👤</span>
-      <input type="text" id="nome" placeholder="Seu nome completo" autocomplete="name" />
+      <input type="text" id="nome" placeholder="Nome" autocomplete="name" />
     </div>
 
     <div class="campo">
@@ -241,7 +241,7 @@
 
     <div id="erro" class="erro" role="alert" aria-live="polite"></div>
 
-    <div class="rodape">Prefeitura Municipal de Diamantina</div>
+    <div class="rodape">Assembleia de Deus Min. Diamantina</div>
   </div>
 
   <script type="module">
@@ -262,14 +262,14 @@
 
     garantirFormato();
 
-    /* ── Toggle senha ────────────────────────────── */
+    /* ── Toggle senha ── */
     toggleSenha.addEventListener("click", () => {
       const show = senhaInput.type === "password";
       senhaInput.type = show ? "text" : "password";
       toggleSenha.textContent = show ? "🙈" : "👁️";
     });
 
-    /* ── Enter nos campos ─────────────────────────── */
+    /* ── Enter nos campos ── */
     nomeInput.addEventListener("keydown", e => {
       if (e.key === "Enter") senhaInput.focus();
     });
@@ -277,7 +277,7 @@
       if (e.key === "Enter") btnEntrar.click();
     });
 
-    /* ── Login com detecção automática de perfil ────── */
+    /* ── Login com detecção automática de perfil ── */
     btnEntrar.addEventListener("click", async () => {
       const nome  = nomeInput.value.trim();
       const senha = senhaInput.value.trim();
@@ -323,7 +323,6 @@
           return;
         }
 
-        // Não encontrado em nenhuma coleção
         erro.textContent = "Usuário não encontrado.";
 
       } catch (err) {
