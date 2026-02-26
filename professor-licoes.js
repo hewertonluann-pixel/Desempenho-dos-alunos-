@@ -373,4 +373,24 @@ async function tratar(card, aprovar) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", inserirPainel);
+export function mostrarPainelLicoes() {
+  const destino = document.getElementById("painelLicoesProf");
+  if (!destino) {
+    console.error("❌ ERRO: painelLicoesProf não encontrado no HTML.");
+    return;
+  }
+
+  // Se o painel ainda não foi inserido, insere agora
+  if (!document.getElementById("cardSolicitacoesLicao")) {
+    inserirPainel();
+    destino.style.display = "block";
+    return;
+  }
+
+  // Toggle: alterna visibilidade
+  if (destino.style.display === "none" || destino.style.display === "") {
+    destino.style.display = "block";
+  } else {
+    destino.style.display = "none";
+  }
+}
