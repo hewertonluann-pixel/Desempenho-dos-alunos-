@@ -7,8 +7,10 @@ import {
   where,
   getDocs,
   updateDoc,
+  addDoc,
   doc,
-  Timestamp
+  Timestamp,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 function inserirPainel() {
@@ -242,7 +244,7 @@ async function carregarSolicitacoes() {
       if (!alunoSnap.empty) {
         const alunoData = alunoSnap.docs[0].data();
         licaoData.instrumento = alunoData.instrumento || "N/A";
-        licaoData.solfejoNome = alunoData.solfejoNome || "Bona";
+        licaoData.solfejoNome = alunoData.leituraNome || alunoData.solfejoNome || "Bona";
         licaoData.metodoNome = alunoData.metodoNome || "N/A";
       }
       
@@ -261,7 +263,9 @@ async function carregarSolicitacoes() {
       data-id="${item.id}"
       data-tipolicao="${item.tipo}"
       data-numerolicao="${item.numero}"
-      data-alunoid="${item.alunoId}">
+      data-alunoid="${item.alunoId}"
+      data-alunonome="${item.alunoNome || ''}"
+      data-nomemetodo="${nomeMetodo}">
       
       <!-- Cabeçalho -->
       <div class="licao-header">
@@ -328,13 +332,17 @@ async function carregarSolicitacoes() {
 
 async function tratar(card, aprovar) {
   const id = card.dataset.id;
-  const tipo = card.dataset.tipolicao;
+  const tipo = card.dataset.tipolicao;          // "leitura" ou "metodo"
   const numero = parseInt(card.dataset.numerolicao, 10);
   const alunoId = card.dataset.alunoid;
-  
+  const alunoNome = card.dataset.alunonome || "Aluno";
+  const nomeMetodo = card.dataset.nomemetodo || (tipo === "leitura" ? "leitura" : "método");
+
   // Capturar o feedback do professor
   const textarea = card.querySelector(".textarea-feedback-prof");
   const feedback = textarea ? textarea.value.trim() : "";
+
+  const agora = new Date();
 
   if (aprovar) {
     // Atualizar progresso do aluno
@@ -343,7 +351,6 @@ async function tratar(card, aprovar) {
     });
 
     // Atualizar status da lição com feedback
-    const agora = new Date();
     await updateDoc(doc(db, "licoes", id), {
       status: "aprovado",
       observacaoProfessor: feedback,
@@ -351,9 +358,20 @@ async function tratar(card, aprovar) {
       avaliadoEm: Timestamp.fromDate(agora)
     });
 
+    // ── NOTIFICAÇÃO DE NÍVEL ──────────────────────────────────────
+    // Ao aprovar uma lição, o placar avança para o número da lição aprovada
+    const tipoLabel = tipo === "leitura" ? "leitura" : "método";
+    await addDoc(collection(db, "notificacoes"), {
+      tipo: "nivel",
+      icone: "🚀",
+      alunoNome,
+      texto: `<strong>${alunoNome}</strong> avançou para o <em>Nível ${numero} de ${tipoLabel}</em> (${nomeMetodo})`,
+      data: serverTimestamp()
+    });
+    // ─────────────────────────────────────────────────────────────
+
   } else {
     // Atualizar status da lição como reprovada com feedback
-    const agora = new Date();
     await updateDoc(doc(db, "licoes", id), {
       status: "reprovado",
       observacaoProfessor: feedback,

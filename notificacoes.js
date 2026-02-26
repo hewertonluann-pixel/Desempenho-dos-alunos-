@@ -114,6 +114,21 @@ export async function carregarNotificacoes() {
       });
     });
 
+    // ── BUSCAR NOTIFICAÇÕES DE NÍVEL ───────────────────────────────
+    const niveisSnap = await getDocs(
+      query(collection(db, "notificacoes"), orderBy("data", "desc"), limit(20))
+    );
+    niveisSnap.forEach(doc => {
+      const d = doc.data();
+      todasNotificacoes.push({
+        data: d.data,
+        tipo: d.tipo || "nivel",
+        icone: d.icone || "🚀",
+        texto: d.texto || `<strong>${d.alunoNome || "Aluno"}</strong> avançou de nível`
+      });
+    });
+    // ──────────────────────────────────────────────────────────────
+
     // Ordenar todas as notificações pela data (mais antiga para mais recente para o prepend funcionar)
     todasNotificacoes.sort((a, b) => {
       const dateA = a.data instanceof Timestamp ? a.data.toDate() : new Date(a.data);
@@ -156,6 +171,27 @@ export async function carregarNotificacoes() {
         }
       });
     });
+
+    // ── LISTENER DE NÍVEL EM TEMPO REAL ──────────────────────────
+    onSnapshot(
+      query(collection(db, "notificacoes"), orderBy("data", "desc"), limit(1)),
+      (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            const d = change.doc.data();
+            if (d.data && d.data.toMillis() > agora.toMillis()) {
+              adicionarNotificacao(
+                d.tipo || "nivel",
+                d.icone || "🚀",
+                d.texto || `<strong>${d.alunoNome || "Aluno"}</strong> avançou de nível`,
+                "agora mesmo"
+              );
+            }
+          }
+        });
+      }
+    );
+    // ─────────────────────────────────────────────────────────────
 
   } catch (erro) {
     console.error("Erro ao carregar notificações:", erro);

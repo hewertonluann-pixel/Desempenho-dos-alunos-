@@ -21,6 +21,50 @@ function mostrarMensagem(id, texto) {
   }
 }
 
+/**
+ * Grava uma notificação de nível na coleção "notificacoes" do Firestore.
+ * Chamado quando o professor altera leitura ou método de um aluno manualmente.
+ */
+async function gravarNotificacaoNivel(alunoId, campo, novoValor) {
+  try {
+    // Buscar nome e dados do aluno
+    const snap = await getDocs(
+      query(collection(db, "alunos"), where("__name__", ">=", alunoId), where("__name__", "<=", alunoId))
+    );
+    // Busca direta pelo doc id é mais simples:
+    const alunoDocRef = doc(db, "alunos", alunoId);
+    // Usamos getDocs com a referência direta via getDoc (disponível)
+    // fallback: buscamos todos e filtramos (já temos id)
+    let alunoNome = "Aluno";
+    let nomeMetodo = campo === "leitura" ? "leitura" : "método";
+    let metodoLabel = "";
+
+    const todosSnap = await getDocs(collection(db, "alunos"));
+    const alunoDoc = todosSnap.docs.find(d => d.id === alunoId);
+    if (alunoDoc) {
+      const dados = alunoDoc.data();
+      alunoNome = dados.nome || "Aluno";
+      if (campo === "leitura") {
+        nomeMetodo = "leitura";
+        metodoLabel = dados.leituraNome ? ` (${dados.leituraNome})` : "";
+      } else {
+        nomeMetodo = "método";
+        metodoLabel = dados.metodoNome ? ` (${dados.metodoNome})` : "";
+      }
+    }
+
+    await addDoc(collection(db, "notificacoes"), {
+      tipo: "nivel",
+      icone: "🚀",
+      alunoNome,
+      texto: `<strong>${alunoNome}</strong> avançou para o <em>Nível ${novoValor} de ${nomeMetodo}${metodoLabel}</em>`,
+      data: serverTimestamp()
+    });
+  } catch (err) {
+    console.warn("⚠️ Não foi possível gravar notificação de nível:", err);
+  }
+}
+
 // Declarar currentAlunoId apenas uma vez no topo
 let currentAlunoId = null;
 
@@ -291,6 +335,8 @@ window.alterarNota = async function(id, campo, delta) {
     input.value = v;
     await updateDoc(doc(db, "alunos", id), { [campo]: v });
     mostrarMensagem("mensagemSucesso", "✅ Nota ajustada!");
+    // Grava notificação de nível
+    await gravarNotificacaoNivel(id, campo, v);
   } catch (error) {
     console.error("Erro ao ajustar nota:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
@@ -304,6 +350,8 @@ window.atualizarNota = async function(id, campo, valor) {
     if (v > 130) v = 130;
     await updateDoc(doc(db, "alunos", id), { [campo]: v });
     mostrarMensagem("mensagemSucesso", "✅ Nota atualizada!");
+    // Grava notificação de nível
+    await gravarNotificacaoNivel(id, campo, v);
   } catch (error) {
     console.error("Erro ao atualizar nota:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
