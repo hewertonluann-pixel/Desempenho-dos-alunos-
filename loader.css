@@ -1,139 +1,109 @@
 /* loader.css */
 
-/* Estilos do Body para o Loader */
+/* Body enquanto o loader está ativo */
 .loader-active {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #000000, #000080); /* Degrade escuro de preto puro a azul escuro profundo */
-    font-family: Arial, sans-serif;
-    color: #fff; /* Texto branco para contraste */
-    overflow: hidden; /* Evita scroll durante o carregamento */
+  margin: 0;
+  overflow: hidden;
 }
 
-/* Estilos do Loader */
+/* Overlay principal */
 #global-loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999; /* Garante que fique acima de tudo */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #000000, #000080);
-    transition: opacity 0.5s ease-out;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;        /* spinner em cima, verso embaixo */
+  justify-content: center;
+  align-items: center;
+  gap: 36px;                     /* espaço entre spinner e verso */
+  background: linear-gradient(135deg, #000000, #000080);
+  padding: 24px 20px;
+  transition: opacity 0.5s ease-out;
+  font-family: Arial, sans-serif;
+  color: #fff;
 }
 
+/* ── Spinner ──────────────────────────────────────── */
 .spinner-container {
-    position: relative;
-    width: 150px;
-    height: 150px;
+  position: relative;
+  width: 150px;
+  height: 150px;
+  flex-shrink: 0;                /* não encolhe */
 }
 
 .spinner {
-    width: 100%;
-    height: 100%;
-    border: 5px solid #191970; /* Azul meia-noite escuro */
-    border-top: 5px solid #4169E1; /* Azul real para um toque de brilho */
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 100%;
+  height: 100%;
+  border: 5px solid #191970;
+  border-top: 5px solid #4169E1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 #emoji-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 32px; /* Maior para emojis */
-    font-weight: bold;
-    color: #00BFFF; /* Azul brilhante para destaque no fundo escuro */
-    text-shadow: 1px 1px 2px rgba(0, 191, 255, 0.6); /* Sombra mais intensa para maior visibilidade */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 32px;
+  font-weight: bold;
+  color: #00BFFF;
+  text-shadow: 1px 1px 2px rgba(0, 191, 255, 0.6);
 }
 
-/* Versículo Bíblico */
+/* ── Versículo ────────────────────────────────────── */
 #verse-container {
-    margin-top: 30px;
-    text-align: center;
-    width: 90%; /* Ocupa a maior parte da largura em telas pequenas */
-    max-width: 850px; /* Aumentado para permitir um formato bem horizontal em telas grandes */
-    padding: 25px 40px; /* Mais padding lateral para reforçar a horizontalidade */
-    transition: all 0.3s ease;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  width: 90%;                    /* ocupa a largura do loader, não do spinner */
+  max-width: 640px;
+  text-align: center;
+  padding: 20px 28px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 #verse-text {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #e2e8f0;
-    font-style: italic;
-    font-weight: 300;
-    margin-bottom: 8px;
-    transition: font-size 0.3s ease;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #e2e8f0;
+  font-style: italic;
+  font-weight: 300;
+  white-space: normal;           /* garante quebra de linha natural */
+  word-break: break-word;
 }
 
 #verse-reference {
-    font-size: 0.85rem;
-    color: #94a3b8;
-    font-weight: 500;
-    transition: font-size 0.3s ease;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
-/* Versículo maior em tablets */
+/* Tablet */
 @media (min-width: 768px) {
-    #verse-container {
-        max-width: 750px;
-        margin-top: 40px;
-    }
-    
-    #verse-text {
-        font-size: 1.2rem;
-        line-height: 1.8;
-    }
-    
-    #verse-reference {
-        font-size: 0.95rem;
-        margin-top: 12px;
-    }
+  #verse-text      { font-size: 1.15rem; line-height: 1.8; }
+  #verse-reference { font-size: 0.95rem; }
 }
 
-/* Versículo ainda maior em desktops */
+/* Desktop */
 @media (min-width: 1024px) {
-    #verse-container {
-        max-width: 700px;
-        margin-top: 50px;
-    }
-    
-    #verse-text {
-        font-size: 1.4rem;
-        line-height: 2;
-        letter-spacing: 0.3px;
-    }
-    
-    #verse-reference {
-        font-size: 1.05rem;
-        margin-top: 16px;
-    }
+  #verse-container { max-width: 700px; }
+  #verse-text      { font-size: 1.3rem; line-height: 2; letter-spacing: 0.3px; }
+  #verse-reference { font-size: 1rem; }
 }
 
-/* Classe para esconder o loader */
+/* Esconde o loader */
 .loader-hidden {
-    opacity: 0;
-    pointer-events: none; /* Permite clicar no conteúdo por baixo */
+  opacity: 0;
+  pointer-events: none;
 }
