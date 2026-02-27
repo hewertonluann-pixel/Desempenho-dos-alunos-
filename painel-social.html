@@ -67,7 +67,7 @@
 
     .badges-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
 
-    .badge-subgrupo, .badge-instrumento {
+    .badge-subgrupo {
       background: rgba(34,211,238,0.08);
       border: 1px solid rgba(34,211,238,0.3);
       border-radius: 999px; padding: 4px 10px;
@@ -75,7 +75,7 @@
       cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
     }
 
-    .badge-subgrupo:hover, .badge-instrumento:hover {
+    .badge-subgrupo:hover {
       background: rgba(34,211,238,0.18); transform: translateY(-2px);
     }
 
@@ -346,7 +346,9 @@
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
       const mediaMensal = media(ativos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
-      const grupos      = agruparPorGrupo(ativos).size;
+      // Conta bancadas: grupos pai excluindo Maestro
+      const grupoMap = agruparPorGrupo(ativos);
+      const bancadas = [...grupoMap.keys()].filter(k => k !== "Maestro").length;
       return `
         <div class="painel-geral">
           <div class="painel-geral-titulo">📊 Painel Geral</div>
@@ -364,26 +366,18 @@
           </div>
           <div class="stat-geral-item">
             <span class="stat-geral-label">🎼 Bancadas</span>
-            <span class="stat-geral-valor">${grupos}</span>
+            <span class="stat-geral-valor">${bancadas}</span>
           </div>
         </div>`;
     }
 
     // ================================================================
-    // HTML: BANCADAS — apenas subgrupos, sem rótulo do grupo pai
+    // HTML: BANCADAS — subgrupos apenas (Maestro excluído)
     // ================================================================
     function htmlBadges(subgrupoMap) {
-      // Coleta todos os subgrupos em lista plana, ordenada por grupo pai + ordem interna
       const badges = [];
 
-      // Maestro primeiro (instrumento isolado)
-      if (subgrupoMap.has("Maestro")) {
-        subgrupoMap.get("Maestro").forEach((info, label) => {
-          badges.push({ label, grupoPai: "Maestro", qtd: info.alunos.length, ordem: -1 });
-        });
-      }
-
-      // Demais grupos pai em ordem alb., cada subgrupo em ordem interna
+      // Apenas grupos pai que NÃO sejam Maestro, em ordem alb.
       [...subgrupoMap.keys()]
         .filter(pai => pai !== "Maestro")
         .sort((a, b) => a.localeCompare(b))
@@ -391,7 +385,7 @@
           [...subgrupoMap.get(pai).entries()]
             .sort((a, b) => a[1].ordem - b[1].ordem)
             .forEach(([label, info]) => {
-              badges.push({ label, grupoPai: pai, qtd: info.alunos.length, ordem: info.ordem });
+              badges.push({ label, grupoPai: pai, qtd: info.alunos.length });
             });
         });
 
