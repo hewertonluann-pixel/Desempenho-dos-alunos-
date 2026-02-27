@@ -314,6 +314,12 @@
       if (inst.includes("trombone")) return { grupo: "Metais", subgrupo: "Trombone", label: "Trombone", ordem: 2 };
       if (inst.includes("tuba"))     return { grupo: "Metais", subgrupo: "Tuba",     label: "Tuba",     ordem: 3 };
 
+      // Percussão e Piano compartilham o mesmo grupo para ficarem na mesma linha
+      if (inst.includes("percussão") || inst.includes("percussao") || inst.includes("bateria") || inst.includes("timbale"))
+        return { grupo: "Percussão / Piano", subgrupo: "Percussão", label: "Percussão", ordem: 1 };
+      if (inst.includes("piano") || inst.includes("teclado"))
+        return { grupo: "Percussão / Piano", subgrupo: "Piano",     label: "Piano",     ordem: 2 };
+
       return { grupo: instrumento.trim(), subgrupo: null, label: instrumento.trim(), ordem: 999 };
     }
 
@@ -578,7 +584,7 @@
     // HTML: SEPARADOR
     // ================================================================
     function htmlSeparadorGrupo(nome, qtd) {
-      const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
+      const id = `grupo-${nome.toLowerCase().replace(/[\s\/]+/g, "-")}`;
       return `
         <div class="separador-grupo" id="${id}">
           <div class="separador-linha"></div>
@@ -629,7 +635,8 @@
     window.trocarAba       = aba   => { abaAtual = aba; renderizarTudo(); };
     window.mudarMes        = delta => { mesAtual = (mesAtual + delta + 12) % 12; renderizarTudo(); };
     window.scrollParaGrupo = nome  => {
-      document.getElementById(`grupo-${nome.toLowerCase().replace(/\s+/g,"-")}`)?.scrollIntoView({ behavior:'smooth', block:'start' });
+      const id = nome.toLowerCase().replace(/[\s\/]+/g, "-");
+      document.getElementById(`grupo-${id}`)?.scrollIntoView({ behavior:'smooth', block:'start' });
     };
 
     async function carregarAlunos() {
