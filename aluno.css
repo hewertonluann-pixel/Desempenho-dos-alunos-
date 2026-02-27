@@ -15,9 +15,9 @@
   --amarelo: #facc15;
   --vermelho: #ef4444;
   --vermelho-suave: rgba(239, 68, 68, 0.25);
-  /* Altura padrão do ícone de notificação */
-  --notif-icon-size: 2rem;        /* tamanho font-size do emoji */
-  --notif-icon-height: 2rem;      /* altura real do ícone (line-height:1) */
+  /* Notificações */
+  --notif-icon-size: 2rem;    /* emoji permanece neste tamanho */
+  --notif-icon-height: 2rem;  /* altura de referência = linha do emoji */
 }
 
 * {
@@ -368,7 +368,7 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0;           /* gap via margin-bottom no item */
+  gap: 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(56,189,248,.3) transparent;
 }
@@ -379,7 +379,7 @@ body {
 
 .notificacao {
   display: flex;
-  align-items: center;   /* centraliza ícone e texto verticalmente */
+  align-items: center;        /* emoji e bloco de texto centralizados */
   gap: 12px;
   background: #2a2a3d;
   padding: 10px 12px;
@@ -390,50 +390,56 @@ body {
 
 .notificacao:last-child { margin-bottom: 0; }
 
-/* ── Ícone: mantém tamanho original ── */
+/* ── Emoji: tamanho fixo, não muda ── */
 .notificacao .icone {
-  font-size: var(--notif-icon-size); /* 2rem ≈ 32px */
+  font-size: var(--notif-icon-size); /* 2rem — inalterado */
   line-height: 1;
   flex-shrink: 0;
-  /* altura efetiva = 2rem */
 }
 
-/* ── Bloco de texto: 3 linhas com altura total = altura do ícone ──
-   Altura do ícone = 2rem
-   line-height por linha = 2rem / 3 ≈ 0.667rem
-   font-size precisa caber dentro de 0.667rem → usamos 0.6rem
+/* ── Bloco de texto: 2 linhas dentro da altura do emoji ──
+   Emoji height = 2rem  →  2 linhas × 1rem = 2rem  ✓
+   linha 1: texto principal  (0.82rem)
+   linha 2: timestamp small  (0.72rem)
+   Ambas usam line-height: 1rem para totalizar 2rem.
 */
 .notificacao .conteudo {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: var(--notif-icon-height);  /* trava em 2rem = altura do ícone */
+  height: var(--notif-icon-height); /* trava em 2rem */
   overflow: hidden;
-
-  font-size: 0.6rem;                          /* texto compacto para caber 3 linhas */
-  line-height: calc(var(--notif-icon-height) / 3); /* cada linha = 1/3 da altura do ícone */
-  color: var(--ink);
+  gap: 0;
 }
 
-/* strong dentro do conteúdo herda o font-size do pai */
+/* Linha 1 — texto principal (nome + ação) */
+.notificacao .conteudo > *:not(small) {
+  font-size: 0.82rem;
+  line-height: 1rem;           /* ocupa exatamente 1rem de altura */
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
 .notificacao .conteudo strong {
-  font-size: inherit;
   font-weight: 700;
 }
 
-/* em/i dentro do conteúdo */
 .notificacao .conteudo em {
-  font-size: inherit;
   font-style: italic;
 }
 
-/* Timestamp (3ª linha) */
+/* Linha 2 — timestamp */
 .notificacao .conteudo small {
   display: block;
-  font-size: inherit;   /* mesmo tamanho das outras linhas */
+  font-size: 0.72rem;
+  line-height: 1rem;           /* ocupa o 2º rem restante */
   color: #aaa;
-  margin-top: 0;
-  line-height: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Bordas coloridas por tipo */
@@ -738,15 +744,12 @@ body {
     border-radius: 16px;
   }
 
-  /* ===== CORREÇÃO: stat-grid em telas pequenas ===== */
-  /* Empilha em coluna única para evitar extrapolação */
   .modal-stats-grid {
     grid-template-columns: 1fr;
     gap: 8px;
     margin: 14px 0;
   }
 
-  /* Cada caixa vira uma linha horizontal compacta */
   .stat-box {
     display: flex;
     flex-direction: row;
@@ -771,11 +774,9 @@ body {
     text-align: right;
   }
 
-  /* Frequência (destaque) um pouco maior */
   .stat-value.stat-primary {
     font-size: 1.4rem;
   }
-  /* ================================================= */
   
   .modal-title {
     font-size: 1.2rem;
@@ -896,17 +897,17 @@ body {
     font-size: 0.85rem;
   }
   
-  /* Notificações mobile */
+  /* Notificações mobile — emoji inalterado, texto ligeiramente menor */
   .notificacao {
     padding: 8px 10px;
   }
-  
-  .notificacao .icone {
-    font-size: var(--notif-icon-size);
+
+  .notificacao .conteudo > *:not(small) {
+    font-size: 0.75rem;
   }
-  
-  .notificacao .conteudo {
-    font-size: 0.55rem;
+
+  .notificacao .conteudo small {
+    font-size: 0.65rem;
   }
   
   .frequency-month {
@@ -920,7 +921,7 @@ body {
   }
 }
 
-/* #painelEvolucao: sem altura forçada — controlado pelo .ev-grafico-wrap em grafico-evolucao.js */
+/* #painelEvolucao */
 #painelEvolucao {
   width: 100%;
   overflow: hidden;
