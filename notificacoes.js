@@ -50,8 +50,7 @@ export function adicionarNotificacao(tipo, icone, texto, tempo = null) {
   li.innerHTML = `
     <span class="icone">${icone}</span>
     <div class="conteudo">
-      ${texto}
-      <small>${tempo || "agora mesmo"}</small>
+      ${texto} <small>${tempo || "agora mesmo"}</small>
     </div>
   `;
   
