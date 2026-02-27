@@ -600,12 +600,13 @@
       const maestros    = grupoMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
 
+      // Ordem: Banda | Painel Geral | Bancadas | Ranking | Maestro | grupos...
       let html = `
         ${htmlPainelBanda()}
-        ${maestroHTML}
         ${htmlPainelGeral(todosAtivos)}
         ${htmlBadges(subgrupoMap)}
         ${htmlRanking(grupoMap, abaAtual, mesAtual)}
+        ${maestroHTML}
       `;
 
       [...grupoMap.keys()]
