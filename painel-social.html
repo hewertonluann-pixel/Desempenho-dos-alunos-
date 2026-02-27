@@ -65,14 +65,7 @@
       padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
 
-    .badges-grupo { display: flex; flex-direction: column; gap: 4px; }
-
-    .badges-grupo-nome {
-      font-size: 0.7rem; font-weight: 700; color: #6b7280;
-      text-transform: uppercase; letter-spacing: 0.6px; padding: 2px 4px;
-    }
-
-    .badges-subgrupos { display: flex; flex-wrap: wrap; gap: 5px; }
+    .badges-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
 
     .badge-subgrupo, .badge-instrumento {
       background: rgba(34,211,238,0.08);
@@ -377,48 +370,46 @@
     }
 
     // ================================================================
-    // HTML: BANCADAS (badges por subgrupo)
+    // HTML: BANCADAS — apenas subgrupos, sem rótulo do grupo pai
     // ================================================================
     function htmlBadges(subgrupoMap) {
-      const gruposPai = [...subgrupoMap.keys()].sort((a, b) => {
-        if (a === "Maestro") return -1;
-        if (b === "Maestro") return  1;
-        return a.localeCompare(b);
-      });
+      // Coleta todos os subgrupos em lista plana, ordenada por grupo pai + ordem interna
+      const badges = [];
 
-      const html = gruposPai.map(pai => {
-        const subMap   = subgrupoMap.get(pai);
-        const subArray = [...subMap.entries()].sort((a, b) => a[1].ordem - b[1].ordem);
-        const temSub   = subArray.length > 1 || subArray[0]?.[0] !== pai;
+      // Maestro primeiro (instrumento isolado)
+      if (subgrupoMap.has("Maestro")) {
+        subgrupoMap.get("Maestro").forEach((info, label) => {
+          badges.push({ label, grupoPai: "Maestro", qtd: info.alunos.length, ordem: -1 });
+        });
+      }
 
-        if (temSub) {
-          const badgesHtml = subArray.map(([label, info]) =>
-            `<span class="badge-subgrupo" onclick="scrollParaGrupo('${pai}')">
-               ${label} <strong>${info.alunos.length}</strong>
-             </span>`
-          ).join("");
-          return `
-            <div class="badges-grupo">
-              <div class="badges-grupo-nome">${pai}</div>
-              <div class="badges-subgrupos">${badgesHtml}</div>
-            </div>`;
-        } else {
-          const [label, info] = subArray[0];
-          return `<span class="badge-instrumento" onclick="scrollParaGrupo('${pai}')">
-                    ${label} <strong>${info.alunos.length}</strong>
-                  </span>`;
-        }
-      }).join("");
+      // Demais grupos pai em ordem alb., cada subgrupo em ordem interna
+      [...subgrupoMap.keys()]
+        .filter(pai => pai !== "Maestro")
+        .sort((a, b) => a.localeCompare(b))
+        .forEach(pai => {
+          [...subgrupoMap.get(pai).entries()]
+            .sort((a, b) => a[1].ordem - b[1].ordem)
+            .forEach(([label, info]) => {
+              badges.push({ label, grupoPai: pai, qtd: info.alunos.length, ordem: info.ordem });
+            });
+        });
+
+      const badgesHtml = badges.map(b =>
+        `<span class="badge-subgrupo" onclick="scrollParaGrupo('${b.grupoPai}')">
+           ${b.label} <strong>${b.qtd}</strong>
+         </span>`
+      ).join("");
 
       return `
         <div class="badges-container">
           <div class="badges-titulo">🎼 Bancadas</div>
-          ${html}
+          <div class="badges-wrap">${badgesHtml}</div>
         </div>`;
     }
 
     // ================================================================
-    // HTML: RANKING por grupo pai (igual ao original)
+    // HTML: RANKING por grupo pai
     // ================================================================
     function calcularMetricaGrupo(alunos, aba, mes) {
       if (aba === "nivel")      return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
