@@ -29,9 +29,6 @@
       font-size: 0.95rem;
     }
 
-    /* =============================================
-       GRID PRINCIPAL - 5 colunas no desktop
-       ============================================= */
     .grid-principal {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -45,9 +42,6 @@
       }
     }
 
-    /* =============================================
-       PAINEL GERAL (ocupa 1 card)
-       ============================================= */
     .painel-geral {
       background: linear-gradient(145deg, #0b1220, #020617);
       border: 1px solid rgba(34, 211, 238, 0.25);
@@ -93,9 +87,6 @@
       color: #22d3ee;
     }
 
-    /* =============================================
-       BADGES DE BANCADA (ocupa 1 card)
-       ============================================= */
     .badges-container {
       background: linear-gradient(145deg, #0b1220, #020617);
       border: 1px solid rgba(34, 211, 238, 0.25);
@@ -141,9 +132,6 @@
       transform: translateY(-2px);
     }
 
-    /* =============================================
-       RANKING POR BANCADA (ocupa 1 card)
-       ============================================= */
     .bloco-ranking {
       background: linear-gradient(145deg, #0f172a, #020617);
       border: 1px solid rgba(34, 211, 238, 0.2);
@@ -286,9 +274,6 @@
       flex-shrink: 0;
     }
 
-    /* =============================================
-       SEPARADOR DE GRUPO (Saxofones, Metais, etc)
-       ============================================= */
     .separador-grupo {
       grid-column: 1 / -1;
       display: flex;
@@ -320,9 +305,7 @@
       font-weight: 500;
     }
 
-    /* =============================================
-       CARDS SOCIAIS
-       ============================================= */
+    /* Card único para todos os alunos (incluindo Maestro) */
     .card-social {
       background: radial-gradient(circle at top left, #1f2937, #020617);
       border-radius: 16px;
@@ -340,15 +323,6 @@
       transform: translateY(-4px);
       box-shadow: 0 16px 35px rgba(8, 47, 73, 0.85);
       border-color: rgba(56, 189, 248, 0.7);
-    }
-
-    .card-social.maestro {
-      border-color: rgba(251, 191, 36, 0.5);
-      background: radial-gradient(circle at top left, #1f2010, #020617);
-    }
-
-    .card-social.maestro:hover {
-      border-color: rgba(251, 191, 36, 0.9);
     }
 
     .topo-card {
@@ -484,12 +458,8 @@
     }
 
     @media (max-width: 768px) {
-      .grid-principal {
-        grid-template-columns: 1fr;
-      }
-      .separador-grupo {
-        grid-column: 1;
-      }
+      .grid-principal { grid-template-columns: 1fr; }
+      .separador-grupo { grid-column: 1; }
     }
 
     @media (min-width: 1024px) {
@@ -503,7 +473,6 @@
   <h1>🎶 Comunidade Asafe</h1>
   <p class="subtitulo">Veja seus colegas, suas energias, níveis e conquistas. Toque em um card para abrir o painel completo.</p>
 
-  <!-- GRID CONTÍNUO -->
   <div class="grid-principal" id="gridCompleto">
     <div class="loader-texto">⏳ Carregando alunos...</div>
   </div>
@@ -530,20 +499,15 @@
       "07","08","09","10","11","12"
     ];
 
-    // ============================================================
-    // CLASSIFICAR INSTRUMENTOS EM GRUPOS E SUBGRUPOS
-    // ============================================================
     function classificarInstrumento(instrumento) {
       if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", ordem: 999 };
       const inst = instrumento.trim().toLowerCase();
 
-      // Cordas
       if (inst.includes("viola") || inst.includes("violino")) {
         if (inst.includes("violino")) return { grupo: "Cordas", subgrupo: "Violino", ordem: 1 };
         return { grupo: "Cordas", subgrupo: "Viola", ordem: 2 };
       }
 
-      // Saxofones
       if (inst.includes("sax")) {
         if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Soprano", ordem: 1 };
         if (inst.includes("alto")) return { grupo: "Saxofones", subgrupo: "Alto", ordem: 2 };
@@ -552,21 +516,19 @@
         return { grupo: "Saxofones", subgrupo: instrumento.trim(), ordem: 5 };
       }
 
-      // Metais
       if (inst.includes("trompete") || inst.includes("trombone") || inst.includes("tuba")) {
         if (inst.includes("trompete")) return { grupo: "Metais", subgrupo: "Trompete", ordem: 1 };
         if (inst.includes("trombone")) return { grupo: "Metais", subgrupo: "Trombone", ordem: 2 };
-        if (inst.includes("tuba")) return { grupo: "Metais", subgrupo: "Tuba", ordem: 3 };
+        if (inst.includes("tuba"))     return { grupo: "Metais", subgrupo: "Tuba",     ordem: 3 };
       }
 
-      // Instrumento isolado (sem agrupamento)
       return { grupo: instrumento.trim(), subgrupo: null, ordem: 999 };
     }
 
     function corBarra(pct) {
-      if (pct < 40)  return "linear-gradient(90deg,#f97373,#fb923c)";
-      if (pct < 80)  return "linear-gradient(90deg,#facc15,#fef08a)";
-      return               "linear-gradient(90deg,#22c55e,#4ade80)";
+      if (pct < 40) return "linear-gradient(90deg,#f97373,#fb923c)";
+      if (pct < 80) return "linear-gradient(90deg,#facc15,#fef08a)";
+      return              "linear-gradient(90deg,#22c55e,#4ade80)";
     }
 
     function medalha(pos) {
@@ -586,8 +548,7 @@
     }
 
     function calcularEnergiaAnualLocal(aluno, grupos) {
-      let totalEventos  = 0;
-      let totalPresencas = 0;
+      let totalEventos = 0, totalPresencas = 0;
       Object.keys(grupos).forEach(chave => {
         grupos[chave].forEach(ev => {
           totalEventos++;
@@ -610,9 +571,6 @@
       return Math.round((presencas / eventosMes.length) * 100);
     }
 
-    // ============================================================
-    // AGRUPAR POR GRUPOS (para ranking/badges)
-    // ============================================================
     function agruparPorGrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => {
@@ -623,14 +581,10 @@
       return map;
     }
 
-    // ============================================================
-    // HTML: PAINEL GERAL
-    // ============================================================
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
       const mediaMensal = media(ativos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
       const grupos = agruparPorGrupo(ativos).size;
-
       return `
         <div class="painel-geral">
           <div class="painel-geral-titulo">📊 Painel Geral</div>
@@ -653,24 +607,18 @@
         </div>`;
     }
 
-    // ============================================================
-    // HTML: BADGES
-    // ============================================================
     function htmlBadges(grupoMap) {
       const ordemGrupos = [...grupoMap.keys()].sort((a, b) => {
         if (a === "Maestro") return -1;
         if (b === "Maestro") return  1;
         return a.localeCompare(b);
       });
-
       const badges = ordemGrupos.map(nome => {
         const qtd = grupoMap.get(nome).length;
-        return `<span class="badge-instrumento"
-                      onclick="scrollParaGrupo('${nome}')">
+        return `<span class="badge-instrumento" onclick="scrollParaGrupo('${nome}')">
                   ${nome} <strong>${qtd}</strong>
                 </span>`;
       }).join("");
-
       return `
         <div class="badges-container">
           <div class="badges-titulo">🎼 Grupos</div>
@@ -678,20 +626,11 @@
         </div>`;
     }
 
-    // ============================================================
-    // HTML: RANKING
-    // ============================================================
     function calcularMetricaGrupo(alunos, aba, mes) {
-      if (aba === "nivel") {
-        return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
-      }
-      if (aba === "frequencia") {
-        return media(alunos.map(a => freqAlunoNoMes(a, mes)));
-      }
-      if (aba === "score") {
-        return { nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))),
-                 freq:  media(alunos.map(a => freqAlunoNoMes(a, mes))) };
-      }
+      if (aba === "nivel")      return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
+      if (aba === "frequencia") return media(alunos.map(a => freqAlunoNoMes(a, mes)));
+      if (aba === "score")      return { nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))),
+                                         freq:  media(alunos.map(a => freqAlunoNoMes(a, mes))) };
       return 0;
     }
 
@@ -709,15 +648,14 @@
       if (aba === "score") {
         const maxNivel = Math.max(...dados.map(d => d.nivel), 1);
         dados.forEach(d => {
-          const nivelNorm = Math.round((d.nivel / maxNivel) * 100);
-          d.score = Math.round((nivelNorm + d.freq) / 2);
+          d.score = Math.round((Math.round((d.nivel / maxNivel) * 100) + d.freq) / 2);
           d.valor = d.score;
         });
       }
 
       dados.sort((a, b) => b.valor - a.valor);
-      const maxValor = Math.max(...dados.map(d => d.valor), 1);
-      const unidade = aba === "nivel" ? " pts" : "%";
+      const maxValor  = Math.max(...dados.map(d => d.valor), 1);
+      const unidade   = aba === "nivel" ? " pts" : "%";
       const gradiente = aba === "nivel"
         ? "linear-gradient(90deg,#38bdf8,#818cf8)"
         : (aba === "frequencia" ? null : "linear-gradient(90deg,#f59e0b,#fcd34d)");
@@ -736,15 +674,14 @@
           </div>`;
       }).join("");
 
-      const mesControlDisplay = (aba === "nivel") ? "none" : "flex";
-
+      const mesControlDisplay = aba === "nivel" ? "none" : "flex";
       return `
         <div class="bloco-ranking">
           <div class="ranking-titulo">🏆 Ranking</div>
           <div class="ranking-tabs">
-            <button class="tab-btn ${aba === 'nivel' ? 'ativo' : ''}" onclick="trocarAba('nivel')">🎯</button>
-            <button class="tab-btn ${aba === 'frequencia' ? 'ativo' : ''}" onclick="trocarAba('frequencia')">📅</button>
-            <button class="tab-btn ${aba === 'score' ? 'ativo' : ''}" onclick="trocarAba('score')">⭐</button>
+            <button class="tab-btn ${aba === 'nivel'     ? 'ativo' : ''}" onclick="trocarAba('nivel')">🎯</button>
+            <button class="tab-btn ${aba === 'frequencia'? 'ativo' : ''}" onclick="trocarAba('frequencia')">📅</button>
+            <button class="tab-btn ${aba === 'score'     ? 'ativo' : ''}" onclick="trocarAba('score')">⭐</button>
           </div>
           <div class="mes-control" style="display:${mesControlDisplay}">
             <button onclick="mudarMes(-1)">◀</button>
@@ -755,19 +692,15 @@
         </div>`;
     }
 
-    // ============================================================
-    // HTML: CARD DO ALUNO
-    // ============================================================
     function htmlCard(aluno) {
       const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
       const total         = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
-      const ehMaestro     = aluno.instrumento === "Maestro";
 
       return `
-        <div class="card-social${ehMaestro ? " maestro" : ""}"
+        <div class="card-social"
              onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">
@@ -822,9 +755,6 @@
         </div>`;
     }
 
-    // ============================================================
-    // HTML: SEPARADOR DE GRUPO
-    // ============================================================
     function htmlSeparadorGrupo(nome, qtd) {
       const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
       return `
@@ -838,15 +768,11 @@
         </div>`;
     }
 
-    // ============================================================
-    // RENDERIZAR TUDO
-    // ============================================================
     function renderizarTudo() {
       const container = document.getElementById("gridCompleto");
-      const grupoMap = agruparPorGrupo(todosAtivos);
+      const grupoMap  = agruparPorGrupo(todosAtivos);
 
-      // 1. Maestro + 3 blocos de info
-      const maestros = grupoMap.get("Maestro") || [];
+      const maestros    = grupoMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
 
       let html = `
@@ -856,24 +782,18 @@
         ${htmlRanking(grupoMap, abaAtual, mesAtual)}
       `;
 
-      // 2. Demais grupos em ordem alfabética
       const ordemGrupos = [...grupoMap.keys()]
         .filter(k => k !== "Maestro")
         .sort((a, b) => a.localeCompare(b));
 
       ordemGrupos.forEach(grupo => {
-        const alunosGrupo = grupoMap.get(grupo);
-        
-        // Ordenar por subgrupo + energia
-        const alunosOrdenados = alunosGrupo.slice().map(a => {
-          return { ...a, _classif: classificarInstrumento(a.instrumento) };
-        }).sort((a, b) => {
-          // Primeiro por ordem de subgrupo
-          const ordemA = a._classif.ordem ?? 999;
-          const ordemB = b._classif.ordem ?? 999;
-          if (ordemA !== ordemB) return ordemA - ordemB;
-          
-          // Dentro do mesmo subgrupo, por energia
+        const alunosGrupo    = grupoMap.get(grupo);
+        const alunosOrdenados = alunosGrupo.slice().map(a => ({
+          ...a, _classif: classificarInstrumento(a.instrumento)
+        })).sort((a, b) => {
+          const oA = a._classif.ordem ?? 999;
+          const oB = b._classif.ordem ?? 999;
+          if (oA !== oB) return oA - oB;
           return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
         });
 
@@ -884,27 +804,13 @@
       container.innerHTML = html;
     }
 
-    // ============================================================
-    // CONTROLES EXPOSTOS AO HTML
-    // ============================================================
-    window.trocarAba = function(aba) {
-      abaAtual = aba;
-      renderizarTudo();
-    };
-
-    window.mudarMes = function(delta) {
-      mesAtual = (mesAtual + delta + 12) % 12;
-      renderizarTudo();
-    };
-
-    window.scrollParaGrupo = function(nome) {
+    window.trocarAba = aba => { abaAtual = aba; renderizarTudo(); };
+    window.mudarMes  = delta => { mesAtual = (mesAtual + delta + 12) % 12; renderizarTudo(); };
+    window.scrollParaGrupo = nome => {
       const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-    // ============================================================
-    // CARREGAR TUDO
-    // ============================================================
     async function carregarAlunos() {
       const [snap, eventosAno] = await Promise.all([
         getDocs(collection(db, "alunos")),
@@ -912,11 +818,8 @@
       ]);
 
       gruposEventos = agruparEventosPorMes(eventosAno);
-      const alunos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-      alunos.forEach(a => {
-        a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos);
-      });
+      const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      alunos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
 
       todosAtivos = alunos.filter(a => a.ativo !== false);
       renderizarTudo();
