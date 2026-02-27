@@ -321,22 +321,6 @@
     }
 
     /* =============================================
-       SUBSEPARADOR (Soprano, Trompete, etc)
-       ============================================= */
-    .subseparador {
-      grid-column: 1 / -1;
-      padding: 6px 12px;
-      margin-top: 6px;
-      margin-bottom: 2px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #9ca3af;
-      border-left: 3px solid rgba(34, 211, 238, 0.4);
-      background: rgba(15, 23, 42, 0.3);
-      border-radius: 4px;
-    }
-
-    /* =============================================
        CARDS SOCIAIS
        ============================================= */
     .card-social {
@@ -503,7 +487,7 @@
       .grid-principal {
         grid-template-columns: 1fr;
       }
-      .separador-grupo, .subseparador {
+      .separador-grupo {
         grid-column: 1;
       }
     }
@@ -550,20 +534,21 @@
     // CLASSIFICAR INSTRUMENTOS EM GRUPOS E SUBGRUPOS
     // ============================================================
     function classificarInstrumento(instrumento) {
-      if (!instrumento) return { grupo: "Outros", subgrupo: "Outros" };
+      if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", ordem: 999 };
       const inst = instrumento.trim().toLowerCase();
 
       // Cordas
       if (inst.includes("viola") || inst.includes("violino")) {
-        return { grupo: "Cordas", subgrupo: instrumento.trim() };
+        if (inst.includes("violino")) return { grupo: "Cordas", subgrupo: "Violino", ordem: 1 };
+        return { grupo: "Cordas", subgrupo: "Viola", ordem: 2 };
       }
 
       // Saxofones
       if (inst.includes("sax")) {
-        if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Saxofone Soprano", ordem: 1 };
-        if (inst.includes("alto")) return { grupo: "Saxofones", subgrupo: "Saxofone Alto", ordem: 2 };
-        if (inst.includes("tenor")) return { grupo: "Saxofones", subgrupo: "Saxofone Tenor", ordem: 3 };
-        if (inst.includes("barítono")) return { grupo: "Saxofones", subgrupo: "Saxofone Barítono", ordem: 4 };
+        if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Soprano", ordem: 1 };
+        if (inst.includes("alto")) return { grupo: "Saxofones", subgrupo: "Alto", ordem: 2 };
+        if (inst.includes("tenor")) return { grupo: "Saxofones", subgrupo: "Tenor", ordem: 3 };
+        if (inst.includes("barítono")) return { grupo: "Saxofones", subgrupo: "Barítono", ordem: 4 };
         return { grupo: "Saxofones", subgrupo: instrumento.trim(), ordem: 5 };
       }
 
@@ -575,7 +560,7 @@
       }
 
       // Instrumento isolado (sem agrupamento)
-      return { grupo: instrumento.trim(), subgrupo: null };
+      return { grupo: instrumento.trim(), subgrupo: null, ordem: 999 };
     }
 
     function corBarra(pct) {
@@ -636,29 +621,6 @@
         map.get(grupo).push(a);
       });
       return map;
-    }
-
-    // ============================================================
-    // AGRUPAR POR GRUPOS E SUBGRUPOS (para renderização)
-    // ============================================================
-    function agruparPorGrupoESubgrupo(alunos) {
-      const grupoMap = new Map();
-      alunos.forEach(a => {
-        const classif = classificarInstrumento(a.instrumento);
-        const { grupo, subgrupo } = classif;
-        
-        if (!grupoMap.has(grupo)) {
-          grupoMap.set(grupo, new Map());
-        }
-        
-        const subKey = subgrupo || grupo;
-        const subgrupoMap = grupoMap.get(grupo);
-        if (!subgrupoMap.has(subKey)) {
-          subgrupoMap.set(subKey, []);
-        }
-        subgrupoMap.get(subKey).push({ ...a, _classif: classif });
-      });
-      return grupoMap;
     }
 
     // ============================================================
@@ -861,7 +823,7 @@
     }
 
     // ============================================================
-    // HTML: SEPARADORES
+    // HTML: SEPARADOR DE GRUPO
     // ============================================================
     function htmlSeparadorGrupo(nome, qtd) {
       const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
@@ -876,61 +838,47 @@
         </div>`;
     }
 
-    function htmlSubseparador(nome, qtd) {
-      return `
-        <div class="subseparador">
-          ${nome} <span style="color:#6b7280;font-weight:500;">(${qtd})</span>
-        </div>`;
-    }
-
     // ============================================================
     // RENDERIZAR TUDO
     // ============================================================
-    function renderizarTudo(grupoSubgrupoMap) {
+    function renderizarTudo() {
       const container = document.getElementById("gridCompleto");
+      const grupoMap = agruparPorGrupo(todosAtivos);
 
       // 1. Maestro + 3 blocos de info
-      const maestros = grupoSubgrupoMap.get("Maestro")?.get("Maestro") || [];
+      const maestros = grupoMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
-
-      const grupoMapSimples = agruparPorGrupo(todosAtivos);
 
       let html = `
         ${maestroHTML}
         ${htmlPainelGeral(todosAtivos)}
-        ${htmlBadges(grupoMapSimples)}
-        ${htmlRanking(grupoMapSimples, abaAtual, mesAtual)}
+        ${htmlBadges(grupoMap)}
+        ${htmlRanking(grupoMap, abaAtual, mesAtual)}
       `;
 
       // 2. Demais grupos em ordem alfabética
-      const ordemGrupos = [...grupoSubgrupoMap.keys()]
+      const ordemGrupos = [...grupoMap.keys()]
         .filter(k => k !== "Maestro")
         .sort((a, b) => a.localeCompare(b));
 
       ordemGrupos.forEach(grupo => {
-        const subgrupoMap = grupoSubgrupoMap.get(grupo);
-        const totalAlunos = Array.from(subgrupoMap.values()).flat().length;
-
-        html += htmlSeparadorGrupo(grupo, totalAlunos);
-
-        // Ordenar subgrupos
-        const subgrupos = Array.from(subgrupoMap.entries()).sort((a, b) => {
-          const ordemA = a[1][0]?._classif?.ordem ?? 999;
-          const ordemB = b[1][0]?._classif?.ordem ?? 999;
+        const alunosGrupo = grupoMap.get(grupo);
+        
+        // Ordenar por subgrupo + energia
+        const alunosOrdenados = alunosGrupo.slice().map(a => {
+          return { ...a, _classif: classificarInstrumento(a.instrumento) };
+        }).sort((a, b) => {
+          // Primeiro por ordem de subgrupo
+          const ordemA = a._classif.ordem ?? 999;
+          const ordemB = b._classif.ordem ?? 999;
           if (ordemA !== ordemB) return ordemA - ordemB;
-          return a[0].localeCompare(b[0]);
+          
+          // Dentro do mesmo subgrupo, por energia
+          return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
         });
 
-        subgrupos.forEach(([subgrupo, alunos]) => {
-          // Mostrar subseparador se houver mais de 1 subgrupo no grupo
-          if (subgrupoMap.size > 1) {
-            html += htmlSubseparador(subgrupo, alunos.length);
-          }
-          
-          // Ordenar alunos por energia
-          alunos.sort((a, b) => (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0));
-          html += alunos.map(htmlCard).join("");
-        });
+        html += htmlSeparadorGrupo(grupo, alunosGrupo.length);
+        html += alunosOrdenados.map(htmlCard).join("");
       });
 
       container.innerHTML = html;
@@ -941,12 +889,12 @@
     // ============================================================
     window.trocarAba = function(aba) {
       abaAtual = aba;
-      renderizarTudo(agruparPorGrupoESubgrupo(todosAtivos));
+      renderizarTudo();
     };
 
     window.mudarMes = function(delta) {
       mesAtual = (mesAtual + delta + 12) % 12;
-      renderizarTudo(agruparPorGrupoESubgrupo(todosAtivos));
+      renderizarTudo();
     };
 
     window.scrollParaGrupo = function(nome) {
@@ -971,9 +919,7 @@
       });
 
       todosAtivos = alunos.filter(a => a.ativo !== false);
-      const grupoSubgrupoMap = agruparPorGrupoESubgrupo(todosAtivos);
-
-      renderizarTudo(grupoSubgrupoMap);
+      renderizarTudo();
     }
 
     carregarAlunos();
