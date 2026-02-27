@@ -15,19 +15,9 @@
       padding: 20px;
     }
 
-    h1 {
-      text-align: center;
-      color: #22d3ee;
-      margin-bottom: 4px;
-      font-size: 1.6rem;
-    }
+    h1 { text-align: center; color: #22d3ee; margin-bottom: 4px; font-size: 1.6rem; }
 
-    .subtitulo {
-      text-align: center;
-      color: #9ca3af;
-      margin-bottom: 24px;
-      font-size: 0.95rem;
-    }
+    .subtitulo { text-align: center; color: #9ca3af; margin-bottom: 24px; font-size: 0.95rem; }
 
     .grid-principal {
       display: grid;
@@ -36,215 +26,124 @@
       margin-bottom: 36px;
     }
 
-    @media (min-width: 1400px) {
-      .grid-principal { grid-template-columns: repeat(5, 1fr); }
-    }
+    @media (min-width: 1400px) { .grid-principal { grid-template-columns: repeat(5, 1fr); } }
 
+    /* ===== PAINEL GERAL ===== */
     .painel-geral {
       background: linear-gradient(145deg, #0b1220, #020617);
-      border: 1px solid rgba(34, 211, 238, 0.25);
-      border-radius: 16px;
-      padding: 16px;
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      display: flex; flex-direction: column; gap: 12px;
     }
 
     .painel-geral-titulo {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #22d3ee;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
 
     .stat-geral-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 10px;
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; background: rgba(15,23,42,0.6); border-radius: 8px;
     }
 
-    .stat-geral-label {
-      font-size: 0.75rem;
-      color: #9ca3af;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .stat-geral-label { font-size: 0.75rem; color: #9ca3af; display: flex; align-items: center; gap: 6px; }
+    .stat-geral-valor { font-size: 1.3rem; font-weight: 900; color: #22d3ee; }
 
-    .stat-geral-valor {
-      font-size: 1.3rem;
-      font-weight: 900;
-      color: #22d3ee;
-    }
-
-    /* ===== BADGES ===== */
+    /* ===== BANCADAS (badges) ===== */
     .badges-container {
       background: linear-gradient(145deg, #0b1220, #020617);
-      border: 1px solid rgba(34, 211, 238, 0.25);
-      border-radius: 16px;
-      padding: 16px;
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
     }
 
     .badges-titulo {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #22d3ee;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
 
-    /* Grupo pai (Saxofones, Metais…) */
-    .badges-grupo {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .badges-grupo { display: flex; flex-direction: column; gap: 4px; }
 
     .badges-grupo-nome {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      padding: 2px 4px;
+      font-size: 0.7rem; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.6px; padding: 2px 4px;
     }
 
-    .badges-subgrupos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
+    .badges-subgrupos { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    .badge-subgrupo, .badge-instrumento {
+      background: rgba(34,211,238,0.08);
+      border: 1px solid rgba(34,211,238,0.3);
+      border-radius: 999px; padding: 4px 10px;
+      font-size: 0.72rem; font-weight: 600; color: #22d3ee;
+      cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
     }
 
-    /* Badge de subgrupo */
-    .badge-subgrupo {
-      background: rgba(34, 211, 238, 0.08);
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: #22d3ee;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
-
-    .badge-subgrupo:hover {
-      background: rgba(34, 211, 238, 0.18);
-      transform: translateY(-2px);
-    }
-
-    /* Badge de instrumento isolado (sem subgrupo) */
-    .badge-instrumento {
-      background: rgba(34, 211, 238, 0.08);
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: #22d3ee;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
-
-    .badge-instrumento:hover {
-      background: rgba(34, 211, 238, 0.18);
-      transform: translateY(-2px);
+    .badge-subgrupo:hover, .badge-instrumento:hover {
+      background: rgba(34,211,238,0.18); transform: translateY(-2px);
     }
 
     /* ===== RANKING ===== */
     .bloco-ranking {
       background: linear-gradient(145deg, #0f172a, #020617);
-      border: 1px solid rgba(34, 211, 238, 0.2);
-      border-radius: 16px;
-      padding: 16px;
+      border: 1px solid rgba(34,211,238,0.2);
+      border-radius: 16px; padding: 16px;
       box-shadow: 0 8px 28px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
     }
 
     .ranking-titulo {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #22d3ee;
-      margin: 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(34, 211, 238, 0.2);
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee; margin: 0;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
 
     .ranking-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
 
     .tab-btn {
-      padding: 5px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      background: transparent;
-      color: #9ca3af;
-      font-size: 0.7rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      padding: 5px 12px; border-radius: 999px;
+      border: 1px solid rgba(34,211,238,0.3);
+      background: transparent; color: #9ca3af;
+      font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
     }
 
-    .tab-btn.ativo {
-      background: rgba(34, 211, 238, 0.15);
-      border-color: #22d3ee;
-      color: #22d3ee;
-    }
+    .tab-btn.ativo { background: rgba(34,211,238,0.15); border-color: #22d3ee; color: #22d3ee; }
 
     .mes-control { display: flex; align-items: center; gap: 8px; justify-content: center; }
 
     .mes-control button {
-      background: rgba(34, 211, 238, 0.1);
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      color: #22d3ee;
-      border-radius: 6px;
-      padding: 3px 10px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: background 0.2s;
+      background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3);
+      color: #22d3ee; border-radius: 6px; padding: 3px 10px;
+      cursor: pointer; font-size: 0.85rem; transition: background 0.2s;
     }
 
-    .mes-control button:hover { background: rgba(34, 211, 238, 0.2); }
+    .mes-control button:hover { background: rgba(34,211,238,0.2); }
 
-    .mes-nome {
-      font-weight: 700;
-      color: #f9fafb;
-      font-size: 0.8rem;
-      min-width: 70px;
-      text-align: center;
-    }
+    .mes-nome { font-weight: 700; color: #f9fafb; font-size: 0.8rem; min-width: 70px; text-align: center; }
 
     .ranking-lista {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 280px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(34,211,238,0.3) transparent;
+      display: flex; flex-direction: column; gap: 6px;
+      max-height: 320px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: rgba(34,211,238,0.3) transparent;
     }
 
     .ranking-lista::-webkit-scrollbar       { width: 4px; }
     .ranking-lista::-webkit-scrollbar-track { background: transparent; }
     .ranking-lista::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.3); border-radius: 99px; }
+
+    /* Separador de grupo pai dentro do ranking */
+    .ranking-grupo-sep {
+      font-size: 0.65rem; font-weight: 700; color: #4b5563;
+      text-transform: uppercase; letter-spacing: 0.7px;
+      padding: 6px 2px 2px; margin-top: 4px;
+      border-top: 1px solid rgba(34,211,238,0.1);
+    }
+
+    .ranking-lista .ranking-grupo-sep:first-child { border-top: none; margin-top: 0; padding-top: 2px; }
 
     .ranking-linha { display: flex; align-items: center; gap: 6px; }
 
@@ -252,58 +151,49 @@
     .ranking-nome  { font-size: 0.72rem; font-weight: 600; color: #e5e7eb; min-width: 70px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ranking-valor { font-size: 0.72rem; font-weight: 700; color: #22d3ee; min-width: 40px; text-align: right; flex-shrink: 0; }
 
-    .ranking-barra-wrap  { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
-    .ranking-barra-fill  { height: 100%; border-radius: 999px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+    .ranking-barra-wrap { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
+    .ranking-barra-fill { height: 100%; border-radius: 999px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
 
-    /* ===== SEPARADOR DE GRUPO ===== */
+    /* ===== SEPARADOR DE BANCADA (grid) ===== */
     .separador-grupo {
       grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0 8px;
-      margin-top: 16px;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0 8px; margin-top: 16px;
     }
 
-    .separador-linha  { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(34,211,238,0.3), transparent); }
-    .separador-texto  { font-size: 0.85rem; font-weight: 700; color: #22d3ee; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-    .separador-count  { font-size: 0.7rem; color: #6b7280; font-weight: 500; }
+    .separador-linha { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(34,211,238,0.3), transparent); }
+    .separador-texto { font-size: 0.85rem; font-weight: 700; color: #22d3ee; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .separador-count { font-size: 0.7rem; color: #6b7280; font-weight: 500; }
 
     /* ===== CARDS ===== */
     .card-social {
       background: radial-gradient(circle at top left, #1f2937, #020617);
-      border-radius: 16px;
-      padding: 14px 14px 12px;
-      border: 1px solid rgba(34, 211, 238, 0.22);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.7);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      border-radius: 16px; padding: 14px 14px 12px;
+      border: 1px solid rgba(34,211,238,0.22);
+      box-shadow: 0 10px 25px rgba(15,23,42,0.7);
+      display: flex; flex-direction: column; gap: 8px;
+      cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
 
     .card-social:hover {
       transform: translateY(-4px);
-      box-shadow: 0 16px 35px rgba(8, 47, 73, 0.85);
-      border-color: rgba(56, 189, 248, 0.7);
+      box-shadow: 0 16px 35px rgba(8,47,73,0.85);
+      border-color: rgba(56,189,248,0.7);
     }
 
     .topo-card { display: flex; align-items: center; gap: 10px; }
 
     .foto-social {
-      width: 64px; height: 64px;
-      border-radius: 999px; overflow: hidden;
-      border: 2px solid rgba(34, 211, 238, 0.5);
-      flex-shrink: 0; background: #020617;
+      width: 64px; height: 64px; border-radius: 999px; overflow: hidden;
+      border: 2px solid rgba(34,211,238,0.5); flex-shrink: 0; background: #020617;
     }
 
     .foto-social img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .info-principal { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 
-    .nome-aluno       { font-size: 1rem; font-weight: 600; color: #f9fafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .instrumento-aluno{ font-size: 0.85rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nome-aluno        { font-size: 1rem; font-weight: 600; color: #f9fafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .instrumento-aluno { font-size: 0.85rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .nivel-geral-destaque {
       display: flex; align-items: center; justify-content: space-between;
@@ -333,7 +223,6 @@
     }
 
     .barra-container { width: 100%; height: 6px; border-radius: 999px; background: #020617; overflow: hidden; }
-
     .barra-preenchimento { height: 100%; width: 0%; transition: width 0.4s ease; border-radius: 999px; }
 
     .conquistas-social {
@@ -379,21 +268,21 @@
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
     const mesesChaves = ["01","02","03","04","05","06","07","08","09","10","11","12"];
 
-    // ============================================================
-    // CLASSIFICAR: grupo pai + rótulo curto de subgrupo
-    // ============================================================
+    // ================================================================
+    // CLASSIFICAR: grupo pai + label de subgrupo (usado em ambos)
+    // ================================================================
     function classificarInstrumento(instrumento) {
       if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", label: "Outros", ordem: 999 };
       const inst = instrumento.trim().toLowerCase();
 
-      if (inst.includes("violino")) return { grupo: "Cordas",   subgrupo: "Violino",      label: "Violino",      ordem: 1 };
-      if (inst.includes("viola"))   return { grupo: "Cordas",   subgrupo: "Viola",         label: "Viola",         ordem: 2 };
+      if (inst.includes("violino")) return { grupo: "Cordas",    subgrupo: "Violino",     label: "Violino",      ordem: 1 };
+      if (inst.includes("viola"))   return { grupo: "Cordas",    subgrupo: "Viola",        label: "Viola",         ordem: 2 };
 
       if (inst.includes("sax")) {
-        if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Soprano", label: "Sax Soprano", ordem: 1 };
-        if (inst.includes("alto"))    return { grupo: "Saxofones", subgrupo: "Alto",    label: "Sax Alto",    ordem: 2 };
-        if (inst.includes("tenor"))   return { grupo: "Saxofones", subgrupo: "Tenor",   label: "Sax Tenor",   ordem: 3 };
-        if (inst.includes("barítono"))return { grupo: "Saxofones", subgrupo: "Barítono",label: "Sax Barítono",ordem: 4 };
+        if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Soprano",  label: "Sax Soprano",  ordem: 1 };
+        if (inst.includes("alto"))    return { grupo: "Saxofones", subgrupo: "Alto",     label: "Sax Alto",     ordem: 2 };
+        if (inst.includes("tenor"))   return { grupo: "Saxofones", subgrupo: "Tenor",    label: "Sax Tenor",    ordem: 3 };
+        if (inst.includes("barítono"))return { grupo: "Saxofones", subgrupo: "Barítono", label: "Sax Barítono", ordem: 4 };
         return { grupo: "Saxofones", subgrupo: instrumento.trim(), label: instrumento.trim(), ordem: 5 };
       }
 
@@ -445,7 +334,7 @@
       return Math.round((p / evs.length) * 100);
     }
 
-    // Agrupa por GRUPO PAI (para ranking e separadores)
+    // Agrupa por GRUPO PAI (separadores do grid)
     function agruparPorGrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => {
@@ -456,29 +345,46 @@
       return map;
     }
 
-    // Agrupa por SUBGRUPO (para o painel Grupos/badges)
+    // Agrupa por SUBGRUPO dentro de cada grupo pai
+    // Retorna Map<grupoPai, Map<label, { alunos[], ordem }>>
     function agruparPorSubgrupo(alunos) {
-      // Retorna Map<grupoPai, Map<labelSubgrupo, alunos[]>>
       const map = new Map();
       alunos.forEach(a => {
         const c = classificarInstrumento(a.instrumento);
-        const grupo  = c.grupo;
-        const label  = c.label;
-        if (!map.has(grupo)) map.set(grupo, new Map());
-        const sub = map.get(grupo);
-        if (!sub.has(label)) sub.set(label, { alunos: [], ordem: c.ordem });
-        sub.get(label).alunos.push(a);
+        if (!map.has(c.grupo)) map.set(c.grupo, new Map());
+        const sub = map.get(c.grupo);
+        if (!sub.has(c.label)) sub.set(c.label, { alunos: [], ordem: c.ordem });
+        sub.get(c.label).alunos.push(a);
       });
       return map;
     }
 
-    // ============================================================
+    // Lista plana de bancadas (subgrupos) ignorando Maestro
+    // Retorna [{ label, grupoPai, alunos[], ordem }]
+    function listarBancadas(alunos) {
+      const subgrupoMap = agruparPorSubgrupo(alunos);
+      const bancadas = [];
+      subgrupoMap.forEach((subMap, pai) => {
+        if (pai === "Maestro") return;
+        subMap.forEach((info, label) => {
+          bancadas.push({ label, grupoPai: pai, alunos: info.alunos, ordem: info.ordem });
+        });
+      });
+      // Ordena: grupo pai alb. > ordem dentro do grupo
+      bancadas.sort((a, b) => {
+        const gCmp = a.grupoPai.localeCompare(b.grupoPai);
+        return gCmp !== 0 ? gCmp : a.ordem - b.ordem;
+      });
+      return bancadas;
+    }
+
+    // ================================================================
     // HTML: PAINEL GERAL
-    // ============================================================
+    // ================================================================
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
       const mediaMensal = media(ativos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
-      const grupos      = agruparPorGrupo(ativos).size;
+      const bancadasQtd = listarBancadas(ativos).length;
       return `
         <div class="painel-geral">
           <div class="painel-geral-titulo">📊 Painel Geral</div>
@@ -495,15 +401,15 @@
             <span class="stat-geral-valor">${mediaMensal}%</span>
           </div>
           <div class="stat-geral-item">
-            <span class="stat-geral-label">🎼 Grupos</span>
-            <span class="stat-geral-valor">${grupos}</span>
+            <span class="stat-geral-label">🎼 Bancadas</span>
+            <span class="stat-geral-valor">${bancadasQtd}</span>
           </div>
         </div>`;
     }
 
-    // ============================================================
-    // HTML: BADGES (mostra subgrupos agrupados por pai)
-    // ============================================================
+    // ================================================================
+    // HTML: BANCADAS (badges por subgrupo)
+    // ================================================================
     function htmlBadges(subgrupoMap) {
       const gruposPai = [...subgrupoMap.keys()].sort((a, b) => {
         if (a === "Maestro") return -1;
@@ -514,61 +420,55 @@
       const html = gruposPai.map(pai => {
         const subMap   = subgrupoMap.get(pai);
         const subArray = [...subMap.entries()].sort((a, b) => a[1].ordem - b[1].ordem);
-        const temSubgrupos = subArray.length > 1 || subArray[0]?.[0] !== pai;
+        const temSub   = subArray.length > 1 || subArray[0]?.[0] !== pai;
 
-        if (temSubgrupos) {
-          // Grupo com subgrupos: mostra rótulo do pai + badges de cada subgrupo
-          const badgesHtml = subArray.map(([label, info]) => {
-            const qtd = info.alunos.length;
-            return `<span class="badge-subgrupo"
-                         onclick="scrollParaGrupo('${pai}')">
-                      ${label} <strong>${qtd}</strong>
-                    </span>`;
-          }).join("");
-
+        if (temSub) {
+          const badgesHtml = subArray.map(([label, info]) =>
+            `<span class="badge-subgrupo" onclick="scrollParaGrupo('${pai}')">
+               ${label} <strong>${info.alunos.length}</strong>
+             </span>`
+          ).join("");
           return `
             <div class="badges-grupo">
               <div class="badges-grupo-nome">${pai}</div>
               <div class="badges-subgrupos">${badgesHtml}</div>
             </div>`;
         } else {
-          // Instrumento isolado: badge simples
           const [label, info] = subArray[0];
-          const qtd = info.alunos.length;
-          return `<span class="badge-instrumento"
-                        onclick="scrollParaGrupo('${pai}')">
-                    ${label} <strong>${qtd}</strong>
+          return `<span class="badge-instrumento" onclick="scrollParaGrupo('${pai}')">
+                    ${label} <strong>${info.alunos.length}</strong>
                   </span>`;
         }
       }).join("");
 
       return `
         <div class="badges-container">
-          <div class="badges-titulo">🎼 Grupos</div>
+          <div class="badges-titulo">🎼 Bancadas</div>
           ${html}
         </div>`;
     }
 
-    // ============================================================
-    // HTML: RANKING (por grupo pai)
-    // ============================================================
-    function calcularMetricaGrupo(alunos, aba, mes) {
+    // ================================================================
+    // HTML: RANKING por bancada (subgrupo)
+    // ================================================================
+    function calcularMetricaBancada(alunos, aba, mes) {
       if (aba === "nivel")      return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
       if (aba === "frequencia") return media(alunos.map(a => freqAlunoNoMes(a, mes)));
-      if (aba === "score")      return { nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))),
-                                         freq:  media(alunos.map(a => freqAlunoNoMes(a, mes))) };
+      if (aba === "score")      return {
+        nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))),
+        freq:  media(alunos.map(a => freqAlunoNoMes(a, mes)))
+      };
       return 0;
     }
 
-    function htmlRanking(grupoMap, aba, mes) {
-      const grupos = [...grupoMap.keys()].filter(k => k !== "Maestro");
-      let dados = grupos.map(nome => {
-        const alunos = grupoMap.get(nome);
+    function htmlRanking(bancadas, aba, mes) {
+      // Calcula valor de cada bancada
+      let dados = bancadas.map(b => {
         if (aba === "score") {
-          const raw = calcularMetricaGrupo(alunos, "score", mes);
-          return { nome, nivel: raw.nivel, freq: raw.freq, valor: null };
+          const raw = calcularMetricaBancada(b.alunos, "score", mes);
+          return { label: b.label, grupoPai: b.grupoPai, nivel: raw.nivel, freq: raw.freq, valor: null };
         }
-        return { nome, valor: calcularMetricaGrupo(alunos, aba, mes) };
+        return { label: b.label, grupoPai: b.grupoPai, valor: calcularMetricaBancada(b.alunos, aba, mes) };
       });
 
       if (aba === "score") {
@@ -583,26 +483,34 @@
       const unidade   = aba === "nivel" ? " pts" : "%";
       const gradiente = aba === "nivel"
         ? "linear-gradient(90deg,#38bdf8,#818cf8)"
-        : (aba === "frequencia" ? null : "linear-gradient(90deg,#f59e0b,#fcd34d)");
+        : aba === "frequencia" ? null
+        : "linear-gradient(90deg,#f59e0b,#fcd34d)";
 
-      const linhas = dados.map((d, i) => {
+      // Agrupa linhas por grupo pai para exibir separadores visuais
+      const linhas = [];
+      let grupoAtual = null;
+      dados.forEach((d, i) => {
+        if (d.grupoPai !== grupoAtual) {
+          grupoAtual = d.grupoPai;
+          linhas.push(`<div class="ranking-grupo-sep">${d.grupoPai}</div>`);
+        }
         const pct  = Math.round((d.valor / maxValor) * 100);
         const grad = gradiente || corBarra(d.valor);
-        return `
+        linhas.push(`
           <div class="ranking-linha">
             <span class="ranking-pos">${medalha(i)}</span>
-            <span class="ranking-nome">${d.nome}</span>
+            <span class="ranking-nome">${d.label}</span>
             <div class="ranking-barra-wrap">
               <div class="ranking-barra-fill" style="width:${pct}%;background:${grad};"></div>
             </div>
             <span class="ranking-valor">${d.valor}${unidade}</span>
-          </div>`;
-      }).join("");
+          </div>`);
+      });
 
       const mesControlDisplay = aba === "nivel" ? "none" : "flex";
       return `
         <div class="bloco-ranking">
-          <div class="ranking-titulo">🏆 Ranking</div>
+          <div class="ranking-titulo">🏆 Ranking de Bancadas</div>
           <div class="ranking-tabs">
             <button class="tab-btn ${aba==='nivel'     ?'ativo':''}" onclick="trocarAba('nivel')">🎯</button>
             <button class="tab-btn ${aba==='frequencia'?'ativo':''}" onclick="trocarAba('frequencia')">📅</button>
@@ -613,13 +521,13 @@
             <span class="mes-nome">${mesesNomes[mes]}</span>
             <button onclick="mudarMes(1)">▶</button>
           </div>
-          <div class="ranking-lista">${linhas}</div>
+          <div class="ranking-lista">${linhas.join("")}</div>
         </div>`;
     }
 
-    // ============================================================
+    // ================================================================
     // HTML: CARD
-    // ============================================================
+    // ================================================================
     function htmlCard(aluno) {
       const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
@@ -663,9 +571,9 @@
         </div>`;
     }
 
-    // ============================================================
-    // HTML: SEPARADOR DE GRUPO
-    // ============================================================
+    // ================================================================
+    // HTML: SEPARADOR DE BANCADA (grid)
+    // ================================================================
     function htmlSeparadorGrupo(nome, qtd) {
       const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
       return `
@@ -678,13 +586,14 @@
         </div>`;
     }
 
-    // ============================================================
+    // ================================================================
     // RENDERIZAR
-    // ============================================================
+    // ================================================================
     function renderizarTudo() {
-      const container    = document.getElementById("gridCompleto");
-      const grupoMap     = agruparPorGrupo(todosAtivos);
-      const subgrupoMap  = agruparPorSubgrupo(todosAtivos);
+      const container   = document.getElementById("gridCompleto");
+      const grupoMap    = agruparPorGrupo(todosAtivos);
+      const subgrupoMap = agruparPorSubgrupo(todosAtivos);
+      const bancadas    = listarBancadas(todosAtivos);
 
       const maestros    = grupoMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
@@ -693,7 +602,7 @@
         ${maestroHTML}
         ${htmlPainelGeral(todosAtivos)}
         ${htmlBadges(subgrupoMap)}
-        ${htmlRanking(grupoMap, abaAtual, mesAtual)}
+        ${htmlRanking(bancadas, abaAtual, mesAtual)}
       `;
 
       [...grupoMap.keys()]
@@ -713,9 +622,9 @@
       container.innerHTML = html;
     }
 
-    window.trocarAba      = aba   => { abaAtual = aba; renderizarTudo(); };
-    window.mudarMes       = delta => { mesAtual = (mesAtual + delta + 12) % 12; renderizarTudo(); };
-    window.scrollParaGrupo = nome => {
+    window.trocarAba       = aba   => { abaAtual = aba; renderizarTudo(); };
+    window.mudarMes        = delta => { mesAtual = (mesAtual + delta + 12) % 12; renderizarTudo(); };
+    window.scrollParaGrupo = nome  => {
       document.getElementById(`grupo-${nome.toLowerCase().replace(/\s+/g,"-")}`)?.scrollIntoView({ behavior:'smooth', block:'start' });
     };
 
