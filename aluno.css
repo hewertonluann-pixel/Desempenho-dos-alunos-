@@ -15,9 +15,7 @@
   --amarelo: #facc15;
   --vermelho: #ef4444;
   --vermelho-suave: rgba(239, 68, 68, 0.25);
-  /* Notificações */
-  --notif-icon-size: 2rem;    /* emoji permanece neste tamanho */
-  --notif-icon-height: 2rem;  /* altura de referência = linha do emoji */
+  --notif-icon-size: 2rem; /* emoji — não alterar */
 }
 
 * {
@@ -379,7 +377,7 @@ body {
 
 .notificacao {
   display: flex;
-  align-items: center;        /* emoji e bloco de texto centralizados */
+  align-items: flex-start;  /* emoji fica no topo quando texto quebra */
   gap: 12px;
   background: #2a2a3d;
   padding: 10px 12px;
@@ -390,36 +388,30 @@ body {
 
 .notificacao:last-child { margin-bottom: 0; }
 
-/* ── Emoji: tamanho fixo, não muda ── */
+/* Emoji: tamanho fixo, nunca muda */
 .notificacao .icone {
   font-size: var(--notif-icon-size); /* 2rem — inalterado */
   line-height: 1;
   flex-shrink: 0;
+  margin-top: 2px; /* pequeno ajuste óptico para alinhar com 1ª linha */
 }
 
-/* ── Bloco de texto: 2 linhas dentro da altura do emoji ──
-   Emoji height = 2rem  →  2 linhas × 1rem = 2rem  ✓
-   linha 1: texto principal  (0.82rem)
-   linha 2: timestamp small  (0.72rem)
-   Ambas usam line-height: 1rem para totalizar 2rem.
-*/
+/* Bloco de texto: cresce livremente, sem altura travada */
 .notificacao .conteudo {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: var(--notif-icon-height); /* trava em 2rem */
-  overflow: hidden;
-  gap: 0;
+  gap: 3px;
+  /* SEM height fixo — o card cresce conforme o texto */
 }
 
-/* Linha 1 — texto principal (nome + ação) */
+/* Linha principal: texto quebra normalmente */
 .notificacao .conteudo > *:not(small) {
   font-size: 0.82rem;
-  line-height: 1rem;           /* ocupa exatamente 1rem de altura */
+  line-height: 1.35;
   color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;   /* permite quebra de linha */
+  word-break: break-word;
   display: block;
 }
 
@@ -431,15 +423,13 @@ body {
   font-style: italic;
 }
 
-/* Linha 2 — timestamp */
+/* Timestamp */
 .notificacao .conteudo small {
   display: block;
   font-size: 0.72rem;
-  line-height: 1rem;           /* ocupa o 2º rem restante */
+  line-height: 1.2;
   color: #aaa;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Bordas coloridas por tipo */
@@ -896,8 +886,8 @@ body {
   .profile-instrument {
     font-size: 0.85rem;
   }
-  
-  /* Notificações mobile — emoji inalterado, texto ligeiramente menor */
+
+  /* Notificações mobile — emoji inalterado */
   .notificacao {
     padding: 8px 10px;
   }
