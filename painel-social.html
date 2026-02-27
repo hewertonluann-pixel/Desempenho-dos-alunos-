@@ -16,7 +16,6 @@
     }
 
     h1 { text-align: center; color: #22d3ee; margin-bottom: 4px; font-size: 1.6rem; }
-
     .subtitulo { text-align: center; color: #9ca3af; margin-bottom: 24px; font-size: 0.95rem; }
 
     .grid-principal {
@@ -127,23 +126,13 @@
 
     .ranking-lista {
       display: flex; flex-direction: column; gap: 6px;
-      max-height: 320px; overflow-y: auto;
+      max-height: 280px; overflow-y: auto;
       scrollbar-width: thin; scrollbar-color: rgba(34,211,238,0.3) transparent;
     }
 
     .ranking-lista::-webkit-scrollbar       { width: 4px; }
     .ranking-lista::-webkit-scrollbar-track { background: transparent; }
     .ranking-lista::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.3); border-radius: 99px; }
-
-    /* Separador de grupo pai dentro do ranking */
-    .ranking-grupo-sep {
-      font-size: 0.65rem; font-weight: 700; color: #4b5563;
-      text-transform: uppercase; letter-spacing: 0.7px;
-      padding: 6px 2px 2px; margin-top: 4px;
-      border-top: 1px solid rgba(34,211,238,0.1);
-    }
-
-    .ranking-lista .ranking-grupo-sep:first-child { border-top: none; margin-top: 0; padding-top: 2px; }
 
     .ranking-linha { display: flex; align-items: center; gap: 6px; }
 
@@ -154,7 +143,7 @@
     .ranking-barra-wrap { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
     .ranking-barra-fill { height: 100%; border-radius: 999px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
 
-    /* ===== SEPARADOR DE BANCADA (grid) ===== */
+    /* ===== SEPARADOR DE GRUPO (grid) ===== */
     .separador-grupo {
       grid-column: 1 / -1;
       display: flex; align-items: center; gap: 12px;
@@ -269,7 +258,7 @@
     const mesesChaves = ["01","02","03","04","05","06","07","08","09","10","11","12"];
 
     // ================================================================
-    // CLASSIFICAR: grupo pai + label de subgrupo (usado em ambos)
+    // CLASSIFICAR
     // ================================================================
     function classificarInstrumento(instrumento) {
       if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", label: "Outros", ordem: 999 };
@@ -334,7 +323,7 @@
       return Math.round((p / evs.length) * 100);
     }
 
-    // Agrupa por GRUPO PAI (separadores do grid)
+    // Agrupa por GRUPO PAI
     function agruparPorGrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => {
@@ -346,7 +335,6 @@
     }
 
     // Agrupa por SUBGRUPO dentro de cada grupo pai
-    // Retorna Map<grupoPai, Map<label, { alunos[], ordem }>>
     function agruparPorSubgrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => {
@@ -359,32 +347,13 @@
       return map;
     }
 
-    // Lista plana de bancadas (subgrupos) ignorando Maestro
-    // Retorna [{ label, grupoPai, alunos[], ordem }]
-    function listarBancadas(alunos) {
-      const subgrupoMap = agruparPorSubgrupo(alunos);
-      const bancadas = [];
-      subgrupoMap.forEach((subMap, pai) => {
-        if (pai === "Maestro") return;
-        subMap.forEach((info, label) => {
-          bancadas.push({ label, grupoPai: pai, alunos: info.alunos, ordem: info.ordem });
-        });
-      });
-      // Ordena: grupo pai alb. > ordem dentro do grupo
-      bancadas.sort((a, b) => {
-        const gCmp = a.grupoPai.localeCompare(b.grupoPai);
-        return gCmp !== 0 ? gCmp : a.ordem - b.ordem;
-      });
-      return bancadas;
-    }
-
     // ================================================================
     // HTML: PAINEL GERAL
     // ================================================================
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
       const mediaMensal = media(ativos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
-      const bancadasQtd = listarBancadas(ativos).length;
+      const grupos      = agruparPorGrupo(ativos).size;
       return `
         <div class="painel-geral">
           <div class="painel-geral-titulo">📊 Painel Geral</div>
@@ -402,7 +371,7 @@
           </div>
           <div class="stat-geral-item">
             <span class="stat-geral-label">🎼 Bancadas</span>
-            <span class="stat-geral-valor">${bancadasQtd}</span>
+            <span class="stat-geral-valor">${grupos}</span>
           </div>
         </div>`;
     }
@@ -449,9 +418,9 @@
     }
 
     // ================================================================
-    // HTML: RANKING por bancada (subgrupo)
+    // HTML: RANKING por grupo pai (igual ao original)
     // ================================================================
-    function calcularMetricaBancada(alunos, aba, mes) {
+    function calcularMetricaGrupo(alunos, aba, mes) {
       if (aba === "nivel")      return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
       if (aba === "frequencia") return media(alunos.map(a => freqAlunoNoMes(a, mes)));
       if (aba === "score")      return {
@@ -461,14 +430,15 @@
       return 0;
     }
 
-    function htmlRanking(bancadas, aba, mes) {
-      // Calcula valor de cada bancada
-      let dados = bancadas.map(b => {
+    function htmlRanking(grupoMap, aba, mes) {
+      const grupos = [...grupoMap.keys()].filter(k => k !== "Maestro");
+      let dados = grupos.map(nome => {
+        const alunos = grupoMap.get(nome);
         if (aba === "score") {
-          const raw = calcularMetricaBancada(b.alunos, "score", mes);
-          return { label: b.label, grupoPai: b.grupoPai, nivel: raw.nivel, freq: raw.freq, valor: null };
+          const raw = calcularMetricaGrupo(alunos, "score", mes);
+          return { nome, nivel: raw.nivel, freq: raw.freq, valor: null };
         }
-        return { label: b.label, grupoPai: b.grupoPai, valor: calcularMetricaBancada(b.alunos, aba, mes) };
+        return { nome, valor: calcularMetricaGrupo(alunos, aba, mes) };
       });
 
       if (aba === "score") {
@@ -486,31 +456,24 @@
         : aba === "frequencia" ? null
         : "linear-gradient(90deg,#f59e0b,#fcd34d)";
 
-      // Agrupa linhas por grupo pai para exibir separadores visuais
-      const linhas = [];
-      let grupoAtual = null;
-      dados.forEach((d, i) => {
-        if (d.grupoPai !== grupoAtual) {
-          grupoAtual = d.grupoPai;
-          linhas.push(`<div class="ranking-grupo-sep">${d.grupoPai}</div>`);
-        }
+      const linhas = dados.map((d, i) => {
         const pct  = Math.round((d.valor / maxValor) * 100);
         const grad = gradiente || corBarra(d.valor);
-        linhas.push(`
+        return `
           <div class="ranking-linha">
             <span class="ranking-pos">${medalha(i)}</span>
-            <span class="ranking-nome">${d.label}</span>
+            <span class="ranking-nome">${d.nome}</span>
             <div class="ranking-barra-wrap">
               <div class="ranking-barra-fill" style="width:${pct}%;background:${grad};"></div>
             </div>
             <span class="ranking-valor">${d.valor}${unidade}</span>
-          </div>`);
-      });
+          </div>`;
+      }).join("");
 
       const mesControlDisplay = aba === "nivel" ? "none" : "flex";
       return `
         <div class="bloco-ranking">
-          <div class="ranking-titulo">🏆 Ranking de Bancadas</div>
+          <div class="ranking-titulo">🏆 Ranking</div>
           <div class="ranking-tabs">
             <button class="tab-btn ${aba==='nivel'     ?'ativo':''}" onclick="trocarAba('nivel')">🎯</button>
             <button class="tab-btn ${aba==='frequencia'?'ativo':''}" onclick="trocarAba('frequencia')">📅</button>
@@ -521,7 +484,7 @@
             <span class="mes-nome">${mesesNomes[mes]}</span>
             <button onclick="mudarMes(1)">▶</button>
           </div>
-          <div class="ranking-lista">${linhas.join("")}</div>
+          <div class="ranking-lista">${linhas}</div>
         </div>`;
     }
 
@@ -572,7 +535,7 @@
     }
 
     // ================================================================
-    // HTML: SEPARADOR DE BANCADA (grid)
+    // HTML: SEPARADOR
     // ================================================================
     function htmlSeparadorGrupo(nome, qtd) {
       const id = `grupo-${nome.toLowerCase().replace(/\s+/g, "-")}`;
@@ -593,7 +556,6 @@
       const container   = document.getElementById("gridCompleto");
       const grupoMap    = agruparPorGrupo(todosAtivos);
       const subgrupoMap = agruparPorSubgrupo(todosAtivos);
-      const bancadas    = listarBancadas(todosAtivos);
 
       const maestros    = grupoMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
@@ -602,7 +564,7 @@
         ${maestroHTML}
         ${htmlPainelGeral(todosAtivos)}
         ${htmlBadges(subgrupoMap)}
-        ${htmlRanking(bancadas, abaAtual, mesAtual)}
+        ${htmlRanking(grupoMap, abaAtual, mesAtual)}
       `;
 
       [...grupoMap.keys()]
