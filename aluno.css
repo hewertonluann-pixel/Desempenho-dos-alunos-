@@ -15,6 +15,9 @@
   --amarelo: #facc15;
   --vermelho: #ef4444;
   --vermelho-suave: rgba(239, 68, 68, 0.25);
+  /* Altura padrão do ícone de notificação */
+  --notif-icon-size: 2rem;        /* tamanho font-size do emoji */
+  --notif-icon-height: 2rem;      /* altura real do ícone (line-height:1) */
 }
 
 * {
@@ -376,10 +379,10 @@ body {
 
 .notificacao {
   display: flex;
-  align-items: flex-start;
+  align-items: center;   /* centraliza ícone e texto verticalmente */
   gap: 12px;
   background: #2a2a3d;
-  padding: 12px;
+  padding: 10px 12px;
   border-radius: 12px;
   margin-bottom: 10px;
   animation: notifFadeIn .4s ease;
@@ -387,27 +390,50 @@ body {
 
 .notificacao:last-child { margin-bottom: 0; }
 
-/* Ícone grande e alinhado */
+/* ── Ícone: mantém tamanho original ── */
 .notificacao .icone {
-  font-size: 1.6rem;
+  font-size: var(--notif-icon-size); /* 2rem ≈ 32px */
   line-height: 1;
   flex-shrink: 0;
-  margin-top: 2px;
+  /* altura efetiva = 2rem */
 }
 
-/* Texto principal */
+/* ── Bloco de texto: 3 linhas com altura total = altura do ícone ──
+   Altura do ícone = 2rem
+   line-height por linha = 2rem / 3 ≈ 0.667rem
+   font-size precisa caber dentro de 0.667rem → usamos 0.6rem
+*/
 .notificacao .conteudo {
-  font-size: .95rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: var(--notif-icon-height);  /* trava em 2rem = altura do ícone */
+  overflow: hidden;
+
+  font-size: 0.6rem;                          /* texto compacto para caber 3 linhas */
+  line-height: calc(var(--notif-icon-height) / 3); /* cada linha = 1/3 da altura do ícone */
   color: var(--ink);
-  line-height: 1.4;
 }
 
-/* Timestamp */
+/* strong dentro do conteúdo herda o font-size do pai */
+.notificacao .conteudo strong {
+  font-size: inherit;
+  font-weight: 700;
+}
+
+/* em/i dentro do conteúdo */
+.notificacao .conteudo em {
+  font-size: inherit;
+  font-style: italic;
+}
+
+/* Timestamp (3ª linha) */
 .notificacao .conteudo small {
   display: block;
-  margin-top: 4px;
-  font-size: .75rem;
+  font-size: inherit;   /* mesmo tamanho das outras linhas */
   color: #aaa;
+  margin-top: 0;
+  line-height: inherit;
 }
 
 /* Bordas coloridas por tipo */
@@ -872,15 +898,15 @@ body {
   
   /* Notificações mobile */
   .notificacao {
-    padding: 10px;
+    padding: 8px 10px;
   }
   
   .notificacao .icone {
-    font-size: 1.3rem;
+    font-size: var(--notif-icon-size);
   }
   
   .notificacao .conteudo {
-    font-size: 0.85rem;
+    font-size: 0.55rem;
   }
   
   .frequency-month {
