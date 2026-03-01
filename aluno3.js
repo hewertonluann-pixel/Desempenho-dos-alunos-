@@ -28,6 +28,12 @@ import { carregarNotificacoes } from "./notificacoes.js";
 // Variável global para armazenar o ano atual de visualização
 let anoVisualizacao = new Date().getFullYear();
 
+// Array de nomes de meses
+const mesesNomes = [
+  "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+];
+
 // Array de versículos bíblicos para alternância
 const versiculos = [
   { texto: "Tudo que tem fôlego louve ao Senhor. Aleluia!", referencia: "Salmo 150:6" },
@@ -51,6 +57,25 @@ function exibirVersiculoAleatorio() {
   if (quoteElement && referenceElement) {
     quoteElement.textContent = `"${versiculoSelecionado.texto}"`;
     referenceElement.textContent = versiculoSelecionado.referencia;
+  }
+}
+
+// Função para atualizar as legendas de comprometimento dinamicamente
+function atualizarLegendasComprometimento() {
+  const agora = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  const dataAtual = new Date(agora);
+  const anoAtual = dataAtual.getFullYear();
+  const mesAtual = dataAtual.getMonth(); // 0-11
+
+  const legendaGeral = document.getElementById("legendaGeral");
+  const legendaMensal = document.getElementById("legendaMensal");
+
+  if (legendaGeral) {
+    legendaGeral.textContent = `Geral [${anoAtual}]`;
+  }
+
+  if (legendaMensal) {
+    legendaMensal.textContent = `Mensal [${mesesNomes[mesAtual]}]`;
   }
 }
 
@@ -134,6 +159,9 @@ export function atualizarEnergiaVisual(valorMensal, valorGeral = 100) {
     barraGeral.style.width = valorGeral + "%";
     numeroGeral.textContent = valorGeral + "%";
   }
+
+  // Atualizar legendas ao atualizar os valores
+  atualizarLegendasComprometimento();
 }
 
 /* ========================================================
@@ -154,6 +182,9 @@ export async function montarGraficoFrequencia(aluno, ano) {
     destino,
     dadosPopup => abrirPopupFrequencia(dadosPopup, destinoPopup)
   );
+  
+  // Atualizar legendas após montar o gráfico
+  atualizarLegendasComprometimento();
 }
 
 // Função global para mudar o ano
@@ -497,6 +528,9 @@ export async function iniciarPainelAluno() {
   if (ehDonoDaPagina) {
     await carregarLicoesAluno(aluno.nome);
   }
+  
+  // Atualizar legendas após carregar tudo
+  atualizarLegendasComprometimento();
 }
 
 /* ========================================================
