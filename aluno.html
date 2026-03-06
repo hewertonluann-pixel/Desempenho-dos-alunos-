@@ -58,6 +58,7 @@
         </div>
         <button class="btn-change-password" onclick="abrirConfiguracoes()">⚙️ Configurações</button>
         <button class="btn-professor-mode" id="modoProfessorBtn" style="display:none;" onclick="acessarModoProfessor()">👨‍🏫 Modo Professor</button>
+        <a href="download.html" class="btn-download-app">📲 Baixar App</a>
       </div>
       
       <div class="sidebar-buttons-row">
@@ -72,17 +73,6 @@
           <a href="biblioteca.html" class="social-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             Biblioteca
-          </a>
-        </div>
-
-        <div class="social-link-card">
-          <a href="download.html" class="social-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-              <line x1="12" y1="18" x2="12" y2="10"/>
-              <polyline points="9 15 12 18 15 15"/>
-            </svg>
-            Baixar App
           </a>
         </div>
       </div>
@@ -188,20 +178,17 @@
     <div class="modal-content modal-conquista">
       <span class="close-button" onclick="fecharPopupConquista()">&times;</span>
       
-      <!-- Cabeçalho com símbolo grande -->
       <div class="conquista-header-modal">
         <div class="conquista-simbolo-grande" id="conquistaIconeModal">🏆</div>
         <h2 class="conquista-nome-modal" id="conquistaNomeModal">Nome da Conquista</h2>
         <div class="conquista-nivel-badge" id="conquistaNivelModal">Nível 1</div>
       </div>
       
-      <!-- Descrição -->
       <div class="conquista-descricao-section">
         <h3 class="conquista-section-title">📝 Descrição</h3>
         <p class="conquista-descricao-text" id="conquistaDescricaoModal">Descrição detalhada da conquista.</p>
       </div>
       
-      <!-- Condição -->
       <div class="conquista-condicao-section">
         <h3 class="conquista-section-title">🎯 Condição para Obter</h3>
         <div class="conquista-condicao-box" id="conquistaCondicaoModal">
@@ -209,7 +196,6 @@
         </div>
       </div>
       
-      <!-- Progresso (se aplicável) -->
       <div class="conquista-progresso-section" id="conquistaProgressoSection" style="display:none;">
         <h3 class="conquista-section-title">📊 Seu Progresso</h3>
         <div class="conquista-progresso-bar">
@@ -218,7 +204,6 @@
         <p class="conquista-progresso-text" id="conquistaProgressoText">0 / 100</p>
       </div>
       
-      <!-- Botão Fechar -->
       <div class="conquista-footer">
         <button class="btn-fechar-conquista" onclick="fecharPopupConquista()">Fechar</button>
       </div>
