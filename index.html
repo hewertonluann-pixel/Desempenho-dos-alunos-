@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — Orquestra Filhos de Asafe</title>
 
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#22d3ee">
+  <meta name="description" content="Sistema de desempenho musical da Orquestra Filhos de Asafe.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Orquestra">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -46,7 +55,6 @@
       to   { transform: scale(1.15); opacity: 1;   }
     }
 
-    /* ── Card ── */
     .login-card {
       position: relative;
       z-index: 1;
@@ -69,7 +77,6 @@
       to   { opacity: 1; transform: translateY(0)    scale(1);   }
     }
 
-    /* ── Cabeçalho ── */
     .logo-wrap {
       text-align: center;
       margin-bottom: 30px;
@@ -96,7 +103,6 @@
       text-transform: uppercase;
     }
 
-    /* ── Campos ── */
     .campo {
       position: relative;
       margin-bottom: 14px;
@@ -147,7 +153,6 @@
     }
     .toggle-senha:hover { opacity: .9; }
 
-    /* ── Botão ── */
     #btnEntrar {
       width: 100%;
       padding: 14px;
@@ -183,7 +188,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Erro ── */
     .erro {
       color: #f87171;
       font-size: 0.85rem;
@@ -199,7 +203,6 @@
       padding: 8px 12px;
     }
 
-    /* ── Rodapé ── */
     .rodape {
       margin-top: 22px;
       text-align: center;
@@ -262,14 +265,12 @@
 
     garantirFormato();
 
-    /* ── Toggle senha ── */
     toggleSenha.addEventListener("click", () => {
       const show = senhaInput.type === "password";
       senhaInput.type = show ? "text" : "password";
       toggleSenha.textContent = show ? "🙈" : "👁️";
     });
 
-    /* ── Enter nos campos ── */
     nomeInput.addEventListener("keydown", e => {
       if (e.key === "Enter") senhaInput.focus();
     });
@@ -277,7 +278,6 @@
       if (e.key === "Enter") btnEntrar.click();
     });
 
-    /* ── Login com detecção automática de perfil ── */
     btnEntrar.addEventListener("click", async () => {
       const nome  = nomeInput.value.trim();
       const senha = senhaInput.value.trim();
@@ -293,7 +293,6 @@
       btnEntrar.innerHTML = '<span class="spinner"></span>Aguarde...';
 
       try {
-        // 1º tenta como professor
         const qProf    = query(collection(db, "usuarios"), where("nome", "==", nome));
         const snapProf = await getDocs(qProf);
 
@@ -308,7 +307,6 @@
           return;
         }
 
-        // 2º tenta como aluno
         const qAluno    = query(collection(db, "alunos"), where("nome", "==", nome));
         const snapAluno = await getDocs(qAluno);
 
@@ -333,6 +331,17 @@
         btnEntrar.innerHTML = "Entrar";
       }
     });
+  </script>
+
+  <!-- Registro do Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+          .catch(err => console.error('❌ Falha no Service Worker:', err));
+      });
+    }
   </script>
 
 </body>
