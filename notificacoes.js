@@ -70,32 +70,25 @@ export async function carregarNotificacoes() {
   if (!lista) return;
 
   try {
-    // 1. CARREGAMENTO INICIAL UNIFICADO
     const todasNotificacoes = [];
 
-    // Buscar lições
-    // CAMPO CORRETO: "alunoNome" (salvo em licoes.js como alunoNome)
+    // Buscar lições — apenas envios e devoluções
+    // Aprovações são omitidas pois já aparecem como avanço de nível
     const licoesSnap = await getDocs(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(15)));
     licoesSnap.forEach(doc => {
       const d = doc.data();
-      // Suporte aos dois campos para compatibilidade com registros antigos
       const nomeAluno = d.alunoNome || d.nomeAluno || "Aluno";
 
+      // Notificação de ENVIO
       todasNotificacoes.push({
         data: d.dataEnvio,
         tipo: "envio",
         icone: "📘",
         texto: `<strong>${nomeAluno}</strong> enviou a lição <em>${d.titulo || "Sem título"}</em>`
       });
-      
-      if (d.status === "aprovado" && d.avaliadoEm) {
-        todasNotificacoes.push({
-          data: d.avaliadoEm,
-          tipo: "aprovacao",
-          icone: "✅",
-          texto: `<strong>${nomeAluno}</strong> foi aprovado na lição <em>${d.titulo || "Sem título"}</em>`
-        });
-      } else if (d.status === "reprovado" && d.avaliadoEm) {
+
+      // Notificação de DEVOLUÇÃO (reprovado) — mantida pois não tem equivalente no avanço de nível
+      if (d.status === "reprovado" && d.avaliadoEm) {
         todasNotificacoes.push({
           data: d.avaliadoEm,
           tipo: "rejeicao",
@@ -103,6 +96,7 @@ export async function carregarNotificacoes() {
           texto: `<strong>${nomeAluno}</strong> teve a lição <em>${d.titulo || "Sem título"}</em> devolvida`
         });
       }
+      // Aprovação removida — já coberta pela notificação de avanço de nível
     });
 
     // Buscar downloads
@@ -117,7 +111,7 @@ export async function carregarNotificacoes() {
       });
     });
 
-    // ── BUSCAR NOTIFICAÇÕES DE NÍVEL ───────────────────────────────
+    // Buscar notificações de nível
     const niveisSnap = await getDocs(
       query(collection(db, "notificacoes"), orderBy("data", "desc"), limit(20))
     );
@@ -130,33 +124,29 @@ export async function carregarNotificacoes() {
         texto: d.texto || `<strong>${d.alunoNome || "Aluno"}</strong> avançou de nível`
       });
     });
-    // ──────────────────────────────────────────────────────────────
 
-    // Ordenar todas as notificações pela data (mais antiga para mais recente para o prepend funcionar)
+    // Ordenar da mais antiga para mais recente (prepend deixa a mais recente no topo)
     todasNotificacoes.sort((a, b) => {
       const dateA = a.data instanceof Timestamp ? a.data.toDate() : new Date(a.data);
       const dateB = b.data instanceof Timestamp ? b.data.toDate() : new Date(b.data);
       return dateA - dateB;
     });
 
-    // Limpar lista antes de inserir (caso haja algo)
     lista.innerHTML = "";
 
-    // Inserir no DOM (prepend fará a mais recente ficar no topo)
     todasNotificacoes.forEach(n => {
       adicionarNotificacao(n.tipo, n.icone, n.texto, formatarTempoRelativo(n.data));
     });
 
-    // 2. CONFIGURAR LISTENERS PARA TEMPO REAL (apenas para novas adições)
+    // Listeners em tempo real
     const agora = Timestamp.now();
 
-    // Listener de lições
+    // Listener de lições — apenas envios novos
     onSnapshot(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(1)), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const licao = change.doc.data();
           const nomeAluno = licao.alunoNome || licao.nomeAluno || "Aluno";
-          // Só adicionar se for realmente novo (pós-carregamento)
           if (licao.dataEnvio && licao.dataEnvio.toMillis() > agora.toMillis()) {
             adicionarNotificacao("envio", "📘", `<strong>${nomeAluno}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`, "agora mesmo");
           }
@@ -176,7 +166,7 @@ export async function carregarNotificacoes() {
       });
     });
 
-    // ── LISTENER DE NÍVEL EM TEMPO REAL ──────────────────────────
+    // Listener de nível em tempo real
     onSnapshot(
       query(collection(db, "notificacoes"), orderBy("data", "desc"), limit(1)),
       (snapshot) => {
@@ -195,7 +185,6 @@ export async function carregarNotificacoes() {
         });
       }
     );
-    // ─────────────────────────────────────────────────────────────
 
   } catch (erro) {
     console.error("Erro ao carregar notificações:", erro);
@@ -207,10 +196,9 @@ export async function carregarNotificacoes() {
  */
 export function adicionarNotificacaoTeste(tipo = "envio") {
   const tipos = {
-    envio: { icone: "📘", texto: "<strong>Aluno Teste</strong> enviou a lição <em>Método 20</em>" },
+    envio:    { icone: "📘", texto: "<strong>Aluno Teste</strong> enviou a lição <em>Método 20</em>" },
     download: { icone: "⬇️", texto: "<strong>Aluno Teste</strong> baixou o método <em>Arban Completo</em>" },
-    nivel: { icone: "🚀", texto: "<strong>Aluno Teste</strong> avançou para o <em>Nível 35</em> de leitura" },
-    aprovacao: { icone: "✅", texto: "<strong>Aluno Teste</strong> foi aprovado na lição <em>Método 61</em>" },
+    nivel:    { icone: "🚀", texto: "<strong>Aluno Teste</strong> avançou para o <em>Nível 35</em> de leitura" },
     rejeicao: { icone: "❌", texto: "<strong>Aluno Teste</strong> teve a lição <em>Método 61</em> devolvida" }
   };
 
@@ -218,5 +206,4 @@ export function adicionarNotificacaoTeste(tipo = "envio") {
   adicionarNotificacao(tipo, notif.icone, notif.texto);
 }
 
-// Expor funções globais para teste
 window.adicionarNotificacaoTeste = adicionarNotificacaoTeste;
