@@ -15,7 +15,7 @@
   --amarelo: #facc15;
   --vermelho: #ef4444;
   --vermelho-suave: rgba(239, 68, 68, 0.25);
-  --notif-icon-size: 2rem; /* emoji — não alterar */
+  --notif-icon-size: 2rem;
 }
 
 * {
@@ -203,6 +203,33 @@ body {
   color: var(--bg);
 }
 
+/* ── BOTÃO BAIXAR APP ── */
+.btn-download-app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: none;
+  border: 1px dashed rgba(148, 163, 184, 0.25);
+  background: transparent;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  letter-spacing: 0.01em;
+}
+
+.btn-download-app:hover {
+  color: #22d3ee;
+  border-color: rgba(34, 211, 238, 0.35);
+  background: rgba(34, 211, 238, 0.05);
+}
+/* ────────────────────── */
+
 .social-link-card {
   background: var(--card);
   padding: 15px;
@@ -221,7 +248,7 @@ body {
   gap: 8px;
 }
 
-/* COMPROMETIMENTO (NOVO DESIGN CÁPSULA) */
+/* COMPROMETIMENTO */
 .capsule-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -230,9 +257,7 @@ body {
   margin-bottom: 15px;
 }
 
-.capsule-wrapper {
-  position: relative;
-}
+.capsule-wrapper { position: relative; }
 
 .capsule {
   position: relative;
@@ -242,12 +267,10 @@ body {
   padding-right: 22px;
   display: flex;
   align-items: center;
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.04),
-    0 10px 28px rgba(0,0,0,.55);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 10px 28px rgba(0,0,0,.55);
 }
 
-.capsule.blue { background: #0a2a3a; }
+.capsule.blue  { background: #0a2a3a; }
 .capsule.green { background: #0f2f1d; }
 
 .capsule-title {
@@ -256,6 +279,8 @@ body {
   left: 20px;
   font-size: 13px;
   color: #bfc7d5;
+  display: flex;
+  align-items: center;
 }
 
 .capsule-circle {
@@ -273,9 +298,7 @@ body {
   font-size: 13px;
   font-weight: bold;
   z-index: 2;
-  box-shadow:
-    inset 0 0 0 2px rgba(255,255,255,.05),
-    0 4px 12px rgba(0,0,0,.6);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.05), 0 4px 12px rgba(0,0,0,.6);
 }
 
 .capsule-bar {
@@ -291,44 +314,28 @@ body {
   transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.blue-circle {
-  border: 3px solid #00bcd4;
-  color: #8fefff;
-}
-
-.blue-fill {
-  background: #00bcd4;
-}
-
-.green-circle {
-  border: 3px solid #4caf50;
-  color: #bdf5c8;
-}
-
-.green-fill {
-  background: #4caf50;
-}
+.blue-circle  { border: 3px solid #00bcd4; color: #8fefff; }
+.blue-fill    { background: #00bcd4; }
+.green-circle { border: 3px solid #4caf50; color: #bdf5c8; }
+.green-fill   { background: #4caf50; }
 
 @media (max-width: 700px) {
-  .capsule-grid {
-    grid-template-columns: 1fr;
-    gap: 35px;
-  }
+  .capsule-grid { grid-template-columns: 1fr; gap: 35px; }
 }
 
 .quote-container {
   margin-top: 25px;
   padding: 20px;
-  background: linear-gradient(145deg, rgba(56, 189, 248, 0.05), rgba(34, 211, 238, 0.08));
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: linear-gradient(145deg, rgba(56,189,248,.05), rgba(34,211,238,.08));
+  border: 1px solid rgba(56,189,248,.2);
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.1);
+  box-shadow: 0 4px 15px rgba(56,189,248,.1);
   transition: all 0.3s ease;
 }
 
 .quote-container:hover {
-  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 6px 20px rgba(56,189,248,.2);
   transform: translateY(-2px);
 }
 
@@ -339,7 +346,7 @@ body {
   margin-bottom: 10px;
   line-height: 1.6;
   font-weight: 500;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0,0,0,.3);
 }
 
 .reference {
@@ -350,14 +357,12 @@ body {
   letter-spacing: 0.5px;
   display: inline-block;
   padding: 4px 12px;
-  background: rgba(56, 189, 248, 0.1);
+  background: rgba(56,189,248,.1);
   border-radius: 6px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid rgba(56,189,248,.3);
 }
 
-/* ============================================================
-   NOTIFICAÇÕES / ATIVIDADES RECENTES — design compacto
-   ============================================================ */
+/* NOTIFICAÇÕES */
 .lista-notificacoes {
   list-style: none;
   padding: 0;
@@ -375,7 +380,6 @@ body {
 .lista-notificacoes::-webkit-scrollbar-track { background: transparent; }
 .lista-notificacoes::-webkit-scrollbar-thumb { background: rgba(56,189,248,.2); border-radius: 99px; }
 
-/* Item */
 .notificacao {
   display: flex;
   align-items: center;
@@ -389,13 +393,9 @@ body {
   animation: notifFadeIn .3s ease;
 }
 
-.notificacao:hover {
-  background: rgba(255,255,255,.04);
-}
-
+.notificacao:hover { background: rgba(255,255,255,.04); }
 .notificacao:last-child { margin-bottom: 0; }
 
-/* Emoji pequeno */
 .notificacao .icone {
   font-size: 0.95rem;
   line-height: 1;
@@ -403,7 +403,6 @@ body {
   opacity: .85;
 }
 
-/* Texto inline */
 .notificacao .conteudo {
   flex: 1;
   min-width: 0;
@@ -414,17 +413,9 @@ body {
   word-break: break-word;
 }
 
-.notificacao .conteudo strong {
-  font-weight: 600;
-  color: #e2e8f0;
-}
+.notificacao .conteudo strong { font-weight: 600; color: #e2e8f0; }
+.notificacao .conteudo em     { font-style: normal; color: #94a3b8; }
 
-.notificacao .conteudo em {
-  font-style: normal;
-  color: #94a3b8;
-}
-
-/* Timestamp — inline, tom apagado */
 .notificacao .conteudo small {
   font-size: 0.68rem;
   color: #4e5f74;
@@ -432,23 +423,21 @@ body {
   margin-left: 4px;
 }
 
-/* Bordas coloridas por tipo */
 .notificacao.envio     { border-left-color: #22c55e; }
 .notificacao.download  { border-left-color: #3b82f6; }
 .notificacao.nivel     { border-left-color: #f59e0b; }
 .notificacao.aprovacao { border-left-color: #22c55e; }
 .notificacao.rejeicao  { border-left-color: #ef4444; }
 
-/* Animação de entrada */
 @keyframes notifFadeIn {
   from { opacity: 0; transform: translateX(-4px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-/* CONQUISTAS - ESTILO MODERNO */
+/* CONQUISTAS */
 .achievements-section {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid rgba(56,189,248,.3);
   border-radius: 16px;
   padding: 24px;
 }
@@ -480,31 +469,12 @@ body {
   box-shadow: 0 5px 18px rgba(0,0,0,0.4);
 }
 
-.achievement-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-}
+.achievement-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+.achievement-card.desbloqueado { border: 1px solid var(--border); box-shadow: 0 5px 18px rgba(0,0,0,.4); }
+.achievement-card.bloqueado { opacity: 0.5; cursor: not-allowed; }
+.achievement-card.bloqueado:hover { transform: none; box-shadow: 0 5px 18px rgba(0,0,0,.4); }
 
-.achievement-card.desbloqueado {
-  border: 1px solid var(--border);
-  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
-}
-
-.achievement-card.bloqueado {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.achievement-card.bloqueado:hover {
-  transform: none;
-  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
-}
-
-.achievement-icon {
-  display: block;
-  font-size: 1.5rem;
-  margin-bottom: 6px;
-}
+.achievement-icon { display: block; font-size: 1.5rem; margin-bottom: 6px; }
 
 .achievement-name {
   font-size: 0.65rem;
@@ -518,12 +488,7 @@ body {
 }
 
 /* FREQUÊNCIA ANUAL */
-.year-control {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-}
+.year-control { display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
 
 .arrow-btn {
   background: var(--azul-escuro);
@@ -534,12 +499,7 @@ body {
   cursor: pointer;
 }
 
-.current-year {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 20px;
-  color: var(--azul);
-}
+.current-year { font-size: 1.5rem; font-weight: 700; margin: 0 20px; color: var(--azul); }
 
 .frequency-grid {
   display: grid;
@@ -558,9 +518,7 @@ body {
   transition: transform 0.2s;
 }
 
-.month-card:hover {
-  transform: translateY(-5px);
-}
+.month-card:hover { transform: translateY(-5px); }
 
 .pie-chart {
   width: 60px;
@@ -571,7 +529,7 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0,0,0,.3);
 }
 
 .pie-center {
@@ -585,29 +543,17 @@ body {
   z-index: 2;
 }
 
-.pie-value {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--ink);
-}
+.pie-value  { font-size: 0.75rem; font-weight: 700; color: var(--ink); }
+.month-name { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
 
-.month-name {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-/* MODAIS PADRONIZADOS */
+/* MODAIS */
 .modal, .popup {
   display: none;
   position: fixed;
   z-index: 2000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(2, 6, 23, 0.85);
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(2,6,23,.85);
   backdrop-filter: blur(8px);
   align-items: center;
   justify-content: center;
@@ -621,16 +567,14 @@ body {
   max-width: 500px;
   border: 1px solid var(--border);
   position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
   color: var(--ink);
 }
 
 .close-button, .close-btn {
   position: absolute;
-  right: 20px;
-  top: 20px;
-  width: 32px;
-  height: 32px;
+  right: 20px; top: 20px;
+  width: 32px; height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -650,11 +594,7 @@ body {
   text-align: center;
 }
 
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+.modal-body { display: flex; flex-direction: column; gap: 15px; }
 
 .modal-body input, .popup-content input {
   background: var(--bg);
@@ -665,11 +605,7 @@ body {
   width: 100%;
 }
 
-.modal-buttons, .popup-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
+.modal-buttons, .popup-buttons { display: flex; gap: 10px; margin-top: 15px; }
 
 .btn-salvar, .btn-cancelar, .popup-content button {
   flex: 1;
@@ -680,40 +616,13 @@ body {
   border: none;
 }
 
-.btn-salvar, .popup-content button {
-  background: var(--azul);
-  color: white;
-}
+.btn-salvar, .popup-content button { background: var(--azul); color: white; }
+.btn-cancelar { background: var(--card-alt); color: var(--muted); border: 1px solid var(--border); }
 
-.btn-cancelar {
-  background: var(--card-alt);
-  color: var(--muted);
-  border: 1px solid var(--border);
-}
+.conquista-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
 
-.conquista-header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--border);
-}
-
-#conquistaDetalhes {
-  list-style: none;
-  padding: 0;
-}
-
-#conquistaDetalhes li {
-  padding: 8px 12px;
-  background: var(--card-alt);
-  border-radius: 8px;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  color: var(--muted);
-  border-left: 3px solid var(--azul);
-}
+#conquistaDetalhes { list-style: none; padding: 0; }
+#conquistaDetalhes li { padding: 8px 12px; background: var(--card-alt); border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; color: var(--muted); border-left: 3px solid var(--azul); }
 
 /* RESPONSIVIDADE */
 @media (max-width: 1024px) {
@@ -726,213 +635,55 @@ body {
 @media (max-width: 600px) {
   .sidebar { flex-direction: column; }
   .frequency-grid { grid-template-columns: repeat(3, 1fr); }
-  
-  .modal-content, .popup-content {
-    padding: 16px;
-    width: 92%;
-    max-width: 100%;
-    border-radius: 16px;
-  }
 
-  .modal-stats-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    margin: 14px 0;
-  }
-
-  .stat-box {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 14px;
-    min-height: unset;
-    gap: 0;
-  }
-
-  .stat-label {
-    font-size: 0.72rem;
-    letter-spacing: 0;
-    white-space: nowrap;
-    text-align: left;
-    flex-shrink: 0;
-  }
-
-  .stat-value {
-    font-size: 1.2rem;
-    font-weight: 800;
-    text-align: right;
-  }
-
-  .stat-value.stat-primary {
-    font-size: 1.4rem;
-  }
-  
-  .modal-title {
-    font-size: 1.2rem;
-    margin-bottom: 12px;
-  }
-  
-  .modal-conquistas-section {
-    margin-top: 14px;
-  }
-  
-  .modal-conquistas-section h4 {
-    font-size: 0.8rem;
-    margin-bottom: 8px;
-    padding-bottom: 4px;
-  }
-  
-  .modal-conquistas-list {
-    gap: 8px;
-  }
-  
-  .mini-achievement {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-    border-radius: 16px;
-  }
-  
-  .mini-achievement-icon {
-    font-size: 1rem;
-  }
-  
-  .modal-header-icon {
-    font-size: 2.5rem;
-  }
-  
-  .btn-fechar-modal {
-    padding: 14px;
-    font-size: 0.95rem;
-    margin-top: 16px;
-  }
-  
-  .btn-send-lesson {
-    padding: 18px;
-    font-size: 0.95rem;
-    min-height: 48px;
-  }
-  
-  .btn-change-password,
-  .btn-professor-mode,
-  .btn-salvar,
-  .btn-cancelar {
-    padding: 14px;
-    min-height: 44px;
-    font-size: 0.95rem;
-  }
-  
-  .btn-ver-detalhes {
-    padding: 10px 14px;
-    min-height: 40px;
-  }
-  
-  .arrow-btn {
-    padding: 12px 16px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-  
-  .lessons-list {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
-  }
-  
-  .card-licao {
-    min-height: 140px;
-  }
-  
-  .achievement-card {
-    min-height: 100px;
-    padding: 12px;
-  }
-  
-  .achievement-icon {
-    font-size: 2rem;
-  }
-  
-  .achievement-name {
-    font-size: 0.8rem;
-  }
-  
-  .card {
-    padding: 18px;
-    margin-bottom: 16px;
-  }
-  
-  .card h2 {
-    font-size: 1.2rem;
-    margin-bottom: 14px;
-  }
-  
-  .capsule-grid {
-    gap: 25px;
-  }
-  
-  .capsule-circle {
-    width: 60px;
-    height: 60px;
-    font-size: 0.85rem;
-  }
-  
-  .profile-section {
-    padding: 16px;
-  }
-  
-  .profile-name {
-    font-size: 1.3rem;
-  }
-  
-  .profile-instrument {
-    font-size: 0.85rem;
-  }
-
-  /* Notificações mobile */
-  .notificacao {
-    padding: 5px 6px;
-  }
-
-  .notificacao .conteudo {
-    font-size: 0.72rem;
-  }
-
-  .notificacao .conteudo small {
-    font-size: 0.62rem;
-  }
-  
-  .frequency-month {
-    font-size: 0.7rem;
-  }
-  
-  .frequency-circle {
-    width: 32px;
-    height: 32px;
-    font-size: 0.7rem;
-  }
+  .modal-content, .popup-content { padding: 16px; width: 92%; max-width: 100%; border-radius: 16px; }
+  .modal-stats-grid { grid-template-columns: 1fr; gap: 8px; margin: 14px 0; }
+  .stat-box { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 14px; min-height: unset; gap: 0; }
+  .stat-label { font-size: 0.72rem; letter-spacing: 0; white-space: nowrap; text-align: left; flex-shrink: 0; }
+  .stat-value { font-size: 1.2rem; font-weight: 800; text-align: right; }
+  .stat-value.stat-primary { font-size: 1.4rem; }
+  .modal-title { font-size: 1.2rem; margin-bottom: 12px; }
+  .modal-conquistas-section { margin-top: 14px; }
+  .modal-conquistas-section h4 { font-size: 0.8rem; margin-bottom: 8px; padding-bottom: 4px; }
+  .modal-conquistas-list { gap: 8px; }
+  .mini-achievement { padding: 6px 10px; font-size: 0.75rem; border-radius: 16px; }
+  .mini-achievement-icon { font-size: 1rem; }
+  .modal-header-icon { font-size: 2.5rem; }
+  .btn-fechar-modal { padding: 14px; font-size: 0.95rem; margin-top: 16px; }
+  .btn-send-lesson { padding: 18px; font-size: 0.95rem; min-height: 48px; }
+  .btn-change-password, .btn-professor-mode, .btn-salvar, .btn-cancelar { padding: 14px; min-height: 44px; font-size: 0.95rem; }
+  .btn-ver-detalhes { padding: 10px 14px; min-height: 40px; }
+  .arrow-btn { padding: 12px 16px; min-width: 44px; min-height: 44px; }
+  .lessons-list { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .card-licao { min-height: 140px; }
+  .achievement-card { min-height: 100px; padding: 12px; }
+  .achievement-icon { font-size: 2rem; }
+  .achievement-name { font-size: 0.8rem; }
+  .card { padding: 18px; margin-bottom: 16px; }
+  .card h2 { font-size: 1.2rem; margin-bottom: 14px; }
+  .capsule-grid { gap: 25px; }
+  .capsule-circle { width: 60px; height: 60px; font-size: 0.85rem; }
+  .profile-section { padding: 16px; }
+  .profile-name { font-size: 1.3rem; }
+  .profile-instrument { font-size: 0.85rem; }
+  .notificacao { padding: 5px 6px; }
+  .notificacao .conteudo { font-size: 0.72rem; }
+  .notificacao .conteudo small { font-size: 0.62rem; }
+  .frequency-month { font-size: 0.7rem; }
+  .frequency-circle { width: 32px; height: 32px; font-size: 0.7rem; }
 }
 
-/* #painelEvolucao */
-#painelEvolucao {
-  width: 100%;
-  overflow: hidden;
-}
+#painelEvolucao { width: 100%; overflow: hidden; }
 
-/* LIÇÕES ENVIADAS - ESTILO MODERNO */
+/* LIÇÕES ENVIADAS */
 .lessons-section {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid rgba(56,189,248,.3);
   border-radius: 16px;
   padding: 24px;
 }
 
-.lessons-section h2 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #38bdf8;
-  margin: 0 0 20px 0;
-  font-size: 1.4rem;
-}
+.lessons-section h2 { display: flex; align-items: center; gap: 10px; color: #38bdf8; margin: 0 0 20px 0; font-size: 1.4rem; }
 
 .btn-send-lesson {
   width: 100%;
@@ -949,20 +700,13 @@ body {
   justify-content: center;
   gap: 10px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 4px 12px rgba(56,189,248,.3);
   margin-bottom: 20px;
 }
 
-.btn-send-lesson:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
-}
+.btn-send-lesson:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(56,189,248,.4); }
 
-.lessons-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
-}
+.lessons-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
 
 .card-licao {
   background: #0b1220;
@@ -974,42 +718,25 @@ body {
   justify-content: space-between;
   min-height: 140px;
   transition: all 0.3s ease;
-}
-
-.card-licao:hover {
-  transform: translateY(-4px);
-}
-
-.card-licao { 
   border: 1px solid var(--border);
-  box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+  box-shadow: 0 5px 18px rgba(0,0,0,.4);
 }
 
-.status-badge {
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  text-align: left;
-  align-self: flex-start;
-}
+.card-licao:hover { transform: translateY(-4px); }
 
-.status-badge.pendente  { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
-.status-badge.reprovada { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-.status-badge.aprovada  { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+.status-badge { font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; text-transform: uppercase; text-align: left; align-self: flex-start; }
+.status-badge.pendente  { color: #3b82f6; background: rgba(59,130,246,.1); }
+.status-badge.reprovada { color: #ef4444; background: rgba(239,68,68,.1); }
+.status-badge.aprovada  { color: #22c55e; background: rgba(34,197,94,.1); }
 
 .btn-delete-licao {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 5px; right: 5px;
   background: #ef4444;
   color: white;
   border: none;
   border-radius: 4px;
-  width: 18px;
-  height: 18px;
+  width: 18px; height: 18px;
   font-size: 12px;
   cursor: pointer;
   display: flex;
@@ -1020,30 +747,14 @@ body {
 
 .btn-delete-licao:hover { opacity: 1; }
 
-.card-licao-content {
-  margin-bottom: 10px;
-}
-
-.licao-tipo {
-  font-size: 0.7rem;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: center;
-}
-
-.licao-numero {
-  font-size: 1.3rem;
-  font-weight: 900;
-  color: #f1f5f9;
-  margin: 8px 0;
-  text-align: center;
-}
+.card-licao-content { margin-bottom: 10px; }
+.licao-tipo { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+.licao-numero { font-size: 1.3rem; font-weight: 900; color: #f1f5f9; margin: 8px 0; text-align: center; }
 
 .btn-ver-detalhes {
-  background: rgba(56, 189, 248, 0.1);
+  background: rgba(56,189,248,.1);
   color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  border: 1px solid rgba(56,189,248,.3);
   border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 700;
@@ -1054,30 +765,14 @@ body {
   width: 100%;
 }
 
-.btn-ver-detalhes:hover {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: #38bdf8;
-  transform: translateY(-2px);
-}
+.btn-ver-detalhes:hover { background: rgba(56,189,248,.2); border-color: #38bdf8; transform: translateY(-2px); }
 
-/* ALINHAMENTO BOTÕES COMUNIDADE E BIBLIOTECA */
-.sidebar-buttons-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
+/* SIDEBAR BOTÕES */
+.sidebar-buttons-row { display: flex; gap: 10px; width: 100%; }
+.sidebar-buttons-row .social-link-card { flex: 1; margin: 0; }
 
-.sidebar-buttons-row .social-link-card {
-  flex: 1;
-  margin: 0;
-}
-
-/* NOVO MODAL DE FREQUÊNCIA */
-.modal-header-icon {
-  font-size: 3rem;
-  text-align: center;
-  margin-bottom: 10px;
-}
+/* MODAL FREQUÊNCIA */
+.modal-header-icon { font-size: 3rem; text-align: center; margin-bottom: 10px; }
 
 .modal-title {
   display: flex;
@@ -1091,12 +786,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.modal-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin: 20px 0;
-}
+.modal-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
 
 .stat-box {
   background: linear-gradient(145deg, #0b1220, #020617);
@@ -1110,404 +800,89 @@ body {
   transition: all 0.3s ease;
 }
 
-.stat-box.stat-highlight {
-  border-color: var(--azul);
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-}
+.stat-box.stat-highlight { border-color: var(--azul); box-shadow: 0 0 15px rgba(56,189,248,.3); }
+.stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+.stat-value { font-size: 1.5rem; font-weight: 900; color: #e2e8f0; }
+.stat-value.stat-primary { color: var(--azul); font-size: 1.8rem; }
+.stat-value.stat-success { color: var(--verde); }
 
-.stat-label {
-  font-size: 0.75rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
+.modal-conquistas-section { margin-top: 20px; text-align: left; }
+.modal-conquistas-section h4 { font-size: 0.95rem; color: #fbbf24; margin-bottom: 12px; font-weight: 700; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.modal-conquistas-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #e2e8f0;
-}
+.mini-achievement { background: var(--card-alt); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; }
+.mini-achievement.ouro  { border-color: #fbbf24; background: rgba(251,191,36,.1); }
+.mini-achievement.prata { border-color: #94a3b8; background: rgba(148,163,184,.1); }
 
-.stat-value.stat-primary {
-  color: var(--azul);
-  font-size: 1.8rem;
-}
+.conquistas-cards-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+@media (min-width: 768px) { .conquistas-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 767px) { .conquistas-cards-grid { gap: 12px; } .conquista-card { padding: 14px; } .conquista-card-icon { font-size: 2rem; } .conquista-card-titulo { font-size: 0.95rem; } .conquista-card-descricao { font-size: 0.8rem; line-height: 1.4; } }
 
-.stat-value.stat-success {
-  color: var(--verde);
-}
+.conquista-card { background: var(--card-alt); border: 2px solid var(--border); border-radius: 12px; padding: 16px; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.conquista-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+.conquista-card.ouro   { border-color: #fbbf24; background: linear-gradient(135deg, rgba(251,191,36,.15) 0%, var(--card-alt) 100%); box-shadow: 0 4px 12px rgba(251,191,36,.3); }
+.conquista-card.prata  { border-color: #94a3b8; background: linear-gradient(135deg, rgba(148,163,184,.15) 0%, var(--card-alt) 100%); box-shadow: 0 4px 12px rgba(148,163,184,.3); }
+.conquista-card.bronze { border-color: #cd7f32; background: linear-gradient(135deg, rgba(205,127,50,.15) 0%, var(--card-alt) 100%); box-shadow: 0 4px 12px rgba(205,127,50,.3); }
 
-.modal-conquistas-section {
-  margin-top: 20px;
-  text-align: left;
-}
-
-.modal-conquistas-section h4 {
-  font-size: 0.95rem;
-  color: #fbbf24;
-  margin-bottom: 12px;
-  font-weight: 700;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-
-.modal-conquistas-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-}
-
-.mini-achievement {
-  background: var(--card-alt);
-  border: 1px solid var(--border);
-  padding: 8px 12px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.mini-achievement.ouro  { border-color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
-.mini-achievement.prata { border-color: #94a3b8; background: rgba(148, 163, 184, 0.1); }
-
-.conquistas-cards-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-@media (min-width: 768px) {
-  .conquistas-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 767px) {
-  .conquistas-cards-grid { gap: 12px; }
-  .conquista-card { padding: 14px; }
-  .conquista-card-icon { font-size: 2rem; }
-  .conquista-card-titulo { font-size: 0.95rem; }
-  .conquista-card-descricao { font-size: 0.8rem; line-height: 1.4; }
-}
-
-.conquista-card {
-  background: var(--card-alt);
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.conquista-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.conquista-card.ouro {
-  border-color: #fbbf24;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, var(--card-alt) 100%);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-}
-
-.conquista-card.prata {
-  border-color: #94a3b8;
-  background: linear-gradient(135deg, rgba(148, 163, 184, 0.15) 0%, var(--card-alt) 100%);
-  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.3);
-}
-
-.conquista-card.bronze {
-  border-color: #cd7f32;
-  background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, var(--card-alt) 100%);
-  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.3);
-}
-
-.conquista-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.conquista-card-icon {
-  font-size: 2.5rem;
-  line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
+.conquista-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.conquista-card-icon { font-size: 2.5rem; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
 .conquista-card-info { flex: 1; }
-
-.conquista-card-titulo {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--ink);
-  margin: 0 0 4px 0;
-}
-
-.conquista-card-raridade {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  display: inline-block;
-}
-
+.conquista-card-titulo { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 0 0 4px 0; }
+.conquista-card-raridade { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
 .conquista-card.ouro   .conquista-card-raridade { background: rgba(251,191,36,.2); color: #fbbf24; border: 1px solid #fbbf24; }
 .conquista-card.prata  .conquista-card-raridade { background: rgba(148,163,184,.2); color: #94a3b8; border: 1px solid #94a3b8; }
 .conquista-card.bronze .conquista-card-raridade { background: rgba(205,127,50,.2); color: #cd7f32; border: 1px solid #cd7f32; }
+.conquista-card-descricao { font-size: 0.85rem; line-height: 1.5; color: var(--muted); margin: 0; padding-top: 12px; border-top: 1px solid var(--border); }
 
-.conquista-card-descricao {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--muted);
-  margin: 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
+.btn-fechar-modal { width: 100%; margin-top: 25px; padding: 12px; background: var(--azul-escuro); color: var(--azul); border: 1px solid var(--azul-suave); border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.btn-fechar-modal:hover { background: var(--azul); color: white; }
 
-.btn-fechar-modal {
-  width: 100%;
-  margin-top: 25px;
-  padding: 12px;
-  background: var(--azul-escuro);
-  color: var(--azul);
-  border: 1px solid var(--azul-suave);
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-fechar-modal:hover {
-  background: var(--azul);
-  color: white;
-}
-
-/* LEGENDAS COMPROMETIMENTO */
-.legend-circle {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
+.legend-circle { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 .legend-circle.blue  { background-color: #00bcd4; box-shadow: 0 0 8px rgba(0,188,212,.6); }
 .legend-circle.green { background-color: #4caf50; box-shadow: 0 0 8px rgba(76,175,80,.6); }
 
-.capsule-title { display: flex; align-items: center; }
+/* MODAL CONQUISTA COMPLETO */
+.modal-conquista { max-width: 600px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid var(--border); border-radius: 16px; padding: 0; overflow: hidden; }
 
-/* ============================================================
-   MODAL DE CONQUISTAS - DESIGN COMPLETO
-   ============================================================ */
+.conquista-header-modal { background: linear-gradient(135deg, rgba(14,165,233,.15), rgba(34,211,238,.1)); border-bottom: 1px solid var(--border); padding: 30px 24px; text-align: center; position: relative; }
 
-.modal-conquista {
-  max-width: 600px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 0;
-  overflow: hidden;
-}
-
-.conquista-header-modal {
-  background: linear-gradient(135deg, rgba(14,165,233,.15), rgba(34,211,238,.1));
-  border-bottom: 1px solid var(--border);
-  padding: 30px 24px;
-  text-align: center;
-  position: relative;
-}
-
-.conquista-simbolo-grande {
-  font-size: 5rem;
-  line-height: 1;
-  margin-bottom: 16px;
-  text-shadow: 0 0 20px rgba(34,211,238,.5);
-  animation: pulse-glow 2s ease-in-out infinite;
-}
+.conquista-simbolo-grande { font-size: 5rem; line-height: 1; margin-bottom: 16px; text-shadow: 0 0 20px rgba(34,211,238,.5); animation: pulse-glow 2s ease-in-out infinite; }
 
 @keyframes pulse-glow {
   0%,100% { transform: scale(1); filter: brightness(1); }
   50%      { transform: scale(1.05); filter: brightness(1.2); }
 }
 
-.conquista-nome-modal {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #f9fafb;
-  margin: 0 0 12px 0;
-  text-shadow: 0 2px 8px rgba(0,0,0,.3);
-}
+.conquista-nome-modal { font-size: 1.75rem; font-weight: 700; color: #f9fafb; margin: 0 0 12px 0; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.conquista-nivel-badge { display: inline-block; background: linear-gradient(135deg, #0ea5e9, #22d3ee); color: #fff; padding: 6px 16px; border-radius: 20px; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(14,165,233,.4); }
 
-.conquista-nivel-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, #0ea5e9, #22d3ee);
-  color: #fff;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(14,165,233,.4);
-}
-
-.conquista-descricao-section,
-.conquista-condicao-section,
-.conquista-progresso-section {
-  padding: 24px;
-  border-bottom: 1px solid rgba(56,189,248,.1);
-}
-
+.conquista-descricao-section, .conquista-condicao-section, .conquista-progresso-section { padding: 24px; border-bottom: 1px solid rgba(56,189,248,.1); }
 .conquista-progresso-section { border-bottom: none; }
 
-.conquista-section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #22d3ee;
-  margin: 0 0 12px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.conquista-section-title { font-size: 1rem; font-weight: 600; color: #22d3ee; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px; }
+.conquista-descricao-text { font-size: 0.95rem; line-height: 1.6; color: #cbd5e1; margin: 0; }
+.conquista-condicao-box { background: rgba(34,211,238,.08); border-left: 3px solid #22d3ee; padding: 14px 16px; border-radius: 8px; font-size: 0.95rem; line-height: 1.6; color: #e2e8f0; }
 
-.conquista-descricao-text {
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #cbd5e1;
-  margin: 0;
-}
+.conquista-progresso-bar { width: 100%; height: 24px; background: rgba(15,23,42,.8); border-radius: 12px; overflow: hidden; border: 1px solid rgba(56,189,248,.2); margin-bottom: 8px; }
+.conquista-progresso-fill { height: 100%; background: linear-gradient(90deg, #0ea5e9, #22d3ee); transition: width .5s ease; box-shadow: 0 0 10px rgba(34,211,238,.5); }
+.conquista-progresso-text { font-size: 0.875rem; color: #94a3b8; text-align: center; margin: 0; }
 
-.conquista-condicao-box {
-  background: rgba(34,211,238,.08);
-  border-left: 3px solid #22d3ee;
-  padding: 14px 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #e2e8f0;
-}
+@media (max-width: 768px) { .modal-conquista { max-width: 95%; margin: 20px auto; } .conquista-simbolo-grande { font-size: 4rem; } .conquista-nome-modal { font-size: 1.5rem; } .conquista-descricao-section, .conquista-condicao-section, .conquista-progresso-section { padding: 18px; } }
 
-.conquista-progresso-bar {
-  width: 100%;
-  height: 24px;
-  background: rgba(15,23,42,.8);
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid rgba(56,189,248,.2);
-  margin-bottom: 8px;
-}
+.conquista-footer { padding: 20px 24px; background: rgba(15,23,42,.5); border-top: 1px solid rgba(56,189,248,.1); display: flex; justify-content: center; }
 
-.conquista-progresso-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #0ea5e9, #22d3ee);
-  transition: width .5s ease;
-  box-shadow: 0 0 10px rgba(34,211,238,.5);
-}
-
-.conquista-progresso-text {
-  font-size: 0.875rem;
-  color: #94a3b8;
-  text-align: center;
-  margin: 0;
-}
-
-@media (max-width: 768px) {
-  .modal-conquista { max-width: 95%; margin: 20px auto; }
-  .conquista-simbolo-grande { font-size: 4rem; }
-  .conquista-nome-modal { font-size: 1.5rem; }
-  .conquista-descricao-section,
-  .conquista-condicao-section,
-  .conquista-progresso-section { padding: 18px; }
-}
-
-.conquista-footer {
-  padding: 20px 24px;
-  background: rgba(15,23,42,.5);
-  border-top: 1px solid rgba(56,189,248,.1);
-  display: flex;
-  justify-content: center;
-}
-
-.btn-fechar-conquista {
-  background: linear-gradient(135deg, #0ea5e9, #22d3ee);
-  color: #fff;
-  border: none;
-  padding: 12px 32px;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s ease;
-  box-shadow: 0 4px 12px rgba(14,165,233,.3);
-}
-
+.btn-fechar-conquista { background: linear-gradient(135deg, #0ea5e9, #22d3ee); color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all .2s ease; box-shadow: 0 4px 12px rgba(14,165,233,.3); }
 .btn-fechar-conquista:hover  { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(14,165,233,.5); filter: brightness(1.1); }
 .btn-fechar-conquista:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(14,165,233,.4); }
 
-.conquistas-mes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-}
+.conquistas-mes-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
 
-.conquista-mes-card {
-  background: linear-gradient(145deg, #0f1729, #0b1220);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  transition: all 0.3s ease;
-}
+.conquista-mes-card { background: linear-gradient(145deg, #0f1729, #0b1220); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; align-items: flex-start; gap: 12px; transition: all 0.3s ease; }
+.conquista-mes-card:hover { border-color: var(--azul); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(56,189,248,.2); }
 
-.conquista-mes-card:hover {
-  border-color: var(--azul);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(56,189,248,.2);
-}
+.conquista-mes-icon { font-size: 2.5rem; flex-shrink: 0; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: rgba(56,189,248,.1); border-radius: 10px; }
+.conquista-mes-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.conquista-mes-titulo { font-size: 1rem; font-weight: 700; color: #e2e8f0; line-height: 1.3; }
+.conquista-mes-descricao { font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
 
-.conquista-mes-icon {
-  font-size: 2.5rem;
-  flex-shrink: 0;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(56,189,248,.1);
-  border-radius: 10px;
-}
-
-.conquista-mes-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.conquista-mes-titulo {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  line-height: 1.3;
-}
-
-.conquista-mes-descricao {
-  font-size: 0.85rem;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-@media (max-width: 600px) {
-  .conquista-mes-card { padding: 12px; gap: 10px; }
-  .conquista-mes-icon { font-size: 2rem; width: 44px; height: 44px; }
-  .conquista-mes-titulo { font-size: 0.95rem; }
-  .conquista-mes-descricao { font-size: 0.8rem; }
-}
+@media (max-width: 600px) { .conquista-mes-card { padding: 12px; gap: 10px; } .conquista-mes-icon { font-size: 2rem; width: 44px; height: 44px; } .conquista-mes-titulo { font-size: 0.95rem; } .conquista-mes-descricao { font-size: 0.8rem; } }
