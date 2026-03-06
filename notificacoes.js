@@ -74,14 +74,18 @@ export async function carregarNotificacoes() {
     const todasNotificacoes = [];
 
     // Buscar lições
+    // CAMPO CORRETO: "alunoNome" (salvo em licoes.js como alunoNome)
     const licoesSnap = await getDocs(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(15)));
     licoesSnap.forEach(doc => {
       const d = doc.data();
+      // Suporte aos dois campos para compatibilidade com registros antigos
+      const nomeAluno = d.alunoNome || d.nomeAluno || "Aluno";
+
       todasNotificacoes.push({
         data: d.dataEnvio,
         tipo: "envio",
         icone: "📘",
-        texto: `<strong>${d.nomeAluno || "Aluno"}</strong> enviou a lição <em>${d.titulo || "Sem título"}</em>`
+        texto: `<strong>${nomeAluno}</strong> enviou a lição <em>${d.titulo || "Sem título"}</em>`
       });
       
       if (d.status === "aprovado" && d.avaliadoEm) {
@@ -89,14 +93,14 @@ export async function carregarNotificacoes() {
           data: d.avaliadoEm,
           tipo: "aprovacao",
           icone: "✅",
-          texto: `<strong>${d.nomeAluno || "Aluno"}</strong> foi aprovado na lição <em>${d.titulo || "Sem título"}</em>`
+          texto: `<strong>${nomeAluno}</strong> foi aprovado na lição <em>${d.titulo || "Sem título"}</em>`
         });
       } else if (d.status === "reprovado" && d.avaliadoEm) {
         todasNotificacoes.push({
           data: d.avaliadoEm,
           tipo: "rejeicao",
           icone: "❌",
-          texto: `<strong>${d.nomeAluno || "Aluno"}</strong> teve a lição <em>${d.titulo || "Sem título"}</em> devolvida`
+          texto: `<strong>${nomeAluno}</strong> teve a lição <em>${d.titulo || "Sem título"}</em> devolvida`
         });
       }
     });
@@ -151,9 +155,10 @@ export async function carregarNotificacoes() {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const licao = change.doc.data();
+          const nomeAluno = licao.alunoNome || licao.nomeAluno || "Aluno";
           // Só adicionar se for realmente novo (pós-carregamento)
           if (licao.dataEnvio && licao.dataEnvio.toMillis() > agora.toMillis()) {
-            adicionarNotificacao("envio", "📘", `<strong>${licao.nomeAluno || "Aluno"}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`, "agora mesmo");
+            adicionarNotificacao("envio", "📘", `<strong>${nomeAluno}</strong> enviou a lição <em>${licao.titulo || "Sem título"}</em>`, "agora mesmo");
           }
         }
       });
