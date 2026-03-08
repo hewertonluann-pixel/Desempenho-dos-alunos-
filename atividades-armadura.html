@@ -3,293 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Armaduras de Clave – Escada de Tons</title>
+<title>Armaduras de Clave</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 16px 40px;
-  color: #e2e8f0;
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:20px 16px 50px;color:#e2e8f0;
 }
-.back-btn {
-  align-self: flex-start;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.15);
-  color: #e2e8f0;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 16px;
-  transition: background 0.18s, border-color 0.18s;
+.back-btn{
+  align-self:flex-start;
+  background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);
+  color:#e2e8f0;padding:8px 16px;border-radius:10px;font-size:.88rem;
+  font-weight:600;cursor:pointer;text-decoration:none;display:flex;
+  align-items:center;gap:6px;margin-bottom:16px;
+  transition:background .18s,border-color .18s;
 }
-.back-btn:hover { background: rgba(255,255,255,0.15); border-color: #a855f7; }
-h1 { font-size: 1.6rem; color: #e2b96f; text-shadow: 0 2px 8px rgba(0,0,0,0.5); margin-bottom: 4px; text-align: center; }
-.subtitle { color: #94a3b8; font-size: 0.92rem; margin-bottom: 20px; text-align: center; }
+.back-btn:hover{background:rgba(255,255,255,.15);border-color:#a855f7}
+h1{font-size:1.6rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:4px;text-align:center}
+.subtitle{color:#94a3b8;font-size:.92rem;margin-bottom:20px;text-align:center}
+.phase-tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+.tab-btn{
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+  color:#94a3b8;padding:8px 20px;border-radius:20px;font-size:.88rem;
+  font-weight:600;cursor:pointer;transition:all .2s;
+}
+.tab-btn.active{background:rgba(168,85,247,.2);border-color:#a855f7;color:#e2b96f}
+.tab-btn:hover:not(.active){background:rgba(255,255,255,.12);color:#e2e8f0}
+.main-card{
+  background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:28px 24px;width:100%;max-width:860px;
+  backdrop-filter:blur(8px);box-shadow:0 8px 32px rgba(0,0,0,.4);
+}
+.phase-title{font-size:1.15rem;font-weight:700;color:#e2b96f;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.phase-desc{font-size:.9rem;color:#94a3b8;margin-bottom:20px;line-height:1.65}
+.phase-desc strong{color:#e2e8f0}
 
-/* FASE TABS */
-.phase-tabs {
-  display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
-}
-.tab-btn {
-  background: rgba(255,255,255,0.07);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  color: #94a3b8; padding: 8px 20px; border-radius: 20px;
-  font-size: 0.88rem; font-weight: 600; cursor: pointer;
-  transition: all 0.2s;
-}
-.tab-btn.active {
-  background: rgba(168,85,247,0.2);
-  border-color: #a855f7; color: #e2b96f;
-}
-.tab-btn:hover:not(.active) { background: rgba(255,255,255,0.12); color: #e2e8f0; }
+/* ── LEGENDA ── */
+.legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:18px}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:.8rem;color:#94a3b8}
+.legend-box{width:26px;height:16px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.lb-tone{background:linear-gradient(160deg,#8eafc4,#5b7f9c)}
+.lb-semi{background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
+.lb-sharp{background:linear-gradient(160deg,#f7d98b,#e2b96f)}
+.lb-wrong{background:linear-gradient(160deg,#f87171,#dc2626)}
 
-/* CONTAINER PRINCIPAL */
-.main-card {
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
-  padding: 28px 32px;
-  width: 100%; max-width: 820px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+/* ── LABEL DE ESCADA ── */
+.scale-label{
+  font-size:.78rem;font-weight:700;color:#e2b96f;
+  margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase;
+  text-align:left;
 }
-.phase-title {
-  font-size: 1.15rem; font-weight: 700; color: #e2b96f;
-  margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
-}
-.phase-desc {
-  font-size: 0.9rem; color: #94a3b8; margin-bottom: 24px; line-height: 1.6;
-}
-.phase-desc strong { color: #e2e8f0; }
+.scale-ref-label{color:#64748b}
 
-/* ESCADA */
-.staircase-wrap {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0;
-  margin: 10px auto 28px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  min-height: 320px;
+/* ════════════════════════════════════════
+   ESCADA VISUAL — cada nota é um degrau
+   A escada cresce da esquerda p/ direita,
+   cada bloco mais alto que o anterior.
+   Usamos position:relative + margin-bottom
+   acumulado para criar o efeito de escada.
+════════════════════════════════════════ */
+.staircase{
+  display:flex;
+  align-items:flex-end;   /* ancora todos no fundo */
+  gap:0;
+  margin:0 auto 8px;
+  overflow-x:auto;
+  padding:8px 4px 0;
 }
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-  width: 72px;
-  transition: all 0.4s ease;
+
+/* Cada coluna = nota + label abaixo */
+.step-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  width:68px;
+  flex-shrink:0;
 }
-.block {
-  width: 68px;
-  border-radius: 10px 10px 4px 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.08rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  color: #1a1a2e;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.25);
-  position: relative;
-  transition: height 0.5s ease, background 0.4s ease, box-shadow 0.4s ease;
-  cursor: default;
-  user-select: none;
+
+/* O bloco em si — altura define o degrau */
+.brick{
+  width:62px;
+  border-radius:8px 8px 3px 3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.95rem;font-weight:800;color:#1a1a2e;
+  box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.25);
+  transition:height .45s ease,background .35s;
+  user-select:none;
+  position:relative;
+  /* altura = base + acumulado dos degraus anteriores */
 }
-.block.tone   { background: linear-gradient(160deg, #8eafc4, #5b7f9c); height: 110px; }
-.block.semi   { background: linear-gradient(160deg, #7dc4a6, #4a9a80); height: 55px;  }
-.block.golden {
-  background: linear-gradient(160deg, #f7d98b, #e2b96f);
-  box-shadow: 0 4px 20px rgba(226,185,111,0.55), inset 0 2px 0 rgba(255,255,255,0.35);
-  height: 110px;
-  animation: goldPulse 1.8s ease-in-out infinite;
+.brick.tone  {background:linear-gradient(160deg,#8eafc4,#5b7f9c)}
+.brick.semi  {background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
+.brick.golden{
+  background:linear-gradient(160deg,#f7d98b,#e2b96f);
+  box-shadow:0 4px 20px rgba(226,185,111,.55),inset 0 2px 0 rgba(255,255,255,.35);
+  animation:goldPulse 1.8s ease-in-out infinite;
 }
-.block.wrong {
-  background: linear-gradient(160deg, #f87171, #dc2626) !important;
-  animation: shake 0.4s ease;
+.brick.wrong{
+  background:linear-gradient(160deg,#f87171,#dc2626) !important;
+  animation:shake .4s ease;
 }
-.block.correct-flash {
-  animation: correctFlash 0.6s ease;
+/* Drop zone — mesmo tamanho do brick correspondente */
+.brick.dropzone{
+  background:rgba(226,185,111,.07);
+  border:2.5px dashed rgba(226,185,111,.45);
+  color:#e2b96f;font-size:1.3rem;
+  cursor:pointer;
+  box-shadow:none;
+  animation:none;
 }
-@keyframes goldPulse {
-  0%,100% { box-shadow: 0 4px 20px rgba(226,185,111,0.55), inset 0 2px 0 rgba(255,255,255,0.35); }
-  50%      { box-shadow: 0 6px 30px rgba(226,185,111,0.85), inset 0 2px 0 rgba(255,255,255,0.45); }
+.brick.dropzone:hover,.brick.dropzone.drag-over{
+  background:rgba(226,185,111,.18);
+  border-color:#e2b96f;
+  box-shadow:0 0 16px rgba(226,185,111,.35);
 }
-@keyframes shake {
+@keyframes goldPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(226,185,111,.55),inset 0 2px 0 rgba(255,255,255,.35)}
+  50%    {box-shadow:0 6px 30px rgba(226,185,111,.85),inset 0 2px 0 rgba(255,255,255,.45)}
+}
+@keyframes shake{
   0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)}
 }
-@keyframes correctFlash {
-  0%  { box-shadow: 0 0 0 rgba(46,213,115,0); }
-  50% { box-shadow: 0 0 30px rgba(46,213,115,0.8); }
-  100%{ box-shadow: 0 4px 20px rgba(226,185,111,0.55); }
+@keyframes dropIn{
+  0%  {opacity:0;transform:translateY(-36px) scale(.7)}
+  70% {transform:translateY(3px) scale(1.05)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
 }
-@keyframes dropIn {
-  0%   { opacity: 0; transform: translateY(-40px) scale(0.7); }
-  70%  { transform: translateY(4px) scale(1.05); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-.block.drop-in { animation: dropIn 0.5s cubic-bezier(0.22,1,0.36,1) forwards; }
+.brick.drop-in{animation:dropIn .5s cubic-bezier(.22,1,.36,1) forwards}
 
-.note-label {
-  font-size: 0.78rem; font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  text-align: center;
-  margin-top: 6px;
-  line-height: 1.2;
-  min-height: 32px;
-  display: flex; flex-direction: column; align-items: center;
+/* Label abaixo do brick */
+.step-note-label{
+  margin-top:5px;
+  font-size:.72rem;font-weight:700;color:rgba(255,255,255,.85);
+  text-align:center;line-height:1.25;
+  min-height:28px;
 }
-.note-label .interval-tag {
-  font-size: 0.68rem; color: #64748b; font-weight: 500;
-  background: rgba(255,255,255,0.06);
-  padding: 2px 6px; border-radius: 6px; margin-top: 3px;
+.step-note-label .itag{
+  display:block;
+  font-size:.62rem;color:#64748b;font-weight:500;
+  background:rgba(255,255,255,.06);
+  padding:1px 5px;border-radius:5px;margin-top:2px;
 }
-.note-label .interval-tag.semi-tag { color: #7dc4a6; }
+.step-note-label .itag.semi-itag{color:#7dc4a6}
+.step-note-label .itag.wrong-itag{color:#f87171}
 
-/* CONECTOR ENTRE DEGRAUS */
-.step-connector {
-  width: 4px;
-  background: rgba(255,255,255,0.08);
-  align-self: stretch;
+/* Separador vertical entre steps */
+.step-sep{width:3px;align-self:stretch;background:rgba(255,255,255,.06);flex-shrink:0}
+
+/* ── FÓRMULA ── */
+.formula-bar{display:flex;gap:6px;justify-content:center;margin:6px 0 20px;flex-wrap:wrap}
+.fb{padding:5px 13px;border-radius:8px;font-size:.8rem;font-weight:700;border:1.5px solid transparent}
+.fb.ft{background:rgba(142,175,196,.15);border-color:#5b7f9c;color:#8eafc4}
+.fb.fs{background:rgba(125,196,166,.15);border-color:#4a9a80;color:#7dc4a6}
+.fb.fg{background:rgba(226,185,111,.2);border-color:#e2b96f;color:#e2b96f}
+
+/* ── DIVIDER entre escalas ── */
+.scale-divider{
+  border:none;border-top:1px dashed rgba(255,255,255,.1);
+  margin:14px 0;
 }
 
-/* LEGENDA */
-.legend {
-  display: flex; gap: 20px; flex-wrap: wrap;
-  justify-content: center; margin-bottom: 20px;
+/* ── EXPLAIN BOX ── */
+.explain-box{
+  background:rgba(226,185,111,.08);border:1.5px solid rgba(226,185,111,.25);
+  border-radius:12px;padding:14px 18px;
+  font-size:.88rem;color:#cbd5e1;line-height:1.6;
+  margin-bottom:18px;
 }
-.legend-item {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.82rem; color: #94a3b8;
-}
-.legend-box {
-  width: 28px; height: 18px; border-radius: 5px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-}
-.lb-tone   { background: linear-gradient(160deg, #8eafc4, #5b7f9c); }
-.lb-semi   { background: linear-gradient(160deg, #7dc4a6, #4a9a80); }
-.lb-sharp  { background: linear-gradient(160deg, #f7d98b, #e2b96f); }
+.explain-box strong{color:#e2b96f}
 
-/* FORMULA BAR */
-.formula-bar {
-  display: flex; gap: 6px; justify-content: center;
-  margin-bottom: 24px; flex-wrap: wrap;
+/* ── FEEDBACK ── */
+.feedback-bar{
+  min-height:42px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;padding:0 20px;font-size:.95rem;font-weight:600;
+  margin-bottom:14px;opacity:0;transition:opacity .3s;
 }
-.f-block {
-  padding: 5px 14px; border-radius: 8px;
-  font-size: 0.82rem; font-weight: 700;
-  border: 1.5px solid transparent;
-  transition: all 0.3s;
-}
-.f-block.f-tone { background: rgba(142,175,196,0.15); border-color: #5b7f9c; color: #8eafc4; }
-.f-block.f-semi { background: rgba(125,196,166,0.15); border-color: #4a9a80; color: #7dc4a6; }
-.f-block.f-sharp{ background: rgba(226,185,111,0.2);  border-color: #e2b96f; color: #e2b96f; }
-.f-block.f-active { transform: scale(1.12); box-shadow: 0 0 12px rgba(226,185,111,0.4); }
+.feedback-bar.show{opacity:1}
+.feedback-bar.correct{background:rgba(46,213,115,.15);color:#2ed573;border:1.5px solid #2ed573}
+.feedback-bar.wrong  {background:rgba(255,71,87,.15); color:#ff4757;border:1.5px solid #ff4757}
+.feedback-bar.info   {background:rgba(226,185,111,.12);color:#e2b96f;border:1.5px solid rgba(226,185,111,.3)}
 
-/* INTERACAO DROP */
-.drop-zone {
-  width: 68px; height: 110px;
-  border: 2.5px dashed rgba(226,185,111,0.4);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(226,185,111,0.05);
-  color: #e2b96f; font-size: 1.4rem;
+/* ── SHARP POOL ── */
+.sharp-pool{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:18px}
+.sharp-pool p{font-size:.85rem;color:#94a3b8;text-align:center}
+.sharp-drag{
+  background:linear-gradient(160deg,#f7d98b,#e2b96f);
+  border-radius:10px;width:68px;height:68px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;font-weight:800;color:#1a1a2e;
+  cursor:grab;user-select:none;
+  box-shadow:0 4px 20px rgba(226,185,111,.5);
+  animation:goldPulse 1.8s ease-in-out infinite;
+  transition:transform .15s;
 }
-.drop-zone:hover, .drop-zone.drag-over {
-  background: rgba(226,185,111,0.15);
-  border-color: #e2b96f;
-  box-shadow: 0 0 16px rgba(226,185,111,0.3);
-}
-.sharp-draggable {
-  background: linear-gradient(160deg, #f7d98b, #e2b96f);
-  border-radius: 10px; width: 68px; height: 110px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; font-weight: 800; color: #1a1a2e;
-  cursor: grab; user-select: none;
-  box-shadow: 0 4px 20px rgba(226,185,111,0.5);
-  animation: goldPulse 1.8s ease-in-out infinite;
-  transition: transform 0.15s;
-}
-.sharp-draggable:active { cursor: grabbing; transform: scale(1.06); }
-.sharp-pool {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 8px; margin-bottom: 20px;
-}
-.sharp-pool p { font-size: 0.85rem; color: #94a3b8; text-align: center; }
+.sharp-drag:active{cursor:grabbing;transform:scale(1.06)}
 
-/* FEEDBACK */
-.feedback-bar {
-  min-height: 44px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 10px; padding: 0 20px;
-  font-size: 1rem; font-weight: 600;
-  margin-bottom: 16px;
-  opacity: 0; transition: opacity 0.3s;
+/* ── BTNS ── */
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.btn-primary{
+  background:linear-gradient(90deg,#7c3aed,#a855f7);
+  border:none;color:#fff;padding:11px 26px;border-radius:10px;
+  font-size:.93rem;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 14px rgba(124,58,237,.4);
+  transition:transform .15s,box-shadow .15s;
 }
-.feedback-bar.show { opacity: 1; }
-.feedback-bar.correct { background: rgba(46,213,115,0.15); color: #2ed573; border: 1.5px solid #2ed573; }
-.feedback-bar.wrong   { background: rgba(255,71,87,0.15);  color: #ff4757; border: 1.5px solid #ff4757; }
-.feedback-bar.info    { background: rgba(226,185,111,0.12); color: #e2b96f; border: 1.5px solid rgba(226,185,111,0.3); }
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.55)}
+.btn-secondary{
+  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
+  color:#e2e8f0;padding:11px 26px;border-radius:10px;
+  font-size:.93rem;font-weight:600;cursor:pointer;transition:background .18s;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.14)}
 
-/* BTNS */
-.btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
-.btn-primary {
-  background: linear-gradient(90deg, #7c3aed, #a855f7);
-  border: none; color: #fff;
-  padding: 12px 28px; border-radius: 10px;
-  font-size: 0.95rem; font-weight: 700; cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 14px rgba(124,58,237,0.4);
-}
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.55); }
-.btn-secondary {
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.15); color: #e2e8f0;
-  padding: 12px 28px; border-radius: 10px;
-  font-size: 0.95rem; font-weight: 600; cursor: pointer;
-  transition: background 0.18s;
-}
-.btn-secondary:hover { background: rgba(255,255,255,0.14); }
-
-/* ANIMACAO ENTRADA BLOCO DOURADO */
-@keyframes slideFromTop {
-  0%   { opacity: 0; transform: translateY(-60px) scale(0.6); }
-  80%  { transform: translateY(5px) scale(1.04); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-.sharp-arrive { animation: slideFromTop 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
-
-/* EXPLICACAO INLINE */
-.explain-box {
-  background: rgba(226,185,111,0.08);
-  border: 1.5px solid rgba(226,185,111,0.25);
-  border-radius: 12px; padding: 14px 18px;
-  font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;
-  margin-bottom: 20px;
-}
-.explain-box strong { color: #e2b96f; }
-
-@media (max-width: 600px) {
-  .step { width: 52px; }
-  .block, .drop-zone, .sharp-draggable { width: 50px; }
-  .main-card { padding: 18px 14px; }
-  h1 { font-size: 1.2rem; }
+@media(max-width:600px){
+  .step-col{width:52px}
+  .brick{width:46px;font-size:.78rem}
+  .main-card{padding:18px 10px}
+  h1{font-size:1.2rem}
 }
 </style>
 </head>
@@ -301,372 +234,341 @@ h1 { font-size: 1.6rem; color: #e2b96f; text-shadow: 0 2px 8px rgba(0,0,0,0.5); 
 
 <div class="phase-tabs">
   <button class="tab-btn active" onclick="goPhase(0)">1 – Dó Maior</button>
-  <button class="tab-btn" onclick="goPhase(1)">2 – Por que o Sol?</button>
-  <button class="tab-btn" onclick="goPhase(2)" id="tab2">3 – Sol Maior ✨</button>
+  <button class="tab-btn" onclick="goPhase(1)">2 – O problema do Sol</button>
+  <button class="tab-btn" onclick="goPhase(2)">3 – Sol Maior ✨</button>
 </div>
 
-<div class="main-card" id="main-card">
-  <!-- Renderizado pelo JS -->
-</div>
+<div class="main-card" id="main-card"></div>
 
 <script>
-// ─── AUDIO ────────────────────────────────────────────────────────
-let audioCtx = null;
-function getAC() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
+/* ══════════════════════════════════════════════════
+   AUDIO
+══════════════════════════════════════════════════ */
+let AC=null;
+function ac(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();return AC;}
+function playNote(f,delay=0,dur=.6){
+  try{
+    const ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime+delay;
+    o.type='sine';o.frequency.setValueAtTime(f,t);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(.32,t+.02);
+    g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+dur);
+  }catch(e){}
 }
-const FREQS = {
-  'C4':261.63,'D4':293.66,'E4':329.63,'F4':349.23,'F#4':369.99,
-  'G4':392.00,'A4':440.00,'B4':493.88,'C5':523.25,
-  'G3':196.00,'A3':220.00,'B3':246.94
-};
-function playNote(freq, delay=0, dur=0.7) {
-  try {
-    const ac = getAC();
-    const o = ac.createOscillator(), g = ac.createGain();
-    const t = ac.currentTime + delay;
-    o.type = 'sine';
-    o.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.35, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g).connect(ac.destination);
-    o.start(t); o.stop(t + dur);
-  } catch(e){}
-}
-function playScale(notes, withSharp=false) {
-  notes.forEach((n, i) => {
-    const key = withSharp && n === 'F4' ? 'F#4' : n;
-    const f = FREQS[key];
-    if (f) playNote(f, i * 0.22, 0.55);
-  });
-}
-const DO_NOTES  = ['C4','D4','E4','F4','G4','A4','B4','C5'];
-const SOL_NOTES = ['G4','A4','B4','C5','D5','E5','F5','G5'].map(n=>n.replace('D5','D4').replace('E5','E4').replace('F5','F4').replace('G5','G4'));
-// Usamos frequencias mapeadas para sol maior
-const SOL_FREQS_ORDER = [392.00,440.00,493.88,523.25,293.66*2,329.63*2,369.99*2,392.00*2];
-function playSolScale(withSharp) {
-  [392.00,440.00,493.88,523.25,587.33,659.25, withSharp?739.99:698.46, 784.00]
-    .forEach((f,i) => playNote(f, i*0.22, 0.55));
+const DO_FREQS =[261.63,293.66,329.63,349.23,392.00,440.00,493.88,523.25];
+function playDo(){DO_FREQS.forEach((f,i)=>playNote(f,i*.22,.55));}
+function playSol(sharp){
+  [392,440,493.88,523.25,587.33,659.25,sharp?739.99:698.46,784]
+    .forEach((f,i)=>playNote(f,i*.22,.55));
 }
 
-// ─── DADOS DAS FASES ──────────────────────────────────────────────
-const DO_SCALE = [
-  {note:'Dó', interval:'—',      type:'tone', formula:''},
-  {note:'Ré', interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Mi', interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Fá', interval:'½ Tom', type:'semi', formula:'½'},
-  {note:'Sol',interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Lá', interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Si', interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Dó', interval:'½ Tom', type:'semi', formula:'½'},
+/* ══════════════════════════════════════════════════
+   DADOS
+   type: 'tone' | 'semi' | 'golden' | 'wrong'
+   itype para a tag de intervalo
+══════════════════════════════════════════════════ */
+const DO_SCALE=[
+  {n:'Dó', iv:'',       type:'tone'},
+  {n:'Ré', iv:'1 Tom', type:'tone'},
+  {n:'Mi', iv:'1 Tom', type:'tone'},
+  {n:'Fá', iv:'½ Tom',type:'semi'},
+  {n:'Sol',iv:'1 Tom', type:'tone'},
+  {n:'Lá', iv:'1 Tom', type:'tone'},
+  {n:'Si', iv:'1 Tom', type:'tone'},
+  {n:'Dó', iv:'½ Tom',type:'semi'},
 ];
-const SOL_SCALE_WRONG = [
-  {note:'Sol', interval:'—',      type:'tone', formula:''},
-  {note:'Lá',  interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Si',  interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Dó',  interval:'½ Tom', type:'semi', formula:'½'},
-  {note:'Ré',  interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Mi',  interval:'1 Tom',  type:'tone', formula:'T'},
-  {note:'Fá',  interval:'1 Tom',  type:'tone', formula:'T ⚠️', wrongStep:true},
-  {note:'Sol', interval:'½ Tom', type:'semi', formula:'½'},
+// Sol com o Fá errado (7º grau alto demais)
+const SOL_WRONG=[
+  {n:'Sol',iv:'',       type:'tone'},
+  {n:'Lá', iv:'1 Tom', type:'tone'},
+  {n:'Si', iv:'1 Tom', type:'tone'},
+  {n:'Dó', iv:'½ Tom',type:'semi'},
+  {n:'Ré', iv:'1 Tom', type:'tone'},
+  {n:'Mi', iv:'1 Tom', type:'tone'},
+  {n:'Fá', iv:'1 Tom ⚠️',type:'wrong'},  // <-- erro
+  {n:'Sol',iv:'½ Tom',type:'semi'},
 ];
-const SOL_SCALE_RIGHT = [
-  {note:'Sol', interval:'—',      type:'tone',   formula:''},
-  {note:'Lá',  interval:'1 Tom',  type:'tone',   formula:'T'},
-  {note:'Si',  interval:'1 Tom',  type:'tone',   formula:'T'},
-  {note:'Dó',  interval:'½ Tom', type:'semi',   formula:'½'},
-  {note:'Ré',  interval:'1 Tom',  type:'tone',   formula:'T'},
-  {note:'Mi',  interval:'1 Tom',  type:'tone',   formula:'T'},
-  {note:'Fá♯', interval:'½ Tom', type:'golden', formula:'½'},
-  {note:'Sol', interval:'1 Tom... wait ½',  type:'tone', formula:'(chegamos!)'},
+// Sol correto com Fá♯
+const SOL_RIGHT=[
+  {n:'Sol', iv:'',       type:'tone'},
+  {n:'Lá',  iv:'1 Tom', type:'tone'},
+  {n:'Si',  iv:'1 Tom', type:'tone'},
+  {n:'Dó',  iv:'½ Tom',type:'semi'},
+  {n:'Ré',  iv:'1 Tom', type:'tone'},
+  {n:'Mi',  iv:'1 Tom', type:'tone'},
+  {n:'Fá♯', iv:'½ Tom',type:'golden'},
+  {n:'Sol', iv:'1 Tom', type:'tone'},
 ];
 
-let currentPhase = 0;
-let phase2State = 'intro'; // 'intro' | 'revealed' | 'done'
+/* ══════════════════════════════════════════════════
+   CONSTRUÇÃO DA ESCADA
 
-// ─── RENDER ───────────────────────────────────────────────────────
-function renderStaircase(scale, highlightWrong=false, dropIndex=-1, solved=false) {
-  const wrap = document.createElement('div');
-  wrap.className = 'staircase-wrap';
+   A escada tem forma real: cada nota fica um nível
+   acima da anterior. Fazemos isso calculando a altura
+   total acumulada e usando align-items:flex-end —
+   cada brick tem a altura = base_acumulada.
 
-  scale.forEach((step, i) => {
-    const stepEl = document.createElement('div');
-    stepEl.className = 'step';
+   Alturas base:
+     1º grau : 40px (base mínima)
+     + 40px por Tom anterior
+     + 20px por semitom anterior
 
-    if (dropIndex === i && !solved) {
-      // Zona de soltar
-      const dz = document.createElement('div');
-      dz.className = 'drop-zone';
-      dz.id = 'drop-zone';
-      dz.innerHTML = '♯';
-      dz.title = 'Solte o bloco ♯ aqui';
-      dz.addEventListener('click', () => onDropSharp());
-      dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-      dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-      dz.addEventListener('drop', e => { e.preventDefault(); onDropSharp(); });
-      stepEl.appendChild(dz);
+   Assim a coluna 1 = 40px, coluna 2 = 80px, etc.
+   align-items:flex-end faz tudo tocar o mesmo solo.
+
+   dropIndex: índice onde mostrar drop-zone em vez do brick.
+   solved: anima o brick golden.
+══════════════════════════════════════════════════ */
+const BASE=38, TONE_H=36, SEMI_H=18;
+
+function buildStaircase(scale, dropIndex=-1, solved=false){
+  const wrap=document.createElement('div');
+  wrap.className='staircase';
+
+  let accumulated=BASE; // altura acumulada até este degrau
+  scale.forEach((s,i)=>{
+    // altura do brick = acumulado atual
+    const brickH=accumulated;
+
+    // avança o acumulado com o intervalo DESTE grau
+    // (para o próximo bloco já estar mais alto)
+    if(s.iv.includes('½'))  accumulated+=SEMI_H;
+    else if(s.iv.includes('Tom')) accumulated+=TONE_H;
+
+    // coluna
+    const col=document.createElement('div');
+    col.className='step-col';
+
+    // brick
+    let brick;
+    if(dropIndex===i&&!solved){
+      brick=document.createElement('div');
+      brick.className='brick dropzone';
+      brick.style.height=brickH+'px';
+      brick.innerHTML='♯';
+      brick.title='Clique ou solte aqui';
+      brick.addEventListener('click',()=>onDropSharp());
+      brick.addEventListener('dragover',e=>{e.preventDefault();brick.classList.add('drag-over');});
+      brick.addEventListener('dragleave',()=>brick.classList.remove('drag-over'));
+      brick.addEventListener('drop',e=>{e.preventDefault();onDropSharp();});
     } else {
-      const block = document.createElement('div');
-      let cls = step.type;
-      if (highlightWrong && step.wrongStep) cls = 'wrong';
-      if (solved && step.type === 'golden') cls = 'golden drop-in';
-      block.className = `block ${cls}`;
-      block.textContent = step.note;
-      stepEl.appendChild(block);
+      brick=document.createElement('div');
+      let cls=solved&&s.type==='golden'?'golden drop-in':s.type;
+      brick.className='brick '+cls;
+      brick.style.height=brickH+'px';
+      brick.textContent=s.n;
     }
+    col.appendChild(brick);
 
-    const label = document.createElement('div');
-    label.className = 'note-label';
-    const noteName = document.createElement('span');
-    noteName.textContent = step.note;
-    label.appendChild(noteName);
-    if (step.interval && step.interval !== '—') {
-      const tag = document.createElement('span');
-      tag.className = 'interval-tag' + (step.type === 'semi' ? ' semi-tag' : '');
-      tag.textContent = step.interval;
-      label.appendChild(tag);
+    // label
+    const lbl=document.createElement('div');
+    lbl.className='step-note-label';
+    lbl.textContent=s.n;
+    if(s.iv){
+      const tag=document.createElement('span');
+      tag.className='itag'+(s.type==='semi'?' semi-itag':s.type==='wrong'?' wrong-itag':'');
+      tag.textContent=s.iv;
+      lbl.appendChild(tag);
     }
-    stepEl.appendChild(label);
-    wrap.appendChild(stepEl);
+    col.appendChild(lbl);
+    wrap.appendChild(col);
 
-    if (i < scale.length - 1) {
-      const conn = document.createElement('div');
-      conn.className = 'step-connector';
-      wrap.appendChild(conn);
+    // separador
+    if(i<scale.length-1){
+      const sep=document.createElement('div');
+      sep.className='step-sep';
+      wrap.appendChild(sep);
     }
   });
   return wrap;
 }
 
-function renderFormula(scale) {
-  const bar = document.createElement('div');
-  bar.className = 'formula-bar';
-  const labels = scale.filter(s => s.formula).map(s => s.formula);
-  labels.forEach(f => {
-    const b = document.createElement('div');
-    let cls = 'f-block ';
-    if (f.includes('½')) cls += 'f-semi';
-    else if (f.includes('T')) cls += 'f-tone';
-    else cls += 'f-sharp';
-    b.className = cls;
-    b.textContent = f;
+function buildFormula(scale){
+  const bar=document.createElement('div');
+  bar.className='formula-bar';
+  scale.filter(s=>s.iv).forEach(s=>{
+    const b=document.createElement('div');
+    b.className='fb '+(s.iv.includes('½')?'fs':'ft');
+    b.textContent=s.iv.replace(' ⚠️','');
     bar.appendChild(b);
   });
   return bar;
 }
 
-function renderLegend() {
-  const div = document.createElement('div');
-  div.className = 'legend';
-  [['lb-tone','Bloco de 1 Tom'],['lb-semi','Bloco de ½ Tom (semitom)'],['lb-sharp','Bloco ♯ (sustenido — eleva ½ tom)']].forEach(([cls,txt]) => {
-    const item = document.createElement('div');
-    item.className = 'legend-item';
-    item.innerHTML = `<div class="legend-box ${cls}"></div><span>${txt}</span>`;
-    div.appendChild(item);
+function buildLegend(includeWrong=false){
+  const d=document.createElement('div');
+  d.className='legend';
+  const items=[
+    ['lb-tone','1 Tom'],
+    ['lb-semi','½ Tom (semitom)'],
+    ['lb-sharp','♯ Sustenido (eleva ½ tom)'],
+  ];
+  if(includeWrong) items.push(['lb-wrong','Intervalo incorreto']);
+  items.forEach(([c,t])=>{
+    const it=document.createElement('div');
+    it.className='legend-item';
+    it.innerHTML=`<div class="legend-box ${c}"></div><span>${t}</span>`;
+    d.appendChild(it);
   });
-  return div;
+  return d;
 }
 
-// ─── FASES ────────────────────────────────────────────────────────
-function renderPhase0() {
-  const card = document.getElementById('main-card');
-  card.innerHTML = '';
+/* ══════════════════════════════════════════════════
+   FASES
+══════════════════════════════════════════════════ */
+let phase2State='intro';
 
-  const title = document.createElement('div');
-  title.className = 'phase-title';
-  title.innerHTML = '🏗️ A Fórmula da Escala Maior';
-  card.appendChild(title);
+function renderPhase0(){
+  const card=document.getElementById('main-card');
+  card.innerHTML='';
 
-  const desc = document.createElement('div');
-  desc.className = 'phase-desc';
-  desc.innerHTML = `
-    A escala de <strong>Dó Maior</strong> é a mais simples: <strong>sem sustenidos ou bemoéis</strong>.
-    Cada degrau representa a distância até a próxima nota.<br>
-    Os degraus <strong>azuis altos</strong> = 1 Tom • Os degraus <strong>verdes baixos</strong> = ½ Tom (semitom).<br>
-    <strong>A fórmula é sempre: T – T – ½ – T – T – T – ½</strong>
-  `;
-  card.appendChild(desc);
-  card.appendChild(renderLegend());
-  card.appendChild(renderStaircase(DO_SCALE));
-  card.appendChild(renderFormula(DO_SCALE));
+  h(card,'div','phase-title','🏗️ A Fórmula da Escala Maior');
+  const desc=h(card,'div','phase-desc');
+  desc.innerHTML=`A escala de <strong>Dó Maior</strong> é a referência: <strong>sem sustenidos ou bemoéis</strong>.<br>
+  Cada degrau mostra a distância até a próxima nota.<br>
+  <strong>Degraus altos (azul) = 1 Tom &nbsp;|&nbsp; Degraus baixos (verde) = ½ Tom</strong><br>
+  Fórmula obrigatória de toda escala maior: <strong>T – T – ½ – T – T – T – ½</strong>`;
 
-  const btnRow = document.createElement('div');
-  btnRow.className = 'btn-row';
-  const btnPlay = document.createElement('button');
-  btnPlay.className = 'btn-secondary';
-  btnPlay.innerHTML = '🔊 Ouvir Dó Maior';
-  btnPlay.onclick = () => playScale(DO_NOTES);
-  const btnNext = document.createElement('button');
-  btnNext.className = 'btn-primary';
-  btnNext.innerHTML = 'Próxima fase →';
-  btnNext.onclick = () => goPhase(1);
-  btnRow.appendChild(btnPlay);
-  btnRow.appendChild(btnNext);
-  card.appendChild(btnRow);
+  card.appendChild(buildLegend());
+
+  const sl=h(card,'div','scale-label','DÓ MAIOR');
+  card.appendChild(buildStaircase(DO_SCALE));
+  card.appendChild(buildFormula(DO_SCALE));
+
+  const br=h(card,'div','btn-row');
+  btn(br,'btn-secondary','🔊 Ouvir Dó Maior',playDo);
+  btn(br,'btn-primary','Próxima fase →',()=>goPhase(1));
 }
 
-function renderPhase1() {
-  const card = document.getElementById('main-card');
-  card.innerHTML = '';
+function renderPhase1(){
+  const card=document.getElementById('main-card');
+  card.innerHTML='';
 
-  const title = document.createElement('div');
-  title.className = 'phase-title';
-  title.innerHTML = '❓ E se começarmos pelo Sol?';
-  card.appendChild(title);
+  h(card,'div','phase-title','❓ E se começarmos pelo Sol?');
+  const desc=h(card,'div','phase-desc');
+  desc.innerHTML=`Compare as duas escalas abaixo.<br>
+  A de <strong>Sol</strong> tenta seguir a mesma fórmula, mas o <strong>7º grau (Fá→Sol) fica errado</strong>:<br>
+  deveria ser ½ Tom, mas o Fá natural está a <strong>1 Tom</strong> do Sol. ⚠️`;
 
-  const desc = document.createElement('div');
-  desc.className = 'phase-desc';
-  desc.innerHTML = `
-    Agora começamos a escada pelo <strong>Sol</strong>.
-    A fórmula precisa ser a mesma: <strong>T – T – ½ – T – T – T – ½</strong>.<br>
-    Veja o problema: o 7º grau <strong>(Fá→Sol)</strong> deveria ser <strong>½ Tom</strong>, mas sem modificação é <strong>1 Tom</strong>. ⚠️
-  `;
-  card.appendChild(desc);
-  card.appendChild(renderStaircase(SOL_SCALE_WRONG, true));
+  card.appendChild(buildLegend(true));
 
-  const explainBox = document.createElement('div');
-  explainBox.className = 'explain-box';
-  explainBox.id = 'phase1-explain';
-  explainBox.innerHTML = `
-    <strong>⚠️ O degrau do Fá ficou alto demais!</strong><br>
-    Na posição 7, a fórmula pede <strong>½ Tom</strong>, mas o Fá natural fica <strong>1 Tom</strong> abaixo do Sol.
-    Para corrigir, precisamos elevar o Fá <strong>meio tom</strong> → vira <strong>Fá♯</strong>.
-  `;
-  card.appendChild(explainBox);
+  // SOL MAIOR (com erro) — TOPO
+  h(card,'div','scale-label','SOL MAIOR — com problema ⚠️');
+  card.appendChild(buildStaircase(SOL_WRONG));
+  card.appendChild(buildFormula(SOL_WRONG));
 
-  const fb = document.createElement('div');
-  fb.className = 'feedback-bar info show';
-  fb.textContent = '👆 O bloco vermelho indica o problema. Veja o que acontece na fase seguinte!';
-  card.appendChild(fb);
+  card.appendChild(document.createElement('hr')).className='scale-divider';
 
-  const btnRow = document.createElement('div');
-  btnRow.className = 'btn-row';
-  const btnPlay = document.createElement('button');
-  btnPlay.className = 'btn-secondary';
-  btnPlay.innerHTML = '🔊 Ouvir (errado!)';
-  btnPlay.onclick = () => playSolScale(false);
-  const btnNext = document.createElement('button');
-  btnNext.className = 'btn-primary';
-  btnNext.innerHTML = 'Resolver o problema →';
-  btnNext.onclick = () => goPhase(2);
-  btnRow.appendChild(btnPlay);
-  btnRow.appendChild(btnNext);
-  card.appendChild(btnRow);
+  // DÓ MAIOR — REFERÊNCIA abaixo
+  h(card,'div','scale-label scale-ref-label','DÓ MAIOR — referência (formato correto)');
+  card.appendChild(buildStaircase(DO_SCALE));
+  card.appendChild(buildFormula(DO_SCALE));
+
+  const eb=h(card,'div','explain-box');
+  eb.innerHTML=`<strong>⚠️ O degrau vermelho está alto demais!</strong><br>
+  Compare com Dó Maior: na posição 7 a escada deveria ter um degrau <em>baixo</em> (½ Tom).
+  O Fá natural cria um degrau <em>alto</em> (1 Tom). Precisamos elevá-lo ½ tom → <strong>Fá♯</strong>.`;
+
+  const br=h(card,'div','btn-row');
+  btn(br,'btn-secondary','🔊 Ouvir Sol (errado)',()=>playSol(false));
+  btn(br,'btn-primary','Corrigir →',()=>goPhase(2));
 }
 
-function renderPhase2(state) {
-  const card = document.getElementById('main-card');
-  card.innerHTML = '';
+function renderPhase2(state){
+  const card=document.getElementById('main-card');
+  card.innerHTML='';
 
-  const title = document.createElement('div');
-  title.className = 'phase-title';
-  title.innerHTML = '✨ Sol Maior – Coloque o Sustenido!';
-  card.appendChild(title);
+  h(card,'div','phase-title','✨ Sol Maior – Coloque o Sustenido!');
 
-  if (state === 'intro') {
-    const desc = document.createElement('div');
-    desc.className = 'phase-desc';
-    desc.innerHTML = `
-      O bloco dourado <strong>♯</strong> eleva uma nota <strong>meio tom</strong>.
-      Arraste-o (ou clique) para o degrau correto na escada — onde a fórmula pede <strong>½ Tom</strong> mas a nota está alta demais.
-    `;
-    card.appendChild(desc);
+  if(state==='intro'){
+    const desc=h(card,'div','phase-desc');
+    desc.innerHTML=`O bloco dourado <strong>♯</strong> eleva a nota <strong>meio tom</strong>.<br>
+    Clique no espaço tracejado (degrau do Fá) para encaixar o sustenido e corrigir a escada.`;
 
-    // Pool do sustenido
-    const pool = document.createElement('div');
-    pool.className = 'sharp-pool';
-    pool.innerHTML = '<p>Bloco disponível — clique no espaço correto na escada:</p>';
-    const drag = document.createElement('div');
-    drag.className = 'sharp-draggable';
-    drag.draggable = true;
-    drag.innerHTML = '♯ Fá';
-    drag.id = 'sharp-drag';
-    drag.addEventListener('dragstart', e => e.dataTransfer.setData('text','sharp'));
-    pool.appendChild(drag);
-    card.appendChild(pool);
+    const pool=h(card,'div','sharp-pool');
+    h(pool,'p',null,'Bloco disponível:');
+    const drag=h(pool,'div','sharp-drag','♯ Fá');
+    drag.draggable=true;
+    drag.addEventListener('dragstart',e=>e.dataTransfer.setData('text','sharp'));
 
-    const fb = document.createElement('div');
-    fb.className = 'feedback-bar';
-    fb.id = 'fb-phase2';
-    card.appendChild(fb);
+    const fb=h(card,'div','feedback-bar');
+    fb.id='fb-p2';
 
-    card.appendChild(renderLegend());
-    card.appendChild(renderStaircase(SOL_SCALE_WRONG, false, 6, false));
+    card.appendChild(buildLegend(true));
 
-    const btnRow = document.createElement('div');
-    btnRow.className = 'btn-row';
-    const btnPlay = document.createElement('button');
-    btnPlay.className = 'btn-secondary';
-    btnPlay.innerHTML = '🔊 Ouvir sem o ♯';
-    btnPlay.onclick = () => playSolScale(false);
-    btnRow.appendChild(btnPlay);
-    card.appendChild(btnRow);
+    // SOL — com drop zone no índice 6
+    h(card,'div','scale-label','SOL MAIOR — coloque o ♯ no lugar certo');
+    card.appendChild(buildStaircase(SOL_WRONG,6,false));
+
+    card.appendChild(document.createElement('hr')).className='scale-divider';
+
+    // DÓ MAIOR referência
+    h(card,'div','scale-label scale-ref-label','DÓ MAIOR — referência (formato correto)');
+    card.appendChild(buildStaircase(DO_SCALE));
+
+    const br=h(card,'div','btn-row');
+    btn(br,'btn-secondary','🔊 Ouvir sem ♯',()=>playSol(false));
   }
 
-  if (state === 'solved') {
-    const desc = document.createElement('div');
-    desc.className = 'phase-desc';
-    desc.innerHTML = `
-      <strong style="color:#2ed573">✓ Perfeito!</strong> O <strong>Fá♯</strong> (bloco dourado) corrigiu o degrau!
-      Agora a fórmula <strong>T – T – ½ – T – T – T – ½</strong> está completa na escala de Sol Maior.
-    `;
-    card.appendChild(desc);
-    card.appendChild(renderLegend());
-    card.appendChild(renderStaircase(SOL_SCALE_RIGHT, false, -1, true));
-    card.appendChild(renderFormula(SOL_SCALE_RIGHT));
+  if(state==='solved'){
+    const desc=h(card,'div','phase-desc');
+    desc.innerHTML=`<strong style="color:#2ed573">✓ Perfeito!</strong> O <strong>Fá♯</strong> corrigiu o degrau!<br>
+    A escada de Sol Maior agora tem o mesmo formato que Dó Maior.`;
 
-    const explainBox = document.createElement('div');
-    explainBox.className = 'explain-box';
-    explainBox.innerHTML = `
-      <strong>🎯 Por que o Fá♯?</strong><br>
-      Na escala de Sol Maior, o 7º grau precisa estar a <strong>½ Tom</strong> do Sol.
-      O Fá natural está a 1 Tom — o bloco <strong>♯</strong> o eleva ½ tom, corrigindo o degrau.
-      Por isso a <strong>armadura de clave de Sol Maior</strong> tem <strong>1 sustenido: Fá♯</strong>.
-    `;
-    card.appendChild(explainBox);
+    card.appendChild(buildLegend());
 
-    const btnRow = document.createElement('div');
-    btnRow.className = 'btn-row';
-    const btnPlay = document.createElement('button');
-    btnPlay.className = 'btn-secondary';
-    btnPlay.innerHTML = '🔊 Ouvir Sol Maior (correto!)';
-    btnPlay.onclick = () => playSolScale(true);
-    const btnRep = document.createElement('button');
-    btnRep.className = 'btn-secondary';
-    btnRep.innerHTML = '🔄 Repetir atividade';
-    btnRep.onclick = () => { phase2State='intro'; goPhase(2); };
-    btnRow.appendChild(btnPlay);
-    btnRow.appendChild(btnRep);
-    card.appendChild(btnRow);
+    h(card,'div','scale-label','SOL MAIOR — correto! ✨');
+    card.appendChild(buildStaircase(SOL_RIGHT,-1,true));
+    card.appendChild(buildFormula(SOL_RIGHT));
+
+    card.appendChild(document.createElement('hr')).className='scale-divider';
+
+    h(card,'div','scale-label scale-ref-label','DÓ MAIOR — referência');
+    card.appendChild(buildStaircase(DO_SCALE));
+    card.appendChild(buildFormula(DO_SCALE));
+
+    const eb=h(card,'div','explain-box');
+    eb.innerHTML=`<strong>🎯 Por que o Fá♯?</strong><br>
+    No 7º grau de Sol Maior a fórmula exige ½ Tom até o Sol.
+    O Fá natural dista 1 Tom — o bloco <strong>♯</strong> eleva ½ tom, criando o degrau baixo correto.<br>
+    Por isso a <strong>armadura de Sol Maior tem 1 sustenido: Fá♯</strong>.`;
+
+    const br=h(card,'div','btn-row');
+    btn(br,'btn-secondary','🔊 Ouvir Sol Maior ✔',()=>playSol(true));
+    btn(br,'btn-secondary','🔄 Repetir',()=>{phase2State='intro';goPhase(2);});
   }
 }
 
-function onDropSharp() {
-  const dz = document.getElementById('drop-zone');
-  const fb = document.getElementById('fb-phase2');
-  if (!dz) return;
-  // Correto: index 6 é o Fá
-  if (fb) {
-    fb.textContent = '✨ Fá♯ encaixado! A escada está correta agora!';
-    fb.className = 'feedback-bar correct show';
-  }
-  setTimeout(() => {
-    phase2State = 'solved';
-    renderPhase2('solved');
-    playSolScale(true);
-  }, 700);
+function onDropSharp(){
+  const fb=document.getElementById('fb-p2');
+  if(fb){fb.textContent='✨ Fá♯ encaixado! Escada corrigida!';fb.className='feedback-bar correct show';}
+  setTimeout(()=>{phase2State='solved';renderPhase2('solved');playSol(true);},700);
 }
 
-function goPhase(n) {
-  currentPhase = n;
-  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === n));
-  if (n === 0) renderPhase0();
-  if (n === 1) renderPhase1();
-  if (n === 2) renderPhase2(phase2State);
+/* ══════════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════════ */
+function h(parent,tag,cls,text){
+  const el=document.createElement(tag);
+  if(cls)el.className=cls;
+  if(text)el.innerHTML=text;
+  if(parent)parent.appendChild(el);
+  return el;
 }
-
+function btn(parent,cls,text,cb){
+  const b=document.createElement('button');
+  b.className=cls;b.innerHTML=text;
+  b.addEventListener('click',cb);
+  parent.appendChild(b);
+  return b;
+}
+function goPhase(n){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===n));
+  if(n===0)renderPhase0();
+  if(n===1)renderPhase1();
+  if(n===2)renderPhase2(phase2State);
+}
 goPhase(0);
 </script>
 </body>
