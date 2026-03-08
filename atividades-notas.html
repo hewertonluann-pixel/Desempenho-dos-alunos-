@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nomeie as Notas – Teoria Musical</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 20px; color: #fff;
+  }
+  .back-btn {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; padding: 8px 16px; border-radius: 8px;
+    font-size: 0.9rem; cursor: pointer; margin-bottom: 18px;
+    text-decoration: none; display: flex; align-items: center; gap: 6px;
+    transition: background 0.2s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.18); }
+  h1 { font-size: 1.8rem; margin-bottom: 6px; color: #e2b96f; text-shadow: 0 2px 8px rgba(0,0,0,0.5); letter-spacing: 1px; }
+  #subtitle { font-size: 0.95rem; color: #a0b4c8; margin-bottom: 18px; }
+  #info-bar {
+    display: flex; gap: 28px; margin-bottom: 18px;
+    background: rgba(255,255,255,0.07); border-radius: 12px;
+    padding: 10px 28px; font-size: 1rem; border: 1px solid rgba(255,255,255,0.1);
+  }
+  #info-bar span { color: #e2b96f; font-weight: bold; }
+  #staff-container {
+    background: #fffef5; border-radius: 16px; padding: 18px 24px 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4); margin-bottom: 20px;
+    max-width: 100%; overflow-x: auto;
+  }
+  canvas { display: block; max-width: 100%; }
+  #feedback {
+    height: 42px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem; font-weight: bold; border-radius: 10px;
+    margin-bottom: 16px; padding: 0 24px; min-width: 300px; transition: all 0.3s; opacity: 0;
+  }
+  #feedback.show { opacity: 1; }
+  #feedback.correct { background: rgba(46,213,115,0.18); color: #2ed573; border: 1.5px solid #2ed573; }
+  #feedback.wrong   { background: rgba(255,71,87,0.18);  color: #ff4757; border: 1.5px solid #ff4757; }
+  #options { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+  .opt-btn {
+    background: rgba(255,255,255,0.09); border: 2px solid rgba(226,185,111,0.4);
+    color: #fff; font-size: 1.1rem; font-weight: bold; padding: 12px 28px;
+    border-radius: 10px; cursor: pointer; min-width: 80px; transition: all 0.18s; letter-spacing: 1px;
+  }
+  .opt-btn:hover { background: rgba(226,185,111,0.22); border-color: #e2b96f; transform: translateY(-2px); }
+  .opt-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+  .opt-btn.correct-ans { background: rgba(46,213,115,0.25); border-color: #2ed573; color: #2ed573; }
+  .opt-btn.wrong-ans   { background: rgba(255,71,87,0.25);  border-color: #ff4757; color: #ff4757; }
+  #progress-bar-wrap {
+    width: 340px; background: rgba(255,255,255,0.1); border-radius: 20px;
+    height: 10px; margin: 14px auto 0; overflow: hidden;
+  }
+  #progress-bar { height: 100%; background: linear-gradient(90deg, #e2b96f, #f7971e); border-radius: 20px; transition: width 0.5s; width: 0%; }
+  #level-overlay {
+    display: none; position: fixed; top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.75); z-index: 100; align-items: center; justify-content: center;
+  }
+  #level-overlay.show { display: flex; }
+  #level-box {
+    background: linear-gradient(135deg, #1a1a2e, #0f3460); border: 2px solid #e2b96f;
+    border-radius: 20px; padding: 40px 52px; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+  #level-box h2 { color: #e2b96f; font-size: 2rem; margin-bottom: 10px; }
+  #level-box p  { color: #a0b4c8; margin-bottom: 26px; font-size: 1rem; }
+  #level-box button {
+    background: linear-gradient(90deg, #e2b96f, #f7971e); border: none; color: #1a1a2e;
+    font-size: 1.1rem; font-weight: bold; padding: 14px 36px; border-radius: 10px;
+    cursor: pointer; transition: transform 0.15s;
+  }
+  #level-box button:hover { transform: scale(1.04); }
+  #note-indicator { color: #a0b4c8; font-size: 0.9rem; margin-bottom: 10px; text-align: center; }
+  @media (max-width: 640px) {
+    #info-bar { gap: 14px; padding: 8px 16px; font-size: 0.88rem; }
+    .opt-btn { padding: 10px 16px; font-size: 1rem; }
+    #progress-bar-wrap { width: 90vw; }
+  }
+</style>
+</head>
+<body>
+
+<a href="atividades.html" class="back-btn">← Atividades</a>
+
+<h1>🎵 Nomeie as Notas</h1>
+<p id="subtitle">Identifique cada nota na pauta musical</p>
+
+<div id="info-bar">
+  Nível: <span id="lbl-level">1</span>
+  &nbsp;|&nbsp; Acertos: <span id="lbl-score">0</span>
+  &nbsp;|&nbsp; Erros: <span id="lbl-errors">0</span>
+</div>
+
+<div id="staff-container">
+  <canvas id="staffCanvas" width="620" height="220"></canvas>
+</div>
+
+<div id="note-indicator">Nota <span id="note-idx">1</span> de <span id="note-total">5</span></div>
+<div id="feedback"></div>
+<div id="options"></div>
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+<div id="level-overlay">
+  <div id="level-box">
+    <h2 id="overlay-title">🎉 Nível Completo!</h2>
+    <p id="overlay-msg"></p>
+    <button onclick="nextLevel()">Próximo Nível ▶</button>
+  </div>
+</div>
+
+<script>
+const SLOT_FREQ = {
+  [-2]: 261.63, [-1]: 293.66,
+  [0]:  329.63, [1]:  349.23, [2]:  392.00, [3]:  440.00, [4]:  493.88,
+  [5]:  523.25, [6]:  587.33, [7]:  659.25, [8]:  698.46,
+  [9]:  783.99, [10]: 880.00,
+};
+
+let audioCtx = null;
+function getACtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function playFreq(freq, dur = 1.3) {
+  try {
+    const ac = getACtx();
+    [[freq,0.5,dur],[freq*2,0.15,dur*0.6],[freq*3,0.07,dur*0.4]].forEach(([f,v,d]) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(f, ac.currentTime);
+      g.gain.setValueAtTime(0, ac.currentTime);
+      g.gain.linearRampToValueAtTime(v, ac.currentTime + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + d);
+      o.connect(g).connect(ac.destination);
+      o.start(ac.currentTime); o.stop(ac.currentTime + d);
+    });
+  } catch(e) {}
+}
+function playNoteBySlot(slot) { const f = SLOT_FREQ[slot]; if (f) playFreq(f); }
+function playError() {
+  try {
+    const ac = getACtx(), o = ac.createOscillator(), g = ac.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(200, ac.currentTime);
+    o.frequency.linearRampToValueAtTime(120, ac.currentTime + 0.3);
+    g.gain.setValueAtTime(0.25, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35);
+    o.connect(g).connect(ac.destination); o.start(ac.currentTime); o.stop(ac.currentTime + 0.35);
+  } catch(e) {}
+}
+
+const ALL_NOTES = [
+  {name:'Mi', slot:0},{name:'Fá',slot:1},{name:'Sol',slot:2},{name:'Lá',slot:3},
+  {name:'Si',slot:4},{name:'Dó',slot:5},{name:'Ré',slot:6},{name:'Mi',slot:7},
+  {name:'Fá',slot:8},{name:'Sol',slot:9},{name:'Lá',slot:10},
+  {name:'Ré',slot:-1},{name:'Dó',slot:-2},
+];
+const LEVELS = [
+  {label:'Nível 1 – Linhas',        pool:ALL_NOTES.filter(n=>[0,2,4,6,8].includes(n.slot)),  count:5},
+  {label:'Nível 2 – Espaços',       pool:ALL_NOTES.filter(n=>n.slot>=0&&n.slot<=8),           count:6},
+  {label:'Nível 3 – Completo',      pool:ALL_NOTES,                                            count:7},
+  {label:'Nível 4 – Mestre',        pool:ALL_NOTES,                                            count:9},
+  {label:'Nível 5 – Sobrevivência', pool:ALL_NOTES,                                            count:12},
+];
+const ALL_NAMES = ['Dó','Ré','Mi','Fá','Sol','Lá','Si'];
+
+const canvas = document.getElementById('staffCanvas');
+const ctx2d  = canvas.getContext('2d');
+const LINE1_Y=150, LINE_GAP=14, NOTE_R=9, STAFF_X=80, STAFF_W=520;
+function slotToY(s){ return LINE1_Y - s*(LINE_GAP/2); }
+
+function drawStaff(){
+  ctx2d.clearRect(0,0,canvas.width,canvas.height);
+  ctx2d.fillStyle='#fffef5'; ctx2d.fillRect(0,0,canvas.width,canvas.height);
+  ctx2d.strokeStyle='#333'; ctx2d.lineWidth=1.5;
+  for(let i=0;i<5;i++){const y=slotToY(i*2);ctx2d.beginPath();ctx2d.moveTo(STAFF_X,y);ctx2d.lineTo(STAFF_X+STAFF_W,y);ctx2d.stroke();}
+  ctx2d.fillStyle='#222'; ctx2d.font='bold 88px serif'; ctx2d.fillText('𝄞',STAFF_X-12,slotToY(0)+20);
+  const spacing=Math.min(72,(STAFF_W-120)/Math.max(notes.length,1));
+  notes.forEach((note,idx)=>{
+    const x=190+idx*spacing, y=slotToY(note.slot);
+    const isCurrent=idx===noteIdx, isPast=idx<noteIdx;
+    drawLedgerLines(x,note.slot);
+    if(isCurrent){ctx2d.fillStyle='#e2b96f';ctx2d.font='bold 15px sans-serif';ctx2d.textAlign='center';ctx2d.fillText('▼',x,y-NOTE_R-5);}
+    ctx2d.save(); ctx2d.translate(x,y); ctx2d.scale(1.28,1);
+    ctx2d.beginPath(); ctx2d.ellipse(0,0,NOTE_R,NOTE_R*0.72,0,0,2*Math.PI);
+    if(isCurrent){
+      ctx2d.strokeStyle='#e2b96f';ctx2d.lineWidth=2.5;ctx2d.fillStyle='transparent';ctx2d.stroke();
+      ctx2d.beginPath();ctx2d.ellipse(0,0,NOTE_R*0.42,NOTE_R*0.28,0,0,2*Math.PI);ctx2d.fillStyle='#fffef5';ctx2d.fill();
+    } else {
+      ctx2d.fillStyle=isPast?'#2ed573':'#555';ctx2d.strokeStyle=isPast?'#2ed573':'#333';
+      ctx2d.lineWidth=1.5;ctx2d.fill();ctx2d.stroke();
+      ctx2d.beginPath();ctx2d.ellipse(0,0,NOTE_R*0.42,NOTE_R*0.28,0,0,2*Math.PI);ctx2d.fillStyle='#fffef5';ctx2d.fill();
+    }
+    ctx2d.restore();
+  });
+}
+function drawLedgerLines(x,slot){
+  ctx2d.strokeStyle='#333';ctx2d.lineWidth=1.8;const lw=18;
+  for(let s=-2;s>=slot;s-=2){const y=slotToY(s);ctx2d.beginPath();ctx2d.moveTo(x-lw,y);ctx2d.lineTo(x+lw,y);ctx2d.stroke();}
+  for(let s=10;s<=slot;s+=2){const y=slotToY(s);ctx2d.beginPath();ctx2d.moveTo(x-lw,y);ctx2d.lineTo(x+lw,y);ctx2d.stroke();}
+}
+
+let currentLevel=0,notes=[],noteIdx=0,score=0,errors=0,answered=false;
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function generateNotes(pool,count){const r=[],s=shuffle(pool);for(let i=0;i<count;i++)r.push(s[i%s.length]);return r;}
+function generateOptions(n){return shuffle([n,...shuffle(ALL_NAMES.filter(x=>x!==n)).slice(0,4)]);}
+
+function renderOptions(){
+  const div=document.getElementById('options');div.innerHTML='';
+  generateOptions(notes[noteIdx].name).forEach(name=>{
+    const btn=document.createElement('button');btn.className='opt-btn';btn.textContent=name;
+    btn.onclick=()=>checkAnswer(name,btn);div.appendChild(btn);
+  });
+}
+function checkAnswer(chosen,btn){
+  if(answered)return; answered=true;
+  const correct=notes[noteIdx], fb=document.getElementById('feedback');
+  document.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=true;if(b.textContent===correct.name)b.classList.add('correct-ans');});
+  if(chosen===correct.name){
+    score++;document.getElementById('lbl-score').textContent=score;
+    fb.textContent='✓ Correto! Muito bem!';fb.className='show correct';
+    playNoteBySlot(correct.slot);
+    setTimeout(nextNote,1200);
+  } else {
+    errors++;document.getElementById('lbl-errors').textContent=errors;
+    btn.classList.add('wrong-ans');
+    fb.textContent='✗ Errado! A nota é '+correct.name+'.';fb.className='show wrong';
+    playError();
+    setTimeout(()=>playNoteBySlot(correct.slot),450);
+    setTimeout(nextNote,1900);
+  }
+}
+function nextNote(){
+  noteIdx++;
+  document.getElementById('progress-bar').style.width=(noteIdx/notes.length*100)+'%';
+  if(noteIdx>=notes.length){showLevelComplete();}else{
+    answered=false;document.getElementById('feedback').className='';
+    document.getElementById('note-idx').textContent=noteIdx+1;
+    drawStaff();renderOptions();
+  }
+}
+function showLevelComplete(){
+  const isLast=currentLevel>=LEVELS.length-1;
+  document.getElementById('overlay-title').textContent=isLast?'🏆 Parabéns!':'🎉 Nível Completo!';
+  document.getElementById('overlay-msg').textContent=isLast
+    ?'Você dominou todos os 5 níveis! Acertos: '+score+' | Erros: '+errors
+    :'Prepare-se para o '+LEVELS[currentLevel+1].label+'!';
+  document.querySelector('#level-box button').textContent=isLast?'Recomeçar 🔄':'Próximo Nível ▶';
+  document.getElementById('level-overlay').classList.add('show');
+}
+function nextLevel(){
+  document.getElementById('level-overlay').classList.remove('show');
+  if(currentLevel>=LEVELS.length-1){currentLevel=0;score=0;errors=0;document.getElementById('lbl-score').textContent=0;document.getElementById('lbl-errors').textContent=0;}else{currentLevel++;}
+  startLevel();
+}
+function startLevel(){
+  const lvl=LEVELS[currentLevel];
+  document.getElementById('lbl-level').textContent=currentLevel+1;
+  document.getElementById('subtitle').textContent=lvl.label;
+  notes=generateNotes(lvl.pool,lvl.count);
+  noteIdx=0;answered=false;
+  document.getElementById('note-idx').textContent=1;
+  document.getElementById('note-total').textContent=lvl.count;
+  document.getElementById('feedback').className='';
+  document.getElementById('progress-bar').style.width='0%';
+  drawStaff();renderOptions();
+}
+startLevel();
+</script>
+</body>
+</html>

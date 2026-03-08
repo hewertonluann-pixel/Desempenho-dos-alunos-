@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atividades Musicais</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="loader.css">
+  <link rel="stylesheet" href="aluno.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <style>
+    .atividades-header {
+      margin-bottom: 28px;
+    }
+    .atividades-header h2 {
+      font-size: 1.6rem;
+      color: var(--text-primary, #1a1a2e);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .atividades-header p {
+      color: var(--text-secondary, #666);
+      font-size: 0.95rem;
+    }
+    .atividades-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .atividade-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      border: 1.5px solid transparent;
+    }
+    .atividade-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+      border-color: #7c3aed33;
+    }
+    .card-banner {
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.2rem;
+      position: relative;
+    }
+    .card-banner.purple  { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+    .card-banner.blue    { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+    .card-banner.orange  { background: linear-gradient(135deg, #ea580c, #f97316); }
+    .card-banner.green   { background: linear-gradient(135deg, #16a34a, #22c55e); }
+    .card-badge {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .card-body {
+      padding: 16px 18px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 0.87rem;
+      color: #666;
+      line-height: 1.5;
+      flex: 1;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: #999;
+    }
+    .card-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-coming {
+      opacity: 0.55;
+      pointer-events: none;
+      cursor: default;
+    }
+    .card-coming .card-banner::after {
+      content: 'Em breve';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      text-align: center;
+      padding: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    @media (max-width: 600px) {
+      .atividades-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Global Loader -->
+  <div id="global-loader">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div id="emoji-container">🎷</div>
+      <div id="verse-container">
+        <div id="verse-text"></div>
+        <div id="verse-reference"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <aside class="sidebar">
+      <div class="profile-card">
+        <div class="photo-upload">
+          <img id="fotoAluno" src="https://via.placeholder.com/150" alt="Foto do aluno" class="profile-photo">
+          <label for="novaFoto" class="upload-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+          </label>
+          <input type="file" id="novaFoto" accept="image/*" style="display:none;" />
+        </div>
+        <h1 class="aluno-name" id="nomeAluno">Nome do Aluno</h1>
+        <p class="instrument" id="instrumentoAluno">Instrumento</p>
+        <div class="level-info">
+          <span class="level-label">Nível Geral</span>
+          <span class="level-value" id="nivelGeral">0</span>
+        </div>
+        <button class="btn-change-password" onclick="window.location.href='configuracoes.html'">⚙️ Configurações</button>
+        <a href="download.html" class="btn-download-app">📲 Baixar App</a>
+      </div>
+      <div class="sidebar-buttons-row">
+        <div class="social-link-card">
+          <a href="painel-social.html" class="social-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Comunidade
+          </a>
+        </div>
+        <div class="social-link-card">
+          <a href="biblioteca.html" class="social-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            Biblioteca
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content-area">
+      <section class="card">
+        <div class="atividades-header">
+          <h2>🎓 Atividades de Teoria Musical</h2>
+          <p>Pratique e aprimore seu conhecimento musical com exercícios interativos.</p>
+        </div>
+
+        <div class="atividades-grid">
+
+          <!-- CARD 1: Nomeie as Notas (ATIVO) -->
+          <a href="atividades-notas.html" class="atividade-card">
+            <div class="card-banner purple">
+              <span>𝄞</span>
+              <span class="card-badge">5 Níveis</span>
+            </div>
+            <div class="card-body">
+              <div class="card-title">Nomeie as Notas</div>
+              <div class="card-desc">Identifique as notas escritas na pauta musical em clave de sol. Escolha entre 5 opções e avance por níveis progressivos.</div>
+              <div class="card-meta">
+                <span>🎯 Teoria</span>
+                <span>🔊 Com som</span>
+                <span>📈 Progressivo</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- CARD 2: Em breve -->
+          <div class="atividade-card card-coming">
+            <div class="card-banner blue">
+              <span>🎵</span>
+            </div>
+            <div class="card-body">
+              <div class="card-title">Ditado Rítmico</div>
+              <div class="card-desc">Ouça um padrão rítmico e reproduza-o corretamente selecionando as figuras musicais na pauta.</div>
+              <div class="card-meta">
+                <span>👂 Percepção</span>
+                <span>🥁 Ritmo</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3: Em breve -->
+          <div class="atividade-card card-coming">
+            <div class="card-banner orange">
+              <span>🎼</span>
+            </div>
+            <div class="card-body">
+              <div class="card-title">Intervalos Musicais</div>
+              <div class="card-desc">Identifique o intervalo entre duas notas apresentadas na pauta. Treine ouvido e leitura musical.</div>
+              <div class="card-meta">
+                <span>👂 Percepção</span>
+                <span>🎹 Harmonia</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 4: Em breve -->
+          <div class="atividade-card card-coming">
+            <div class="card-banner green">
+              <span>🎹</span>
+            </div>
+            <div class="card-body">
+              <div class="card-title">Escalas e Modos</div>
+              <div class="card-desc">Complete escalas musicais e identifique o modo (maior, menor, dórico, etc.) a partir de fragmentos melódicos.</div>
+              <div class="card-meta">
+                <span>📚 Teoria</span>
+                <span>🎸 Prática</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="loader.js"></script>
+  <script type="module" src="navegacao.js"></script>
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      try {
+        const snap = await getDoc(doc(db, 'alunos', user.uid));
+        if (snap.exists()) {
+          const d = snap.data();
+          document.getElementById('nomeAluno').textContent = d.nome || 'Aluno';
+          document.getElementById('instrumentoAluno').textContent = d.instrumento || '';
+          document.getElementById('nivelGeral').textContent = d.nivelGeral || 0;
+          if (d.foto) document.getElementById('fotoAluno').src = d.foto;
+        }
+      } catch(e) { console.warn(e); }
+    });
+  </script>
+</body>
+</html>
