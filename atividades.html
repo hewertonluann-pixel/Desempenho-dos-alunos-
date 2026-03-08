@@ -11,12 +11,13 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', 'Segoe UI', sans-serif;
-      background: #f0f2f5;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 28px 16px 40px;
+      color: #e2e8f0;
     }
     .page-header {
       width: 100%;
@@ -27,9 +28,9 @@
       margin-bottom: 28px;
     }
     .back-btn {
-      background: #fff;
-      border: 1.5px solid #e2e8f0;
-      color: #444;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      color: #e2e8f0;
       padding: 8px 16px;
       border-radius: 10px;
       font-size: 0.88rem;
@@ -42,21 +43,23 @@
       transition: background 0.18s, border-color 0.18s;
       white-space: nowrap;
     }
-    .back-btn:hover { background: #f1f5f9; border-color: #7c3aed55; }
-    .page-title {
-      flex: 1;
+    .back-btn:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: #a855f7;
     }
+    .page-title { flex: 1; }
     .page-title h1 {
       font-size: 1.55rem;
       font-weight: 800;
-      color: #1a1a2e;
+      color: #e2b96f;
       display: flex;
       align-items: center;
       gap: 10px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
     .page-title p {
       font-size: 0.9rem;
-      color: #64748b;
+      color: #94a3b8;
       margin-top: 4px;
     }
     .atividades-grid {
@@ -67,21 +70,22 @@
       max-width: 900px;
     }
     .atividade-card {
-      background: #fff;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.1);
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
       text-decoration: none;
       color: inherit;
       display: flex;
       flex-direction: column;
-      border: 1.5px solid transparent;
+      backdrop-filter: blur(6px);
     }
     .atividade-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.13);
-      border-color: #7c3aed33;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+      border-color: #a855f7;
     }
     .card-banner {
       height: 110px;
@@ -98,7 +102,7 @@
     .card-badge {
       position: absolute;
       top: 10px; right: 12px;
-      background: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.22);
       color: #fff;
       font-size: 0.72rem;
       font-weight: 700;
@@ -116,12 +120,12 @@
     .card-title {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #1a1a2e;
+      color: #f1f5f9;
       margin-bottom: 6px;
     }
     .card-desc {
       font-size: 0.87rem;
-      color: #666;
+      color: #94a3b8;
       line-height: 1.5;
       flex: 1;
     }
@@ -131,11 +135,11 @@
       gap: 12px;
       margin-top: 14px;
       font-size: 0.8rem;
-      color: #999;
+      color: #64748b;
       flex-wrap: wrap;
     }
     .card-coming {
-      opacity: 0.55;
+      opacity: 0.45;
       pointer-events: none;
       cursor: default;
     }
@@ -143,7 +147,7 @@
       content: 'Em breve';
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.45);
+      background: rgba(0,0,0,0.55);
       color: #fff;
       text-align: center;
       padding: 4px;
