@@ -2,78 +2,120 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Armaduras de Clave</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+
+/* ================================================
+   OVERLAY DE ROTAÇÃO
+   Aparece apenas quando o dispositivo está em portrait
+   e a largura é menor que 600px (celular).
+   Some automaticamente ao girar para landscape.
+================================================ */
+#rotate-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#1a1a2e,#0f3460);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;text-align:center;padding:32px;
+}
+#rotate-overlay .rot-icon{
+  font-size:3.5rem;
+  animation:rotAnim 1.8s ease-in-out infinite;
+}
+#rotate-overlay p{
+  color:#e2e8f0;font-size:1rem;font-family:'Segoe UI',sans-serif;line-height:1.6;
+  max-width:280px;
+}
+#rotate-overlay small{color:#94a3b8;font-size:.8rem}
+@keyframes rotAnim{
+  0%,100%{transform:rotate(0deg)}
+  40%    {transform:rotate(90deg)}
+  60%    {transform:rotate(90deg)}
+}
+/* Exibe overlay em portrait em telas pequenas */
+@media (max-width:767px) and (orientation:portrait){
+  #rotate-overlay{display:flex}
+}
+
 body{
   font-family:'Segoe UI',sans-serif;
   background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  padding:20px 16px 50px;color:#e2e8f0;
+  padding:16px 14px 40px;color:#e2e8f0;
 }
 .back-btn{
   align-self:flex-start;
   background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
-  color:#e2e8f0;padding:8px 16px;border-radius:10px;font-size:.88rem;
+  color:#e2e8f0;padding:7px 14px;border-radius:10px;font-size:.82rem;
   font-weight:600;cursor:pointer;text-decoration:none;display:flex;
-  align-items:center;gap:6px;margin-bottom:16px;
+  align-items:center;gap:6px;margin-bottom:12px;
   transition:background .18s,border-color .18s;
 }
 .back-btn:hover{background:rgba(255,255,255,.15);border-color:#a855f7}
-h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:4px;text-align:center}
-.subtitle{color:#94a3b8;font-size:.9rem;margin-bottom:20px;text-align:center}
-.phase-tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+h1{font-size:1.35rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:3px;text-align:center}
+.subtitle{color:#94a3b8;font-size:.82rem;margin-bottom:14px;text-align:center}
+.phase-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
 .tab-btn{
   background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
-  color:#94a3b8;padding:8px 20px;border-radius:20px;font-size:.88rem;
+  color:#94a3b8;padding:6px 16px;border-radius:20px;font-size:.82rem;
   font-weight:600;cursor:pointer;transition:all .2s;
 }
 .tab-btn.active{background:rgba(168,85,247,.2);border-color:#a855f7;color:#e2b96f}
 .tab-btn:hover:not(.active){background:rgba(255,255,255,.12);color:#e2e8f0}
 .main-card{
   background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);
-  border-radius:20px;padding:28px 24px;width:100%;max-width:880px;
+  border-radius:18px;padding:22px 20px;width:100%;max-width:920px;
   backdrop-filter:blur(8px);box-shadow:0 8px 32px rgba(0,0,0,.4);
 }
-.phase-title{font-size:1.1rem;font-weight:700;color:#e2b96f;margin-bottom:6px}
-.phase-desc{font-size:.88rem;color:#94a3b8;margin-bottom:18px;line-height:1.65}
+.phase-title{font-size:1rem;font-weight:700;color:#e2b96f;margin-bottom:5px}
+.phase-desc{
+  font-size:.84rem;color:#94a3b8;margin-bottom:14px;line-height:1.6;
+}
 .phase-desc strong{color:#e2e8f0}
-.legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
-.legend-item{display:flex;align-items:center;gap:7px;font-size:.78rem;color:#94a3b8}
-.legend-box{width:24px;height:14px;border-radius:4px}
-.lb-tone  {background:linear-gradient(160deg,#8eafc4,#5b7f9c)}
-.lb-semi  {background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
-.lb-sharp {background:linear-gradient(160deg,#f7d98b,#e2b96f)}
-.lb-wrong {background:linear-gradient(160deg,#f87171,#dc2626)}
-.scale-label{font-size:.75rem;font-weight:700;color:#e2b96f;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.74rem;color:#94a3b8}
+.legend-box{width:20px;height:12px;border-radius:3px}
+.lb-tone {background:linear-gradient(160deg,#8eafc4,#5b7f9c)}
+.lb-semi {background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
+.lb-sharp{background:linear-gradient(160deg,#f7d98b,#e2b96f)}
+.lb-wrong{background:linear-gradient(160deg,#f87171,#dc2626)}
+.scale-label{font-size:.72rem;font-weight:700;color:#e2b96f;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
 .scale-label.ref{color:#475569}
 .model-badge{
   display:inline-block;
   background:rgba(226,185,111,.15);border:1px solid rgba(226,185,111,.35);
-  color:#e2b96f;font-size:.7rem;font-weight:700;
-  padding:2px 10px;border-radius:20px;letter-spacing:.5px;margin-bottom:8px;
+  color:#e2b96f;font-size:.67rem;font-weight:700;
+  padding:2px 9px;border-radius:20px;letter-spacing:.5px;margin-bottom:6px;
 }
-.model-box{border:1.5px solid rgba(226,185,111,.25);border-radius:14px;padding:14px 14px 10px;margin-bottom:4px;background:rgba(226,185,111,.04)}
-.ref-box  {border:1px dashed rgba(255,255,255,.1);border-radius:14px;padding:14px 14px 10px;margin-bottom:4px;opacity:.8}
+.model-box{border:1.5px solid rgba(226,185,111,.25);border-radius:12px;padding:12px 12px 8px;margin-bottom:4px;background:rgba(226,185,111,.04)}
+.ref-box  {border:1px dashed rgba(255,255,255,.1);border-radius:12px;padding:12px 12px 8px;margin-bottom:4px;opacity:.8}
+
+/* ================================================
+   ESCADA
+   Em landscape mobile aproveitamos mais largura:
+   bricks maiores, gaps maiores.
+================================================ */
 .staircase{
   display:flex;align-items:flex-end;gap:0;
-  overflow-x:auto;padding:16px 4px 0;margin:0 auto 8px;
+  overflow-x:auto;padding:12px 4px 0;margin:0 auto 6px;
+  -webkit-overflow-scrolling:touch;
 }
 .step-wrap{
   display:flex;flex-direction:column;align-items:center;
   width:62px;flex-shrink:0;
 }
 .note-top{
-  font-size:.8rem;font-weight:800;color:#e2e8f0;
-  margin-bottom:5px;text-align:center;white-space:nowrap;
+  font-size:.78rem;font-weight:800;color:#e2e8f0;
+  margin-bottom:4px;text-align:center;white-space:nowrap;
 }
 .brick{
   width:56px;height:52px;
   border-radius:8px 8px 3px 3px;
   display:flex;align-items:center;justify-content:center;
-  font-size:.88rem;font-weight:800;color:#1a1a2e;
+  font-size:.86rem;font-weight:800;color:#1a1a2e;
   box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.25);
   user-select:none;flex-shrink:0;
 }
@@ -88,22 +130,23 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
 .brick.dropzone{
   background:rgba(226,185,111,.07);
   border:2.5px dashed rgba(226,185,111,.5);
-  color:#e2b96f;font-size:1.2rem;cursor:pointer;box-shadow:none;animation:none;
+  color:#e2b96f;font-size:1.1rem;cursor:pointer;box-shadow:none;animation:none;
 }
 .brick.dropzone:hover,.brick.dropzone.drag-over{
   background:rgba(226,185,111,.18);border-color:#e2b96f;
   box-shadow:0 0 16px rgba(226,185,111,.35);
 }
-.step-gap{width:30px;flex-shrink:0;position:relative;align-self:stretch;}
+.step-gap{width:28px;flex-shrink:0;position:relative;align-self:stretch;}
 .gap-tag{
   position:absolute;left:50%;transform:translateX(-50%);
-  white-space:nowrap;font-size:.62rem;font-weight:700;
-  padding:2px 5px;border-radius:5px;
+  white-space:nowrap;font-size:.58rem;font-weight:700;
+  padding:2px 4px;border-radius:4px;
   background:rgba(255,255,255,.07);color:#64748b;
   border:1px solid rgba(255,255,255,.12);pointer-events:none;
 }
 .gap-tag.semi {color:#7dc4a6;background:rgba(125,196,166,.12);border-color:rgba(125,196,166,.3)}
 .gap-tag.wrong{color:#f87171;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3)}
+
 @keyframes goldPulse{
   0%,100%{box-shadow:0 4px 20px rgba(226,185,111,.55),inset 0 2px 0 rgba(255,255,255,.35)}
   50%    {box-shadow:0 6px 30px rgba(226,185,111,.85),inset 0 2px 0 rgba(255,255,255,.45)}
@@ -115,58 +158,109 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
   100%{opacity:1;transform:translateY(0) scale(1)}
 }
 .brick.drop-in{animation:dropIn .5s cubic-bezier(.22,1,.36,1) forwards}
-.formula-bar{display:flex;gap:6px;justify-content:center;margin:4px 0 16px;flex-wrap:wrap}
-.fb{padding:4px 12px;border-radius:8px;font-size:.78rem;font-weight:700;border:1.5px solid transparent}
+
+.formula-bar{display:flex;gap:5px;justify-content:center;margin:3px 0 12px;flex-wrap:wrap}
+.fb{padding:3px 10px;border-radius:7px;font-size:.74rem;font-weight:700;border:1.5px solid transparent}
 .fb.ft{background:rgba(142,175,196,.15);border-color:#5b7f9c;color:#8eafc4}
 .fb.fs{background:rgba(125,196,166,.15);border-color:#4a9a80;color:#7dc4a6}
 .fb.fw{background:rgba(248,113,113,.12);border-color:#dc2626;color:#f87171}
-.scale-divider{border:none;border-top:1px dashed rgba(255,255,255,.08);margin:18px 0}
+
+.scale-divider{border:none;border-top:1px dashed rgba(255,255,255,.08);margin:14px 0}
 .explain-box{
   background:rgba(226,185,111,.08);border:1.5px solid rgba(226,185,111,.25);
-  border-radius:12px;padding:14px 18px;
-  font-size:.87rem;color:#cbd5e1;line-height:1.65;margin-bottom:16px;
+  border-radius:10px;padding:12px 16px;
+  font-size:.83rem;color:#cbd5e1;line-height:1.6;margin-bottom:14px;
 }
 .explain-box strong{color:#e2b96f}
 .feedback-bar{
-  min-height:40px;display:flex;align-items:center;justify-content:center;
-  border-radius:10px;padding:0 18px;font-size:.93rem;font-weight:600;
-  margin-bottom:12px;opacity:0;transition:opacity .3s;
+  min-height:36px;display:flex;align-items:center;justify-content:center;
+  border-radius:10px;padding:0 16px;font-size:.88rem;font-weight:600;
+  margin-bottom:10px;opacity:0;transition:opacity .3s;
 }
 .feedback-bar.show{opacity:1}
 .feedback-bar.correct{background:rgba(46,213,115,.15);color:#2ed573;border:1.5px solid #2ed573}
-.sharp-pool{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:16px}
-.sharp-pool p{font-size:.83rem;color:#94a3b8;text-align:center}
+
+.sharp-pool{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:12px}
+.sharp-pool p{font-size:.79rem;color:#94a3b8;text-align:center}
 .sharp-drag{
   background:linear-gradient(160deg,#f7d98b,#e2b96f);
-  border-radius:10px;width:62px;height:52px;
+  border-radius:10px;width:60px;height:50px;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;font-weight:800;color:#1a1a2e;
-  cursor:grab;user-select:none;
+  font-size:1rem;font-weight:800;color:#1a1a2e;
+  cursor:pointer;user-select:none;
   box-shadow:0 4px 20px rgba(226,185,111,.5);
   animation:goldPulse 1.8s ease-in-out infinite;
+  -webkit-tap-highlight-color:transparent;
 }
-.sharp-drag:active{cursor:grabbing;transform:scale(1.06)}
-.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.sharp-drag:active{transform:scale(1.08)}
+
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
 .btn-primary{
   background:linear-gradient(90deg,#7c3aed,#a855f7);
-  border:none;color:#fff;padding:10px 24px;border-radius:10px;
-  font-size:.9rem;font-weight:700;cursor:pointer;
+  border:none;color:#fff;padding:9px 20px;border-radius:10px;
+  font-size:.86rem;font-weight:700;cursor:pointer;
   box-shadow:0 4px 14px rgba(124,58,237,.4);transition:transform .15s,box-shadow .15s;
+  -webkit-tap-highlight-color:transparent;
 }
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.55)}
 .btn-secondary{
   background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
-  color:#e2e8f0;padding:10px 24px;border-radius:10px;
-  font-size:.9rem;font-weight:600;cursor:pointer;transition:background .18s;
+  color:#e2e8f0;padding:9px 18px;border-radius:10px;
+  font-size:.86rem;font-weight:600;cursor:pointer;transition:background .18s;
+  -webkit-tap-highlight-color:transparent;
 }
 .btn-secondary:hover{background:rgba(255,255,255,.14)}
-@media(max-width:600px){
-  .step-wrap{width:46px}.brick{width:40px;height:44px;font-size:.72rem}
-  .step-gap{width:22px}.main-card{padding:16px 10px}h1{font-size:1.15rem}
+
+/* ================================================
+   LANDSCAPE MOBILE (largura 480-767px)
+   Bricks maiores, mais compacto verticalmente,
+   escada aproveita tela mais larga.
+================================================ */
+@media (max-width:767px) and (orientation:landscape){
+  body{padding:10px 12px 24px}
+  h1{font-size:1.1rem;margin-bottom:2px}
+  .subtitle{font-size:.75rem;margin-bottom:8px}
+  .phase-tabs{gap:6px;margin-bottom:10px}
+  .tab-btn{padding:5px 12px;font-size:.76rem}
+  .main-card{padding:14px 12px;border-radius:14px}
+  .phase-desc{font-size:.78rem;margin-bottom:10px}
+  /* Bricks proporcionais — landscape tem largura para 8 bricks sem scroll */
+  .step-wrap{width:54px}
+  .brick{width:48px;height:46px;font-size:.76rem}
+  .step-gap{width:22px}
+  .note-top{font-size:.7rem}
+  .gap-tag{font-size:.54rem;padding:1px 3px}
+  .formula-bar{margin:2px 0 8px}
+  .fb{padding:2px 8px;font-size:.7rem}
+  .explain-box{padding:10px 12px;font-size:.78rem;margin-bottom:10px}
+  .btn-row{gap:8px;margin-top:8px}
+  .btn-primary,.btn-secondary{padding:8px 14px;font-size:.78rem}
+  .scale-divider{margin:10px 0}
+  .sharp-pool{margin-bottom:8px;gap:4px}
+  .sharp-pool p{font-size:.74rem}
+  .sharp-drag{width:52px;height:44px;font-size:.9rem}
+  .legend{gap:8px;margin-bottom:8px}
+  .legend-item{font-size:.68rem}
+}
+
+/* Portrait pequeno (fallback caso o overlay seja fechado) */
+@media (max-width:480px) and (orientation:portrait){
+  .step-wrap{width:42px}
+  .brick{width:36px;height:40px;font-size:.68rem}
+  .step-gap{width:18px}
+  .main-card{padding:12px 8px}
+  h1{font-size:1rem}
 }
 </style>
 </head>
 <body>
+
+<!-- OVERLAY: aparece em portrait, some ao girar -->
+<div id="rotate-overlay">
+  <div class="rot-icon">📱</div>
+  <p>Para a melhor experiência, gire o celular para <strong style="color:#e2b96f">modo paisagem</strong>.</p>
+  <small>A escada de notas precisa de espaço horizontal 🎵</small>
+</div>
 
 <a href="atividades.html" class="back-btn">← Atividades</a>
 <h1>🎼 Armaduras de Clave</h1>
@@ -198,8 +292,6 @@ function playSol(sharp){
   [392,440,493.88,523.25,587.33,659.25,sharp?739.99:698.46,784].forEach((f,i)=>playNote(f,i*.22,.55));
 }
 
-/* iv: intervalo DA nota anterior até esta
-   type: 'tone'|'semi'|'golden'|'wrong' */
 const DO_SCALE=[
   {n:'Dó', iv:'',     type:'tone'},
   {n:'Ré', iv:'Tom', type:'tone'},
@@ -211,16 +303,6 @@ const DO_SCALE=[
   {n:'Dó', iv:'Semi',type:'semi'},
 ];
 
-/*
-  SOL sem sustenido — intervalos REAIS:
-    Sol→Lá  Tom   ✔
-    Lá→Si   Tom   ✔
-    Si→Dó   Semi  ✔
-    Dó→Ré   Tom   ✔
-    Ré→Mi   Tom   ✔
-    Mi→Fá   Semi  ✔  (semitom natural — bloco vermelho só pra destacar)
-    Fá→Sol  1Tom  ⚠️ (deveria ser Semi — gap-tag vermelha, iv='WrongTom')
-*/
 const SOL_WRONG=[
   {n:'Sol',iv:'',          type:'tone'},
   {n:'Lá', iv:'Tom',      type:'tone'},
@@ -232,16 +314,6 @@ const SOL_WRONG=[
   {n:'Sol',iv:'WrongTom', type:'semi'},
 ];
 
-/*
-  SOL MAIOR correto — sequência T-T-½-T-T-T-½:
-    Sol→Lá   Tom   (1)
-    Lá→Si    Tom   (2)
-    Si→Dó    Semi  (3) ½
-    Dó→Ré    Tom   (4)
-    Ré→Mi    Tom   (5)
-    Mi→Fá♯   Tom   (6)  ← sustenido afasta o Fá do Mi: 1 Tom
-    Fá♯→Sol  Semi  (7) ½  ← agora o degrau final é ½ Tom ✔
-*/
 const SOL_RIGHT=[
   {n:'Sol', iv:'',     type:'tone'},
   {n:'Lá',  iv:'Tom', type:'tone'},
@@ -249,8 +321,8 @@ const SOL_RIGHT=[
   {n:'Dó',  iv:'Semi',type:'semi'},
   {n:'Ré',  iv:'Tom', type:'tone'},
   {n:'Mi',  iv:'Tom', type:'tone'},
-  {n:'Fá♯', iv:'Tom', type:'golden'}, /* Mi→Fá♯ = 1 Tom */
-  {n:'Sol', iv:'Semi',type:'tone'},    /* Fá♯→Sol = ½ Tom ✔ */
+  {n:'Fá♯', iv:'Tom', type:'golden'},
+  {n:'Sol', iv:'Semi',type:'tone'},
 ];
 
 const TONE=48, SEMI=24, BRICK_H=52;
@@ -281,7 +353,7 @@ function buildStaircase(scale, dropIndex=-1, solved=false){
       const isSemi    =s.iv==='Semi';
       const isWrongTom=s.iv==='WrongTom';
       tag.className='gap-tag'+(isSemi?' semi':isWrongTom?' wrong':'');
-      tag.textContent=isSemi?'½ Tom':isWrongTom?'1 Tom ⚠️':'1 Tom';
+      tag.textContent=isSemi?'½ T':isWrongTom?'1T ⚠️':'1 T';
       const topL=mb[i-1]+BRICK_H, topR=mb[i]+BRICK_H;
       tag.style.bottom=((topL+topR)/2)+'px';
       gapEl.appendChild(tag);
@@ -299,8 +371,9 @@ function buildStaircase(scale, dropIndex=-1, solved=false){
       brick=document.createElement('div');
       brick.className='brick dropzone';
       brick.innerHTML='♯';
-      brick.title='Clique aqui';
+      brick.title='Toque aqui';
       brick.addEventListener('click',onDropSharp);
+      brick.addEventListener('touchend',e=>{e.preventDefault();onDropSharp();},{passive:false});
       brick.addEventListener('dragover',e=>{e.preventDefault();brick.classList.add('drag-over');});
       brick.addEventListener('dragleave',()=>brick.classList.remove('drag-over'));
       brick.addEventListener('drop',e=>{e.preventDefault();onDropSharp();});
@@ -331,8 +404,8 @@ function buildFormula(scale){
 function buildLegend(showWrong=false){
   const d=document.createElement('div');
   d.className='legend';
-  [['lb-tone','1 Tom'],['lb-semi','½ Tom (semitom)'],['lb-sharp','♯ Sustenido'],
-   ...(showWrong?[['lb-wrong','Intervalo/bloco incorreto']]:[])]
+  [['lb-tone','1 Tom'],['lb-semi','½ Tom'],['lb-sharp','♯ Sustenido'],
+   ...(showWrong?[['lb-wrong','Incorreto']]:[])]
   .forEach(([c,t])=>{
     const it=document.createElement('div');
     it.className='legend-item';
@@ -363,9 +436,9 @@ function renderPhase0(){
   h(card,'div','phase-title','🏗️ A Escala Modelo: Dó Maior');
   h(card,'div','phase-desc').innerHTML=
     `<strong>Dó Maior</strong> é a escala modelo — sem sustenidos nem bemoéis.<br>
-    A etiqueta <em>entre</em> dois degraus mostra o intervalo:
+    A etiqueta entre dois degraus mostra o intervalo:
     <strong>1 Tom</strong> (degrau alto) ou <strong>½ Tom</strong> (degrau baixo).<br>
-    Toda escala maior deve seguir exatamente este formato: <strong>T – T – ½ – T – T – T – ½</strong>.`;
+    Fórmula: <strong>T – T – ½ – T – T – T – ½</strong>.`;
   card.appendChild(buildLegend());
   const mb=h(card,'div','model-box');
   h(mb,'div','model-badge','⭐ ESCALA MODELO MAIOR');
@@ -383,8 +456,8 @@ function renderPhase1(){
   h(card,'div','phase-title','❓ E se começarmos pelo Sol?');
   h(card,'div','phase-desc').innerHTML=
     `Compare as duas escadas — a fórmula deve ser idêntica à de Dó Maior.<br>
-    Note que <strong>Mi→Fá</strong> já é naturalmente <strong>½ Tom</strong> (correto),
-    mas <strong>Fá→Sol</strong> fica a <strong>1 Tom</strong> — o 7º degrau está alto demais. ⚠️`;
+    <strong>Mi→Fá</strong> já é naturalmente <strong>½ Tom</strong> (correto),
+    mas <strong>Fá→Sol</strong> = <strong>1 Tom</strong> — degrau alto demais. ⚠️`;
   card.appendChild(buildLegend(true));
   h(card,'div','scale-label').textContent='SOL — sem sustenido ⚠️';
   card.appendChild(buildStaircase(SOL_WRONG));
@@ -397,8 +470,8 @@ function renderPhase1(){
   rb.appendChild(buildFormula(DO_SCALE));
   h(card,'div','explain-box').innerHTML=
     `<strong>⚠️ O 7º degrau está alto demais!</strong><br>
-    O intervalo <strong>Mi→Fá</strong> é um semitom natural — está correto.<br>
-    O problema é <strong>Fá→Sol</strong>: 1 Tom, mas a fórmula exige <strong>½ Tom</strong> nessa posição.<br>
+    <strong>Mi→Fá</strong> é semitom natural — correto.
+    O problema é <strong>Fá→Sol</strong>: 1 Tom em vez de ½ Tom.<br>
     Solução: elevar o Fá meio tom → <strong>Fá♯</strong>.`;
   const br=h(card,'div','btn-row');
   btn(br,'btn-secondary','🔊 Ouvir Sol (sem ♯)',()=>playSol(false));
@@ -411,10 +484,10 @@ function renderPhase2(state){
   h(card,'div','phase-title','✨ Sol Maior – Coloque o Sustenido!');
   if(state==='intro'){
     h(card,'div','phase-desc').innerHTML=
-      `O bloco dourado <strong>♯</strong> eleva a nota <strong>meio tom</strong>, criando o degrau correto.<br>
-      Clique no espaço tracejado para encaixar o ♯ no 7º grau e corrigir a escada.`;
+      `O bloco dourado <strong>♯</strong> eleva a nota <strong>meio tom</strong>.<br>
+      Toque no espaço tracejado para encaixar o ♯ no 7º grau.`;
     const pool=h(card,'div','sharp-pool');
-    h(pool,'p',null,'Bloco disponível — clique no espaço tracejado:');
+    h(pool,'p',null,'Bloco disponível — toque no espaço tracejado:');
     const drag=h(pool,'div','sharp-drag','♯ Fá');
     drag.draggable=true;
     drag.addEventListener('dragstart',e=>e.dataTransfer.setData('text','sharp'));
@@ -433,7 +506,7 @@ function renderPhase2(state){
   if(state==='solved'){
     h(card,'div','phase-desc').innerHTML=
       `<strong style="color:#2ed573">✓ Perfeito!</strong>
-      O <strong>Fá♯</strong> corrigiu o degrau! As duas escadas têm o mesmo formato agora.`;
+      O <strong>Fá♯</strong> corrigiu o degrau! As duas escadas têm o mesmo formato.`;
     card.appendChild(buildLegend());
     h(card,'div','scale-label').textContent='SOL MAIOR — correto ✨';
     card.appendChild(buildStaircase(SOL_RIGHT,-1,true));
@@ -446,8 +519,7 @@ function renderPhase2(state){
     rb.appendChild(buildFormula(DO_SCALE));
     h(card,'div','explain-box').innerHTML=
       `<strong>🎯 Por que o Fá♯?</strong><br>
-      O sustenido eleva o Fá meio tom: o intervalo <strong>Mi→Fá♯</strong> passa a ser <strong>1 Tom</strong>,
-      e o intervalo <strong>Fá♯→Sol</strong> fica exatamente <strong>½ Tom</strong> — correto!<br>
+      O ♯ eleva o Fá: <strong>Mi→Fá♯</strong> = 1 Tom, e <strong>Fá♯→Sol</strong> = ½ Tom ✔<br>
       Por isso a <strong>armadura de Sol Maior tem 1 sustenido: Fá♯</strong>.`;
     const br=h(card,'div','btn-row');
     btn(br,'btn-secondary','🔊 Ouvir Sol Maior ✔',()=>playSol(true));
