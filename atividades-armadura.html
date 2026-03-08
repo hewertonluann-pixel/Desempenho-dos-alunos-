@@ -40,8 +40,6 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
 .phase-title{font-size:1.1rem;font-weight:700;color:#e2b96f;margin-bottom:6px}
 .phase-desc{font-size:.88rem;color:#94a3b8;margin-bottom:18px;line-height:1.65}
 .phase-desc strong{color:#e2e8f0}
-
-/* LEGENDA */
 .legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
 .legend-item{display:flex;align-items:center;gap:7px;font-size:.78rem;color:#94a3b8}
 .legend-box{width:24px;height:14px;border-radius:4px}
@@ -49,8 +47,6 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
 .lb-semi  {background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
 .lb-sharp {background:linear-gradient(160deg,#f7d98b,#e2b96f)}
 .lb-wrong {background:linear-gradient(160deg,#f87171,#dc2626)}
-
-/* LABEL DE ESCALA */
 .scale-label{font-size:.75rem;font-weight:700;color:#e2b96f;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
 .scale-label.ref{color:#475569}
 .model-badge{
@@ -62,28 +58,26 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
 .model-box{border:1.5px solid rgba(226,185,111,.25);border-radius:14px;padding:14px 14px 10px;margin-bottom:4px;background:rgba(226,185,111,.04)}
 .ref-box  {border:1px dashed rgba(255,255,255,.1);border-radius:14px;padding:14px 14px 10px;margin-bottom:4px;opacity:.8}
 
-/*
-  ====================================================
-  ESCADA — lógica correta de degraus uniformes
+/* ==============================================
+   ESCADA
+   Cada .step-wrap tem:
+     margin-bottom = soma acumulada dos intervalos
+     JAÁ incluindo o intervalo DA própria nota.
 
-  Cada coluna (.step-wrap) é um flex-column que contém:
-    [label de nota]  ← em cima
-    [brick]          ← altura FIXA = BRICK_H
+   Regra de cálculo:
+     mb[0] = 0                  (1º grau fica no chão)
+     mb[i] = mb[i-1] + step(i)  (cada nota já sobe
+                                  pelo seu próprio intervalo)
 
-  Cada coluna fica alinhada pelo flex align-items:flex-end
-  do container, e o "degrau" é criado pelo margin-bottom
-  acumulado de cada coluna:
-    - 1º grau: margin-bottom = 0
-    - após Tom:  +TONE (48px)
-    - após Semi: +SEMI (24px)
-  Assim a diferença VISUAL entre dois blocos adjacentes é
-  exatamente TONE ou SEMI, independente da posição.
+   Onde step(i) = TONE se iv==='Tom', SEMI se iv==='Semi', 0 se iv===''.
 
-  A gap-tag fica no .step-gap entre colunas.
-  Ela é posicionada com bottom = (marginBottom do col esquerdo) + BRICK_H/2
-  para aparecer na altura média entre os dois topos de blocos.
-  ====================================================
-*/
+   Assim:
+     Dó:  mb=0
+     Ré:  mb=0+48=48     ← TONE
+     Mi:  mb=48+48=96    ← TONE
+     Fá:  mb=96+24=120   ← SEMI
+     Sol: mb=120+48=168  ← TONE  ...etc
+============================================== */
 .staircase{
   display:flex;
   align-items:flex-end;
@@ -92,28 +86,16 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
   padding:16px 4px 0;
   margin:0 auto 8px;
 }
-
-/* Coluna de cada nota */
 .step-wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  width:62px;
-  flex-shrink:0;
-  /* margin-bottom é setado via JS para criar o degrau */
+  display:flex;flex-direction:column;align-items:center;
+  width:62px;flex-shrink:0;
 }
-
-/* Nome da nota (acima do brick) */
 .note-top{
-  font-size:.8rem;font-weight:800;
-  color:#e2e8f0;margin-bottom:5px;
-  text-align:center;white-space:nowrap;
+  font-size:.8rem;font-weight:800;color:#e2e8f0;
+  margin-bottom:5px;text-align:center;white-space:nowrap;
 }
-
-/* Brick com altura FIXA */
 .brick{
-  width:56px;
-  height:52px;          /* altura fixa — não muda */
+  width:56px;height:52px;
   border-radius:8px 8px 3px 3px;
   display:flex;align-items:center;justify-content:center;
   font-size:.88rem;font-weight:800;color:#1a1a2e;
@@ -127,42 +109,29 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
   box-shadow:0 4px 20px rgba(226,185,111,.55),inset 0 2px 0 rgba(255,255,255,.35);
   animation:goldPulse 1.8s ease-in-out infinite;
 }
-.brick.wrong{
-  background:linear-gradient(160deg,#f87171,#dc2626)!important;
-  animation:shake .4s ease;
-}
+.brick.wrong{background:linear-gradient(160deg,#f87171,#dc2626)!important;animation:shake .4s ease}
 .brick.dropzone{
   background:rgba(226,185,111,.07);
   border:2.5px dashed rgba(226,185,111,.5);
-  color:#e2b96f;font-size:1.2rem;
-  cursor:pointer;box-shadow:none;animation:none;
+  color:#e2b96f;font-size:1.2rem;cursor:pointer;box-shadow:none;animation:none;
 }
 .brick.dropzone:hover,.brick.dropzone.drag-over{
   background:rgba(226,185,111,.18);border-color:#e2b96f;
   box-shadow:0 0 16px rgba(226,185,111,.35);
 }
-
-/* Gap entre colunas — onde vive a tag de intervalo */
 .step-gap{
-  width:30px;
-  flex-shrink:0;
-  position:relative;
-  align-self:stretch;  /* ocupa toda a altura do flex */
+  width:30px;flex-shrink:0;
+  position:relative;align-self:stretch;
 }
 .gap-tag{
-  position:absolute;
-  left:50%;transform:translateX(-50%);
-  white-space:nowrap;
-  font-size:.62rem;font-weight:700;
+  position:absolute;left:50%;transform:translateX(-50%);
+  white-space:nowrap;font-size:.62rem;font-weight:700;
   padding:2px 5px;border-radius:5px;
   background:rgba(255,255,255,.07);color:#64748b;
-  border:1px solid rgba(255,255,255,.12);
-  pointer-events:none;
-  /* bottom é setado via JS */
+  border:1px solid rgba(255,255,255,.12);pointer-events:none;
 }
 .gap-tag.semi {color:#7dc4a6;background:rgba(125,196,166,.12);border-color:rgba(125,196,166,.3)}
 .gap-tag.wrong{color:#f87171;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3)}
-
 @keyframes goldPulse{
   0%,100%{box-shadow:0 4px 20px rgba(226,185,111,.55),inset 0 2px 0 rgba(255,255,255,.35)}
   50%    {box-shadow:0 6px 30px rgba(226,185,111,.85),inset 0 2px 0 rgba(255,255,255,.45)}
@@ -174,13 +143,10 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
   100%{opacity:1;transform:translateY(0) scale(1)}
 }
 .brick.drop-in{animation:dropIn .5s cubic-bezier(.22,1,.36,1) forwards}
-
-/* FORMULA BAR */
 .formula-bar{display:flex;gap:6px;justify-content:center;margin:4px 0 16px;flex-wrap:wrap}
 .fb{padding:4px 12px;border-radius:8px;font-size:.78rem;font-weight:700;border:1.5px solid transparent}
 .fb.ft{background:rgba(142,175,196,.15);border-color:#5b7f9c;color:#8eafc4}
 .fb.fs{background:rgba(125,196,166,.15);border-color:#4a9a80;color:#7dc4a6}
-
 .scale-divider{border:none;border-top:1px dashed rgba(255,255,255,.08);margin:18px 0}
 .explain-box{
   background:rgba(226,185,111,.08);border:1.5px solid rgba(226,185,111,.25);
@@ -222,8 +188,8 @@ h1{font-size:1.5rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bo
 }
 .btn-secondary:hover{background:rgba(255,255,255,.14)}
 @media(max-width:600px){
-  .step-wrap{width:46px} .brick{width:40px;height:44px;font-size:.72rem}
-  .step-gap{width:22px} .main-card{padding:16px 10px} h1{font-size:1.15rem}
+  .step-wrap{width:46px}.brick{width:40px;height:44px;font-size:.72rem}
+  .step-gap{width:22px}.main-card{padding:16px 10px}h1{font-size:1.15rem}
 }
 </style>
 </head>
@@ -281,7 +247,7 @@ const SOL_WRONG=[
   {n:'Dó', iv:'Semi',type:'semi'},
   {n:'Ré', iv:'Tom', type:'tone'},
   {n:'Mi', iv:'Tom', type:'tone'},
-  {n:'Fá', iv:'Tom', type:'wrong'},   /* deveria ser Semi */
+  {n:'Fá', iv:'Tom', type:'wrong'},
   {n:'Sol',iv:'Semi',type:'semi'},
 ];
 const SOL_RIGHT=[
@@ -296,71 +262,79 @@ const SOL_RIGHT=[
 ];
 
 /*
-  ====================================================
-  buildStaircase(scale, dropIndex, solved)
+  ================================================
+  CONSTANTES DE DEGRAU
+    TONE = 48px  (degrau de 1 Tom)
+    SEMI = 24px  (degrau de ½ Tom)
+    BRICK_H = 52px  (altura fixa de todos os bricks)
 
-  Cada nota recebe um .step-wrap com margin-bottom acumulado.
-  O brick tem altura FIXA (BRICK_H).
-  A diferença de margin-bottom entre colunas consecutivas
-  é sempre TONE (48px) ou SEMI (24px) — nunca mais.
+  CÁLCULO DE mb[] (margin-bottom de cada coluna):
+    mb[0] = 0                         (Dó fica no chão)
+    mb[i] = mb[i-1] + step(scale[i])  (já aplica o
+                                        intervalo DA nota i)
+  Onde step = TONE | SEMI | 0.
 
-  gap-tag: fica no .step-gap entre as duas colunas,
-  posicionado com bottom = marginLeft + BRICK_H + 6px
-  para flutuar entre os dois topos de bloco.
-  ====================================================
+  Exemplo para Dó Maior:
+    i=0 Dó  iv=''     step=0   mb=0
+    i=1 Ré  iv='Tom'  step=48  mb=0+48=48
+    i=2 Mi  iv='Tom'  step=48  mb=48+48=96
+    i=3 Fá  iv='Semi' step=24  mb=96+24=120
+    i=4 Sol iv='Tom'  step=48  mb=120+48=168
+    i=5 Lá  iv='Tom'  step=48  mb=168+48=216
+    i=6 Si  iv='Tom'  step=48  mb=216+48=264
+    i=7 Dó  iv='Semi' step=24  mb=264+24=288
+  ================================================
 */
 const TONE=48, SEMI=24, BRICK_H=52;
+
+function calcMB(scale){
+  const mb=[];
+  let acc=0;
+  scale.forEach(s=>{
+    const step = s.iv==='Tom' ? TONE : s.iv==='Semi' ? SEMI : 0;
+    acc += step;          // aplica o intervalo DA própria nota
+    mb.push(acc);
+  });
+  /* Desloca para que o 1º grau comece em 0:
+     subtrai o valor mínimo (que é mb[0]) */
+  const base = mb[0];
+  return mb.map(v => v - base);
+  /* Resultado: Dó=0, Ré=48, Mi=96, Fá=120, ... */
+}
 
 function buildStaircase(scale, dropIndex=-1, solved=false){
   const wrap=document.createElement('div');
   wrap.className='staircase';
-
-  /* Calcula o margin-bottom acumulado de cada coluna.
-     Col 0: mb=0
-     Col i: mb = sum dos intervalos das colunas 0..i-1 */
-  const mb=[0];
-  scale.forEach((s,i)=>{
-    if(i===0) return;
-    const prev=scale[i]; // intervalo chegando em i
-    const step=s.iv==='Tom'||s.iv==='Semi'? (s.iv==='Tom'?TONE:SEMI) : 0;
-    mb.push(mb[mb.length-1]+step);
-  });
-  /* Recalcula corretamente: mb[i] = soma dos passos das notas 1..i */
-  for(let i=0;i<mb.length;i++) mb[i]=0;
-  let acc=0;
-  scale.forEach((s,i)=>{
-    mb[i]=acc;
-    const step=s.iv==='Tom'?TONE:s.iv==='Semi'?SEMI:0;
-    acc+=step;
-  });
+  const mb=calcMB(scale);
 
   scale.forEach((s,i)=>{
-    /* GAP antes desta coluna */
+    /* GAP + tag de intervalo ANTES desta coluna */
     if(i>0){
       const gapEl=document.createElement('div');
       gapEl.className='step-gap';
       const tag=document.createElement('div');
-      const isSemi=s.iv==='Semi';
-      const isWrong=s.type==='wrong';
+      const isSemi = s.iv==='Semi';
+      const isWrong= s.type==='wrong';
       tag.className='gap-tag'+(isSemi?' semi':isWrong?' wrong':'');
-      tag.textContent=isSemi?'½ Tom':isWrong?'1 Tom ⚠️':'1 Tom';
-      /* bottom: meio do espaço entre o topo do bloco esq e o topo do bloco dir
-         topo do bloco esq = mb[i-1] + BRICK_H
-         topo do bloco dir = mb[i]   + BRICK_H
-         meio = (topo_esq + topo_dir) / 2  */
-      const topLeft =mb[i-1]+BRICK_H;
-      const topRight=mb[i]  +BRICK_H;
-      tag.style.bottom=((topLeft+topRight)/2)+'px';
+      tag.textContent = isSemi ? '½ Tom' : isWrong ? '1 Tom ⚠️' : '1 Tom';
+      /* Posiciona a tag no ponto médio vertical entre
+         o topo do bloco esquerdo e o topo do bloco direito.
+         topo = marginBottom + BRICK_H
+         (flex align-items:flex-end: bottom da col = 0,
+          top da col = marginBottom + BRICK_H + label) */
+      const topL = mb[i-1] + BRICK_H;
+      const topR = mb[i]   + BRICK_H;
+      tag.style.bottom = ((topL + topR) / 2) + 'px';
       gapEl.appendChild(tag);
       wrap.appendChild(gapEl);
     }
 
-    /* COLUNA DA NOTA */
+    /* COLUNA */
     const col=document.createElement('div');
     col.className='step-wrap';
-    col.style.marginBottom=mb[i]+'px';
+    col.style.marginBottom = mb[i] + 'px';
 
-    /* Nome acima */
+    /* Nome acima do brick */
     const lbl=document.createElement('div');
     lbl.className='note-top';
     lbl.textContent=s.n;
@@ -368,7 +342,7 @@ function buildStaircase(scale, dropIndex=-1, solved=false){
 
     /* Brick */
     let brick;
-    if(dropIndex===i&&!solved){
+    if(dropIndex===i && !solved){
       brick=document.createElement('div');
       brick.className='brick dropzone';
       brick.innerHTML='♯';
@@ -379,8 +353,7 @@ function buildStaircase(scale, dropIndex=-1, solved=false){
       brick.addEventListener('drop',e=>{e.preventDefault();onDropSharp();});
     } else {
       brick=document.createElement('div');
-      const cls=solved&&s.type==='golden'?'golden drop-in':s.type;
-      brick.className='brick '+cls;
+      brick.className='brick '+(solved&&s.type==='golden'?'golden drop-in':s.type);
       brick.textContent=s.n;
     }
     col.appendChild(brick);
@@ -404,9 +377,9 @@ function buildFormula(scale){
 function buildLegend(showWrong=false){
   const d=document.createElement('div');
   d.className='legend';
-  const its=[['lb-tone','1 Tom'],['lb-semi','½ Tom (semitom)'],['lb-sharp','♯ Sustenido']];
-  if(showWrong) its.push(['lb-wrong','Intervalo incorreto']);
-  its.forEach(([c,t])=>{
+  [['lb-tone','1 Tom'],['lb-semi','½ Tom (semitom)'],['lb-sharp','♯ Sustenido'],
+   ...(showWrong?[['lb-wrong','Intervalo incorreto']]:[])]
+  .forEach(([c,t])=>{
     const it=document.createElement('div');
     it.className='legend-item';
     it.innerHTML=`<div class="legend-box ${c}"></div><span>${t}</span>`;
@@ -435,15 +408,15 @@ function renderPhase0(){
   const card=document.getElementById('main-card');
   card.innerHTML='';
   h(card,'div','phase-title','🏗️ A Escala Modelo: Dó Maior');
-  const desc=h(card,'div','phase-desc');
-  desc.innerHTML=`<strong>Dó Maior</strong> é a escala modelo de todas as escalas maiores — sem sustenidos nem bemoéis.<br>
-  A etiqueta <em>entre</em> dois degraus mostra o intervalo: <strong>1 Tom</strong> (degrau alto) ou <strong>½ Tom</strong> (semitom, degrau baixo).<br>
-  Toda escala maior deve ter exatamente este formato: <strong>T – T – ½ – T – T – T – ½</strong>.`;
+  h(card,'div','phase-desc').innerHTML=
+    `<strong>Dó Maior</strong> é a escala modelo — sem sustenidos nem bemoéis.<br>
+    A etiqueta <em>entre</em> dois degraus mostra o intervalo:
+    <strong>1 Tom</strong> (degrau alto) ou <strong>½ Tom</strong> (degrau baixo).<br>
+    Toda escala maior deve seguir exatamente este formato: <strong>T – T – ½ – T – T – T – ½</strong>.`;
   card.appendChild(buildLegend());
   const mb=h(card,'div','model-box');
   h(mb,'div','model-badge','⭐ ESCALA MODELO MAIOR');
-  h(mb,'div','scale-label',null);
-  mb.lastChild.textContent='DÓ MAIOR';
+  h(mb,'div','scale-label').textContent='DÓ MAIOR';
   mb.appendChild(buildStaircase(DO_SCALE));
   mb.appendChild(buildFormula(DO_SCALE));
   const br=h(card,'div','btn-row');
@@ -455,9 +428,10 @@ function renderPhase1(){
   const card=document.getElementById('main-card');
   card.innerHTML='';
   h(card,'div','phase-title','❓ E se começarmos pelo Sol?');
-  const desc=h(card,'div','phase-desc');
-  desc.innerHTML=`Compare as duas escadas. A fórmula deve ser idêntica à de Dó Maior.<br>
-  O 7º intervalo de Sol <strong>(Fá→Sol)</strong> deveria ser <strong>½ Tom</strong>, mas o Fá natural fica a <strong>1 Tom</strong> — degrau alto demais. ⚠️`;
+  h(card,'div','phase-desc').innerHTML=
+    `Compare as duas escadas. A fórmula deve ser idêntica à de Dó Maior.<br>
+    O 7º intervalo de Sol <strong>(Fá→Sol)</strong> deveria ser <strong>½ Tom</strong>,
+    mas o Fá natural fica a <strong>1 Tom</strong> — degrau alto demais. ⚠️`;
   card.appendChild(buildLegend(true));
   h(card,'div','scale-label').textContent='SOL MAIOR — com problema ⚠️';
   card.appendChild(buildStaircase(SOL_WRONG));
@@ -468,11 +442,11 @@ function renderPhase1(){
   h(rb,'div','scale-label ref').textContent='DÓ MAIOR — referência';
   rb.appendChild(buildStaircase(DO_SCALE));
   rb.appendChild(buildFormula(DO_SCALE));
-  const eb=h(card,'div','explain-box');
-  eb.innerHTML=`<strong>⚠️ O degrau vermelho está alto demais!</strong><br>
-  Em Dó Maior, o 7º intervalo tem degrau baixo (½ Tom).
-  Em Sol, o Fá natural cria degrau alto (1 Tom) nessa posição.
-  Precisamos elevá-lo meio tom → <strong>Fá♯</strong>.`;
+  h(card,'div','explain-box').innerHTML=
+    `<strong>⚠️ O degrau vermelho está alto demais!</strong><br>
+    Em Dó Maior, o 7º intervalo tem degrau baixo (½ Tom).
+    Em Sol, o Fá natural cria degrau alto (1 Tom).
+    Precisamos elevá-lo meio tom → <strong>Fá♯</strong>.`;
   const br=h(card,'div','btn-row');
   btn(br,'btn-secondary','🔊 Ouvir Sol (errado)',()=>playSol(false));
   btn(br,'btn-primary','Corrigir →',()=>goPhase(2));
@@ -483,16 +457,15 @@ function renderPhase2(state){
   card.innerHTML='';
   h(card,'div','phase-title','✨ Sol Maior – Coloque o Sustenido!');
   if(state==='intro'){
-    const desc=h(card,'div','phase-desc');
-    desc.innerHTML=`O bloco dourado <strong>♯</strong> eleva a nota <strong>meio tom</strong>, criando o degrau correto.<br>
-    Clique no espaço tracejado para encaixar o ♯ no 7º grau e corrigir a escada.`;
+    h(card,'div','phase-desc').innerHTML=
+      `O bloco dourado <strong>♯</strong> eleva a nota <strong>meio tom</strong>, criando o degrau correto.<br>
+      Clique no espaço tracejado para encaixar o ♯ no 7º grau e corrigir a escada.`;
     const pool=h(card,'div','sharp-pool');
     h(pool,'p',null,'Bloco disponível — clique no espaço tracejado:');
     const drag=h(pool,'div','sharp-drag','♯ Fá');
     drag.draggable=true;
     drag.addEventListener('dragstart',e=>e.dataTransfer.setData('text','sharp'));
-    const fb=h(card,'div','feedback-bar');
-    fb.id='fb-p2';
+    h(card,'div','feedback-bar').id='fb-p2';
     card.appendChild(buildLegend(true));
     h(card,'div','scale-label').textContent='SOL MAIOR — coloque o ♯';
     card.appendChild(buildStaircase(SOL_WRONG,6,false));
@@ -505,8 +478,9 @@ function renderPhase2(state){
     btn(br,'btn-secondary','🔊 Ouvir sem ♯',()=>playSol(false));
   }
   if(state==='solved'){
-    const desc=h(card,'div','phase-desc');
-    desc.innerHTML=`<strong style="color:#2ed573">✓ Perfeito!</strong> O <strong>Fá♯</strong> corrigiu o degrau! As duas escadas têm o mesmo formato agora.`;
+    h(card,'div','phase-desc').innerHTML=
+      `<strong style="color:#2ed573">✓ Perfeito!</strong>
+      O <strong>Fá♯</strong> corrigiu o degrau! As duas escadas têm o mesmo formato agora.`;
     card.appendChild(buildLegend());
     h(card,'div','scale-label').textContent='SOL MAIOR — correto ✨';
     card.appendChild(buildStaircase(SOL_RIGHT,-1,true));
@@ -517,11 +491,11 @@ function renderPhase2(state){
     h(rb,'div','scale-label ref').textContent='DÓ MAIOR — referência';
     rb.appendChild(buildStaircase(DO_SCALE));
     rb.appendChild(buildFormula(DO_SCALE));
-    const eb=h(card,'div','explain-box');
-    eb.innerHTML=`<strong>🎯 Por que o Fá♯?</strong><br>
-    O 7º intervalo de Sol Maior exige ½ Tom até o Sol. O Fá natural dista 1 Tom —
-    o <strong>♯</strong> eleva ½ tom criando o degrau baixo correto.<br>
-    Por isso a <strong>armadura de Sol Maior tem 1 sustenido: Fá♯</strong>.`;
+    h(card,'div','explain-box').innerHTML=
+      `<strong>🎯 Por que o Fá♯?</strong><br>
+      O 7º intervalo de Sol Maior exige ½ Tom até o Sol. O Fá natural dista 1 Tom —
+      o <strong>♯</strong> eleva ½ tom criando o degrau correto.<br>
+      Por isso a <strong>armadura de Sol Maior tem 1 sustenido: Fá♯</strong>.`;
     const br=h(card,'div','btn-row');
     btn(br,'btn-secondary','🔊 Ouvir Sol Maior ✔',()=>playSol(true));
     btn(br,'btn-secondary','🔄 Repetir',()=>{phase2State='intro';goPhase(2);});
