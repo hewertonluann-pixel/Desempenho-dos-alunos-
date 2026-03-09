@@ -7,7 +7,10 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="loader.css">
   <link rel="stylesheet" href="aluno.css" />
+  <link rel="stylesheet" href="bottom-nav.css" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
@@ -22,6 +25,11 @@
       </div>
     </div>
   </div>
+
+  <!-- HEADER COM NOME DO GRUPO -->
+  <header class="top-header">
+    <h1 class="group-name">Orquestra Filhos de Asafe</h1>
+  </header>
 
   <div class="main-container">
     <aside class="sidebar">
@@ -58,7 +66,7 @@
         </div>
         <button class="btn-change-password" onclick="abrirConfiguracoes()">⚙️ Configurações</button>
         <button class="btn-professor-mode" id="modoProfessorBtn" style="display:none;" onclick="acessarModoProfessor()">👨‍🏫 Modo Professor</button>
-        <a href="download.html" class="btn-download-app">📲 Baixar App</a>
+        <a href="download.html" class="btn-download-app" id="btnBaixarApp" style="display:none;">📲 Baixar App</a>
       </div>
       
       <div class="sidebar-buttons-row">
@@ -142,7 +150,7 @@
 
       <!-- LIÇÕES ENVIADAS -->
       <section class="lessons-section card">
-        <h2>🎼Lições Enviadas</h2>
+        <h2>🎼 Lições Enviadas</h2>
         <button class="btn-send-lesson" onclick="abrirModalEnviarLicao()">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
           Enviar nova lição
@@ -161,6 +169,33 @@
     </main>
   </div> <!-- main-container -->
 
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="bottom-nav">
+    <a href="aluno.html" class="nav-item" data-page="home">
+      <i class="fas fa-home nav-icon"></i>
+      <span class="nav-label">Home</span>
+    </a>
+    
+    <a href="painel-social.html" class="nav-item" data-page="comunidade">
+      <i class="fas fa-users nav-icon"></i>
+      <span class="nav-label">Comunidade</span>
+    </a>
+    
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca">
+      <i class="fas fa-book nav-icon"></i>
+      <span class="nav-label">Biblioteca</span>
+    </a>
+    
+    <a href="atividades.html" class="nav-item" data-page="atividades">
+      <i class="fas fa-clipboard-list nav-icon"></i>
+      <span class="nav-label">Atividades</span>
+    </a>
+    
+    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none;">
+      <i class="fas fa-chalkboard-teacher nav-icon"></i>
+      <span class="nav-label">Professor</span>
+    </a>
+  </nav>
 
   <!-- ============================================================
        MODAIS E POPUPS PADRONIZADOS
@@ -241,6 +276,7 @@
   <script type="module" src="navegacao.js"></script>
   <script src="js/recorder.js"></script>
   <script type="module" src="licoes.js?v=1"></script>
+  <script type="module" src="bottom-nav.js"></script>
 
 </body>
 </html>
