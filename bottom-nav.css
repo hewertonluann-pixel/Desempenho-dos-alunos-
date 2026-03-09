@@ -147,27 +147,34 @@
 }
 
 /* ============================================
-   AJUSTE DO CONTEÚDO - MANTER SIDEBAR VISÍVEL
+   AJUSTE DO CONTEÚDO - SIDEBAR SEMPRE VISÍVEL
    ============================================ */
-body {
-  padding-top: 60px;
-  padding-bottom: 70px;
-}
 
-.main-container {
-  margin-top: 0 !important;
-  padding-bottom: 20px;
-}
-
-/* A sidebar permanece visível em desktop */
+/* Sidebar permanece com comportamento original (sempre visível) */
 .sidebar {
-  /* Não ocultar - manter comportamento original */
+  /* Mantém estilo original - não modificar */
 }
 
 /* ============================================
-   RESPONSIVIDADE - OCULTAR SIDEBAR APENAS EM MOBILE
+   OCULTAR NAVEGAÇÃO ANTIGA EM MOBILE
+   ============================================ */
+/* Ocultar os botões de Comunidade e Biblioteca da sidebar em mobile */
+@media (max-width: 768px) {
+  .sidebar-buttons-row {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   RESPONSIVIDADE MOBILE
    ============================================ */
 @media (max-width: 768px) {
+  /* Ajustes de padding para header e bottom nav */
+  body {
+    padding-top: 56px;
+    padding-bottom: 65px;
+  }
+
   /* Header */
   .top-header {
     height: 56px;
@@ -207,22 +214,6 @@ body {
 
   .nav-label {
     font-size: 10px;
-  }
-
-  /* Ajustes de padding */
-  body {
-    padding-top: 56px;
-    padding-bottom: 65px;
-  }
-
-  /* OCULTAR SIDEBAR EM MOBILE */
-  .sidebar {
-    display: none !important;
-  }
-
-  .content-area {
-    width: 100% !important;
-    margin-left: 0 !important;
   }
 }
 
@@ -277,6 +268,7 @@ body {
    DESKTOP - ESCONDER HEADER E BOTTOM NAV
    ============================================ */
 @media (min-width: 769px) {
+  /* Ocultar header e bottom nav em desktop */
   .top-header {
     display: none;
   }
@@ -285,8 +277,14 @@ body {
     display: none;
   }
 
+  /* Remover padding do body */
   body {
     padding-top: 0;
     padding-bottom: 0;
+  }
+
+  /* Garantir que sidebar-buttons-row (Comunidade/Biblioteca) fique visível */
+  .sidebar-buttons-row {
+    display: flex !important;
   }
 }
