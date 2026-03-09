@@ -9,12 +9,11 @@ function carregarDadosUsuario() {
   if (usuario && usuario.nome) {
     // Atualizar foto do usuário no header
     const headerPhoto = document.getElementById('headerUserPhoto');
-    if (headerPhoto && usuario.foto) {
-      headerPhoto.src = usuario.foto;
-    }
-    
-    // Click na foto leva ao perfil
     if (headerPhoto) {
+      // Sempre atualizar a foto, mesmo que seja placeholder
+      headerPhoto.src = usuario.foto || 'https://via.placeholder.com/150';
+      
+      // Click na foto leva ao perfil
       headerPhoto.onclick = () => {
         window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
       };
@@ -30,6 +29,12 @@ function carregarDadosUsuario() {
     const navProfessor = document.getElementById('navProfessor');
     if (navProfessor && usuario.classificado === true) {
       navProfessor.style.display = 'flex';
+    }
+  } else {
+    // Se não houver usuário, manter placeholder
+    const headerPhoto = document.getElementById('headerUserPhoto');
+    if (headerPhoto) {
+      headerPhoto.src = 'https://via.placeholder.com/150';
     }
   }
 }
