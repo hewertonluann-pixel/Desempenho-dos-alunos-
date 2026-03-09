@@ -2,39 +2,53 @@
 // SCRIPT PARA GERENCIAR HEADER E BOTTOM NAVIGATION
 // ================================================================
 
+import { db } from "./firebase-config.js";
+import {
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
 // Função para carregar dados do usuário no header
-function carregarDadosUsuario() {
+async function carregarDadosUsuario() {
   const usuario = JSON.parse(localStorage.getItem('usuarioAtual'));
   
-  if (usuario && usuario.nome) {
+  if (!usuario || !usuario.nome) {
+    console.warn("Nenhum usuário logado. Header exibido em modo visitante.");
+    return;
+  }
+
+  // Buscar dados reais do usuário no Firestore
+  const q = query(collection(db, "alunos"), where("nome", "==", usuario.nome));
+  const snap = await getDocs(q);
+
+  if (!snap.empty) {
+    const aluno = snap.docs[0].data();
+
     // Atualizar foto do usuário no header
     const headerPhoto = document.getElementById('headerUserPhoto');
     if (headerPhoto) {
-      // Sempre atualizar a foto, mesmo que seja placeholder
-      headerPhoto.src = usuario.foto || 'https://via.placeholder.com/150';
+      if (aluno.foto) {
+        headerPhoto.src = aluno.foto;
+      }
       
       // Click na foto leva ao perfil
       headerPhoto.onclick = () => {
         window.location.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
       };
     }
-    
+
     // Configurar link do botão Home no bottom nav
     const homeLink = document.querySelector('.bottom-nav a[data-page="home"]');
     if (homeLink) {
       homeLink.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
     }
-    
+
     // Mostrar botão Professor se for classificado
     const navProfessor = document.getElementById('navProfessor');
-    if (navProfessor && usuario.classificado === true) {
+    if (navProfessor && aluno.classificado === true) {
       navProfessor.style.display = 'flex';
-    }
-  } else {
-    // Se não houver usuário, manter placeholder
-    const headerPhoto = document.getElementById('headerUserPhoto');
-    if (headerPhoto) {
-      headerPhoto.src = 'https://via.placeholder.com/150';
     }
   }
 }
