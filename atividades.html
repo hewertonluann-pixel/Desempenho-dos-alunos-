@@ -6,7 +6,10 @@
   <title>Atividades Musicais</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="loader.css">
+  <link rel="stylesheet" href="bottom-nav.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -162,6 +165,21 @@
   </style>
 </head>
 <body>
+  <!-- HEADER COM FOTO, NOME DO GRUPO E BOTÃO SAIR (visível apenas em mobile) -->
+  <header class="top-header">
+    <img id="headerUserPhoto" 
+         src="https://via.placeholder.com/150" 
+         alt="Foto do usuário" 
+         class="header-user-photo"
+         title="Ver meu perfil">
+    
+    <h1 class="group-name">Filhos de Asafe</h1>
+    
+    <button id="headerLogoutBtn" class="header-logout-btn" title="Sair da conta">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Sair</span>
+    </button>
+  </header>
 
   <!-- Global Loader -->
   <div id="global-loader">
@@ -251,8 +269,37 @@
 
   </div>
 
+  <!-- BOTTOM NAVIGATION BAR (visível apenas em mobile) -->
+  <nav class="bottom-nav">
+    <a href="aluno.html" class="nav-item" data-page="home">
+      <i class="fas fa-home nav-icon"></i>
+      <span class="nav-label">Home</span>
+    </a>
+    
+    <a href="painel-social.html" class="nav-item" data-page="comunidade">
+      <i class="fas fa-users nav-icon"></i>
+      <span class="nav-label">Comunidade</span>
+    </a>
+    
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca">
+      <i class="fas fa-book nav-icon"></i>
+      <span class="nav-label">Biblioteca</span>
+    </a>
+    
+    <a href="atividades.html" class="nav-item active" data-page="atividades">
+      <i class="fas fa-clipboard-list nav-icon"></i>
+      <span class="nav-label">Atividades</span>
+    </a>
+    
+    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none;">
+      <i class="fas fa-chalkboard-teacher nav-icon"></i>
+      <span class="nav-label">Professor</span>
+    </a>
+  </nav>
+
   <script src="loader.js"></script>
   <script type="module" src="navegacao.js"></script>
+  <script type="module" src="bottom-nav.js"></script>
 
 </body>
 </html>
