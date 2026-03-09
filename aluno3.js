@@ -420,6 +420,12 @@ export async function iniciarPainelAluno() {
     if (inputFoto) inputFoto.style.display = "none";
   }
 
+  // Ocultar botão "Baixar App" se não for o dono da página
+  if (!ehDonoDaPagina) {
+    const btnBaixarApp = document.querySelector(".btn-download-app");
+    if (btnBaixarApp) btnBaixarApp.style.display = "none";
+  }
+
   // =====================================================
   // 👁️ APLICAR PREFERÊNCIAS DE VISIBILIDADE
   // =====================================================
