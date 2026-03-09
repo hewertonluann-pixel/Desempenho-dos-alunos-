@@ -1,5 +1,5 @@
 /* ============================================
-   HEADER COM NOME DO GRUPO, FOTO E SAIR
+   HEADER COM LOGO DO GRUPO, NOME E FOTO DO USUÁRIO
    ============================================ */
 .top-header {
   position: fixed;
@@ -16,25 +16,19 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Foto do usuário no header */
-.header-user-photo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+/* Logo do grupo à esquerda */
+.header-group-logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
   object-fit: cover;
-  border: 2px solid #00ffcc;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border: 2px solid rgba(0, 255, 204, 0.4);
+  flex-shrink: 0;
 }
 
-.header-user-photo:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
-}
-
-/* Nome do grupo */
+/* Nome do grupo no centro */
 .group-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #ffffff;
   text-align: center;
@@ -44,11 +38,20 @@
   gap: 8px;
   flex: 1;
   justify-content: center;
+  padding: 0 10px;
 }
 
 .group-name::before {
   content: '🎵';
-  font-size: 24px;
+  font-size: 20px;
+}
+
+/* Container direito: botão sair + foto */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 /* Botão de sair */
@@ -79,6 +82,23 @@
 
 .header-logout-btn i {
   font-size: 16px;
+}
+
+/* Foto do usuário à direita */
+.header-user-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00ffcc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.header-user-photo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
 }
 
 /* ============================================
@@ -176,19 +196,24 @@
 @media (max-width: 768px) {
   /* Ajustes de padding para header e bottom nav */
   body {
-    padding-top: 56px;
-    padding-bottom: 65px;
+    padding-top: 60px;
+    padding-bottom: 70px;
   }
 
   /* Header */
   .top-header {
-    height: 56px;
-    padding: 0 10px;
+    height: 60px;
+    padding: 0 12px;
+  }
+
+  .header-group-logo {
+    width: 42px;
+    height: 42px;
   }
 
   .header-user-photo {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
   }
 
   .group-name {
@@ -196,7 +221,7 @@
   }
 
   .group-name::before {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .header-logout-btn {
@@ -210,7 +235,7 @@
 
   /* Bottom nav */
   .bottom-nav {
-    height: 65px;
+    height: 70px;
   }
 
   .nav-icon {
@@ -223,9 +248,14 @@
 }
 
 @media (max-width: 480px) {
+  .header-group-logo {
+    width: 38px;
+    height: 38px;
+  }
+
   .header-user-photo {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
   }
 
   .group-name {
@@ -262,10 +292,14 @@
 @media (max-width: 360px) {
   .group-name {
     font-size: 12px;
-    max-width: 180px;
+    max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .header-right {
+    gap: 6px;
   }
 }
 
