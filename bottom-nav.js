@@ -20,6 +20,12 @@ function carregarDadosUsuario() {
       };
     }
     
+    // Configurar link do botão Home no bottom nav
+    const homeLink = document.querySelector('.bottom-nav a[data-page="home"]');
+    if (homeLink) {
+      homeLink.href = `aluno.html?nome=${encodeURIComponent(usuario.nome)}`;
+    }
+    
     // Mostrar botão Professor se for classificado
     const navProfessor = document.getElementById('navProfessor');
     if (navProfessor && usuario.classificado === true) {
