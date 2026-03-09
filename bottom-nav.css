@@ -1,0 +1,292 @@
+/* ============================================
+   HEADER COM NOME DO GRUPO, FOTO E SAIR
+   ============================================ */
+.top-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Foto do usuário no header */
+.header-user-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00ffcc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-user-photo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+}
+
+/* Nome do grupo */
+.group-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+}
+
+.group-name::before {
+  content: '🎵';
+  font-size: 24px;
+}
+
+/* Botão de sair */
+.header-logout-btn {
+  background: rgba(255, 59, 48, 0.15);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: #ff3b30;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-logout-btn:hover {
+  background: rgba(255, 59, 48, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+.header-logout-btn:active {
+  transform: scale(0.95);
+}
+
+.header-logout-btn i {
+  font-size: 16px;
+}
+
+/* ============================================
+   BOTTOM NAVIGATION BAR
+   ============================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: #9ca3af;
+  cursor: pointer;
+  min-width: 60px;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-item.active {
+  color: #00ffcc;
+  background: rgba(0, 255, 204, 0.1);
+}
+
+.nav-item.active .nav-icon {
+  color: #00ffcc;
+  transform: scale(1.1);
+}
+
+.nav-icon {
+  font-size: 24px;
+  transition: all 0.3s ease;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+/* Animação de clique */
+.nav-item:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   AJUSTE DO CONTEÚDO - MANTER SIDEBAR VISÍVEL
+   ============================================ */
+body {
+  padding-top: 60px;
+  padding-bottom: 70px;
+}
+
+.main-container {
+  margin-top: 0 !important;
+  padding-bottom: 20px;
+}
+
+/* A sidebar permanece visível em desktop */
+.sidebar {
+  /* Não ocultar - manter comportamento original */
+}
+
+/* ============================================
+   RESPONSIVIDADE - OCULTAR SIDEBAR APENAS EM MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+  /* Header */
+  .top-header {
+    height: 56px;
+    padding: 0 10px;
+  }
+
+  .header-user-photo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .group-name {
+    font-size: 15px;
+  }
+
+  .group-name::before {
+    font-size: 20px;
+  }
+
+  .header-logout-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .header-logout-btn i {
+    font-size: 14px;
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    height: 65px;
+  }
+
+  .nav-icon {
+    font-size: 22px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+  }
+
+  /* Ajustes de padding */
+  body {
+    padding-top: 56px;
+    padding-bottom: 65px;
+  }
+
+  /* OCULTAR SIDEBAR EM MOBILE */
+  .sidebar {
+    display: none !important;
+  }
+
+  .content-area {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-user-photo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .group-name {
+    font-size: 13px;
+  }
+
+  .group-name::before {
+    display: none; /* Esconde emoji em telas muito pequenas */
+  }
+
+  .header-logout-btn span {
+    display: none; /* Esconde texto "Sair" em telas pequenas */
+  }
+
+  .header-logout-btn {
+    padding: 6px 8px;
+  }
+
+  .nav-item {
+    min-width: 50px;
+    padding: 6px 8px;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+  }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 360px) {
+  .group-name {
+    font-size: 12px;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ============================================
+   DESKTOP - ESCONDER HEADER E BOTTOM NAV
+   ============================================ */
+@media (min-width: 769px) {
+  .top-header {
+    display: none;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
