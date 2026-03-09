@@ -1,0 +1,174 @@
+/* ============================================
+   HEADER COM NOME DO GRUPO
+   ============================================ */
+.top-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.group-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.group-name::before {
+  content: '🎵';
+  font-size: 24px;
+}
+
+/* ============================================
+   BOTTOM NAVIGATION BAR
+   ============================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: #9ca3af;
+  cursor: pointer;
+  min-width: 60px;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-item.active {
+  color: #00ffcc;
+  background: rgba(0, 255, 204, 0.1);
+}
+
+.nav-item.active .nav-icon {
+  color: #00ffcc;
+  transform: scale(1.1);
+}
+
+.nav-icon {
+  font-size: 24px;
+  transition: all 0.3s ease;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+/* Animação de clique */
+.nav-item:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   AJUSTE DO CONTEÚDO
+   ============================================ */
+body {
+  padding-top: 60px;
+  padding-bottom: 70px;
+}
+
+.main-container {
+  margin-top: 0 !important;
+  padding-bottom: 20px;
+}
+
+/* ============================================
+   RESPONSIVIDADE
+   ============================================ */
+@media (max-width: 768px) {
+  .top-header {
+    height: 56px;
+  }
+
+  .group-name {
+    font-size: 16px;
+  }
+
+  .bottom-nav {
+    height: 65px;
+  }
+
+  .nav-icon {
+    font-size: 22px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+  }
+
+  body {
+    padding-top: 56px;
+    padding-bottom: 65px;
+  }
+}
+
+@media (max-width: 480px) {
+  .group-name {
+    font-size: 14px;
+  }
+
+  .nav-item {
+    min-width: 50px;
+    padding: 6px 8px;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+  }
+}
+
+/* ============================================
+   ESCONDER SIDEBAR ANTIGA EM MOBILE
+   ============================================ */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .content-area {
+    width: 100%;
+    margin-left: 0;
+  }
+}
