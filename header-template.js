@@ -16,7 +16,7 @@ export function inserirHeaderTemplate() {
          class="header-group-logo"
          title="Orquestra Filhos de Asafe">
     
-    <h1 class="group-name">Filhos de Asafe</h1>
+    <h1 class="group-name">🎵 Orquestra Filhos de Asafe</h1>
     
     <div class="header-right">
       <button id="headerLogoutBtn" class="header-logout-btn" title="Sair da conta">
