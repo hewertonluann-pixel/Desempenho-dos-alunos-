@@ -1,5 +1,5 @@
 /* ============================================
-   HEADER COM NOME DO GRUPO
+   HEADER COM NOME DO GRUPO, FOTO E SAIR
    ============================================ */
 .top-header {
   position: fixed;
@@ -10,12 +10,29 @@
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 20px;
+  justify-content: space-between;
+  padding: 0 15px;
   z-index: 1000;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Foto do usuário no header */
+.header-user-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00ffcc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-user-photo:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+}
+
+/* Nome do grupo */
 .group-name {
   font-size: 18px;
   font-weight: 700;
@@ -24,12 +41,44 @@
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
 .group-name::before {
   content: '🎵';
   font-size: 24px;
+}
+
+/* Botão de sair */
+.header-logout-btn {
+  background: rgba(255, 59, 48, 0.15);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: #ff3b30;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-logout-btn:hover {
+  background: rgba(255, 59, 48, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+}
+
+.header-logout-btn:active {
+  transform: scale(0.95);
+}
+
+.header-logout-btn i {
+  font-size: 16px;
 }
 
 /* ============================================
@@ -98,6 +147,13 @@
 }
 
 /* ============================================
+   OCULTAR SIDEBAR ANTIGA
+   ============================================ */
+.sidebar {
+  display: none !important;
+}
+
+/* ============================================
    AJUSTE DO CONTEÚDO
    ============================================ */
 body {
@@ -108,6 +164,13 @@ body {
 .main-container {
   margin-top: 0 !important;
   padding-bottom: 20px;
+  display: block !important;
+}
+
+.content-area {
+  width: 100% !important;
+  margin-left: 0 !important;
+  max-width: 100% !important;
 }
 
 /* ============================================
@@ -116,10 +179,29 @@ body {
 @media (max-width: 768px) {
   .top-header {
     height: 56px;
+    padding: 0 10px;
+  }
+
+  .header-user-photo {
+    width: 36px;
+    height: 36px;
   }
 
   .group-name {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  .group-name::before {
+    font-size: 20px;
+  }
+
+  .header-logout-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .header-logout-btn i {
+    font-size: 14px;
   }
 
   .bottom-nav {
@@ -141,8 +223,25 @@ body {
 }
 
 @media (max-width: 480px) {
+  .header-user-photo {
+    width: 32px;
+    height: 32px;
+  }
+
   .group-name {
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .group-name::before {
+    display: none; /* Esconde emoji em telas muito pequenas */
+  }
+
+  .header-logout-btn span {
+    display: none; /* Esconde texto "Sair" em telas pequenas */
+  }
+
+  .header-logout-btn {
+    padding: 6px 8px;
   }
 
   .nav-item {
@@ -159,16 +258,13 @@ body {
   }
 }
 
-/* ============================================
-   ESCONDER SIDEBAR ANTIGA EM MOBILE
-   ============================================ */
-@media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-
-  .content-area {
-    width: 100%;
-    margin-left: 0;
+/* Telas muito pequenas */
+@media (max-width: 360px) {
+  .group-name {
+    font-size: 12px;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
