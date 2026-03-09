@@ -2,6 +2,7 @@
 // SCRIPT PARA GERENCIAR HEADER E BOTTOM NAVIGATION
 // ================================================================
 
+import "./header-template.js"; // Importa o template do header
 import { db } from "./firebase-config.js";
 import {
   collection,
