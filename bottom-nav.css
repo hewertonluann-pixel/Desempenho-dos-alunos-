@@ -156,10 +156,15 @@
 }
 
 /* ============================================
-   OCULTAR NAVEGAÇÃO ANTIGA EM MOBILE
+   OCULTAR NAVBAR ANTIGA (navegacao.js) EM MOBILE
    ============================================ */
-/* Ocultar os botões de Comunidade e Biblioteca da sidebar em mobile */
 @media (max-width: 768px) {
+  /* Ocultar a navbar do navegacao.js em mobile */
+  .navbar {
+    display: none !important;
+  }
+
+  /* Ocultar os botões de Comunidade e Biblioteca da sidebar */
   .sidebar-buttons-row {
     display: none !important;
   }
@@ -266,21 +271,27 @@
 
 /* ============================================
    DESKTOP - ESCONDER HEADER E BOTTOM NAV
+   MOSTRAR NAVBAR ANTIGA
    ============================================ */
 @media (min-width: 769px) {
   /* Ocultar header e bottom nav em desktop */
   .top-header {
-    display: none;
+    display: none !important;
   }
 
   .bottom-nav {
-    display: none;
+    display: none !important;
   }
 
   /* Remover padding do body */
   body {
     padding-top: 0;
     padding-bottom: 0;
+  }
+
+  /* Garantir que navbar antiga (navegacao.js) fique visível */
+  .navbar {
+    display: flex !important;
   }
 
   /* Garantir que sidebar-buttons-row (Comunidade/Biblioteca) fique visível */
