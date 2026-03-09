@@ -12,7 +12,7 @@ export function inserirHeaderTemplate() {
   header.className = 'top-header';
   header.innerHTML = `
     <img src="./logo-fa.jpeg" 
-         alt="Filhos de Asafe" 
+         alt="🎵 Orquestra Filhos de Asafe" 
          class="header-group-logo"
          title="Orquestra Filhos de Asafe">
     
