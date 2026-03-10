@@ -66,7 +66,7 @@
       border-color: #22d3ee;
       box-shadow: 0 0 0 3px rgba(34,211,238,0.1);
     }
-    .field-group textarea { resize: vertical; min-height: 100px; }
+    .field-group textarea { resize: vertical; min-height: 140px; }
     .field-hint { font-size: 0.76em; color: #64748b; margin-top: 5px; }
 
     /* Preview do logo */
@@ -185,18 +185,28 @@
 
     const REF = doc(db, "config", "grupo");
 
+    const DESCRICAO_PADRAO =
+`Somos um projeto voluntário de ensino musical vinculado à Assembleia de Deus Ministério de Diamantina, realizado por meio da Comunidade de Obras Sociais de Diamantina. Desde 2021, abrimos as portas da música para crianças, jovens e adultos, oferecendo gratuitamente aulas de teoria musical e prática instrumental.
+
+As aulas acontecem todos os sábados, das 09h às 11h, no Templo Sede da Assembleia de Deus — Rua Getúlio Vargas, 235, Vila Operária, Diamantina – MG.
+
+Acreditamos que a música transforma vidas, une comunidades e glorifica a Deus. É com esse propósito que seguimos ensinando, tocando e crescendo juntos.`;
+
     async function carregar() {
       try {
         const snap = await getDoc(REF);
         if (snap.exists()) {
           const d = snap.data();
-          document.getElementById('nomeGrupo').value     = d.nome       || '';
-          document.getElementById('anoCriacao').value    = d.anoCriacao || '';
-          document.getElementById('descricaoGrupo').value= d.descricao  || '';
+          document.getElementById('nomeGrupo').value      = d.nome       || '';
+          document.getElementById('anoCriacao').value     = d.anoCriacao || '';
+          document.getElementById('descricaoGrupo').value = d.descricao  || DESCRICAO_PADRAO;
           if (d.logoUrl) {
-            document.getElementById('logoUrl').value  = d.logoUrl;
-            document.getElementById('logoPreview').src = d.logoUrl;
+            document.getElementById('logoUrl').value   = d.logoUrl;
+            document.getElementById('logoPreview').src  = d.logoUrl;
           }
+        } else {
+          // Documento ainda não existe — pré-preenche a descrição
+          document.getElementById('descricaoGrupo').value = DESCRICAO_PADRAO;
         }
       } catch(e) { console.error(e); }
     }
@@ -215,7 +225,7 @@
         await setDoc(REF, {
           nome:       document.getElementById('nomeGrupo').value.trim()       || 'Filhos de Asafe',
           anoCriacao: document.getElementById('anoCriacao').value.trim()      || '2021',
-          descricao:  document.getElementById('descricaoGrupo').value.trim()  || '',
+          descricao:  document.getElementById('descricaoGrupo').value.trim()  || DESCRICAO_PADRAO,
           logoUrl:    document.getElementById('logoUrl').value.trim()         || ''
         });
         mostrarToast('✅ Configurações salvas com sucesso!');
