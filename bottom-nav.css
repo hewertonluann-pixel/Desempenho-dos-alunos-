@@ -84,13 +84,13 @@
   font-size: 16px;
 }
 
-/* Foto do usuário à direita */
+/* Foto do usuário à direita — mesma borda da logo do grupo */
 .header-user-photo {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #00ffcc;
+  border: 2px solid rgba(0, 255, 204, 0.4);
   cursor: pointer;
   transition: all 0.3s ease;
   flex-shrink: 0;
