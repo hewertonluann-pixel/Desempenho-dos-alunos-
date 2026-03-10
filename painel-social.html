@@ -6,7 +6,6 @@
   <title>Painel Social 🎵 — Orquestra</title>
   <link rel="stylesheet" href="aluno.css" />
   <link rel="stylesheet" href="bottom-nav.css" />
-  <!-- Font Awesome para ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
@@ -38,38 +37,47 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       display: flex; flex-direction: column; gap: 12px;
     }
-
     .painel-banda-titulo {
       font-size: 0.85rem; font-weight: 700; color: #22d3ee;
       text-transform: uppercase; letter-spacing: 0.5px;
       padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
-
     .painel-banda-corpo {
       display: flex; flex-direction: column; align-items: center;
       gap: 14px; flex: 1; justify-content: center; padding: 8px 0;
     }
-
     .painel-banda-logo {
       width: 100px; height: 100px; border-radius: 16px; overflow: hidden;
       border: 2px solid rgba(34,211,238,0.4);
       background: rgba(2,6,23,0.6); flex-shrink: 0;
     }
-
-    .painel-banda-logo img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-    }
-
-    .painel-banda-nome {
-      font-size: 1.15rem; font-weight: 800; color: #f9fafb;
-      text-align: center; line-height: 1.3;
-    }
-
+    .painel-banda-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .painel-banda-nome { font-size: 1.15rem; font-weight: 800; color: #f9fafb; text-align: center; line-height: 1.3; }
     .painel-banda-rodape {
       padding-top: 10px;
       border-top: 1px solid rgba(34,211,238,0.15);
-      font-size: 0.78rem; color: #9ca3af;
-      text-align: center;
+      font-size: 0.78rem; color: #9ca3af; text-align: center;
+    }
+
+    /* ===== PAINEL SOBRE NÓS ===== */
+    .painel-sobre {
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .painel-sobre-titulo {
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
+    }
+    .painel-sobre-texto {
+      font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;
+      flex: 1;
+    }
+    .painel-sobre-vazio {
+      font-size: 0.82rem; color: #4b5563; font-style: italic; text-align: center; padding: 12px 0;
     }
 
     /* ===== PAINEL GERAL ===== */
@@ -80,18 +88,15 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       display: flex; flex-direction: column; gap: 12px;
     }
-
     .painel-geral-titulo {
       font-size: 0.85rem; font-weight: 700; color: #22d3ee;
       text-transform: uppercase; letter-spacing: 0.5px;
       padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
-
     .stat-geral-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 6px 10px; background: rgba(15,23,42,0.6); border-radius: 8px;
     }
-
     .stat-geral-label { font-size: 0.75rem; color: #9ca3af; display: flex; align-items: center; gap: 6px; }
     .stat-geral-valor { font-size: 1.3rem; font-weight: 900; color: #22d3ee; }
 
@@ -103,15 +108,12 @@
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
       display: flex; flex-direction: column; gap: 10px;
     }
-
     .badges-titulo {
       font-size: 0.85rem; font-weight: 700; color: #22d3ee;
       text-transform: uppercase; letter-spacing: 0.5px;
       padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
-
     .badges-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-
     .badge-subgrupo {
       background: rgba(34,211,238,0.08);
       border: 1px solid rgba(34,211,238,0.3);
@@ -119,10 +121,7 @@
       font-size: 0.72rem; font-weight: 600; color: #22d3ee;
       cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
     }
-
-    .badge-subgrupo:hover {
-      background: rgba(34,211,238,0.18); transform: translateY(-2px);
-    }
+    .badge-subgrupo:hover { background: rgba(34,211,238,0.18); transform: translateY(-2px); }
 
     /* ===== RANKING ===== */
     .bloco-ranking {
@@ -132,52 +131,39 @@
       box-shadow: 0 8px 28px rgba(0,0,0,0.5);
       display: flex; flex-direction: column; gap: 10px;
     }
-
     .ranking-titulo {
       font-size: 0.85rem; font-weight: 700; color: #22d3ee; margin: 0;
       text-transform: uppercase; letter-spacing: 0.5px;
       padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
     }
-
     .ranking-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-
     .tab-btn {
       padding: 5px 12px; border-radius: 999px;
       border: 1px solid rgba(34,211,238,0.3);
       background: transparent; color: #9ca3af;
       font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
     }
-
     .tab-btn.ativo { background: rgba(34,211,238,0.15); border-color: #22d3ee; color: #22d3ee; }
-
     .mes-control { display: flex; align-items: center; gap: 8px; justify-content: center; }
-
     .mes-control button {
       background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3);
       color: #22d3ee; border-radius: 6px; padding: 3px 10px;
       cursor: pointer; font-size: 0.85rem; transition: background 0.2s;
     }
-
     .mes-control button:hover { background: rgba(34,211,238,0.2); }
-
     .mes-nome { font-weight: 700; color: #f9fafb; font-size: 0.8rem; min-width: 70px; text-align: center; }
-
     .ranking-lista {
       display: flex; flex-direction: column; gap: 6px;
       max-height: 280px; overflow-y: auto;
       scrollbar-width: thin; scrollbar-color: rgba(34,211,238,0.3) transparent;
     }
-
     .ranking-lista::-webkit-scrollbar       { width: 4px; }
     .ranking-lista::-webkit-scrollbar-track { background: transparent; }
     .ranking-lista::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.3); border-radius: 99px; }
-
     .ranking-linha { display: flex; align-items: center; gap: 6px; }
-
     .ranking-pos   { font-size: 0.9rem; font-weight: 700; min-width: 20px; text-align: center; flex-shrink: 0; }
     .ranking-nome  { font-size: 0.72rem; font-weight: 600; color: #e5e7eb; min-width: 70px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ranking-valor { font-size: 0.72rem; font-weight: 700; color: #22d3ee; min-width: 40px; text-align: right; flex-shrink: 0; }
-
     .ranking-barra-wrap { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
     .ranking-barra-fill { height: 100%; border-radius: 999px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
 
@@ -187,7 +173,6 @@
       display: flex; align-items: center; gap: 12px;
       padding: 12px 0 8px; margin-top: 16px;
     }
-
     .separador-linha { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(34,211,238,0.3), transparent); }
     .separador-texto { font-size: 0.85rem; font-weight: 700; color: #22d3ee; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     .separador-count { font-size: 0.7rem; color: #6b7280; font-weight: 500; }
@@ -201,80 +186,36 @@
       display: flex; flex-direction: column; gap: 8px;
       cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     }
-
-    .card-social:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 35px rgba(8,47,73,0.85);
-      border-color: rgba(56,189,248,0.7);
-    }
-
+    .card-social:hover { transform: translateY(-4px); box-shadow: 0 16px 35px rgba(8,47,73,0.85); border-color: rgba(56,189,248,0.7); }
     .topo-card { display: flex; align-items: center; gap: 10px; }
-
-    .foto-social {
-      width: 64px; height: 64px; border-radius: 999px; overflow: hidden;
-      border: 2px solid rgba(34,211,238,0.5); flex-shrink: 0; background: #020617;
-    }
-
+    .foto-social { width: 64px; height: 64px; border-radius: 999px; overflow: hidden; border: 2px solid rgba(34,211,238,0.5); flex-shrink: 0; background: #020617; }
     .foto-social img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
     .info-principal { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-
     .nome-aluno        { font-size: 1rem; font-weight: 600; color: #f9fafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .instrumento-aluno { font-size: 0.85rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .nivel-geral-destaque {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 12px;
-      background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(56,189,248,0.08));
-      border-radius: 10px; border: 1px solid rgba(34,211,238,0.3); margin-top: 8px;
-    }
-
+    .nivel-geral-destaque { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(56,189,248,0.08)); border-radius: 10px; border: 1px solid rgba(34,211,238,0.3); margin-top: 8px; }
     .label-nivel { font-size: 0.85rem; font-weight: 600; color: #22d3ee; }
     .valor-nivel  { font-size: 1.4rem;  font-weight: 700; color: #f9fafb; }
-
     .niveis-secundarios { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-
-    .nivel-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 6px 10px; background: rgba(15,23,42,0.6);
-      border-radius: 8px; font-size: 0.8rem; color: #9ca3af;
-    }
-
+    .nivel-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(15,23,42,0.6); border-radius: 8px; font-size: 0.8rem; color: #9ca3af; }
     .nivel-item .valor { font-weight: 600; color: #e5e7eb; font-size: 0.9rem; }
-
     .barra-comprometimento { margin-top: 8px; }
-
-    .barra-label {
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 0.75rem; color: #e5e7eb; margin-bottom: 4px;
-    }
-
+    .barra-label { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #e5e7eb; margin-bottom: 4px; }
     .barra-container { width: 100%; height: 6px; border-radius: 999px; background: #020617; overflow: hidden; }
     .barra-preenchimento { height: 100%; width: 0%; transition: width 0.4s ease; border-radius: 999px; }
-
-    .conquistas-social {
-      margin-top: 10px; padding-top: 8px;
-      border-top: 1px solid rgba(34,211,238,0.15);
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 0.8rem; color: #9ca3af;
-    }
-
+    .conquistas-social { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(34,211,238,0.15); display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: #9ca3af; }
     .conquistas-social .icones { font-size: 1.3rem; display: flex; gap: 4px; flex-wrap: wrap; }
-
     .loader-texto { text-align: center; color: #6b7280; padding: 40px; font-size: 0.95rem; }
 
     @media (max-width: 768px) {
       .grid-principal  { grid-template-columns: 1fr; }
       .separador-grupo { grid-column: 1; }
     }
-
     @media (min-width: 1024px) { body { padding-inline: 40px; } }
   </style>
 </head>
 
 <body>
-  <!-- HEADER INSERIDO AUTOMATICAMENTE PELO header-template.js -->
-
   <h1>🎶 Comunidade Asafe</h1>
   <p class="subtitulo">Veja seus colegas, suas energias, níveis e conquistas. Toque em um card para abrir o painel completo.</p>
 
@@ -282,37 +223,17 @@
     <div class="loader-texto">⌛ Carregando alunos...</div>
   </div>
 
-  <!-- BOTTOM NAVIGATION BAR (visível apenas em mobile) -->
   <nav class="bottom-nav">
-    <a href="aluno.html" class="nav-item" data-page="home">
-      <i class="fas fa-home nav-icon"></i>
-      <span class="nav-label">Home</span>
-    </a>
-    
-    <a href="painel-social.html" class="nav-item active" data-page="comunidade">
-      <i class="fas fa-users nav-icon"></i>
-      <span class="nav-label">Comunidade</span>
-    </a>
-    
-    <a href="biblioteca.html" class="nav-item" data-page="biblioteca">
-      <i class="fas fa-book nav-icon"></i>
-      <span class="nav-label">Biblioteca</span>
-    </a>
-    
-    <a href="atividades.html" class="nav-item" data-page="atividades">
-      <i class="fas fa-clipboard-list nav-icon"></i>
-      <span class="nav-label">Atividades</span>
-    </a>
-    
-    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none;">
-      <i class="fas fa-chalkboard-teacher nav-icon"></i>
-      <span class="nav-label">Professor</span>
-    </a>
+    <a href="aluno.html"        class="nav-item"        data-page="home">      <i class="fas fa-home nav-icon"></i>             <span class="nav-label">Home</span></a>
+    <a href="painel-social.html" class="nav-item active" data-page="comunidade"><i class="fas fa-users nav-icon"></i>            <span class="nav-label">Comunidade</span></a>
+    <a href="biblioteca.html"   class="nav-item"        data-page="biblioteca"><i class="fas fa-book nav-icon"></i>              <span class="nav-label">Biblioteca</span></a>
+    <a href="atividades.html"   class="nav-item"        data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i>    <span class="nav-label">Atividades</span></a>
+    <a href="professor.html"    class="nav-item"        data-page="professor"  id="navProfessor" style="display:none;"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></a>
   </nav>
 
   <script type="module">
     import { db } from "./firebase-config.js";
-    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { regrasDeConquistas } from "./conquistas.js";
     import { obterEventosDoAno, agruparEventosPorMes } from "./frequencia.js";
 
@@ -320,21 +241,17 @@
     let gruposEventos = {};
     let abaAtual      = "nivel";
     let mesAtual      = new Date().getMonth();
+    let dadosGrupo    = { nome: 'Filhos de Asafe', anoCriacao: '2021', descricao: '', logoUrl: '' };
 
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
     const mesesChaves = ["01","02","03","04","05","06","07","08","09","10","11","12"];
 
-    // ================================================================
-    // CLASSIFICAR
-    // ================================================================
     function classificarInstrumento(instrumento) {
       if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", label: "Outros", ordem: 999 };
       const inst = instrumento.trim().toLowerCase();
-
-      if (inst.includes("violino")) return { grupo: "Cordas",    subgrupo: "Violino",     label: "Violino",      ordem: 1 };
-      if (inst.includes("viola"))   return { grupo: "Cordas",    subgrupo: "Viola",        label: "Viola",         ordem: 2 };
-
+      if (inst.includes("violino")) return { grupo: "Cordas",    subgrupo: "Violino",  label: "Violino",      ordem: 1 };
+      if (inst.includes("viola"))   return { grupo: "Cordas",    subgrupo: "Viola",    label: "Viola",         ordem: 2 };
       if (inst.includes("sax")) {
         if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Soprano",  label: "Sax Soprano",  ordem: 1 };
         if (inst.includes("alto"))    return { grupo: "Saxofones", subgrupo: "Alto",     label: "Sax Alto",     ordem: 2 };
@@ -342,17 +259,13 @@
         if (inst.includes("barítono"))return { grupo: "Saxofones", subgrupo: "Barítono", label: "Sax Barítono", ordem: 4 };
         return { grupo: "Saxofones", subgrupo: instrumento.trim(), label: instrumento.trim(), ordem: 5 };
       }
-
       if (inst.includes("trompete")) return { grupo: "Metais", subgrupo: "Trompete", label: "Trompete", ordem: 1 };
       if (inst.includes("trombone")) return { grupo: "Metais", subgrupo: "Trombone", label: "Trombone", ordem: 2 };
       if (inst.includes("tuba"))     return { grupo: "Metais", subgrupo: "Tuba",     label: "Tuba",     ordem: 3 };
-
-      // Percussão e Piano são bancadas independentes
       if (inst.includes("percussão") || inst.includes("percussao") || inst.includes("bateria") || inst.includes("timbale"))
         return { grupo: "Percussão", subgrupo: "Percussão", label: "Percussão", ordem: 1 };
       if (inst.includes("piano") || inst.includes("teclado"))
         return { grupo: "Piano", subgrupo: "Piano", label: "Piano", ordem: 1 };
-
       return { grupo: instrumento.trim(), subgrupo: null, label: instrumento.trim(), ordem: 999 };
     }
 
@@ -361,21 +274,12 @@
       if (pct < 80) return "linear-gradient(90deg,#facc15,#fef08a)";
       return              "linear-gradient(90deg,#22c55e,#4ade80)";
     }
-
-    function medalha(pos) {
-      return pos === 0 ? "🥇" : pos === 1 ? "🥈" : pos === 2 ? "🥉" : `${pos+1}.`;
-    }
-
-    function media(arr) {
-      if (!arr.length) return 0;
-      return Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
-    }
-
+    function medalha(pos) { return pos === 0 ? "🥇" : pos === 1 ? "🥈" : pos === 2 ? "🥉" : `${pos+1}.`; }
+    function media(arr)   { if (!arr.length) return 0; return Math.round(arr.reduce((s, v) => s + v, 0) / arr.length); }
     function calcularConquistas(aluno) {
       const d = regrasDeConquistas.filter(r => r.condicao(aluno)).map(r => r.icone);
       return d.length > 0 ? d.join(" ") : "—";
     }
-
     function calcularEnergiaAnualLocal(aluno, grupos) {
       let total = 0, presentes = 0;
       Object.keys(grupos).forEach(ch => grupos[ch].forEach(ev => {
@@ -385,28 +289,18 @@
       }));
       return total > 0 ? Math.round((presentes / total) * 100) : 0;
     }
-
     function freqAlunoNoMes(aluno, mesIdx) {
       const evs = gruposEventos[`2026-${mesesChaves[mesIdx]}`] || [];
       if (!evs.length) return 0;
       let p = 0;
-      evs.forEach(ev => {
-        const h = ev.presencas.find(x => x.nome === aluno.nome);
-        if (h && h.presenca === "presente") p++;
-      });
+      evs.forEach(ev => { const h = ev.presencas.find(x => x.nome === aluno.nome); if (h && h.presenca === "presente") p++; });
       return Math.round((p / evs.length) * 100);
     }
-
     function agruparPorGrupo(alunos) {
       const map = new Map();
-      alunos.forEach(a => {
-        const { grupo } = classificarInstrumento(a.instrumento);
-        if (!map.has(grupo)) map.set(grupo, []);
-        map.get(grupo).push(a);
-      });
+      alunos.forEach(a => { const { grupo } = classificarInstrumento(a.instrumento); if (!map.has(grupo)) map.set(grupo, []); map.get(grupo).push(a); });
       return map;
     }
-
     function agruparPorSubgrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => {
@@ -420,24 +314,41 @@
     }
 
     // ================================================================
-    // HTML: PAINEL DA BANDA (primeiro card)
+    // PAINEL DA BANDA — usa dadosGrupo
     // ================================================================
     function htmlPainelBanda() {
+      const logo = dadosGrupo.logoUrl && dadosGrupo.logoUrl.startsWith('http')
+        ? dadosGrupo.logoUrl : './logo-fa.jpeg';
+      const nome = dadosGrupo.nome || 'Filhos de Asafe';
+      const ano  = dadosGrupo.anoCriacao || '2021';
       return `
         <div class="painel-banda">
           <div class="painel-banda-titulo">🎶 A Banda</div>
           <div class="painel-banda-corpo">
-            <div class="painel-banda-logo">
-              <img src="./logo-fa.jpeg" alt="Logo Filhos e Asafe">
-            </div>
-            <div class="painel-banda-nome">Filhos e Asafe</div>
+            <div class="painel-banda-logo"><img src="${logo}" alt="${nome}"></div>
+            <div class="painel-banda-nome">${nome}</div>
           </div>
-          <div class="painel-banda-rodape">Desde 2021</div>
+          <div class="painel-banda-rodape">Desde ${ano}</div>
         </div>`;
     }
 
     // ================================================================
-    // HTML: PAINEL GERAL
+    // PAINEL SOBRE NÓS
+    // ================================================================
+    function htmlPainelSobre() {
+      const descricao = (dadosGrupo.descricao || '').trim();
+      const corpo = descricao
+        ? `<div class="painel-sobre-texto">${descricao.replace(/\n/g, '<br>')}</div>`
+        : `<div class="painel-sobre-vazio">Nenhuma descrição cadastrada ainda.</div>`;
+      return `
+        <div class="painel-sobre">
+          <div class="painel-sobre-titulo">ℹ️ Sobre Nós</div>
+          ${corpo}
+        </div>`;
+    }
+
+    // ================================================================
+    // PAINEL GERAL
     // ================================================================
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
@@ -447,65 +358,30 @@
       return `
         <div class="painel-geral">
           <div class="painel-geral-titulo">📊 Painel Geral</div>
-          <div class="stat-geral-item">
-            <span class="stat-geral-label">👥 Alunos</span>
-            <span class="stat-geral-valor">${ativos.length}</span>
-          </div>
-          <div class="stat-geral-item">
-            <span class="stat-geral-label">📈 Comprometimento Anual</span>
-            <span class="stat-geral-valor">${mediaAnual}%</span>
-          </div>
-          <div class="stat-geral-item">
-            <span class="stat-geral-label">📅 Comprometimento Mensal</span>
-            <span class="stat-geral-valor">${mediaMensal}%</span>
-          </div>
-          <div class="stat-geral-item">
-            <span class="stat-geral-label">🎼 Bancadas</span>
-            <span class="stat-geral-valor">${bancadas}</span>
-          </div>
+          <div class="stat-geral-item"><span class="stat-geral-label">👥 Alunos</span><span class="stat-geral-valor">${ativos.length}</span></div>
+          <div class="stat-geral-item"><span class="stat-geral-label">📈 Comprometimento Anual</span><span class="stat-geral-valor">${mediaAnual}%</span></div>
+          <div class="stat-geral-item"><span class="stat-geral-label">📅 Comprometimento Mensal</span><span class="stat-geral-valor">${mediaMensal}%</span></div>
+          <div class="stat-geral-item"><span class="stat-geral-label">🎼 Bancadas</span><span class="stat-geral-valor">${bancadas}</span></div>
         </div>`;
     }
 
-    // ================================================================
-    // HTML: BANCADAS — subgrupos apenas (Maestro excluído)
-    // ================================================================
     function htmlBadges(subgrupoMap) {
       const badges = [];
-
-      [...subgrupoMap.keys()]
-        .filter(pai => pai !== "Maestro")
-        .sort((a, b) => a.localeCompare(b))
-        .forEach(pai => {
-          [...subgrupoMap.get(pai).entries()]
-            .sort((a, b) => a[1].ordem - b[1].ordem)
-            .forEach(([label, info]) => {
-              badges.push({ label, grupoPai: pai, qtd: info.alunos.length });
-            });
+      [...subgrupoMap.keys()].filter(pai => pai !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(pai => {
+        [...subgrupoMap.get(pai).entries()].sort((a, b) => a[1].ordem - b[1].ordem).forEach(([label, info]) => {
+          badges.push({ label, grupoPai: pai, qtd: info.alunos.length });
         });
-
+      });
       const badgesHtml = badges.map(b =>
-        `<span class="badge-subgrupo" onclick="scrollParaGrupo('${b.grupoPai}')">
-           ${b.label} <strong>${b.qtd}</strong>
-         </span>`
+        `<span class="badge-subgrupo" onclick="scrollParaGrupo('${b.grupoPai}')">${b.label} <strong>${b.qtd}</strong></span>`
       ).join("");
-
-      return `
-        <div class="badges-container">
-          <div class="badges-titulo">🎼 Bancadas</div>
-          <div class="badges-wrap">${badgesHtml}</div>
-        </div>`;
+      return `<div class="badges-container"><div class="badges-titulo">🎼 Bancadas</div><div class="badges-wrap">${badgesHtml}</div></div>`;
     }
 
-    // ================================================================
-    // HTML: RANKING por grupo pai
-    // ================================================================
     function calcularMetricaGrupo(alunos, aba, mes) {
       if (aba === "nivel")      return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
       if (aba === "frequencia") return media(alunos.map(a => freqAlunoNoMes(a, mes)));
-      if (aba === "score")      return {
-        nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))),
-        freq:  media(alunos.map(a => freqAlunoNoMes(a, mes)))
-      };
+      if (aba === "score")      return { nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))), freq: media(alunos.map(a => freqAlunoNoMes(a, mes))) };
       return 0;
     }
 
@@ -513,42 +389,22 @@
       const grupos = [...grupoMap.keys()].filter(k => k !== "Maestro");
       let dados = grupos.map(nome => {
         const alunos = grupoMap.get(nome);
-        if (aba === "score") {
-          const raw = calcularMetricaGrupo(alunos, "score", mes);
-          return { nome, nivel: raw.nivel, freq: raw.freq, valor: null };
-        }
+        if (aba === "score") { const raw = calcularMetricaGrupo(alunos, "score", mes); return { nome, nivel: raw.nivel, freq: raw.freq, valor: null }; }
         return { nome, valor: calcularMetricaGrupo(alunos, aba, mes) };
       });
-
       if (aba === "score") {
         const maxNivel = Math.max(...dados.map(d => d.nivel), 1);
-        dados.forEach(d => {
-          d.valor = Math.round((Math.round((d.nivel / maxNivel) * 100) + d.freq) / 2);
-        });
+        dados.forEach(d => { d.valor = Math.round((Math.round((d.nivel / maxNivel) * 100) + d.freq) / 2); });
       }
-
       dados.sort((a, b) => b.valor - a.valor);
       const maxValor  = Math.max(...dados.map(d => d.valor), 1);
       const unidade   = aba === "nivel" ? " pts" : "%";
-      const gradiente = aba === "nivel"
-        ? "linear-gradient(90deg,#38bdf8,#818cf8)"
-        : aba === "frequencia" ? null
-        : "linear-gradient(90deg,#f59e0b,#fcd34d)";
-
+      const gradiente = aba === "nivel" ? "linear-gradient(90deg,#38bdf8,#818cf8)" : aba === "frequencia" ? null : "linear-gradient(90deg,#f59e0b,#fcd34d)";
       const linhas = dados.map((d, i) => {
         const pct  = Math.round((d.valor / maxValor) * 100);
         const grad = gradiente || corBarra(d.valor);
-        return `
-          <div class="ranking-linha">
-            <span class="ranking-pos">${medalha(i)}</span>
-            <span class="ranking-nome">${d.nome}</span>
-            <div class="ranking-barra-wrap">
-              <div class="ranking-barra-fill" style="width:${pct}%;background:${grad};"></div>
-            </div>
-            <span class="ranking-valor">${d.valor}${unidade}</span>
-          </div>`;
+        return `<div class="ranking-linha"><span class="ranking-pos">${medalha(i)}</span><span class="ranking-nome">${d.nome}</span><div class="ranking-barra-wrap"><div class="ranking-barra-fill" style="width:${pct}%;background:${grad};"></div></div><span class="ranking-valor">${d.valor}${unidade}</span></div>`;
       }).join("");
-
       const mesControlDisplay = aba === "nivel" ? "none" : "flex";
       return `
         <div class="bloco-ranking">
@@ -567,9 +423,6 @@
         </div>`;
     }
 
-    // ================================================================
-    // HTML: CARD
-    // ================================================================
     function htmlCard(aluno) {
       const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
@@ -577,8 +430,7 @@
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
       return `
-        <div class="card-social"
-             onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+        <div class="card-social" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
             <div class="info-principal">
@@ -586,81 +438,51 @@
               <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
             </div>
           </div>
-          <div class="nivel-geral-destaque">
-            <span class="label-nivel">🎯 Nível Geral</span>
-            <span class="valor-nivel">${total}</span>
-          </div>
+          <div class="nivel-geral-destaque"><span class="label-nivel">🎯 Nível Geral</span><span class="valor-nivel">${total}</span></div>
           <div class="niveis-secundarios">
             <div class="nivel-item"><span>📘 Leitura</span><span class="valor">${aluno.leitura ?? 0}</span></div>
             <div class="nivel-item"><span>🎵 Método</span><span class="valor">${aluno.metodo ?? 0}</span></div>
           </div>
           <div class="barra-comprometimento">
             <div class="barra-label"><span>📊 Geral</span><span>${energiaGeral}%</span></div>
-            <div class="barra-container">
-              <div class="barra-preenchimento" style="width:${energiaGeral}%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
-            </div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaGeral}%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
           </div>
           <div class="barra-comprometimento">
             <div class="barra-label"><span>📅 Mensal</span><span>${energiaMensal}%</span></div>
-            <div class="barra-container">
-              <div class="barra-preenchimento" style="width:${energiaMensal}%;background:${bgMensal};"></div>
-            </div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaMensal}%;background:${bgMensal};"></div></div>
           </div>
-          <div class="conquistas-social">
-            <span>🏆 Conquistas</span>
-            <span class="icones">${conquistas}</span>
-          </div>
+          <div class="conquistas-social"><span>🏆 Conquistas</span><span class="icones">${conquistas}</span></div>
         </div>`;
     }
 
-    // ================================================================
-    // HTML: SEPARADOR
-    // ================================================================
     function htmlSeparadorGrupo(nome, qtd) {
       const id = `grupo-${nome.toLowerCase().replace(/[\s\/]+/g, "-")}`;
-      return `
-        <div class="separador-grupo" id="${id}">
-          <div class="separador-linha"></div>
-          <div class="separador-texto">
-            🎼 ${nome} <span class="separador-count">${qtd} aluno${qtd > 1 ? 's' : ''}</span>
-          </div>
-          <div class="separador-linha"></div>
-        </div>`;
+      return `<div class="separador-grupo" id="${id}"><div class="separador-linha"></div><div class="separador-texto">🎼 ${nome} <span class="separador-count">${qtd} aluno${qtd > 1 ? 's' : ''}</span></div><div class="separador-linha"></div></div>`;
     }
 
-    // ================================================================
-    // RENDERIZAR
-    // ================================================================
     function renderizarTudo() {
       const container   = document.getElementById("gridCompleto");
       const grupoMap    = agruparPorGrupo(todosAtivos);
       const subgrupoMap = agruparPorSubgrupo(todosAtivos);
-
       const maestros    = grupoMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCard).join("");
 
-      // Ordem: Banda | Painel Geral | Bancadas | Ranking | Maestro | grupos...
       let html = `
         ${htmlPainelBanda()}
+        ${htmlPainelSobre()}
         ${htmlPainelGeral(todosAtivos)}
         ${htmlBadges(subgrupoMap)}
         ${htmlRanking(grupoMap, abaAtual, mesAtual)}
         ${maestroHTML}
       `;
 
-      [...grupoMap.keys()]
-        .filter(k => k !== "Maestro")
-        .sort((a, b) => a.localeCompare(b))
-        .forEach(grupo => {
-          const alunosOrdenados = grupoMap.get(grupo).slice()
-            .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
-            .sort((a, b) => {
-              if (a._c.ordem !== b._c.ordem) return a._c.ordem - b._c.ordem;
-              return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
-            });
-          html += htmlSeparadorGrupo(grupo, alunosOrdenados.length);
-          html += alunosOrdenados.map(htmlCard).join("");
-        });
+      [...grupoMap.keys()].filter(k => k !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(grupo => {
+        const alunosOrdenados = grupoMap.get(grupo).slice()
+          .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
+          .sort((a, b) => { if (a._c.ordem !== b._c.ordem) return a._c.ordem - b._c.ordem; return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0); });
+        html += htmlSeparadorGrupo(grupo, alunosOrdenados.length);
+        html += alunosOrdenados.map(htmlCard).join("");
+      });
 
       container.innerHTML = html;
     }
@@ -673,14 +495,16 @@
     };
 
     async function carregarAlunos() {
-      const [snap, eventosAno] = await Promise.all([
+      const [snap, eventosAno, grupoSnap] = await Promise.all([
         getDocs(collection(db, "alunos")),
-        obterEventosDoAno(2026)
+        obterEventosDoAno(2026),
+        getDoc(doc(db, "config", "grupo"))
       ]);
       gruposEventos = agruparEventosPorMes(eventosAno);
       const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       alunos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
       todosAtivos = alunos.filter(a => a.ativo !== false);
+      if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
       renderizarTudo();
     }
 
