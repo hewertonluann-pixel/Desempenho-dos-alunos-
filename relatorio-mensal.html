@@ -47,7 +47,6 @@
     .status-estavel  { background: #fef9c3; color: #854d0e; }
     .status-regrediu { background: #fee2e2; color: #991b1b; }
     .status-neutro   { background: #dbeafe; color: #1d4ed8; }
-    .badge-snapshot { display: inline-block; font-size: 0.7em; background: #ede9fe; color: #6d28d9; border-radius: 6px; padding: 2px 7px; margin-left: 6px; font-weight: 600; vertical-align: middle; }
     .comprometimento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
     .comp-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; background: #f8fafc; }
     .comp-card h4 { font-size: 0.85em; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
@@ -238,16 +237,12 @@
         const metodoAnterior = snapAnterior?.metodo ?? null;
         const metodoMeta     = metodoAtual + 2;
 
-        const temSnapAtual    = !!snapAtual;
-        const temSnapAnterior = !!snapAnterior;
-
         renderizarRelatorio({
           aluno, anoRel, mesRel, chave,
           freqMes, freqGeral, freqMesAnterior,
           conquistasMes, presencaDetalhada,
           leituraAtual, leituraAnterior, leituraMeta,
-          metodoAtual,  metodoAnterior,  metodoMeta,
-          temSnapAtual, temSnapAnterior
+          metodoAtual,  metodoAnterior,  metodoMeta
         });
 
       } catch (err) {
@@ -366,25 +361,20 @@
       freqMes, freqGeral, freqMesAnterior,
       conquistasMes, presencaDetalhada,
       leituraAtual, leituraAnterior, leituraMeta,
-      metodoAtual,  metodoAnterior,  metodoMeta,
-      temSnapAtual, temSnapAnterior
+      metodoAtual,  metodoAnterior,  metodoMeta
     }) {
       const nomeMes = MESES[mesRel] || mesRel;
 
-      // Se não há chamadas no mês, exibe badge neutro azul em vez de calcular tendência
+      // Se não há chamadas no mês, exibe badge neutro azul
       const stPresenca = freqMes.total === 0
         ? { texto: "— Mês sem chamadas", classe: "status-neutro" }
         : gerarStatus(freqMes.percentual, freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null);
 
-      const stLeitura  = gerarStatus(leituraAtual, leituraAnterior);
-      const stMetodo   = gerarStatus(metodoAtual,  metodoAnterior);
+      const stLeitura = gerarStatus(leituraAtual, leituraAnterior);
+      const stMetodo  = gerarStatus(metodoAtual,  metodoAnterior);
 
       const metaPresenca = freqMes.percentual >= 100 ? 100
         : freqMes.percentual >= 80 ? 100 : 80;
-
-      const badgeSnap = temSnapAtual
-        ? `<span class="badge-snapshot">📸 pegada</span>`
-        : `<span class="badge-snapshot" style="background:#fef9c3;color:#854d0e;">⚠️ sem pegada</span>`;
 
       const antLeituraTexto = leituraAnterior !== null ? `Nível ${leituraAnterior}` : "—";
       const antMetodoTexto  = metodoAnterior  !== null ? `Unid. ${metodoAnterior}`  : "—";
@@ -419,7 +409,7 @@
           <div class="rel-info">
             <h1>${aluno.nome}</h1>
             <p class="instrumento">🎵 ${aluno.instrumento || "Instrumento não definido"}</p>
-            <p class="periodo">📅 Relatório de ${nomeMes} / ${anoRel} ${badgeSnap}</p>
+            <p class="periodo">📅 Relatório de ${nomeMes} / ${anoRel}</p>
           </div>
           <div class="rel-logo">
             <div class="titulo-sistema">Filhos de Asafe</div>
