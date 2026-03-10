@@ -46,7 +46,7 @@
     .status-evoluiu  { background: #dcfce7; color: #166534; }
     .status-estavel  { background: #fef9c3; color: #854d0e; }
     .status-regrediu { background: #fee2e2; color: #991b1b; }
-    .status-neutro   { background: #f1f5f9; color: #475569; }
+    .status-neutro   { background: #dbeafe; color: #1d4ed8; }
     .badge-snapshot { display: inline-block; font-size: 0.7em; background: #ede9fe; color: #6d28d9; border-radius: 6px; padding: 2px 7px; margin-left: 6px; font-weight: 600; vertical-align: middle; }
     .comprometimento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
     .comp-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; background: #f8fafc; }
@@ -204,7 +204,7 @@
         const aluno = { id: alunoSnap.id, ...alunoSnap.data() };
 
         const agora  = new Date();
-        const chave  = mesChave || `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,"0")}`;
+        const chave  = mesChave || `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,"00")}`;
         const [anoRel, mesRel] = chave.split("-");
         const chaveAnterior    = getMesAnterior(chave);
 
@@ -302,7 +302,7 @@
       const pct    = freqMes.percentual;
       const pctAnt = freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null;
 
-      // ── BLOCO 1: Presença mensal (baseada na faixa real, não só na tendência) ──
+      // ── BLOCO 1: Presença mensal ──
       if (freqMes.total === 0) {
         partes.push(`${nome}, não há registros de chamada para este mês.`);
       } else if (pct === 100) {
@@ -322,11 +322,10 @@
         else
           partes.push(`${nome}, sua frequência se manteve em ${pct}%. Há espaço para crescer — tente chegar a 80% no próximo mês.`);
       } else {
-        // 0–49% — sempre preocupante, independente da tendência
         partes.push(`${nome}, sua presença neste mês foi de ${pct}% — um índice que precisa de atenção. Tente chegar pelo menos a 80% no próximo mês. Cada ensaio perdido é uma oportunidade de crescimento que não volta!`);
       }
 
-      // ── BLOCO 2: Leitura ───────────────────────────────────────────────────
+      // ── BLOCO 2: Leitura ──
       if (leituraAnterior === null) {
         partes.push(`Na leitura, você está na lição ${leituraAtual} (${lNome}) — agora é hora de avançar e mostrar seu potencial!`);
       } else if (leituraAtual > leituraAnterior) {
@@ -337,7 +336,7 @@
         partes.push(`Sua leitura recuou do nível ${leituraAnterior} para ${leituraAtual} (${lNome}). Não desanime — redobrar a atenção ao solfejo nas próximas semanas fará toda a diferença.`);
       }
 
-      // ── BLOCO 3: Método instrumental ──────────────────────────────────────
+      // ── BLOCO 3: Método instrumental ──
       if (metodoAnterior === null) {
         partes.push(`Você está na lição ${metodoAtual} do ${mNome} — cada lição concluída é um passo real no seu instrumento.`);
       } else if (metodoAtual > metodoAnterior) {
@@ -348,7 +347,7 @@
         partes.push(`Houve um recuo no método (de ${metodoAnterior} para ${metodoAtual}). Retome com calma — você tem capacidade de recuperar e superar esse ponto.`);
       }
 
-      // ── BLOCO 4: Comprometimento geral anual (omite se igual ao mensal) ───
+      // ── BLOCO 4: Comprometimento geral anual (omite se igual ao mensal) ──
       if (freqGeral.total > 0 && freqGeral.percentual !== pct) {
         if (freqGeral.percentual >= 85)
           partes.push(`Seu comprometimento geral no ano é excelente (${freqGeral.percentual}%) — você é um exemplo de dedicação para toda a orquestra!`);
@@ -372,8 +371,11 @@
     }) {
       const nomeMes = MESES[mesRel] || mesRel;
 
-      const stPresenca = gerarStatus(freqMes.percentual,
-        freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null);
+      // Se não há chamadas no mês, exibe badge neutro azul em vez de calcular tendência
+      const stPresenca = freqMes.total === 0
+        ? { texto: "— Mês sem chamadas", classe: "status-neutro" }
+        : gerarStatus(freqMes.percentual, freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null);
+
       const stLeitura  = gerarStatus(leituraAtual, leituraAnterior);
       const stMetodo   = gerarStatus(metodoAtual,  metodoAnterior);
 
@@ -432,8 +434,8 @@
             <h4>Presença no Mês</h4>
             <div class="indicador-valores">
               <div class="ind-val">Anterior<span>${freqMesAnterior.total > 0 ? freqMesAnterior.percentual + '%' : '—'}</span></div>
-              <div class="ind-val atual">Atual<span>${freqMes.percentual}%</span></div>
-              <div class="ind-val">Meta<span>${metaPresenca}%</span></div>
+              <div class="ind-val atual">Atual<span>${freqMes.total === 0 ? '—' : freqMes.percentual + '%'}</span></div>
+              <div class="ind-val">Meta<span>${freqMes.total === 0 ? '—' : metaPresenca + '%'}</span></div>
             </div>
             <span class="indicador-status ${stPresenca.classe}">${stPresenca.texto}</span>
           </div>
@@ -464,8 +466,8 @@
         <div class="comprometimento-grid">
           <div class="comp-card">
             <h4>Comprometimento Mensal — ${nomeMes}</h4>
-            <div class="comp-valor">${freqMes.percentual}%</div>
-            <div class="comp-detalhe">${freqMes.presencas} presença(s) de ${freqMes.total} chamada(s)</div>
+            <div class="comp-valor">${freqMes.total === 0 ? '—' : freqMes.percentual + '%'}</div>
+            <div class="comp-detalhe">${freqMes.total === 0 ? 'Nenhuma chamada registrada neste mês' : freqMes.presencas + ' presença(s) de ' + freqMes.total + ' chamada(s)'}</div>
             <div class="comp-barra-wrap"><div class="comp-barra-fill ${corBarra(freqMes.percentual)}" style="width:${freqMes.percentual}%"></div></div>
           </div>
           <div class="comp-card">
