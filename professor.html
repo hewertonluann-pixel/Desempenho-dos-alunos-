@@ -10,8 +10,7 @@
 
   <style>
     .btn-toggle-sidebar {
-      display: none;
-      position: fixed; left: 20px; top: 90%;
+      display: none; position: fixed; left: 20px; top: 90%;
       transform: translateY(-50%);
       background: linear-gradient(135deg, #0ea5e9, #0284c7);
       color: #fff; border: none; border-radius: 50%;
@@ -19,79 +18,27 @@
       cursor: pointer; transition: all 0.3s ease;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1010;
     }
-    .btn-toggle-sidebar:hover {
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-      transform: translateY(-50%) scale(1.1);
-    }
+    .btn-toggle-sidebar:hover { background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 6px 20px rgba(0,0,0,0.5); transform: translateY(-50%) scale(1.1); }
     @media (max-width: 767px) { .btn-toggle-sidebar { display: block; } }
-
-    .intro-section {
-      text-align: center; margin-bottom: 30px; padding: 20px;
-      background: rgba(30,41,59,0.8); border-radius: 16px;
-      border: 2px solid rgba(56,189,248,0.4); color: #e2e8f0;
-    }
+    .intro-section { text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(30,41,59,0.8); border-radius: 16px; border: 2px solid rgba(56,189,248,0.4); color: #e2e8f0; }
     .intro-section p { font-size: 1.2em; margin: 10px 0; line-height: 1.6; }
     .intro-motivational { font-style: italic; color: #22d3ee; margin-top: 15px; }
-
-    .sidebar-overlay {
-      display: none; position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-      z-index: 999; opacity: 0; transition: opacity 0.3s ease;
-    }
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity 0.3s ease; }
     .sidebar-overlay.visible { opacity: 1; display: block; }
-
-    .coluna-botoes-prof {
-      flex: 0 0 180px; position: sticky; top: 20px;
-      background: rgba(15,23,42,0.95); border-radius: 16px;
-      padding: 20px; border: 2px solid rgba(56,189,248,0.4);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      margin-right: 20px; z-index: 100; transition: transform 0.3s ease;
-    }
+    .coluna-botoes-prof { flex: 0 0 180px; position: sticky; top: 20px; background: rgba(15,23,42,0.95); border-radius: 16px; padding: 20px; border: 2px solid rgba(56,189,248,0.4); box-shadow: 0 10px 40px rgba(0,0,0,0.3); margin-right: 20px; z-index: 100; transition: transform 0.3s ease; }
     @media (max-width: 767px) {
-      .coluna-botoes-prof {
-        position: fixed; left: 0; top: 0; height: 100vh; width: 250px;
-        background: rgba(15,23,42,0.95); border-radius: 0 16px 16px 0;
-        padding: 60px 20px 20px; border: 2px solid rgba(56,189,248,0.4);
-        box-shadow: 4px 0 20px rgba(0,0,0,0.3); z-index: 1000;
-        transform: translateX(-100%);
-      }
+      .coluna-botoes-prof { position: fixed; left: 0; top: 0; height: 100vh; width: 250px; background: rgba(15,23,42,0.95); border-radius: 0 16px 16px 0; padding: 60px 20px 20px; border: 2px solid rgba(56,189,248,0.4); box-shadow: 4px 0 20px rgba(0,0,0,0.3); z-index: 1000; transform: translateX(-100%); }
       .coluna-botoes-prof.open { transform: translateX(0); }
     }
-
     .titulo-card-prof { color: #22d3ee; font-size: 1.4em; margin-bottom: 20px; text-align: center; font-weight: bold; }
-    .coluna-botoes-prof button {
-      display: block; width: 100%; margin-bottom: 15px;
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      border: none; border-radius: 12px; padding: 12px 18px;
-      color: #fff; font-weight: 600; cursor: pointer;
-      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
+    .coluna-botoes-prof button { display: block; width: 100%; margin-bottom: 15px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border: none; border-radius: 12px; padding: 12px 18px; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     .coluna-botoes-prof button:hover { transform: translateY(-3px) scale(1.02); }
-
     .layout-professor { display: flex; flex-direction: row; max-width: 1400px; margin: 0 auto; }
     .painel-alunos { flex: 1; }
     .painel { display: none; }
-    .painel.active {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-      gap: 25px; margin-top: 30px;
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    .ficha {
-      background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(51,65,85,0.9));
-      border: 2px solid rgba(56,189,248,0.4); border-radius: 16px;
-      padding: 12px; width: 300px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      transition: all 0.3s ease; display: flex;
-      flex-direction: column; align-items: center; gap: 6px;
-    }
-    .ficha:hover {
-      transform: translateY(-4px) scale(1.01);
-      box-shadow: 0 10px 36px rgba(0,0,0,0.5);
-      border-color: rgba(34,211,238,0.6);
-    }
+    .painel.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 25px; margin-top: 30px; animation: fadeIn 0.5s ease-out; }
+    .ficha { background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(51,65,85,0.9)); border: 2px solid rgba(56,189,248,0.4); border-radius: 16px; padding: 12px; width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .ficha:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 10px 36px rgba(0,0,0,0.5); border-color: rgba(34,211,238,0.6); }
     .foto-wrapper { position: relative; margin-bottom: 6px; }
     .foto { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid rgba(56,189,248,0.6); }
     .foto img { width: 100%; height: 100%; object-fit: cover; }
@@ -109,34 +56,27 @@
     .metodo-text { font-size: 0.8em; color: #38bdf8; font-style: italic; text-align: center; }
     .nota-controls { display: flex; align-items: center; gap: 6px; }
     .btn-decrease, .btn-increase { width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer; color: white; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-    .btn-decrease { background: #dc2626; }
-    .btn-increase { background: #22c55e; }
-    .btn-decrease:hover { background: #b91c1c; transform: scale(1.1); }
-    .btn-increase:hover { background: #16a34a; transform: scale(1.1); }
+    .btn-decrease { background: #dc2626; } .btn-increase { background: #22c55e; }
+    .btn-decrease:hover { background: #b91c1c; transform: scale(1.1); } .btn-increase:hover { background: #16a34a; transform: scale(1.1); }
     .nota-input { width: 40px; height: 32px; text-align: center; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 1em; font-weight: bold; }
     .edit-section { width: 100%; }
     .edit-section input { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.9em; text-align: center; }
     .edit-section input::placeholder { color: #22d3ee; font-style: italic; }
     .actions { display: flex; gap: 8px; justify-content: center; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; margin-top: 8px; }
     .btn-classificar, .btn-remover { flex: 1; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: #fff; transition: all 0.3s ease; font-size: 0.85em; }
-    .btn-classificar { background: #16a34a; }
-    .btn-classificar:hover { background: #15803d; transform: translateY(-1px); }
-    .btn-remover { background: #dc2626; }
-    .btn-remover:hover { background: #b91c1c; transform: translateY(-1px); }
+    .btn-classificar { background: #16a34a; } .btn-classificar:hover { background: #15803d; transform: translateY(-1px); }
+    .btn-remover { background: #dc2626; } .btn-remover:hover { background: #b91c1c; transform: translateY(-1px); }
     .loader { text-align: center; margin: 20px; color: #22d3ee; font-size: 1.2em; }
     .spinner { width: 50px; height: 50px; border: 4px solid rgba(34,211,238,0.2); border-top-color: #22d3ee; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
     .mensagem-sucesso, .mensagem-info { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.25); opacity: 0; transition: opacity 0.4s ease; z-index: 9999; }
-    .mensagem-sucesso { background: #16a34a; color: #fff; }
-    .mensagem-info { background: #2563eb; color: #fff; }
+    .mensagem-sucesso { background: #16a34a; color: #fff; } .mensagem-info { background: #2563eb; color: #fff; }
     .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.3s ease; }
     .modal.ativo { display: flex; }
     .botoes-modal { display: flex; justify-content: space-between; margin-top: 18px; gap: 10px; }
     .botoes-modal button { flex: 1; padding: 10px 0; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; transition: transform 0.2s ease, background 0.3s; }
-    .btn-adicionar { background: #16a34a; }
-    .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
-    .btn-cancelar { background: #dc2626; }
-    .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
+    .btn-adicionar { background: #16a34a; } .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
+    .btn-cancelar { background: #dc2626; } .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
     @media (max-width: 768px) { .layout-professor { flex-direction: column; } .coluna-botoes-prof { width: 100%; margin-bottom: 20px; } .painel.active { grid-template-columns: 1fr; } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -145,93 +85,74 @@
     h1 { text-align: center; color: #22d3ee; font-size: 2.5em; margin-bottom: 20px; text-shadow: 0 2px 5px rgba(0,0,0,0.3); font-weight: 700; }
     .usuario-logado { text-align: center; margin-bottom: 30px; opacity: 0.85; font-size: 1.1em; }
 
-    /* ===== PAINEL SNAPSHOTS RETROATIVOS ===== */
+    /* ===== PAINEL SNAPSHOTS ===== */
     #painelSnapshots {
-      display: none;
-      background: rgba(15,23,42,0.95);
-      border: 2px solid rgba(34,211,238,0.35);
-      border-radius: 16px;
-      padding: 28px;
-      margin-top: 24px;
-      max-width: 680px;
+      display: none; background: rgba(15,23,42,0.95);
+      border: 2px solid rgba(34,211,238,0.35); border-radius: 16px;
+      padding: 28px; margin-top: 24px; max-width: 720px;
     }
-    #painelSnapshots h2 {
-      color: #22d3ee;
-      margin-bottom: 20px;
-      font-size: 1.3rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .snap-form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
+    #painelSnapshots h2 { color: #22d3ee; margin-bottom: 20px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+    .snap-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
     @media (max-width: 500px) { .snap-form-grid { grid-template-columns: 1fr; } }
     .snap-field { display: flex; flex-direction: column; gap: 5px; }
     .snap-field label { font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-    .snap-field select,
-    .snap-field input {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      color: #e2e8f0;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      outline: none;
-      width: 100%;
-    }
-    .snap-field select:focus,
-    .snap-field input:focus {
-      border-color: #22d3ee;
-      box-shadow: 0 0 0 2px rgba(34,211,238,0.15);
-    }
+    .snap-field select, .snap-field input { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 8px 10px; font-size: 0.9rem; outline: none; width: 100%; }
+    .snap-field select:focus, .snap-field input:focus { border-color: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,0.15); }
     .snap-full { grid-column: 1 / -1; }
     #btnSalvarSnapshot {
       background: linear-gradient(135deg, #0ea5e9, #0284c7);
       color: #fff; border: none; border-radius: 10px;
       padding: 11px 28px; font-weight: 700; font-size: 0.95rem;
-      cursor: pointer; transition: all .2s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
     #btnSalvarSnapshot:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
     #btnSalvarSnapshot:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    #msgSnapshot {
-      margin-top: 12px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      min-height: 20px;
-    }
-    .msg-ok  { color: #22c55e; }
-    .msg-err { color: #f87171; }
 
-    /* Histórico de snapshots listado */
-    #listaSnapshots {
-      margin-top: 22px;
-      max-height: 320px;
-      overflow-y: auto;
+    /* Botão preencher automático */
+    .snap-divider { border: none; border-top: 1px solid rgba(56,189,248,0.2); margin: 22px 0; }
+    .snap-auto-titulo { color: #fbbf24; font-size: 0.92rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .snap-auto-desc { color: #94a3b8; font-size: 0.78rem; margin-bottom: 14px; line-height: 1.5; }
+    .snap-auto-grid { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
+    .snap-auto-grid .snap-field { flex: 1; min-width: 100px; }
+    #btnAutoTodos {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #fff; border: none; border-radius: 10px;
+      padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
+      cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      white-space: nowrap;
     }
-    .snap-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 9px 12px;
-      border-radius: 8px;
-      margin-bottom: 6px;
-      background: rgba(30,41,59,0.8);
-      border: 1px solid rgba(56,189,248,0.15);
-      font-size: 0.82rem;
-      color: #cbd5e1;
-      gap: 8px;
-      flex-wrap: wrap;
+    #btnAutoTodos:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+    #btnAutoTodos:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    #btnAutoUm {
+      background: linear-gradient(135deg, #7c3aed, #6d28d9);
+      color: #fff; border: none; border-radius: 10px;
+      padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
+      cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      white-space: nowrap;
     }
+    #btnAutoUm:hover { transform: translateY(-2px); }
+    #btnAutoUm:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    #logAuto {
+      margin-top: 14px; max-height: 200px; overflow-y: auto;
+      font-size: 0.75rem; font-family: monospace; color: #86efac;
+      background: rgba(0,0,0,0.3); border-radius: 8px;
+      padding: 10px 12px; display: none;
+    }
+    .log-linha-criado  { color: #86efac; }
+    .log-linha-pulado  { color: #6b7280; }
+    .log-linha-aluno   { color: #38bdf8; font-weight: bold; margin-top: 6px; }
+    .log-linha-resumo  { color: #fbbf24; font-weight: bold; margin-top: 8px; }
+
+    #msgSnapshot { margin-top: 12px; font-size: 0.88rem; font-weight: 600; min-height: 20px; }
+    .msg-ok  { color: #22c55e; } .msg-err { color: #f87171; }
+    #listaSnapshots { margin-top: 22px; max-height: 320px; overflow-y: auto; }
+    .snap-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 8px; margin-bottom: 6px; background: rgba(30,41,59,0.8); border: 1px solid rgba(56,189,248,0.15); font-size: 0.82rem; color: #cbd5e1; gap: 8px; flex-wrap: wrap; }
     .snap-item .snap-chave  { font-weight: 700; color: #38bdf8; min-width: 60px; }
     .snap-item .snap-nome   { flex: 1; }
     .snap-item .snap-vals   { color: #86efac; white-space: nowrap; }
     .snap-item .snap-origem { font-size: 0.72rem; color: #6b7280; }
-    .snap-item.retroativo   { border-color: rgba(251,191,36,0.3); }
+    .snap-item.retroativo  { border-color: rgba(251,191,36,0.3); }
+    .snap-item.automatico-inteligente { border-color: rgba(167,139,250,0.3); }
   </style>
 </head>
 
@@ -274,8 +195,7 @@
       <button onclick="window.location.href='biblioteca.html'">📚 Biblioteca</button>
       <button id="btnAtualizarComprometimento">⚡ Atualizar Comprometimento</button>
       <button onclick="carregarModulo('relatorio')">📊 Relatório Mensal</button>
-      <!-- 📸 Novo botão de Snapshots -->
-      <button onclick="mostrarPainelSnapshots()">📸 Evolucao Mensal</button>
+      <button onclick="mostrarPainelSnapshots()">📸 Evolução Mensal</button>
     </div>
 
     <div class="painel-alunos">
@@ -287,68 +207,71 @@
         <p>Carregando alunos...</p>
       </div>
 
-      <!-- ===== PAINEL SNAPSHOTS RETROATIVOS ===== -->
+      <!-- ===== PAINEL SNAPSHOTS ===== -->
       <div id="painelSnapshots">
-        <h2>📸 Evolução Mensal — Lançamento Retroativo</h2>
+        <h2>📸 Evolução Mensal — Lançamento</h2>
 
+        <!-- Formulário manual -->
         <div class="snap-form-grid">
-          <!-- Aluno -->
           <div class="snap-field snap-full">
             <label>Aluno</label>
-            <select id="snapAluno">
-              <option value="">Carregando alunos...</option>
-            </select>
+            <select id="snapAluno"><option value="">Carregando alunos...</option></select>
           </div>
-          <!-- Ano -->
           <div class="snap-field">
             <label>Ano</label>
             <input type="number" id="snapAno" min="2020" max="2030" value="2026">
           </div>
-          <!-- Mês -->
           <div class="snap-field">
             <label>Mês</label>
             <select id="snapMes">
-              <option value="1">Janeiro</option>
-              <option value="2">Fevereiro</option>
-              <option value="3" selected>Março</option>
-              <option value="4">Abril</option>
-              <option value="5">Maio</option>
-              <option value="6">Junho</option>
-              <option value="7">Julho</option>
-              <option value="8">Agosto</option>
-              <option value="9">Setembro</option>
-              <option value="10">Outubro</option>
-              <option value="11">Novembro</option>
-              <option value="12">Dezembro</option>
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+              <option value="3" selected>Março</option><option value="4">Abril</option>
+              <option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option>
+              <option value="9">Setembro</option><option value="10">Outubro</option>
+              <option value="11">Novembro</option><option value="12">Dezembro</option>
             </select>
           </div>
-          <!-- Leitura (Bona) -->
           <div class="snap-field">
             <label>Nível Bona (Leitura)</label>
             <input type="number" id="snapLeitura" min="0" max="200" placeholder="0">
           </div>
-          <!-- Método -->
           <div class="snap-field">
             <label>Nível Método</label>
             <input type="number" id="snapMetodo" min="0" max="100" placeholder="0">
           </div>
-          <!-- Lição Leitura -->
           <div class="snap-field">
             <label>Lição Leitura (opcional)</label>
             <input type="text" id="snapLicaoLeitura" placeholder="ex: Bona pág. 45">
           </div>
-          <!-- Lição Método -->
           <div class="snap-field">
             <label>Lição Método (opcional)</label>
             <input type="text" id="snapLicaoMetodo" placeholder="ex: Arban pág. 20">
           </div>
         </div>
-
         <button id="btnSalvarSnapshot">💾 Salvar Pegada Mensal</button>
         <div id="msgSnapshot"></div>
-
-        <!-- Histórico de snapshots do aluno selecionado -->
         <div id="listaSnapshots"></div>
+
+        <!-- ===== SEÇÃO PREENCHIMENTO AUTOMÁTICO ===== -->
+        <hr class="snap-divider">
+        <div class="snap-auto-titulo">✨ Preenchimento Automático Inteligente</div>
+        <p class="snap-auto-desc">
+          Reconstrói as pegadas mensais a partir do histórico de alterações de nível.<br>
+          • Nível inicial padrão: <strong>Leitura 60</strong> · <strong>Método 1</strong><br>
+          • Se o aluno não teve alterações, todos os meses recebem o nível atual<br>
+          • Se houve alterações, cada mês recebe o nível correto naquele período<br>
+          • Meses que já possuem pegada são pulados (sem sobrescrever)
+        </p>
+        <div class="snap-auto-grid">
+          <div class="snap-field">
+            <label>Ano a preencher</label>
+            <input type="number" id="autoAno" min="2020" max="2030" value="2026">
+          </div>
+          <button id="btnAutoUm">🔍 Preencher aluno selecionado</button>
+          <button id="btnAutoTodos">🚀 Preencher TODOS os alunos</button>
+        </div>
+        <div id="logAuto"></div>
       </div>
       <!-- ===== FIM PAINEL SNAPSHOTS ===== -->
     </div>
@@ -369,51 +292,39 @@
       </div>
     </div>
   </div>
-
   <div id="modalSolfejo" class="modal">
     <div class="modal-conteudo">
       <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>✏️ Método de Solfejo</h2>
       <input type="text" id="editSolfejo" placeholder="Digite o método">
-      <div class="botoes-modal">
-        <button id="btnCancelSolfejo">❌ Cancelar</button>
-        <button id="btnSalvarSolfejo">💾 Salvar</button>
-      </div>
+      <div class="botoes-modal"><button id="btnCancelSolfejo">❌ Cancelar</button><button id="btnSalvarSolfejo">💾 Salvar</button></div>
     </div>
   </div>
-
   <div id="modalInstrumental" class="modal">
     <div class="modal-conteudo">
       <span class="fechar-modal" onclick="this.parentElement.classList.remove('ativo')">&times;</span>
       <h2>🎵 Método Instrumental</h2>
       <input type="text" id="editInstrumental" placeholder="Digite o método">
-      <div class="botoes-modal">
-        <button id="btnCancelInstrumental">❌ Cancelar</button>
-        <button id="btnSalvarInstrumental">💾 Salvar</button>
-      </div>
+      <div class="botoes-modal"><button id="btnCancelInstrumental">❌ Cancelar</button><button id="btnSalvarInstrumental">💾 Salvar</button></div>
     </div>
   </div>
 
-  <!-- Script Toggle Sidebar -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const btnToggle = document.getElementById('btnToggleSidebar');
       const sidebar   = document.getElementById('sidebar');
       const overlay   = document.getElementById('sidebarOverlay');
-
       if (btnToggle && sidebar) {
         btnToggle.addEventListener('click', () => {
           sidebar.classList.toggle('open');
           overlay.classList.toggle('visible');
           btnToggle.textContent = sidebar.classList.contains('open') ? '>' : '<';
         });
-        if (overlay) {
-          overlay.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('visible');
-            btnToggle.textContent = '<';
-          });
-        }
+        if (overlay) overlay.addEventListener('click', () => {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('visible');
+          btnToggle.textContent = '<';
+        });
         document.addEventListener('keydown', e => {
           if (e.key === 'Escape' && sidebar.classList.contains('open')) {
             sidebar.classList.remove('open');
@@ -422,8 +333,6 @@
           }
         });
       }
-
-      // Ocultar intro após qualquer botão do menu
       document.querySelectorAll('.coluna-botoes-prof button').forEach(btn => {
         btn.addEventListener('click', () => {
           const intro = document.querySelector('.intro-section');
@@ -432,7 +341,6 @@
       });
     });
 
-    // Mostrar/ocultar o painel de snapshots
     function mostrarPainelSnapshots() {
       const p = document.getElementById('painelSnapshots');
       const c = document.getElementById('conteudo');
@@ -441,40 +349,48 @@
       if (c)  c.innerHTML = '';
       if (pl) pl.style.display = 'none';
       if (painel) painel.classList.remove('active');
-      p.style.display = p.style.display === 'none' || !p.style.display ? 'block' : 'none';
+      p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
     }
   </script>
 
   <script src="loader.js"></script>
   <script type="module" src="professor.js"></script>
 
-  <!-- Script módulo para snapshots (carregado após professor.js) -->
   <script type="module">
     import { db } from "./firebase-config.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import {
       criarSnapshotRetroativo,
-      carregarSnapshotsAluno
+      carregarSnapshotsAluno,
+      preenchimentoAutomaticoPegadas,
+      preenchimentoAutomaticoTodosAlunos
     } from "./snapshots-mensais.js";
 
     const nomesMes = ["","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+    let alunosCache = [];
 
     // Popula select de alunos
     async function popularSelectAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
       const sel  = document.getElementById("snapAluno");
       if (!sel) return;
+      alunosCache = [];
       sel.innerHTML = '<option value="">Selecionar aluno...</option>';
       snap.forEach(d => {
         const a = { id: d.id, ...d.data() };
+        alunosCache.push(a);
         const op = document.createElement("option");
-        op.value       = JSON.stringify({ id: a.id, nome: a.nome, leitura: a.leitura || 0, metodo: a.metodo || 0, solfejoNome: a.solfejoNome || "Bona", metodoNome: a.metodoNome || "-" });
+        op.value = JSON.stringify({
+          id: a.id, nome: a.nome,
+          leitura: a.leitura || 0, metodo: a.metodo || 0,
+          solfejoNome: a.leituraNome || "Bona",
+          metodoNome:  a.metodoNome  || "-"
+        });
         op.textContent = a.nome;
         sel.appendChild(op);
       });
     }
 
-    // Ao selecionar aluno: pré-preenche níveis e carrega histórico
     document.getElementById("snapAluno")?.addEventListener("change", async (e) => {
       if (!e.target.value) return;
       const aluno = JSON.parse(e.target.value);
@@ -494,7 +410,7 @@
       div.innerHTML = `
         <p style="color:#94a3b8;font-size:0.78rem;margin-bottom:10px;font-weight:600;">HISTÓRICO DE PEGADAS (${lista.length})</p>
         ${lista.map(s => `
-          <div class="snap-item ${s.origem === 'retroativo' ? 'retroativo' : ''}">
+          <div class="snap-item ${s.origem}">
             <span class="snap-chave">${nomesMes[Number(s.mes)]}/${s.ano}</span>
             <span class="snap-nome">${s.alunoNome}</span>
             <span class="snap-vals">Bona ${s.leitura} · Mét. ${s.metodo}</span>
@@ -503,10 +419,10 @@
       `;
     }
 
-    // Salvar snapshot retroativo
+    // Salvar snapshot manual
     document.getElementById("btnSalvarSnapshot")?.addEventListener("click", async () => {
-      const msg     = document.getElementById("msgSnapshot");
-      const selAluno= document.getElementById("snapAluno").value;
+      const msg = document.getElementById("msgSnapshot");
+      const selAluno = document.getElementById("snapAluno").value;
       if (!selAluno) { msg.textContent = "Selecione um aluno."; msg.className = "msg-err"; return; }
       const aluno   = JSON.parse(selAluno);
       const ano     = Number(document.getElementById("snapAno").value);
@@ -515,12 +431,8 @@
       const metodo  = Number(document.getElementById("snapMetodo").value)  || 0;
       const licaoL  = document.getElementById("snapLicaoLeitura").value.trim();
       const licaoM  = document.getElementById("snapLicaoMetodo").value.trim();
-
       const btn = document.getElementById("btnSalvarSnapshot");
-      btn.disabled = true;
-      msg.textContent = "Salvando...";
-      msg.className = "";
-
+      btn.disabled = true; msg.textContent = "Salvando..."; msg.className = "";
       try {
         await criarSnapshotRetroativo({
           aluno, ano, mes, leitura, metodo,
@@ -535,17 +447,75 @@
         console.error(e);
         msg.textContent = "❌ Erro ao salvar. Verifique o console.";
         msg.className = "msg-err";
+      } finally { btn.disabled = false; }
+    });
+
+    // ===== PREENCHIMENTO AUTOMÁTICO - ALUNO SELECIONADO =====
+    document.getElementById("btnAutoUm")?.addEventListener("click", async () => {
+      const selAluno = document.getElementById("snapAluno").value;
+      if (!selAluno) {
+        alert("Selecione um aluno primeiro.");
+        return;
+      }
+      const aluno = JSON.parse(selAluno);
+      const ano   = Number(document.getElementById("autoAno").value);
+      const log   = document.getElementById("logAuto");
+      const btn   = document.getElementById("btnAutoUm");
+      btn.disabled = true;
+      log.style.display = "block";
+      log.innerHTML = `<span class="log-linha-aluno">👤 Processando ${aluno.nome}...</span><br>`;
+
+      try {
+        const result = await preenchimentoAutomaticoPegadas(aluno, ano, (d) => {
+          const cls = d.status === "criado" ? "log-linha-criado" : "log-linha-pulado";
+          const icon = d.status === "criado" ? "✅" : "⏭️";
+          log.innerHTML += `<span class="${cls}">${icon} ${d.chave} → Leitura ${d.leitura} · Método ${d.metodo} (${d.status})</span><br>`;
+          log.scrollTop = log.scrollHeight;
+        });
+        log.innerHTML += `<span class="log-linha-resumo">🎉 Concluído: ${result.criados} criados · ${result.pulados} já existiam</span>`;
+        await renderizarHistorico(aluno);
+      } catch (e) {
+        console.error(e);
+        log.innerHTML += `<span style="color:#f87171">❌ Erro: ${e.message}</span>`;
+      } finally { btn.disabled = false; }
+    });
+
+    // ===== PREENCHIMENTO AUTOMÁTICO - TODOS OS ALUNOS =====
+    document.getElementById("btnAutoTodos")?.addEventListener("click", async () => {
+      if (!confirm("Isso irá preencher automaticamente as pegadas de TODOS os alunos. Meses já existentes não serão alterados. Continuar?")) return;
+      const ano = Number(document.getElementById("autoAno").value);
+      const log = document.getElementById("logAuto");
+      const btn = document.getElementById("btnAutoTodos");
+      btn.disabled = true;
+      document.getElementById("btnAutoUm").disabled = true;
+      log.style.display = "block";
+      log.innerHTML = `<span class="log-linha-resumo">🚀 Iniciando preenchimento automático para ${ano}...</span><br>`;
+
+      try {
+        const result = await preenchimentoAutomaticoTodosAlunos(ano, (d) => {
+          if (d.fase === "aluno") {
+            log.innerHTML += `<span class="log-linha-aluno">👤 ${d.nome} (${d.processados + 1}/${d.total})</span><br>`;
+          } else {
+            const cls  = d.status === "criado" ? "log-linha-criado" : "log-linha-pulado";
+            const icon = d.status === "criado" ? "✅" : "⏭️";
+            log.innerHTML += `<span class="${cls}">&nbsp;&nbsp;${icon} ${d.chave} → L${d.leitura} M${d.metodo} (${d.status})</span><br>`;
+          }
+          log.scrollTop = log.scrollHeight;
+        });
+        log.innerHTML += `<span class="log-linha-resumo">🎉 CONCLUÍDO: ${result.totalAlunos} alunos · ${result.totalCriados} pegadas criadas · ${result.totalPulados} puladas</span>`;
+      } catch (e) {
+        console.error(e);
+        log.innerHTML += `<span style="color:#f87171">❌ Erro: ${e.message}</span>`;
       } finally {
         btn.disabled = false;
+        document.getElementById("btnAutoUm").disabled = false;
       }
     });
 
-    // Inicializa ao abrir
     document.addEventListener("DOMContentLoaded", () => {
       popularSelectAlunos();
-      // Seleciona mês atual no select
       const mesAtual = new Date().getMonth() + 1;
-      const selMes   = document.getElementById("snapMes");
+      const selMes = document.getElementById("snapMes");
       if (selMes) selMes.value = String(mesAtual);
     });
   </script>
