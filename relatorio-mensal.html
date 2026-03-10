@@ -80,6 +80,31 @@
     .exportando { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; color: white; font-size: 1.2em; }
     .exportando.mostrar { display: flex; }
     .spinner-export { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 20px; }
+
+    /* Classe aplicada temporariamente durante exportação para forçar layout A4 */
+    .exportar-a4 {
+      width: 794px !important;
+      min-width: 794px !important;
+      max-width: 794px !important;
+      padding: 30px 35px !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    .exportar-a4 .indicadores-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+    .exportar-a4 .comprometimento-grid {
+      grid-template-columns: 1fr 1fr !important;
+    }
+    .exportar-a4 .rel-header {
+      flex-direction: row !important;
+      text-align: left !important;
+    }
+    .exportar-a4 .rel-logo {
+      margin-left: auto !important;
+      text-align: right !important;
+    }
+
     @media print {
       body { background: white !important; padding: 0 !important; color: #1a202c !important; }
       .top-bar { display: none !important; }
@@ -145,24 +170,39 @@
       gerarRelatorio(alunoId, mesSelecionado);
     }
 
-    // ── Exportar JPG ───────────────────────────────────────────────────────────
+    // ── Exportar JPG sempre em layout A4 (794px), independente do dispositivo ──
     document.getElementById('btn-jpg').addEventListener('click', async () => {
       const pagina     = document.getElementById('pagina-relatorio');
       const exportando = document.getElementById('exportando');
       if (pagina.style.display === 'none') { alert('Aguarde o relatório carregar.'); return; }
       exportando.classList.add('mostrar');
       try {
+        // Aplica layout A4 temporariamente
+        pagina.classList.add('exportar-a4');
+        // Aguarda o browser recalcular o layout antes de capturar
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+        const larguraA4 = 794;
+        const alturaReal = pagina.scrollHeight;
+
         const canvas = await html2canvas(pagina, {
-          scale: 2, useCORS: true, allowTaint: true,
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
           backgroundColor: '#ffffff',
-          width: pagina.scrollWidth, height: pagina.scrollHeight,
-          logging: false, letterRendering: true,
+          width: larguraA4,
+          height: alturaReal,
+          windowWidth: larguraA4,
+          logging: false,
+          letterRendering: true,
           onclone: (clonedDoc) => {
             const p = clonedDoc.getElementById('pagina-relatorio');
+            p.classList.add('exportar-a4');
             p.style.boxShadow = 'none';
             p.style.borderRadius = '0';
           }
         });
+
         const link = document.createElement('a');
         link.download = `relatorio_${alunoId}_${mesSelecionado || 'atual'}.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.95);
@@ -172,6 +212,9 @@
         console.error(err);
         exportando.classList.remove('mostrar');
         alert('Erro ao gerar imagem.');
+      } finally {
+        // Remove a classe A4 e restaura o layout do dispositivo
+        pagina.classList.remove('exportar-a4');
       }
     });
 
@@ -297,7 +340,6 @@
       const pct    = freqMes.percentual;
       const pctAnt = freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null;
 
-      // ── BLOCO 1: Presença mensal ──
       if (freqMes.total === 0) {
         partes.push(`${nome}, não há registros de chamada para este mês.`);
       } else if (pct === 100) {
@@ -320,7 +362,6 @@
         partes.push(`${nome}, sua presença neste mês foi de ${pct}% — um índice que precisa de atenção. Tente chegar pelo menos a 80% no próximo mês. Cada ensaio perdido é uma oportunidade de crescimento que não volta!`);
       }
 
-      // ── BLOCO 2: Leitura ──
       if (leituraAnterior === null) {
         partes.push(`Na leitura, você está na lição ${leituraAtual} (${lNome}) — agora é hora de avançar e mostrar seu potencial!`);
       } else if (leituraAtual > leituraAnterior) {
@@ -331,7 +372,6 @@
         partes.push(`Sua leitura recuou do nível ${leituraAnterior} para ${leituraAtual} (${lNome}). Não desanime — redobrar a atenção ao solfejo nas próximas semanas fará toda a diferença.`);
       }
 
-      // ── BLOCO 3: Método instrumental ──
       if (metodoAnterior === null) {
         partes.push(`Você está na lição ${metodoAtual} do ${mNome} — cada lição concluída é um passo real no seu instrumento.`);
       } else if (metodoAtual > metodoAnterior) {
@@ -342,7 +382,6 @@
         partes.push(`Houve um recuo no método (de ${metodoAnterior} para ${metodoAtual}). Retome com calma — você tem capacidade de recuperar e superar esse ponto.`);
       }
 
-      // ── BLOCO 4: Comprometimento geral anual (omite se igual ao mensal) ──
       if (freqGeral.total > 0 && freqGeral.percentual !== pct) {
         if (freqGeral.percentual >= 85)
           partes.push(`Seu comprometimento geral no ano é excelente (${freqGeral.percentual}%) — você é um exemplo de dedicação para toda a orquestra!`);
@@ -365,7 +404,6 @@
     }) {
       const nomeMes = MESES[mesRel] || mesRel;
 
-      // Se não há chamadas no mês, exibe badge neutro azul
       const stPresenca = freqMes.total === 0
         ? { texto: "— Mês sem chamadas", classe: "status-neutro" }
         : gerarStatus(freqMes.percentual, freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null);
@@ -373,8 +411,7 @@
       const stLeitura = gerarStatus(leituraAtual, leituraAnterior);
       const stMetodo  = gerarStatus(metodoAtual,  metodoAnterior);
 
-      const metaPresenca = freqMes.percentual >= 100 ? 100
-        : freqMes.percentual >= 80 ? 100 : 80;
+      const metaPresenca = freqMes.percentual >= 100 ? 100 : freqMes.percentual >= 80 ? 100 : 80;
 
       const antLeituraTexto = leituraAnterior !== null ? `Nível ${leituraAnterior}` : "—";
       const antMetodoTexto  = metodoAnterior  !== null ? `Unid. ${metodoAnterior}`  : "—";
@@ -419,7 +456,6 @@
 
         <div class="rel-titulo-secao">📈 Indicadores de Progresso</div>
         <div class="indicadores-grid">
-
           <div class="indicador-card">
             <h4>Presença no Mês</h4>
             <div class="indicador-valores">
@@ -429,7 +465,6 @@
             </div>
             <span class="indicador-status ${stPresenca.classe}">${stPresenca.texto}</span>
           </div>
-
           <div class="indicador-card">
             <h4>Leitura (${aluno.leituraNome || 'Bona'})</h4>
             <div class="indicador-valores">
@@ -439,7 +474,6 @@
             </div>
             <span class="indicador-status ${stLeitura.classe}">${stLeitura.texto}</span>
           </div>
-
           <div class="indicador-card">
             <h4>Método (${aluno.metodoNome || 'Método'})</h4>
             <div class="indicador-valores">
@@ -449,7 +483,6 @@
             </div>
             <span class="indicador-status ${stMetodo.classe}">${stMetodo.texto}</span>
           </div>
-
         </div>
 
         <div class="rel-titulo-secao">⚡ Comprometimento</div>
