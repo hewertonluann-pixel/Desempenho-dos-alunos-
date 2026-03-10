@@ -135,8 +135,8 @@
       "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
     };
 
-    const params        = new URLSearchParams(window.location.search);
-    const alunoId       = params.get("id");
+    const params         = new URLSearchParams(window.location.search);
+    const alunoId        = params.get("id");
     const mesSelecionado = params.get("mes");
 
     if (!alunoId) {
@@ -148,7 +148,7 @@
 
     // ── Exportar JPG ───────────────────────────────────────────────────────────
     document.getElementById('btn-jpg').addEventListener('click', async () => {
-      const pagina    = document.getElementById('pagina-relatorio');
+      const pagina     = document.getElementById('pagina-relatorio');
       const exportando = document.getElementById('exportando');
       if (pagina.style.display === 'none') { alert('Aguarde o relatório carregar.'); return; }
       exportando.classList.add('mostrar');
@@ -203,16 +203,16 @@
         if (!alunoSnap.exists()) throw new Error("Aluno não encontrado.");
         const aluno = { id: alunoSnap.id, ...alunoSnap.data() };
 
-        const agora   = new Date();
-        const chave   = mesChave || `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,"0")}`;
+        const agora  = new Date();
+        const chave  = mesChave || `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,"0")}`;
         const [anoRel, mesRel] = chave.split("-");
-        const chaveAnterior   = getMesAnterior(chave);
+        const chaveAnterior    = getMesAnterior(chave);
 
-        const snapEventos = await getDocs(collection(db, "eventos"));
+        const snapEventos  = await getDocs(collection(db, "eventos"));
         const todosEventos = snapEventos.docs.map(d => ({ id: d.id, ...d.data() }));
-        const eventosMes       = todosEventos.filter(e => e.data?.startsWith(chave));
-        const eventosAno       = todosEventos.filter(e => e.data?.startsWith(`${anoRel}-`));
-        const eventosMesAnt    = todosEventos.filter(e => e.data?.startsWith(chaveAnterior));
+        const eventosMes    = todosEventos.filter(e => e.data?.startsWith(chave));
+        const eventosAno    = todosEventos.filter(e => e.data?.startsWith(`${anoRel}-`));
+        const eventosMesAnt = todosEventos.filter(e => e.data?.startsWith(chaveAnterior));
 
         const freqMes         = calcularFrequencia(eventosMes,    aluno.nome);
         const freqGeral       = calcularFrequencia(eventosAno,    aluno.nome);
@@ -226,9 +226,9 @@
           return { data: formatarData(ev.data), status: p?.presenca === "presente" ? "Presente" : "Ausente" };
         }).sort((a, b) => a.data.localeCompare(b.data));
 
-        const snapshots      = await buscarSnapshots(id);
-        const snapAtual      = snapshots.find(s => s.chave === chave);
-        const snapAnterior   = snapshots.find(s => s.chave === chaveAnterior);
+        const snapshots    = await buscarSnapshots(id);
+        const snapAtual    = snapshots.find(s => s.chave === chave);
+        const snapAnterior = snapshots.find(s => s.chave === chaveAnterior);
 
         const leituraAtual    = snapAtual?.leitura    ?? aluno.leitura    ?? 1;
         const leituraAnterior = snapAnterior?.leitura ?? null;
@@ -261,7 +261,9 @@
     function calcularFrequencia(eventos, nomeAluno) {
       if (!eventos?.length) return { total: 0, presencas: 0, percentual: 0 };
       const total     = eventos.length;
-      const presencas = eventos.filter(ev => ev.presencas?.find(x => x.nome === nomeAluno)?.presenca === "presente").length;
+      const presencas = eventos.filter(ev =>
+        ev.presencas?.find(x => x.nome === nomeAluno)?.presenca === "presente"
+      ).length;
       return { total, presencas, percentual: Math.round((presencas / total) * 100) };
     }
 
@@ -279,9 +281,9 @@
 
     function gerarStatus(atual, anterior) {
       if (anterior === null) return { texto: "— Sem histórico", classe: "status-neutro" };
-      if (atual > anterior)  return { texto: "▲ Evoluiu",       classe: "status-evoluiu" };
-      if (atual === anterior) return { texto: "● Estável",       classe: "status-estavel" };
-      return                         { texto: "▼ Regrediu",      classe: "status-regrediu" };
+      if (atual > anterior)  return { texto: "▲ Evoluiu",        classe: "status-evoluiu" };
+      if (atual === anterior) return { texto: "● Estável",        classe: "status-estavel" };
+      return                         { texto: "▼ Regrediu",       classe: "status-regrediu" };
     }
 
     function corBarra(pct) {
@@ -290,57 +292,71 @@
       return "fill-vermelho";
     }
 
-    // ── Análise automática — linguagem direcionada ao aluno (você) ────────────
-    function gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior, leituraAtual, leituraAnterior, metodoAtual, metodoAnterior) {
+    // ── Análise automática ─────────────────────────────────────────────────────
+    function gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior,
+                          leituraAtual, leituraAnterior, metodoAtual, metodoAnterior) {
       const nome   = aluno.nome ? aluno.nome.split(" ")[0] : "você";
+      const lNome  = aluno.leituraNome || "Bona";
+      const mNome  = aluno.metodoNome  || "Método";
       const partes = [];
+      const pct    = freqMes.percentual;
+      const pctAnt = freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null;
 
-      // Presença
+      // ── BLOCO 1: Presença mensal (baseada na faixa real, não só na tendência) ──
       if (freqMes.total === 0) {
         partes.push(`${nome}, não há registros de chamada para este mês.`);
-      } else {
-        const stPres = gerarStatus(freqMes.percentual, freqMesAnterior.percentual);
-        if (stPres.classe === "status-evoluiu")
-          partes.push(`${nome}, sua frequência melhorou em relação ao mês anterior — você atingiu ${freqMes.percentual}% de presença. Continue assim!`);
-        else if (stPres.classe === "status-estavel")
-          partes.push(`${nome}, sua frequência se manteve estável em ${freqMes.percentual}% de presença. Manter essa constância é fundamental para o seu crescimento.`);
+      } else if (pct === 100) {
+        partes.push(`${nome}, presença perfeita neste mês! Você é um exemplo de comprometimento para toda a orquestra. Parabéns!`);
+      } else if (pct >= 80) {
+        if (pctAnt !== null && pct > pctAnt)
+          partes.push(`${nome}, sua frequência chegou a ${pct}% — ótimo resultado! Agora o desafio é alcançar 100% de presença.`);
+        else if (pctAnt !== null && pct < pctAnt)
+          partes.push(`${nome}, sua frequência caiu para ${pct}%, mas ainda está em um bom patamar. Recupere o ritmo e mire os 100%.`);
         else
-          partes.push(`${nome}, sua frequência caiu em relação ao mês anterior, chegando a ${freqMes.percentual}% de presença. Tente reforçar sua regularidade nos ensaios — sua presença faz diferença!`);
-      }
-
-      // Leitura
-      if (leituraAnterior !== null && leituraAtual > leituraAnterior) {
-        partes.push(`Na leitura musical, você avançou do nível ${leituraAnterior} para o nível ${leituraAtual} (${aluno.leituraNome || 'Bona'}) — um resultado excelente que mostra sua dedicação ao solfejo!`);
-      } else if (leituraAnterior !== null && leituraAtual === leituraAnterior) {
-        partes.push(`Seu nível de leitura se manteve estável no nível ${leituraAtual} (${aluno.leituraNome || 'Bona'}). ${leituraAtual >= 80 ? 'Você já demonstra um excelente domínio de solfejo.' : 'Continuando com a prática, você logo avançará para o próximo nível.'}`);
-      } else if (leituraAnterior !== null && leituraAtual < leituraAnterior) {
-        partes.push(`Sua leitura musical recuou do nível ${leituraAnterior} para o nível ${leituraAtual}. Não desanime — redobrar a atenção ao solfejo nas próximas semanas fará toda a diferença.`);
+          partes.push(`${nome}, você manteve ${pct}% de presença — muito bom! O próximo passo é chegar a 100%.`);
+      } else if (pct >= 50) {
+        if (pctAnt !== null && pct > pctAnt)
+          partes.push(`${nome}, sua frequência subiu para ${pct}% — uma melhora bem-vinda! O próximo objetivo é chegar a 80%. Você está no caminho certo.`);
+        else if (pctAnt !== null && pct < pctAnt)
+          partes.push(`${nome}, sua frequência caiu para ${pct}%. Tente reverter essa tendência e buscar os 80% no próximo mês.`);
+        else
+          partes.push(`${nome}, sua frequência se manteve em ${pct}%. Há espaço para crescer — tente chegar a 80% no próximo mês.`);
       } else {
-        if (leituraAtual >= 80) partes.push(`Seu nível de leitura está excelente (nível ${leituraAtual}), o que demonstra grande dedicação aos estudos de solfejo. Parabéns!`);
-        else if (leituraAtual >= 40) partes.push(`Seu nível de leitura está em progressão (nível ${leituraAtual}). Mantenha a prática e você certamente alcançará novos patamares.`);
-        else partes.push(`Seu nível de leitura (nível ${leituraAtual}) indica que você está nos estágios iniciais. Intensificar os estudos de solfejo vai acelerar seu desenvolvimento.`);
+        // 0–49% — sempre preocupante, independente da tendência
+        partes.push(`${nome}, sua presença neste mês foi de ${pct}% — um índice que precisa de atenção. Tente chegar pelo menos a 80% no próximo mês. Cada ensaio perdido é uma oportunidade de crescimento que não volta!`);
       }
 
-      // Método
-      if (metodoAnterior !== null && metodoAtual > metodoAnterior) {
-        partes.push(`No método instrumental, você avançou da unidade ${metodoAnterior} para a unidade ${metodoAtual} (${aluno.metodoNome || 'Método'}) — um progresso notável que evidencia seu comprometimento!`);
-      } else if (metodoAnterior !== null && metodoAtual === metodoAnterior) {
-        partes.push(`Seu progresso no método instrumental se manteve na unidade ${metodoAtual}. ${metodoAtual >= 80 ? 'Seu desempenho é notável — continue!' : 'Mantenha a regularidade nos estudos para seguir avançando.'}`);
-      } else if (metodoAnterior !== null && metodoAtual < metodoAnterior) {
-        partes.push(`Houve um recuo no método instrumental (de ${metodoAnterior} para ${metodoAtual}). Retome com calma e atenção — você tem capacidade para recuperar e superar esse ponto.`);
+      // ── BLOCO 2: Leitura ───────────────────────────────────────────────────
+      if (leituraAnterior === null) {
+        partes.push(`Na leitura, você está na lição ${leituraAtual} (${lNome}) — agora é hora de avançar e mostrar seu potencial!`);
+      } else if (leituraAtual > leituraAnterior) {
+        partes.push(`Na leitura, você avançou do nível ${leituraAnterior} para o nível ${leituraAtual} (${lNome}) — excelente! Isso mostra dedicação real ao solfejo.`);
+      } else if (leituraAtual === leituraAnterior) {
+        partes.push(`${nome}, você está na lição ${leituraAtual} (${lNome}) há dois meses consecutivos. A lição ${leituraAtual} foi uma conquista — mas ela não precisa ser sua morada. Que tal se desafiar a avançar?`);
       } else {
-        if (metodoAtual >= 80) partes.push(`Seu progresso no método instrumental é notável — você está na unidade ${metodoAtual}. Continue com esse ritmo!`);
-        else if (metodoAtual >= 40) partes.push(`Seu método instrumental está avançando — você está na unidade ${metodoAtual}. Cada lição concluída é um passo a mais na sua jornada musical.`);
-        else partes.push(`Você está na unidade ${metodoAtual} do método instrumental. Com foco e disciplina, seu progresso vai se acelerar naturalmente.`);
+        partes.push(`Sua leitura recuou do nível ${leituraAnterior} para ${leituraAtual} (${lNome}). Não desanime — redobrar a atenção ao solfejo nas próximas semanas fará toda a diferença.`);
       }
 
-      // Comprometimento geral
-      if (freqGeral.percentual >= 85)
-        partes.push(`Seu comprometimento geral ao longo do ano é excelente (${freqGeral.percentual}%) — você é um exemplo de dedicação para toda a orquestra!`);
-      else if (freqGeral.percentual >= 60)
-        partes.push(`Seu comprometimento geral no ano está em ${freqGeral.percentual}%, um resultado satisfatório com espaço para crescer ainda mais.`);
-      else if (freqGeral.total > 0)
-        partes.push(`Seu comprometimento geral no ano (${freqGeral.percentual}%) merece atenção. Conversar com seu professor pode ajudá-lo a encontrar o melhor caminho daqui para frente.`);
+      // ── BLOCO 3: Método instrumental ──────────────────────────────────────
+      if (metodoAnterior === null) {
+        partes.push(`Você está na lição ${metodoAtual} do ${mNome} — cada lição concluída é um passo real no seu instrumento.`);
+      } else if (metodoAtual > metodoAnterior) {
+        partes.push(`No método, você avançou da unidade ${metodoAnterior} para a unidade ${metodoAtual} (${mNome}) — um progresso notável que evidencia seu comprometimento!`);
+      } else if (metodoAtual === metodoAnterior) {
+        partes.push(`${nome}, você está na unidade ${metodoAtual} do ${mNome} há dois meses. A unidade ${metodoAtual} foi uma conquista — mas ela não precisa ser sua morada. Que tal se desafiar a avançar?`);
+      } else {
+        partes.push(`Houve um recuo no método (de ${metodoAnterior} para ${metodoAtual}). Retome com calma — você tem capacidade de recuperar e superar esse ponto.`);
+      }
+
+      // ── BLOCO 4: Comprometimento geral anual (omite se igual ao mensal) ───
+      if (freqGeral.total > 0 && freqGeral.percentual !== pct) {
+        if (freqGeral.percentual >= 85)
+          partes.push(`Seu comprometimento geral no ano é excelente (${freqGeral.percentual}%) — você é um exemplo de dedicação para toda a orquestra!`);
+        else if (freqGeral.percentual >= 60)
+          partes.push(`Seu comprometimento geral no ano está em ${freqGeral.percentual}% — um resultado satisfatório, com espaço para crescer ainda mais.`);
+        else
+          partes.push(`Seu comprometimento geral no ano (${freqGeral.percentual}%) merece atenção. Aumentar sua presença nos ensaios vai refletir diretamente no seu crescimento musical.`);
+      }
 
       return partes.join(" ");
     }
@@ -361,7 +377,8 @@
       const stLeitura  = gerarStatus(leituraAtual, leituraAnterior);
       const stMetodo   = gerarStatus(metodoAtual,  metodoAnterior);
 
-      let metaPresenca = freqMes.percentual >= 100 ? 100 : freqMes.percentual > 80 ? 100 : 80;
+      const metaPresenca = freqMes.percentual >= 100 ? 100
+        : freqMes.percentual >= 80 ? 100 : 80;
 
       const badgeSnap = temSnapAtual
         ? `<span class="badge-snapshot">📸 pegada</span>`
