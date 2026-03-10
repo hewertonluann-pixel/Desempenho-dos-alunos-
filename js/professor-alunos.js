@@ -15,6 +15,9 @@ import {
 // 🔥 IMPORTANTE: Registro de histórico
 import { registrarHistoricoProgresso } from "../evolucao.js";
 
+// 📸 Atualizar pegada do mês ao salvar nível
+import { atualizarSnapshotMesAtual } from "../snapshots-mensais.js";
+
 /* ============================================================
    1. CARREGAR ALUNOS
    ============================================================ */
@@ -138,7 +141,7 @@ function criarFichaHTML(aluno) {
 }
 
 /* ============================================================
-   4. ALTERAR NOTA (+/-) + REGISTRO HISTÓRICO
+   4. ALTERAR NOTA (+/-) + REGISTRO HISTÓRICO + SNAPSHOT
    ============================================================ */
 export async function alterarNota(id, campo, delta) {
   const ref = doc(db, "alunos", id);
@@ -168,11 +171,15 @@ export async function alterarNota(id, campo, delta) {
     origem: "professor"
   });
 
+  // 📸 Atualizar pegada do mês com o novo nível
+  const alunoAtualizado = { ...aluno, id, [campo]: novoValor };
+  await atualizarSnapshotMesAtual(alunoAtualizado);
+
   console.log(`Histórico registrado: ${aluno.nome} → ${campo}: ${novoValor}`);
 }
 
 /* ============================================================
-   5. ATUALIZAR NOTA PELO INPUT + REGISTRO HISTÓRICO
+   5. ATUALIZAR NOTA PELO INPUT + REGISTRO HISTÓRICO + SNAPSHOT
    ============================================================ */
 export async function atualizarNota(id, campo, valorDigitado) {
   let novoValor = parseInt(valorDigitado);
@@ -194,6 +201,10 @@ export async function atualizarNota(id, campo, valorDigitado) {
     valor: novoValor,
     origem: "professor"
   });
+
+  // 📸 Atualizar pegada do mês com o novo nível
+  const alunoAtualizado = { ...aluno, id, [campo]: novoValor };
+  await atualizarSnapshotMesAtual(alunoAtualizado);
 
   console.log(`Histórico atualizado: ${aluno.nome} → ${campo}: ${novoValor}`);
 }
