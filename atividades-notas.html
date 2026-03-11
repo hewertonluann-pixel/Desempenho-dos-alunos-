@@ -267,7 +267,19 @@ let timerRemaining = TIMER_SECONDS;
 function startTimer() {
   clearTimer();
   timerRemaining = TIMER_SECONDS;
-  updateTimerUI();
+
+  // Reset instantaneo: desativa transition, seta 100%, reativa transition
+  const bar = document.getElementById('timer-bar');
+  const count = document.getElementById('timer-count');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  bar.classList.remove('urgent');
+  count.classList.remove('urgent');
+  count.textContent = TIMER_SECONDS;
+  // Forca reflow para garantir que o reset seja aplicado antes de reativar a transition
+  bar.getBoundingClientRect();
+  bar.style.transition = 'width 1s linear, background 0.5s';
+
   timerInterval = setInterval(() => {
     timerRemaining--;
     updateTimerUI();
