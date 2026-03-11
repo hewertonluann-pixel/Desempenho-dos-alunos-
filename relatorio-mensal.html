@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Relatório de Progresso Mensal</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
   <style>
     @page { size: A4; margin: 15mm; }
@@ -41,7 +42,6 @@
     .ind-val.atual { background: #dbeafe; border: 2px solid #3b82f6; }
     .ind-val.atual span { color: #1d4ed8; }
     .ind-val.evoluiu { background: #dcfce7; border: 2px solid #22c55e; }
-    .ind-val.evoluiu span { color: #166534; }
     .indicador-status { font-size: 0.82em; font-weight: 700; padding: 5px 10px; border-radius: 20px; display: inline-block; }
     .status-evoluiu  { background: #dcfce7; color: #166534; }
     .status-estavel  { background: #fef9c3; color: #854d0e; }
@@ -81,6 +81,48 @@
     .exportando.mostrar { display: flex; }
     .spinner-export { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 20px; }
 
+    /* ── NOVO: Ranking na turma ── */
+    .ranking-turma-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .rank-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-align: center; background: #f8fafc; position: relative; overflow: hidden; }
+    .rank-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .rank-card.rc-blue::before  { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+    .rank-card.rc-green::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .rank-card.rc-yellow::before{ background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .rank-card h4 { font-size: 0.78em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .rank-posicao { font-size: 2.4em; font-weight: 900; line-height: 1; }
+    .rank-posicao.ouro   { color: #d97706; }
+    .rank-posicao.prata  { color: #64748b; }
+    .rank-posicao.bronze { color: #92400e; }
+    .rank-posicao.normal { color: #1e293b; }
+    .rank-total { font-size: 0.8em; color: #94a3b8; margin-top: 2px; }
+    .rank-badge { display: inline-block; margin-top: 8px; font-size: 0.75em; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .rb-ouro   { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+    .rb-prata  { background: #f1f5f9; color: #475569; border: 1px solid #94a3b8; }
+    .rb-bronze { background: #fef3c7; color: #78350f; border: 1px solid #d97706; }
+    .rb-normal { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+
+    /* ── NOVO: Comparativo turma ── */
+    .comparativo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .comp-turma-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; background: #f8fafc; text-align: center; }
+    .comp-turma-card h4 { font-size: 0.78em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+    .comp-turma-row { display: flex; justify-content: space-around; align-items: center; gap: 4px; margin-bottom: 8px; }
+    .comp-turma-item { flex: 1; }
+    .comp-turma-label { font-size: 0.7em; color: #94a3b8; }
+    .comp-turma-val   { font-size: 1.15em; font-weight: 800; color: #1e293b; }
+    .comp-turma-val.acima  { color: #16a34a; }
+    .comp-turma-val.abaixo { color: #dc2626; }
+    .comp-turma-val.igual  { color: #d97706; }
+    .comp-chip { display: inline-block; font-size: 0.76em; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-top: 4px; }
+    .chip-acima  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .chip-abaixo { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .chip-igual  { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+
+    /* ── NOVO: Mini-gráfico evolução ── */
+    .evolucao-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; background: #f8fafc; margin-bottom: 24px; }
+    .evolucao-card h4 { font-size: 0.85em; color: #475569; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; }
+    .evolucao-chart-wrap { position: relative; height: 160px; }
+    .evolucao-sem-dados { color: #94a3b8; font-style: italic; font-size: 0.88em; text-align: center; padding: 30px 0; }
+
     /* Classe aplicada temporariamente durante exportação para forçar layout A4 */
     .exportar-a4 {
       width: 794px !important;
@@ -90,29 +132,21 @@
       box-shadow: none !important;
       border-radius: 0 !important;
     }
-    .exportar-a4 .indicadores-grid {
-      grid-template-columns: repeat(3, 1fr) !important;
-    }
-    .exportar-a4 .comprometimento-grid {
-      grid-template-columns: 1fr 1fr !important;
-    }
-    .exportar-a4 .rel-header {
-      flex-direction: row !important;
-      text-align: left !important;
-    }
-    .exportar-a4 .rel-logo {
-      margin-left: auto !important;
-      text-align: right !important;
-    }
+    .exportar-a4 .indicadores-grid,
+    .exportar-a4 .ranking-turma-grid,
+    .exportar-a4 .comparativo-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .exportar-a4 .comprometimento-grid { grid-template-columns: 1fr 1fr !important; }
+    .exportar-a4 .rel-header { flex-direction: row !important; text-align: left !important; }
+    .exportar-a4 .rel-logo { margin-left: auto !important; text-align: right !important; }
 
     @media print {
       body { background: white !important; padding: 0 !important; color: #1a202c !important; }
       .top-bar { display: none !important; }
       .page { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; max-width: 100% !important; }
-      .indicador-card, .comp-card, .conquista-item, .analise-box { break-inside: avoid; }
+      .indicador-card, .comp-card, .conquista-item, .analise-box, .rank-card, .comp-turma-card, .evolucao-card { break-inside: avoid; }
     }
     @media (max-width: 600px) {
-      .indicadores-grid { grid-template-columns: 1fr; }
+      .indicadores-grid, .ranking-turma-grid, .comparativo-grid { grid-template-columns: 1fr; }
       .comprometimento-grid { grid-template-columns: 1fr; }
       .rel-header { flex-direction: column; text-align: center; }
       .rel-logo { margin-left: 0; text-align: center; }
@@ -125,7 +159,7 @@
     <h1>📊 Relatório de Progresso Mensal</h1>
     <div class="top-bar-actions">
       <button class="btn-voltar" onclick="history.back()">← Voltar</button>
-      <button class="btn-print" onclick="window.print()">🖸️ Imprimir / Salvar PDF</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
       <button class="btn-jpg" id="btn-jpg">🖼️ Exportar JPG</button>
     </div>
   </div>
@@ -158,6 +192,7 @@
       "05":"Maio","06":"Junho","07":"Julho","08":"Agosto",
       "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
     };
+    const NOMES_MES_CURTO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
     const params         = new URLSearchParams(window.location.search);
     const alunoId        = params.get("id");
@@ -170,31 +205,22 @@
       gerarRelatorio(alunoId, mesSelecionado);
     }
 
-    // ── Exportar JPG sempre em layout A4 (794px), independente do dispositivo ──
+    // ── Exportar JPG sempre em layout A4 (794px) ──────────────────────────────
     document.getElementById('btn-jpg').addEventListener('click', async () => {
       const pagina     = document.getElementById('pagina-relatorio');
       const exportando = document.getElementById('exportando');
       if (pagina.style.display === 'none') { alert('Aguarde o relatório carregar.'); return; }
       exportando.classList.add('mostrar');
       try {
-        // Aplica layout A4 temporariamente
         pagina.classList.add('exportar-a4');
-        // Aguarda o browser recalcular o layout antes de capturar
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
         const larguraA4 = 794;
         const alturaReal = pagina.scrollHeight;
-
         const canvas = await html2canvas(pagina, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
+          scale: 2, useCORS: true, allowTaint: true,
           backgroundColor: '#ffffff',
-          width: larguraA4,
-          height: alturaReal,
-          windowWidth: larguraA4,
-          logging: false,
-          letterRendering: true,
+          width: larguraA4, height: alturaReal,
+          windowWidth: larguraA4, logging: false, letterRendering: true,
           onclone: (clonedDoc) => {
             const p = clonedDoc.getElementById('pagina-relatorio');
             p.classList.add('exportar-a4');
@@ -202,7 +228,6 @@
             p.style.borderRadius = '0';
           }
         });
-
         const link = document.createElement('a');
         link.download = `relatorio_${alunoId}_${mesSelecionado || 'atual'}.jpg`;
         link.href = canvas.toDataURL('image/jpeg', 0.95);
@@ -213,12 +238,11 @@
         exportando.classList.remove('mostrar');
         alert('Erro ao gerar imagem.');
       } finally {
-        // Remove a classe A4 e restaura o layout do dispositivo
         pagina.classList.remove('exportar-a4');
       }
     });
 
-    // ── Buscar snapshots do aluno ──────────────────────────────────────────────
+    // ── Buscar snapshots do aluno ─────────────────────────────────────────────
     async function buscarSnapshots(id) {
       try {
         const q = query(
@@ -238,7 +262,67 @@
       }
     }
 
-    // ── Gerar relatório principal ──────────────────────────────────────────────
+    // ── Buscar todos os alunos ativos para comparativo de turma ──────────────
+    async function buscarDadosTurma(anoRel, chave) {
+      try {
+        const snapAlunos = await getDocs(collection(db, 'alunos'));
+        const todosAlunos = snapAlunos.docs.map(d => ({ id: d.id, ...d.data() }))
+          .filter(a => a.ativo !== false);
+
+        const snapEventos = await getDocs(collection(db, 'eventos'));
+        const eventosAno  = snapEventos.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(e => e.data?.startsWith(`${anoRel}-`));
+
+        const freqPorAluno = {};
+        todosAlunos.forEach(a => {
+          const presencas = eventosAno.filter(ev =>
+            ev.presencas?.find(x => x.nome === a.nome)?.presenca === 'presente'
+          ).length;
+          freqPorAluno[a.nome] = eventosAno.length > 0
+            ? Math.round((presencas / eventosAno.length) * 100) : 0;
+        });
+
+        const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+
+        const mediaNivel = avg(todosAlunos.map(a => (Number(a.leitura)||0)+(Number(a.metodo)||0)));
+        const mediaLeitura = avg(todosAlunos.map(a => Number(a.leitura)||0));
+        const mediaMetodo  = avg(todosAlunos.map(a => Number(a.metodo)||0));
+        const mediaFreq    = avg(todosAlunos.map(a => freqPorAluno[a.nome]||0));
+
+        return { todosAlunos, freqPorAluno, mediaNivel, mediaLeitura, mediaMetodo, mediaFreq };
+      } catch(e) {
+        console.warn('Erro ao buscar dados da turma:', e);
+        return null;
+      }
+    }
+
+    // ── Calcular posição no ranking ───────────────────────────────────────────
+    function calcularRankings(aluno, dadosTurma, freqAnualAluno) {
+      if (!dadosTurma) return null;
+      const { todosAlunos, freqPorAluno } = dadosTurma;
+      const total = todosAlunos.length;
+
+      const nivelAluno   = (Number(aluno.leitura)||0) + (Number(aluno.metodo)||0);
+      const leituraAluno = Number(aluno.leitura)||0;
+      const freqAluno    = freqAnualAluno;
+
+      const rankNivel = todosAlunos
+        .map(a => (Number(a.leitura)||0)+(Number(a.metodo)||0))
+        .filter(v => v > nivelAluno).length + 1;
+
+      const rankLeitura = todosAlunos
+        .map(a => Number(a.leitura)||0)
+        .filter(v => v > leituraAluno).length + 1;
+
+      const rankFreq = todosAlunos
+        .map(a => freqPorAluno[a.nome]||0)
+        .filter(v => v > freqAluno).length + 1;
+
+      return { rankNivel, rankLeitura, rankFreq, total };
+    }
+
+    // ── Gerar relatório principal ─────────────────────────────────────────────
     async function gerarRelatorio(id, mesChave) {
       try {
         const alunoSnap = await getDoc(doc(db, "alunos", id));
@@ -246,7 +330,7 @@
         const aluno = { id: alunoSnap.id, ...alunoSnap.data() };
 
         const agora  = new Date();
-        const chave  = mesChave || `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,"00")}`;
+        const chave  = mesChave || `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,"0")}`;
         const [anoRel, mesRel] = chave.split("-");
         const chaveAnterior    = getMesAnterior(chave);
 
@@ -275,17 +359,24 @@
         const leituraAtual    = snapAtual?.leitura    ?? aluno.leitura    ?? 1;
         const leituraAnterior = snapAnterior?.leitura ?? null;
         const leituraMeta     = leituraAtual + 2;
-
         const metodoAtual    = snapAtual?.metodo    ?? aluno.metodo    ?? 1;
         const metodoAnterior = snapAnterior?.metodo ?? null;
         const metodoMeta     = metodoAtual + 2;
+
+        // ── Dados extras: turma e rankings ──
+        const dadosTurma = await buscarDadosTurma(anoRel, chave);
+        const rankings   = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
+
+        // ── Evolução do aluno nos últimos 6 snapshots ──
+        const evolucaoAluno = snapshots.slice(-6);
 
         renderizarRelatorio({
           aluno, anoRel, mesRel, chave,
           freqMes, freqGeral, freqMesAnterior,
           conquistasMes, presencaDetalhada,
           leituraAtual, leituraAnterior, leituraMeta,
-          metodoAtual,  metodoAnterior,  metodoMeta
+          metodoAtual,  metodoAnterior,  metodoMeta,
+          dadosTurma, rankings, evolucaoAluno
         });
 
       } catch (err) {
@@ -295,7 +386,7 @@
       }
     }
 
-    // ── Utilitários ────────────────────────────────────────────────────────────
+    // ── Utilitários ───────────────────────────────────────────────────────────
     function calcularFrequencia(eventos, nomeAluno) {
       if (!eventos?.length) return { total: 0, presencas: 0, percentual: 0 };
       const total     = eventos.length;
@@ -330,7 +421,28 @@
       return "fill-vermelho";
     }
 
-    // ── Análise automática ─────────────────────────────────────────────────────
+    function medalhaClasse(pos) {
+      if (pos === 1) return 'ouro';
+      if (pos === 2) return 'prata';
+      if (pos === 3) return 'bronze';
+      return 'normal';
+    }
+
+    function medalhaTexto(pos) {
+      if (pos === 1) return '🥇 1º lugar';
+      if (pos === 2) return '🥈 2º lugar';
+      if (pos === 3) return '🥉 3º lugar';
+      return `${pos}º lugar`;
+    }
+
+    function chipComparativo(valAluno, media) {
+      const diff = valAluno - media;
+      if (diff > 0.5)  return { texto: `▲ +${diff.toFixed(1)} acima`, cls: 'acima',  chipCls: 'chip-acima'  };
+      if (diff < -0.5) return { texto: `▼ ${diff.toFixed(1)} abaixo`, cls: 'abaixo', chipCls: 'chip-abaixo' };
+      return               { texto: '● Na média',                      cls: 'igual',  chipCls: 'chip-igual'  };
+    }
+
+    // ── Análise automática ────────────────────────────────────────────────────
     function gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior,
                           leituraAtual, leituraAnterior, metodoAtual, metodoAnterior) {
       const nome   = aluno.nome ? aluno.nome.split(" ")[0] : "você";
@@ -394,13 +506,14 @@
       return partes.join(" ");
     }
 
-    // ── Renderizar ─────────────────────────────────────────────────────────────
+    // ── Renderizar ────────────────────────────────────────────────────────────
     function renderizarRelatorio({
       aluno, anoRel, mesRel, chave,
       freqMes, freqGeral, freqMesAnterior,
       conquistasMes, presencaDetalhada,
       leituraAtual, leituraAnterior, leituraMeta,
-      metodoAtual,  metodoAnterior,  metodoMeta
+      metodoAtual,  metodoAnterior,  metodoMeta,
+      dadosTurma, rankings, evolucaoAluno
     }) {
       const nomeMes = MESES[mesRel] || mesRel;
 
@@ -439,6 +552,76 @@
               <td class="${p.status === 'Presente' ? 'td-presente' : 'td-ausente'}">${p.status}</td>
             </tr>`).join("")
         : `<tr><td colspan="2" style="color:#94a3b8;font-style:italic;">Nenhum registro de chamada neste mês.</td></tr>`;
+
+      // ── Bloco Ranking ─────────────────────────────────────────────────────
+      let rankingHTML = '';
+      if (rankings) {
+        const { rankNivel, rankLeitura, rankFreq, total } = rankings;
+        const mkCard = (titulo, pos, colorCls) => {
+          const mc = medalhaClasse(pos);
+          return `
+          <div class="rank-card ${colorCls}">
+            <h4>${titulo}</h4>
+            <div class="rank-posicao ${mc}">${pos}º</div>
+            <div class="rank-total">de ${total} alunos</div>
+            <span class="rank-badge rb-${mc}">${medalhaTexto(pos)}</span>
+          </div>`;
+        };
+        rankingHTML = `
+          <div class="rel-titulo-secao">🏅 Sua Posição na Turma</div>
+          <div class="ranking-turma-grid">
+            ${mkCard('Nível Geral', rankNivel, 'rc-blue')}
+            ${mkCard('Leitura (Bona)', rankLeitura, 'rc-green')}
+            ${mkCard('Frequência Anual', rankFreq, 'rc-yellow')}
+          </div>`;
+      }
+
+      // ── Bloco Comparativo ─────────────────────────────────────────────────
+      let comparativoHTML = '';
+      if (dadosTurma) {
+        const { mediaNivel, mediaLeitura, mediaMetodo, mediaFreq } = dadosTurma;
+        const nivelAluno = (Number(aluno.leitura)||0) + (Number(aluno.metodo)||0);
+        const cNivel   = chipComparativo(nivelAluno, mediaNivel);
+        const cLeitura = chipComparativo(Number(aluno.leitura)||0, mediaLeitura);
+        const cFreq    = chipComparativo(freqGeral.percentual, mediaFreq);
+
+        const mkCompCard = (titulo, valAluno, mediaTurma, comp, unidade) => `
+          <div class="comp-turma-card">
+            <h4>${titulo}</h4>
+            <div class="comp-turma-row">
+              <div class="comp-turma-item">
+                <div class="comp-turma-label">Você</div>
+                <div class="comp-turma-val ${comp.cls}">${valAluno}${unidade}</div>
+              </div>
+              <div style="color:#cbd5e1;font-size:1.2em;">vs</div>
+              <div class="comp-turma-item">
+                <div class="comp-turma-label">Turma</div>
+                <div class="comp-turma-val">${mediaTurma.toFixed(1)}${unidade}</div>
+              </div>
+            </div>
+            <span class="comp-chip ${comp.chipCls}">${comp.texto}</span>
+          </div>`;
+
+        comparativoHTML = `
+          <div class="rel-titulo-secao">📊 Comparativo com a Turma</div>
+          <div class="comparativo-grid">
+            ${mkCompCard('Nível Geral', nivelAluno, mediaNivel, cNivel, 'pts')}
+            ${mkCompCard('Leitura (Bona)', Number(aluno.leitura)||0, mediaLeitura, cLeitura, 'pts')}
+            ${mkCompCard('Frequência Anual', freqGeral.percentual, mediaFreq, cFreq, '%')}
+          </div>`;
+      }
+
+      // ── Bloco Mini-gráfico evolução ───────────────────────────────────────
+      const evolucaoHTML = `
+        <div class="rel-titulo-secao">📈 Evolução do Nível — Últimos Meses</div>
+        <div class="evolucao-card">
+          <h4>Nível Total (Leitura + Método) ao longo do tempo</h4>
+          ${
+            evolucaoAluno.length >= 2
+              ? `<div class="evolucao-chart-wrap"><canvas id="mini-chart-evolucao"></canvas></div>`
+              : `<div class="evolucao-sem-dados">Histórico insuficiente para exibir gráfico (mínimo 2 registros).</div>`
+          }
+        </div>`;
 
       const html = `
         <div class="rel-header">
@@ -485,6 +668,10 @@
           </div>
         </div>
 
+        ${rankingHTML}
+        ${comparativoHTML}
+        ${evolucaoHTML}
+
         <div class="rel-titulo-secao">⚡ Comprometimento</div>
         <div class="comprometimento-grid">
           <div class="comp-card">
@@ -528,6 +715,71 @@
       pagina.innerHTML = html;
       pagina.style.display = "block";
       document.getElementById("loader-relatorio").style.display = "none";
+
+      // ── Renderizar mini-gráfico após o DOM ser inserido ──────────────────
+      if (evolucaoAluno.length >= 2) {
+        const ctx = document.getElementById('mini-chart-evolucao');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: evolucaoAluno.map(s => {
+                const [y, m] = s.chave.split('-');
+                return NOMES_MES_CURTO[Number(m)-1] + '/' + y.slice(2);
+              }),
+              datasets: [
+                {
+                  label: 'Nível Total',
+                  data: evolucaoAluno.map(s => (Number(s.leitura)||0) + (Number(s.metodo)||0)),
+                  borderColor: '#3b82f6',
+                  backgroundColor: 'rgba(59,130,246,0.1)',
+                  pointBackgroundColor: '#3b82f6',
+                  tension: 0.4, fill: true, pointRadius: 5
+                },
+                {
+                  label: 'Leitura',
+                  data: evolucaoAluno.map(s => Number(s.leitura)||0),
+                  borderColor: '#22c55e',
+                  backgroundColor: 'transparent',
+                  pointBackgroundColor: '#22c55e',
+                  tension: 0.4, fill: false, pointRadius: 4,
+                  borderDash: [4,3]
+                },
+                {
+                  label: 'Método',
+                  data: evolucaoAluno.map(s => Number(s.metodo)||0),
+                  borderColor: '#f59e0b',
+                  backgroundColor: 'transparent',
+                  pointBackgroundColor: '#f59e0b',
+                  tension: 0.4, fill: false, pointRadius: 4,
+                  borderDash: [4,3]
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  labels: { color: '#475569', font: { size: 11 }, boxWidth: 12 }
+                },
+                tooltip: { mode: 'index', intersect: false }
+              },
+              scales: {
+                x: {
+                  ticks: { color: '#64748b', font: { size: 10 } },
+                  grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                y: {
+                  beginAtZero: true,
+                  ticks: { color: '#64748b', font: { size: 10 } },
+                  grid: { color: 'rgba(0,0,0,0.05)' }
+                }
+              }
+            }
+          });
+        }
+      }
     }
   </script>
 </body>
