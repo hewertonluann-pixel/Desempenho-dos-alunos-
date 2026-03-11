@@ -81,61 +81,155 @@
     .exportando.mostrar { display: flex; }
     .spinner-export { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 20px; }
 
-    /* ── NOVO: Ranking na turma ── */
-    .ranking-turma-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
-    .rank-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; text-align: center; background: #f8fafc; position: relative; overflow: hidden; }
-    .rank-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-    .rank-card.rc-blue::before  { background: linear-gradient(90deg, #3b82f6, #6366f1); }
-    .rank-card.rc-green::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
-    .rank-card.rc-yellow::before{ background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .rank-card h4 { font-size: 0.78em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-    .rank-posicao { font-size: 2.4em; font-weight: 900; line-height: 1; }
-    .rank-posicao.ouro   { color: #d97706; }
-    .rank-posicao.prata  { color: #64748b; }
-    .rank-posicao.bronze { color: #92400e; }
-    .rank-posicao.normal { color: #1e293b; }
-    .rank-total { font-size: 0.8em; color: #94a3b8; margin-top: 2px; }
-    .rank-badge { display: inline-block; margin-top: 8px; font-size: 0.75em; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-    .rb-ouro   { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
-    .rb-prata  { background: #f1f5f9; color: #475569; border: 1px solid #94a3b8; }
-    .rb-bronze { background: #fef3c7; color: #78350f; border: 1px solid #d97706; }
-    .rb-normal { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+    /* ════════════════════════════════════════════════════════════════════════
+       PAINEL TURMA COMPACTO — ranking + comparativo (esq) + gráfico (dir)
+       tudo em UMA única linha horizontal
+    ════════════════════════════════════════════════════════════════════════ */
+    .painel-turma {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      margin-bottom: 24px;
+      align-items: stretch;
+    }
 
-    /* ── NOVO: Comparativo turma ── */
-    .comparativo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
-    .comp-turma-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; background: #f8fafc; text-align: center; }
-    .comp-turma-card h4 { font-size: 0.78em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-    .comp-turma-row { display: flex; justify-content: space-around; align-items: center; gap: 4px; margin-bottom: 8px; }
-    .comp-turma-item { flex: 1; }
-    .comp-turma-label { font-size: 0.7em; color: #94a3b8; }
-    .comp-turma-val   { font-size: 1.15em; font-weight: 800; color: #1e293b; }
-    .comp-turma-val.acima  { color: #16a34a; }
-    .comp-turma-val.abaixo { color: #dc2626; }
-    .comp-turma-val.igual  { color: #d97706; }
-    .comp-chip { display: inline-block; font-size: 0.76em; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-top: 4px; }
+    /* Coluna esquerda: ranking + comparativo empilhados */
+    .painel-turma-esq {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 0 0 52%;
+      min-width: 0;
+    }
+
+    /* Sub-bloco ranking compacto (3 mini-cards em linha) */
+    .rank-bloco-titulo {
+      font-size: 0.72em;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
+    }
+    .rank-bloco {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .rank-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .rank-mini-card {
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      position: relative;
+      overflow: hidden;
+    }
+    .rank-mini-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .rmc-blue::before   { background: linear-gradient(90deg,#3b82f6,#6366f1); }
+    .rmc-green::before  { background: linear-gradient(90deg,#22c55e,#16a34a); }
+    .rmc-yellow::before { background: linear-gradient(90deg,#f59e0b,#d97706); }
+    .rank-mini-label { font-size: 0.65em; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .rank-mini-pos { font-size: 1.5em; font-weight: 900; line-height: 1.1; }
+    .rank-mini-pos.ouro   { color: #d97706; }
+    .rank-mini-pos.prata  { color: #64748b; }
+    .rank-mini-pos.bronze { color: #92400e; }
+    .rank-mini-pos.normal { color: #1e293b; }
+    .rank-mini-total { font-size: 0.62em; color: #94a3b8; }
+    .rank-mini-badge { display: inline-block; font-size: 0.6em; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-top: 2px; }
+    .rmb-ouro   { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+    .rmb-prata  { background: #f1f5f9; color: #475569; border: 1px solid #94a3b8; }
+    .rmb-bronze { background: #fef3c7; color: #78350f; border: 1px solid #d97706; }
+    .rmb-normal { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+
+    /* Sub-bloco comparativo compacto (3 mini-cards em linha) */
+    .comp-bloco {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .comp-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .comp-mini-card {
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+    }
+    .comp-mini-label  { font-size: 0.62em; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 3px; }
+    .comp-mini-row    { display: flex; justify-content: center; align-items: baseline; gap: 3px; }
+    .comp-mini-voce   { font-size: 1.1em; font-weight: 800; }
+    .comp-mini-voce.acima  { color: #16a34a; }
+    .comp-mini-voce.abaixo { color: #dc2626; }
+    .comp-mini-voce.igual  { color: #d97706; }
+    .comp-mini-vs     { font-size: 0.6em; color: #cbd5e1; }
+    .comp-mini-media  { font-size: 0.72em; color: #64748b; }
+    .comp-chip-sm { display: inline-block; font-size: 0.58em; font-weight: 700; padding: 2px 6px; border-radius: 8px; margin-top: 2px; }
     .chip-acima  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
     .chip-abaixo { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .chip-igual  { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
 
-    /* ── NOVO: Mini-gráfico evolução ── */
-    .evolucao-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; background: #f8fafc; margin-bottom: 24px; }
-    .evolucao-card h4 { font-size: 0.85em; color: #475569; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; }
-    .evolucao-chart-wrap { position: relative; height: 160px; }
-    .evolucao-sem-dados { color: #94a3b8; font-style: italic; font-size: 0.88em; text-align: center; padding: 30px 0; }
-
-    /* Classe aplicada temporariamente durante exportação para forçar layout A4 */
-    .exportar-a4 {
-      width: 794px !important;
-      min-width: 794px !important;
-      max-width: 794px !important;
-      padding: 30px 35px !important;
-      box-shadow: none !important;
-      border-radius: 0 !important;
+    /* Coluna direita: gráfico de evolução */
+    .painel-turma-dir {
+      flex: 1;
+      min-width: 0;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
     }
-    .exportar-a4 .indicadores-grid,
-    .exportar-a4 .ranking-turma-grid,
-    .exportar-a4 .comparativo-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .evolucao-titulo { font-size: 0.72em; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .evolucao-chart-wrap { position: relative; flex: 1; min-height: 130px; }
+    .evolucao-sem-dados { color: #94a3b8; font-style: italic; font-size: 0.8em; text-align: center; padding: 20px 0; }
+
+    /* Linha separadora entre sub-blocos esq */
+    .painel-bloco-label {
+      font-size: 0.68em;
+      font-weight: 700;
+      color: #0ea5e9;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .painel-bloco-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    /* Exportação A4 */
+    .exportar-a4 {
+      width: 794px !important; min-width: 794px !important; max-width: 794px !important;
+      padding: 30px 35px !important; box-shadow: none !important; border-radius: 0 !important;
+    }
+    .exportar-a4 .indicadores-grid { grid-template-columns: repeat(3, 1fr) !important; }
     .exportar-a4 .comprometimento-grid { grid-template-columns: 1fr 1fr !important; }
+    .exportar-a4 .painel-turma { flex-direction: row !important; }
+    .exportar-a4 .painel-turma-esq { flex: 0 0 52% !important; }
+    .exportar-a4 .rank-mini-grid,
+    .exportar-a4 .comp-mini-grid { grid-template-columns: repeat(3,1fr) !important; }
     .exportar-a4 .rel-header { flex-direction: row !important; text-align: left !important; }
     .exportar-a4 .rel-logo { margin-left: auto !important; text-align: right !important; }
 
@@ -143,13 +237,18 @@
       body { background: white !important; padding: 0 !important; color: #1a202c !important; }
       .top-bar { display: none !important; }
       .page { box-shadow: none !important; border-radius: 0 !important; padding: 0 !important; max-width: 100% !important; }
-      .indicador-card, .comp-card, .conquista-item, .analise-box, .rank-card, .comp-turma-card, .evolucao-card { break-inside: avoid; }
+      .indicador-card, .comp-card, .conquista-item, .analise-box,
+      .rank-bloco, .comp-bloco, .painel-turma-dir { break-inside: avoid; }
+      .painel-turma { break-inside: avoid; }
     }
     @media (max-width: 600px) {
-      .indicadores-grid, .ranking-turma-grid, .comparativo-grid { grid-template-columns: 1fr; }
+      .indicadores-grid { grid-template-columns: 1fr; }
       .comprometimento-grid { grid-template-columns: 1fr; }
       .rel-header { flex-direction: column; text-align: center; }
       .rel-logo { margin-left: 0; text-align: center; }
+      .painel-turma { flex-direction: column; }
+      .painel-turma-esq { flex: none; }
+      .rank-mini-grid, .comp-mini-grid { grid-template-columns: repeat(3,1fr); }
     }
   </style>
 </head>
@@ -205,7 +304,6 @@
       gerarRelatorio(alunoId, mesSelecionado);
     }
 
-    // ── Exportar JPG sempre em layout A4 (794px) ──────────────────────────────
     document.getElementById('btn-jpg').addEventListener('click', async () => {
       const pagina     = document.getElementById('pagina-relatorio');
       const exportando = document.getElementById('exportando');
@@ -214,18 +312,15 @@
       try {
         pagina.classList.add('exportar-a4');
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-        const larguraA4 = 794;
-        const alturaReal = pagina.scrollHeight;
         const canvas = await html2canvas(pagina, {
           scale: 2, useCORS: true, allowTaint: true,
           backgroundColor: '#ffffff',
-          width: larguraA4, height: alturaReal,
-          windowWidth: larguraA4, logging: false, letterRendering: true,
+          width: 794, height: pagina.scrollHeight,
+          windowWidth: 794, logging: false, letterRendering: true,
           onclone: (clonedDoc) => {
             const p = clonedDoc.getElementById('pagina-relatorio');
             p.classList.add('exportar-a4');
-            p.style.boxShadow = 'none';
-            p.style.borderRadius = '0';
+            p.style.boxShadow = 'none'; p.style.borderRadius = '0';
           }
         });
         const link = document.createElement('a');
@@ -242,87 +337,57 @@
       }
     });
 
-    // ── Buscar snapshots do aluno ─────────────────────────────────────────────
     async function buscarSnapshots(id) {
       try {
-        const q = query(
+        const snap = await getDocs(query(
           collection(db, "snapshotsMensais"),
-          where("alunoId", "==", id),
-          orderBy("chave", "asc")
-        );
-        const snap = await getDocs(q);
+          where("alunoId", "==", id), orderBy("chave", "asc")
+        ));
         return snap.docs.map(d => ({ id: d.id, ...d.data() }));
       } catch {
-        const snap = await getDocs(
-          query(collection(db, "snapshotsMensais"), where("alunoId", "==", id))
-        );
+        const snap = await getDocs(query(collection(db, "snapshotsMensais"), where("alunoId", "==", id)));
         const lista = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         lista.sort((a, b) => a.chave.localeCompare(b.chave));
         return lista;
       }
     }
 
-    // ── Buscar todos os alunos ativos para comparativo de turma ──────────────
-    async function buscarDadosTurma(anoRel, chave) {
+    async function buscarDadosTurma(anoRel) {
       try {
         const snapAlunos = await getDocs(collection(db, 'alunos'));
-        const todosAlunos = snapAlunos.docs.map(d => ({ id: d.id, ...d.data() }))
-          .filter(a => a.ativo !== false);
-
+        const todosAlunos = snapAlunos.docs.map(d => ({ id: d.id, ...d.data() })).filter(a => a.ativo !== false);
         const snapEventos = await getDocs(collection(db, 'eventos'));
-        const eventosAno  = snapEventos.docs
-          .map(d => ({ id: d.id, ...d.data() }))
-          .filter(e => e.data?.startsWith(`${anoRel}-`));
-
+        const eventosAno  = snapEventos.docs.map(d => ({ id: d.id, ...d.data() })).filter(e => e.data?.startsWith(`${anoRel}-`));
         const freqPorAluno = {};
         todosAlunos.forEach(a => {
-          const presencas = eventosAno.filter(ev =>
-            ev.presencas?.find(x => x.nome === a.nome)?.presenca === 'presente'
-          ).length;
-          freqPorAluno[a.nome] = eventosAno.length > 0
-            ? Math.round((presencas / eventosAno.length) * 100) : 0;
+          const p = eventosAno.filter(ev => ev.presencas?.find(x => x.nome === a.nome)?.presenca === 'presente').length;
+          freqPorAluno[a.nome] = eventosAno.length > 0 ? Math.round((p / eventosAno.length) * 100) : 0;
         });
-
         const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
-
-        const mediaNivel = avg(todosAlunos.map(a => (Number(a.leitura)||0)+(Number(a.metodo)||0)));
-        const mediaLeitura = avg(todosAlunos.map(a => Number(a.leitura)||0));
-        const mediaMetodo  = avg(todosAlunos.map(a => Number(a.metodo)||0));
-        const mediaFreq    = avg(todosAlunos.map(a => freqPorAluno[a.nome]||0));
-
-        return { todosAlunos, freqPorAluno, mediaNivel, mediaLeitura, mediaMetodo, mediaFreq };
-      } catch(e) {
-        console.warn('Erro ao buscar dados da turma:', e);
-        return null;
-      }
+        return {
+          todosAlunos, freqPorAluno,
+          mediaNivel:   avg(todosAlunos.map(a => (Number(a.leitura)||0)+(Number(a.metodo)||0))),
+          mediaLeitura: avg(todosAlunos.map(a => Number(a.leitura)||0)),
+          mediaMetodo:  avg(todosAlunos.map(a => Number(a.metodo)||0)),
+          mediaFreq:    avg(todosAlunos.map(a => freqPorAluno[a.nome]||0))
+        };
+      } catch(e) { console.warn('Erro turma:', e); return null; }
     }
 
-    // ── Calcular posição no ranking ───────────────────────────────────────────
-    function calcularRankings(aluno, dadosTurma, freqAnualAluno) {
+    function calcularRankings(aluno, dadosTurma, freqAnual) {
       if (!dadosTurma) return null;
       const { todosAlunos, freqPorAluno } = dadosTurma;
       const total = todosAlunos.length;
-
-      const nivelAluno   = (Number(aluno.leitura)||0) + (Number(aluno.metodo)||0);
-      const leituraAluno = Number(aluno.leitura)||0;
-      const freqAluno    = freqAnualAluno;
-
-      const rankNivel = todosAlunos
-        .map(a => (Number(a.leitura)||0)+(Number(a.metodo)||0))
-        .filter(v => v > nivelAluno).length + 1;
-
-      const rankLeitura = todosAlunos
-        .map(a => Number(a.leitura)||0)
-        .filter(v => v > leituraAluno).length + 1;
-
-      const rankFreq = todosAlunos
-        .map(a => freqPorAluno[a.nome]||0)
-        .filter(v => v > freqAluno).length + 1;
-
-      return { rankNivel, rankLeitura, rankFreq, total };
+      const nA = (Number(aluno.leitura)||0)+(Number(aluno.metodo)||0);
+      const lA =  Number(aluno.leitura)||0;
+      return {
+        total,
+        rankNivel:   todosAlunos.map(a=>(Number(a.leitura)||0)+(Number(a.metodo)||0)).filter(v=>v>nA).length+1,
+        rankLeitura: todosAlunos.map(a=>Number(a.leitura)||0).filter(v=>v>lA).length+1,
+        rankFreq:    todosAlunos.map(a=>freqPorAluno[a.nome]||0).filter(v=>v>freqAnual).length+1
+      };
     }
 
-    // ── Gerar relatório principal ─────────────────────────────────────────────
     async function gerarRelatorio(id, mesChave) {
       try {
         const alunoSnap = await getDoc(doc(db, "alunos", id));
@@ -344,9 +409,9 @@
         const freqGeral       = calcularFrequencia(eventosAno,    aluno.nome);
         const freqMesAnterior = calcularFrequencia(eventosMesAnt, aluno.nome);
 
-        const alunoSimMes   = { ...aluno, frequenciaMensal: { porcentagem: freqMes.percentual } };
-        const conquistasMes = regrasDeConquistas.filter(c => c.condicao(alunoSimMes));
-
+        const conquistasMes = regrasDeConquistas.filter(c =>
+          c.condicao({ ...aluno, frequenciaMensal: { porcentagem: freqMes.percentual } })
+        );
         const presencaDetalhada = eventosMes.map(ev => {
           const p = ev.presencas?.find(x => x.nome === aluno.nome);
           return { data: formatarData(ev.data), status: p?.presenca === "presente" ? "Presente" : "Ausente" };
@@ -359,15 +424,12 @@
         const leituraAtual    = snapAtual?.leitura    ?? aluno.leitura    ?? 1;
         const leituraAnterior = snapAnterior?.leitura ?? null;
         const leituraMeta     = leituraAtual + 2;
-        const metodoAtual    = snapAtual?.metodo    ?? aluno.metodo    ?? 1;
-        const metodoAnterior = snapAnterior?.metodo ?? null;
-        const metodoMeta     = metodoAtual + 2;
+        const metodoAtual     = snapAtual?.metodo     ?? aluno.metodo     ?? 1;
+        const metodoAnterior  = snapAnterior?.metodo  ?? null;
+        const metodoMeta      = metodoAtual  + 2;
 
-        // ── Dados extras: turma e rankings ──
-        const dadosTurma = await buscarDadosTurma(anoRel, chave);
-        const rankings   = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
-
-        // ── Evolução do aluno nos últimos 6 snapshots ──
+        const dadosTurma  = await buscarDadosTurma(anoRel);
+        const rankings    = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
         const evolucaoAluno = snapshots.slice(-6);
 
         renderizarRelatorio({
@@ -375,10 +437,9 @@
           freqMes, freqGeral, freqMesAnterior,
           conquistasMes, presencaDetalhada,
           leituraAtual, leituraAnterior, leituraMeta,
-          metodoAtual,  metodoAnterior,  metodoMeta,
+          metodoAtual, metodoAnterior, metodoMeta,
           dadosTurma, rankings, evolucaoAluno
         });
-
       } catch (err) {
         console.error(err);
         document.getElementById("loader-relatorio").innerHTML =
@@ -386,63 +447,42 @@
       }
     }
 
-    // ── Utilitários ───────────────────────────────────────────────────────────
     function calcularFrequencia(eventos, nomeAluno) {
       if (!eventos?.length) return { total: 0, presencas: 0, percentual: 0 };
       const total     = eventos.length;
-      const presencas = eventos.filter(ev =>
-        ev.presencas?.find(x => x.nome === nomeAluno)?.presenca === "presente"
-      ).length;
+      const presencas = eventos.filter(ev => ev.presencas?.find(x => x.nome === nomeAluno)?.presenca === "presente").length;
       return { total, presencas, percentual: Math.round((presencas / total) * 100) };
     }
-
     function getMesAnterior(chave) {
       const [ano, mes] = chave.split("-").map(Number);
       const d = new Date(ano, mes - 2, 1);
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
     }
-
     function formatarData(iso) {
-      if (!iso) return "-";
-      const [a, m, d] = iso.split("-");
-      return `${d}/${m}/${a}`;
+      if (!iso) return "-"; const [a, m, d] = iso.split("-"); return `${d}/${m}/${a}`;
     }
-
     function gerarStatus(atual, anterior) {
       if (anterior === null) return { texto: "— Sem histórico", classe: "status-neutro" };
-      if (atual > anterior)  return { texto: "▲ Evoluiu",        classe: "status-evoluiu" };
-      if (atual === anterior) return { texto: "● Estável",        classe: "status-estavel" };
-      return                         { texto: "▼ Regrediu",       classe: "status-regrediu" };
+      if (atual > anterior)  return { texto: "▲ Evoluiu",       classe: "status-evoluiu" };
+      if (atual === anterior) return { texto: "● Estável",       classe: "status-estavel" };
+      return                         { texto: "▼ Regrediu",      classe: "status-regrediu" };
     }
-
     function corBarra(pct) {
-      if (pct >= 80) return "fill-verde";
-      if (pct >= 50) return "fill-amarelo";
-      return "fill-vermelho";
+      return pct >= 80 ? "fill-verde" : pct >= 50 ? "fill-amarelo" : "fill-vermelho";
     }
-
     function medalhaClasse(pos) {
-      if (pos === 1) return 'ouro';
-      if (pos === 2) return 'prata';
-      if (pos === 3) return 'bronze';
-      return 'normal';
+      return pos===1?'ouro':pos===2?'prata':pos===3?'bronze':'normal';
     }
-
     function medalhaTexto(pos) {
-      if (pos === 1) return '🥇 1º lugar';
-      if (pos === 2) return '🥈 2º lugar';
-      if (pos === 3) return '🥉 3º lugar';
-      return `${pos}º lugar`;
+      return pos===1?'🥇 1º':pos===2?'🥈 2º':pos===3?'🥉 3º':`${pos}º`;
     }
-
-    function chipComparativo(valAluno, media) {
+    function chipComp(valAluno, media) {
       const diff = valAluno - media;
-      if (diff > 0.5)  return { texto: `▲ +${diff.toFixed(1)} acima`, cls: 'acima',  chipCls: 'chip-acima'  };
-      if (diff < -0.5) return { texto: `▼ ${diff.toFixed(1)} abaixo`, cls: 'abaixo', chipCls: 'chip-abaixo' };
-      return               { texto: '● Na média',                      cls: 'igual',  chipCls: 'chip-igual'  };
+      if (diff >  0.5) return { cls:'acima',  chip:'chip-acima',  txt:`▲ +${diff.toFixed(1)}` };
+      if (diff < -0.5) return { cls:'abaixo', chip:'chip-abaixo', txt:`▼ ${diff.toFixed(1)}`  };
+      return                  { cls:'igual',  chip:'chip-igual',  txt:'● Média'               };
     }
 
-    // ── Análise automática ────────────────────────────────────────────────────
     function gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior,
                           leituraAtual, leituraAnterior, metodoAtual, metodoAnterior) {
       const nome   = aluno.nome ? aluno.nome.split(" ")[0] : "você";
@@ -457,171 +497,124 @@
       } else if (pct === 100) {
         partes.push(`${nome}, presença perfeita neste mês! Você é um exemplo de comprometimento para toda a orquestra. Parabéns!`);
       } else if (pct >= 80) {
-        if (pctAnt !== null && pct > pctAnt)
-          partes.push(`${nome}, sua frequência chegou a ${pct}% — ótimo resultado! Agora o desafio é alcançar 100% de presença.`);
-        else if (pctAnt !== null && pct < pctAnt)
-          partes.push(`${nome}, sua frequência caiu para ${pct}%, mas ainda está em um bom patamar. Recupere o ritmo e mire os 100%.`);
-        else
-          partes.push(`${nome}, você manteve ${pct}% de presença — muito bom! O próximo passo é chegar a 100%.`);
+        if (pctAnt !== null && pct > pctAnt) partes.push(`${nome}, sua frequência chegou a ${pct}% — ótimo resultado! Agora o desafio é alcançar 100% de presença.`);
+        else if (pctAnt !== null && pct < pctAnt) partes.push(`${nome}, sua frequência caiu para ${pct}%, mas ainda está em um bom patamar. Recupere o ritmo e mire os 100%.`);
+        else partes.push(`${nome}, você manteve ${pct}% de presença — muito bom! O próximo passo é chegar a 100%.`);
       } else if (pct >= 50) {
-        if (pctAnt !== null && pct > pctAnt)
-          partes.push(`${nome}, sua frequência subiu para ${pct}% — uma melhora bem-vinda! O próximo objetivo é chegar a 80%. Você está no caminho certo.`);
-        else if (pctAnt !== null && pct < pctAnt)
-          partes.push(`${nome}, sua frequência caiu para ${pct}%. Tente reverter essa tendência e buscar os 80% no próximo mês.`);
-        else
-          partes.push(`${nome}, sua frequência se manteve em ${pct}%. Há espaço para crescer — tente chegar a 80% no próximo mês.`);
+        if (pctAnt !== null && pct > pctAnt) partes.push(`${nome}, sua frequência subiu para ${pct}% — uma melhora bem-vinda! O próximo objetivo é chegar a 80%. Você está no caminho certo.`);
+        else if (pctAnt !== null && pct < pctAnt) partes.push(`${nome}, sua frequência caiu para ${pct}%. Tente reverter essa tendência e buscar os 80% no próximo mês.`);
+        else partes.push(`${nome}, sua frequência se manteve em ${pct}%. Há espaço para crescer — tente chegar a 80% no próximo mês.`);
       } else {
         partes.push(`${nome}, sua presença neste mês foi de ${pct}% — um índice que precisa de atenção. Tente chegar pelo menos a 80% no próximo mês. Cada ensaio perdido é uma oportunidade de crescimento que não volta!`);
       }
+      if (leituraAnterior === null) partes.push(`Na leitura, você está na lição ${leituraAtual} (${lNome}) — agora é hora de avançar e mostrar seu potencial!`);
+      else if (leituraAtual > leituraAnterior) partes.push(`Na leitura, você avançou do nível ${leituraAnterior} para o nível ${leituraAtual} (${lNome}) — excelente! Isso mostra dedicação real ao solfejo.`);
+      else if (leituraAtual === leituraAnterior) partes.push(`${nome}, você está na lição ${leituraAtual} (${lNome}) há dois meses consecutivos. Que tal se desafiar a avançar?`);
+      else partes.push(`Sua leitura recuou do nível ${leituraAnterior} para ${leituraAtual} (${lNome}). Não desanime — redobrar a atenção ao solfejo nas próximas semanas fará toda a diferença.`);
 
-      if (leituraAnterior === null) {
-        partes.push(`Na leitura, você está na lição ${leituraAtual} (${lNome}) — agora é hora de avançar e mostrar seu potencial!`);
-      } else if (leituraAtual > leituraAnterior) {
-        partes.push(`Na leitura, você avançou do nível ${leituraAnterior} para o nível ${leituraAtual} (${lNome}) — excelente! Isso mostra dedicação real ao solfejo.`);
-      } else if (leituraAtual === leituraAnterior) {
-        partes.push(`${nome}, você está na lição ${leituraAtual} (${lNome}) há dois meses consecutivos. A lição ${leituraAtual} foi uma conquista — mas ela não precisa ser sua morada. Que tal se desafiar a avançar?`);
-      } else {
-        partes.push(`Sua leitura recuou do nível ${leituraAnterior} para ${leituraAtual} (${lNome}). Não desanime — redobrar a atenção ao solfejo nas próximas semanas fará toda a diferença.`);
-      }
-
-      if (metodoAnterior === null) {
-        partes.push(`Você está na lição ${metodoAtual} do ${mNome} — cada lição concluída é um passo real no seu instrumento.`);
-      } else if (metodoAtual > metodoAnterior) {
-        partes.push(`No método, você avançou da unidade ${metodoAnterior} para a unidade ${metodoAtual} (${mNome}) — um progresso notável que evidencia seu comprometimento!`);
-      } else if (metodoAtual === metodoAnterior) {
-        partes.push(`${nome}, você está na unidade ${metodoAtual} do ${mNome} há dois meses. A unidade ${metodoAtual} foi uma conquista — mas ela não precisa ser sua morada. Que tal se desafiar a avançar?`);
-      } else {
-        partes.push(`Houve um recuo no método (de ${metodoAnterior} para ${metodoAtual}). Retome com calma — você tem capacidade de recuperar e superar esse ponto.`);
-      }
+      if (metodoAnterior === null) partes.push(`Você está na lição ${metodoAtual} do ${mNome} — cada lição concluída é um passo real no seu instrumento.`);
+      else if (metodoAtual > metodoAnterior) partes.push(`No método, você avançou da unidade ${metodoAnterior} para a unidade ${metodoAtual} (${mNome}) — um progresso notável que evidencia seu comprometimento!`);
+      else if (metodoAtual === metodoAnterior) partes.push(`${nome}, você está na unidade ${metodoAtual} do ${mNome} há dois meses. Que tal se desafiar a avançar?`);
+      else partes.push(`Houve um recuo no método (de ${metodoAnterior} para ${metodoAtual}). Retome com calma — você tem capacidade de recuperar e superar esse ponto.`);
 
       if (freqGeral.total > 0 && freqGeral.percentual !== pct) {
-        if (freqGeral.percentual >= 85)
-          partes.push(`Seu comprometimento geral no ano é excelente (${freqGeral.percentual}%) — você é um exemplo de dedicação para toda a orquestra!`);
-        else if (freqGeral.percentual >= 60)
-          partes.push(`Seu comprometimento geral no ano está em ${freqGeral.percentual}% — um resultado satisfatório, com espaço para crescer ainda mais.`);
-        else
-          partes.push(`Seu comprometimento geral no ano (${freqGeral.percentual}%) merece atenção. Aumentar sua presença nos ensaios vai refletir diretamente no seu crescimento musical.`);
+        if (freqGeral.percentual >= 85) partes.push(`Seu comprometimento geral no ano é excelente (${freqGeral.percentual}%) — você é um exemplo de dedicação para toda a orquestra!`);
+        else if (freqGeral.percentual >= 60) partes.push(`Seu comprometimento geral no ano está em ${freqGeral.percentual}% — um resultado satisfatório, com espaço para crescer ainda mais.`);
+        else partes.push(`Seu comprometimento geral no ano (${freqGeral.percentual}%) merece atenção. Aumentar sua presença nos ensaios vai refletir diretamente no seu crescimento musical.`);
       }
-
       return partes.join(" ");
     }
 
-    // ── Renderizar ────────────────────────────────────────────────────────────
     function renderizarRelatorio({
       aluno, anoRel, mesRel, chave,
       freqMes, freqGeral, freqMesAnterior,
       conquistasMes, presencaDetalhada,
       leituraAtual, leituraAnterior, leituraMeta,
-      metodoAtual,  metodoAnterior,  metodoMeta,
+      metodoAtual, metodoAnterior, metodoMeta,
       dadosTurma, rankings, evolucaoAluno
     }) {
       const nomeMes = MESES[mesRel] || mesRel;
-
       const stPresenca = freqMes.total === 0
         ? { texto: "— Mês sem chamadas", classe: "status-neutro" }
         : gerarStatus(freqMes.percentual, freqMesAnterior.total > 0 ? freqMesAnterior.percentual : null);
-
       const stLeitura = gerarStatus(leituraAtual, leituraAnterior);
       const stMetodo  = gerarStatus(metodoAtual,  metodoAnterior);
-
-      const metaPresenca = freqMes.percentual >= 100 ? 100 : freqMes.percentual >= 80 ? 100 : 80;
-
-      const antLeituraTexto = leituraAnterior !== null ? `Nível ${leituraAnterior}` : "—";
-      const antMetodoTexto  = metodoAnterior  !== null ? `Unid. ${metodoAnterior}`  : "—";
-
+      const metaPresenca = freqMes.percentual >= 80 ? 100 : 80;
       const clsAntLeitura = (leituraAnterior !== null && leituraAtual > leituraAnterior) ? "evoluiu" : "";
       const clsAntMetodo  = (metodoAnterior  !== null && metodoAtual  > metodoAnterior)  ? "evoluiu" : "";
 
-      const analise = gerarAnalise(
-        aluno, freqMes, freqGeral, freqMesAnterior,
-        leituraAtual, leituraAnterior, metodoAtual, metodoAnterior
-      );
+      const analise = gerarAnalise(aluno, freqMes, freqGeral, freqMesAnterior,
+        leituraAtual, leituraAnterior, metodoAtual, metodoAnterior);
 
       const conquistasHTML = conquistasMes.length
-        ? conquistasMes.map(c => `
-            <div class="conquista-item ${c.raridade || ''}">
-              <span class="conquista-icone">${c.icone}</span>
-              <div class="conquista-info"><strong>${c.titulo}</strong><span>${c.descricao}</span></div>
-            </div>`).join("")
+        ? conquistasMes.map(c => `<div class="conquista-item ${c.raridade||''}"><span class="conquista-icone">${c.icone}</span><div class="conquista-info"><strong>${c.titulo}</strong><span>${c.descricao}</span></div></div>`).join("")
         : `<span class="sem-conquistas">Nenhuma conquista desbloqueada neste mês.</span>`;
 
       const presencaHTML = presencaDetalhada.length
-        ? presencaDetalhada.map(p => `
-            <tr>
-              <td>${p.data}</td>
-              <td class="${p.status === 'Presente' ? 'td-presente' : 'td-ausente'}">${p.status}</td>
-            </tr>`).join("")
+        ? presencaDetalhada.map(p => `<tr><td>${p.data}</td><td class="${p.status==='Presente'?'td-presente':'td-ausente'}">${p.status}</td></tr>`).join("")
         : `<tr><td colspan="2" style="color:#94a3b8;font-style:italic;">Nenhum registro de chamada neste mês.</td></tr>`;
 
-      // ── Bloco Ranking ─────────────────────────────────────────────────────
-      let rankingHTML = '';
-      if (rankings) {
+      // ── Painel turma compacto ────────────────────────────────────────────
+      let painelTurmaHTML = '';
+      if (rankings && dadosTurma) {
         const { rankNivel, rankLeitura, rankFreq, total } = rankings;
-        const mkCard = (titulo, pos, colorCls) => {
+        const { mediaNivel, mediaLeitura, mediaFreq } = dadosTurma;
+        const nivelAluno = (Number(aluno.leitura)||0)+(Number(aluno.metodo)||0);
+
+        const mkRankMini = (label, pos, cls) => {
           const mc = medalhaClasse(pos);
-          return `
-          <div class="rank-card ${colorCls}">
-            <h4>${titulo}</h4>
-            <div class="rank-posicao ${mc}">${pos}º</div>
-            <div class="rank-total">de ${total} alunos</div>
-            <span class="rank-badge rb-${mc}">${medalhaTexto(pos)}</span>
+          return `<div class="rank-mini-card ${cls}">
+            <div class="rank-mini-label">${label}</div>
+            <div class="rank-mini-pos ${mc}">${pos}º</div>
+            <div class="rank-mini-total">de ${total}</div>
+            <span class="rank-mini-badge rmb-${mc}">${medalhaTexto(pos)}</span>
           </div>`;
         };
-        rankingHTML = `
-          <div class="rel-titulo-secao">🏅 Sua Posição na Turma</div>
-          <div class="ranking-turma-grid">
-            ${mkCard('Nível Geral', rankNivel, 'rc-blue')}
-            ${mkCard('Leitura (Bona)', rankLeitura, 'rc-green')}
-            ${mkCard('Frequência Anual', rankFreq, 'rc-yellow')}
+
+        const mkCompMini = (label, val, media, unid) => {
+          const c = chipComp(val, media);
+          return `<div class="comp-mini-card">
+            <div class="comp-mini-label">${label}</div>
+            <div class="comp-mini-row">
+              <span class="comp-mini-voce ${c.cls}">${val}${unid}</span>
+              <span class="comp-mini-vs">vs</span>
+              <span class="comp-mini-media">${media.toFixed(1)}${unid}</span>
+            </div>
+            <span class="comp-chip-sm ${c.chip}">${c.txt}</span>
           </div>`;
-      }
+        };
 
-      // ── Bloco Comparativo ─────────────────────────────────────────────────
-      let comparativoHTML = '';
-      if (dadosTurma) {
-        const { mediaNivel, mediaLeitura, mediaMetodo, mediaFreq } = dadosTurma;
-        const nivelAluno = (Number(aluno.leitura)||0) + (Number(aluno.metodo)||0);
-        const cNivel   = chipComparativo(nivelAluno, mediaNivel);
-        const cLeitura = chipComparativo(Number(aluno.leitura)||0, mediaLeitura);
-        const cFreq    = chipComparativo(freqGeral.percentual, mediaFreq);
+        const graficoHTML = evolucaoAluno.length >= 2
+          ? `<div class="evolucao-chart-wrap"><canvas id="mini-chart-evolucao"></canvas></div>`
+          : `<div class="evolucao-sem-dados">Histórico insuficiente<br>(mín. 2 registros)</div>`;
 
-        const mkCompCard = (titulo, valAluno, mediaTurma, comp, unidade) => `
-          <div class="comp-turma-card">
-            <h4>${titulo}</h4>
-            <div class="comp-turma-row">
-              <div class="comp-turma-item">
-                <div class="comp-turma-label">Você</div>
-                <div class="comp-turma-val ${comp.cls}">${valAluno}${unidade}</div>
+        painelTurmaHTML = `
+          <div class="rel-titulo-secao">🏅 Turma &amp; Evolução</div>
+          <div class="painel-turma">
+            <div class="painel-turma-esq">
+              <div class="rank-bloco">
+                <div class="painel-bloco-label">🏅 Ranking na Turma</div>
+                <div class="rank-mini-grid">
+                  ${mkRankMini('Nível Geral', rankNivel, 'rmc-blue')}
+                  ${mkRankMini('Leitura', rankLeitura, 'rmc-green')}
+                  ${mkRankMini('Frequência', rankFreq, 'rmc-yellow')}
+                </div>
               </div>
-              <div style="color:#cbd5e1;font-size:1.2em;">vs</div>
-              <div class="comp-turma-item">
-                <div class="comp-turma-label">Turma</div>
-                <div class="comp-turma-val">${mediaTurma.toFixed(1)}${unidade}</div>
+              <div class="comp-bloco">
+                <div class="painel-bloco-label">📊 Você vs Turma</div>
+                <div class="comp-mini-grid">
+                  ${mkCompMini('Nível', nivelAluno, mediaNivel, 'pts')}
+                  ${mkCompMini('Leitura', Number(aluno.leitura)||0, mediaLeitura, 'pts')}
+                  ${mkCompMini('Frequência', freqGeral.percentual, mediaFreq, '%')}
+                </div>
               </div>
             </div>
-            <span class="comp-chip ${comp.chipCls}">${comp.texto}</span>
-          </div>`;
-
-        comparativoHTML = `
-          <div class="rel-titulo-secao">📊 Comparativo com a Turma</div>
-          <div class="comparativo-grid">
-            ${mkCompCard('Nível Geral', nivelAluno, mediaNivel, cNivel, 'pts')}
-            ${mkCompCard('Leitura (Bona)', Number(aluno.leitura)||0, mediaLeitura, cLeitura, 'pts')}
-            ${mkCompCard('Frequência Anual', freqGeral.percentual, mediaFreq, cFreq, '%')}
+            <div class="painel-turma-dir">
+              <div class="evolucao-titulo">📈 Evolução — Últimos Meses</div>
+              ${graficoHTML}
+            </div>
           </div>`;
       }
-
-      // ── Bloco Mini-gráfico evolução ───────────────────────────────────────
-      const evolucaoHTML = `
-        <div class="rel-titulo-secao">📈 Evolução do Nível — Últimos Meses</div>
-        <div class="evolucao-card">
-          <h4>Nível Total (Leitura + Método) ao longo do tempo</h4>
-          ${
-            evolucaoAluno.length >= 2
-              ? `<div class="evolucao-chart-wrap"><canvas id="mini-chart-evolucao"></canvas></div>`
-              : `<div class="evolucao-sem-dados">Histórico insuficiente para exibir gráfico (mínimo 2 registros).</div>`
-          }
-        </div>`;
 
       const html = `
         <div class="rel-header">
@@ -642,25 +635,25 @@
           <div class="indicador-card">
             <h4>Presença no Mês</h4>
             <div class="indicador-valores">
-              <div class="ind-val">Anterior<span>${freqMesAnterior.total > 0 ? freqMesAnterior.percentual + '%' : '—'}</span></div>
-              <div class="ind-val atual">Atual<span>${freqMes.total === 0 ? '—' : freqMes.percentual + '%'}</span></div>
-              <div class="ind-val">Meta<span>${freqMes.total === 0 ? '—' : metaPresenca + '%'}</span></div>
+              <div class="ind-val">Anterior<span>${freqMesAnterior.total > 0 ? freqMesAnterior.percentual+'%' : '—'}</span></div>
+              <div class="ind-val atual">Atual<span>${freqMes.total===0?'—':freqMes.percentual+'%'}</span></div>
+              <div class="ind-val">Meta<span>${freqMes.total===0?'—':metaPresenca+'%'}</span></div>
             </div>
             <span class="indicador-status ${stPresenca.classe}">${stPresenca.texto}</span>
           </div>
           <div class="indicador-card">
-            <h4>Leitura (${aluno.leituraNome || 'Bona'})</h4>
+            <h4>Leitura (${aluno.leituraNome||'Bona'})</h4>
             <div class="indicador-valores">
-              <div class="ind-val ${clsAntLeitura}">Anterior<span>${antLeituraTexto}</span></div>
+              <div class="ind-val ${clsAntLeitura}">Anterior<span>${leituraAnterior!==null?'Nível '+leituraAnterior:'—'}</span></div>
               <div class="ind-val atual">Atual<span>Nível ${leituraAtual}</span></div>
               <div class="ind-val">Meta<span>Nível ${leituraMeta}</span></div>
             </div>
             <span class="indicador-status ${stLeitura.classe}">${stLeitura.texto}</span>
           </div>
           <div class="indicador-card">
-            <h4>Método (${aluno.metodoNome || 'Método'})</h4>
+            <h4>Método (${aluno.metodoNome||'Método'})</h4>
             <div class="indicador-valores">
-              <div class="ind-val ${clsAntMetodo}">Anterior<span>${antMetodoTexto}</span></div>
+              <div class="ind-val ${clsAntMetodo}">Anterior<span>${metodoAnterior!==null?'Unid. '+metodoAnterior:'—'}</span></div>
               <div class="ind-val atual">Atual<span>Unid. ${metodoAtual}</span></div>
               <div class="ind-val">Meta<span>Unid. ${metodoMeta}</span></div>
             </div>
@@ -668,16 +661,14 @@
           </div>
         </div>
 
-        ${rankingHTML}
-        ${comparativoHTML}
-        ${evolucaoHTML}
+        ${painelTurmaHTML}
 
         <div class="rel-titulo-secao">⚡ Comprometimento</div>
         <div class="comprometimento-grid">
           <div class="comp-card">
             <h4>Comprometimento Mensal — ${nomeMes}</h4>
-            <div class="comp-valor">${freqMes.total === 0 ? '—' : freqMes.percentual + '%'}</div>
-            <div class="comp-detalhe">${freqMes.total === 0 ? 'Nenhuma chamada registrada neste mês' : freqMes.presencas + ' presença(s) de ' + freqMes.total + ' chamada(s)'}</div>
+            <div class="comp-valor">${freqMes.total===0?'—':freqMes.percentual+'%'}</div>
+            <div class="comp-detalhe">${freqMes.total===0?'Nenhuma chamada registrada neste mês':freqMes.presencas+' presença(s) de '+freqMes.total+' chamada(s)'}</div>
             <div class="comp-barra-wrap"><div class="comp-barra-fill ${corBarra(freqMes.percentual)}" style="width:${freqMes.percentual}%"></div></div>
           </div>
           <div class="comp-card">
@@ -716,7 +707,6 @@
       pagina.style.display = "block";
       document.getElementById("loader-relatorio").style.display = "none";
 
-      // ── Renderizar mini-gráfico após o DOM ser inserido ──────────────────
       if (evolucaoAluno.length >= 2) {
         const ctx = document.getElementById('mini-chart-evolucao');
         if (ctx) {
@@ -724,57 +714,24 @@
             type: 'line',
             data: {
               labels: evolucaoAluno.map(s => {
-                const [y, m] = s.chave.split('-');
-                return NOMES_MES_CURTO[Number(m)-1] + '/' + y.slice(2);
+                const [y,m] = s.chave.split('-');
+                return NOMES_MES_CURTO[Number(m)-1]+'/'+y.slice(2);
               }),
               datasets: [
-                {
-                  label: 'Nível Total',
-                  data: evolucaoAluno.map(s => (Number(s.leitura)||0) + (Number(s.metodo)||0)),
-                  borderColor: '#3b82f6',
-                  backgroundColor: 'rgba(59,130,246,0.1)',
-                  pointBackgroundColor: '#3b82f6',
-                  tension: 0.4, fill: true, pointRadius: 5
-                },
-                {
-                  label: 'Leitura',
-                  data: evolucaoAluno.map(s => Number(s.leitura)||0),
-                  borderColor: '#22c55e',
-                  backgroundColor: 'transparent',
-                  pointBackgroundColor: '#22c55e',
-                  tension: 0.4, fill: false, pointRadius: 4,
-                  borderDash: [4,3]
-                },
-                {
-                  label: 'Método',
-                  data: evolucaoAluno.map(s => Number(s.metodo)||0),
-                  borderColor: '#f59e0b',
-                  backgroundColor: 'transparent',
-                  pointBackgroundColor: '#f59e0b',
-                  tension: 0.4, fill: false, pointRadius: 4,
-                  borderDash: [4,3]
-                }
+                { label:'Nível Total', data: evolucaoAluno.map(s=>(Number(s.leitura)||0)+(Number(s.metodo)||0)), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', pointBackgroundColor:'#3b82f6', tension:0.4, fill:true, pointRadius:4 },
+                { label:'Leitura',     data: evolucaoAluno.map(s=>Number(s.leitura)||0), borderColor:'#22c55e', backgroundColor:'transparent', pointBackgroundColor:'#22c55e', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3] },
+                { label:'Método',      data: evolucaoAluno.map(s=>Number(s.metodo)||0),  borderColor:'#f59e0b', backgroundColor:'transparent', pointBackgroundColor:'#f59e0b', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3] }
               ]
             },
             options: {
-              responsive: true,
-              maintainAspectRatio: false,
+              responsive: true, maintainAspectRatio: false,
               plugins: {
-                legend: {
-                  labels: { color: '#475569', font: { size: 11 }, boxWidth: 12 }
-                },
-                tooltip: { mode: 'index', intersect: false }
+                legend: { labels: { color:'#475569', font:{size:10}, boxWidth:10, padding:8 } },
+                tooltip: { mode:'index', intersect:false }
               },
               scales: {
-                x: {
-                  ticks: { color: '#64748b', font: { size: 10 } },
-                  grid: { color: 'rgba(0,0,0,0.05)' }
-                },
-                y: {
-                  beginAtZero: true,
-                  ticks: { color: '#64748b', font: { size: 10 } },
-                  grid: { color: 'rgba(0,0,0,0.05)' }
-                }
+                x: { ticks:{color:'#64748b',font:{size:9}}, grid:{color:'rgba(0,0,0,0.04)'} },
+                y: { beginAtZero:true, ticks:{color:'#64748b',font:{size:9}}, grid:{color:'rgba(0,0,0,0.04)'} }
               }
             }
           });
