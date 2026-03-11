@@ -37,6 +37,35 @@
     max-width: 100%; overflow-x: auto;
   }
   canvas { display: block; max-width: 100%; }
+
+  /* ===== TIMER ===== */
+  #timer-wrap {
+    width: 340px; margin: 0 auto 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  #timer-label {
+    font-size: 0.85rem; color: #a0b4c8;
+    display: flex; align-items: center; gap: 6px;
+  }
+  #timer-count {
+    font-weight: bold; font-size: 1rem;
+    color: #e2b96f; min-width: 24px; text-align: center;
+    transition: color 0.3s;
+  }
+  #timer-count.urgent { color: #ff4757; animation: pulse 0.5s infinite alternate; }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
+  #timer-bar-bg {
+    width: 100%; height: 8px; background: rgba(255,255,255,0.1);
+    border-radius: 20px; overflow: hidden;
+  }
+  #timer-bar {
+    height: 100%; width: 100%; border-radius: 20px;
+    background: linear-gradient(90deg, #e2b96f, #f7971e);
+    transition: width 1s linear, background 0.5s;
+  }
+  #timer-bar.urgent { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+  /* ===== FIM TIMER ===== */
+
   #feedback {
     height: 42px; display: flex; align-items: center; justify-content: center;
     font-size: 1.15rem; font-weight: bold; border-radius: 10px;
@@ -45,6 +74,7 @@
   #feedback.show { opacity: 1; }
   #feedback.correct { background: rgba(46,213,115,0.18); color: #2ed573; border: 1.5px solid #2ed573; }
   #feedback.wrong   { background: rgba(255,71,87,0.18);  color: #ff4757; border: 1.5px solid #ff4757; }
+  #feedback.timeout { background: rgba(255,165,0,0.18);  color: #ffa500; border: 1.5px solid #ffa500; }
   #options { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
   .opt-btn {
     background: rgba(255,255,255,0.09); border: 2px solid rgba(226,185,111,0.4);
@@ -81,7 +111,7 @@
   @media (max-width: 640px) {
     #info-bar { gap: 14px; padding: 8px 16px; font-size: 0.88rem; }
     .opt-btn { padding: 10px 16px; font-size: 1rem; }
-    #progress-bar-wrap { width: 90vw; }
+    #progress-bar-wrap, #timer-wrap { width: 90vw; }
   }
 </style>
 </head>
@@ -103,6 +133,13 @@
 </div>
 
 <div id="note-indicator">Nota <span id="note-idx">1</span> de <span id="note-total">5</span></div>
+
+<!-- TIMER -->
+<div id="timer-wrap">
+  <div id="timer-label">⏱ Tempo restante: <span id="timer-count">10</span>s</div>
+  <div id="timer-bar-bg"><div id="timer-bar"></div></div>
+</div>
+
 <div id="feedback"></div>
 <div id="options"></div>
 <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
@@ -151,6 +188,21 @@ function playError() {
     g.gain.setValueAtTime(0.25, ac.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35);
     o.connect(g).connect(ac.destination); o.start(ac.currentTime); o.stop(ac.currentTime + 0.35);
+  } catch(e) {}
+}
+function playTimeout() {
+  try {
+    const ac = getACtx();
+    [300, 250, 200].forEach((freq, i) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(freq, ac.currentTime + i * 0.15);
+      g.gain.setValueAtTime(0.18, ac.currentTime + i * 0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.15 + 0.12);
+      o.connect(g).connect(ac.destination);
+      o.start(ac.currentTime + i * 0.15);
+      o.stop(ac.currentTime + i * 0.15 + 0.12);
+    });
   } catch(e) {}
 }
 
@@ -206,6 +258,60 @@ function drawLedgerLines(x,slot){
 }
 
 let currentLevel=0,notes=[],noteIdx=0,score=0,errors=0,answered=false;
+
+// ===== TIMER =====
+const TIMER_SECONDS = 10;
+let timerInterval = null;
+let timerRemaining = TIMER_SECONDS;
+
+function startTimer() {
+  clearTimer();
+  timerRemaining = TIMER_SECONDS;
+  updateTimerUI();
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    updateTimerUI();
+    if (timerRemaining <= 0) {
+      clearTimer();
+      onTimerExpired();
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerUI() {
+  const count = document.getElementById('timer-count');
+  const bar   = document.getElementById('timer-bar');
+  const pct   = (timerRemaining / TIMER_SECONDS) * 100;
+  count.textContent = timerRemaining;
+  bar.style.width   = pct + '%';
+  const urgent = timerRemaining <= 3;
+  count.classList.toggle('urgent', urgent);
+  bar.classList.toggle('urgent', urgent);
+}
+
+function onTimerExpired() {
+  if (answered) return;
+  answered = true;
+  errors++;
+  document.getElementById('lbl-errors').textContent = errors;
+  const correct = notes[noteIdx];
+  const fb = document.getElementById('feedback');
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correct.name) b.classList.add('correct-ans');
+  });
+  fb.textContent = '⏰ Tempo esgotado! A nota era ' + correct.name + '.';
+  fb.className = 'show timeout';
+  playTimeout();
+  setTimeout(() => playNoteBySlot(correct.slot), 500);
+  setTimeout(nextNote, 2000);
+}
+// ===== FIM TIMER =====
+
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function generateNotes(pool,count){const r=[],s=shuffle(pool);for(let i=0;i<count;i++)r.push(s[i%s.length]);return r;}
 function generateOptions(n){return shuffle([n,...shuffle(ALL_NAMES.filter(x=>x!==n)).slice(0,4)]);}
@@ -219,6 +325,7 @@ function renderOptions(){
 }
 function checkAnswer(chosen,btn){
   if(answered)return; answered=true;
+  clearTimer();
   const correct=notes[noteIdx], fb=document.getElementById('feedback');
   document.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=true;if(b.textContent===correct.name)b.classList.add('correct-ans');});
   if(chosen===correct.name){
@@ -238,13 +345,14 @@ function checkAnswer(chosen,btn){
 function nextNote(){
   noteIdx++;
   document.getElementById('progress-bar').style.width=(noteIdx/notes.length*100)+'%';
-  if(noteIdx>=notes.length){showLevelComplete();}else{
+  if(noteIdx>=notes.length){clearTimer();showLevelComplete();}else{
     answered=false;document.getElementById('feedback').className='';
     document.getElementById('note-idx').textContent=noteIdx+1;
-    drawStaff();renderOptions();
+    drawStaff();renderOptions();startTimer();
   }
 }
 function showLevelComplete(){
+  clearTimer();
   const isLast=currentLevel>=LEVELS.length-1;
   document.getElementById('overlay-title').textContent=isLast?'🏆 Parabéns!':'🎉 Nível Completo!';
   document.getElementById('overlay-msg').textContent=isLast
@@ -268,7 +376,7 @@ function startLevel(){
   document.getElementById('note-total').textContent=lvl.count;
   document.getElementById('feedback').className='';
   document.getElementById('progress-bar').style.width='0%';
-  drawStaff();renderOptions();
+  drawStaff();renderOptions();startTimer();
 }
 startLevel();
 </script>
