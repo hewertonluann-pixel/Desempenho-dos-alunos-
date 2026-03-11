@@ -108,103 +108,96 @@
     .evolucao-chart-wrap { position: relative; flex: 1; min-height: 110px; }
     .evolucao-sem-dados { color: #94a3b8; font-style: italic; font-size: 0.75em; text-align: center; padding: 16px 0; }
 
-    /* ════════════════════════════════════════════════════════════════════
+    /* ════════════════════════════════════════════════════════════
        PAINEL INFERIOR
-       Estrutura:
-         [painel-inferior]
-           [painel-inf-esq  44%]
-             [comp-conq-row]         ← comprometimento (esq) + conquistas (dir) em LINHA
-               [comp-bloco  ~45%]    ← 2 cards de frequência empilhados
-               [conq-bloco  ~55%]    ← lista de conquistas
-           [painel-inf-dir  56%]     ← análise
-    ════════════════════════════════════════════════════════════════════ */
-    .painel-inferior { display: flex; gap: 8px; margin-bottom: 14px; align-items: stretch; }
+       Linha 1: [comprometimento 44%] | [análise 56%]
+       Linha 2: [conquistas — faixa horizontal 100%]
+    ════════════════════════════════════════════════════════════ */
+    .painel-inferior-wrap { margin-bottom: 14px; }
 
-    /* Coluna esquerda do painel inferior */
-    .painel-inf-esq { display: flex; flex-direction: column; flex: 0 0 44%; min-width: 0; }
+    /* Linha 1: comprometimento + análise */
+    .painel-linha1 { display: flex; gap: 8px; align-items: stretch; margin-bottom: 6px; }
 
-    /* Comprometimento + Conquistas em linha horizontal */
-    .comp-conq-row {
-      display: flex;
-      gap: 6px;
-      align-items: stretch;
-      flex: 1;
+    /* Comprometimento (esq, 44%) */
+    .comp-freq-bloco {
+      flex: 0 0 44%;
+      min-width: 0;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 10px;
       padding: 8px 10px;
-    }
-
-    /* Sub-coluna esquerda: comprometimento */
-    .comp-sub {
       display: flex;
       flex-direction: column;
       gap: 5px;
-      flex: 0 0 46%;
-      min-width: 0;
     }
-    .comp-sub-titulo {
+    .comp-freq-titulo {
       font-size: 0.62em; font-weight: 700; color: #0ea5e9;
       text-transform: uppercase; letter-spacing: 0.05em;
       margin-bottom: 2px;
     }
+    /* Os 2 cards lado a lado dentro do bloco de comprometimento */
+    .comp-freq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      flex: 1;
+    }
     .comp-freq-card {
       background: #fff; border: 1px solid #e2e8f0; border-radius: 7px;
-      padding: 6px 8px; text-align: center; flex: 1;
+      padding: 6px 8px; text-align: center;
     }
-    .comp-freq-label  { font-size: 0.58em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
-    .comp-freq-valor  { font-size: 1.55em; font-weight: 800; color: #0f172a; line-height: 1; }
-    .comp-freq-detalhe{ font-size: 0.57em; color: #94a3b8; margin-top: 2px; }
-    .comp-barra-wrap  { margin-top: 5px; background: #e2e8f0; border-radius: 100px; height: 4px; overflow: hidden; }
-    .comp-barra-fill  { height: 100%; border-radius: 100px; }
+    .comp-freq-label   { font-size: 0.58em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+    .comp-freq-valor   { font-size: 1.55em; font-weight: 800; color: #0f172a; line-height: 1; }
+    .comp-freq-detalhe { font-size: 0.57em; color: #94a3b8; margin-top: 2px; }
+    .comp-barra-wrap   { margin-top: 5px; background: #e2e8f0; border-radius: 100px; height: 4px; overflow: hidden; }
+    .comp-barra-fill   { height: 100%; border-radius: 100px; }
     .fill-verde    { background: linear-gradient(90deg, #22c55e, #16a34a); }
     .fill-amarelo  { background: linear-gradient(90deg, #f59e0b, #d97706); }
     .fill-vermelho { background: linear-gradient(90deg, #ef4444, #dc2626); }
     .fill-azul     { background: linear-gradient(90deg, #3b82f6, #2563eb); }
 
-    /* Divisor vertical entre comprometimento e conquistas */
-    .comp-conq-divider {
-      width: 1px;
-      background: #e2e8f0;
-      flex-shrink: 0;
-      align-self: stretch;
+    /* Análise (dir, resto) */
+    .painel-inf-dir {
+      flex: 1; min-width: 0;
+      background: #f0f9ff; border: 1px solid #bae6fd;
+      border-radius: 10px; padding: 10px 13px;
+      display: flex; flex-direction: column;
     }
+    .analise-titulo { font-size: 0.65em; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .analise-texto  { line-height: 1.6; font-size: 0.82em; color: #0f172a; flex: 1; }
 
-    /* Sub-coluna direita: conquistas */
-    .conq-sub {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-width: 0;
+    /* Linha 2: conquistas — faixa horizontal */
+    .conquistas-faixa {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 12px;
     }
-    .conq-sub-titulo {
+    .conquistas-faixa-titulo {
       font-size: 0.62em; font-weight: 700; color: #f59e0b;
       text-transform: uppercase; letter-spacing: 0.05em;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
+      display: flex; align-items: center; gap: 5px;
     }
-    .conquistas-compact {
+    .conquistas-faixa-titulo::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+    /* Conquistas em linha horizontal com wrap */
+    .conquistas-linha {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
+      flex-wrap: wrap;
+      gap: 5px;
     }
     .conquista-item {
-      display: flex; align-items: flex-start; gap: 5px;
-      background: #f8fafc; border: 1px solid #e2e8f0;
-      border-radius: 7px; padding: 4px 7px; font-size: 0.72em;
+      display: flex; align-items: center; gap: 5px;
+      background: #fff; border: 1px solid #e2e8f0;
+      border-radius: 7px; padding: 5px 10px; font-size: 0.72em;
     }
     .conquista-item.ouro     { border-color: #f59e0b; background: #fffbeb; }
     .conquista-item.prata    { border-color: #94a3b8; background: #f8fafc; }
     .conquista-item.lendario { border-color: #8b5cf6; background: #f5f3ff; }
-    .conquista-icone { font-size: 1.1em; flex-shrink: 0; margin-top: 1px; }
+    .conquista-icone { font-size: 1.15em; flex-shrink: 0; }
     .conquista-info strong { display: block; font-weight: 700; color: #1e293b; font-size: 0.95em; line-height: 1.2; }
     .conquista-info span   { font-size: 0.82em; color: #64748b; line-height: 1.2; }
     .sem-conquistas { color: #94a3b8; font-style: italic; font-size: 0.78em; }
-
-    /* Coluna direita do painel inferior: análise */
-    .painel-inf-dir { flex: 1; min-width: 0; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px 13px; display: flex; flex-direction: column; }
-    .analise-titulo { font-size: 0.65em; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-    .analise-texto  { line-height: 1.6; font-size: 0.82em; color: #0f172a; flex: 1; }
 
     /* ── Tabela de presença ── */
     .presenca-section { margin-bottom: 10px; }
@@ -229,17 +222,16 @@
       width: 794px !important; min-width: 794px !important; max-width: 794px !important;
       padding: 22px 28px !important; box-shadow: none !important; border-radius: 0 !important;
     }
-    .exportar-a4 .indicadores-grid { grid-template-columns: repeat(3,1fr) !important; }
-    .exportar-a4 .painel-turma     { flex-direction: row !important; }
-    .exportar-a4 .painel-turma-esq { flex: 0 0 52% !important; }
+    .exportar-a4 .indicadores-grid  { grid-template-columns: repeat(3,1fr) !important; }
+    .exportar-a4 .painel-turma      { flex-direction: row !important; }
+    .exportar-a4 .painel-turma-esq  { flex: 0 0 52% !important; }
     .exportar-a4 .rank-mini-grid,
-    .exportar-a4 .comp-mini-grid   { grid-template-columns: repeat(3,1fr) !important; }
-    .exportar-a4 .painel-inferior  { flex-direction: row !important; }
-    .exportar-a4 .painel-inf-esq   { flex: 0 0 44% !important; }
-    .exportar-a4 .comp-conq-row    { flex-direction: row !important; }
-    .exportar-a4 .comp-sub         { flex: 0 0 46% !important; }
-    .exportar-a4 .rel-header       { flex-direction: row !important; text-align: left !important; }
-    .exportar-a4 .rel-logo         { margin-left: auto !important; text-align: right !important; }
+    .exportar-a4 .comp-mini-grid    { grid-template-columns: repeat(3,1fr) !important; }
+    .exportar-a4 .painel-linha1     { flex-direction: row !important; }
+    .exportar-a4 .comp-freq-bloco   { flex: 0 0 44% !important; }
+    .exportar-a4 .comp-freq-grid    { grid-template-columns: 1fr 1fr !important; }
+    .exportar-a4 .rel-header        { flex-direction: row !important; text-align: left !important; }
+    .exportar-a4 .rel-logo          { margin-left: auto !important; text-align: right !important; }
 
     /* ── Impressão ── */
     @media print {
@@ -250,13 +242,12 @@
       .painel-turma      { flex-direction: row !important; }
       .painel-turma-esq  { flex: 0 0 52% !important; }
       .rank-mini-grid, .comp-mini-grid { grid-template-columns: repeat(3,1fr) !important; }
-      .painel-inferior   { flex-direction: row !important; }
-      .painel-inf-esq    { flex: 0 0 44% !important; }
-      .comp-conq-row     { flex-direction: row !important; }
-      .comp-sub          { flex: 0 0 46% !important; }
+      .painel-linha1     { flex-direction: row !important; }
+      .comp-freq-bloco   { flex: 0 0 44% !important; }
+      .comp-freq-grid    { grid-template-columns: 1fr 1fr !important; }
       .rel-header        { flex-direction: row !important; }
       .rel-logo          { margin-left: auto !important; }
-      .indicador-card, .painel-turma, .painel-inferior, .presenca-section { break-inside: avoid; }
+      .indicador-card, .painel-turma, .painel-inferior-wrap, .presenca-section { break-inside: avoid; }
     }
 
     /* ── Mobile ── */
@@ -264,12 +255,12 @@
       .indicadores-grid { grid-template-columns: 1fr; }
       .rel-header { flex-direction: column; text-align: center; }
       .rel-logo { margin-left: 0; text-align: center; }
-      .painel-turma, .painel-inferior { flex-direction: column; }
-      .painel-turma-esq, .painel-inf-esq { flex: none; }
+      .painel-turma { flex-direction: column; }
+      .painel-turma-esq { flex: none; }
       .rank-mini-grid, .comp-mini-grid { grid-template-columns: repeat(3,1fr); }
-      .comp-conq-row { flex-direction: column; }
-      .comp-sub { flex: none; }
-      .comp-conq-divider { width: 100%; height: 1px; }
+      .painel-linha1 { flex-direction: column; }
+      .comp-freq-bloco { flex: none; }
+      .comp-freq-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -477,10 +468,10 @@
       if (!iso) return "-"; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`;
     }
     function gerarStatus(atual, anterior) {
-      if (anterior===null)      return { texto:"— Sem histórico", classe:"status-neutro" };
-      if (atual>anterior)       return { texto:"▲ Evoluiu",       classe:"status-evoluiu" };
-      if (atual===anterior)     return { texto:"● Estável",        classe:"status-estavel" };
-      return                           { texto:"▼ Regrediu",      classe:"status-regrediu" };
+      if (anterior===null)  return { texto:"— Sem histórico", classe:"status-neutro" };
+      if (atual>anterior)   return { texto:"▲ Evoluiu",       classe:"status-evoluiu" };
+      if (atual===anterior) return { texto:"● Estável",        classe:"status-estavel" };
+      return                       { texto:"▼ Regrediu",      classe:"status-regrediu" };
     }
     function corBarra(pct) { return pct>=80?"fill-verde":pct>=50?"fill-amarelo":"fill-vermelho"; }
     function medalhaClasse(pos) { return pos===1?'ouro':pos===2?'prata':pos===3?'bronze':'normal'; }
@@ -618,15 +609,15 @@
 
       const painelInferiorHTML = `
         <div class="rel-titulo-secao">⚡ Comprometimento &amp; 🏆 Conquistas</div>
-        <div class="painel-inferior">
+        <div class="painel-inferior-wrap">
 
-          <!-- Coluna esquerda: comprometimento + conquistas em linha -->
-          <div class="painel-inf-esq">
-            <div class="comp-conq-row">
+          <!-- Linha 1: comprometimento (esq) + análise (dir) -->
+          <div class="painel-linha1">
 
-              <!-- Comprometimento -->
-              <div class="comp-sub">
-                <div class="comp-sub-titulo">⚡ Comprometimento</div>
+            <!-- Comprometimento: 2 cards lado a lado -->
+            <div class="comp-freq-bloco">
+              <div class="comp-freq-titulo">⚡ Comprometimento</div>
+              <div class="comp-freq-grid">
                 <div class="comp-freq-card">
                   <div class="comp-freq-label">${nomeMes}</div>
                   <div class="comp-freq-valor">${freqMes.total===0?'—':freqMes.percentual+'%'}</div>
@@ -640,22 +631,20 @@
                   <div class="comp-barra-wrap"><div class="comp-barra-fill fill-azul" style="width:${freqGeral.percentual}%"></div></div>
                 </div>
               </div>
-
-              <div class="comp-conq-divider"></div>
-
-              <!-- Conquistas -->
-              <div class="conq-sub">
-                <div class="conq-sub-titulo">🏆 Conquistas do Mês</div>
-                <div class="conquistas-compact">${conquistasHTML}</div>
-              </div>
-
             </div>
+
+            <!-- Análise -->
+            <div class="painel-inf-dir">
+              <div class="analise-titulo">📝 Análise do Desempenho</div>
+              <div class="analise-texto">${analise}</div>
+            </div>
+
           </div>
 
-          <!-- Coluna direita: análise -->
-          <div class="painel-inf-dir">
-            <div class="analise-titulo">📝 Análise do Desempenho</div>
-            <div class="analise-texto">${analise}</div>
+          <!-- Linha 2: conquistas em faixa horizontal completa -->
+          <div class="conquistas-faixa">
+            <div class="conquistas-faixa-titulo">🏆 Conquistas do Mês</div>
+            <div class="conquistas-linha">${conquistasHTML}</div>
           </div>
 
         </div>`;
