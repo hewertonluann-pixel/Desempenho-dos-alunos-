@@ -2,279 +2,327 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Armaduras de Clave</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armaduras de Clave – Jogo</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-
-/* ================================================
-   OVERLAY DE ROTAÇÃO
-   Aparece apenas quando o dispositivo está em portrait
-   e a largura é menor que 600px (celular).
-   Some automaticamente ao girar para landscape.
-================================================ */
-#rotate-overlay{
-  display:none;
-  position:fixed;inset:0;z-index:9999;
-  background:linear-gradient(135deg,#1a1a2e,#0f3460);
-  flex-direction:column;align-items:center;justify-content:center;
-  gap:18px;text-align:center;padding:32px;
-}
-#rotate-overlay .rot-icon{
-  font-size:3.5rem;
-  animation:rotAnim 1.8s ease-in-out infinite;
-}
-#rotate-overlay p{
-  color:#e2e8f0;font-size:1rem;font-family:'Segoe UI',sans-serif;line-height:1.6;
-  max-width:280px;
-}
-#rotate-overlay small{color:#94a3b8;font-size:.8rem}
-@keyframes rotAnim{
-  0%,100%{transform:rotate(0deg)}
-  40%    {transform:rotate(90deg)}
-  60%    {transform:rotate(90deg)}
-}
-/* Exibe overlay em portrait em telas pequenas */
-@media (max-width:767px) and (orientation:portrait){
-  #rotate-overlay{display:flex}
-}
-
 body{
   font-family:'Segoe UI',sans-serif;
   background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  padding:16px 14px 40px;color:#e2e8f0;
+  padding:20px 14px 60px;color:#e2e8f0;
 }
 .back-btn{
   align-self:flex-start;
   background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
   color:#e2e8f0;padding:7px 14px;border-radius:10px;font-size:.82rem;
   font-weight:600;cursor:pointer;text-decoration:none;display:flex;
-  align-items:center;gap:6px;margin-bottom:12px;
+  align-items:center;gap:6px;margin-bottom:16px;
   transition:background .18s,border-color .18s;
 }
 .back-btn:hover{background:rgba(255,255,255,.15);border-color:#a855f7}
-h1{font-size:1.35rem;color:#e2b96f;text-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:3px;text-align:center}
-.subtitle{color:#94a3b8;font-size:.82rem;margin-bottom:14px;text-align:center}
-.phase-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
-.tab-btn{
-  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
-  color:#94a3b8;padding:6px 16px;border-radius:20px;font-size:.82rem;
-  font-weight:600;cursor:pointer;transition:all .2s;
-}
-.tab-btn.active{background:rgba(168,85,247,.2);border-color:#a855f7;color:#e2b96f}
-.tab-btn:hover:not(.active){background:rgba(255,255,255,.12);color:#e2e8f0}
-.main-card{
-  background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);
-  border-radius:18px;padding:22px 20px;width:100%;max-width:920px;
-  backdrop-filter:blur(8px);box-shadow:0 8px 32px rgba(0,0,0,.4);
-}
-.phase-title{font-size:1rem;font-weight:700;color:#e2b96f;margin-bottom:5px}
-.phase-desc{
-  font-size:.84rem;color:#94a3b8;margin-bottom:14px;line-height:1.6;
-}
-.phase-desc strong{color:#e2e8f0}
-.legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:.74rem;color:#94a3b8}
-.legend-box{width:20px;height:12px;border-radius:3px}
-.lb-tone {background:linear-gradient(160deg,#8eafc4,#5b7f9c)}
-.lb-semi {background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
-.lb-sharp{background:linear-gradient(160deg,#f7d98b,#e2b96f)}
-.lb-wrong{background:linear-gradient(160deg,#f87171,#dc2626)}
-.scale-label{font-size:.72rem;font-weight:700;color:#e2b96f;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
-.scale-label.ref{color:#475569}
-.model-badge{
-  display:inline-block;
-  background:rgba(226,185,111,.15);border:1px solid rgba(226,185,111,.35);
-  color:#e2b96f;font-size:.67rem;font-weight:700;
-  padding:2px 9px;border-radius:20px;letter-spacing:.5px;margin-bottom:6px;
-}
-.model-box{border:1.5px solid rgba(226,185,111,.25);border-radius:12px;padding:12px 12px 8px;margin-bottom:4px;background:rgba(226,185,111,.04)}
-.ref-box  {border:1px dashed rgba(255,255,255,.1);border-radius:12px;padding:12px 12px 8px;margin-bottom:4px;opacity:.8}
 
-/* ================================================
-   ESCADA
-   Em landscape mobile aproveitamos mais largura:
-   bricks maiores, gaps maiores.
-================================================ */
-.staircase{
-  display:flex;align-items:flex-end;gap:0;
-  overflow-x:auto;padding:12px 4px 0;margin:0 auto 6px;
-  -webkit-overflow-scrolling:touch;
+/* ── Tela de Intro ── */
+#introScreen{
+  width:100%;max-width:480px;text-align:center;
+  animation:fadeUp .5s ease;
 }
-.step-wrap{
-  display:flex;flex-direction:column;align-items:center;
-  width:62px;flex-shrink:0;
+.intro-logo{font-size:4rem;margin-bottom:10px}
+.intro-title{font-size:1.7rem;font-weight:800;color:#e2b96f;letter-spacing:1px;margin-bottom:4px}
+.intro-sub{font-size:.78rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:24px}
+.intro-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;text-align:left}
+.icard{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px}
+.icard-icon{font-size:1.4rem;flex-shrink:0;margin-top:2px}
+.icard-title{font-size:.82rem;font-weight:700;color:#fff;margin-bottom:2px}
+.icard-desc{font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.5}
+.phase-pills{display:flex;justify-content:center;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.ppill{
+  font-size:.7rem;padding:4px 14px;border-radius:20px;
+  font-weight:600;border:1px solid;letter-spacing:.5px;
 }
-.note-top{
-  font-size:.78rem;font-weight:800;color:#e2e8f0;
-  margin-bottom:4px;text-align:center;white-space:nowrap;
+.ppill-1{background:rgba(99,102,241,.15);border-color:#818cf8;color:#818cf8}
+.ppill-2{background:rgba(226,185,111,.15);border-color:#e2b96f;color:#e2b96f}
+.ppill-3{background:rgba(74,222,128,.15);border-color:#4ade80;color:#4ade80}
+.btn-play{
+  background:linear-gradient(135deg,#4ade80,#22d3ee);color:#0f3460;
+  border:none;border-radius:16px;padding:16px 56px;font-size:1.1rem;
+  font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;
+  box-shadow:0 6px 28px rgba(74,222,128,.35);
+  transition:transform .15s,box-shadow .15s;
+  animation:glowPulse 2s infinite alternate;
 }
-.brick{
-  width:56px;height:52px;
-  border-radius:8px 8px 3px 3px;
+.btn-play:hover{transform:scale(1.05);box-shadow:0 8px 36px rgba(74,222,128,.55)}
+@keyframes glowPulse{from{box-shadow:0 6px 28px rgba(74,222,128,.35)}to{box-shadow:0 8px 40px rgba(74,222,128,.6)}}
+
+/* ── Game Screen ── */
+#gameScreen{width:100%;max-width:540px;display:none;animation:fadeUp .4s ease}
+.game-header{text-align:center;margin-bottom:14px}
+.game-title{font-size:1.3rem;font-weight:800;color:#e2b96f;margin-bottom:2px}
+.game-sub{font-size:.78rem;color:rgba(255,255,255,.4)}
+
+/* Phase pills nav */
+.phase-nav{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.pnav-dot{
+  width:32px;height:8px;border-radius:4px;
+  background:rgba(255,255,255,.12);cursor:default;
+  transition:background .4s;
+}
+.pnav-dot.done{background:#4ade80}
+.pnav-dot.active{background:#e2b96f}
+
+/* Progress + Score chips */
+.status-row{display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.chip{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:6px 14px;font-size:.78rem;color:rgba(255,255,255,.55);
+  text-align:center;
+}
+.chip span{display:block;font-size:1.2rem;font-weight:700;color:#fff;line-height:1.2}
+.chip.certs span{color:#4ade80}
+.chip.errs  span{color:#f87171}
+
+/* Timer ring */
+.timer-wrap{display:flex;justify-content:center;margin-bottom:12px}
+.timer-ring{position:relative;width:52px;height:52px}
+.timer-ring svg{transform:rotate(-90deg)}
+.timer-ring circle.bg{fill:none;stroke:rgba(255,255,255,.08);stroke-width:4}
+.timer-ring circle.fg{
+  fill:none;stroke-width:4;stroke-linecap:round;
+  transition:stroke-dashoffset .1s linear,stroke .3s;
+  stroke-dasharray:138;stroke-dashoffset:0;
+  stroke:#e2b96f;
+}
+.timer-ring circle.fg.danger{stroke:#f87171!important}
+.timer-num{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:1.1rem;font-weight:700;color:#fff;
+}
+.timer-num.danger{color:#f87171}
+
+/* Question card */
+.q-card{
+  background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:22px 18px;margin-bottom:14px;
+  text-align:center;backdrop-filter:blur(8px);
+  box-shadow:0 8px 32px rgba(0,0,0,.35);
+}
+.q-phase-tag{
+  font-size:.65rem;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:8px;
+}
+.q-question{
+  font-size:1.05rem;font-weight:700;color:#f1f5f9;
+  line-height:1.5;margin-bottom:0;
+}
+.q-question strong{color:#e2b96f}
+.q-hint{
+  font-size:.78rem;color:rgba(255,255,255,.4);
+  margin-top:8px;line-height:1.5;
+}
+
+/* Tip box (dica pedagógica) */
+.tip-box{
+  background:rgba(226,185,111,.07);border:1px solid rgba(226,185,111,.2);
+  border-radius:10px;padding:10px 14px;
+  font-size:.78rem;color:#cbd5e1;line-height:1.6;
+  margin-bottom:14px;text-align:left;
+  display:none;
+}
+.tip-box.show{display:block;animation:fadeUp .3s ease}
+.tip-box strong{color:#e2b96f}
+
+/* Answer buttons */
+.answers{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.ans-btn{
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+  color:#e2e8f0;padding:13px 18px;border-radius:13px;
+  font-size:.92rem;font-weight:600;cursor:pointer;
+  text-align:left;transition:background .15s,border-color .15s,transform .1s;
+  -webkit-tap-highlight-color:transparent;
+  display:flex;align-items:center;gap:10px;
+}
+.ans-btn:hover:not(:disabled){background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3)}
+.ans-btn:active:not(:disabled){transform:scale(.98)}
+.ans-btn:disabled{cursor:default}
+.ans-btn.correct-ans{background:rgba(74,222,128,.18)!important;border-color:#4ade80!important;color:#4ade80!important}
+.ans-btn.wrong-ans  {background:rgba(248,113,113,.18)!important;border-color:#f87171!important;color:#f87171!important}
+.ans-btn .ans-icon{font-size:1.1rem;width:24px;text-align:center}
+
+/* Visual scale (for tone/semi display questions) */
+.vis-scale{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:0;overflow-x:auto;padding:8px 4px;
+  margin-bottom:12px;-webkit-overflow-scrolling:touch;
+}
+.vstep{display:flex;flex-direction:column;align-items:center;width:54px;flex-shrink:0}
+.vstep .vnote{font-size:.74rem;font-weight:700;color:#e2e8f0;margin-bottom:4px;text-align:center}
+.vstep .vbrick{
+  width:48px;height:48px;border-radius:8px 8px 3px 3px;
   display:flex;align-items:center;justify-content:center;
-  font-size:.86rem;font-weight:800;color:#1a1a2e;
-  box-shadow:0 4px 14px rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.25);
-  user-select:none;flex-shrink:0;
+  font-size:.84rem;font-weight:800;color:#1a1a2e;
+  box-shadow:0 4px 14px rgba(0,0,0,.35);
 }
-.brick.tone  {background:linear-gradient(160deg,#8eafc4,#5b7f9c)}
-.brick.semi  {background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
-.brick.golden{
-  background:linear-gradient(160deg,#f7d98b,#e2b96f);
-  box-shadow:0 4px 20px rgba(226,185,111,.55),inset 0 2px 0 rgba(255,255,255,.35);
-  animation:goldPulse 1.8s ease-in-out infinite;
-}
-.brick.wrong{background:linear-gradient(160deg,#f87171,#dc2626)!important;animation:shake .4s ease}
-.brick.dropzone{
-  background:rgba(226,185,111,.07);
-  border:2.5px dashed rgba(226,185,111,.5);
-  color:#e2b96f;font-size:1.1rem;cursor:pointer;box-shadow:none;animation:none;
-}
-.brick.dropzone:hover,.brick.dropzone.drag-over{
-  background:rgba(226,185,111,.18);border-color:#e2b96f;
-  box-shadow:0 0 16px rgba(226,185,111,.35);
-}
-.step-gap{width:28px;flex-shrink:0;position:relative;align-self:stretch;}
-.gap-tag{
+.vbrick.blue   {background:linear-gradient(160deg,#8eafc4,#5b7f9c)}
+.vbrick.green  {background:linear-gradient(160deg,#7dc4a6,#4a9a80)}
+.vbrick.gold   {background:linear-gradient(160deg,#f7d98b,#e2b96f);animation:goldPulse 1.8s infinite alternate}
+.vbrick.red    {background:linear-gradient(160deg,#f87171,#dc2626)}
+.vgap{width:26px;flex-shrink:0;position:relative;align-self:stretch}
+.vgap-tag{
   position:absolute;left:50%;transform:translateX(-50%);
-  white-space:nowrap;font-size:.58rem;font-weight:700;
+  white-space:nowrap;font-size:.56rem;font-weight:700;
   padding:2px 4px;border-radius:4px;
   background:rgba(255,255,255,.07);color:#64748b;
   border:1px solid rgba(255,255,255,.12);pointer-events:none;
 }
-.gap-tag.semi {color:#7dc4a6;background:rgba(125,196,166,.12);border-color:rgba(125,196,166,.3)}
-.gap-tag.wrong{color:#f87171;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3)}
-
+.vgap-tag.semi{color:#7dc4a6;border-color:rgba(125,196,166,.3);background:rgba(125,196,166,.1)}
+.vgap-tag.wrong{color:#f87171;border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.1)}
 @keyframes goldPulse{
-  0%,100%{box-shadow:0 4px 20px rgba(226,185,111,.55),inset 0 2px 0 rgba(255,255,255,.35)}
-  50%    {box-shadow:0 6px 30px rgba(226,185,111,.85),inset 0 2px 0 rgba(255,255,255,.45)}
+  from{box-shadow:0 4px 20px rgba(226,185,111,.4)}
+  to  {box-shadow:0 6px 30px rgba(226,185,111,.8)}
 }
+
+/* Feedback toast */
+.feedback{
+  min-height:32px;text-align:center;font-size:.9rem;
+  font-weight:600;margin-bottom:8px;transition:all .3s;
+}
+.feedback.correct{color:#4ade80}
+.feedback.wrong  {color:#f87171}
+.feedback.info   {color:#fbbf24}
+
+/* Control row */
+.ctrl-row{display:flex;gap:10px;justify-content:center;margin-top:6px}
+.btn-ctrl{
+  font-size:.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.55);
+  cursor:pointer;transition:all .2s;
+}
+.btn-ctrl:hover{background:rgba(255,255,255,.13);color:#fff}
+.btn-ctrl.danger:hover{background:rgba(239,68,68,.2);color:#f87171;border-color:#f87171}
+
+/* ── End Screen ── */
+#endScreen{width:100%;max-width:480px;display:none;text-align:center;animation:fadeUp .5s ease}
+.trophy{font-size:4rem;margin-bottom:12px}
+.end-title{font-size:1.5rem;font-weight:800;color:#e2b96f;margin-bottom:8px}
+.end-text{font-size:.88rem;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:22px}
+.end-chips{display:flex;justify-content:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.btn-restart{
+  background:linear-gradient(135deg,#e2b96f,#c9963d);color:#1a1a2e;
+  border:none;border-radius:14px;padding:13px 36px;font-size:1rem;
+  font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 20px rgba(226,185,111,.3);
+}
+.btn-restart:hover{transform:scale(1.03)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-@keyframes dropIn{
-  0%  {opacity:0;transform:translateY(-30px) scale(.75)}
-  70% {transform:translateY(3px) scale(1.04)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
-}
-.brick.drop-in{animation:dropIn .5s cubic-bezier(.22,1,.36,1) forwards}
-
-.formula-bar{display:flex;gap:5px;justify-content:center;margin:3px 0 12px;flex-wrap:wrap}
-.fb{padding:3px 10px;border-radius:7px;font-size:.74rem;font-weight:700;border:1.5px solid transparent}
-.fb.ft{background:rgba(142,175,196,.15);border-color:#5b7f9c;color:#8eafc4}
-.fb.fs{background:rgba(125,196,166,.15);border-color:#4a9a80;color:#7dc4a6}
-.fb.fw{background:rgba(248,113,113,.12);border-color:#dc2626;color:#f87171}
-
-.scale-divider{border:none;border-top:1px dashed rgba(255,255,255,.08);margin:14px 0}
-.explain-box{
-  background:rgba(226,185,111,.08);border:1.5px solid rgba(226,185,111,.25);
-  border-radius:10px;padding:12px 16px;
-  font-size:.83rem;color:#cbd5e1;line-height:1.6;margin-bottom:14px;
-}
-.explain-box strong{color:#e2b96f}
-.feedback-bar{
-  min-height:36px;display:flex;align-items:center;justify-content:center;
-  border-radius:10px;padding:0 16px;font-size:.88rem;font-weight:600;
-  margin-bottom:10px;opacity:0;transition:opacity .3s;
-}
-.feedback-bar.show{opacity:1}
-.feedback-bar.correct{background:rgba(46,213,115,.15);color:#2ed573;border:1.5px solid #2ed573}
-
-.sharp-pool{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:12px}
-.sharp-pool p{font-size:.79rem;color:#94a3b8;text-align:center}
-.sharp-drag{
-  background:linear-gradient(160deg,#f7d98b,#e2b96f);
-  border-radius:10px;width:60px;height:50px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1rem;font-weight:800;color:#1a1a2e;
-  cursor:pointer;user-select:none;
-  box-shadow:0 4px 20px rgba(226,185,111,.5);
-  animation:goldPulse 1.8s ease-in-out infinite;
-  -webkit-tap-highlight-color:transparent;
-}
-.sharp-drag:active{transform:scale(1.08)}
-
-.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
-.btn-primary{
-  background:linear-gradient(90deg,#7c3aed,#a855f7);
-  border:none;color:#fff;padding:9px 20px;border-radius:10px;
-  font-size:.86rem;font-weight:700;cursor:pointer;
-  box-shadow:0 4px 14px rgba(124,58,237,.4);transition:transform .15s,box-shadow .15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,.55)}
-.btn-secondary{
-  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
-  color:#e2e8f0;padding:9px 18px;border-radius:10px;
-  font-size:.86rem;font-weight:600;cursor:pointer;transition:background .18s;
-  -webkit-tap-highlight-color:transparent;
-}
-.btn-secondary:hover{background:rgba(255,255,255,.14)}
-
-/* ================================================
-   LANDSCAPE MOBILE (largura 480-767px)
-   Bricks maiores, mais compacto verticalmente,
-   escada aproveita tela mais larga.
-================================================ */
-@media (max-width:767px) and (orientation:landscape){
-  body{padding:10px 12px 24px}
-  h1{font-size:1.1rem;margin-bottom:2px}
-  .subtitle{font-size:.75rem;margin-bottom:8px}
-  .phase-tabs{gap:6px;margin-bottom:10px}
-  .tab-btn{padding:5px 12px;font-size:.76rem}
-  .main-card{padding:14px 12px;border-radius:14px}
-  .phase-desc{font-size:.78rem;margin-bottom:10px}
-  /* Bricks proporcionais — landscape tem largura para 8 bricks sem scroll */
-  .step-wrap{width:54px}
-  .brick{width:48px;height:46px;font-size:.76rem}
-  .step-gap{width:22px}
-  .note-top{font-size:.7rem}
-  .gap-tag{font-size:.54rem;padding:1px 3px}
-  .formula-bar{margin:2px 0 8px}
-  .fb{padding:2px 8px;font-size:.7rem}
-  .explain-box{padding:10px 12px;font-size:.78rem;margin-bottom:10px}
-  .btn-row{gap:8px;margin-top:8px}
-  .btn-primary,.btn-secondary{padding:8px 14px;font-size:.78rem}
-  .scale-divider{margin:10px 0}
-  .sharp-pool{margin-bottom:8px;gap:4px}
-  .sharp-pool p{font-size:.74rem}
-  .sharp-drag{width:52px;height:44px;font-size:.9rem}
-  .legend{gap:8px;margin-bottom:8px}
-  .legend-item{font-size:.68rem}
-}
-
-/* Portrait pequeno (fallback caso o overlay seja fechado) */
-@media (max-width:480px) and (orientation:portrait){
-  .step-wrap{width:42px}
-  .brick{width:36px;height:40px;font-size:.68rem}
-  .step-gap{width:18px}
-  .main-card{padding:12px 8px}
-  h1{font-size:1rem}
-}
+.shake{animation:shake .4s ease}
 </style>
 </head>
 <body>
 
-<!-- OVERLAY: aparece em portrait, some ao girar -->
-<div id="rotate-overlay">
-  <div class="rot-icon">📱</div>
-  <p>Para a melhor experiência, gire o celular para <strong style="color:#e2b96f">modo paisagem</strong>.</p>
-  <small>A escada de notas precisa de espaço horizontal 🎵</small>
-</div>
-
 <a href="atividades.html" class="back-btn">← Atividades</a>
-<h1>🎼 Armaduras de Clave</h1>
-<p class="subtitle">Entenda como as escalas são formadas e por que surgem os sustenidos</p>
 
-<div class="phase-tabs">
-  <button class="tab-btn active" onclick="goPhase(0)">1 – Dó Maior</button>
-  <button class="tab-btn" onclick="goPhase(1)">2 – O problema do Sol</button>
-  <button class="tab-btn" onclick="goPhase(2)">3 – Sol Maior ✨</button>
+<!-- ═══════════════ INTRO ═══════════════ -->
+<div id="introScreen">
+  <div class="intro-logo">🎼</div>
+  <div class="intro-title">Armaduras de Clave</div>
+  <div class="intro-sub">Quiz Interativo · 3 Fases</div>
+  <div class="intro-cards">
+    <div class="icard">
+      <div class="icard-icon">🎯</div>
+      <div>
+        <div class="icard-title">O que você vai aprender</div>
+        <div class="icard-desc">Por que escalas musicais precisam de sustenidos e bemoéis — e como a fórmula <strong>T T ½ T T T ½</strong> explica tudo.</div>
+      </div>
+    </div>
+    <div class="icard">
+      <div class="icard-icon">⏱️</div>
+      <div>
+        <div class="icard-title">Timer de 8 segundos</div>
+        <div class="icard-desc">Cada pergunta tem <strong>8 segundos</strong>. Respondeu errado ou o tempo acabou? Uma dica pedagógica aparece para ajudar.</div>
+      </div>
+    </div>
+    <div class="icard">
+      <div class="icard-icon">📈</div>
+      <div>
+        <div class="icard-title">3 Fases progressivas</div>
+        <div class="icard-desc">Cada fase aprofunda o conteúdo. Complete todas respondendo perguntas de múltipla escolha com feedback imediato.</div>
+      </div>
+    </div>
+  </div>
+  <div class="phase-pills">
+    <span class="ppill ppill-1">🏗️ Fase 1 · Dó Maior</span>
+    <span class="ppill ppill-2">⚠️ Fase 2 · O Problema</span>
+    <span class="ppill ppill-3">✨ Fase 3 · Sol Maior</span>
+  </div>
+  <button class="btn-play" onclick="startGame()">▶ Jogar</button>
 </div>
 
-<div class="main-card" id="main-card"></div>
+<!-- ═══════════════ GAME ═══════════════ -->
+<div id="gameScreen">
+  <div class="game-header">
+    <div class="game-title">🎼 Armaduras de Clave</div>
+    <div class="game-sub">Responda antes do tempo acabar</div>
+  </div>
+
+  <div class="phase-nav" id="phaseNav"></div>
+
+  <div class="status-row">
+    <div class="chip certs"><span id="scoreAcertos">0</span>acertos</div>
+    <div class="chip"><span id="scoreQ">0/0</span>questão</div>
+    <div class="chip errs"><span id="scoreErros">0</span>erros</div>
+  </div>
+
+  <div class="timer-wrap">
+    <div class="timer-ring">
+      <svg width="52" height="52" viewBox="0 0 52 52">
+        <circle class="bg" cx="26" cy="26" r="22"/>
+        <circle class="fg" id="timerArc" cx="26" cy="26" r="22"/>
+      </svg>
+      <div class="timer-num" id="timerNum">8</div>
+    </div>
+  </div>
+
+  <div class="q-card" id="qCard">
+    <div class="q-phase-tag" id="qPhaseTag">FASE 1</div>
+    <div class="q-question" id="qQuestion"></div>
+    <div class="q-hint" id="qHint"></div>
+  </div>
+
+  <!-- Visual scale (optional per question) -->
+  <div id="visScaleWrap" style="display:none"></div>
+
+  <div class="tip-box" id="tipBox"></div>
+
+  <div class="answers" id="answersDiv"></div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <div class="ctrl-row">
+    <button class="btn-ctrl" onclick="playScaleSound()">🔊 Ouvir escala</button>
+    <button class="btn-ctrl danger" onclick="exitToEnd()">✖ Sair</button>
+  </div>
+</div>
+
+<!-- ═══════════════ END ═══════════════ -->
+<div id="endScreen">
+  <div class="trophy" id="trophyIcon">🏆</div>
+  <div class="end-title" id="endTitle">Parabéns!</div>
+  <div class="end-text" id="endText"></div>
+  <div class="end-chips">
+    <div class="chip certs"><span id="finalAcertos">0</span>acertos</div>
+    <div class="chip errs"><span id="finalErros">0</span>erros</div>
+    <div class="chip"><span id="finalPct">0%</span>aproveitamento</div>
+  </div>
+  <button class="btn-restart" onclick="restartGame()">🔄 Jogar Novamente</button>
+</div>
 
 <script>
+// ─────────── Audio ───────────
 let AC=null;
 function ac(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();return AC;}
 function playNote(f,d=0,dur=.6){
@@ -282,264 +330,393 @@ function playNote(f,d=0,dur=.6){
     const ctx=ac(),o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime+d;
     o.type='sine';o.frequency.setValueAtTime(f,t);
     g.gain.setValueAtTime(0,t);
-    g.gain.linearRampToValueAtTime(.3,t+.02);
+    g.gain.linearRampToValueAtTime(.28,t+.02);
     g.gain.exponentialRampToValueAtTime(.001,t+dur);
     o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+dur);
   }catch(e){}
 }
-function playDo(){[261.63,293.66,329.63,349.23,392,440,493.88,523.25].forEach((f,i)=>playNote(f,i*.22,.55));}
-function playSol(sharp){
-  [392,440,493.88,523.25,587.33,659.25,sharp?739.99:698.46,784].forEach((f,i)=>playNote(f,i*.22,.55));
+function playDoScale(){[261.63,293.66,329.63,349.23,392,440,493.88,523.25].forEach((f,i)=>playNote(f,i*.21,.52));}
+function playSolScale(sharp){
+  [392,440,493.88,523.25,587.33,659.25,sharp?739.99:698.46,784].forEach((f,i)=>playNote(f,i*.21,.52));
+}
+let currentScaleMode='do';
+function playScaleSound(){
+  if(currentScaleMode==='sol_wrong')playSolScale(false);
+  else if(currentScaleMode==='sol_right')playSolScale(true);
+  else playDoScale();
 }
 
-const DO_SCALE=[
-  {n:'Dó', iv:'',     type:'tone'},
-  {n:'Ré', iv:'Tom', type:'tone'},
-  {n:'Mi', iv:'Tom', type:'tone'},
-  {n:'Fá', iv:'Semi',type:'semi'},
-  {n:'Sol',iv:'Tom', type:'tone'},
-  {n:'Lá', iv:'Tom', type:'tone'},
-  {n:'Si', iv:'Tom', type:'tone'},
-  {n:'Dó', iv:'Semi',type:'semi'},
-];
-
-const SOL_WRONG=[
-  {n:'Sol',iv:'',          type:'tone'},
-  {n:'Lá', iv:'Tom',      type:'tone'},
-  {n:'Si', iv:'Tom',      type:'tone'},
-  {n:'Dó', iv:'Semi',     type:'semi'},
-  {n:'Ré', iv:'Tom',      type:'tone'},
-  {n:'Mi', iv:'Tom',      type:'tone'},
-  {n:'Fá', iv:'Semi',     type:'wrong'},
-  {n:'Sol',iv:'WrongTom', type:'semi'},
-];
-
-const SOL_RIGHT=[
-  {n:'Sol', iv:'',     type:'tone'},
-  {n:'Lá',  iv:'Tom', type:'tone'},
-  {n:'Si',  iv:'Tom', type:'tone'},
-  {n:'Dó',  iv:'Semi',type:'semi'},
-  {n:'Ré',  iv:'Tom', type:'tone'},
-  {n:'Mi',  iv:'Tom', type:'tone'},
-  {n:'Fá♯', iv:'Tom', type:'golden'},
-  {n:'Sol', iv:'Semi',type:'tone'},
-];
-
-const TONE=48, SEMI=24, BRICK_H=52;
-
-function ivStep(iv){
-  if(iv==='Tom'||iv==='WrongTom') return TONE;
-  if(iv==='Semi') return SEMI;
-  return 0;
-}
-
-function calcMB(scale){
-  let acc=0;
-  const raw=scale.map(s=>{ acc+=ivStep(s.iv); return acc; });
-  const base=raw[0];
-  return raw.map(v=>v-base);
-}
-
-function buildStaircase(scale, dropIndex=-1, solved=false){
+// ─────────── Visual Scale Builder ───────────
+const BRICK_H=48, TONE_H=40, SEMI_H=20;
+function buildVisScale(steps){
+  /* steps: [{note, type:'blue'|'green'|'gold'|'red', iv:'T'|'½'|'T!'|''}] */
   const wrap=document.createElement('div');
-  wrap.className='staircase';
-  const mb=calcMB(scale);
-
-  scale.forEach((s,i)=>{
+  wrap.className='vis-scale';
+  let acc=0;
+  const heights=steps.map(s=>{ acc+=(s.iv==='T'||s.iv==='T!')?TONE_H:(s.iv==='½')?SEMI_H:0; return acc; });
+  steps.forEach((s,i)=>{
     if(i>0){
-      const gapEl=document.createElement('div');
-      gapEl.className='step-gap';
+      const gEl=document.createElement('div');
+      gEl.className='vgap';
       const tag=document.createElement('div');
-      const isSemi    =s.iv==='Semi';
-      const isWrongTom=s.iv==='WrongTom';
-      tag.className='gap-tag'+(isSemi?' semi':isWrongTom?' wrong':'');
-      tag.textContent=isSemi?'½ T':isWrongTom?'1T ⚠️':'1 T';
-      const topL=mb[i-1]+BRICK_H, topR=mb[i]+BRICK_H;
-      tag.style.bottom=((topL+topR)/2)+'px';
-      gapEl.appendChild(tag);
-      wrap.appendChild(gapEl);
+      const isSemi=s.iv==='½', isWrong=s.iv==='T!';
+      tag.className='vgap-tag'+(isSemi?' semi':isWrong?' wrong':'');
+      tag.textContent=isSemi?'½ T':isWrong?'1T⚠':'1 T';
+      const cy=(heights[i-1]+BRICK_H+heights[i]+BRICK_H)/2;
+      tag.style.bottom=(cy/2+4)+'px';
+      gEl.appendChild(tag);
+      wrap.appendChild(gEl);
     }
     const col=document.createElement('div');
-    col.className='step-wrap';
-    col.style.marginBottom=mb[i]+'px';
-    const lbl=document.createElement('div');
-    lbl.className='note-top';
-    lbl.textContent=s.n;
-    col.appendChild(lbl);
-    let brick;
-    if(dropIndex===i&&!solved){
-      brick=document.createElement('div');
-      brick.className='brick dropzone';
-      brick.innerHTML='♯';
-      brick.title='Toque aqui';
-      brick.addEventListener('click',onDropSharp);
-      brick.addEventListener('touchend',e=>{e.preventDefault();onDropSharp();},{passive:false});
-      brick.addEventListener('dragover',e=>{e.preventDefault();brick.classList.add('drag-over');});
-      brick.addEventListener('dragleave',()=>brick.classList.remove('drag-over'));
-      brick.addEventListener('drop',e=>{e.preventDefault();onDropSharp();});
-    } else {
-      brick=document.createElement('div');
-      brick.className='brick '+(solved&&s.type==='golden'?'golden drop-in':s.type);
-      brick.textContent=s.n;
-    }
-    col.appendChild(brick);
+    col.className='vstep';
+    col.style.marginBottom=heights[i]+'px';
+    const n=document.createElement('div');
+    n.className='vnote';n.textContent=s.note;
+    const b=document.createElement('div');
+    b.className='vbrick '+s.type;
+    b.textContent=s.note;
+    col.appendChild(n);col.appendChild(b);
     wrap.appendChild(col);
   });
   return wrap;
 }
 
-function buildFormula(scale){
-  const bar=document.createElement('div');
-  bar.className='formula-bar';
-  scale.filter(s=>s.iv).forEach(s=>{
-    const b=document.createElement('div');
-    const isWrong=s.iv==='WrongTom';
-    b.className='fb '+(s.iv==='Semi'?'fs':isWrong?'fw':'ft');
-    b.textContent=s.iv==='Semi'?'½ Tom':isWrong?'1 Tom ⚠️':'1 Tom';
-    bar.appendChild(b);
+// ─────────── Questions ───────────
+const QUESTIONS=[
+  /* ──── FASE 1: Dó Maior ──── */
+  {
+    phase:1, phaseLabel:'FASE 1 · Dó Maior',
+    q:'Quantos sustenidos (♯) ou bemoéis (♭) tem a escala de <strong>Dó Maior</strong>?',
+    hint:'Dó Maior é conhecida como a escala "neutra".',
+    opts:['Nenhum — é a escala natural','1 sustenido: Fá♯','1 bemol: Si♭','2 sustenidos'],
+    correct:0,
+    tip:'<strong>Dó Maior</strong> não precisa de acidentes. Por isso é chamada de escala modelo: <strong>T T ½ T T T ½</strong> com notas brancas do piano.',
+    scale:'do'
+  },
+  {
+    phase:1, phaseLabel:'FASE 1 · Dó Maior',
+    q:'Qual é a fórmula de intervalos de <strong>qualquer</strong> escala maior?',
+    hint:'Dica: T = Tom (2 semitons), ½ = Semitom (1 semitom)',
+    opts:['T T ½ T T T ½','T ½ T T T ½ T','T T T ½ T T ½','½ T T T ½ T T'],
+    correct:0,
+    tip:'<strong>T T ½ T T T ½</strong> é a fórmula universal das escalas maiores. Em Dó: Dó→Ré (T), Ré→Mi (T), Mi→Fá (½), Fá→Sol (T)…',
+    scale:'do',
+    vis:[
+      {note:'Dó',type:'blue',iv:''},
+      {note:'Ré',type:'blue',iv:'T'},
+      {note:'Mi',type:'blue',iv:'T'},
+      {note:'Fá',type:'green',iv:'½'},
+      {note:'Sol',type:'blue',iv:'T'},
+      {note:'Lá',type:'blue',iv:'T'},
+      {note:'Si',type:'blue',iv:'T'},
+      {note:'Dó',type:'green',iv:'½'},
+    ]
+  },
+  {
+    phase:1, phaseLabel:'FASE 1 · Dó Maior',
+    q:'Entre <strong>Mi e Fá</strong>, o intervalo é:',
+    hint:'Olhe o piano: há alguma tecla preta entre Mi e Fá?',
+    opts:['½ Tom (semitom natural)','1 Tom inteiro','1½ Tom','2 Tons'],
+    correct:0,
+    tip:'<strong>Mi→Fá</strong> e <strong>Si→Dó</strong> são os dois semitons naturais do piano — não há tecla preta entre eles. Isso é fundamental para entender as armaduras.',
+    scale:'do'
+  },
+  /* ──── FASE 2: O Problema do Sol ──── */
+  {
+    phase:2, phaseLabel:'FASE 2 · O Problema',
+    q:'Começando do <strong>Sol</strong>, ao aplicar a fórmula maior (T T ½ T T T ½), qual nota surge errada?',
+    hint:'Sol Lá Si Dó Ré Mi ??? Sol — qual é o 7º degrau natural?',
+    opts:['Fá natural — deveria ser Fá♯','Mi natural — deveria ser Mi♯','Si natural — deveria ser Si♯','Lá natural — deveria ser Lá♯'],
+    correct:0,
+    tip:'Na escala de Sol, o 7º degrau é <strong>Fá natural</strong>. Mas Mi→Fá já é ½ Tom (posição 6→7 deveria ser 1 Tom), então o Fá precisa ser elevado para <strong>Fá♯</strong>.',
+    scale:'sol_wrong',
+    vis:[
+      {note:'Sol',type:'blue',iv:''},
+      {note:'Lá',type:'blue',iv:'T'},
+      {note:'Si',type:'blue',iv:'T'},
+      {note:'Dó',type:'green',iv:'½'},
+      {note:'Ré',type:'blue',iv:'T'},
+      {note:'Mi',type:'blue',iv:'T'},
+      {note:'Fá',type:'red',iv:'T!'},
+      {note:'Sol',type:'green',iv:'½'},
+    ]
+  },
+  {
+    phase:2, phaseLabel:'FASE 2 · O Problema',
+    q:'Por que <strong>Fá natural</strong> não serve no 7º degrau de Sol Maior?',
+    hint:'Pense na posição 6→7 da fórmula T T ½ T T <strong>T</strong> ½',
+    opts:[
+      'Mi→Fá é ½ Tom, mas a posição 6→7 exige 1 Tom',
+      'Fá é muito agudo para a escala de Sol',
+      'A fórmula proíbe usar a nota Fá',
+      'Sol→Fá forma um intervalo de 7ª maior'
+    ],
+    correct:0,
+    tip:'A posição 6→7 pede <strong>1 Tom</strong>. Mi→Fá natural é <strong>½ Tom</strong> (semitom natural). Resultado: o degrau fica curto. Elevar o Fá para Fá♯ transforma Mi→Fá♯ em 1 Tom ✔',
+    scale:'sol_wrong'
+  },
+  {
+    phase:2, phaseLabel:'FASE 2 · O Problema',
+    q:'Se Fá→Sol já é 1 Tom, o que acontece com Fá♯→Sol?',
+    hint:'Elevar o Fá meio tom: o intervalo Fá♯→Sol fica…',
+    opts:[
+      'Fá♯→Sol vira ½ Tom — exatamente o que a posição 7→8 precisa',
+      'Fá♯→Sol vira 1½ Tom — intervalo aumentado',
+      'Fá♯→Sol continua sendo 1 Tom',
+      'Fá♯→Sol some da escala'
+    ],
+    correct:0,
+    tip:'Ao elevar Fá para Fá♯, o intervalo Fá♯→Sol passa a ser <strong>½ Tom</strong>. A posição 7→8 precisa de ½ Tom — perfeito! Dois problemas resolvidos com um único sustenido.',
+    scale:'sol_wrong'
+  },
+  /* ──── FASE 3: Sol Maior ──── */
+  {
+    phase:3, phaseLabel:'FASE 3 · Sol Maior',
+    q:'Qual é a armadura de clave de <strong>Sol Maior</strong>?',
+    hint:'Uma armadura são os acidentes (♯ ou ♭) indicados no início da pauta.',
+    opts:['1 sustenido: Fá♯','2 sustenidos: Fá♯ e Dó♯','1 bemol: Si♭','Nenhum acidente'],
+    correct:0,
+    tip:'<strong>Sol Maior = 1 sustenido (Fá♯)</strong>. Esse ♯ aparece no início de toda pauta em Sol Maior, indicando que todo Fá da música deve ser tocado como Fá♯.',
+    scale:'sol_right',
+    vis:[
+      {note:'Sol',type:'blue',iv:''},
+      {note:'Lá',type:'blue',iv:'T'},
+      {note:'Si',type:'blue',iv:'T'},
+      {note:'Dó',type:'green',iv:'½'},
+      {note:'Ré',type:'blue',iv:'T'},
+      {note:'Mi',type:'blue',iv:'T'},
+      {note:'Fá♯',type:'gold',iv:'T'},
+      {note:'Sol',type:'green',iv:'½'},
+    ]
+  },
+  {
+    phase:3, phaseLabel:'FASE 3 · Sol Maior',
+    q:'Uma música está escrita em Sol Maior. No início da pauta aparece um <strong>♯ no Fá</strong>. O que isso significa?',
+    hint:'A armadura vale para toda a música, não só para uma nota.',
+    opts:[
+      'Todo Fá da música deve ser tocado como Fá♯',
+      'Somente o primeiro Fá deve ser tocado como Fá♯',
+      'O Fá♯ aparece apenas naquele compasso',
+      'O compositor errou na notação'
+    ],
+    correct:0,
+    tip:'A <strong>armadura de clave</strong> fica no início de cada linha da pauta e vale para <strong>toda a música</strong>. Não é preciso escrever ♯ em cada Fá individualmente.',
+    scale:'sol_right'
+  },
+  {
+    phase:3, phaseLabel:'FASE 3 · Sol Maior',
+    q:'A fórmula de <strong>Sol Maior</strong> com o Fá♯ fica:',
+    hint:'Confira os intervalos: Sol Lá Si Dó Ré Mi Fá♯ Sol',
+    opts:['T T ½ T T T ½ — idêntica a Dó Maior ✔','T T T ½ T T ½','T ½ T T ½ T T','½ T T T T ½ T'],
+    correct:0,
+    tip:'Com o Fá♯, Sol Maior segue a fórmula <strong>T T ½ T T T ½</strong> — exatamente igual a Dó Maior. É esse padrão que define qualquer escala maior.',
+    scale:'sol_right'
+  },
+  {
+    phase:3, phaseLabel:'FASE 3 · Sol Maior',
+    q:'Quantas notas da escala de Sol Maior são idênticas às de Dó Maior?',
+    hint:'Sol Lá Si Dó Ré Mi Fá♯ Sol vs Dó Ré Mi Fá Sol Lá Si Dó',
+    opts:['6 notas (muda apenas o Fá→Fá♯)','4 notas','8 notas (são iguais)','3 notas'],
+    correct:0,
+    tip:'As duas escalas compartilham <strong>6 notas</strong> (Sol Lá Si Dó Ré Mi). Só o <strong>Fá</strong> muda para <strong>Fá♯</strong>. Por isso apenas 1 sustenido na armadura.',
+    scale:'sol_right'
+  },
+];
+
+// ─────────── Game State ───────────
+let questions=[], qi=0, acertos=0, erros=0;
+let timerInterval=null, timerRemaining=8;
+const TIMER_MAX=8;
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startGame(){
+  questions=[...QUESTIONS]; // keep order (pedagogical flow)
+  qi=0;acertos=0;erros=0;
+  document.getElementById('introScreen').style.display='none';
+  document.getElementById('gameScreen').style.display='block';
+  buildPhaseNav();
+  loadQuestion();
+}
+
+function buildPhaseNav(){
+  const nav=document.getElementById('phaseNav');
+  nav.innerHTML='';
+  [1,2,3].forEach(p=>{
+    const d=document.createElement('div');
+    d.className='pnav-dot';d.id='pnav-'+p;
+    nav.appendChild(d);
   });
-  return bar;
 }
 
-function buildLegend(showWrong=false){
-  const d=document.createElement('div');
-  d.className='legend';
-  [['lb-tone','1 Tom'],['lb-semi','½ Tom'],['lb-sharp','♯ Sustenido'],
-   ...(showWrong?[['lb-wrong','Incorreto']]:[])]
-  .forEach(([c,t])=>{
-    const it=document.createElement('div');
-    it.className='legend-item';
-    it.innerHTML=`<div class="legend-box ${c}"></div><span>${t}</span>`;
-    d.appendChild(it);
+function updatePhaseNav(){
+  const cur=questions[qi];
+  [1,2,3].forEach(p=>{
+    const d=document.getElementById('pnav-'+p);
+    if(!d)return;
+    d.className='pnav-dot';
+    const phaseQs=questions.filter(q=>q.phase===p);
+    const phaseQsDone=questions.slice(0,qi).filter(q=>q.phase===p);
+    if(phaseQsDone.length===phaseQs.length&&phaseQs.length>0)d.classList.add('done');
+    else if(cur&&cur.phase===p)d.classList.add('active');
   });
-  return d;
 }
 
-function h(parent,tag,cls,html){
-  const el=document.createElement(tag);
-  if(cls)el.className=cls;
-  if(html!==undefined)el.innerHTML=html;
-  if(parent)parent.appendChild(el);
-  return el;
-}
-function btn(parent,cls,label,cb){
-  const b=h(parent,'button',cls,label);
-  b.addEventListener('click',cb);
-  return b;
-}
+function loadQuestion(){
+  if(qi>=questions.length){endGame();return;}
+  const Q=questions[qi];
+  currentScaleMode=Q.scale||'do';
+  stopTimer();
 
-let phase2State='intro';
+  // Update phase nav
+  updatePhaseNav();
 
-function renderPhase0(){
-  const card=document.getElementById('main-card');
-  card.innerHTML='';
-  h(card,'div','phase-title','🏗️ A Escala Modelo: Dó Maior');
-  h(card,'div','phase-desc').innerHTML=
-    `<strong>Dó Maior</strong> é a escala modelo — sem sustenidos nem bemoéis.<br>
-    A etiqueta entre dois degraus mostra o intervalo:
-    <strong>1 Tom</strong> (degrau alto) ou <strong>½ Tom</strong> (degrau baixo).<br>
-    Fórmula: <strong>T – T – ½ – T – T – T – ½</strong>.`;
-  card.appendChild(buildLegend());
-  const mb=h(card,'div','model-box');
-  h(mb,'div','model-badge','⭐ ESCALA MODELO MAIOR');
-  h(mb,'div','scale-label').textContent='DÓ MAIOR';
-  mb.appendChild(buildStaircase(DO_SCALE));
-  mb.appendChild(buildFormula(DO_SCALE));
-  const br=h(card,'div','btn-row');
-  btn(br,'btn-secondary','🔊 Ouvir Dó Maior',playDo);
-  btn(br,'btn-primary','Próxima fase →',()=>goPhase(1));
-}
+  // Status chips
+  document.getElementById('scoreAcertos').textContent=acertos;
+  document.getElementById('scoreErros').textContent=erros;
+  document.getElementById('scoreQ').textContent=(qi+1)+'/'+questions.length;
 
-function renderPhase1(){
-  const card=document.getElementById('main-card');
-  card.innerHTML='';
-  h(card,'div','phase-title','❓ E se começarmos pelo Sol?');
-  h(card,'div','phase-desc').innerHTML=
-    `Compare as duas escadas — a fórmula deve ser idêntica à de Dó Maior.<br>
-    <strong>Mi→Fá</strong> já é naturalmente <strong>½ Tom</strong> (correto),
-    mas <strong>Fá→Sol</strong> = <strong>1 Tom</strong> — degrau alto demais. ⚠️`;
-  card.appendChild(buildLegend(true));
-  h(card,'div','scale-label').textContent='SOL — sem sustenido ⚠️';
-  card.appendChild(buildStaircase(SOL_WRONG));
-  card.appendChild(buildFormula(SOL_WRONG));
-  h(card,'hr','scale-divider');
-  const rb=h(card,'div','ref-box');
-  h(rb,'div','model-badge','⭐ ESCALA MODELO MAIOR');
-  h(rb,'div','scale-label ref').textContent='DÓ MAIOR — referência';
-  rb.appendChild(buildStaircase(DO_SCALE));
-  rb.appendChild(buildFormula(DO_SCALE));
-  h(card,'div','explain-box').innerHTML=
-    `<strong>⚠️ O 7º degrau está alto demais!</strong><br>
-    <strong>Mi→Fá</strong> é semitom natural — correto.
-    O problema é <strong>Fá→Sol</strong>: 1 Tom em vez de ½ Tom.<br>
-    Solução: elevar o Fá meio tom → <strong>Fá♯</strong>.`;
-  const br=h(card,'div','btn-row');
-  btn(br,'btn-secondary','🔊 Ouvir Sol (sem ♯)',()=>playSol(false));
-  btn(br,'btn-primary','Corrigir →',()=>goPhase(2));
+  // Question card
+  document.getElementById('qPhaseTag').textContent=Q.phaseLabel;
+  document.getElementById('qQuestion').innerHTML=Q.q;
+  document.getElementById('qHint').textContent=Q.hint||'';
+
+  // Visual scale
+  const vsWrap=document.getElementById('visScaleWrap');
+  vsWrap.innerHTML='';
+  if(Q.vis){
+    vsWrap.style.display='block';
+    vsWrap.appendChild(buildVisScale(Q.vis));
+  } else vsWrap.style.display='none';
+
+  // Tip
+  const tip=document.getElementById('tipBox');
+  tip.classList.remove('show');tip.innerHTML='';
+
+  // Feedback
+  const fb=document.getElementById('feedback');
+  fb.textContent='';fb.className='feedback';
+
+  // Answers
+  const adiv=document.getElementById('answersDiv');
+  adiv.innerHTML='';
+  Q.opts.forEach((opt,idx)=>{
+    const b=document.createElement('button');
+    b.className='ans-btn';
+    const icon=document.createElement('span');
+    icon.className='ans-icon';
+    icon.textContent='⬤';
+    const txt=document.createElement('span');
+    txt.innerHTML=opt;
+    b.appendChild(icon);b.appendChild(txt);
+    b.addEventListener('click',()=>answer(idx));
+    adiv.appendChild(b);
+  });
+
+  startTimer();
 }
 
-function renderPhase2(state){
-  const card=document.getElementById('main-card');
-  card.innerHTML='';
-  h(card,'div','phase-title','✨ Sol Maior – Coloque o Sustenido!');
-  if(state==='intro'){
-    h(card,'div','phase-desc').innerHTML=
-      `O bloco dourado <strong>♯</strong> eleva a nota <strong>meio tom</strong>.<br>
-      Toque no espaço tracejado para encaixar o ♯ no 7º grau.`;
-    const pool=h(card,'div','sharp-pool');
-    h(pool,'p',null,'Bloco disponível — toque no espaço tracejado:');
-    const drag=h(pool,'div','sharp-drag','♯ Fá');
-    drag.draggable=true;
-    drag.addEventListener('dragstart',e=>e.dataTransfer.setData('text','sharp'));
-    h(card,'div','feedback-bar').id='fb-p2';
-    card.appendChild(buildLegend(true));
-    h(card,'div','scale-label').textContent='SOL — coloque o ♯ no Fá';
-    card.appendChild(buildStaircase(SOL_WRONG,6,false));
-    h(card,'hr','scale-divider');
-    const rb=h(card,'div','ref-box');
-    h(rb,'div','model-badge','⭐ ESCALA MODELO MAIOR');
-    h(rb,'div','scale-label ref').textContent='DÓ MAIOR — referência';
-    rb.appendChild(buildStaircase(DO_SCALE));
-    const br=h(card,'div','btn-row');
-    btn(br,'btn-secondary','🔊 Ouvir sem ♯',()=>playSol(false));
+function answer(idx){
+  stopTimer();
+  const Q=questions[qi];
+  const btns=document.querySelectorAll('.ans-btn');
+  btns.forEach(b=>b.disabled=true);
+
+  const correct=idx===Q.correct;
+  btns[idx].classList.add(correct?'correct-ans':'wrong-ans');
+  btns[idx].querySelector('.ans-icon').textContent=correct?'✅':'❌';
+  if(!correct){
+    btns[Q.correct].classList.add('correct-ans');
+    btns[Q.correct].querySelector('.ans-icon').textContent='✅';
   }
-  if(state==='solved'){
-    h(card,'div','phase-desc').innerHTML=
-      `<strong style="color:#2ed573">✓ Perfeito!</strong>
-      O <strong>Fá♯</strong> corrigiu o degrau! As duas escadas têm o mesmo formato.`;
-    card.appendChild(buildLegend());
-    h(card,'div','scale-label').textContent='SOL MAIOR — correto ✨';
-    card.appendChild(buildStaircase(SOL_RIGHT,-1,true));
-    card.appendChild(buildFormula(SOL_RIGHT));
-    h(card,'hr','scale-divider');
-    const rb=h(card,'div','ref-box');
-    h(rb,'div','model-badge','⭐ ESCALA MODELO MAIOR');
-    h(rb,'div','scale-label ref').textContent='DÓ MAIOR — referência';
-    rb.appendChild(buildStaircase(DO_SCALE));
-    rb.appendChild(buildFormula(DO_SCALE));
-    h(card,'div','explain-box').innerHTML=
-      `<strong>🎯 Por que o Fá♯?</strong><br>
-      O ♯ eleva o Fá: <strong>Mi→Fá♯</strong> = 1 Tom, e <strong>Fá♯→Sol</strong> = ½ Tom ✔<br>
-      Por isso a <strong>armadura de Sol Maior tem 1 sustenido: Fá♯</strong>.`;
-    const br=h(card,'div','btn-row');
-    btn(br,'btn-secondary','🔊 Ouvir Sol Maior ✔',()=>playSol(true));
-    btn(br,'btn-secondary','🔄 Repetir',()=>{phase2State='intro';goPhase(2);});
+
+  const fb=document.getElementById('feedback');
+  if(correct){
+    acertos++;
+    fb.textContent='✅ Correto!';
+    fb.className='feedback correct';
+  } else {
+    erros++;
+    fb.textContent='❌ Não era essa. Veja a dica:';
+    fb.className='feedback wrong';
+    showTip(Q.tip);
   }
+
+  document.getElementById('scoreAcertos').textContent=acertos;
+  document.getElementById('scoreErros').textContent=erros;
+
+  setTimeout(()=>{ qi++; loadQuestion(); }, correct?1300:2400);
 }
 
-function onDropSharp(){
-  const fb=document.getElementById('fb-p2');
-  if(fb){fb.textContent='✨ Fá♯ encaixado! Escada corrigida!';fb.className='feedback-bar correct show';}
-  setTimeout(()=>{phase2State='solved';renderPhase2('solved');playSol(true);},700);
+function showTip(html){
+  const tip=document.getElementById('tipBox');
+  tip.innerHTML='💡 '+html;
+  tip.classList.add('show');
 }
 
-function goPhase(n){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===n));
-  if(n===0)renderPhase0();
-  if(n===1)renderPhase1();
-  if(n===2)renderPhase2(phase2State);
+// ─────────── Timer ───────────
+function startTimer(){
+  timerRemaining=TIMER_MAX;
+  updateTimerUI();
+  timerInterval=setInterval(()=>{
+    timerRemaining-=0.05;
+    if(timerRemaining<=0){
+      timerRemaining=0;updateTimerUI();clearInterval(timerInterval);
+      onTimeout();
+    } else updateTimerUI();
+  },50);
 }
-goPhase(0);
+function stopTimer(){clearInterval(timerInterval);}
+function updateTimerUI(){
+  const circ=2*Math.PI*22;
+  const offset=circ*(1-timerRemaining/TIMER_MAX);
+  const arc=document.getElementById('timerArc');
+  const num=document.getElementById('timerNum');
+  if(!arc||!num)return;
+  arc.style.strokeDasharray=circ;
+  arc.style.strokeDashoffset=offset;
+  const danger=timerRemaining<=2.5;
+  arc.classList.toggle('danger',danger);
+  num.textContent=Math.ceil(timerRemaining);
+  num.classList.toggle('danger',danger);
+}
+function onTimeout(){
+  const Q=questions[qi];
+  const btns=document.querySelectorAll('.ans-btn');
+  btns.forEach(b=>b.disabled=true);
+  btns[Q.correct].classList.add('correct-ans');
+  btns[Q.correct].querySelector('.ans-icon').textContent='✅';
+  erros++;
+  document.getElementById('scoreErros').textContent=erros;
+  const fb=document.getElementById('feedback');
+  fb.textContent='⏱️ Tempo esgotado! Veja a dica:';
+  fb.className='feedback info';
+  showTip(Q.tip);
+  setTimeout(()=>{ qi++; loadQuestion(); },2600);
+}
+
+// ─────────── End ───────────
+function endGame(){
+  stopTimer();
+  document.getElementById('gameScreen').style.display='none';
+  document.getElementById('endScreen').style.display='block';
+  const total=acertos+erros;
+  const pct=total>0?Math.round(acertos/total*100):0;
+  const trophy=pct>=90?'🏆':pct>=70?'🎵':'🎼';
+  const title=pct>=90?'Maestro das Armaduras!':pct>=70?'Muito bem!':'Continue praticando!';
+  document.querySelector('.trophy').textContent=trophy;
+  document.getElementById('endTitle').textContent=title;
+  document.getElementById('endText').innerHTML=`Você respondeu <strong>${acertos} de ${total}</strong> questões corretamente.<br>Aproveitamento: <strong>${pct}%</strong><br>${pct>=90?'⭐ Desempenho perfeito! Você dominou as armaduras de clave.':pct>=70?'Bom trabalho! Revise os erros para fixar melhor.':'Não desanime — releia as dicas e tente novamente!'}`;
+  document.getElementById('finalAcertos').textContent=acertos;
+  document.getElementById('finalErros').textContent=erros;
+  document.getElementById('finalPct').textContent=pct+'%';
+}
+
+function exitToEnd(){stopTimer();endGame();}
+function restartGame(){
+  document.getElementById('endScreen').style.display='none';
+  startGame();
+}
 </script>
 </body>
 </html>
