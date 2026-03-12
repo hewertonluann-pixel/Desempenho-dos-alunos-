@@ -18,7 +18,6 @@
       --accent-soft: rgba(34, 197, 94, 0.18);
       --danger: #f97373;
       --danger-soft: rgba(248, 113, 113, 0.18);
-      --neutral-soft: rgba(148, 163, 184, 0.14);
       --chip-bg: #0f172a;
       --chip-ink: #e5e7eb;
     }
@@ -35,11 +34,7 @@
       flex-direction: column;
     }
 
-    h1 {
-      text-align: center;
-      margin: 16px 12px 4px;
-      font-size: 1.4rem;
-    }
+    h1 { text-align: center; margin: 16px 12px 4px; font-size: 1.4rem; }
 
     .subtitulo {
       text-align: center;
@@ -50,16 +45,8 @@
     }
 
     /* ── Data editável ── */
-    .data-evento {
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-    .data-evento label {
-      color: #e2e8f0;
-      font-weight: 500;
-      margin-right: 6px;
-    }
+    .data-evento { text-align: center; margin-bottom: 10px; font-size: 0.9rem; }
+    .data-evento label { color: #e2e8f0; font-weight: 500; margin-right: 6px; }
     #inputData {
       background: #0f172a;
       border: 1px solid #334155;
@@ -85,49 +72,41 @@
       margin: 0 auto;
     }
 
-    .info {
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin: 4px 0 10px;
-    }
-
-    /* ── Scroll rápido por inicial ── */
-    .scroll-rapido {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      justify-content: center;
-      margin-bottom: 10px;
-      padding: 8px 6px;
-      background: rgba(15,23,42,0.7);
-      border-radius: 12px;
-      border: 1px solid #1e293b;
-    }
-    .scroll-rapido button {
-      background: #0f172a;
-      border: 1px solid #1e3a5f;
-      border-radius: 6px;
-      color: #38bdf8;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 3px 7px;
-      cursor: pointer;
-      transition: background 0.12s, transform 0.1s;
-      line-height: 1.3;
-    }
-    .scroll-rapido button:hover { background: #1e3a5f; }
-    .scroll-rapido button:active { transform: scale(0.93); }
-    .scroll-rapido button.inativo { opacity: 0.25; cursor: default; }
+    .info { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0 10px; }
 
     .lista-alunos {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      overflow-y: auto;
       padding-bottom: 4px;
       overscroll-behavior: contain;
     }
+
+    /* ── Botão flutuante de scroll ── */
+    #btnScroll {
+      position: fixed;
+      right: 16px;
+      bottom: 80px;        /* fica acima do footer */
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(14,165,233,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+      opacity: 0;          /* começa oculto */
+      pointer-events: none;
+    }
+    #btnScroll.visivel { opacity: 1; pointer-events: auto; }
+    #btnScroll:active { transform: scale(0.92); }
+    #btnScroll:hover  { box-shadow: 0 6px 22px rgba(14,165,233,0.75); }
 
     .container-aluno {
       display: flex;
@@ -141,187 +120,65 @@
       cursor: pointer;
       transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
     }
-
-    .container-aluno.vazio {
-      background: var(--card-alt);
-      border-color: #111827;
-      box-shadow: 0 4px 10px rgba(15,23,42,0.55);
-    }
-
-    .container-aluno.presente {
-      background: radial-gradient(circle at top left, rgba(34,197,94,0.35), var(--card));
-      border-color: var(--accent);
-      box-shadow: 0 8px 22px rgba(34,197,94,0.45);
-    }
-
-    .container-aluno.ausente {
-      background: radial-gradient(circle at top left, rgba(248,113,113,0.35), var(--card));
-      border-color: var(--danger);
-      box-shadow: 0 8px 22px rgba(248,113,113,0.4);
-    }
-
+    .container-aluno.vazio   { background: var(--card-alt); border-color: #111827; box-shadow: 0 4px 10px rgba(15,23,42,0.55); }
+    .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.35), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.45); }
+    .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.35), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.4); }
     .container-aluno:active { transform: scale(0.98); }
-
-    .container-aluno.focado {
-      outline: 2px solid #38bdf8;
-      outline-offset: 1px;
-    }
+    .container-aluno.focado { outline: 2px solid #38bdf8; outline-offset: 1px; }
 
     .foto-aluno {
-      width: 52px;
-      height: 52px;
-      border-radius: 999px;
-      overflow: hidden;
-      flex-shrink: 0;
-      border: 2px solid #1e293b;
-      background: #020617;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 52px; height: 52px; border-radius: 999px; overflow: hidden;
+      flex-shrink: 0; border: 2px solid #1e293b; background: #020617;
+      display: flex; align-items: center; justify-content: center;
     }
-
-    .foto-aluno img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
+    .foto-aluno img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .foto-placeholder { font-size: 1.3rem; color: #64748b; }
 
-    .dados-aluno {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .nome {
-      font-weight: 600;
-      font-size: 1.5rem;
-      color: #e5e7eb;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    .instrumento {
-      font-size: 1rem;
-      color: #9ca3af;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    .status-linha {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 2px;
-    }
+    .dados-aluno { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .nome { font-weight: 600; font-size: 1.5rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .instrumento { font-size: 1rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .status-linha { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
 
     .chip-status {
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      background: var(--chip-bg);
-      color: var(--chip-ink);
-      border: 1px solid #1f2937;
+      padding: 2px 8px; border-radius: 999px; font-size: 0.7rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      background: var(--chip-bg); color: var(--chip-ink); border: 1px solid #1f2937;
     }
-
     .chip-status.presente { background: var(--accent-soft); color: #bbf7d0; border-color: #22c55e; }
     .chip-status.ausente  { background: var(--danger-soft); color: #fecaca; border-color: #f97373; }
-
     .hint { font-size: 0.7rem; color: var(--muted); text-align: right; }
 
-    .observacoes-area {
-      margin-top: 10px;
-      background: rgba(15,23,42,0.9);
-      border-radius: 12px;
-      border: 1px solid #1f2937;
-      padding: 10px;
-    }
-
-    .label-observacoes {
-      font-size: 0.8rem;
-      color: #e5e7eb;
-      margin-bottom: 4px;
-      display: block;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 70px;
-      border-radius: 10px;
-      border: 1px solid #1f2937;
-      padding: 8px 10px;
-      font-family: inherit;
-      font-size: 0.85rem;
-      resize: vertical;
-      background: #020617;
-      color: var(--ink);
-    }
-
+    .observacoes-area { margin-top: 10px; background: rgba(15,23,42,0.9); border-radius: 12px; border: 1px solid #1f2937; padding: 10px; }
+    .label-observacoes { font-size: 0.8rem; color: #e5e7eb; margin-bottom: 4px; display: block; }
+    textarea { width: 100%; min-height: 70px; border-radius: 10px; border: 1px solid #1f2937; padding: 8px 10px; font-family: inherit; font-size: 0.85rem; resize: vertical; background: #020617; color: var(--ink); }
     textarea::placeholder { color: #64748b; }
-
-    textarea:focus {
-      outline: none;
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 1px rgba(56,189,248,0.25);
-    }
+    textarea:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 1px rgba(56,189,248,0.25); }
 
     .footer-acoes {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      position: fixed; left: 0; right: 0; bottom: 0;
       padding: 8px 10px 10px;
       background: linear-gradient(to top, rgba(15,23,42,0.96), rgba(15,23,42,0.85), transparent);
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      z-index: 50;
+      display: flex; gap: 8px; justify-content: center; z-index: 50;
     }
-
     .footer-acoes button {
-      flex: 1;
-      max-width: 260px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.95rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      flex: 1; max-width: 260px; padding: 10px 12px; border-radius: 999px; border: none;
+      cursor: pointer; font-weight: 600; font-size: 0.95rem;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
-
     .footer-acoes button:active { transform: scale(0.97); }
-
-    .btn-salvar { background: #22c55e; color: #022c22; box-shadow: 0 8px 22px rgba(34,197,94,0.6); }
+    .btn-salvar   { background: #22c55e; color: #022c22; box-shadow: 0 8px 22px rgba(34,197,94,0.6); }
     .btn-salvar[disabled] { opacity: 0.6; cursor: default; }
     .btn-cancelar { background: #1f2937; color: #e5e7eb; box-shadow: 0 8px 20px rgba(15,23,42,0.9); }
     .btn-exportar { background: #0ea5e9; color: white; box-shadow: 0 8px 22px rgba(14,165,233,0.4); }
 
-    .loader {
-      text-align: center;
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
+    .loader { text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.85rem; }
   </style>
 </head>
 <body>
   <h1>📋 Chamada do dia</h1>
   <div class="subtitulo">Toque no aluno para marcar Presente / Ausente. A lista avança sozinha. 😊</div>
 
-  <!-- Data agora é um input editável -->  
   <div class="data-evento">
     <label for="inputData">📅 Data da chamada:</label>
     <input type="date" id="inputData">
@@ -329,10 +186,6 @@
 
   <div class="wrap">
     <div class="info" id="infoCarregando">Carregando alunos...</div>
-
-    <!-- Scroll rápido por inicial -->
-    <div class="scroll-rapido" id="scrollRapido"></div>
-
     <div class="lista-alunos" id="painelAlunos"></div>
 
     <div class="observacoes-area">
@@ -340,10 +193,11 @@
       <textarea id="observacoes" placeholder="Ex.: Ensaio geral, preparação para apresentação na praça."></textarea>
     </div>
 
-    <div class="loader" id="loader" style="display:none;">
-      Salvando chamada e atualizando frequências...
-    </div>
+    <div class="loader" id="loader" style="display:none;">Salvando chamada e atualizando frequências...</div>
   </div>
+
+  <!-- Botão flutuante de scroll -->
+  <button id="btnScroll" title="Ir para o fim / topo">↓</button>
 
   <div class="footer-acoes">
     <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
@@ -358,276 +212,207 @@
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
-    const params   = new URLSearchParams(window.location.search);
-    let eventoId   = params.get("id") || null;
-    let alunos     = [];
+    const params  = new URLSearchParams(window.location.search);
+    let eventoId  = params.get("id") || null;
+    let alunos    = [];
 
-    const painel          = document.getElementById("painelAlunos");
-    const inputData       = document.getElementById("inputData");
-    const infoCarregando  = document.getElementById("infoCarregando");
-    const observacoesEl   = document.getElementById("observacoes");
-    const btnSalvar       = document.getElementById("btnSalvar");
-    const btnCancelar     = document.getElementById("btnCancelar");
-    const btnExportar     = document.getElementById("btnExportar");
-    const loader          = document.getElementById("loader");
-    const scrollRapido    = document.getElementById("scrollRapido");
+    const painel         = document.getElementById("painelAlunos");
+    const inputData      = document.getElementById("inputData");
+    const infoCarregando = document.getElementById("infoCarregando");
+    const observacoesEl  = document.getElementById("observacoes");
+    const btnSalvar      = document.getElementById("btnSalvar");
+    const btnCancelar    = document.getElementById("btnCancelar");
+    const btnExportar    = document.getElementById("btnExportar");
+    const loader         = document.getElementById("loader");
+    const btnScroll      = document.getElementById("btnScroll");
 
     btnExportar.addEventListener("click", exportarChamada3Colunas);
 
+    /* ── Botão de scroll: alterna topo ↔ fim ── */
+    let scrollDirecao = "baixo"; // "baixo" ou "cima"
+
+    window.addEventListener("scroll", () => {
+      const scrollY   = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+
+      // Mostra o botão se a página tiver rolagem significativa
+      if (maxScroll > 100) btnScroll.classList.add("visivel");
+      else                  btnScroll.classList.remove("visivel");
+
+      // Muda ícone conforme posição
+      if (scrollY < maxScroll * 0.5) {
+        btnScroll.textContent = "↓";
+        btnScroll.title = "Ir para o fim da lista";
+        scrollDirecao = "baixo";
+      } else {
+        btnScroll.textContent = "↑";
+        btnScroll.title = "Voltar ao topo";
+        scrollDirecao = "cima";
+      }
+    });
+
+    btnScroll.addEventListener("click", () => {
+      if (scrollDirecao === "baixo") {
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
+
+    /* ── Helpers ── */
     function hojeISO() {
-      const agora = new Date();
       const br = new Intl.DateTimeFormat('pt-BR', {
-        timeZone: 'America/Sao_Paulo',
-        year: 'numeric', month: '2-digit', day: '2-digit'
-      }).format(agora);
+        timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).format(new Date());
       const [d, m, a] = br.split('/');
       return `${a}-${m}-${d}`;
     }
 
-    function proximoEstadoPresenca(atual) {
+    function proximoEstado(atual) {
       if (!atual || atual === "") return "presente";
-      if (atual === "presente") return "ausente";
+      if (atual === "presente")   return "ausente";
       return "";
     }
 
+    /* ── Carregamento ── */
     async function carregarAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
       alunos = snap.docs
         .filter(d => d.data().ativo !== false)
-        .map(d => ({
-          id: d.id,
-          nome: d.data().nome,
-          instrumento: d.data().instrumento || "",
-          foto: d.data().foto || "",
-          presenca: ""
-        }))
+        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
     }
 
-    async function carregarEventoSeExistir() {
-      if (!eventoId) {
-        inputData.value = hojeISO();
-        return;
-      }
-      const docSnap = await getDoc(doc(db, "eventos", eventoId));
-      if (docSnap.exists()) {
-        const dados = docSnap.data();
+    async function carregarEvento() {
+      if (!eventoId) { inputData.value = hojeISO(); return; }
+      const snap = await getDoc(doc(db, "eventos", eventoId));
+      if (snap.exists()) {
+        const dados = snap.data();
         inputData.value = dados.data || hojeISO();
         observacoesEl.value = dados.observacoes || "";
-        const presencasSalvas = dados.presencas || [];
-        alunos.forEach(aluno => {
-          const p = presencasSalvas.find(ps => ps.nome === aluno.nome);
-          if (p) aluno.presenca = p.presenca;
+        (dados.presencas || []).forEach(p => {
+          const a = alunos.find(al => al.nome === p.nome);
+          if (a) a.presenca = p.presenca;
         });
-      } else {
-        inputData.value = hojeISO();
-      }
+      } else { inputData.value = hojeISO(); }
     }
 
-    function atualizarClasseCard(card, aluno) {
+    /* ── Render ── */
+    function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const chip = card.querySelector(".chip-status");
-      if (aluno.presenca === "presente") {
-        card.classList.add("presente"); chip.textContent = "Presente"; chip.className = "chip-status presente";
-      } else if (aluno.presenca === "ausente") {
-        card.classList.add("ausente");  chip.textContent = "Ausente";  chip.className = "chip-status ausente";
-      } else {
-        card.classList.add("vazio");    chip.textContent = "Pendente"; chip.className = "chip-status";
-      }
+      if      (aluno.presenca === "presente") { card.classList.add("presente"); chip.textContent = "Presente"; chip.className = "chip-status presente"; }
+      else if (aluno.presenca === "ausente")  { card.classList.add("ausente");  chip.textContent = "Ausente";  chip.className = "chip-status ausente"; }
+      else                                    { card.classList.add("vazio");    chip.textContent = "Pendente"; chip.className = "chip-status"; }
     }
 
-    function focarProximoCard(indexAtual) {
+    function focarProximo(idx) {
       const cards = document.querySelectorAll(".container-aluno");
-      cards[indexAtual].classList.remove("focado");
-      const prox = indexAtual + 1;
-      if (prox < cards.length) {
-        cards[prox].classList.add("focado");
-        cards[prox].scrollIntoView({ behavior: "smooth", block: "center" });
+      cards[idx].classList.remove("focado");
+      if (idx + 1 < cards.length) {
+        cards[idx + 1].classList.add("focado");
+        cards[idx + 1].scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
 
-    /* ── Scroll rápido: monta botões com as iniciais presentes na lista ── */
-    function construirScrollRapido() {
-      const iniciaisSet = new Set();
-      alunos.forEach(a => {
-        const inicial = a.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "")[0].toUpperCase();
-        iniciaisSet.add(inicial);
-      });
-
-      const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-      scrollRapido.innerHTML = "";
-
-      alfabeto.forEach(letra => {
-        const btn = document.createElement("button");
-        btn.textContent = letra;
-        if (!iniciaisSet.has(letra)) {
-          btn.classList.add("inativo");
-          btn.disabled = true;
-        } else {
-          btn.addEventListener("click", () => {
-            const cards = document.querySelectorAll(".container-aluno");
-            for (const card of cards) {
-              const nomeCard = card.querySelector(".nome").textContent
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-              if (nomeCard[0].toUpperCase() === letra) {
-                card.scrollIntoView({ behavior: "smooth", block: "start" });
-                card.classList.add("focado");
-                setTimeout(() => card.classList.remove("focado"), 1200);
-                break;
-              }
-            }
-          });
-        }
-        scrollRapido.appendChild(btn);
-      });
-    }
-
-    function renderizarAlunos() {
+    function renderizar() {
       painel.innerHTML = "";
-      alunos.forEach((aluno, index) => {
+      alunos.forEach((aluno, idx) => {
         const card = document.createElement("div");
-        card.className = "container-aluno";
-        card.setAttribute("data-index", index);
+        card.className = "container-aluno"; card.dataset.index = idx;
 
-        const fotoWrap = document.createElement("div");
-        fotoWrap.className = "foto-aluno";
-        if (aluno.foto) {
-          const img = document.createElement("img"); img.src = aluno.foto;
-          fotoWrap.appendChild(img);
-        } else {
-          const span = document.createElement("span"); span.className = "foto-placeholder"; span.textContent = "👤";
-          fotoWrap.appendChild(span);
-        }
+        const fw = document.createElement("div"); fw.className = "foto-aluno";
+        if (aluno.foto) { const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img); }
+        else            { const sp  = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp); }
 
-        const dadosDiv   = document.createElement("div"); dadosDiv.className = "dados-aluno";
-        const nomeDiv    = document.createElement("div"); nomeDiv.className = "nome";        nomeDiv.textContent = aluno.nome;
-        const instDiv    = document.createElement("div"); instDiv.className = "instrumento"; instDiv.textContent = aluno.instrumento;
-        const statusLinha = document.createElement("div"); statusLinha.className = "status-linha";
-        const chip       = document.createElement("span"); chip.className = "chip-status";   chip.textContent = "Pendente";
-        const hint       = document.createElement("span"); hint.className = "hint";           hint.textContent = "Toque para mudar";
+        const dd  = document.createElement("div");  dd.className  = "dados-aluno";
+        const dn  = document.createElement("div");  dn.className  = "nome";         dn.textContent  = aluno.nome;
+        const di  = document.createElement("div");  di.className  = "instrumento";  di.textContent  = aluno.instrumento;
+        const sl  = document.createElement("div");  sl.className  = "status-linha";
+        const chip = document.createElement("span"); chip.className = "chip-status"; chip.textContent = "Pendente";
+        const hint = document.createElement("span"); hint.className = "hint";        hint.textContent = "Toque para mudar";
 
-        statusLinha.appendChild(chip);
-        statusLinha.appendChild(hint);
-        dadosDiv.appendChild(nomeDiv);
-        dadosDiv.appendChild(instDiv);
-        dadosDiv.appendChild(statusLinha);
-        card.appendChild(fotoWrap);
-        card.appendChild(dadosDiv);
+        sl.appendChild(chip); sl.appendChild(hint);
+        dd.appendChild(dn); dd.appendChild(di); dd.appendChild(sl);
+        card.appendChild(fw); card.appendChild(dd);
 
         card.addEventListener("click", () => {
-          aluno.presenca = proximoEstadoPresenca(aluno.presenca);
-          atualizarClasseCard(card, aluno);
-          focarProximoCard(index);
+          aluno.presenca = proximoEstado(aluno.presenca);
+          atualizarCard(card, aluno);
+          focarProximo(idx);
         });
 
         painel.appendChild(card);
-        atualizarClasseCard(card, aluno);
+        atualizarCard(card, aluno);
       });
 
-      const primeiro = document.querySelector('.container-aluno[data-index="0"]');
+      const primeiro = painel.querySelector('[data-index="0"]');
       if (primeiro) { primeiro.classList.add("focado"); primeiro.scrollIntoView({ behavior: "smooth", block: "center" }); }
-
-      construirScrollRapido();
     }
 
     async function inicializar() {
       infoCarregando.textContent = "Carregando alunos...";
       await carregarAlunos();
-      await carregarEventoSeExistir();
+      await carregarEvento();
       infoCarregando.style.display = "none";
-      renderizarAlunos();
+      renderizar();
     }
 
-    async function salvarPresencas() {
+    /* ── Salvar ── */
+    async function salvar() {
       try {
-        btnSalvar.disabled = true;
-        loader.style.display = "block";
+        btnSalvar.disabled = true; loader.style.display = "block";
+        const data      = inputData.value || hojeISO();
+        const obs       = observacoesEl.value.trim();
+        const presencas = alunos.map(a => ({ nome: a.nome, instrumento: a.instrumento || "", presenca: a.presenca || "ausente" }));
 
-        const dataEvento  = inputData.value || hojeISO();
-        const observacoes = observacoesEl.value.trim();
-        const presencas   = alunos.map(a => ({
-          nome: a.nome,
-          instrumento: a.instrumento || "",
-          presenca: a.presenca || "ausente"
-        }));
+        if (eventoId) await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
+        else { const nv = await addDoc(collection(db, "eventos"), { data, observacoes: obs, presencas }); eventoId = nv.id; }
 
-        if (eventoId) {
-          await updateDoc(doc(db, "eventos", eventoId), { data: dataEvento, observacoes, presencas });
-        } else {
-          const novo = await addDoc(collection(db, "eventos"), { data: dataEvento, observacoes, presencas });
-          eventoId = novo.id;
-        }
-
-        await recalcularFrequenciasDoMes(dataEvento);
+        await recalcular(data);
         alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
         window.location.href = "professor.html";
-      } catch (e) {
-        console.error(e);
-        alert("Ocorreu um erro ao salvar a chamada.");
-      } finally {
-        btnSalvar.disabled = false;
-        loader.style.display = "none";
-      }
+      } catch (e) { console.error(e); alert("Ocorreu um erro ao salvar a chamada."); }
+      finally     { btnSalvar.disabled = false; loader.style.display = "none"; }
     }
 
-    async function recalcularFrequenciasDoMes(dataISO) {
+    async function recalcular(dataISO) {
       const [ano, mes] = dataISO.split("-");
-      const chaveMes = `${ano}-${mes}`;
+      const chaveMes   = `${ano}-${mes}`;
+      const evSnap     = await getDocs(collection(db, "eventos"));
+      const eventosMes = [];
+      evSnap.forEach(d => { const dd = d.data(); if (dd.data?.startsWith(chaveMes)) eventosMes.push(dd); });
+      const total = eventosMes.length; if (!total) return;
 
-      const eventosSnap = await getDocs(collection(db, "eventos"));
-      const eventosMes  = [];
-      eventosSnap.forEach(docSnap => {
-        const dados = docSnap.data();
-        if (dados.data && dados.data.startsWith(chaveMes)) eventosMes.push(dados);
-      });
+      const cont = {};
+      eventosMes.forEach(ev => (ev.presencas||[]).forEach(p => {
+        if (!p?.nome) return;
+        cont[p.nome] = (cont[p.nome] || 0) + (p.presenca === "presente" ? 1 : 0);
+      }));
 
-      const totalEventosMes = eventosMes.length;
-      if (!totalEventosMes) return;
+      const siglas  = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+      const sigla   = siglas[parseInt(mes,10)-1] || mes;
+      const alSnap  = await getDocs(collection(db,"alunos"));
 
-      const contagemPorAluno = {};
-      eventosMes.forEach(ev => {
-        (ev.presencas || []).forEach(p => {
-          if (!p || !p.nome) return;
-          if (!contagemPorAluno[p.nome]) contagemPorAluno[p.nome] = 0;
-          if (p.presenca === "presente") contagemPorAluno[p.nome]++;
-        });
-      });
-
-      const mesesSiglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-      const siglaMes = mesesSiglas[parseInt(mes, 10) - 1] || mes;
-
-      const alunosSnap = await getDocs(collection(db, "alunos"));
-      for (const docSnap of alunosSnap.docs) {
-        const dados = docSnap.data();
-        if (dados.ativo === false) continue;
-
-        const nome            = dados.nome;
-        const presencasAluno  = contagemPorAluno[nome] || 0;
-        const percentual      = Math.round((presencasAluno / totalEventosMes) * 100);
-        const historico       = Array.isArray(dados.presencas) ? [...dados.presencas] : [];
-        let registroMes       = historico.find(r => r.mes === chaveMes);
-
-        if (!registroMes) {
-          registroMes = { mes: chaveMes, totalEnsaios: totalEventosMes, presencasAluno, percentual };
-          historico.push(registroMes);
-        } else {
-          registroMes.totalEnsaios = totalEventosMes;
-          registroMes.presencasAluno = presencasAluno;
-          registroMes.percentual = percentual;
-        }
-
-        const frequenciaAnual = dados.frequenciaAnual || {};
-        frequenciaAnual[siglaMes] = { percentual, totalEnsaios: totalEventosMes, presencasAluno };
-
-        await updateDoc(doc(db, "alunos", docSnap.id), {
-          presencas: historico,
-          frequenciaMensal: { porcentagem: percentual, totalEventos: totalEventosMes, presencas: presencasAluno },
-          frequenciaAnual
+      for (const ds of alSnap.docs) {
+        const d = ds.data(); if (d.ativo===false) continue;
+        const pres = cont[d.nome]||0;
+        const pct  = Math.round((pres/total)*100);
+        const hist = Array.isArray(d.presencas) ? [...d.presencas] : [];
+        let reg    = hist.find(r => r.mes===chaveMes);
+        if (!reg) { reg = { mes:chaveMes, totalEnsaios:total, presencasAluno:pres, percentual:pct }; hist.push(reg); }
+        else      { reg.totalEnsaios=total; reg.presencasAluno=pres; reg.percentual=pct; }
+        const freqAno = d.frequenciaAnual||{};
+        freqAno[sigla] = { percentual:pct, totalEnsaios:total, presencasAluno:pres };
+        await updateDoc(doc(db,"alunos",ds.id), {
+          presencas: hist,
+          frequenciaMensal: { porcentagem:pct, totalEventos:total, presencas:pres },
+          frequenciaAnual: freqAno
         });
       }
     }
 
-    btnSalvar.addEventListener("click", salvarPresencas);
+    btnSalvar.addEventListener("click", salvar);
     btnCancelar.addEventListener("click", () => {
       if (confirm("Cancelar alterações e voltar ao painel do professor?"))
         window.location.href = "professor.html";
