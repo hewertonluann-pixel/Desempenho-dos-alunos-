@@ -1,11 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chamada do dia - Orquestra Filhos de Asafe</title>
-  <!-- Adicionando html2canvas para exportação de imagem -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
@@ -25,9 +23,7 @@
       --chip-ink: #e5e7eb;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -53,13 +49,31 @@
       padding: 0 12px;
     }
 
+    /* ── Data editável ── */
     .data-evento {
       text-align: center;
-      font-weight: 500;
       margin-bottom: 10px;
-      color: #e2e8f0;
       font-size: 0.9rem;
     }
+    .data-evento label {
+      color: #e2e8f0;
+      font-weight: 500;
+      margin-right: 6px;
+    }
+    #inputData {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #38bdf8;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #inputData:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
+    #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
 
     .wrap {
       flex: 1;
@@ -77,6 +91,34 @@
       color: var(--muted);
       margin: 4px 0 10px;
     }
+
+    /* ── Scroll rápido por inicial ── */
+    .scroll-rapido {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      margin-bottom: 10px;
+      padding: 8px 6px;
+      background: rgba(15,23,42,0.7);
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+    }
+    .scroll-rapido button {
+      background: #0f172a;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      color: #38bdf8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      cursor: pointer;
+      transition: background 0.12s, transform 0.1s;
+      line-height: 1.3;
+    }
+    .scroll-rapido button:hover { background: #1e3a5f; }
+    .scroll-rapido button:active { transform: scale(0.93); }
+    .scroll-rapido button.inativo { opacity: 0.25; cursor: default; }
 
     .lista-alunos {
       display: flex;
@@ -118,9 +160,7 @@
       box-shadow: 0 8px 22px rgba(248,113,113,0.4);
     }
 
-    .container-aluno:active {
-      transform: scale(0.98);
-    }
+    .container-aluno:active { transform: scale(0.98); }
 
     .container-aluno.focado {
       outline: 2px solid #38bdf8;
@@ -147,10 +187,7 @@
       display: block;
     }
 
-    .foto-placeholder {
-      font-size: 1.3rem;
-      color: #64748b;
-    }
+    .foto-placeholder { font-size: 1.3rem; color: #64748b; }
 
     .dados-aluno {
       flex: 1;
@@ -195,23 +232,10 @@
       border: 1px solid #1f2937;
     }
 
-    .chip-status.presente {
-      background: var(--accent-soft);
-      color: #bbf7d0;
-      border-color: #22c55e;
-    }
+    .chip-status.presente { background: var(--accent-soft); color: #bbf7d0; border-color: #22c55e; }
+    .chip-status.ausente  { background: var(--danger-soft); color: #fecaca; border-color: #f97373; }
 
-    .chip-status.ausente {
-      background: var(--danger-soft);
-      color: #fecaca;
-      border-color: #f97373;
-    }
-
-    .hint {
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-align: right;
-    }
+    .hint { font-size: 0.7rem; color: var(--muted); text-align: right; }
 
     .observacoes-area {
       margin-top: 10px;
@@ -241,9 +265,7 @@
       color: var(--ink);
     }
 
-    textarea::placeholder {
-      color: #64748b;
-    }
+    textarea::placeholder { color: #64748b; }
 
     textarea:focus {
       outline: none;
@@ -280,32 +302,12 @@
       transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     }
 
-    .footer-acoes button:active {
-      transform: scale(0.97);
-    }
+    .footer-acoes button:active { transform: scale(0.97); }
 
-    .btn-salvar {
-      background: #22c55e;
-      color: #022c22;
-      box-shadow: 0 8px 22px rgba(34,197,94,0.6);
-    }
-
-    .btn-salvar[disabled] {
-      opacity: 0.6;
-      cursor: default;
-    }
-
-    .btn-cancelar {
-      background: #1f2937;
-      color: #e5e7eb;
-      box-shadow: 0 8px 20px rgba(15,23,42,0.9);
-    }
-
-    .btn-exportar {
-      background: #0ea5e9;
-      color: white;
-      box-shadow: 0 8px 22px rgba(14, 165, 233, 0.4);
-    }
+    .btn-salvar { background: #22c55e; color: #022c22; box-shadow: 0 8px 22px rgba(34,197,94,0.6); }
+    .btn-salvar[disabled] { opacity: 0.6; cursor: default; }
+    .btn-cancelar { background: #1f2937; color: #e5e7eb; box-shadow: 0 8px 20px rgba(15,23,42,0.9); }
+    .btn-exportar { background: #0ea5e9; color: white; box-shadow: 0 8px 22px rgba(14,165,233,0.4); }
 
     .loader {
       text-align: center;
@@ -318,10 +320,18 @@
 <body>
   <h1>📋 Chamada do dia</h1>
   <div class="subtitulo">Toque no aluno para marcar Presente / Ausente. A lista avança sozinha. 😊</div>
-  <div class="data-evento">Data da chamada: <span id="dataEvento">--/--/----</span></div>
+
+  <!-- Data agora é um input editável -->  
+  <div class="data-evento">
+    <label for="inputData">📅 Data da chamada:</label>
+    <input type="date" id="inputData">
+  </div>
 
   <div class="wrap">
     <div class="info" id="infoCarregando">Carregando alunos...</div>
+
+    <!-- Scroll rápido por inicial -->
+    <div class="scroll-rapido" id="scrollRapido"></div>
 
     <div class="lista-alunos" id="painelAlunos"></div>
 
@@ -344,49 +354,34 @@
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
-      collection,
-      getDocs,
-      getDoc,
-      addDoc,
-      updateDoc,
-      doc
+      collection, getDocs, getDoc, addDoc, updateDoc, doc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
-    const params = new URLSearchParams(window.location.search);
-    let eventoId = params.get("id") || null;
-    let alunos = [];
-    let dataEvento = null;
+    const params   = new URLSearchParams(window.location.search);
+    let eventoId   = params.get("id") || null;
+    let alunos     = [];
 
-    const painel = document.getElementById("painelAlunos");
-    const spanData = document.getElementById("dataEvento");
-    const infoCarregando = document.getElementById("infoCarregando");
-    const observacoesEl = document.getElementById("observacoes");
-    const btnSalvar = document.getElementById("btnSalvar");
-    const btnCancelar = document.getElementById("btnCancelar");
-    const btnExportar = document.getElementById("btnExportar");
-    const loader = document.getElementById("loader");
+    const painel          = document.getElementById("painelAlunos");
+    const inputData       = document.getElementById("inputData");
+    const infoCarregando  = document.getElementById("infoCarregando");
+    const observacoesEl   = document.getElementById("observacoes");
+    const btnSalvar       = document.getElementById("btnSalvar");
+    const btnCancelar     = document.getElementById("btnCancelar");
+    const btnExportar     = document.getElementById("btnExportar");
+    const loader          = document.getElementById("loader");
+    const scrollRapido    = document.getElementById("scrollRapido");
 
-    // Configurar botão de exportação
     btnExportar.addEventListener("click", exportarChamada3Colunas);
 
     function hojeISO() {
       const agora = new Date();
-      const brasilia = new Intl.DateTimeFormat('pt-BR', {
+      const br = new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
+        year: 'numeric', month: '2-digit', day: '2-digit'
       }).format(agora);
-      
-      const [dia, mes, ano] = brasilia.split('/');
-      return `${ano}-${mes}-${dia}`;
-    }
-
-    function formatarDataBrasileira(iso) {
-      if (!iso) return "--/--/----";
-      const [ano, mes, dia] = iso.split("-");
-      return `${dia}/${mes}/${ano}`;
+      const [d, m, a] = br.split('/');
+      return `${a}-${m}-${d}`;
     }
 
     function proximoEstadoPresenca(atual) {
@@ -398,8 +393,8 @@
     async function carregarAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
       alunos = snap.docs
-        .filter((d) => d.data().ativo !== false) // Filtra apenas alunos ativos
-        .map((d) => ({
+        .filter(d => d.data().ativo !== false)
+        .map(d => ({
           id: d.id,
           nome: d.data().nome,
           instrumento: d.data().instrumento || "",
@@ -411,58 +406,80 @@
 
     async function carregarEventoSeExistir() {
       if (!eventoId) {
-        dataEvento = hojeISO();
-        spanData.textContent = formatarDataBrasileira(dataEvento);
+        inputData.value = hojeISO();
         return;
       }
-
       const docSnap = await getDoc(doc(db, "eventos", eventoId));
       if (docSnap.exists()) {
         const dados = docSnap.data();
-        dataEvento = dados.data;
-        spanData.textContent = formatarDataBrasileira(dataEvento);
+        inputData.value = dados.data || hojeISO();
         observacoesEl.value = dados.observacoes || "";
-
         const presencasSalvas = dados.presencas || [];
-        alunos.forEach((aluno) => {
-          const p = presencasSalvas.find((ps) => ps.nome === aluno.nome);
+        alunos.forEach(aluno => {
+          const p = presencasSalvas.find(ps => ps.nome === aluno.nome);
           if (p) aluno.presenca = p.presenca;
         });
       } else {
-        dataEvento = hojeISO();
-        spanData.textContent = formatarDataBrasileira(dataEvento);
+        inputData.value = hojeISO();
       }
     }
 
     function atualizarClasseCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const chip = card.querySelector(".chip-status");
-
       if (aluno.presenca === "presente") {
-        card.classList.add("presente");
-        chip.textContent = "Presente";
-        chip.className = "chip-status presente";
+        card.classList.add("presente"); chip.textContent = "Presente"; chip.className = "chip-status presente";
       } else if (aluno.presenca === "ausente") {
-        card.classList.add("ausente");
-        chip.textContent = "Ausente";
-        chip.className = "chip-status ausente";
+        card.classList.add("ausente");  chip.textContent = "Ausente";  chip.className = "chip-status ausente";
       } else {
-        card.classList.add("vazio");
-        chip.textContent = "Pendente";
-        chip.className = "chip-status";
+        card.classList.add("vazio");    chip.textContent = "Pendente"; chip.className = "chip-status";
       }
     }
 
     function focarProximoCard(indexAtual) {
       const cards = document.querySelectorAll(".container-aluno");
       cards[indexAtual].classList.remove("focado");
-
-      const proximoIndex = indexAtual + 1;
-      if (proximoIndex < cards.length) {
-        const proximo = cards[proximoIndex];
-        proximo.classList.add("focado");
-        proximo.scrollIntoView({ behavior: "smooth", block: "center" });
+      const prox = indexAtual + 1;
+      if (prox < cards.length) {
+        cards[prox].classList.add("focado");
+        cards[prox].scrollIntoView({ behavior: "smooth", block: "center" });
       }
+    }
+
+    /* ── Scroll rápido: monta botões com as iniciais presentes na lista ── */
+    function construirScrollRapido() {
+      const iniciaisSet = new Set();
+      alunos.forEach(a => {
+        const inicial = a.nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "")[0].toUpperCase();
+        iniciaisSet.add(inicial);
+      });
+
+      const alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+      scrollRapido.innerHTML = "";
+
+      alfabeto.forEach(letra => {
+        const btn = document.createElement("button");
+        btn.textContent = letra;
+        if (!iniciaisSet.has(letra)) {
+          btn.classList.add("inativo");
+          btn.disabled = true;
+        } else {
+          btn.addEventListener("click", () => {
+            const cards = document.querySelectorAll(".container-aluno");
+            for (const card of cards) {
+              const nomeCard = card.querySelector(".nome").textContent
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              if (nomeCard[0].toUpperCase() === letra) {
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+                card.classList.add("focado");
+                setTimeout(() => card.classList.remove("focado"), 1200);
+                break;
+              }
+            }
+          });
+        }
+        scrollRapido.appendChild(btn);
+      });
     }
 
     function renderizarAlunos() {
@@ -475,51 +492,30 @@
         const fotoWrap = document.createElement("div");
         fotoWrap.className = "foto-aluno";
         if (aluno.foto) {
-          const img = document.createElement("img");
-          img.src = aluno.foto;
+          const img = document.createElement("img"); img.src = aluno.foto;
           fotoWrap.appendChild(img);
         } else {
-          const span = document.createElement("span");
-          span.className = "foto-placeholder";
-          span.textContent = "👤";
+          const span = document.createElement("span"); span.className = "foto-placeholder"; span.textContent = "👤";
           fotoWrap.appendChild(span);
         }
 
-        const dadosDiv = document.createElement("div");
-        dadosDiv.className = "dados-aluno";
-
-        const nomeDiv = document.createElement("div");
-        nomeDiv.className = "nome";
-        nomeDiv.textContent = aluno.nome;
-
-        const instDiv = document.createElement("div");
-        instDiv.className = "instrumento";
-        instDiv.textContent = aluno.instrumento;
-
-        const statusLinha = document.createElement("div");
-        statusLinha.className = "status-linha";
-
-        const chip = document.createElement("span");
-        chip.className = "chip-status";
-        chip.textContent = "Pendente";
-
-        const hint = document.createElement("span");
-        hint.className = "hint";
-        hint.textContent = "Toque para mudar";
+        const dadosDiv   = document.createElement("div"); dadosDiv.className = "dados-aluno";
+        const nomeDiv    = document.createElement("div"); nomeDiv.className = "nome";        nomeDiv.textContent = aluno.nome;
+        const instDiv    = document.createElement("div"); instDiv.className = "instrumento"; instDiv.textContent = aluno.instrumento;
+        const statusLinha = document.createElement("div"); statusLinha.className = "status-linha";
+        const chip       = document.createElement("span"); chip.className = "chip-status";   chip.textContent = "Pendente";
+        const hint       = document.createElement("span"); hint.className = "hint";           hint.textContent = "Toque para mudar";
 
         statusLinha.appendChild(chip);
         statusLinha.appendChild(hint);
-
         dadosDiv.appendChild(nomeDiv);
         dadosDiv.appendChild(instDiv);
         dadosDiv.appendChild(statusLinha);
-
         card.appendChild(fotoWrap);
         card.appendChild(dadosDiv);
 
         card.addEventListener("click", () => {
-          const novoEstado = proximoEstadoPresenca(aluno.presenca);
-          aluno.presenca = novoEstado;
+          aluno.presenca = proximoEstadoPresenca(aluno.presenca);
           atualizarClasseCard(card, aluno);
           focarProximoCard(index);
         });
@@ -529,10 +525,9 @@
       });
 
       const primeiro = document.querySelector('.container-aluno[data-index="0"]');
-      if (primeiro) {
-        primeiro.classList.add("focado");
-        primeiro.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      if (primeiro) { primeiro.classList.add("focado"); primeiro.scrollIntoView({ behavior: "smooth", block: "center" }); }
+
+      construirScrollRapido();
     }
 
     async function inicializar() {
@@ -548,32 +543,22 @@
         btnSalvar.disabled = true;
         loader.style.display = "block";
 
+        const dataEvento  = inputData.value || hojeISO();
         const observacoes = observacoesEl.value.trim();
-        const presencas = alunos.map((a) => ({
+        const presencas   = alunos.map(a => ({
           nome: a.nome,
           instrumento: a.instrumento || "",
           presenca: a.presenca || "ausente"
         }));
 
-        if (!dataEvento) dataEvento = hojeISO();
-
         if (eventoId) {
-          await updateDoc(doc(db, "eventos", eventoId), {
-            data: dataEvento,
-            observacoes,
-            presencas
-          });
+          await updateDoc(doc(db, "eventos", eventoId), { data: dataEvento, observacoes, presencas });
         } else {
-          const novo = await addDoc(collection(db, "eventos"), {
-            data: dataEvento,
-            observacoes,
-            presencas
-          });
+          const novo = await addDoc(collection(db, "eventos"), { data: dataEvento, observacoes, presencas });
           eventoId = novo.id;
         }
 
         await recalcularFrequenciasDoMes(dataEvento);
-
         alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
         window.location.href = "professor.html";
       } catch (e) {
@@ -590,21 +575,18 @@
       const chaveMes = `${ano}-${mes}`;
 
       const eventosSnap = await getDocs(collection(db, "eventos"));
-      const eventosMes = [];
-      eventosSnap.forEach((docSnap) => {
+      const eventosMes  = [];
+      eventosSnap.forEach(docSnap => {
         const dados = docSnap.data();
-        if (!dados.data) return;
-        if (dados.data.startsWith(chaveMes)) {
-          eventosMes.push(dados);
-        }
+        if (dados.data && dados.data.startsWith(chaveMes)) eventosMes.push(dados);
       });
 
       const totalEventosMes = eventosMes.length;
       if (!totalEventosMes) return;
 
       const contagemPorAluno = {};
-      eventosMes.forEach((ev) => {
-        (ev.presencas || []).forEach((p) => {
+      eventosMes.forEach(ev => {
+        (ev.presencas || []).forEach(p => {
           if (!p || !p.nome) return;
           if (!contagemPorAluno[p.nome]) contagemPorAluno[p.nome] = 0;
           if (p.presenca === "presente") contagemPorAluno[p.nome]++;
@@ -612,29 +594,21 @@
       });
 
       const mesesSiglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-      const idxMes = parseInt(mes, 10) - 1;
-      const siglaMes = mesesSiglas[idxMes] || mes;
+      const siglaMes = mesesSiglas[parseInt(mes, 10) - 1] || mes;
 
       const alunosSnap = await getDocs(collection(db, "alunos"));
       for (const docSnap of alunosSnap.docs) {
         const dados = docSnap.data();
-        
-        // Se o aluno estiver desativado, não atualizamos a frequência dele com base neste evento
         if (dados.ativo === false) continue;
 
-        const nome = dados.nome;
-        const presencasAluno = contagemPorAluno[nome] || 0;
-        const percentual = Math.round((presencasAluno / totalEventosMes) * 100);
+        const nome            = dados.nome;
+        const presencasAluno  = contagemPorAluno[nome] || 0;
+        const percentual      = Math.round((presencasAluno / totalEventosMes) * 100);
+        const historico       = Array.isArray(dados.presencas) ? [...dados.presencas] : [];
+        let registroMes       = historico.find(r => r.mes === chaveMes);
 
-        const historico = Array.isArray(dados.presencas) ? [...dados.presencas] : [];
-        let registroMes = historico.find((r) => r.mes === chaveMes);
         if (!registroMes) {
-          registroMes = {
-            mes: chaveMes,
-            totalEnsaios: totalEventosMes,
-            presencasAluno,
-            percentual
-          };
+          registroMes = { mes: chaveMes, totalEnsaios: totalEventosMes, presencasAluno, percentual };
           historico.push(registroMes);
         } else {
           registroMes.totalEnsaios = totalEventosMes;
@@ -642,35 +616,22 @@
           registroMes.percentual = percentual;
         }
 
-        const frequenciaMensal = {
-          porcentagem: percentual,
-          totalEventos: totalEventosMes,
-          presencas: presencasAluno
-        };
-
         const frequenciaAnual = dados.frequenciaAnual || {};
-        frequenciaAnual[siglaMes] = {
-          percentual,
-          totalEnsaios: totalEventosMes,
-          presencasAluno
-        };
+        frequenciaAnual[siglaMes] = { percentual, totalEnsaios: totalEventosMes, presencasAluno };
 
         await updateDoc(doc(db, "alunos", docSnap.id), {
           presencas: historico,
-          frequenciaMensal,
+          frequenciaMensal: { porcentagem: percentual, totalEventos: totalEventosMes, presencas: presencasAluno },
           frequenciaAnual
         });
       }
     }
 
-    function cancelarEvento() {
-      const confirma = confirm("Cancelar alterações e voltar ao painel do professor?");
-      if (!confirma) return;
-      window.location.href = "professor.html";
-    }
-
     btnSalvar.addEventListener("click", salvarPresencas);
-    btnCancelar.addEventListener("click", cancelarEvento);
+    btnCancelar.addEventListener("click", () => {
+      if (confirm("Cancelar alterações e voltar ao painel do professor?"))
+        window.location.href = "professor.html";
+    });
 
     inicializar();
   </script>
