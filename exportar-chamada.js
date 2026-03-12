@@ -14,7 +14,7 @@ export async function exportarChamada3Colunas() {
     else if (c.classList.contains("ausente"))  ausentes++;
     else                                        pendentes++;
   });
-  const total      = cards.length;
+  const total       = cards.length;
   const porcentagem = total > 0 ? Math.round((presentes / total) * 100) : 0;
 
   // === Data: lê do input editável ===
@@ -24,6 +24,22 @@ export async function exportarChamada3Colunas() {
     const [ano, mes, dia] = inputData.value.split("-");
     dataEnsaio = `${dia}/${mes}/${ano}`;
   }
+
+  // === Pré-carregar todas as imagens com crossOrigin para evitar taint ===
+  const imgPromises = [];
+  cards.forEach(card => {
+    const img = card.querySelector(".foto-aluno img");
+    if (img && img.src) {
+      imgPromises.push(new Promise(resolve => {
+        const preload = new Image();
+        preload.crossOrigin = "anonymous";
+        preload.onload  = () => resolve({ el: img, src: preload.src });
+        preload.onerror = () => resolve(null); // falhou, ignora
+        preload.src = img.src + (img.src.includes("?") ? "&" : "?") + "_t=" + Date.now();
+      }));
+    }
+  });
+  await Promise.all(imgPromises);
 
   // === Container principal ===
   const temp = document.createElement("div");
@@ -53,7 +69,7 @@ export async function exportarChamada3Colunas() {
   titulo.innerText = `📋 Chamada do Ensaio – ${dataEnsaio}`;
   temp.appendChild(titulo);
 
-  // === Cards com iniciais no lugar de foto (evita erro CORS) ===
+  // === Copiar cards preservando fotos ===
   cards.forEach(card => {
     const clone = card.cloneNode(true);
     clone.style.transform = "none";
@@ -61,24 +77,12 @@ export async function exportarChamada3Colunas() {
     clone.style.margin    = "0";
     clone.style.outline   = "none";
 
-    // Substitui <img> por div com inicial estilizada
-    const fotoWrap = clone.querySelector(".foto-aluno");
-    if (fotoWrap) {
-      const nomeEl = clone.querySelector(".nome");
-      const inicial = nomeEl ? nomeEl.textContent.trim()[0].toUpperCase() : "?";
-      fotoWrap.innerHTML = "";
-      const inicialDiv = document.createElement("div");
-      Object.assign(inicialDiv.style, {
-        width: "100%", height: "100%",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: "linear-gradient(135deg, #0f3460, #0ea5e9)",
-        borderRadius: "50%",
-        color: "#fff",
-        fontWeight: "700",
-        fontSize: "1.4rem",
-      });
-      inicialDiv.textContent = inicial;
-      fotoWrap.appendChild(inicialDiv);
+    // Força crossOrigin nas imagens clonadas para html2canvas capturar
+    const imgOriginal = card.querySelector(".foto-aluno img");
+    const imgClone    = clone.querySelector(".foto-aluno img");
+    if (imgOriginal && imgClone) {
+      imgClone.crossOrigin = "anonymous";
+      imgClone.src = imgOriginal.src;
     }
 
     temp.appendChild(clone);
