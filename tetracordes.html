@@ -20,6 +20,7 @@
       --t1: #7c6af7;
       --t2: #f7c26a;
       --sharp: #f76a6a;
+      --sidebar: 200px;
     }
 
     body {
@@ -31,6 +32,9 @@
       min-height: 100vh;
     }
 
+    /* =============================================
+       HEADER
+    ============================================= */
     header {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       padding: 2rem 1.25rem 1.5rem;
@@ -47,6 +51,9 @@
     }
     header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; }
 
+    /* =============================================
+       NAV — mobile: barra horizontal
+    ============================================= */
     nav {
       display: flex;
       overflow-x: auto;
@@ -55,6 +62,9 @@
       background: var(--surface);
       border-bottom: 1px solid #2a2a40;
       scrollbar-width: none;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     nav::-webkit-scrollbar { display: none; }
     nav a {
@@ -71,7 +81,19 @@
     }
     nav a:hover, nav a.active { border-color: var(--accent); color: var(--accent); }
 
-    main { padding: 1rem; max-width: 520px; margin: 0 auto; }
+    /* =============================================
+       LAYOUT WRAPPER — mobile: coluna simples
+    ============================================= */
+    .page-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    main {
+      padding: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
 
     section { margin-bottom: 2rem; }
     section h2 {
@@ -104,13 +126,11 @@
       gap: 0.35rem;
       margin: 0.6rem 0;
     }
-
     .tetra-row {
       display: flex;
       flex-wrap: wrap;
       gap: 0.35rem;
     }
-
     .tetra-block {
       display: flex;
       flex: 1 1 calc(50% - 0.2rem);
@@ -118,11 +138,9 @@
       gap: 0.3rem;
       flex-wrap: nowrap;
     }
-
     @media (max-width: 420px) {
       .tetra-block { flex: 1 1 100%; }
     }
-
     .note-box {
       flex: 1;
       min-width: 0;
@@ -167,8 +185,6 @@
     }
     .interval-badge.T  { background: rgba(106,247,184,0.1);  color: var(--accent3); }
     .interval-badge.sT { background: rgba(247,106,106,0.15); color: var(--sharp); }
-
-    /* Badge de ligacao entre os dois tetracordes + label abaixo */
     .interval-link {
       display: flex;
       flex-direction: column;
@@ -200,8 +216,6 @@
       white-space: nowrap;
       line-height: 1.2;
     }
-
-    /* Nota de rodape sobre o Tom de ligacao */
     .link-note {
       display: flex;
       align-items: flex-start;
@@ -215,14 +229,8 @@
       color: var(--muted);
       line-height: 1.5;
     }
-    .link-note .link-note-icon {
-      font-size: 0.9rem;
-      flex-shrink: 0;
-      margin-top: 0.05rem;
-    }
+    .link-note .link-note-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.05rem; }
     .link-note strong { color: var(--accent3); }
-
-    .arrow-sep { text-align: center; font-size: 1.5rem; color: var(--accent); margin: 0.4rem 0; }
 
     /* Scale table */
     .scale-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -245,6 +253,7 @@
     .scale-table td.key-col { color: var(--accent2); font-weight: 700; }
     .scale-table tr.highlight td { background: rgba(124,106,247,0.07); }
 
+    /* Key signatures */
     .key-sig-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -296,7 +305,6 @@
     }
     .int-step.T  { background: rgba(106,247,184,0.15); color: var(--accent3); border: 1px solid var(--accent3); }
     .int-step.sT { background: rgba(247,106,106,0.15); color: var(--sharp);   border: 1px solid var(--sharp); }
-    /* destaque especial para o T de ligacao no hero */
     .int-step.T-link {
       background: rgba(106,247,184,0.25);
       color: var(--accent3);
@@ -316,8 +324,6 @@
       letter-spacing: 0.5px;
     }
 
-    .sep-label { text-align: center; color: var(--accent); font-size: 0.8rem; font-weight: 700; margin: 0.4rem 0; letter-spacing: 1px; }
-
     .steps { counter-reset: step; }
     .step-item { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; align-items: flex-start; }
     .step-num {
@@ -333,512 +339,643 @@
       text-align: center; color: var(--muted); font-size: 0.75rem;
       padding: 1.5rem 1rem; border-top: 1px solid #2a2a3a;
     }
+
+    /* =============================================
+       DESKTOP (≥ 768px)
+       - nav vira sidebar fixa à esquerda
+       - main passa a grid 2 colunas
+       - largura total sobe até 1280px
+    ============================================= */
+    @media (min-width: 768px) {
+
+      header h1 { font-size: 2.1rem; }
+
+      /* Esconde a barra horizontal de nav */
+      nav.mobile-nav { display: none; }
+
+      .page-wrapper {
+        display: grid;
+        grid-template-columns: var(--sidebar) 1fr;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+          "sidebar header"
+          "sidebar content"
+          "sidebar footer";
+        min-height: 100vh;
+        align-items: start;
+      }
+
+      /* Header ocupa a coluna de conteúdo */
+      .page-wrapper > header {
+        grid-area: header;
+        text-align: left;
+        padding: 2rem 2rem 1.5rem;
+      }
+
+      /* Sidebar nav */
+      nav.desktop-nav {
+        grid-area: sidebar;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        padding: 1.5rem 0.85rem;
+        background: var(--surface);
+        border-right: 1px solid #2a2a40;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      nav.desktop-nav a {
+        border-radius: 10px;
+        padding: 0.55rem 0.85rem;
+        font-size: 0.82rem;
+        text-align: left;
+        white-space: nowrap;
+      }
+      nav.desktop-nav .nav-title {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 0.4rem 0.85rem 0.2rem;
+        margin-top: 0.5rem;
+      }
+
+      /* Conteúdo principal em grid 2 colunas */
+      main {
+        grid-area: content;
+        max-width: 100%;
+        padding: 1.5rem 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem 2rem;
+        align-items: start;
+      }
+
+      /* Seções que devem ocupar coluna inteira */
+      #processo,
+      #escalas {
+        grid-column: 1 / -1;
+      }
+
+      /* Dentro de #processo: os cards lado a lado */
+      #processo .process-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        align-items: start;
+      }
+
+      /* Dentro de #escalas: tabela + dica lado a lado */
+      #escalas .escalas-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+        align-items: start;
+      }
+
+      /* Armaduras: grid 4 col já existe, fica bem */
+      .key-sig-grid { grid-template-columns: repeat(4, 1fr); }
+
+      footer { grid-area: footer; }
+
+      section { margin-bottom: 0; }
+
+      /* Tetracordes em desktop: sempre lado a lado (já é o padrão, só garante) */
+      .tetra-block { flex: 1 1 calc(50% - 0.2rem); }
+      .interval-block { flex: 1 1 calc(50% - 0.2rem); }
+    }
+
+    @media (min-width: 1100px) {
+      :root { --sidebar: 220px; }
+      main { padding: 2rem 2.5rem; gap: 1.5rem 2.5rem; }
+    }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>🎵 Tetracordes & Escalas</h1>
-  <p>Como os tetracordes formam novas escalas e armaduras de clave</p>
-</header>
+<div class="page-wrapper">
 
-<nav>
-  <a href="#conceito" class="active">Conceito</a>
-  <a href="#padrao">Padrão</a>
-  <a href="#processo">Processo</a>
-  <a href="#escalas">Escalas</a>
-  <a href="#armaduras">Armaduras</a>
-  <a href="#exercicio">🎮 Exercício</a>
-</nav>
+  <header>
+    <h1>🎵 Tetracordes & Escalas</h1>
+    <p>Como os tetracordes formam novas escalas e armaduras de clave</p>
+  </header>
 
-<main>
+  <!-- NAV MOBILE (barra horizontal) -->
+  <nav class="mobile-nav">
+    <a href="#conceito" class="active">Conceito</a>
+    <a href="#padrao">Padrão</a>
+    <a href="#processo">Processo</a>
+    <a href="#escalas">Escalas</a>
+    <a href="#armaduras">Armaduras</a>
+    <a href="#exercicio">🎮 Exercício</a>
+  </nav>
 
-  <!-- CONCEITO -->
-  <section id="conceito">
-    <h2><span class="icon">🧩</span> O que é um Tetracorde?</h2>
-    <div class="card">
-      <p>Um <strong>tetracorde</strong> é um grupo de <strong>4 notas consecutivas</strong> da escala. Cada escala de 8 notas é formada por <strong>dois tetracordes</strong> separados por um Tom.</p>
-    </div>
-    <div class="card">
-      <p><strong>Escala de Dó Maior</strong> — a escala modelo:</p>
-      <div class="scale-display">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Dó</div>
-            <div class="note-box t1">Ré</div>
-            <div class="note-box t1">Mi</div>
-            <div class="note-box t1">Fá</div>
+  <!-- NAV DESKTOP (sidebar vertical) -->
+  <nav class="desktop-nav">
+    <div class="nav-title">Conteúdo</div>
+    <a href="#conceito" class="active">🧩 Conceito</a>
+    <a href="#padrao">📐 Padrão</a>
+    <a href="#processo">⚙️ Processo</a>
+    <a href="#escalas">📋 Escalas</a>
+    <a href="#armaduras">🎼 Armaduras</a>
+    <a href="#exercicio">🎮 Exercício</a>
+  </nav>
+
+  <main>
+
+    <!-- CONCEITO -->
+    <section id="conceito">
+      <h2><span class="icon">🧩</span> O que é um Tetracorde?</h2>
+      <div class="card">
+        <p>Um <strong>tetracorde</strong> é um grupo de <strong>4 notas consecutivas</strong> da escala. Cada escala de 8 notas é formada por <strong>dois tetracordes</strong> separados por um Tom.</p>
+      </div>
+      <div class="card">
+        <p><strong>Escala de Dó Maior</strong> — a escala modelo:</p>
+        <div class="scale-display">
+          <div class="tetra-row">
+            <div class="tetra-block">
+              <div class="note-box t1">Dó</div>
+              <div class="note-box t1">Ré</div>
+              <div class="note-box t1">Mi</div>
+              <div class="note-box t1">Fá</div>
+            </div>
+            <div class="tetra-block">
+              <div class="note-box t2">Sol</div>
+              <div class="note-box t2">Lá</div>
+              <div class="note-box t2">Si</div>
+              <div class="note-box t2">Dó</div>
+            </div>
           </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Sol</div>
-            <div class="note-box t2">Lá</div>
-            <div class="note-box t2">Si</div>
-            <div class="note-box t2">Dó</div>
+        </div>
+        <div style="display:flex;gap:0.4rem;margin-top:0.4rem;flex-wrap:wrap;">
+          <span class="pill t1">1º Tetracorde</span>
+          <span class="pill t2">2º Tetracorde</span>
+        </div>
+        <p style="margin-top:0.5rem;">O 1º tetracorde vai de <strong>Dó a Fá</strong>. O 2º tetracorde vai de <strong>Sol a Dó</strong>. Entre eles há sempre um intervalo de <strong style="color:var(--accent3);">1 Tom</strong> (Fá→Sol).</p>
+        <div class="link-note">
+          <span class="link-note-icon">💡</span>
+          <span>O <strong>Tom de ligação</strong> entre os dois tetracordes é o 4º intervalo do padrão (T·T·sT·<strong>T</strong>·T·T·sT). Ele é fixo e sempre igual a <strong>1 Tom</strong> em qualquer escala maior.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PADRÃO DE INTERVALOS -->
+    <section id="padrao">
+      <h2><span class="icon">📐</span> Padrão de Intervalos</h2>
+      <div class="interval-hero">
+        <p style="font-size:0.85rem;color:var(--muted);text-align:center;">Toda escala maior segue este padrão:</p>
+        <div class="pattern" style="margin-bottom:1.4rem;">
+          <div class="int-step T">T</div>
+          <div class="int-step T">T</div>
+          <div class="int-step sT">sT</div>
+          <div class="int-step T-link">T</div>
+          <div class="int-step T">T</div>
+          <div class="int-step T">T</div>
+          <div class="int-step sT">sT</div>
+        </div>
+        <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.3rem;">
+          <span style="color:var(--accent3);">T</span> = Tom (2 semitons) &nbsp;|&nbsp;
+          <span style="color:var(--sharp);">sT</span> = Semitom &nbsp;|&nbsp;
+          <span style="color:var(--accent3);border-bottom:1px dashed var(--accent3);">T</span> = ligação
+        </p>
+      </div>
+      <div class="card">
+        <p><strong>Dó Maior com intervalos:</strong></p>
+        <div class="scale-display" style="margin-top:0.5rem;">
+          <div class="tetra-row">
+            <div class="tetra-block">
+              <div class="note-box t1">Dó</div>
+              <div class="note-box t1">Ré</div>
+              <div class="note-box t1">Mi</div>
+              <div class="note-box t1">Fá</div>
+            </div>
+            <div class="tetra-block">
+              <div class="note-box t2">Sol</div>
+              <div class="note-box t2">Lá</div>
+              <div class="note-box t2">Si</div>
+              <div class="note-box t2">Dó</div>
+            </div>
+          </div>
+          <div class="interval-row">
+            <div class="interval-block">
+              <div class="interval-badge T">T</div>
+              <div class="interval-badge T">T</div>
+              <div class="interval-badge sT">sT</div>
+            </div>
+            <div class="interval-link">
+              <span class="link-badge">T</span>
+              <span class="link-label">ligação</span>
+            </div>
+            <div class="interval-block">
+              <div class="interval-badge T">T</div>
+              <div class="interval-badge T">T</div>
+              <div class="interval-badge sT">sT</div>
+            </div>
           </div>
         </div>
       </div>
-      <div style="display:flex;gap:0.4rem;margin-top:0.4rem;flex-wrap:wrap;">
-        <span class="pill t1">1º Tetracorde</span>
-        <span class="pill t2">2º Tetracorde</span>
-      </div>
-      <p style="margin-top:0.5rem;">O 1º tetracorde vai de <strong>Dó a Fá</strong>. O 2º tetracorde vai de <strong>Sol a Dó</strong>. Entre eles há sempre um intervalo de <strong style="color:var(--accent3);">1 Tom</strong> (Fá→Sol).</p>
+    </section>
 
-      <div class="link-note">
-        <span class="link-note-icon">💡</span>
-        <span>O <strong>Tom de ligação</strong> entre os dois tetracordes é o 4º intervalo do padrão (T·T·sT·<strong>T</strong>·T·T·sT). Ele é fixo e sempre igual a <strong>1 Tom</strong> em qualquer escala maior.</span>
-      </div>
-    </div>
-  </section>
+    <!-- PROCESSO -->
+    <section id="processo">
+      <h2><span class="icon">⚙️</span> Como Formar Novas Escalas</h2>
 
-  <!-- PADRÃO DE INTERVALOS -->
-  <section id="padrao">
-    <h2><span class="icon">📐</span> Padrão de Intervalos</h2>
-    <div class="interval-hero">
-      <p style="font-size:0.85rem;color:var(--muted);text-align:center;">Toda escala maior segue este padrão:</p>
-      <div class="pattern" style="margin-bottom:1.4rem;">
-        <div class="int-step T">T</div>
-        <div class="int-step T">T</div>
-        <div class="int-step sT">sT</div>
-        <div class="int-step T-link">T</div>
-        <div class="int-step T">T</div>
-        <div class="int-step T">T</div>
-        <div class="int-step sT">sT</div>
-      </div>
-      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.3rem;">
-        <span style="color:var(--accent3);">T</span> = Tom (2 semitons) &nbsp;|&nbsp;
-        <span style="color:var(--sharp);">sT</span> = Semitom (1 semitom) &nbsp;|&nbsp;
-        <span style="color:var(--accent3);border-bottom:1px dashed var(--accent3);">T</span> = Tom de ligação
-      </p>
-    </div>
-    <div class="card">
-      <p><strong>Dó Maior com intervalos:</strong></p>
-      <div class="scale-display" style="margin-top:0.5rem;">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Dó</div>
-            <div class="note-box t1">Ré</div>
-            <div class="note-box t1">Mi</div>
-            <div class="note-box t1">Fá</div>
+      <!-- Steps card fica acima do grid de exemplos -->
+      <div class="card">
+        <div class="steps">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">O <strong>2º tetracorde da escala atual</strong> torna-se o <strong>1º tetracorde da nova escala</strong>.</div>
           </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Sol</div>
-            <div class="note-box t2">Lá</div>
-            <div class="note-box t2">Si</div>
-            <div class="note-box t2">Dó</div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">Complete a escala com as <strong>4 notas naturais seguintes</strong> (o 2º tetracorde provisório).</div>
           </div>
-        </div>
-        <div class="interval-row">
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Compare os intervalos</strong> com o padrão T-T-sT-T-T-T-sT da escala modelo.</div>
           </div>
-          <div class="interval-link">
-            <span class="link-badge">T</span>
-            <span class="link-label">ligação</span>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text">Aplique <strong>sustenidos (#)</strong> onde o intervalo estiver errado.</div>
           </div>
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PROCESSO -->
-  <section id="processo">
-    <h2><span class="icon">⚙️</span> Como Formar Novas Escalas</h2>
-    <div class="card">
-      <div class="steps">
-        <div class="step-item">
-          <div class="step-num">1</div>
-          <div class="step-text">O <strong>2º tetracorde da escala atual</strong> torna-se o <strong>1º tetracorde da nova escala</strong>.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">2</div>
-          <div class="step-text">Complete a escala com as <strong>4 notas naturais seguintes</strong> (o 2º tetracorde provisório).</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">3</div>
-          <div class="step-text"><strong>Compare os intervalos</strong> com o padrão T-T-sT-T-T-T-sT da escala modelo.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">4</div>
-          <div class="step-text">Aplique <strong>sustenidos (#)</strong> onde o intervalo estiver errado, para corrigir as distâncias.</div>
-        </div>
-        <div class="step-item">
-          <div class="step-num">5</div>
-          <div class="step-text">Repita o processo usando o 2º tetracorde da nova escala para gerar a próxima.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Dó → Sol -->
-    <div class="card">
-      <p style="font-weight:700;color:var(--accent2);margin-bottom:0.5rem;">Dó Maior → Sol Maior</p>
-      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">O 2º tetracorde de Dó (<strong style="color:var(--t2);">Sol-Lá-Si-Dó</strong>) vira o 1º de Sol. Completa-se com <strong>Ré-Mi-Fá-Sol</strong>:</p>
-
-      <div class="scale-display">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Sol</div>
-            <div class="note-box t1">Lá</div>
-            <div class="note-box t1">Si</div>
-            <div class="note-box t1">Dó</div>
-          </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Ré</div>
-            <div class="note-box t2">Mi</div>
-            <div class="note-box t2">Fá</div>
-            <div class="note-box t2">Sol</div>
-          </div>
-        </div>
-        <div class="interval-row">
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
-          </div>
-          <div class="interval-link">
-            <span class="link-badge">T</span>
-            <span class="link-label">ligação</span>
-          </div>
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT ❌</div>
-            <div class="interval-badge T">T ❌</div>
+          <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-text">Repita com o 2º tetracorde da nova escala para gerar a próxima.</div>
           </div>
         </div>
       </div>
 
-      <p style="font-size:0.82rem;color:var(--muted);margin:0.6rem 0;">Fá→Sol deveria ser <strong style="color:var(--sharp);">sT</strong> (semitom), mas é T. Precisamos elevar o Fá para <strong style="color:var(--sharp);">Fá#</strong>:</p>
+      <!-- 3 exemplos lado a lado em desktop -->
+      <div class="process-grid">
 
-      <div class="scale-display">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Sol</div>
-            <div class="note-box t1">Lá</div>
-            <div class="note-box t1">Si</div>
-            <div class="note-box t1">Dó</div>
+        <!-- Dó → Sol -->
+        <div class="card">
+          <p style="font-weight:700;color:var(--accent2);margin-bottom:0.5rem;">Dó → Sol Maior</p>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">2º tetracorde de Dó (<strong style="color:var(--t2);">Sol-Lá-Si-Dó</strong>) vira o 1º de Sol. Completa com <strong>Ré-Mi-Fá-Sol</strong>:</p>
+          <div class="scale-display">
+            <div class="tetra-row">
+              <div class="tetra-block">
+                <div class="note-box t1">Sol</div>
+                <div class="note-box t1">Lá</div>
+                <div class="note-box t1">Si</div>
+                <div class="note-box t1">Dó</div>
+              </div>
+              <div class="tetra-block">
+                <div class="note-box t2">Ré</div>
+                <div class="note-box t2">Mi</div>
+                <div class="note-box t2">Fá</div>
+                <div class="note-box t2">Sol</div>
+              </div>
+            </div>
+            <div class="interval-row">
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT</div>
+              </div>
+              <div class="interval-link"><span class="link-badge">T</span><span class="link-label">ligação</span></div>
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT ❌</div>
+                <div class="interval-badge T">T ❌</div>
+              </div>
+            </div>
           </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Ré</div>
-            <div class="note-box t2">Mi</div>
-            <div class="note-box sharp">Fá#</div>
-            <div class="note-box t2">Sol</div>
+          <p style="font-size:0.8rem;color:var(--muted);margin:0.5rem 0;">Fá→Sol deve ser <strong style="color:var(--sharp);">sT</strong>. Eleva Fá → <strong style="color:var(--sharp);">Fá#</strong>:</p>
+          <div class="scale-display">
+            <div class="tetra-row">
+              <div class="tetra-block">
+                <div class="note-box t1">Sol</div>
+                <div class="note-box t1">Lá</div>
+                <div class="note-box t1">Si</div>
+                <div class="note-box t1">Dó</div>
+              </div>
+              <div class="tetra-block">
+                <div class="note-box t2">Ré</div>
+                <div class="note-box t2">Mi</div>
+                <div class="note-box sharp">Fá#</div>
+                <div class="note-box t2">Sol</div>
+              </div>
+            </div>
+            <div class="interval-row">
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT</div>
+              </div>
+              <div class="interval-link"><span class="link-badge">T</span><span class="link-label">ligação</span></div>
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT ✅</div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">1 #: Fá#</span></p>
+        </div>
+
+        <!-- Sol → Ré -->
+        <div class="card">
+          <p style="font-weight:700;color:var(--accent2);margin-bottom:0.5rem;">Sol → Ré Maior</p>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">2º tetracorde de Sol (<strong style="color:var(--t2);">Ré-Mi-Fá#-Sol</strong>) vira o 1º de Ré. Completa com <strong>Lá-Si-Dó-Ré</strong>:</p>
+          <div class="scale-display">
+            <div class="tetra-row">
+              <div class="tetra-block">
+                <div class="note-box t1">Ré</div>
+                <div class="note-box t1">Mi</div>
+                <div class="note-box sharp">Fá#</div>
+                <div class="note-box t1">Sol</div>
+              </div>
+              <div class="tetra-block">
+                <div class="note-box t2">Lá</div>
+                <div class="note-box t2">Si</div>
+                <div class="note-box t2">Dó</div>
+                <div class="note-box t2">Ré</div>
+              </div>
+            </div>
+            <div class="interval-row">
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT</div>
+              </div>
+              <div class="interval-link"><span class="link-badge">T</span><span class="link-label">ligação</span></div>
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT ❌</div>
+                <div class="interval-badge T">T ❌</div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);margin:0.5rem 0;">Dó→Ré deve ser <strong style="color:var(--sharp);">sT</strong>. Eleva Dó → <strong style="color:var(--sharp);">Dó#</strong>:</p>
+          <div class="scale-display">
+            <div class="tetra-row">
+              <div class="tetra-block">
+                <div class="note-box t1">Ré</div>
+                <div class="note-box t1">Mi</div>
+                <div class="note-box sharp">Fá#</div>
+                <div class="note-box t1">Sol</div>
+              </div>
+              <div class="tetra-block">
+                <div class="note-box t2">Lá</div>
+                <div class="note-box t2">Si</div>
+                <div class="note-box sharp">Dó#</div>
+                <div class="note-box t2">Ré</div>
+              </div>
+            </div>
+            <div class="interval-row">
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT</div>
+              </div>
+              <div class="interval-link"><span class="link-badge">T</span><span class="link-label">ligação</span></div>
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT ✅</div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">2 #: Fá# Dó#</span></p>
+        </div>
+
+        <!-- Ré → Lá -->
+        <div class="card">
+          <p style="font-weight:700;color:var(--accent2);margin-bottom:0.5rem;">Ré → Lá Maior</p>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">2º tetracorde de Ré (<strong style="color:var(--t2);">Lá-Si-Dó#-Ré</strong>) vira o 1º de Lá. Completa com <strong>Mi-Fá-Sol-Lá</strong>:</p>
+          <div class="scale-display">
+            <div class="tetra-row">
+              <div class="tetra-block">
+                <div class="note-box t1">Lá</div>
+                <div class="note-box t1">Si</div>
+                <div class="note-box sharp">Dó#</div>
+                <div class="note-box t1">Ré</div>
+              </div>
+              <div class="tetra-block">
+                <div class="note-box t2">Mi</div>
+                <div class="note-box t2">Fá</div>
+                <div class="note-box t2">Sol</div>
+                <div class="note-box t2">Lá</div>
+              </div>
+            </div>
+            <div class="interval-row">
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT</div>
+              </div>
+              <div class="interval-link"><span class="link-badge">T</span><span class="link-label">ligação</span></div>
+              <div class="interval-block">
+                <div class="interval-badge sT">sT ❌</div>
+                <div class="interval-badge T">T ❌</div>
+                <div class="interval-badge T">T ❌</div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--muted);margin:0.5rem 0;">Eleva Fá → <strong style="color:var(--sharp);">Fá#</strong> e Sol → <strong style="color:var(--sharp);">Sol#</strong>:</p>
+          <div class="scale-display">
+            <div class="tetra-row">
+              <div class="tetra-block">
+                <div class="note-box t1">Lá</div>
+                <div class="note-box t1">Si</div>
+                <div class="note-box sharp">Dó#</div>
+                <div class="note-box t1">Ré</div>
+              </div>
+              <div class="tetra-block">
+                <div class="note-box t2">Mi</div>
+                <div class="note-box sharp">Fá#</div>
+                <div class="note-box sharp">Sol#</div>
+                <div class="note-box t2">Lá</div>
+              </div>
+            </div>
+            <div class="interval-row">
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT</div>
+              </div>
+              <div class="interval-link"><span class="link-badge">T</span><span class="link-label">ligação</span></div>
+              <div class="interval-block">
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge T">T</div>
+                <div class="interval-badge sT">sT ✅</div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">3 #: Fá# Dó# Sol#</span></p>
+        </div>
+
+      </div><!-- /process-grid -->
+    </section>
+
+    <!-- TABELA DE ESCALAS -->
+    <section id="escalas">
+      <h2><span class="icon">📋</span> Tabela das Escalas Maiores</h2>
+      <div class="escalas-grid">
+        <div class="card" style="padding:0.5rem 0.3rem;overflow-x:auto;">
+          <table class="scale-table">
+            <thead>
+              <tr>
+                <th>Escala</th>
+                <th>Notas</th>
+                <th>#</th>
+                <th>Novo #</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight">
+                <td class="key-col">Dó</td>
+                <td>C D E F G A B C</td>
+                <td>0</td>
+                <td class="sharps">—</td>
+              </tr>
+              <tr>
+                <td class="key-col">Sol</td>
+                <td>G A B C D E F# G</td>
+                <td class="sharps">1</td>
+                <td class="sharps">Fá#</td>
+              </tr>
+              <tr>
+                <td class="key-col">Ré</td>
+                <td>D E F# G A B C# D</td>
+                <td class="sharps">2</td>
+                <td class="sharps">Dó#</td>
+              </tr>
+              <tr>
+                <td class="key-col">Lá</td>
+                <td>A B C# D E F# G# A</td>
+                <td class="sharps">3</td>
+                <td class="sharps">Sol#</td>
+              </tr>
+              <tr>
+                <td class="key-col">Mi</td>
+                <td>E F# G# A B C# D# E</td>
+                <td class="sharps">4</td>
+                <td class="sharps">Ré#</td>
+              </tr>
+              <tr>
+                <td class="key-col">Si</td>
+                <td>B C# D# E F# G# A# B</td>
+                <td class="sharps">5</td>
+                <td class="sharps">Lá#</td>
+              </tr>
+              <tr>
+                <td class="key-col">Fá#</td>
+                <td>F# G# A# B C# D# E# F#</td>
+                <td class="sharps">6</td>
+                <td class="sharps">Mi#</td>
+              </tr>
+              <tr>
+                <td class="key-col">Dó#</td>
+                <td>C# D# E# F# G# A# B# C#</td>
+                <td class="sharps">7</td>
+                <td class="sharps">Si#</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <p style="font-size:0.85rem;">💡 Cada nova escala herda todos os sustenidos da anterior e adiciona <strong>exatamente 1 novo sustenido</strong> — sempre o 7º grau da nova escala.</p>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #2e2e48;">
+            <p style="font-size:0.82rem;font-weight:700;color:var(--accent3);margin-bottom:0.5rem;">📊 Ordem dos sustenidos</p>
+            <p style="font-size:0.82rem;color:var(--muted);">Fá# → Dó# → Sol# → Ré# → Lá# → Mi# → Si#</p>
+            <p style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem;">Macete: <strong style="color:var(--text);">Fá Dó Sol Ré Lá Mi Si</strong></p>
           </div>
         </div>
-        <div class="interval-row">
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
-          </div>
-          <div class="interval-link">
-            <span class="link-badge">T</span>
-            <span class="link-label">ligação</span>
-          </div>
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT ✅</div>
-          </div>
+      </div>
+    </section>
+
+    <!-- ARMADURAS DE CLAVE -->
+    <section id="armaduras">
+      <h2><span class="icon">🎼</span> Armaduras de Clave</h2>
+      <div class="card">
+        <p style="font-size:0.85rem;margin-bottom:0.75rem;">A armadura de clave indica <strong>quais notas são alteradas</strong> em toda a peça, evitando sustenidos a cada nota.</p>
+      </div>
+      <div class="key-sig-grid">
+        <div class="key-sig-item">
+          <div class="key-name">Dó</div>
+          <div class="sharp-count">0 #</div>
+          <div class="sharp-notes">—</div>
+        </div>
+        <div class="key-sig-item">
+          <div class="key-name">Sol</div>
+          <div class="sharp-count">1 #</div>
+          <div class="sharp-notes">Fá#</div>
+        </div>
+        <div class="key-sig-item">
+          <div class="key-name">Ré</div>
+          <div class="sharp-count">2 #</div>
+          <div class="sharp-notes">Fá# Dó#</div>
+        </div>
+        <div class="key-sig-item">
+          <div class="key-name">Lá</div>
+          <div class="sharp-count">3 #</div>
+          <div class="sharp-notes">Fá# Dó# Sol#</div>
+        </div>
+        <div class="key-sig-item">
+          <div class="key-name">Mi</div>
+          <div class="sharp-count">4 #</div>
+          <div class="sharp-notes">Fá# Dó# Sol# Ré#</div>
+        </div>
+        <div class="key-sig-item">
+          <div class="key-name">Si</div>
+          <div class="sharp-count">5 #</div>
+          <div class="sharp-notes">+ Lá#</div>
+        </div>
+        <div class="key-sig-item">
+          <div class="key-name">Fá#</div>
+          <div class="sharp-count">6 #</div>
+          <div class="sharp-notes">+ Mi#</div>
+        </div>
+        <div class="key-sig-item">
+          <div class="key-name">Dó#</div>
+          <div class="sharp-count">7 #</div>
+          <div class="sharp-notes">+ Si#</div>
         </div>
       </div>
-      <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">1 sustenido: Fá#</span></p>
-    </div>
-
-    <!-- Sol → Ré -->
-    <div class="card">
-      <p style="font-weight:700;color:var(--accent2);margin-bottom:0.5rem;">Sol Maior → Ré Maior</p>
-      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">O 2º tetracorde de Sol (<strong style="color:var(--t2);">Ré-Mi-Fá#-Sol</strong>) vira o 1º de Ré. Completa-se com <strong>Lá-Si-Dó-Ré</strong>:</p>
-
-      <div class="scale-display">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Ré</div>
-            <div class="note-box t1">Mi</div>
-            <div class="note-box sharp">Fá#</div>
-            <div class="note-box t1">Sol</div>
-          </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Lá</div>
-            <div class="note-box t2">Si</div>
-            <div class="note-box t2">Dó</div>
-            <div class="note-box t2">Ré</div>
-          </div>
-        </div>
-        <div class="interval-row">
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
-          </div>
-          <div class="interval-link">
-            <span class="link-badge">T</span>
-            <span class="link-label">ligação</span>
-          </div>
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT ❌</div>
-            <div class="interval-badge T">T ❌</div>
-          </div>
-        </div>
+      <div class="card" style="margin-top:0.75rem;">
+        <p style="font-size:0.85rem;">🔑 <strong>Macete:</strong> Para encontrar a tonalidade, olhe o <strong>último sustenido</strong> e suba <strong>um semitom acima</strong>. Ex: último # é Fá# → Sol Maior!</p>
       </div>
+    </section>
 
-      <p style="font-size:0.82rem;color:var(--muted);margin:0.6rem 0;">Dó→Ré deveria ser <strong style="color:var(--sharp);">sT</strong>, mas é T. Elevamos o Dó para <strong style="color:var(--sharp);">Dó#</strong>:</p>
+    <!-- EXERCÍCIO -->
+    <section id="exercicio">
+      <h2><span class="icon">🎮</span> Pronto para testar?</h2>
+      <div class="card" style="text-align:center;padding:1.5rem 1rem;">
+        <p style="margin-bottom:1rem;">Você estudou o conteúdo. Agora coloque em prática com perguntas interativas!</p>
+        <a href="tetroquestgame.html" style="display:block;width:100%;padding:1rem;border-radius:14px;border:none;background:linear-gradient(135deg,#7c6af7,#5a4fd4);color:#fff;font-size:1.1rem;font-weight:800;text-decoration:none;box-shadow:0 4px 20px rgba(124,106,247,.35);">🎮 Exercício</a>
+      </div>
+    </section>
 
-      <div class="scale-display">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Ré</div>
-            <div class="note-box t1">Mi</div>
-            <div class="note-box sharp">Fá#</div>
-            <div class="note-box t1">Sol</div>
-          </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Lá</div>
-            <div class="note-box t2">Si</div>
-            <div class="note-box sharp">Dó#</div>
-            <div class="note-box t2">Ré</div>
-          </div>
-        </div>
-        <div class="interval-row">
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
-          </div>
-          <div class="interval-link">
-            <span class="link-badge">T</span>
-            <span class="link-label">ligação</span>
-          </div>
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT ✅</div>
-          </div>
-        </div>
-      </div>
-      <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">2 sustenidos: Fá# Dó#</span></p>
-    </div>
+  </main>
 
-    <!-- Ré → Lá -->
-    <div class="card">
-      <p style="font-weight:700;color:var(--accent2);margin-bottom:0.5rem;">Ré Maior → Lá Maior</p>
-      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">O 2º tetracorde de Ré (<strong style="color:var(--t2);">Lá-Si-Dó#-Ré</strong>) vira o 1º de Lá. Completa-se com <strong>Mi-Fá-Sol-Lá</strong>:</p>
+  <footer>
+    <p>🎵 Teoria Musical — Tetracordes & Escalas Maiores</p>
+    <p style="margin-top:0.25rem;">Baseado no sistema de intervalos T-T-sT-T-T-T-sT</p>
+  </footer>
 
-      <div class="scale-display">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Lá</div>
-            <div class="note-box t1">Si</div>
-            <div class="note-box sharp">Dó#</div>
-            <div class="note-box t1">Ré</div>
-          </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Mi</div>
-            <div class="note-box t2">Fá</div>
-            <div class="note-box t2">Sol</div>
-            <div class="note-box t2">Lá</div>
-          </div>
-        </div>
-        <div class="interval-row">
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
-          </div>
-          <div class="interval-link">
-            <span class="link-badge">T</span>
-            <span class="link-label">ligação</span>
-          </div>
-          <div class="interval-block">
-            <div class="interval-badge sT">sT ❌</div>
-            <div class="interval-badge T">T ❌</div>
-            <div class="interval-badge T">T ❌</div>
-          </div>
-        </div>
-      </div>
+</div><!-- /page-wrapper -->
 
-      <p style="font-size:0.82rem;color:var(--muted);margin:0.6rem 0;">Mi→Fá é sT, deveria ser T. Elevamos Fá para <strong style="color:var(--sharp);">Fá#</strong>. Depois Sol→Lá deveria ser sT, então elevamos Sol para <strong style="color:var(--sharp);">Sol#</strong>:</p>
-
-      <div class="scale-display">
-        <div class="tetra-row">
-          <div class="tetra-block">
-            <div class="note-box t1">Lá</div>
-            <div class="note-box t1">Si</div>
-            <div class="note-box sharp">Dó#</div>
-            <div class="note-box t1">Ré</div>
-          </div>
-          <div class="tetra-block">
-            <div class="note-box t2">Mi</div>
-            <div class="note-box sharp">Fá#</div>
-            <div class="note-box sharp">Sol#</div>
-            <div class="note-box t2">Lá</div>
-          </div>
-        </div>
-        <div class="interval-row">
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT</div>
-          </div>
-          <div class="interval-link">
-            <span class="link-badge">T</span>
-            <span class="link-label">ligação</span>
-          </div>
-          <div class="interval-block">
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge T">T</div>
-            <div class="interval-badge sT">sT ✅</div>
-          </div>
-        </div>
-      </div>
-      <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">3 sustenidos: Fá# Dó# Sol#</span></p>
-    </div>
-  </section>
-
-  <!-- TABELA DE ESCALAS -->
-  <section id="escalas">
-    <h2><span class="icon">📋</span> Tabela das Escalas Maiores</h2>
-    <div class="card" style="padding:0.5rem 0.3rem;overflow-x:auto;">
-      <table class="scale-table">
-        <thead>
-          <tr>
-            <th>Escala</th>
-            <th>Notas</th>
-            <th>#</th>
-            <th>Novo #</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="highlight">
-            <td class="key-col">Dó</td>
-            <td>C D E F G A B C</td>
-            <td>0</td>
-            <td class="sharps">—</td>
-          </tr>
-          <tr>
-            <td class="key-col">Sol</td>
-            <td>G A B C D E F# G</td>
-            <td class="sharps">1</td>
-            <td class="sharps">Fá#</td>
-          </tr>
-          <tr>
-            <td class="key-col">Ré</td>
-            <td>D E F# G A B C# D</td>
-            <td class="sharps">2</td>
-            <td class="sharps">Dó#</td>
-          </tr>
-          <tr>
-            <td class="key-col">Lá</td>
-            <td>A B C# D E F# G# A</td>
-            <td class="sharps">3</td>
-            <td class="sharps">Sol#</td>
-          </tr>
-          <tr>
-            <td class="key-col">Mi</td>
-            <td>E F# G# A B C# D# E</td>
-            <td class="sharps">4</td>
-            <td class="sharps">Ré#</td>
-          </tr>
-          <tr>
-            <td class="key-col">Si</td>
-            <td>B C# D# E F# G# A# B</td>
-            <td class="sharps">5</td>
-            <td class="sharps">Lá#</td>
-          </tr>
-          <tr>
-            <td class="key-col">Fá#</td>
-            <td>F# G# A# B C# D# E# F#</td>
-            <td class="sharps">6</td>
-            <td class="sharps">Mi#</td>
-          </tr>
-          <tr>
-            <td class="key-col">Dó#</td>
-            <td>C# D# E# F# G# A# B# C#</td>
-            <td class="sharps">7</td>
-            <td class="sharps">Si#</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="card">
-      <p style="font-size:0.85rem;">💡 Cada nova escala herda todos os sustenidos da anterior e adiciona <strong>exatamente 1 novo sustenido</strong> — sempre o 7º grau da nova escala.</p>
-    </div>
-  </section>
-
-  <!-- ARMADURAS DE CLAVE -->
-  <section id="armaduras">
-    <h2><span class="icon">🎼</span> Armaduras de Clave</h2>
-    <div class="card">
-      <p style="font-size:0.85rem;margin-bottom:0.75rem;">A armadura de clave indica <strong>quais notas são alteradas</strong> em toda a peça, evitando sustenidos a cada nota.</p>
-    </div>
-    <div class="key-sig-grid">
-      <div class="key-sig-item">
-        <div class="key-name">Dó</div>
-        <div class="sharp-count">0 #</div>
-        <div class="sharp-notes">—</div>
-      </div>
-      <div class="key-sig-item">
-        <div class="key-name">Sol</div>
-        <div class="sharp-count">1 #</div>
-        <div class="sharp-notes">Fá#</div>
-      </div>
-      <div class="key-sig-item">
-        <div class="key-name">Ré</div>
-        <div class="sharp-count">2 #</div>
-        <div class="sharp-notes">Fá# Dó#</div>
-      </div>
-      <div class="key-sig-item">
-        <div class="key-name">Lá</div>
-        <div class="sharp-count">3 #</div>
-        <div class="sharp-notes">Fá# Dó# Sol#</div>
-      </div>
-      <div class="key-sig-item">
-        <div class="key-name">Mi</div>
-        <div class="sharp-count">4 #</div>
-        <div class="sharp-notes">Fá# Dó# Sol# Ré#</div>
-      </div>
-      <div class="key-sig-item">
-        <div class="key-name">Si</div>
-        <div class="sharp-count">5 #</div>
-        <div class="sharp-notes">+ Lá#</div>
-      </div>
-      <div class="key-sig-item">
-        <div class="key-name">Fá#</div>
-        <div class="sharp-count">6 #</div>
-        <div class="sharp-notes">+ Mi#</div>
-      </div>
-      <div class="key-sig-item">
-        <div class="key-name">Dó#</div>
-        <div class="sharp-count">7 #</div>
-        <div class="sharp-notes">+ Si#</div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:0.75rem;">
-      <p style="font-size:0.85rem;">🔑 <strong>Macete:</strong> Para encontrar a tonalidade a partir dos sustenidos na armadura, olhe o <strong>último sustenido</strong> e suba <strong>um semitom acima</strong> — essa é a tônica. Ex: último # é Fá# → um semitom acima = Sol → tonalidade de Sol Maior!</p>
-    </div>
-  </section>
-
-  <!-- LINK TO GAME -->
-  <section id="exercicio">
-    <h2><span class="icon">🎮</span> Pronto para testar?</h2>
-    <div class="card" style="text-align:center;padding:1.5rem 1rem;">
-      <p style="margin-bottom:1rem;">Você estudou o conteúdo. Agora coloque em prática com perguntas interativas!</p>
-      <a href="tetroquestgame.html" style="display:block;width:100%;padding:1rem;border-radius:14px;border:none;background:linear-gradient(135deg,#7c6af7,#5a4fd4);color:#fff;font-size:1.1rem;font-weight:800;text-decoration:none;box-shadow:0 4px 20px rgba(124,106,247,.35);">🎮 Exercício</a>
-    </div>
-  </section>
-
-</main>
-
-<footer>
-  <p>🎵 Teoria Musical — Tetracordes & Escalas Maiores</p>
-  <p style="margin-top:0.25rem;">Baseado no sistema de intervalos T-T-sT-T-T-T-sT</p>
-</footer>
+<script>
+  // Ativa link da nav conforme scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { threshold: 0.35 });
+  sections.forEach(s => observer.observe(s));
+</script>
 
 </body>
 </html>
