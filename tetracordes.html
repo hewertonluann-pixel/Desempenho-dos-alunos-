@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tetracordes e Escalas Maiores</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f14;
+      --surface: #1a1a24;
+      --card: #22223a;
+      --accent: #7c6af7;
+      --accent2: #f7c26a;
+      --accent3: #6af7b8;
+      --text: #e8e8f0;
+      --muted: #9090b0;
+      --radius: 14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface);
+      padding: 1rem 1.2rem 0.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar { display: none; }
+
+    nav a {
+      text-decoration: none;
+      white-space: nowrap;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(124,106,247,0.12);
+      color: var(--accent);
+      border: 1px solid rgba(124,106,247,0.25);
+      transition: background 0.2s;
+    }
+    nav a:hover { background: rgba(124,106,247,0.28); }
+
+    main {
+      width: 100%;
+      max-width: 520px;
+      padding: 1.2rem 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    section { scroll-margin-top: 90px; }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent2);
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon { font-size: 1.2rem; }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    p { font-size: 0.9rem; line-height: 1.6; color: var(--muted); }
+    strong { color: var(--text); }
+
+    /* Tetracorde visual */
+    .tetra-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 0.8rem 0;
+    }
+
+    .note-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    .note-box span.interval {
+      font-size: 0.6rem;
+      font-weight: 600;
+      opacity: 0.75;
+      margin-top: 2px;
+    }
+
+    .t1 { background: linear-gradient(135deg,#5a4fd4,#7c6af7); color: #fff; }
+    .t2 { background: linear-gradient(135deg,#c48a0a,#f7c26a); color: #1a1200; }
+    .arrow {
+      display: flex;
+      align-items: center;
+      font-size: 1.1rem;
+      color: var(--muted);
+      padding: 0 2px;
+    }
+
+    /* Intervalos */
+    .intervals-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin: 0.8rem 0;
+      align-items: center;
+    }
+
+    .int-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .note-sm {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .int-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .int-tom { background: rgba(106,247,184,0.18); color: #6af7b8; }
+    .int-semi { background: rgba(247,100,100,0.18); color: #f76464; }
+
+    .int-arrow { font-size: 0.7rem; color: var(--muted); }
+
+    /* Scale steps */
+    .scale-step {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--accent);
+    }
+
+    .scale-step h3 {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .scale-step.step2 { border-left-color: var(--accent2); }
+    .scale-step.step2 h3 { color: var(--accent2); }
+    .scale-step.step3 { border-left-color: var(--accent3); }
+    .scale-step.step3 h3 { color: var(--accent3); }
+
+    .notes-line {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin: 0.5rem 0;
+    }
+
+    .n {
+      padding: 4px 9px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .n-inherited { background: rgba(124,106,247,0.25); color: #a89eff; }
+    .n-new { background: rgba(247,194,106,0.2); color: var(--accent2); }
+    .n-sharp { background: rgba(247,100,100,0.2); color: #f79464; }
+    .n-ok { background: rgba(106,247,184,0.2); color: var(--accent3); }
+
+    .correction-box {
+      background: rgba(247,100,100,0.08);
+      border: 1px solid rgba(247,100,100,0.2);
+      border-radius: 10px;
+      padding: 0.7rem 0.9rem;
+      margin: 0.6rem 0;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .why-box {
+      background: rgba(106,247,184,0.06);
+      border: 1px solid rgba(106,247,184,0.15);
+      border-radius: 10px;
+      padding: 0.7rem 0.9rem;
+      margin-top: 0.6rem;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      color: var(--accent3);
+    }
+
+    /* Tabela */
+    .scale-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .scale-table th {
+      background: rgba(124,106,247,0.15);
+      color: var(--accent);
+      padding: 6px 8px;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .scale-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--muted);
+    }
+
+    .scale-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge-sharp {
+      display: inline-block;
+      background: rgba(247,194,106,0.2);
+      color: var(--accent2);
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 1px 6px;
+      border-radius: 5px;
+    }
+
+    /* Armaduras grid */
+    .arm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .arm-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 0.8rem;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .arm-card .tone-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent2);
+      margin-bottom: 0.3rem;
+    }
+
+    .arm-card .sharps-count {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .arm-notes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .arm-note {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(247,100,100,0.18);
+      color: #f79464;
+    }
+
+    .arm-note.natural {
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+    }
+
+    .macete-box {
+      background: rgba(124,106,247,0.08);
+      border: 1px solid rgba(124,106,247,0.2);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    #exercicio a {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg,#7c6af7,#5a4fd4);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(124,106,247,.35);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎵 Tetracordes e Escalas Maiores</h1>
+  <nav>
+    <a href="#conceito">Conceito</a>
+    <a href="#intervalos">Intervalos</a>
+    <a href="#formacao">Formacao</a>
+    <a href="#tabela">Tabela</a>
+    <a href="#armaduras">Armaduras</a>
+    <a href="#exercicio">🎮 Exercicio</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- CONCEITO -->
+  <section id="conceito">
+    <h2><span class="icon">📖</span> O que é um Tetracorde?</h2>
+    <div class="card">
+      <p>Um <strong>tetracorde</strong> é um grupo de <strong>4 notas consecutivas</strong> que formam metade de uma escala. A escala maior possui dois tetracordes separados por um Tom.</p>
+      <div class="tetra-row">
+        <div class="note-box t1">Dó<span class="interval">início</span></div>
+        <div class="note-box t1">Ré</div>
+        <div class="note-box t1">Mi</div>
+        <div class="note-box t1">Fá<span class="interval">1º T.</span></div>
+        <div class="arrow">—T—</div>
+        <div class="note-box t2">Sol<span class="interval">início</span></div>
+        <div class="note-box t2">Lá</div>
+        <div class="note-box t2">Si</div>
+        <div class="note-box t2">Dó<span class="interval">2º T.</span></div>
+      </div>
+      <p>Na escala de <strong>Dó Maior</strong>: o 1º tetracorde é <strong>Dó-Ré-Mi-Fá</strong> (roxo) e o 2º é <strong>Sol-Lá-Si-Dó</strong> (amarelo). Entre eles há um <strong>Tom</strong> de distância (Fá→Sol).</p>
+    </div>
+  </section>
+
+  <!-- INTERVALOS -->
+  <section id="intervalos">
+    <h2><span class="icon">📏</span> Padrão de Intervalos</h2>
+    <div class="card">
+      <p>Toda escala <strong>maior</strong> segue a sequência fixa de intervalos abaixo. Este é o <strong>modelo de comparação</strong> usado para formar novas escalas:</p>
+      <div class="intervals-row">
+        <div class="int-box"><span class="note-sm">Dó</span><span class="int-label int-tom">T</span><span class="int-arrow">↓</span></div>
+        <div class="int-box"><span class="note-sm">Ré</span><span class="int-label int-tom">T</span><span class="int-arrow">↓</span></div>
+        <div class="int-box"><span class="note-sm">Mi</span><span class="int-label int-semi">sT</span><span class="int-arrow">↓</span></div>
+        <div class="int-box"><span class="note-sm">Fá</span><span class="int-label int-tom">T</span><span class="int-arrow">↓</span></div>
+        <div class="int-box"><span class="note-sm">Sol</span><span class="int-label int-tom">T</span><span class="int-arrow">↓</span></div>
+        <div class="int-box"><span class="note-sm">Lá</span><span class="int-label int-tom">T</span><span class="int-arrow">↓</span></div>
+        <div class="int-box"><span class="note-sm">Si</span><span class="int-label int-semi">sT</span><span class="int-arrow">↓</span></div>
+        <div class="int-box"><span class="note-sm">Dó</span></div>
+      </div>
+      <p style="margin-top:0.5rem;"><span class="int-label int-tom">T</span> = Tom (2 semitons) &nbsp;|&nbsp; <span class="int-label int-semi">sT</span> = Semitom (1 semitom)</p>
+      <p style="margin-top:0.4rem;">O padrão completo: <strong>T - T - sT - T - T - T - sT</strong></p>
+    </div>
+  </section>
+
+  <!-- FORMAÇÃO -->
+  <section id="formacao">
+    <h2><span class="icon">🔄</span> Formando Novas Escalas</h2>
+
+    <!-- Dó → Sol -->
+    <div class="scale-step">
+      <h3>Dó Maior → Sol Maior (1 sustenido)</h3>
+      <p>O <strong>2º tetracorde de Dó</strong> (Sol-Lá-Si-Dó) vira o <strong>1º tetracorde</strong> da nova escala. Completamos com as notas seguintes: Ré-Mi-Fá-Sol.</p>
+
+      <p style="margin-top:0.5rem; font-size:0.82rem; color:var(--accent);">Notas brutas antes da correção:</p>
+      <div class="notes-line">
+        <span class="n n-inherited">Sol</span><span class="n n-inherited">Lá</span><span class="n n-inherited">Si</span><span class="n n-inherited">Dó</span>
+        <span style="color:var(--muted);padding:0 2px;">+</span>
+        <span class="n n-new">Ré</span><span class="n n-new">Mi</span><span class="n n-new">Fá</span><span class="n n-new">Sol</span>
+      </div>
+
+      <div class="correction-box">
+        ❌ Verificando intervalo 6→7: <strong>Mi→Fá = Semitom</strong><br>
+        O modelo exige <strong>Tom</strong> na 6ª posição (Lá→Si = T, Si→Dó = T, Dó→Ré = T na posição 6).<br>
+        Mas a 7ª posição (Si→Dó) deve ser <strong>Semitom</strong>. O problema está em <strong>Fá natural</strong>: Si→Fá já é Semitom na posição errada, e Mi→Fá (6ª posição) deveria ser Tom.<br>
+        <strong>Correção:</strong> Fá → <strong>Fá# ✅</strong> — agora Mi→Fá# = Tom ✔ e Si→Dó = sT ✔
+      </div>
+
+      <div class="why-box">
+        💡 <strong>Por que o Fá#?</strong> A comparação com o modelo maior mostra que na 7ª posição (7ª nota = Si) precisa ser sT até a 8ª (Sol). E na 6ª posição (Mi→Fá) precisa ser Tom. Fá natural está a sT de Mi — errado. Fá# está a T de Mi — correto!
+      </div>
+
+      <p style="margin-top:0.6rem; font-size:0.82rem; color:var(--accent3);">Escala de Sol Maior correta:</p>
+      <div class="notes-line">
+        <span class="n n-ok">Sol</span><span class="n n-ok">Lá</span><span class="n n-ok">Si</span><span class="n n-ok">Dó</span><span class="n n-ok">Ré</span><span class="n n-ok">Mi</span><span class="n n-sharp">Fá#</span><span class="n n-ok">Sol</span>
+      </div>
+    </div>
+
+    <!-- Sol → Ré -->
+    <div class="scale-step step2">
+      <h3>Sol Maior → Ré Maior (2 sustenidos)</h3>
+      <p>O <strong>2º tetracorde de Sol</strong> (Ré-Mi-Fá#-Sol) vira o <strong>1º tetracorde</strong> de Ré. Completamos com: Lá-Si-Dó-Ré.</p>
+
+      <div class="notes-line">
+        <span class="n n-inherited">Ré</span><span class="n n-inherited">Mi</span><span class="n n-inherited">Fá#</span><span class="n n-inherited">Sol</span>
+        <span style="color:var(--muted);padding:0 2px;">+</span>
+        <span class="n n-new">Lá</span><span class="n n-new">Si</span><span class="n n-new">Dó</span><span class="n n-new">Ré</span>
+      </div>
+
+      <div class="correction-box">
+        ❌ Verificando: Sol→Lá=T ✔, Lá→Si=T ✔, Si→Dó = <strong>Semitom</strong> — deveria ser T na posição 6!<br>
+        E Dó→Ré = Tom, mas deveria ser <strong>Semitom</strong> na posição 7.<br>
+        <strong>Correção:</strong> Dó → <strong>Dó# ✅</strong> — agora Si→Dó# = Tom ✔ e Dó#→Ré = sT ✔
+      </div>
+
+      <div class="why-box">
+        💡 <strong>Por que o Dó#?</strong> O Dó natural fica a apenas um semitom do Si — isso é sT na posição 6 (errado). Subindo para Dó#, Si→Dó# = Tom ✔. E Dó#→Ré fica a sT, correto para posição 7!
+      </div>
+
+      <p style="margin-top:0.6rem; font-size:0.82rem; color:var(--accent2);">Escala de Ré Maior correta:</p>
+      <div class="notes-line">
+        <span class="n n-ok">Ré</span><span class="n n-ok">Mi</span><span class="n n-sharp">Fá#</span><span class="n n-ok">Sol</span><span class="n n-ok">Lá</span><span class="n n-ok">Si</span><span class="n n-sharp">Dó#</span><span class="n n-ok">Ré</span>
+      </div>
+    </div>
+
+    <!-- Ré → Lá -->
+    <div class="scale-step step3">
+      <h3>Ré Maior → Lá Maior (3 sustenidos)</h3>
+      <p>O <strong>2º tetracorde de Ré</strong> (Lá-Si-Dó#-Ré) vira o <strong>1º tetracorde</strong> de Lá. Completamos com: Mi-Fá-Sol-Lá.</p>
+
+      <div class="notes-line">
+        <span class="n n-inherited">Lá</span><span class="n n-inherited">Si</span><span class="n n-inherited">Dó#</span><span class="n n-inherited">Ré</span>
+        <span style="color:var(--muted);padding:0 2px;">+</span>
+        <span class="n n-new">Mi</span><span class="n n-new">Fá</span><span class="n n-new">Sol</span><span class="n n-new">Lá</span>
+      </div>
+
+      <div class="correction-box">
+        ❌ Ré→Mi=T ✔, Mi→Fá = <strong>Semitom</strong> — deveria ser T na posição 6!<br>
+        E Sol→Lá=T, mas Fá→Sol=T e Mi→Fá=sT (errado na posição 6).<br>
+        <strong>Correção:</strong> Fá → <strong>Sol# ✅</strong> — aguarda: Mi→Fá#=T ✔, Fá#→Sol#=T ✔, Sol#→Lá=sT ✔<br>
+        <strong>Novo sustenido: Sol#</strong>
+      </div>
+
+      <div class="why-box">
+        💡 <strong>Por que o Sol#?</strong> Mi→Fá é semitom (errado na posição 6). Subindo para Fá#=T ✔. Mas então Fá#→Sol=T e Sol→Lá=T — sobra um Tom a mais. Sobe Sol para Sol#: Fá#→Sol#=T ✔ e Sol#→Lá=sT ✔!
+      </div>
+
+      <p style="margin-top:0.6rem; font-size:0.82rem; color:var(--accent3);">Escala de Lá Maior correta:</p>
+      <div class="notes-line">
+        <span class="n n-ok">Lá</span><span class="n n-ok">Si</span><span class="n n-sharp">Dó#</span><span class="n n-ok">Ré</span><span class="n n-ok">Mi</span><span class="n n-sharp">Fá#</span><span class="n n-sharp">Sol#</span><span class="n n-ok">Lá</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TABELA -->
+  <section id="tabela">
+    <h2><span class="icon">📊</span> Tabela das Escalas</h2>
+    <div class="card" style="padding:0.5rem;">
+      <table class="scale-table">
+        <thead>
+          <tr>
+            <th>Escala</th>
+            <th>#</th>
+            <th>Novo #</th>
+            <th>Notas alteradas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Dó Maior</td><td>0</td><td>—</td><td>—</td></tr>
+          <tr><td>Sol Maior</td><td>1</td><td><span class="badge-sharp">Fá#</span></td><td>Fá#</td></tr>
+          <tr><td>Ré Maior</td><td>2</td><td><span class="badge-sharp">Dó#</span></td><td>Fá# Dó#</td></tr>
+          <tr><td>Lá Maior</td><td>3</td><td><span class="badge-sharp">Sol#</span></td><td>Fá# Dó# Sol#</td></tr>
+          <tr><td>Mi Maior</td><td>4</td><td><span class="badge-sharp">Ré#</span></td><td>Fá# Dó# Sol# Ré#</td></tr>
+          <tr><td>Si Maior</td><td>5</td><td><span class="badge-sharp">Lá#</span></td><td>Fá# Dó# Sol# Ré# Lá#</td></tr>
+          <tr><td>Fá# Maior</td><td>6</td><td><span class="badge-sharp">Mi#</span></td><td>Fá# Dó# Sol# Ré# Lá# Mi#</td></tr>
+          <tr><td>Dó# Maior</td><td>7</td><td><span class="badge-sharp">Si#</span></td><td>Fá# Dó# Sol# Ré# Lá# Mi# Si#</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ARMADURAS -->
+  <section id="armaduras">
+    <h2><span class="icon">🔑</span> Armaduras de Clave</h2>
+    <p style="margin-bottom:0.8rem;">A armadura indica as notas alteradas fixas de uma tonalidade, escritas logo após a clave no início da pauta.</p>
+    <div class="arm-grid">
+      <div class="arm-card">
+        <div class="tone-name">Dó Maior</div>
+        <div class="sharps-count">0 sustenidos</div>
+        <div class="arm-notes"><span class="arm-note natural">sem alterações</span></div>
+      </div>
+      <div class="arm-card">
+        <div class="tone-name">Sol Maior</div>
+        <div class="sharps-count">1 sustenido</div>
+        <div class="arm-notes"><span class="arm-note">Fá#</span></div>
+      </div>
+      <div class="arm-card">
+        <div class="tone-name">Ré Maior</div>
+        <div class="sharps-count">2 sustenidos</div>
+        <div class="arm-notes"><span class="arm-note">Fá#</span><span class="arm-note">Dó#</span></div>
+      </div>
+      <div class="arm-card">
+        <div class="tone-name">Lá Maior</div>
+        <div class="sharps-count">3 sustenidos</div>
+        <div class="arm-notes"><span class="arm-note">Fá#</span><span class="arm-note">Dó#</span><span class="arm-note">Sol#</span></div>
+      </div>
+      <div class="arm-card">
+        <div class="tone-name">Mi Maior</div>
+        <div class="sharps-count">4 sustenidos</div>
+        <div class="arm-notes"><span class="arm-note">Fá#</span><span class="arm-note">Dó#</span><span class="arm-note">Sol#</span><span class="arm-note">Ré#</span></div>
+      </div>
+      <div class="arm-card">
+        <div class="tone-name">Si Maior</div>
+        <div class="sharps-count">5 sustenidos</div>
+        <div class="arm-notes"><span class="arm-note">Fá#</span><span class="arm-note">Dó#</span><span class="arm-note">Sol#</span><span class="arm-note">Ré#</span><span class="arm-note">Lá#</span></div>
+      </div>
+      <div class="arm-card">
+        <div class="tone-name">Fá# Maior</div>
+        <div class="sharps-count">6 sustenidos</div>
+        <div class="arm-notes"><span class="arm-note">Fá#</span><span class="arm-note">Dó#</span><span class="arm-note">Sol#</span><span class="arm-note">Ré#</span><span class="arm-note">Lá#</span><span class="arm-note">Mi#</span></div>
+      </div>
+      <div class="arm-card">
+        <div class="tone-name">Dó# Maior</div>
+        <div class="sharps-count">7 sustenidos</div>
+        <div class="arm-notes"><span class="arm-note">Fá#</span><span class="arm-note">Dó#</span><span class="arm-note">Sol#</span><span class="arm-note">Ré#</span><span class="arm-note">Lá#</span><span class="arm-note">Mi#</span><span class="arm-note">Si#</span></div>
+      </div>
+    </div>
+    <div class="macete-box">
+      🔑 <strong>Macete:</strong> Para encontrar a tonalidade a partir dos sustenidos na armadura, olhe o <strong>último sustenido</strong> e suba <strong>um semitom acima</strong> — essa é a tônica (nome da tonalidade maior). Ex: último # é Fá# → um semitom acima = Sol → tonalidade de Sol Maior!
+    </div>
+  </section>
+
+  <!-- LINK TO GAME -->
+  <section id="exercicio">
+    <h2><span class="icon">🎮</span> Pronto para testar?</h2>
+    <div class="card" style="text-align:center;padding:1.5rem 1rem;">
+      <p style="margin-bottom:1rem;">Você estudou o conteúdo. Agora coloque em prática com perguntas interativas!</p>
+      <a href="tetroquestgame.html">🎮 Exercício</a>
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>
