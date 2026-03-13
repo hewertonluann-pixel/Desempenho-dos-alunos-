@@ -39,86 +39,75 @@
       border-bottom: 2px solid var(--accent);
     }
     header h1 {
-      font-size: 1.7rem;
-      font-weight: 800;
+      font-size: 1.7rem; font-weight: 800;
       background: linear-gradient(90deg, var(--accent), var(--accent3));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; }
 
     nav {
-      display: flex;
-      overflow-x: auto;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
-      background: var(--surface);
-      border-bottom: 1px solid #2a2a40;
-      scrollbar-width: none;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      display: flex; overflow-x: auto; gap: 0.5rem;
+      padding: 0.75rem 1rem; background: var(--surface);
+      border-bottom: 1px solid #2a2a40; scrollbar-width: none;
+      position: sticky; top: 0; z-index: 100;
     }
     nav::-webkit-scrollbar { display: none; }
     nav a {
-      flex-shrink: 0;
-      background: var(--card);
-      color: var(--muted);
-      text-decoration: none;
-      padding: 0.4rem 0.9rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: 1px solid transparent;
-      transition: all .2s;
+      flex-shrink: 0; background: var(--card); color: var(--muted);
+      text-decoration: none; padding: 0.4rem 0.9rem; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; border: 1px solid transparent; transition: all .2s;
     }
     nav a:hover, nav a.active { border-color: var(--accent); color: var(--accent); }
 
     .page-wrapper { max-width: 1280px; margin: 0 auto; }
 
-    main {
-      padding: 1rem;
-      max-width: 520px;
-      margin: 0 auto;
-    }
+    main { padding: 1rem; max-width: 520px; margin: 0 auto; }
 
     section { margin-bottom: 2rem; }
     section h2 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--accent3);
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      font-size: 1.15rem; font-weight: 700; color: var(--accent3);
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
     }
     section h2 .icon { font-size: 1.2rem; }
 
     .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 1rem 1.1rem;
-      margin-bottom: 0.75rem;
-      border: 1px solid #2e2e48;
+      background: var(--card); border-radius: var(--radius);
+      padding: 1rem 1.1rem; margin-bottom: 0.75rem; border: 1px solid #2e2e48;
     }
     .card p { color: var(--muted); font-size: 0.92rem; }
     .card strong { color: var(--text); }
 
     /* =============================================
-       NOVA LINHA DE ESCALA INTERCALADA
-       Nota · intervalo · Nota · intervalo ...
+       ESCALA INTERCALADA
+       .scale-inline → flex que permite quebrar ENTRE grupos
+       .tetra-group  → grupo atômico: nunca quebra internamente
     ============================================= */
     .scale-inline {
       display: flex;
+      flex-wrap: wrap;          /* permite quebrar entre grupos */
       align-items: center;
-      flex-wrap: wrap;
-      gap: 0;
+      gap: 0.15rem 0;
       margin: 0.6rem 0;
     }
 
-    /* caixinhas de nota — iguais ao anterior */
+    /* cada grupo é atômico: Nota·iv·Nota·iv·Nota·iv·Nota */
+    .tetra-group {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;      /* nunca quebra internamente */
+      flex-shrink: 0;
+    }
+
+    /* intervalo de ligação entre os dois tetracordes */
+    .iv-link-wrap {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* caixinhas de nota */
     .note-box {
+      display: inline-block;
       text-align: center;
       padding: 0.5rem 0.45rem;
       border-radius: 10px;
@@ -131,108 +120,59 @@
     .note-box.t2    { background: rgba(247,194,106,0.2); border: 1.5px solid var(--t2);    color: var(--t2); }
     .note-box.sharp { background: rgba(247,106,106,0.2); border: 1.5px solid var(--sharp); color: var(--sharp); }
 
-    /* separador de intervalo inline — SEM fundo, SEM borda */
+    /* intervalo inline — sem fundo, sem borda */
     .iv {
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 0 0.3rem;
-      line-height: 1;
-      white-space: nowrap;
-      flex-shrink: 0;
+      font-size: 0.65rem; font-weight: 800;
+      padding: 0 0.28rem; line-height: 1; white-space: nowrap; flex-shrink: 0;
     }
     .iv.T      { color: var(--accent3); }
     .iv.sT     { color: var(--sharp); }
     .iv.T-link { color: var(--accent3); opacity: 0.55; font-style: italic; }
-    /* marcacao de erro / ok */
     .iv.err    { color: var(--sharp); }
-    .iv.ok     { color: var(--accent3); }
 
-    /* separador entre os dois tetracordes na mesma linha */
-    .tetra-sep {
-      width: 1px;
-      height: 2rem;
-      background: rgba(255,255,255,0.12);
-      margin: 0 0.35rem;
-      flex-shrink: 0;
-    }
-
-    /* link-note mantido */
     .link-note {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.4rem;
-      background: rgba(106,247,184,0.06);
-      border: 1px dashed rgba(106,247,184,0.25);
-      border-radius: 8px;
-      padding: 0.45rem 0.65rem;
-      margin: 0.4rem 0 0.2rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-      line-height: 1.5;
+      display: flex; align-items: flex-start; gap: 0.4rem;
+      background: rgba(106,247,184,0.06); border: 1px dashed rgba(106,247,184,0.25);
+      border-radius: 8px; padding: 0.45rem 0.65rem; margin: 0.4rem 0 0.2rem;
+      font-size: 0.78rem; color: var(--muted); line-height: 1.5;
     }
     .link-note .link-note-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.05rem; }
     .link-note strong { color: var(--accent3); }
 
     .pill {
-      display: inline-block;
-      padding: 0.2rem 0.7rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin: 0.15rem;
+      display: inline-block; padding: 0.2rem 0.7rem; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 700; margin: 0.15rem;
     }
     .pill.t1    { background: rgba(124,106,247,0.2); color: var(--t1); }
     .pill.t2    { background: rgba(247,194,106,0.2); color: var(--t2); }
     .pill.sharp { background: rgba(247,106,106,0.2); color: var(--sharp); }
 
-    /* hero de intervalos */
     .interval-hero {
       background: linear-gradient(135deg, rgba(124,106,247,0.12), rgba(106,247,184,0.08));
-      border: 1px solid rgba(124,106,247,0.3);
-      border-radius: var(--radius);
-      padding: 1rem;
-      margin-bottom: 0.75rem;
+      border: 1px solid rgba(124,106,247,0.3); border-radius: var(--radius);
+      padding: 1rem; margin-bottom: 0.75rem;
     }
     .interval-hero .pattern {
-      display: flex;
-      gap: 0.3rem;
-      flex-wrap: wrap;
-      margin-top: 0.5rem;
-      justify-content: center;
+      display: flex; gap: 0.3rem; flex-wrap: wrap;
+      margin-top: 0.5rem; justify-content: center;
     }
-    .int-step {
-      padding: 0.35rem 0.6rem;
-      border-radius: 8px;
-      font-weight: 800;
-      font-size: 0.9rem;
-    }
+    .int-step { padding: 0.35rem 0.6rem; border-radius: 8px; font-weight: 800; font-size: 0.9rem; }
     .int-step.T  { background: rgba(106,247,184,0.15); color: var(--accent3); border: 1px solid var(--accent3); }
-    .int-step.sT { background: rgba(247,106,106,0.15); color: var(--sharp);   border: 1px solid var(--sharp); }
+    .int-step.sT { background: rgba(247,106,106,0.15); color: var(--sharp); border: 1px solid var(--sharp); }
     .int-step.T-link {
-      background: rgba(106,247,184,0.25);
-      color: var(--accent3);
-      border: 1.5px dashed var(--accent3);
-      position: relative;
+      background: rgba(106,247,184,0.25); color: var(--accent3);
+      border: 1.5px dashed var(--accent3); position: relative;
     }
     .int-step.T-link::after {
-      content: 'ligação';
-      position: absolute;
-      bottom: -1.1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.52rem;
-      font-weight: 600;
-      color: var(--muted);
-      white-space: nowrap;
+      content: 'ligação'; position: absolute; bottom: -1.1rem; left: 50%;
+      transform: translateX(-50%); font-size: 0.52rem; font-weight: 600;
+      color: var(--muted); white-space: nowrap;
     }
 
-    /* Padrão secao: Escala de Do com intervalos */
-    .scale-table-wrapper { overflow-x: auto; }
     .scale-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     .scale-table th {
       background: rgba(124,106,247,0.15); color: var(--accent);
-      padding: 0.5rem 0.3rem; text-align: center;
-      font-size: 0.75rem; border-bottom: 1px solid #2e2e48;
+      padding: 0.5rem 0.3rem; text-align: center; font-size: 0.75rem; border-bottom: 1px solid #2e2e48;
     }
     .scale-table td {
       padding: 0.5rem 0.3rem; text-align: center;
@@ -244,17 +184,11 @@
     .scale-table tr.highlight td { background: rgba(124,106,247,0.07); }
 
     .key-sig-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.5rem;
-      margin-top: 0.5rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.5rem;
     }
     .key-sig-item {
-      background: var(--surface);
-      border: 1px solid #2e2e48;
-      border-radius: 10px;
-      padding: 0.6rem 0.3rem;
-      text-align: center;
+      background: var(--surface); border: 1px solid #2e2e48;
+      border-radius: 10px; padding: 0.6rem 0.3rem; text-align: center;
     }
     .key-sig-item .key-name  { font-weight: 800; font-size: 1rem; color: var(--accent2); }
     .key-sig-item .sharp-count { font-size: 0.75rem; color: var(--sharp); font-weight: 700; }
@@ -271,14 +205,9 @@
     .step-text { font-size: 0.9rem; color: var(--muted); padding-top: 0.2rem; }
     .step-text strong { color: var(--text); }
 
-    /* rótulo de subseção dentro de card */
     .sub-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin: 0.55rem 0 0.25rem;
+      font-size: 0.7rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.8px; margin: 0.55rem 0 0.25rem;
     }
 
     footer {
@@ -297,72 +226,35 @@
         display: grid;
         grid-template-columns: var(--sidebar) 1fr;
         grid-template-rows: auto 1fr auto;
-        grid-template-areas:
-          "sidebar header"
-          "sidebar content"
-          "sidebar footer";
-        min-height: 100vh;
-        align-items: start;
+        grid-template-areas: "sidebar header" "sidebar content" "sidebar footer";
+        min-height: 100vh; align-items: start;
       }
-      .page-wrapper > header {
-        grid-area: header;
-        text-align: left;
-        padding: 2rem 2rem 1.5rem;
-      }
+      .page-wrapper > header { grid-area: header; text-align: left; padding: 2rem 2rem 1.5rem; }
+
       nav.desktop-nav {
-        grid-area: sidebar;
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        padding: 1.5rem 0.85rem;
-        background: var(--surface);
-        border-right: 1px solid #2a2a40;
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        overflow-y: auto;
+        grid-area: sidebar; display: flex; flex-direction: column; gap: 0.4rem;
+        padding: 1.5rem 0.85rem; background: var(--surface);
+        border-right: 1px solid #2a2a40; position: sticky; top: 0; height: 100vh; overflow-y: auto;
       }
-      nav.desktop-nav a {
-        border-radius: 10px;
-        padding: 0.55rem 0.85rem;
-        font-size: 0.82rem;
-        text-align: left;
-        white-space: nowrap;
-      }
+      nav.desktop-nav a { border-radius: 10px; padding: 0.55rem 0.85rem; font-size: 0.82rem; text-align: left; white-space: nowrap; }
       nav.desktop-nav .nav-title {
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: var(--accent);
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        padding: 0.4rem 0.85rem 0.2rem;
-        margin-top: 0.5rem;
+        font-size: 0.68rem; font-weight: 700; color: var(--accent);
+        text-transform: uppercase; letter-spacing: 1.5px; padding: 0.4rem 0.85rem 0.2rem; margin-top: 0.5rem;
       }
+
       main {
-        grid-area: content;
-        max-width: 100%;
-        padding: 1.5rem 2rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem 2rem;
-        align-items: start;
+        grid-area: content; max-width: 100%; padding: 1.5rem 2rem;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 2rem; align-items: start;
       }
       #processo, #escalas { grid-column: 1 / -1; }
-      #processo .process-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        align-items: start;
-      }
-      #escalas .escalas-grid {
-        display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 1.5rem;
-        align-items: start;
-      }
+      #processo .process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
+      #escalas .escalas-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
       .key-sig-grid { grid-template-columns: repeat(4, 1fr); }
       footer { grid-area: footer; }
       section { margin-bottom: 0; }
+
+      /* Em desktop os dois tetracordes ficam sempre na mesma linha */
+      .scale-inline { flex-wrap: nowrap; }
     }
 
     @media (min-width: 1100px) {
@@ -408,26 +300,21 @@
       </div>
       <div class="card">
         <p><strong>Escala de Dó Maior</strong> — a escala modelo:</p>
-
-        <!-- Linha única intercalada: nota·iv·nota·iv·nota·iv·nota | T-lig | nota·iv·nota·iv·nota·iv·nota -->
         <div class="scale-inline" style="margin-top:0.7rem;">
-          <div class="note-box t1">Dó</div>
-          <span class="iv T">T</span>
-          <div class="note-box t1">Ré</div>
-          <span class="iv T">T</span>
-          <div class="note-box t1">Mi</div>
-          <span class="iv sT">sT</span>
-          <div class="note-box t1">Fá</div>
-          <span class="iv T-link">T</span>
-          <div class="note-box t2">Sol</div>
-          <span class="iv T">T</span>
-          <div class="note-box t2">Lá</div>
-          <span class="iv T">T</span>
-          <div class="note-box t2">Si</div>
-          <span class="iv sT">sT</span>
-          <div class="note-box t2">Dó</div>
+          <div class="tetra-group">
+            <div class="note-box t1">Dó</div><span class="iv T">T</span>
+            <div class="note-box t1">Ré</div><span class="iv T">T</span>
+            <div class="note-box t1">Mi</div><span class="iv sT">sT</span>
+            <div class="note-box t1">Fá</div>
+          </div>
+          <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+          <div class="tetra-group">
+            <div class="note-box t2">Sol</div><span class="iv T">T</span>
+            <div class="note-box t2">Lá</div><span class="iv T">T</span>
+            <div class="note-box t2">Si</div><span class="iv sT">sT</span>
+            <div class="note-box t2">Dó</div>
+          </div>
         </div>
-
         <div style="display:flex;gap:0.4rem;margin-top:0.5rem;flex-wrap:wrap;">
           <span class="pill t1">1º Tetracorde</span>
           <span class="pill t2">2º Tetracorde</span>
@@ -435,7 +322,7 @@
         <p style="margin-top:0.5rem;">O 1º tetracorde vai de <strong>Dó a Fá</strong>. O 2º vai de <strong>Sol a Dó</strong>. Entre eles há sempre <strong style="color:var(--accent3);">1 Tom de ligação</strong> (Fá→Sol).</p>
         <div class="link-note">
           <span class="link-note-icon">💡</span>
-          <span>O <strong>T itálico apagado</strong> entre os dois tetracordes é o <strong>Tom de ligação</strong> — fixo em qualquer escala maior.</span>
+          <span>O <em>T itálico apagado</em> entre os tetracordes é o <strong>Tom de ligação</strong> — fixo em qualquer escala maior.</span>
         </div>
       </div>
     </section>
@@ -446,13 +333,9 @@
       <div class="interval-hero">
         <p style="font-size:0.85rem;color:var(--muted);text-align:center;">Toda escala maior segue este padrão:</p>
         <div class="pattern" style="margin-bottom:1.4rem;">
-          <div class="int-step T">T</div>
-          <div class="int-step T">T</div>
-          <div class="int-step sT">sT</div>
+          <div class="int-step T">T</div><div class="int-step T">T</div><div class="int-step sT">sT</div>
           <div class="int-step T-link">T</div>
-          <div class="int-step T">T</div>
-          <div class="int-step T">T</div>
-          <div class="int-step sT">sT</div>
+          <div class="int-step T">T</div><div class="int-step T">T</div><div class="int-step sT">sT</div>
         </div>
         <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.3rem;">
           <span style="color:var(--accent3);">T</span> = Tom &nbsp;|&nbsp;
@@ -463,21 +346,19 @@
       <div class="card">
         <p><strong>Dó Maior — intervalos entre as notas:</strong></p>
         <div class="scale-inline" style="margin-top:0.65rem;">
-          <div class="note-box t1">Dó</div>
-          <span class="iv T">T</span>
-          <div class="note-box t1">Ré</div>
-          <span class="iv T">T</span>
-          <div class="note-box t1">Mi</div>
-          <span class="iv sT">sT</span>
-          <div class="note-box t1">Fá</div>
-          <span class="iv T-link">T</span>
-          <div class="note-box t2">Sol</div>
-          <span class="iv T">T</span>
-          <div class="note-box t2">Lá</div>
-          <span class="iv T">T</span>
-          <div class="note-box t2">Si</div>
-          <span class="iv sT">sT</span>
-          <div class="note-box t2">Dó</div>
+          <div class="tetra-group">
+            <div class="note-box t1">Dó</div><span class="iv T">T</span>
+            <div class="note-box t1">Ré</div><span class="iv T">T</span>
+            <div class="note-box t1">Mi</div><span class="iv sT">sT</span>
+            <div class="note-box t1">Fá</div>
+          </div>
+          <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+          <div class="tetra-group">
+            <div class="note-box t2">Sol</div><span class="iv T">T</span>
+            <div class="note-box t2">Lá</div><span class="iv T">T</span>
+            <div class="note-box t2">Si</div><span class="iv sT">sT</span>
+            <div class="note-box t2">Dó</div>
+          </div>
         </div>
       </div>
     </section>
@@ -504,42 +385,38 @@
 
           <p class="sub-label">antes da correção</p>
           <div class="scale-inline">
-            <div class="note-box t1">Sol</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Lá</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Si</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t1">Dó</div>
-            <span class="iv T-link">T</span>
-            <div class="note-box t2">Ré</div>
-            <span class="iv T">T</span>
-            <div class="note-box t2">Mi</div>
-            <span class="iv err">sT❌</span>
-            <div class="note-box t2">Fá</div>
-            <span class="iv err">T❌</span>
-            <div class="note-box t2">Sol</div>
+            <div class="tetra-group">
+              <div class="note-box t1">Sol</div><span class="iv T">T</span>
+              <div class="note-box t1">Lá</div><span class="iv T">T</span>
+              <div class="note-box t1">Si</div><span class="iv sT">sT</span>
+              <div class="note-box t1">Dó</div>
+            </div>
+            <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+            <div class="tetra-group">
+              <div class="note-box t2">Ré</div><span class="iv T">T</span>
+              <div class="note-box t2">Mi</div><span class="iv err">sT❌</span>
+              <div class="note-box t2">Fá</div><span class="iv err">T❌</span>
+              <div class="note-box t2">Sol</div>
+            </div>
           </div>
 
           <p style="font-size:0.78rem;color:var(--muted);margin:0.45rem 0;">Fá→Sol precisa ser <strong style="color:var(--sharp);">sT</strong>. Eleva Fá → <strong style="color:var(--sharp);">Fá#</strong></p>
 
           <p class="sub-label">corrigido ✅</p>
           <div class="scale-inline">
-            <div class="note-box t1">Sol</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Lá</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Si</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t1">Dó</div>
-            <span class="iv T-link">T</span>
-            <div class="note-box t2">Ré</div>
-            <span class="iv T">T</span>
-            <div class="note-box t2">Mi</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Fá#</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t2">Sol</div>
+            <div class="tetra-group">
+              <div class="note-box t1">Sol</div><span class="iv T">T</span>
+              <div class="note-box t1">Lá</div><span class="iv T">T</span>
+              <div class="note-box t1">Si</div><span class="iv sT">sT</span>
+              <div class="note-box t1">Dó</div>
+            </div>
+            <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+            <div class="tetra-group">
+              <div class="note-box t2">Ré</div><span class="iv T">T</span>
+              <div class="note-box t2">Mi</div><span class="iv T">T</span>
+              <div class="note-box sharp">Fá#</div><span class="iv sT">sT</span>
+              <div class="note-box t2">Sol</div>
+            </div>
           </div>
           <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">1 #: Fá#</span></p>
         </div>
@@ -551,42 +428,38 @@
 
           <p class="sub-label">antes da correção</p>
           <div class="scale-inline">
-            <div class="note-box t1">Ré</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Mi</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Fá#</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t1">Sol</div>
-            <span class="iv T-link">T</span>
-            <div class="note-box t2">Lá</div>
-            <span class="iv T">T</span>
-            <div class="note-box t2">Si</div>
-            <span class="iv err">sT❌</span>
-            <div class="note-box t2">Dó</div>
-            <span class="iv err">T❌</span>
-            <div class="note-box t2">Ré</div>
+            <div class="tetra-group">
+              <div class="note-box t1">Ré</div><span class="iv T">T</span>
+              <div class="note-box t1">Mi</div><span class="iv T">T</span>
+              <div class="note-box sharp">Fá#</div><span class="iv sT">sT</span>
+              <div class="note-box t1">Sol</div>
+            </div>
+            <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+            <div class="tetra-group">
+              <div class="note-box t2">Lá</div><span class="iv T">T</span>
+              <div class="note-box t2">Si</div><span class="iv err">sT❌</span>
+              <div class="note-box t2">Dó</div><span class="iv err">T❌</span>
+              <div class="note-box t2">Ré</div>
+            </div>
           </div>
 
           <p style="font-size:0.78rem;color:var(--muted);margin:0.45rem 0;">Dó→Ré precisa ser <strong style="color:var(--sharp);">sT</strong>. Eleva Dó → <strong style="color:var(--sharp);">Dó#</strong></p>
 
           <p class="sub-label">corrigido ✅</p>
           <div class="scale-inline">
-            <div class="note-box t1">Ré</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Mi</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Fá#</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t1">Sol</div>
-            <span class="iv T-link">T</span>
-            <div class="note-box t2">Lá</div>
-            <span class="iv T">T</span>
-            <div class="note-box t2">Si</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Dó#</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t2">Ré</div>
+            <div class="tetra-group">
+              <div class="note-box t1">Ré</div><span class="iv T">T</span>
+              <div class="note-box t1">Mi</div><span class="iv T">T</span>
+              <div class="note-box sharp">Fá#</div><span class="iv sT">sT</span>
+              <div class="note-box t1">Sol</div>
+            </div>
+            <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+            <div class="tetra-group">
+              <div class="note-box t2">Lá</div><span class="iv T">T</span>
+              <div class="note-box t2">Si</div><span class="iv T">T</span>
+              <div class="note-box sharp">Dó#</div><span class="iv sT">sT</span>
+              <div class="note-box t2">Ré</div>
+            </div>
           </div>
           <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">2 #: Fá# Dó#</span></p>
         </div>
@@ -598,42 +471,38 @@
 
           <p class="sub-label">antes da correção</p>
           <div class="scale-inline">
-            <div class="note-box t1">Lá</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Si</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Dó#</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t1">Ré</div>
-            <span class="iv T-link">T</span>
-            <div class="note-box t2">Mi</div>
-            <span class="iv err">sT❌</span>
-            <div class="note-box t2">Fá</div>
-            <span class="iv err">T❌</span>
-            <div class="note-box t2">Sol</div>
-            <span class="iv err">T❌</span>
-            <div class="note-box t2">Lá</div>
+            <div class="tetra-group">
+              <div class="note-box t1">Lá</div><span class="iv T">T</span>
+              <div class="note-box t1">Si</div><span class="iv T">T</span>
+              <div class="note-box sharp">Dó#</div><span class="iv sT">sT</span>
+              <div class="note-box t1">Ré</div>
+            </div>
+            <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+            <div class="tetra-group">
+              <div class="note-box t2">Mi</div><span class="iv err">sT❌</span>
+              <div class="note-box t2">Fá</div><span class="iv err">T❌</span>
+              <div class="note-box t2">Sol</div><span class="iv err">T❌</span>
+              <div class="note-box t2">Lá</div>
+            </div>
           </div>
 
           <p style="font-size:0.78rem;color:var(--muted);margin:0.45rem 0;">Eleva Fá → <strong style="color:var(--sharp);">Fá#</strong> e Sol → <strong style="color:var(--sharp);">Sol#</strong></p>
 
           <p class="sub-label">corrigido ✅</p>
           <div class="scale-inline">
-            <div class="note-box t1">Lá</div>
-            <span class="iv T">T</span>
-            <div class="note-box t1">Si</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Dó#</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t1">Ré</div>
-            <span class="iv T-link">T</span>
-            <div class="note-box t2">Mi</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Fá#</div>
-            <span class="iv T">T</span>
-            <div class="note-box sharp">Sol#</div>
-            <span class="iv sT">sT</span>
-            <div class="note-box t2">Lá</div>
+            <div class="tetra-group">
+              <div class="note-box t1">Lá</div><span class="iv T">T</span>
+              <div class="note-box t1">Si</div><span class="iv T">T</span>
+              <div class="note-box sharp">Dó#</div><span class="iv sT">sT</span>
+              <div class="note-box t1">Ré</div>
+            </div>
+            <div class="iv-link-wrap"><span class="iv T-link">T</span></div>
+            <div class="tetra-group">
+              <div class="note-box t2">Mi</div><span class="iv T">T</span>
+              <div class="note-box sharp">Fá#</div><span class="iv T">T</span>
+              <div class="note-box sharp">Sol#</div><span class="iv sT">sT</span>
+              <div class="note-box t2">Lá</div>
+            </div>
           </div>
           <p style="font-size:0.8rem;margin-top:0.5rem;"><span class="pill sharp">3 #: Fá# Dó# Sol#</span></p>
         </div>
@@ -647,9 +516,7 @@
       <div class="escalas-grid">
         <div class="card" style="padding:0.5rem 0.3rem;overflow-x:auto;">
           <table class="scale-table">
-            <thead>
-              <tr><th>Escala</th><th>Notas</th><th>#</th><th>Novo #</th></tr>
-            </thead>
+            <thead><tr><th>Escala</th><th>Notas</th><th>#</th><th>Novo #</th></tr></thead>
             <tbody>
               <tr class="highlight"><td class="key-col">Dó</td><td>C D E F G A B C</td><td>0</td><td class="sharps">—</td></tr>
               <tr><td class="key-col">Sol</td><td>G A B C D E F# G</td><td class="sharps">1</td><td class="sharps">Fá#</td></tr>
