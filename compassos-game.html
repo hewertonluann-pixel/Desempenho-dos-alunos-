@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jogo de Compassos</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f14;
+      --surface: #1a1a24;
+      --card: #22223a;
+      --accent: #7c6af7;
+      --accent2: #f7c26a;
+      --accent3: #6af7b8;
+      --text: #e8e8f0;
+      --muted: #9090b0;
+      --radius: 14px;
+      --sharp: #f76a6a;
+      --ok: #6af7b8;
+      --err: #f76a6a;
+    }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 16px; line-height: 1.5; min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+    header {
+      background: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+      padding: 1.25rem 1rem 1rem; text-align: center;
+      border-bottom: 2px solid var(--accent);
+    }
+    header h1 {
+      font-size: 1.5rem; font-weight: 800;
+      background: linear-gradient(90deg,var(--accent),var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    header p { color: var(--muted); font-size: 0.82rem; margin-top: 0.25rem; }
+
+    main {
+      flex: 1; padding: 1rem;
+      max-width: 480px; width: 100%; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 0.9rem;
+    }
+
+    /* ── HUD ── */
+    .hud {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--surface); border-radius: 12px; padding: 0.55rem 0.9rem;
+      border: 1px solid #2a2a40;
+    }
+    .hud-item { text-align: center; }
+    .hud-val { font-size: 1.3rem; font-weight: 800; color: var(--accent2); }
+    .hud-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .hud-sep { width: 1px; height: 2rem; background: #2a2a40; }
+
+    /* ── PROGRESSO ── */
+    .progress-bar {
+      height: 6px; background: #2a2a40; border-radius: 4px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3));
+      border-radius: 4px; transition: width .4s ease;
+    }
+
+    /* ── CARD DA QUESTÃO ── */
+    .question-card {
+      background: var(--card); border-radius: var(--radius);
+      border: 1px solid #2e2e48; padding: 1.25rem 1rem;
+      text-align: center;
+    }
+    .q-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+
+    /* ── FÓRMULA DO COMPASSO ── */
+    .time-sig {
+      display: inline-flex; flex-direction: column; align-items: center;
+      line-height: 1; margin: 0.5rem auto 0.9rem;
+      border-left: 3px solid var(--accent); padding-left: 0.5rem;
+    }
+    .ts-num, .ts-den {
+      font-size: 3.2rem; font-weight: 900; font-family: 'Georgia', serif;
+      color: var(--text); line-height: 1;
+    }
+    .ts-div { width: 2.2rem; height: 3px; background: var(--text); margin: 0.1rem 0; }
+
+    /* ── FIGURAS (SVG) ── */
+    .figures-row {
+      display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+    .fig-block { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+    .fig-name { font-size: 0.62rem; color: var(--muted); }
+
+    /* ── PERGUNTAS ── */
+    .questions { display: flex; flex-direction: column; gap: 0.65rem; }
+    .q-block { background: var(--surface); border-radius: 10px; padding: 0.75rem; border: 1px solid #2a2a40; }
+    .q-title { font-size: 0.75rem; font-weight: 700; color: var(--accent3); margin-bottom: 0.5rem; }
+    .opts { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+    .opt-btn {
+      flex: 1 1 auto; min-width: 60px;
+      padding: 0.5rem 0.5rem; border-radius: 8px; border: 1.5px solid #3a3a58;
+      background: var(--card); color: var(--text); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .opt-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .opt-btn.selected { border-color: var(--accent); background: rgba(124,106,247,0.18); color: var(--accent); }
+    .opt-btn.correct { border-color: var(--ok) !important; background: rgba(106,247,184,0.15) !important; color: var(--ok) !important; }
+    .opt-btn.wrong   { border-color: var(--err) !important; background: rgba(247,106,106,0.15) !important; color: var(--err) !important; }
+    .opt-btn:disabled { cursor: default; opacity: 0.85; }
+
+    /* ── BOTÃO CONFIRMAR / PRÓXIMO ── */
+    .action-btn {
+      width: 100%; padding: 0.85rem; border-radius: var(--radius); border: none;
+      font-size: 1rem; font-weight: 800; cursor: pointer; transition: all .2s;
+    }
+    .action-btn.confirm {
+      background: linear-gradient(135deg,var(--accent),#5a4fd4);
+      color: #fff; box-shadow: 0 4px 18px rgba(124,106,247,.35);
+    }
+    .action-btn.confirm:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+    .action-btn.next {
+      background: linear-gradient(135deg,var(--accent3),#3ab87a);
+      color: #111;
+    }
+
+    /* ── FEEDBACK ── */
+    .feedback {
+      border-radius: 10px; padding: 0.85rem 1rem;
+      font-size: 0.88rem; line-height: 1.6; display: none;
+    }
+    .feedback.ok  { background: rgba(106,247,184,0.1); border: 1px solid rgba(106,247,184,0.3); color: var(--ok); }
+    .feedback.err { background: rgba(247,106,106,0.1); border: 1px solid rgba(247,106,106,0.3); color: var(--err); }
+    .feedback strong { color: var(--text); }
+
+    /* ── TELA FINAL ── */
+    #end-screen {
+      display: none; text-align: center;
+      background: var(--card); border-radius: var(--radius);
+      border: 1px solid #2e2e48; padding: 2rem 1rem;
+    }
+    .end-score { font-size: 3rem; font-weight: 900; color: var(--accent2); }
+    .end-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; margin-bottom: 1.5rem; }
+    .stars { font-size: 2rem; margin-bottom: 0.5rem; }
+    .restart-btn {
+      display: inline-block; padding: 0.85rem 2rem; border-radius: var(--radius);
+      background: linear-gradient(135deg,var(--accent),#5a4fd4);
+      color: #fff; font-size: 1rem; font-weight: 800; border: none; cursor: pointer;
+      box-shadow: 0 4px 18px rgba(124,106,247,.35);
+    }
+    .back-link {
+      display: inline-block; margin-top: 0.75rem;
+      color: var(--muted); font-size: 0.82rem; text-decoration: none;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    /* hidden */
+    .hidden { display: none !important; }
+
+    footer {
+      text-align: center; color: var(--muted); font-size: 0.72rem;
+      padding: 1rem; border-top: 1px solid #2a2a3a;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎼 Jogo de Compassos</h1>
+  <p>Identifique o tipo, a U.T. e a U.C. de cada fórmula</p>
+</header>
+
+<main>
+  <!-- HUD -->
+  <div class="hud">
+    <div class="hud-item">
+      <div class="hud-val" id="score">0</div>
+      <div class="hud-label">Pontos</div>
+    </div>
+    <div class="hud-sep"></div>
+    <div class="hud-item">
+      <div class="hud-val" id="q-num">1</div>
+      <div class="hud-label">Questão</div>
+    </div>
+    <div class="hud-sep"></div>
+    <div class="hud-item">
+      <div class="hud-val" id="streak">0🔥</div>
+      <div class="hud-label">Sequência</div>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+  <!-- QUESTÃO -->
+  <div id="game-area">
+    <div class="question-card">
+      <div class="q-label">Fórmula de compasso</div>
+      <div class="time-sig" id="ts-display">
+        <span class="ts-num" id="ts-top">4</span>
+        <div class="ts-div"></div>
+        <span class="ts-den" id="ts-bot">4</span>
+      </div>
+      <div class="figures-row" id="fig-row"></div>
+      <div class="q-label" id="q-hint" style="margin-top:0;"></div>
+    </div>
+
+    <div class="questions">
+      <!-- Q1: tipo -->
+      <div class="q-block">
+        <div class="q-title">1. Tipo de compasso</div>
+        <div class="opts" id="opts-tipo">
+          <button class="opt-btn" data-q="tipo" data-v="binário">Binário</button>
+          <button class="opt-btn" data-q="tipo" data-v="ternário">Ternário</button>
+          <button class="opt-btn" data-q="tipo" data-v="quaternário">Quaternário</button>
+        </div>
+      </div>
+      <!-- Q2: U.T. -->
+      <div class="q-block">
+        <div class="q-title">2. Unidade de Tempo (U.T.)</div>
+        <div class="opts" id="opts-ut"></div>
+      </div>
+      <!-- Q3: U.C. -->
+      <div class="q-block">
+        <div class="q-title">3. Unidade de Compasso (U.C.)</div>
+        <div class="opts" id="opts-uc"></div>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="action-btn confirm" id="confirm-btn" disabled>Confirmar</button>
+    <button class="action-btn next hidden" id="next-btn">Próxima →</button>
+  </div>
+
+  <!-- TELA FINAL -->
+  <div id="end-screen">
+    <div class="stars" id="stars"></div>
+    <div class="end-score" id="final-score">0</div>
+    <div class="end-label" id="final-label">pontos</div>
+    <button class="restart-btn" onclick="startGame()">🔄 Jogar novamente</button><br>
+    <a class="back-link" href="tetracordes.html">← Voltar ao conteúdo</a>
+  </div>
+</main>
+
+<footer>🎵 Teoria Musical — Fórmulas de Compasso</footer>
+
+<script>
+// ── FIGURAS ─────────────────────────────────────────────────────────────────
+// SVG minimalista de cada figura musical (branca = den 2, negra = den 4, colcheia = den 8, semínima com ponto = den 4.)
+const FIGURES = {
+  // redonda
+  '1':  { name: 'Redonda',   svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="14" cy="36" rx="11" ry="7" fill="none" stroke="#e8e8f0" stroke-width="2.5"/></svg>` },
+  // branca
+  '2':  { name: 'Branca',    svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="14" cy="36" rx="9" ry="6" fill="none" stroke="#e8e8f0" stroke-width="2.2"/><line x1="23" y1="36" x2="23" y2="6" stroke="#e8e8f0" stroke-width="2.2"/></svg>` },
+  // negra
+  '4':  { name: 'Negra',     svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="14" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 14 37)"/><line x1="22" y1="34" x2="22" y2="6" stroke="#e8e8f0" stroke-width="2.2"/></svg>` },
+  // colcheia
+  '8':  { name: 'Colcheia',  svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="13" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 13 37)"/><line x1="21" y1="34" x2="21" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><path d="M21 6 Q34 12 24 22" fill="none" stroke="#e8e8f0" stroke-width="2.2"/></svg>` },
+  // semínima pontuada (negra pontuada) = 4.
+  '4.': { name: 'Negra pont.',svg: `<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="13" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 13 37)"/><line x1="21" y1="34" x2="21" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><circle cx="28" cy="37" r="2.5" fill="#e8e8f0"/></svg>` },
+  // branca pontuada = 2.
+  '2.': { name: 'Branca pont.',svg:`<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="13" cy="36" rx="9" ry="6" fill="none" stroke="#e8e8f0" stroke-width="2.2"/><line x1="22" y1="36" x2="22" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><circle cx="29" cy="36" r="2.5" fill="#e8e8f0"/></svg>` },
+  // semibreve pontuada = 1.
+  '1.': { name: 'Redonda pont.',svg:`<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="13" cy="36" rx="11" ry="7" fill="none" stroke="#e8e8f0" stroke-width="2.5"/><circle cx="29" cy="36" r="2.5" fill="#e8e8f0"/></svg>` },
+  // colcheia pontuada = 8.
+  '8.': { name: 'Colcheia pont.',svg:`<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="12" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 12 37)"/><line x1="20" y1="34" x2="20" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><path d="M20 6 Q33 12 23 22" fill="none" stroke="#e8e8f0" stroke-width="2.2"/><circle cx="28" cy="37" r="2.5" fill="#e8e8f0"/></svg>` },
+};
+
+// Todas as figuras possíveis como opções de resposta
+const ALL_FIGS = ['1.','1','2.','2','4.','4','8.','8'];
+const FIG_LABEL = { '1':'Redonda','2':'Branca','4':'Negra','8':'Colcheia',
+                    '1.':'Redonda pont.','2.':'Branca pont.','4.':'Negra pont.','8.':'Colcheia pont.' };
+
+// ── BANCO DE QUESTÕES ─────────────────────────────────────────────────────
+// ut = figura da unidade de tempo, uc = figura da unidade de compasso
+// tipo baseado no numerador: 2=bin, 3=ter, 4=qua, 6/9/12=compostos→ternário/quaternário subdivido
+const ALL_QUESTIONS = [
+  // Simples binários (2 pulsos)
+  { top:2, bot:4, tipo:'binário',     ut:'4',  uc:'2',  hint:'2 tempos, cada tempo = negra' },
+  { top:2, bot:2, tipo:'binário',     ut:'2',  uc:'1',  hint:'2 tempos, cada tempo = branca (alla breve)' },
+  { top:2, bot:8, tipo:'binário',     ut:'8',  uc:'4',  hint:'2 tempos, cada tempo = colcheia' },
+  // Simples ternários (3 pulsos)
+  { top:3, bot:4, tipo:'ternário',    ut:'4',  uc:'2.', hint:'3 tempos, cada tempo = negra' },
+  { top:3, bot:2, tipo:'ternário',    ut:'2',  uc:'1.', hint:'3 tempos, cada tempo = branca' },
+  { top:3, bot:8, tipo:'ternário',    ut:'8',  uc:'4.', hint:'3 tempos, cada tempo = colcheia' },
+  // Simples quaternários (4 pulsos)
+  { top:4, bot:4, tipo:'quaternário', ut:'4',  uc:'1',  hint:'4 tempos, cada tempo = negra (C)' },
+  { top:4, bot:2, tipo:'quaternário', ut:'2',  uc:'1.', hint:'4 tempos, cada tempo = branca' },
+  { top:4, bot:8, tipo:'quaternário', ut:'8',  uc:'2.', hint:'4 tempos, cada tempo = colcheia' },
+  // Compostos (numerador 6, 9, 12)
+  { top:6, bot:8, tipo:'binário',     ut:'4.', uc:'2.', hint:'Composto binário: 2 pulsos pontuados, cada um vale 3 colcheias' },
+  { top:6, bot:4, tipo:'binário',     ut:'2.', uc:'1.', hint:'Composto binário: 2 pulsos de branca pontuada' },
+  { top:9, bot:8, tipo:'ternário',    ut:'4.', uc:'2.', hint:'Composto ternário: 3 pulsos pontuados de colcheia' },
+  { top:9, bot:4, tipo:'ternário',    ut:'2.', uc:'1.', hint:'Composto ternário: 3 pulsos de branca pontuada' },
+  { top:12,bot:8, tipo:'quaternário', ut:'4.', uc:'1.', hint:'Composto quaternário: 4 pulsos pontuados' },
+  { top:12,bot:4, tipo:'quaternário', ut:'2.', uc:'2.', hint:'Composto quaternário: 4 pulsos de branca pontuada' },
+];
+
+// ── ESTADO DO JOGO ───────────────────────────────────────────────────────
+const TOTAL = 10;
+let questions, current, score, streak, answers;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startGame() {
+  questions = shuffle(ALL_QUESTIONS).slice(0, TOTAL);
+  current = 0; score = 0; streak = 0;
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('game-area').style.display = 'flex';
+  document.getElementById('game-area').style.flexDirection = 'column';
+  document.getElementById('game-area').style.gap = '0.9rem';
+  updateHUD();
+  loadQuestion();
+}
+
+function updateHUD() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('q-num').textContent = current + 1 > TOTAL ? TOTAL : current + 1;
+  document.getElementById('streak').textContent = streak + (streak >= 3 ? '🔥' : '');
+  const pct = (current / TOTAL) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+}
+
+function loadQuestion() {
+  if (current >= TOTAL) { showEnd(); return; }
+  const q = questions[current];
+  answers = { tipo: null, ut: null, uc: null };
+
+  // fórmula
+  document.getElementById('ts-top').textContent = q.top;
+  document.getElementById('ts-bot').textContent = q.bot;
+  document.getElementById('q-hint').textContent = '';
+
+  // figuras: mostrar UT (silhueta) repetida de acordo com numerador
+  renderFigures(q);
+
+  // opções tipo
+  resetOpts('opts-tipo', ['binário','ternário','quaternário']);
+
+  // opções U.T. — a correta + 3 distrações aleatórias
+  const utOpts = makeOpts(q.ut, ALL_FIGS, 4);
+  renderOpts('opts-ut', utOpts, 'ut');
+
+  // opções U.C.
+  const ucOpts = makeOpts(q.uc, ALL_FIGS, 4);
+  renderOpts('opts-uc', ucOpts, 'uc');
+
+  // feedback
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'none'; fb.className = 'feedback';
+
+  // botões
+  const conf = document.getElementById('confirm-btn');
+  conf.classList.remove('hidden'); conf.disabled = true;
+  document.getElementById('next-btn').classList.add('hidden');
+
+  updateHUD();
+}
+
+function renderFigures(q) {
+  const row = document.getElementById('fig-row');
+  row.innerHTML = '';
+  // mostrar a figura da UT repetida pelo numerador
+  const fig = FIGURES[q.ut] || FIGURES['4'];
+  const count = Math.min(q.top, 4); // máx 4 ícones pra não estourar
+  for (let i = 0; i < count; i++) {
+    const b = document.createElement('div');
+    b.className = 'fig-block';
+    b.innerHTML = fig.svg + `<span class="fig-name">${i === 0 ? fig.name : ''}</span>`;
+    row.appendChild(b);
+  }
+  if (q.top > 4) {
+    const more = document.createElement('span');
+    more.style.cssText = 'color:var(--muted);font-size:1.2rem;align-self:center;';
+    more.textContent = '…';
+    row.appendChild(more);
+  }
+}
+
+function makeOpts(correct, pool, n) {
+  const others = shuffle(pool.filter(x => x !== correct));
+  const distractors = others.slice(0, n - 1);
+  return shuffle([correct, ...distractors]);
+}
+
+function resetOpts(id, vals) {
+  const cont = document.getElementById(id);
+  cont.innerHTML = '';
+  vals.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.dataset.q = id === 'opts-tipo' ? 'tipo' : id === 'opts-ut' ? 'ut' : 'uc';
+    btn.dataset.v = v;
+    btn.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+    btn.addEventListener('click', selectOpt);
+    cont.appendChild(btn);
+  });
+}
+
+function renderOpts(id, vals, qkey) {
+  const cont = document.getElementById(id);
+  cont.innerHTML = '';
+  vals.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.dataset.q = qkey;
+    btn.dataset.v = v;
+    btn.innerHTML = `${FIG_LABEL[v]} <span style="opacity:.55;font-size:.7em;">(1/${v.replace('.','')}</span>`;
+    if (v.includes('.')) btn.innerHTML = `${FIG_LABEL[v]} <span style="opacity:.55;font-size:.7em;">(pontuada)</span>`;
+    else btn.innerHTML = `${FIG_LABEL[v]}`;
+    btn.addEventListener('click', selectOpt);
+    cont.appendChild(btn);
+  });
+}
+
+function selectOpt(e) {
+  const btn = e.currentTarget;
+  const qkey = btn.dataset.q;
+  const val  = btn.dataset.v;
+  // desseleciona os outros do mesmo grupo
+  document.querySelectorAll(`.opt-btn[data-q="${qkey}"]`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  answers[qkey] = val;
+  // habilita confirmar se todas respondidas
+  document.getElementById('confirm-btn').disabled = !(answers.tipo && answers.ut && answers.uc);
+}
+
+function confirm() {
+  const q = questions[current];
+  const tipoOk = answers.tipo === q.tipo;
+  const utOk   = answers.ut   === q.ut;
+  const ucOk   = answers.uc   === q.uc;
+  const allOk  = tipoOk && utOk && ucOk;
+
+  // colorir botões
+  ['tipo','ut','uc'].forEach(key => {
+    const correct = key === 'tipo' ? q.tipo : key === 'ut' ? q.ut : q.uc;
+    const prefix = key === 'tipo' ? 'opts-tipo' : key === 'ut' ? 'opts-ut' : 'opts-uc';
+    document.querySelectorAll(`#${prefix} .opt-btn`).forEach(b => {
+      b.disabled = true;
+      if (b.dataset.v === correct) b.classList.add('correct');
+      else if (b.classList.contains('selected')) b.classList.add('wrong');
+    });
+  });
+
+  // pontuação
+  let pts = 0;
+  if (tipoOk) pts += 10;
+  if (utOk)   pts += 15;
+  if (ucOk)   pts += 15;
+  if (allOk) { pts += 10; streak++; } else streak = 0;
+  if (streak >= 3) pts += 5; // bônus sequência
+  score += pts;
+
+  // feedback
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+  if (allOk) {
+    fb.className = 'feedback ok';
+    fb.innerHTML = `✅ <strong>Perfeito! +${pts} pts</strong><br>${q.hint}`;
+  } else {
+    fb.className = 'feedback err';
+    let erros = [];
+    if (!tipoOk) erros.push(`Tipo: <strong>${q.tipo}</strong>`);
+    if (!utOk)   erros.push(`U.T.: <strong>${FIG_LABEL[q.ut]}</strong>`);
+    if (!ucOk)   erros.push(`U.C.: <strong>${FIG_LABEL[q.uc]}</strong>`);
+    fb.innerHTML = `❌ <strong>+${pts} pts</strong> — Correto: ${erros.join(' · ')}<br><span style="font-size:.82rem;color:var(--muted)">${q.hint}</span>`;
+  }
+
+  document.getElementById('confirm-btn').classList.add('hidden');
+  document.getElementById('next-btn').classList.remove('hidden');
+  updateHUD();
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= TOTAL) showEnd();
+  else loadQuestion();
+}
+
+function showEnd() {
+  document.getElementById('game-area').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'block';
+  document.getElementById('progress').style.width = '100%';
+  const max = TOTAL * (10 + 15 + 15 + 10); // máx teórico
+  const pct = score / max;
+  let stars = '⭐';
+  if (pct >= 0.5) stars = '⭐⭐';
+  if (pct >= 0.75) stars = '⭐⭐⭐';
+  document.getElementById('stars').textContent = stars;
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-label').textContent = `pontos de ${max} possíveis`;
+}
+
+// eventos
+document.getElementById('confirm-btn').addEventListener('click', confirm);
+document.getElementById('next-btn').addEventListener('click', nextQuestion);
+
+// start
+startGame();
+</script>
+</body>
+</html>
