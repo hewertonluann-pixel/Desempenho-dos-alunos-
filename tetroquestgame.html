@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TetroQuest</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f14;--surface:#1a1a24;--card:#22223a;
+  --accent:#7c6af7;--accent2:#f7c26a;--accent3:#6af7b8;
+  --danger:#f76a6a;--text:#e8e8f0;--muted:#9090b0;--r:14px
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.5;min-height:100vh}
+header{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);padding:1.2rem 1rem 1rem;text-align:center;border-bottom:2px solid var(--accent)}
+header h1{font-size:1.6rem;font-weight:900;background:linear-gradient(90deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:var(--muted);font-size:.8rem;margin-top:.25rem}
+.hud{display:flex;justify-content:space-around;align-items:center;background:var(--surface);padding:.6rem 1rem;border-bottom:1px solid #2a2a40;position:sticky;top:0;z-index:100}
+.hud-item{text-align:center}
+.hud-item .val{font-size:1.2rem;font-weight:800;color:var(--accent2)}
+.hud-item .lbl{font-size:.65rem;color:var(--muted)}
+.xpbar-wrap{flex:1;margin:0 .75rem}
+.xpbar-bg{background:#2a2a3a;border-radius:20px;height:8px;overflow:hidden}
+.xpbar-fill{background:linear-gradient(90deg,var(--accent),var(--accent3));height:100%;border-radius:20px;transition:width .4s;width:0%}
+.xpbar-lbl{font-size:.65rem;color:var(--muted);text-align:center;margin-top:2px}
+main{padding:1rem;max-width:520px;margin:0 auto}
+.screen{display:none}
+.screen.active{display:block}
+
+/* WELCOME */
+.wlc{text-align:center;padding:1rem 0}
+.wlc-logo{font-size:4rem;margin-bottom:.5rem}
+.wlc-title{font-size:1.8rem;font-weight:900;background:linear-gradient(90deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wlc-sub{color:var(--muted);font-size:.9rem;margin:.4rem 0 1.2rem}
+.feat-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem;text-align:left}
+.feat-item{display:flex;align-items:center;gap:.75rem;background:var(--card);border:1px solid #2e2e48;border-radius:12px;padding:.75rem 1rem}
+.feat-item .ico{font-size:1.4rem;flex-shrink:0}
+.feat-item p{font-size:.83rem;color:var(--muted)}
+.feat-item strong{color:var(--text)}
+.btn-start{width:100%;padding:1rem;border-radius:var(--r);border:none;background:linear-gradient(135deg,var(--accent),#5a4fd4);color:#fff;font-size:1.1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(124,106,247,.35)}
+
+/* MAP */
+.map-title{font-size:1rem;font-weight:700;color:var(--accent3);margin-bottom:1rem;text-align:center}
+.map-grid{display:flex;flex-direction:column;gap:.6rem}
+.map-node{display:flex;align-items:center;gap:.75rem;background:var(--card);border:1.5px solid #2e2e48;border-radius:var(--r);padding:.75rem 1rem;cursor:pointer;transition:all .2s}
+.map-node.unlocked{border-color:var(--accent)}
+.map-node.done{border-color:var(--accent3)}
+.map-node.locked{opacity:.45;cursor:not-allowed}
+.node-ico{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;background:#2a2a3a}
+.map-node.unlocked .node-ico{background:rgba(124,106,247,.2)}
+.map-node.done .node-ico{background:rgba(106,247,184,.15)}
+.node-info h3{font-size:.95rem;font-weight:700}
+.node-info p{font-size:.75rem;color:var(--muted)}
+.node-badge{margin-left:auto;font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:20px;background:#2a2a3a;color:var(--muted)}
+.map-node.unlocked .node-badge{background:rgba(124,106,247,.2);color:var(--accent)}
+.map-node.done .node-badge{background:rgba(106,247,184,.15);color:var(--accent3)}
+
+/* QUIZ */
+.quiz-top{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.btn-back{background:var(--card);border:1px solid #2e2e48;color:var(--muted);padding:.35rem .75rem;border-radius:20px;font-size:.8rem;cursor:pointer}
+.quiz-name{font-weight:700;font-size:1rem}
+.prog-bg{background:#2a2a3a;border-radius:20px;height:6px;overflow:hidden;margin-bottom:.25rem}
+.prog-fill{background:var(--accent);height:100%;border-radius:20px;transition:width .3s}
+.prog-lbl{font-size:.7rem;color:var(--muted);text-align:right;margin-bottom:.75rem}
+.q-card{background:var(--card);border:1.5px solid #2e2e48;border-radius:var(--r);padding:1.1rem;margin-bottom:1rem}
+.q-type{font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.5px;margin-bottom:.4rem}
+.q-text{font-size:1rem;font-weight:600;line-height:1.4}
+.note-row{display:flex;gap:.3rem;margin:.75rem 0;flex-wrap:wrap}
+.nb{flex:1;min-width:34px;text-align:center;padding:.5rem .2rem;border-radius:8px;font-weight:700;font-size:.82rem}
+.nb.t1{background:rgba(124,106,247,.2);border:1.5px solid var(--accent);color:var(--accent)}
+.nb.t2{background:rgba(247,194,106,.2);border:1.5px solid var(--accent2);color:var(--accent2)}
+.nb.sh{background:rgba(247,106,106,.2);border:1.5px solid var(--danger);color:var(--danger)}
+.opts{display:flex;flex-direction:column;gap:.5rem}
+.opts.grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.opt{background:var(--surface);border:1.5px solid #2e2e48;border-radius:12px;padding:.75rem 1rem;text-align:left;color:var(--text);font-size:.88rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.6rem;width:100%}
+.opts.grid .opt{justify-content:center;text-align:center;font-size:.95rem;font-weight:700}
+.opt.selected{border-color:var(--accent);background:rgba(124,106,247,.1)}
+.opt.correct{border-color:var(--accent3);background:rgba(106,247,184,.1);color:var(--accent3)}
+.opt.wrong{border-color:var(--danger);background:rgba(247,106,106,.1);color:var(--danger)}
+.opt-letter{width:22px;height:22px;border-radius:50%;border:1.5px solid #3a3a5a;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0}
+.feedback{border-radius:var(--r);padding:.9rem 1rem;margin-top:.75rem;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(106,247,184,.1);border:1.5px solid var(--accent3)}
+.feedback.nok{background:rgba(247,106,106,.1);border:1.5px solid var(--danger)}
+.fb-title{font-weight:800;font-size:1rem;margin-bottom:.3rem}
+.feedback.ok .fb-title{color:var(--accent3)}
+.feedback.nok .fb-title{color:var(--danger)}
+.fb-body{font-size:.85rem;color:var(--muted)}
+.btn-next{width:100%;padding:.85rem;border-radius:var(--r);border:none;background:linear-gradient(135deg,var(--accent),#5a4fd4);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;margin-top:.75rem}
+.btn-next:disabled{opacity:.35;cursor:not-allowed}
+
+/* RESULT */
+.res-card{background:var(--card);border-radius:var(--r);padding:1.5rem;text-align:center;border:1.5px solid #2e2e48;margin-bottom:.75rem}
+.res-emoji{font-size:3.5rem;margin-bottom:.5rem}
+.res-score{font-size:2.5rem;font-weight:900;background:linear-gradient(90deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.res-title{font-size:1.1rem;font-weight:700;margin-top:.25rem}
+.res-sub{color:var(--muted);font-size:.85rem;margin-top:.3rem}
+.star-row{font-size:1.8rem;margin:.75rem 0}
+.xp-badge{background:rgba(247,194,106,.15);border:1.5px solid var(--accent2);border-radius:12px;padding:.5rem 1rem;display:inline-block;font-weight:700;color:var(--accent2);margin:.5rem 0}
+.btn-retry{width:100%;padding:.8rem;border-radius:var(--r);border:1.5px solid var(--accent);background:transparent;color:var(--accent);font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:.5rem}
+.btn-map{width:100%;padding:.8rem;border-radius:var(--r);border:none;background:linear-gradient(135deg,var(--accent),#5a4fd4);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(120px);background:var(--card);border:1.5px solid var(--accent2);border-radius:var(--r);padding:.75rem 1.25rem;display:flex;align-items:center;gap:.6rem;z-index:999;transition:transform .35s;min-width:220px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast-ico{font-size:1.5rem}
+.toast-txt{font-size:.83rem}
+.toast-txt strong{color:var(--accent2)}
+footer{text-align:center;color:var(--muted);font-size:.72rem;padding:1.2rem 1rem;border-top:1px solid #2a2a3a;margin-top:1rem}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">
+  <div class="toast-ico" id="t-ico">🏆</div>
+  <div class="toast-txt"><strong id="t-title"></strong><br><span id="t-msg"></span></div>
+</div>
+
+<header>
+  <h1>🎵 TetroQuest</h1>
+  <p>Domine os tetracordes e conquiste todas as escalas!</p>
+</header>
+
+<div class="hud">
+  <div class="hud-item"><div class="val" id="h-xp">0</div><div class="lbl">XP</div></div>
+  <div class="xpbar-wrap">
+    <div class="xpbar-bg"><div class="xpbar-fill" id="xp-fill"></div></div>
+    <div class="xpbar-lbl">Nível <span id="h-lvl">1</span></div>
+  </div>
+  <div class="hud-item"><div class="val" id="h-streak">0🔥</div><div class="lbl">Sequência</div></div>
+</div>
+
+<main>
+
+<div class="screen active" id="s-welcome">
+  <div class="wlc">
+    <div class="wlc-logo">🎵</div>
+    <div class="wlc-title">TetroQuest</div>
+    <p class="wlc-sub">Aprenda tetracordes e escalas maiores jogando!</p>
+    <div class="feat-list">
+      <div class="feat-item"><div class="ico">🗺️</div><div><strong>5 fases</strong><p>Do conceito básico ao desafio final. Desbloqueie cada fase avançando.</p></div></div>
+      <div class="feat-item"><div class="ico">❓</div><div><strong>Responda as perguntas</strong><p>Toque na opção certa e veja o feedback com a explicação.</p></div></div>
+      <div class="feat-item"><div class="ico">🔥</div><div><strong>Monte sequências</strong><p>3 acertos seguidos dão bônus de XP!</p></div></div>
+      <div class="feat-item"><div class="ico">⭐</div><div><strong>Suba de nível</strong><p>Acerte 60%+ para completar a fase e desbloquear a próxima.</p></div></div>
+    </div>
+    <button class="btn-start" id="btn-start">🎮 Começar a Jogar</button>
+  </div>
+</div>
+
+<div class="screen" id="s-map">
+  <p class="map-title">🗺️ Escolha uma fase</p>
+  <div class="map-grid" id="map-grid"></div>
+</div>
+
+<div class="screen" id="s-quiz">
+  <div class="quiz-top">
+    <button class="btn-back" id="btn-back">← Mapa</button>
+    <span class="quiz-name" id="quiz-name">Fase</span>
+  </div>
+  <div class="prog-bg"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="prog-lbl"><span id="q-num">1</span>/<span id="q-tot">5</span></div>
+  <div id="q-area"></div>
+  <div class="feedback" id="feedback">
+    <div class="fb-title" id="fb-title"></div>
+    <div class="fb-body" id="fb-body"></div>
+  </div>
+  <button class="btn-next" id="btn-next" disabled>Próxima →</button>
+</div>
+
+<div class="screen" id="s-result">
+  <div class="res-card">
+    <div class="res-emoji" id="r-emoji">🎉</div>
+    <div class="res-score" id="r-score">5/5</div>
+    <div class="res-title" id="r-title">Perfeito!</div>
+    <div class="res-sub" id="r-sub"></div>
+    <div class="star-row" id="r-stars"></div>
+    <div class="xp-badge" id="r-xp">+150 XP</div>
+  </div>
+  <button class="btn-retry" id="btn-retry">🔄 Tentar novamente</button>
+  <button class="btn-map" id="btn-map2">🗺️ Voltar ao Mapa</button>
+</div>
+
+</main>
+<footer>🎵 TetroQuest — Teoria Musical Gamificada</footer>
+
+<script>
+var LEVELS = [
+  {id:0,title:"🧩 O que é Tetracorde?",desc:"Conceito básico",xp:80,qs:[
+    {lbl:"MÚLTIPLA ESCOLHA",txt:"Quantas notas tem um tetracorde?",opts:["3 notas","4 notas","5 notas","7 notas"],ans:1,exp:"Tetracorde vem do grego <b>tetra</b> (quatro). São sempre 4 notas consecutivas da escala."},
+    {lbl:"MÚLTIPLA ESCOLHA",txt:"A escala de Dó Maior é dividida em quantos tetracordes?",opts:["1 tetracorde","2 tetracordes","3 tetracordes","4 tetracordes"],ans:1,exp:"Toda escala de 8 notas tem <b>2 tetracordes</b> separados por um Tom."},
+    {lbl:"IDENTIFICAÇÃO",txt:"Qual é o 1º tetracorde da escala de Dó Maior?",notes:["Dó","Ré","Mi","Fá","Sol","Lá","Si","Dó"],ntypes:["t1","t1","t1","t1","t2","t2","t2","t2"],opts:["Dó - Ré - Mi - Fá","Sol - Lá - Si - Dó","Ré - Mi - Fá - Sol","Mi - Fá - Sol - Lá"],ans:0,exp:"O <b>1º tetracorde</b> de Dó é <b>Dó-Ré-Mi-Fá</b> (graus 1 a 4)."},
+    {lbl:"IDENTIFICAÇÃO",txt:"Qual é o 2º tetracorde de Dó Maior? Ele é a chave para a próxima escala!",notes:["Dó","Ré","Mi","Fá","Sol","Lá","Si","Dó"],ntypes:["t1","t1","t1","t1","t2","t2","t2","t2"],opts:["Dó - Ré - Mi - Fá","Sol - Lá - Si - Dó","Fá - Sol - Lá - Si","Lá - Si - Dó - Ré"],ans:1,exp:"O <b>2º tetracorde de Dó</b> é <b>Sol-Lá-Si-Dó</b>. Ele vira o 1º tetracorde de Sol Maior!"},
+    {lbl:"CONCEITO",txt:"Por que usamos Dó Maior como escala modelo?",opts:["É a mais antiga da história","Não tem sustenidos nem bemóis — serve de referência pura","Tem exatamente 7 notas","Começa na nota mais grave"],ans:1,exp:"Dó Maior usa só teclas brancas do piano — <b>zero alterações</b>. É a referência para comparar intervalos."}
+  ]},
+  {id:1,title:"📐 Padrão T-T-sT",desc:"Intervalos da escala maior",xp:100,qs:[
+    {lbl:"INTERVALOS",txt:"Qual é o padrão completo de toda escala maior?",opts:["T - T - T - sT - T - T - sT","T - T - sT - T - T - T - sT","sT - T - T - T - sT - T - T","T - sT - T - T - T - sT - T"],ans:1,exp:"O padrão correto é <b>T-T-sT-T-T-T-sT</b>. Semitons estão nas posições 3→4 e 7→8."},
+    {lbl:"RACIOCÍNIO",txt:"Quantos semitons (sT) existem no padrão da escala maior?",opts:["1 semitom","2 semitons","3 semitons","4 semitons"],ans:1,exp:"Há exatamente <b>2 semitons</b>: entre 3º e 4º graus, e entre 7º e 8º graus."},
+    {lbl:"APLICAÇÃO",txt:"Entre quais notas de Dó Maior NÃO há tecla preta no piano?",opts:["Dó-Ré e Sol-Lá","Ré-Mi e Lá-Si","Mi-Fá e Si-Dó","Fá-Sol e Dó-Ré"],ans:2,exp:"<b>Mi-Fá</b> e <b>Si-Dó</b> são semitons naturais — não há tecla preta entre eles no piano."},
+    {lbl:"SEQUÊNCIA",txt:"No padrão T-T-sT-T-T-T-sT, qual é o 4º intervalo?",opts:["sT (semitom)","T (tom)","T (tom) — igual ao 1º","Depende da escala"],ans:1,exp:"O 4º intervalo é <b>T (Tom)</b>. O único semitom antes da metade da escala é o 3º (Mi→Fá em Dó Maior)."},
+    {lbl:"APLICAÇÃO",txt:"Em Dó Maior, qual é o intervalo entre Sol e Lá?",notes:["Dó","Ré","Mi","Fá","Sol","Lá","Si","Dó"],ntypes:["t1","t1","t1","t1","t2","t2","t2","t2"],opts:["Semitom (sT)","Tom (T)","Tom e meio","Dois tons"],ans:1,exp:"Sol→Lá é um <b>Tom (T)</b>. Na posição 5→6 do padrão T-T-sT-T-<b>T</b>-T-sT, cai um Tom."}
+  ]},
+  {id:2,title:"🔗 Sol Maior",desc:"Formando a 1ª escala com #",xp:120,qs:[
+    {lbl:"PROCESSO",txt:"Para formar Sol Maior, qual tetracorde de Dó vira o 1º de Sol?",opts:["1º tetracorde (Dó-Ré-Mi-Fá)","2º tetracorde (Sol-Lá-Si-Dó)","Qualquer um dos dois","Criamos notas do zero"],ans:1,exp:"Regra dos tetracordes: o <b>2º tetracorde da escala atual</b> vira o <b>1º da nova escala</b>."},
+    {lbl:"CONSTRUÇÃO",txt:"Após usar Sol-Lá-Si-Dó como 1º tetracorde, quais notas completam provisoriamente Sol Maior?",opts:["Mi - Fá - Sol - Lá","Ré - Mi - Fá - Sol","Lá - Si - Dó - Ré","Dó - Ré - Mi - Fá"],ans:1,exp:"Após Dó, as próximas 4 notas naturais são <b>Ré-Mi-Fá-Sol</b>. Esta é a escala antes da correção."},
+    {lbl:"COMPARAÇÃO",txt:"Na escala provisória Sol-Lá-Si-Dó-Ré-Mi-Fá-Sol, o intervalo Fá→Sol está...",notes:["Sol","Lá","Si","Dó","Ré","Mi","Fá","Sol"],ntypes:["t1","t1","t1","t1","t2","t2","t2","t2"],opts:["Correto — é sT como manda o padrão","Errado — deveria ser sT mas é T","Errado — deveria ser T mas é sT","Correto — é T como manda o padrão"],ans:1,exp:"Fá→Sol é T, mas a posição 7→8 exige <b>sT</b>. Precisamos elevar o Fá para Fá#."},
+    {lbl:"CORREÇÃO",txt:"Para corrigir Sol Maior, devemos:",opts:["Baixar Sol para Sol♭","Elevar Fá para Fá#","Baixar Mi para Mi♭","Elevar Dó para Dó#"],ans:1,exp:"Elevando <b>Fá para Fá#</b>: Mi→Fá# vira T e Fá#→Sol vira sT. Padrão corrigido!"},
+    {lbl:"RESULTADO",txt:"A escala completa de Sol Maior é:",opts:["Sol - Lá - Si - Dó - Ré - Mi - Fá - Sol","Sol - Lá - Si - Dó - Ré - Mi - Fá# - Sol","Sol - Lá - Si♭ - Dó - Ré - Mi - Fá# - Sol","Sol - Lá# - Si - Dó - Ré - Mi - Fá# - Sol"],ans:1,exp:"<b>Sol-Lá-Si-Dó-Ré-Mi-Fá#-Sol</b> com 1 sustenido (Fá#)."}
+  ]},
+  {id:3,title:"🔗 Ré Maior",desc:"O segundo sustenido",xp:130,qs:[
+    {lbl:"HERANÇA",txt:"O 2º tetracorde de Sol Maior é Ré-Mi-Fá#-Sol. Completando com Lá-Si-Dó-Ré, qual erro aparece?",notes:["Ré","Mi","Fá#","Sol","Lá","Si","Dó","Ré"],ntypes:["t1","t1","sh","t1","t2","t2","t2","t2"],opts:["Si→Dó deveria ser T, mas é sT","Dó→Ré deveria ser sT, mas é T","Sol→Lá está errado","Mi→Fá# está errado"],ans:1,exp:"O 7º intervalo <b>Dó→Ré</b> deveria ser sT mas é T. Elevamos Dó para <b>Dó#</b>."},
+    {lbl:"NOVO #",txt:"Qual é o novo sustenido que Ré Maior adiciona?",opts:["Fá#","Sol#","Dó#","Lá#"],ans:2,exp:"Ré Maior adiciona <b>Dó#</b>. Ela herda Fá# de Sol e acrescenta Dó#. Total: 2 sustenidos."},
+    {lbl:"RESULTADO",txt:"A escala completa de Ré Maior é:",opts:["Ré - Mi - Fá# - Sol - Lá - Si - Dó - Ré","Ré - Mi - Fá# - Sol - Lá - Si - Dó# - Ré","Ré - Mi - Fá - Sol - Lá - Si - Dó# - Ré","Ré - Mi# - Fá# - Sol - Lá - Si - Dó# - Ré"],ans:1,exp:"<b>Ré-Mi-Fá#-Sol-Lá-Si-Dó#-Ré</b> com 2 sustenidos (Fá# e Dó#)."},
+    {lbl:"PADRÃO",txt:"Qual é o padrão na adição de sustenidos a cada nova escala?",opts:["Seguem a ordem Dó,Ré,Mi...","O novo # é sempre o 7º grau da nova escala","Os # aparecem aleatoriamente","Sempre dobra o número de sustenidos"],ans:1,exp:"<b>O novo sustenido é sempre o 7º grau</b> da nova escala — a nota que precisa ser elevada para criar o sT final."},
+    {lbl:"ACUMULAÇÃO",txt:"O que acontece com o Fá# de Sol ao passar para Ré Maior?",opts:["Desaparece","É substituído pelo Dó#","É herdado — Ré Maior tem Fá# e Dó#","Vira Fá natural"],ans:2,exp:"Os sustenidos <b>acumulam</b>. Ré Maior herda Fá# e adiciona Dó#. Cada nova escala tem todos os # anteriores + 1 novo."}
+  ]},
+  {id:4,title:"🏆 Desafio Final",desc:"Todas as escalas",xp:200,qs:[
+    {lbl:"SEQUÊNCIA",txt:"Qual é a ordem correta das escalas com sustenidos?",opts:["Dó→Fá→Sol→Ré→Lá→Mi→Si","Dó→Sol→Ré→Lá→Mi→Si→Fá#","Dó→Ré→Mi→Fá→Sol→Lá→Si","Dó→Si→Lá→Sol→Fá→Mi→Ré"],ans:1,exp:"A sequência do <b>Círculo das Quintas</b>: Dó→Sol→Ré→Lá→Mi→Si→Fá#→Dó#. Cada escala começa uma quinta acima."},
+    {lbl:"ARMADURA",txt:"Quantos sustenidos tem a escala de Lá Maior?",opts:["1 sustenido","2 sustenidos","3 sustenidos","4 sustenidos"],ans:2,exp:"<b>Lá Maior tem 3 sustenidos</b>: Fá#, Dó# e Sol#. Sequência: Sol(1#)→Ré(2#)→Lá(3#)."},
+    {lbl:"IDENTIFICAÇÃO",txt:"Qual escala tem exatamente Fá#, Dó#, Sol# e Ré#?",opts:["Lá Maior","Mi Maior","Si Maior","Ré Maior"],ans:1,exp:"<b>Mi Maior</b> tem 4 sustenidos: Fá#, Dó#, Sol# e Ré#."},
+    {lbl:"MACETE",txt:"Para descobrir a tonalidade pela armadura, olhamos:",opts:["O primeiro sustenido","O penúltimo sustenido — ele é a tônica","A nota um semitom acima do último # — essa é a tônica","O sustenido do meio"],ans:2,exp:"Sobe-se <b>um semitom acima do último #</b> para achar a tônica. Ex: último # é Fá# → um semitom acima = Sol → tonalidade Sol Maior!"},
+    {lbl:"SÍNTESE",txt:"Por que Sol Maior tem Fá# e não Fá natural?",opts:["Convenção histórica sem lógica","Para o 7º intervalo (Fá#→Sol) ficar como sT, respeitando T-T-sT-T-T-T-sT","Para facilitar leitura na pauta","Sol é grave e precisa de mais sustenidos"],ans:1,exp:"Com Fá natural, Fá→Sol seria T, mas posição 7→8 exige <b>sT</b>. O Fá# corrige isso. Esta é a lógica de todo # nas escalas maiores."}
+  ]}
+];
+
+var G = {xp:0,lvl:1,streak:0,done:[],curLvl:0,curQ:0,correct:0,answered:false};
+var XP_LVL = 150;
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+
+function renderMap(){
+  var g=document.getElementById('map-grid');
+  g.innerHTML='';
+  var icons=['🧩','📐','🔗','🔗','🏆'];
+  LEVELS.forEach(function(lv,i){
+    var isDone=G.done.indexOf(i)>=0;
+    var isOpen=i===0||G.done.indexOf(i-1)>=0;
+    var d=document.createElement('div');
+    d.className='map-node '+(isDone?'done':isOpen?'unlocked':'locked');
+    d.innerHTML='<div class="node-ico">'+icons[i]+'</div>'
+      +'<div class="node-info"><h3>'+lv.title+'</h3><p>'+lv.desc+' · '+lv.xp+' XP</p></div>'
+      +'<span class="node-badge">'+(isDone?'✅':isOpen?'Jogar':'🔒')+'</span>';
+    if(isOpen){d.onclick=function(){startLvl(i)};}
+    g.appendChild(d);
+  });
+}
+
+function startLvl(i){
+  G.curLvl=i; G.curQ=0; G.correct=0; G.answered=false;
+  document.getElementById('quiz-name').textContent=LEVELS[i].title;
+  document.getElementById('q-tot').textContent=LEVELS[i].qs.length;
+  go('s-quiz');
+  renderQ();
+}
+
+function renderQ(){
+  var lv=LEVELS[G.curLvl], q=lv.qs[G.curQ];
+  G.answered=false;
+  document.getElementById('prog-fill').style.width=(G.curQ/lv.qs.length*100)+'%';
+  document.getElementById('q-num').textContent=G.curQ+1;
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('btn-next').disabled=true;
+
+  var h='<div class="q-card"><div class="q-type">'+q.lbl+'</div><div class="q-text">'+q.txt+'</div>';
+  if(q.notes){
+    h+='<div class="note-row">';
+    q.notes.forEach(function(n,i){h+='<div class="nb '+q.ntypes[i]+'">'+n+'</div>';});
+    h+='</div>';
+  }
+  h+='</div>';
+
+  var isGrid=q.opts.length===4&&q.opts[0].length<14;
+  h+='<div class="opts'+(isGrid?' grid':'')+'">'; 
+  q.opts.forEach(function(o,i){
+    h+='<button class="opt" id="o'+i+'" onclick="pick('+i+')">'
+      +(isGrid?'':'<div class="opt-letter">'+String.fromCharCode(65+i)+'</div>')
+      +o+'</button>';
+  });
+  h+='</div>';
+  document.getElementById('q-area').innerHTML=h;
+}
+
+function pick(i){
+  if(G.answered)return;
+  G.answered=true;
+  var q=LEVELS[G.curLvl].qs[G.curQ];
+  var ok=i===q.ans;
+
+  document.querySelectorAll('.opt').forEach(function(b,j){
+    if(j===i)b.classList.add(ok?'correct':'wrong');
+    if(!ok&&j===q.ans)b.classList.add('correct');
+    b.onclick=null;
+  });
+
+  var fb=document.getElementById('feedback');
+  if(ok){
+    G.correct++; G.streak++;
+    var bonus=G.streak>=3?10:0;
+    addXP(15+bonus);
+    fb.className='feedback ok show';
+    document.getElementById('fb-title').textContent=['🎉 Correto!','⭐ Excelente!','🎵 Perfeito!','🔥 Isso aí!'][Math.floor(Math.random()*4)];
+  } else {
+    G.streak=0;
+    fb.className='feedback nok show';
+    document.getElementById('fb-title').textContent=['❌ Não dessa vez...','🤔 Quase lá!','📚 Revise!'][Math.floor(Math.random()*3)];
+  }
+  document.getElementById('fb-body').innerHTML='💡 '+q.exp;
+  document.getElementById('h-streak').textContent=G.streak+'🔥';
+  document.getElementById('btn-next').disabled=false;
+}
+
+function nextQ(){
+  var lv=LEVELS[G.curLvl];
+  G.curQ++;
+  if(G.curQ>=lv.qs.length)showResult();
+  else renderQ();
+}
+
+function showResult(){
+  var lv=LEVELS[G.curLvl], tot=lv.qs.length, pct=G.correct/tot;
+  var emoji=pct===1?'🏆':pct>=.6?'🎵':'📚';
+  var title=pct===1?'Perfeito! Mestre dos Tetracordes!':pct>=.6?'Muito bem! Continue assim!':'Revise e tente de novo!';
+  var stars=pct===1?'⭐⭐⭐':pct>=.6?'⭐⭐':'⭐';
+  var xpGain=Math.round(lv.xp*pct);
+  addXP(xpGain);
+  if(pct>=.6&&G.done.indexOf(G.curLvl)<0){
+    G.done.push(G.curLvl);
+    var next=LEVELS[G.curLvl+1];
+    if(next)setTimeout(function(){toast('🔓','Fase desbloqueada!',next.title);},800);
+    else setTimeout(function(){toast('🏆','Parabéns!','Você completou o TetroQuest!');},800);
+  }
+  document.getElementById('r-emoji').textContent=emoji;
+  document.getElementById('r-score').textContent=G.correct+'/'+tot;
+  document.getElementById('r-title').textContent=title;
+  document.getElementById('r-sub').textContent='Sequência atual: '+G.streak+'🔥';
+  document.getElementById('r-stars').textContent=stars;
+  document.getElementById('r-xp').textContent='+'+xpGain+' XP';
+  go('s-result');
+}
+
+function addXP(n){
+  G.xp+=n;
+  var newLvl=Math.floor(G.xp/XP_LVL)+1;
+  if(newLvl>G.lvl){G.lvl=newLvl;toast('⬆️','Subiu de nível!','Você é nível '+G.lvl+'!');}
+  document.getElementById('h-xp').textContent=G.xp;
+  document.getElementById('h-lvl').textContent=G.lvl;
+  document.getElementById('xp-fill').style.width=((G.xp%XP_LVL)/XP_LVL*100)+'%';
+}
+
+function toast(ico,tit,msg){
+  document.getElementById('t-ico').textContent=ico;
+  document.getElementById('t-title').textContent=tit;
+  document.getElementById('t-msg').textContent=msg;
+  var el=document.getElementById('toast');
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},3000);
+}
+
+document.getElementById('btn-start').onclick=function(){go('s-map');renderMap();};
+document.getElementById('btn-back').onclick=function(){go('s-map');renderMap();};
+document.getElementById('btn-next').onclick=nextQ;
+document.getElementById('btn-retry').onclick=function(){startLvl(G.curLvl);};
+document.getElementById('btn-map2').onclick=function(){go('s-map');renderMap();};
+</script>
+</body>
+</html>
