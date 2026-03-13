@@ -28,7 +28,6 @@
     .container.mode-sharp    { border-color: rgba(251,191,36,0.5); box-shadow: 0 20px 60px rgba(251,191,36,0.15); }
     .container.mode-flat     { border-color: rgba(129,140,248,0.5); box-shadow: 0 20px 60px rgba(129,140,248,0.15); }
     .container.mode-final    { border-color: rgba(239,68,68,0.5);  box-shadow: 0 20px 60px rgba(239,68,68,0.2); }
-
     h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #e2b96f; margin-bottom: 2px; }
     .mode-tag { font-size: 0.68rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 2px; opacity: 0.85; transition: color 0.5s; }
     .mode-natural .mode-tag { color: #e2b96f; }
@@ -36,7 +35,6 @@
     .mode-flat    .mode-tag { color: #818cf8; }
     .mode-final   .mode-tag { color: #f87171; }
     .subtitle { font-size: 0.82rem; color: rgba(255,255,255,0.45); margin-bottom: 22px; }
-
     .modes-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
     .mbadge { font-size: 0.7rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; letter-spacing: 1px; opacity: 0.35; border: 1px solid transparent; transition: opacity 0.4s; }
     .mbadge.active { opacity: 1; }
@@ -45,43 +43,35 @@
     .mbadge-sharp   { background: rgba(251,191,36,0.15);  border-color: #fbbf24; color: #fbbf24; }
     .mbadge-flat    { background: rgba(129,140,248,0.15); border-color: #818cf8; color: #818cf8; }
     .mbadge-final   { background: rgba(239,68,68,0.15);   border-color: #f87171; color: #f87171; }
-
     .level-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem; color: rgba(255,255,255,0.55); }
     .level-badge { font-weight: 700; padding: 4px 14px; border-radius: 20px; font-size: 0.82rem; transition: background 0.5s; }
     .mode-natural .level-badge { background: linear-gradient(135deg,#e2b96f,#c9963d); color: #1a1a2e; }
     .mode-sharp   .level-badge { background: linear-gradient(135deg,#fbbf24,#d97706); color: #1a1a2e; }
     .mode-flat    .level-badge { background: linear-gradient(135deg,#818cf8,#4f46e5); color: #fff; }
     .mode-final   .level-badge { background: linear-gradient(135deg,#f87171,#dc2626); color: #fff; }
-
     .progress-wrap { background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; margin-bottom: 20px; overflow: hidden; }
     .progress-bar  { height: 100%; border-radius: 8px; transition: width 0.4s ease, background 0.5s; }
     .mode-natural .progress-bar { background: linear-gradient(90deg,#4ade80,#22d3ee); }
     .mode-sharp   .progress-bar { background: linear-gradient(90deg,#fbbf24,#f59e0b); }
     .mode-flat    .progress-bar { background: linear-gradient(90deg,#818cf8,#6366f1); }
     .mode-final   .progress-bar { background: linear-gradient(90deg,#f87171,#ef4444); }
-
     .score-row { display: flex; justify-content: center; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
     .chip { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 7px 16px; font-size: 0.78rem; color: rgba(255,255,255,0.6); }
     .chip span { display: block; font-size: 1.3rem; font-weight: 700; color: #fff; line-height: 1.2; }
     .chip.acertos span { color: #4ade80; }
     .chip.erros span   { color: #f87171; }
     .chip.perfeito span { color: #fbbf24; }
-
     .interval-box { border: 2px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 28px 20px; margin-bottom: 22px; background: rgba(255,255,255,0.05); position: relative; transition: border-color 0.5s, background 0.5s; }
     .mode-sharp .interval-box  { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.04); }
     .mode-flat  .interval-box  { border-color: rgba(129,140,248,0.3); background: rgba(129,140,248,0.04); }
     .mode-final .interval-box  { border-color: rgba(239,68,68,0.3);  background: rgba(239,68,68,0.04); }
-
     .interval-label { font-size: 0.68rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; }
     .notes { font-size: 3rem; font-weight: 700; color: #fff; letter-spacing: 4px; }
     .notes .dash { color: #e2b96f; font-weight: 300; }
-
     .feedback { font-size: 0.95rem; font-weight: 600; height: 26px; margin-bottom: 8px; transition: all 0.3s; }
     .feedback.correct { color: #4ade80; }
     .feedback.wrong   { color: #f87171; }
     .feedback.info    { color: #fbbf24; }
-
-    /* Intro Screen */
     .intro-screen { display: block; animation: fadeIn 0.5s ease; }
     .intro-logo { font-size: 3.5rem; margin-bottom: 10px; }
     .intro-title { font-size: 1.6rem; font-weight: 700; color: #e2b96f; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
@@ -100,14 +90,10 @@
     .btn-play { background: linear-gradient(135deg, #4ade80, #22d3ee); color: #0f3460; border: none; border-radius: 16px; padding: 16px 56px; font-size: 1.1rem; font-weight: 800; cursor: pointer; letter-spacing: 2px; text-transform: uppercase; box-shadow: 0 6px 28px rgba(74,222,128,0.35); transition: transform 0.15s, box-shadow 0.15s; animation: glowPulse 2s infinite alternate; }
     .btn-play:hover { transform: scale(1.05); box-shadow: 0 8px 36px rgba(74,222,128,0.55); }
     @keyframes glowPulse { from { box-shadow: 0 6px 28px rgba(74,222,128,0.35); } to { box-shadow: 0 8px 40px rgba(74,222,128,0.6); } }
-
-    /* Streak */
     .streak-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
     .streak-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); transition: background 0.3s, transform 0.2s; }
     .streak-dot.filled { background: #4ade80; border-color: #4ade80; transform: scale(1.15); }
     .streak-dot.error  { background: #f87171; border-color: #f87171; }
-
-    /* Timer */
     .timer-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
     .timer-ring { position: relative; width: 48px; height: 48px; }
     .timer-ring svg { transform: rotate(-90deg); }
@@ -120,13 +106,10 @@
     .timer-ring circle.fg.danger { stroke: #ef4444 !important; }
     .timer-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 1rem; font-weight: 700; color: #fff; }
     .timer-num.danger { color: #ef4444; }
-
-    /* Control buttons */
     .ctrl-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; }
     .btn-ctrl { font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.55); cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s; }
     .btn-ctrl:hover { background: rgba(255,255,255,0.13); color: #fff; border-color: rgba(255,255,255,0.35); }
     .btn-ctrl.danger:hover { background: rgba(239,68,68,0.2); color: #f87171; border-color: #f87171; }
-
     .btn-row { display: flex; gap: 14px; justify-content: center; margin-bottom: 18px; }
     .btn { flex: 1; padding: 15px 0; font-size: 0.95rem; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s; letter-spacing: 1px; text-transform: uppercase; }
     .btn:active { transform: scale(0.95); }
@@ -135,10 +118,7 @@
     .btn-tom:hover:not(:disabled)     { box-shadow: 0 6px 28px rgba(59,130,246,0.5); }
     .btn-semitom { background: linear-gradient(135deg,#a855f7,#7c3aed); color:#fff; box-shadow: 0 4px 20px rgba(168,85,247,0.3); }
     .btn-semitom:hover:not(:disabled) { box-shadow: 0 6px 28px rgba(168,85,247,0.5); }
-
     .info-box { font-size: 0.75rem; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.03); border-radius: 10px; padding: 9px 14px; line-height: 1.7; margin-bottom: 14px; }
-
-    /* UNLOCK SCREEN */
     .unlock-screen { display: none; animation: fadeIn 0.5s ease; }
     .unlock-icon { font-size: 4rem; margin-bottom: 12px; animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
@@ -149,8 +129,6 @@
     .btn-unlock-sharp { background: linear-gradient(135deg,#fbbf24,#d97706); color: #1a1a2e; box-shadow: 0 4px 20px rgba(251,191,36,0.4); }
     .btn-unlock-flat  { background: linear-gradient(135deg,#818cf8,#4f46e5); color: #fff;    box-shadow: 0 4px 20px rgba(129,140,248,0.4); }
     .btn-unlock-final { background: linear-gradient(135deg,#f87171,#dc2626); color: #fff;    box-shadow: 0 4px 20px rgba(239,68,68,0.4); }
-
-    /* END SCREEN */
     .end-screen { display: none; animation: fadeIn 0.5s ease; }
     .trophy { font-size: 4rem; margin-bottom: 12px; }
     .end-title { font-size: 1.5rem; font-weight: 700; color: #e2b96f; margin-bottom: 8px; }
@@ -158,7 +136,6 @@
     .final-score { display: flex; justify-content: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
     .btn-restart { background: linear-gradient(135deg,#e2b96f,#c9963d); color:#1a1a2e; border:none; border-radius:14px; padding:13px 36px; font-size:1rem; font-weight:700; cursor:pointer; letter-spacing:1px; text-transform:uppercase; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 4px 20px rgba(226,185,111,0.3); }
     .btn-restart:hover { transform: scale(1.03); }
-
     @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     .game-screen { display: block; }
   </style>
@@ -183,21 +160,21 @@
         <div class="intro-card-icon">⏱️</div>
         <div>
           <div class="intro-card-title">Timer de 3 segundos</div>
-          <div class="intro-card-desc">Você tem <strong>3 segundos</strong> para responder. Se o tempo acabar, conta como erro e o ponto do nível é descontado.</div>
+          <div class="intro-card-desc">Você tem <strong>3 segundos</strong> para responder. Se o tempo acabar, conta como erro.</div>
         </div>
       </div>
       <div class="intro-card">
         <div class="intro-card-icon">🏆</div>
         <div>
           <div class="intro-card-title">Progressão de níveis</div>
-          <div class="intro-card-desc">Acerte <strong>5 seguidos</strong> para passar de nível. Errar desconta 1 ponto. Zere um modo <strong>sem nenhum erro</strong> para desbloquear o próximo!</div>
+          <div class="intro-card-desc">Acerte <strong>5 seguidos</strong> para passar de nível. Zere um modo <strong>sem nenhum erro</strong> para desbloquear o próximo!</div>
         </div>
       </div>
       <div class="intro-card">
         <div class="intro-card-icon">🔓</div>
         <div>
           <div class="intro-card-title">4 Modos progressivos</div>
-          <div class="intro-card-desc">Desbloqueie modos mais difíceis ao jogar perfeitamente. Cada modo exige perfeição total do anterior.</div>
+          <div class="intro-card-desc">Desbloqueie modos mais difíceis ao jogar perfeitamente.</div>
         </div>
       </div>
     </div>
@@ -215,27 +192,23 @@
     <h1>🎵 Tom ou Semitom?</h1>
     <div class="mode-tag" id="modeTag">Intervalos Naturais de 2ª</div>
     <p class="subtitle" id="subtitle">Identifique o intervalo de 2ª <strong style="color:#e2b96f;">natural</strong> apresentado</p>
-
     <div class="modes-row">
       <div class="mbadge mbadge-natural active" id="badge-natural">🎵 Natural</div>
       <div class="mbadge mbadge-sharp"          id="badge-sharp">🔒 Sustenidos</div>
       <div class="mbadge mbadge-flat"            id="badge-flat">🔒 Bemóis</div>
       <div class="mbadge mbadge-final"           id="badge-final">🔒 Final Misto</div>
     </div>
-
     <div class="level-row">
       <span id="nivelInfo">Nível 1 de 4</span>
       <span class="level-badge" id="nivelBadge">Nível 1</span>
     </div>
     <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-
     <div class="score-row">
       <div class="chip acertos"><span id="acertosCount">0</span>acertos</div>
       <div class="chip"><span id="pontosLevel">0/5</span>nível</div>
       <div class="chip perfeito"><span id="perfeitoCount">✓</span>perfeito</div>
       <div class="chip erros"><span id="errosCount">0</span>erros</div>
     </div>
-
     <div class="interval-box">
       <div class="interval-label" id="intervalLabel">Intervalo de 2ª Natural</div>
       <div class="notes" id="notesDisplay">
@@ -244,9 +217,7 @@
         <span id="nota2">Ré</span>
       </div>
     </div>
-
     <div class="streak-row" id="streakRow"></div>
-
     <div class="timer-wrap">
       <div class="timer-ring" id="timerRing">
         <svg width="48" height="48" viewBox="0 0 48 48">
@@ -256,20 +227,16 @@
         <div class="timer-num" id="timerNum">3</div>
       </div>
     </div>
-
     <div class="feedback" id="feedback"></div>
-
     <div class="btn-row">
       <button class="btn btn-tom"     id="btnTom"     onclick="responder('tom')">🎵 Tom</button>
       <button class="btn btn-semitom" id="btnSemitom" onclick="responder('semitom')">🎼 Semitom</button>
     </div>
-
     <div class="info-box" id="infoBox">
       Intervalos entre <strong>notas naturais</strong> (sem acidentes)<br/>
       <strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom<br/>
       Semitons naturais: <strong>Mi→Fá</strong> e <strong>Si→Dó</strong>
     </div>
-
     <div class="ctrl-row">
       <button class="btn-ctrl" onclick="reiniciar()" title="Reiniciar do zero">🔄 Reset</button>
       <button class="btn-ctrl danger" onclick="sair()" title="Sair do jogo">✖ Sair</button>
@@ -300,298 +267,368 @@
 </div>
 
 <script>
-const NAT = [
-  { notas:['Dó','Ré'],    tipo:'tom'     },
-  { notas:['Ré','Mi'],    tipo:'tom'     },
-  { notas:['Mi','Fá'],    tipo:'semitom' },
-  { notas:['Fá','Sol'],   tipo:'tom'     },
-  { notas:['Sol','Lá'],   tipo:'tom'     },
-  { notas:['Lá','Si'],    tipo:'tom'     },
-  { notas:['Si','Dó'],    tipo:'semitom' },
+var NAT = [
+  { notas:['Do','Re'],    tipo:'tom'     },
+  { notas:['Re','Mi'],    tipo:'tom'     },
+  { notas:['Mi','Fa'],    tipo:'semitom' },
+  { notas:['Fa','Sol'],   tipo:'tom'     },
+  { notas:['Sol','La'],   tipo:'tom'     },
+  { notas:['La','Si'],    tipo:'tom'     },
+  { notas:['Si','Do'],    tipo:'semitom' },
 ];
 
-const SHARP = [
-  { notas:['Dó♯','Ré'],   tipo:'semitom' },
-  { notas:['Dó♯','Ré♯'],  tipo:'tom'     },
-  { notas:['Ré♯','Mi'],   tipo:'semitom' },
-  { notas:['Fá♯','Sol'],  tipo:'semitom' },
-  { notas:['Fá♯','Sol♯'], tipo:'tom'     },
-  { notas:['Sol♯','Lá'],  tipo:'semitom' },
-  { notas:['Sol♯','Lá♯'], tipo:'tom'     },
-  { notas:['Lá♯','Si'],   tipo:'semitom' },
+var SHARP = [
+  { notas:['Do#','Re'],   tipo:'semitom' },
+  { notas:['Do#','Re#'],  tipo:'tom'     },
+  { notas:['Re#','Mi'],   tipo:'semitom' },
+  { notas:['Fa#','Sol'],  tipo:'semitom' },
+  { notas:['Fa#','Sol#'], tipo:'tom'     },
+  { notas:['Sol#','La'],  tipo:'semitom' },
+  { notas:['Sol#','La#'], tipo:'tom'     },
+  { notas:['La#','Si'],   tipo:'semitom' },
 ];
 
-const FLAT = [
-  { notas:['Dó','Ré♭'],   tipo:'semitom' },
-  { notas:['Ré','Mi♭'],   tipo:'semitom' },
-  { notas:['Ré♭','Mi♭'],  tipo:'tom'     },
-  { notas:['Mi♭','Fá'],   tipo:'tom'     },
-  { notas:['Fá','Sol♭'],  tipo:'semitom' },
-  { notas:['Sol','Lá♭'],  tipo:'semitom' },
-  { notas:['Sol♭','Lá♭'], tipo:'tom'     },
-  { notas:['Lá','Si♭'],   tipo:'semitom' },
-  { notas:['Lá♭','Si♭'],  tipo:'tom'     },
-  { notas:['Si♭','Dó'],   tipo:'tom'     },
+var FLAT = [
+  { notas:['Do','Reb'],   tipo:'semitom' },
+  { notas:['Re','Mib'],   tipo:'semitom' },
+  { notas:['Reb','Mib'],  tipo:'tom'     },
+  { notas:['Mib','Fa'],   tipo:'tom'     },
+  { notas:['Fa','Solb'],  tipo:'semitom' },
+  { notas:['Sol','Lab'],  tipo:'semitom' },
+  { notas:['Solb','Lab'], tipo:'tom'     },
+  { notas:['La','Sib'],   tipo:'semitom' },
+  { notas:['Lab','Sib'],  tipo:'tom'     },
+  { notas:['Sib','Do'],   tipo:'tom'     },
 ];
 
-const MODOS = {
+// FIX: niveis do modo final gerados como funcao, chamada apenas quando necessario
+function gerarNiveisFinal() {
+  var ALL = [];
+  for (var i = 0; i < NAT.length; i++)   ALL.push({ src: 'nat', i: i });
+  for (var i = 0; i < SHARP.length; i++) ALL.push({ src: 'sha', i: i });
+  for (var i = 0; i < FLAT.length; i++)  ALL.push({ src: 'fla', i: i });
+  var levels = [];
+  for (var l = 0; l < 15; l++) {
+    var size = 3 + Math.floor(l * 1.2);
+    var pool = ALL.slice();
+    var ids = [];
+    for (var k = 0; k < Math.min(size, pool.length); k++) {
+      var ri = Math.floor(Math.random() * pool.length);
+      ids.push(pool.splice(ri, 1)[0]);
+    }
+    levels.push({ label: 'Nivel ' + (l + 1), mixed: ids });
+  }
+  return levels;
+}
+
+var MODOS = {
   natural: {
-    label:'Intervalos Naturais de 2ª',
-    subtitle:'Identifique o intervalo de 2ª <strong style="color:#e2b96f;">natural</strong> apresentado',
-    intervalLabel:'Intervalo de 2ª Natural',
-    infoHtml:'Intervalos entre <strong>notas naturais</strong> (sem acidentes)<br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom<br/>Semitons naturais: <strong>Mi→Fá</strong> e <strong>Si→Dó</strong>',
+    label:'Intervalos Naturais de 2a',
+    subtitle:'Identifique o intervalo de 2a <strong style="color:#e2b96f;">natural</strong> apresentado',
+    intervalLabel:'Intervalo de 2a Natural',
+    infoHtml:'Intervalos entre <strong>notas naturais</strong> (sem acidentes)<br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom<br/>Semitons naturais: <strong>Mi-Fa</strong> e <strong>Si-Do</strong>',
     niveis:[
-      {label:'Nível 1',ids:[0,2,3]},
-      {label:'Nível 2',ids:[0,1,2,3,4]},
-      {label:'Nível 3',ids:[0,1,2,3,4,5,6]},
-      {label:'Nível 4',ids:[0,1,2,3,4,5,6,0,1,2,3,4,5,6]},
+      {label:'Nivel 1',ids:[0,2,3]},
+      {label:'Nivel 2',ids:[0,1,2,3,4]},
+      {label:'Nivel 3',ids:[0,1,2,3,4,5,6]},
+      {label:'Nivel 4',ids:[0,1,2,3,4,5,6,0,1,2,3,4,5,6]},
     ],
     pool:NAT, meta:5, modeClass:'mode-natural', next:'sharp',
-    unlockIcon:'🔒→🎸', unlockTitle:'🎸 Modo Sustenidos Desbloqueado!',
-    unlockDesc:'Incrível! Você completou todos os níveis <strong>sem nenhum erro</strong>!<br/>O modo <strong style="color:#fbbf24;">Sustenidos (♯)</strong> foi desbloqueado.',
-    unlockBtnClass:'btn-unlock-sharp', unlockBtnText:'🎸 Jogar com Sustenidos',
+    unlockIcon:'Desbloqueado', unlockTitle:'Modo Sustenidos Desbloqueado!',
+    unlockDesc:'Incrivel! Voce completou todos os niveis <strong>sem nenhum erro</strong>!<br/>O modo <strong style="color:#fbbf24;">Sustenidos (#)</strong> foi desbloqueado.',
+    unlockBtnClass:'btn-unlock-sharp', unlockBtnText:'Jogar com Sustenidos',
   },
   sharp: {
-    label:'🎸 Modo Sustenidos (♯)',
-    subtitle:'Identifique o intervalo de 2ª com <strong style="color:#fbbf24;">sustenidos</strong>',
-    intervalLabel:'Intervalo de 2ª com ♯',
-    infoHtml:'Notas com <strong>sustenido (♯)</strong> estão um semitom acima da nota natural<br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom',
+    label:'Modo Sustenidos (#)',
+    subtitle:'Identifique o intervalo de 2a com <strong style="color:#fbbf24;">sustenidos</strong>',
+    intervalLabel:'Intervalo de 2a com #',
+    infoHtml:'Notas com <strong>sustenido (#)</strong> estao um semitom acima da nota natural<br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom',
     niveis:[
-      {label:'Nível 1',ids:[0,2,3,5]},
-      {label:'Nível 2',ids:[0,1,2,3,4,5]},
-      {label:'Nível 3',ids:[0,1,2,3,4,5,6,7]},
-      {label:'Nível 4',ids:[0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7]},
+      {label:'Nivel 1',ids:[0,2,3,5]},
+      {label:'Nivel 2',ids:[0,1,2,3,4,5]},
+      {label:'Nivel 3',ids:[0,1,2,3,4,5,6,7]},
+      {label:'Nivel 4',ids:[0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7]},
     ],
     pool:SHARP, meta:5, modeClass:'mode-sharp', next:'flat',
-    unlockIcon:'🎼', unlockTitle:'🎼 Modo Bemóis Desbloqueado!',
-    unlockDesc:'Fantástico! Zerou os sustenidos <strong>sem errar</strong>!<br/>O modo <strong style="color:#818cf8;">Bemóis (♭)</strong> foi desbloqueado.',
-    unlockBtnClass:'btn-unlock-flat', unlockBtnText:'🎼 Jogar com Bemóis',
+    unlockIcon:'Desbloqueado', unlockTitle:'Modo Bemois Desbloqueado!',
+    unlockDesc:'Fantastico! Zerou os sustenidos <strong>sem errar</strong>!<br/>O modo <strong style="color:#818cf8;">Bemois (b)</strong> foi desbloqueado.',
+    unlockBtnClass:'btn-unlock-flat', unlockBtnText:'Jogar com Bemois',
   },
   flat: {
-    label:'🎼 Modo Bemóis (♭)',
-    subtitle:'Identifique o intervalo de 2ª com <strong style="color:#818cf8;">bemóis</strong>',
-    intervalLabel:'Intervalo de 2ª com ♭',
-    infoHtml:'Notas com <strong>bemol (♭)</strong> estão um semitom abaixo da nota natural<br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom',
+    label:'Modo Bemois (b)',
+    subtitle:'Identifique o intervalo de 2a com <strong style="color:#818cf8;">bemois</strong>',
+    intervalLabel:'Intervalo de 2a com b',
+    infoHtml:'Notas com <strong>bemol (b)</strong> estao um semitom abaixo da nota natural<br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom',
     niveis:[
-      {label:'Nível 1',ids:[0,1,4,5]},
-      {label:'Nível 2',ids:[0,1,3,4,5,7]},
-      {label:'Nível 3',ids:[0,1,2,3,4,5,6,7,8,9]},
-      {label:'Nível 4',ids:[0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7]},
+      {label:'Nivel 1',ids:[0,1,4,5]},
+      {label:'Nivel 2',ids:[0,1,3,4,5,7]},
+      {label:'Nivel 3',ids:[0,1,2,3,4,5,6,7,8,9]},
+      {label:'Nivel 4',ids:[0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7]},
     ],
     pool:FLAT, meta:5, modeClass:'mode-flat', next:'final',
-    unlockIcon:'🏅', unlockTitle:'🏅 Fase Final Mista Desbloqueada!',
-    unlockDesc:'LENDÁRIO! Zerou os bemóis <strong>sem errar</strong>!<br/>A <strong style="color:#f87171;">Fase Final Mista</strong> foi desbloqueada.<br/>15 níveis com naturais, sustenidos e bemóis misturados!',
-    unlockBtnClass:'btn-unlock-final', unlockBtnText:'🏅 Fase Final Mista',
+    unlockIcon:'Desbloqueado', unlockTitle:'Fase Final Mista Desbloqueada!',
+    unlockDesc:'LENDARIO! Zerou os bemois <strong>sem errar</strong>!<br/>A <strong style="color:#f87171;">Fase Final Mista</strong> foi desbloqueada.<br/>15 niveis com naturais, sustenidos e bemois misturados!',
+    unlockBtnClass:'btn-unlock-final', unlockBtnText:'Fase Final Mista',
   },
   final: {
-    label:'🏅 Fase Final Mista',
-    subtitle:'Naturais + Sustenidos + Bemóis — <strong style="color:#f87171;">15 níveis!</strong>',
-    intervalLabel:'Intervalo de 2ª — Modo Final',
-    infoHtml:'Modo misto: <strong>naturais</strong>, <strong style="color:#fbbf24;">♯ sustenidos</strong> e <strong style="color:#818cf8;">♭ bemóis</strong><br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom',
-    niveis:(()=>{
-      const ALL=[...NAT.map((_,i)=>({src:'nat',i})),...SHARP.map((_,i)=>({src:'sha',i})),...FLAT.map((_,i)=>({src:'fla',i}))];
-      const levels=[];
-      for(let l=0;l<15;l++){
-        const size=3+Math.floor(l*1.5);
-        const ids=[];
-        const pool=[...ALL];
-        for(let k=0;k<Math.min(size,pool.length);k++){const ri=Math.floor(Math.random()*pool.length);ids.push(pool.splice(ri,1)[0]);}
-        levels.push({label:`Nível ${l+1}`,mixed:ids});
-      }
-      return levels;
-    })(),
-    pool:[...NAT,...SHARP,...FLAT], meta:5, modeClass:'mode-final', next:null,
+    label:'Fase Final Mista',
+    subtitle:'Naturais + Sustenidos + Bemois - <strong style="color:#f87171;">15 niveis!</strong>',
+    intervalLabel:'Intervalo de 2a - Modo Final',
+    infoHtml:'Modo misto: <strong>naturais</strong>, <strong style="color:#fbbf24;"># sustenidos</strong> e <strong style="color:#818cf8;">b bemois</strong><br/><strong>Tom</strong> = 2 semitons &nbsp;|&nbsp; <strong>Semitom</strong> = 1 semitom',
+    // FIX: niveis serao gerados em startUnlocked/iniciarNivel via gerarNiveisFinal()
+    niveis: null,
+    pool:null, meta:5, modeClass:'mode-final', next:null,
   },
 };
 
-let currentMode='natural', nivel=0, acertosNivel=0, acertosTotal=0, errosTotal=0;
-let errosModo=0, fila=[], atual=null, aguardando=false, pendingUnlock=null;
-let unlockedModes={natural:true,sharp:false,flat:false,final:false};
+var currentMode='natural', nivel=0, acertosNivel=0, acertosTotal=0, errosTotal=0;
+var errosModo=0, fila=[], atual=null, aguardando=false, pendingUnlock=null;
+var unlockedModes={natural:true,sharp:false,flat:false,final:false};
 
-const TIMER_SECS=3;
-let timerInterval=null, timerRemaining=TIMER_SECS;
+var TIMER_SECS=3;
+var timerInterval=null, timerRemaining=TIMER_SECS;
 
-function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-function getInterval(entry){
-  if(entry && entry.mixed!==undefined){
-    const src=entry.src==='nat'?NAT:entry.src==='sha'?SHARP:FLAT;
-    return{...src[entry.i]};
+function shuffle(arr){
+  var a = arr.slice();
+  for (var i = a.length-1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i+1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
   }
-  return{...MODOS[currentMode].pool[entry]};
+  return a;
 }
 
-function buildFila(){
-  const m=MODOS[currentMode], nv=m.niveis[nivel];
-  fila=nv.mixed?shuffle([...nv.mixed]):shuffle(nv.ids.map(id=>id));
+// FIX: getInterval agora trata corretamente objetos {src, i} do modo final
+function getInterval(entry) {
+  if (entry !== null && typeof entry === 'object' && 'src' in entry && 'i' in entry) {
+    var src = entry.src === 'nat' ? NAT : entry.src === 'sha' ? SHARP : FLAT;
+    return { notas: src[entry.i].notas.slice(), tipo: src[entry.i].tipo };
+  }
+  // entry e um indice numerico (modos naturais, sharp, flat)
+  var pool = MODOS[currentMode].pool;
+  return { notas: pool[entry].notas.slice(), tipo: pool[entry].tipo };
+}
+
+// FIX: buildFila trata tanto mixed (modo final) quanto ids (outros modos)
+function buildFila() {
+  var m = MODOS[currentMode];
+  var nv = m.niveis[nivel];
+  if (nv.mixed) {
+    fila = shuffle(nv.mixed.slice());
+  } else {
+    fila = shuffle(nv.ids.slice());
+  }
 }
 
 function renderStreak(){
-  const m=MODOS[currentMode], row=document.getElementById('streakRow');
-  row.innerHTML='';
-  for(let i=0;i<m.meta;i++){const d=document.createElement('div');d.className='streak-dot'+(i<acertosNivel?' filled':'');row.appendChild(d);}
+  var m = MODOS[currentMode];
+  var row = document.getElementById('streakRow');
+  row.innerHTML = '';
+  for (var i = 0; i < m.meta; i++) {
+    var d = document.createElement('div');
+    d.className = 'streak-dot' + (i < acertosNivel ? ' filled' : '');
+    row.appendChild(d);
+  }
 }
 
 function flashDot(){
-  const dots=document.querySelectorAll('.streak-dot');
-  const target=Math.min(acertosNivel,dots.length-1);
-  if(dots[target]){dots[target].classList.add('error');setTimeout(()=>renderStreak(),400);}
+  var dots = document.querySelectorAll('.streak-dot');
+  var target = Math.min(acertosNivel, dots.length - 1);
+  if (dots[target]) {
+    dots[target].classList.add('error');
+    setTimeout(function(){ renderStreak(); }, 400);
+  }
 }
 
 function setMode(mode){
-  currentMode=mode;
-  const m=MODOS[mode], c=document.getElementById('container');
-  c.className='container '+m.modeClass;
-  document.getElementById('modeTag').textContent=m.label;
-  document.getElementById('subtitle').innerHTML=m.subtitle;
-  document.getElementById('intervalLabel').textContent=m.intervalLabel;
-  document.getElementById('infoBox').innerHTML=m.infoHtml;
-  ['natural','sharp','flat','final'].forEach(k=>{
-    const b=document.getElementById('badge-'+k);
+  currentMode = mode;
+  var m = MODOS[mode];
+  var c = document.getElementById('container');
+  c.className = 'container ' + m.modeClass;
+  document.getElementById('modeTag').textContent = m.label;
+  document.getElementById('subtitle').innerHTML = m.subtitle;
+  document.getElementById('intervalLabel').textContent = m.intervalLabel;
+  document.getElementById('infoBox').innerHTML = m.infoHtml;
+  var keys = ['natural','sharp','flat','final'];
+  for (var ki = 0; ki < keys.length; ki++) {
+    var k = keys[ki];
+    var b = document.getElementById('badge-' + k);
     b.classList.remove('active','done');
-    if(k===mode)b.classList.add('active');
-    else if(unlockedModes[k])b.classList.add('done');
-    b.textContent=unlockedModes[k]?(k==='natural'?'🎵 Natural':k==='sharp'?'🎸 Sustenidos':k==='flat'?'🎼 Bemóis':'🏅 Final'):'🔒 '+(k==='sharp'?'Sustenidos':k==='flat'?'Bemóis':'Final Misto');
-  });
+    if (k === mode) b.classList.add('active');
+    else if (unlockedModes[k]) b.classList.add('done');
+    if (unlockedModes[k]) {
+      b.textContent = k==='natural' ? 'Natural' : k==='sharp' ? 'Sustenidos' : k==='flat' ? 'Bemois' : 'Final';
+    } else {
+      b.textContent = 'Bloq. ' + (k==='sharp' ? 'Sustenidos' : k==='flat' ? 'Bemois' : 'Final Misto');
+    }
+  }
 }
 
 function atualizarUI(){
-  const m=MODOS[currentMode];
-  document.getElementById('nivelInfo').textContent=`Nível ${nivel+1} de ${m.niveis.length}`;
-  document.getElementById('nivelBadge').textContent=`Nível ${nivel+1}`;
-  document.getElementById('acertosCount').textContent=acertosTotal;
-  document.getElementById('errosCount').textContent=errosTotal;
-  document.getElementById('pontosLevel').textContent=`${acertosNivel}/${m.meta}`;
-  document.getElementById('perfeitoCount').textContent=errosModo===0?'✓':'✗';
-  document.getElementById('progressBar').style.width=(acertosNivel/m.meta*100)+'%';
+  var m = MODOS[currentMode];
+  document.getElementById('nivelInfo').textContent = 'Nivel ' + (nivel+1) + ' de ' + m.niveis.length;
+  document.getElementById('nivelBadge').textContent = 'Nivel ' + (nivel+1);
+  document.getElementById('acertosCount').textContent = acertosTotal;
+  document.getElementById('errosCount').textContent = errosTotal;
+  document.getElementById('pontosLevel').textContent = acertosNivel + '/' + m.meta;
+  document.getElementById('perfeitoCount').textContent = errosModo === 0 ? 'v' : 'x';
+  document.getElementById('progressBar').style.width = (acertosNivel / m.meta * 100) + '%';
   renderStreak();
 }
 
 function startTimer(){
   clearInterval(timerInterval);
-  timerRemaining=TIMER_SECS;
+  timerRemaining = TIMER_SECS;
   updateTimerUI();
-  timerInterval=setInterval(()=>{
-    timerRemaining-=0.05;
-    if(timerRemaining<=0){
-      timerRemaining=0;updateTimerUI();clearInterval(timerInterval);
-      if(!aguardando){
-        aguardando=true;setBtns(false);
-        errosTotal++;errosModo++;acertosNivel=Math.max(0,acertosNivel-1);
+  timerInterval = setInterval(function(){
+    timerRemaining -= 0.05;
+    if (timerRemaining <= 0) {
+      timerRemaining = 0; updateTimerUI(); clearInterval(timerInterval);
+      if (!aguardando) {
+        aguardando = true; setBtns(false);
+        errosTotal++; errosModo++; acertosNivel = Math.max(0, acertosNivel - 1);
         flashDot();
-        const nome=atual.tipo==='tom'?'Tom':'Semitom';
-        showFeedback(`⏱️ Tempo! Era ${nome} (${atual.notas[0]}–${atual.notas[1]})`,'wrong');
+        var nome = atual.tipo === 'tom' ? 'Tom' : 'Semitom';
+        showFeedback('Tempo! Era ' + nome + ' (' + atual.notas[0] + '-' + atual.notas[1] + ')', 'wrong');
         atualizarUI();
-        setTimeout(proximoIntervalo,1400);
+        setTimeout(proximoIntervalo, 1400);
       }
     } else updateTimerUI();
-  },50);
+  }, 50);
 }
 
-function stopTimer(){clearInterval(timerInterval);}
+function stopTimer(){ clearInterval(timerInterval); }
 
 function updateTimerUI(){
-  const circumference=2*Math.PI*20;
-  const offset=circumference*(1-timerRemaining/TIMER_SECS);
-  const arc=document.getElementById('timerArc'), num=document.getElementById('timerNum');
-  if(!arc||!num)return;
-  arc.style.strokeDashoffset=offset;
-  num.textContent=Math.ceil(timerRemaining);
-  const danger=timerRemaining<=1;
-  arc.classList.toggle('danger',danger);
-  num.classList.toggle('danger',danger);
+  var circumference = 2 * Math.PI * 20;
+  var offset = circumference * (1 - timerRemaining / TIMER_SECS);
+  var arc = document.getElementById('timerArc');
+  var num = document.getElementById('timerNum');
+  if (!arc || !num) return;
+  arc.style.strokeDashoffset = offset;
+  num.textContent = Math.ceil(timerRemaining);
+  var danger = timerRemaining <= 1;
+  if (danger) { arc.classList.add('danger'); num.classList.add('danger'); }
+  else { arc.classList.remove('danger'); num.classList.remove('danger'); }
 }
 
-function iniciarNivel(){acertosNivel=0;buildFila();atualizarUI();proximoIntervalo();}
+function iniciarNivel(){
+  acertosNivel = 0;
+  buildFila();
+  atualizarUI();
+  proximoIntervalo();
+}
 
 function proximoIntervalo(){
-  if(fila.length===0){
-    const m=MODOS[currentMode];
-    if(nivel<m.niveis.length-1){nivel++;showFeedback('➡️ Próximo nível!','info');setTimeout(iniciarNivel,1100);}
-    else setTimeout(encerrarModo,700);
+  if (fila.length === 0) {
+    var m = MODOS[currentMode];
+    if (nivel < m.niveis.length - 1) {
+      nivel++;
+      showFeedback('Proximo nivel!', 'info');
+      setTimeout(iniciarNivel, 1100);
+    } else {
+      setTimeout(encerrarModo, 700);
+    }
     return;
   }
-  const entry=fila.shift();
-  atual=getInterval(entry);
-  document.getElementById('nota1').textContent=atual.notas[0];
-  document.getElementById('nota2').textContent=atual.notas[1];
-  document.getElementById('feedback').textContent='';
-  document.getElementById('feedback').className='feedback';
-  setBtns(true);aguardando=false;startTimer();
+  var entry = fila.shift();
+  atual = getInterval(entry);
+  document.getElementById('nota1').textContent = atual.notas[0];
+  document.getElementById('nota2').textContent = atual.notas[1];
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  setBtns(true); aguardando = false; startTimer();
 }
 
 function responder(resposta){
-  if(aguardando)return;
-  aguardando=true;stopTimer();setBtns(false);
-  const m=MODOS[currentMode], correto=resposta===atual.tipo;
-  if(correto){
-    acertosNivel++;acertosTotal++;showFeedback('✅ Correto!','correct');atualizarUI();
-    if(acertosNivel>=m.meta){
-      if(nivel<m.niveis.length-1){nivel++;acertosNivel=0;showFeedback('🎉 Nível concluído!','correct');setTimeout(iniciarNivel,1300);}
-      else setTimeout(encerrarModo,900);
+  if (aguardando) return;
+  aguardando = true; stopTimer(); setBtns(false);
+  var m = MODOS[currentMode];
+  var correto = resposta === atual.tipo;
+  if (correto) {
+    acertosNivel++; acertosTotal++;
+    showFeedback('Correto!', 'correct');
+    atualizarUI();
+    if (acertosNivel >= m.meta) {
+      if (nivel < m.niveis.length - 1) {
+        nivel++; acertosNivel = 0;
+        showFeedback('Nivel concluido!', 'correct');
+        setTimeout(iniciarNivel, 1300);
+      } else {
+        setTimeout(encerrarModo, 900);
+      }
       return;
     }
   } else {
-    errosTotal++;errosModo++;acertosNivel=Math.max(0,acertosNivel-1);
+    errosTotal++; errosModo++; acertosNivel = Math.max(0, acertosNivel - 1);
     flashDot();
-    showFeedback(`❌ Era ${atual.tipo==='tom'?'Tom':'Semitom'}! (${atual.notas[0]}–${atual.notas[1]})`,'wrong');
+    showFeedback('Era ' + (atual.tipo==='tom'?'Tom':'Semitom') + '! (' + atual.notas[0] + '-' + atual.notas[1] + ')', 'wrong');
     atualizarUI();
   }
-  setTimeout(proximoIntervalo,1400);
+  setTimeout(proximoIntervalo, 1400);
 }
 
 function encerrarModo(){
   stopTimer();
-  const m=MODOS[currentMode], perfeito=errosModo===0;
-  if(perfeito&&m.next&&!unlockedModes[m.next]){
-    unlockedModes[m.next]=true;pendingUnlock=m.next;
-    document.getElementById('gameScreen').style.display='none';
-    document.getElementById('unlockScreen').style.display='block';
-    document.getElementById('unlockIcon').textContent=m.unlockIcon;
-    document.getElementById('unlockTitle').innerHTML=m.unlockTitle;
-    document.getElementById('unlockDesc').innerHTML=m.unlockDesc;
-    const btn=document.getElementById('btnUnlock');
-    btn.className='btn-unlock '+m.unlockBtnClass;
-    btn.textContent=m.unlockBtnText;
-  } else mostrarFim();
+  var m = MODOS[currentMode];
+  var perfeito = errosModo === 0;
+  if (perfeito && m.next && !unlockedModes[m.next]) {
+    unlockedModes[m.next] = true; pendingUnlock = m.next;
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('unlockScreen').style.display = 'block';
+    document.getElementById('unlockIcon').textContent = m.unlockIcon;
+    document.getElementById('unlockTitle').innerHTML = m.unlockTitle;
+    document.getElementById('unlockDesc').innerHTML = m.unlockDesc;
+    var btn = document.getElementById('btnUnlock');
+    btn.className = 'btn-unlock ' + m.unlockBtnClass;
+    btn.textContent = m.unlockBtnText;
+  } else {
+    mostrarFim();
+  }
 }
 
 function startUnlocked(){
-  document.getElementById('unlockScreen').style.display='none';
-  document.getElementById('gameScreen').style.display='block';
-  nivel=0;acertosNivel=0;errosModo=0;
-  setMode(pendingUnlock);pendingUnlock=null;iniciarNivel();
-}
-
-function mostrarFim(){
-  document.getElementById('gameScreen').style.display='none';
-  document.getElementById('endScreen').style.display='block';
-  const taxa=acertosTotal+errosTotal>0?Math.round(acertosTotal/(acertosTotal+errosTotal)*100):0;
-  const modesDone=['natural','sharp','flat','final'].filter(k=>unlockedModes[k]);
-  let emoji=taxa>=90?'🏆':taxa>=70?'🎵':'🎼';
-  let titulo=taxa>=90?'Maestro Absoluto!':taxa>=70?'Muito bem!':'Continue praticando!';
-  if(currentMode==='final'&&errosModo===0){emoji='🏅';titulo='LENDÁRIO! Modo Final Zerado!';}
-  document.querySelector('.trophy').textContent=emoji;
-  document.getElementById('endTitle').textContent=titulo;
-  document.getElementById('finalAcertos').textContent=acertosTotal;
-  document.getElementById('finalErros').textContent=errosTotal;
-  document.getElementById('finalPerfeito').textContent=errosModo===0?'⭐ Perfeito!':taxa+'%';
-  document.getElementById('endText').innerHTML=`Taxa de acerto: <strong>${taxa}%</strong><br/>Modos concluídos: <strong>${modesDone.length}/4</strong><br/>${errosModo===0?'⭐ <strong>Modo atual zerado sem erros!</strong>':''}`;
-}
-
-function comecarJogo(){
-  document.getElementById('introScreen').style.display='none';
-  document.getElementById('gameScreen').style.display='block';
+  document.getElementById('unlockScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  nivel = 0; acertosNivel = 0; errosModo = 0;
+  var nextMode = pendingUnlock; pendingUnlock = null;
+  // FIX: gera niveis do modo final apenas quando realmente vai comecar
+  if (nextMode === 'final') {
+    MODOS.final.niveis = gerarNiveisFinal();
+  }
+  setMode(nextMode);
   iniciarNivel();
 }
 
-function sair(){stopTimer();mostrarFim();}
+function mostrarFim(){
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('endScreen').style.display = 'block';
+  var taxa = (acertosTotal + errosTotal) > 0 ? Math.round(acertosTotal / (acertosTotal + errosTotal) * 100) : 0;
+  var modesDone = ['natural','sharp','flat','final'].filter(function(k){ return unlockedModes[k]; });
+  var emoji = taxa >= 90 ? 'Campeao!' : taxa >= 70 ? 'Muito bem!' : 'Continue praticando!';
+  var titulo = taxa >= 90 ? 'Maestro Absoluto!' : taxa >= 70 ? 'Muito bem!' : 'Continue praticando!';
+  if (currentMode === 'final' && errosModo === 0) { emoji = 'LENDARIO!'; titulo = 'LENDARIO! Modo Final Zerado!'; }
+  document.querySelector('.trophy').textContent = emoji;
+  document.getElementById('endTitle').textContent = titulo;
+  document.getElementById('finalAcertos').textContent = acertosTotal;
+  document.getElementById('finalErros').textContent = errosTotal;
+  document.getElementById('finalPerfeito').textContent = errosModo === 0 ? 'Perfeito!' : taxa + '%';
+  document.getElementById('endText').innerHTML = 'Taxa de acerto: <strong>' + taxa + '%</strong><br/>Modos concluidos: <strong>' + modesDone.length + '/4</strong><br/>' + (errosModo === 0 ? '<strong>Modo atual zerado sem erros!</strong>' : '');
+}
+
+function comecarJogo(){
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  iniciarNivel();
+}
+
+function sair(){ stopTimer(); mostrarFim(); }
 
 function reiniciar(){
   stopTimer();
-  currentMode='natural';nivel=0;acertosNivel=0;acertosTotal=0;errosTotal=0;errosModo=0;
+  currentMode='natural'; nivel=0; acertosNivel=0; acertosTotal=0; errosTotal=0; errosModo=0;
   unlockedModes={natural:true,sharp:false,flat:false,final:false};
-  pendingUnlock=null;fila=[];atual=null;aguardando=false;
+  pendingUnlock=null; fila=[]; atual=null; aguardando=false;
+  MODOS.final.niveis = null;
   document.getElementById('endScreen').style.display='none';
   document.getElementById('unlockScreen').style.display='none';
   document.getElementById('gameScreen').style.display='none';
@@ -599,8 +636,15 @@ function reiniciar(){
   setMode('natural');
 }
 
-function showFeedback(msg,cls){const el=document.getElementById('feedback');el.textContent=msg;el.className='feedback '+cls;}
-function setBtns(enable){document.getElementById('btnTom').disabled=!enable;document.getElementById('btnSemitom').disabled=!enable;}
+function showFeedback(msg,cls){
+  var el = document.getElementById('feedback');
+  el.textContent = msg;
+  el.className = 'feedback ' + cls;
+}
+function setBtns(enable){
+  document.getElementById('btnTom').disabled = !enable;
+  document.getElementById('btnSemitom').disabled = !enable;
+}
 
 setMode('natural');
 </script>
