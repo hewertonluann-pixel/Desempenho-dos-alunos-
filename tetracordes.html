@@ -96,8 +96,7 @@
     .card strong { color: var(--text); }
 
     /* =============================================
-       TETRACORDE: container da escala inteira
-       Duas linhas em mobile, uma linha em telas maiores
+       TETRACORDE layout
     ============================================= */
     .scale-display {
       display: flex;
@@ -106,32 +105,27 @@
       margin: 0.6rem 0;
     }
 
-    /* Linha de tetracordes: em desktop ficam lado a lado, em mobile empilhados */
     .tetra-row {
       display: flex;
-      flex-wrap: wrap;   /* permite os dois blocos irem para linhas distintas */
+      flex-wrap: wrap;
       gap: 0.35rem;
     }
 
-    /* Cada bloco de tetracorde NUNCA quebra internamente */
     .tetra-block {
       display: flex;
-      flex: 1 1 calc(50% - 0.2rem); /* tenta colocar os dois lado a lado */
+      flex: 1 1 calc(50% - 0.2rem);
       min-width: 0;
       gap: 0.3rem;
-      flex-wrap: nowrap; /* garante que as 4 notas nunca quebram */
+      flex-wrap: nowrap;
     }
 
-    /* Em telas estreitas (<360px) ou quando não couber, cada bloco ocupa linha inteira */
     @media (max-width: 420px) {
-      .tetra-block {
-        flex: 1 1 100%;
-      }
+      .tetra-block { flex: 1 1 100%; }
     }
 
     .note-box {
       flex: 1;
-      min-width: 0;       /* permite encolher */
+      min-width: 0;
       text-align: center;
       padding: 0.55rem 0.2rem;
       border-radius: 10px;
@@ -144,10 +138,11 @@
     .note-box.sharp { background: rgba(247,106,106,0.2); border: 1.5px solid var(--sharp); color: var(--sharp); }
     .note-box.new   { background: rgba(106,247,184,0.15); border: 1.5px solid var(--accent3); color: var(--accent3); }
 
-    /* Linha de intervalos alinhada com os tetracordes */
+    /* Linha de intervalos */
     .interval-row {
       display: flex;
       flex-wrap: wrap;
+      align-items: flex-start;
       gap: 0.35rem;
       margin-bottom: 0.3rem;
     }
@@ -161,8 +156,6 @@
     @media (max-width: 420px) {
       .interval-block { flex: 1 1 100%; }
     }
-    /* 3 intervalos por bloco (entre 4 notas há 3 intervalos internos;
-       o intervalo de ligação entre tetracordes fica no meio) */
     .interval-badge {
       flex: 1;
       text-align: center;
@@ -170,20 +163,22 @@
       font-weight: 700;
       padding: 0.2rem 0.1rem;
       border-radius: 6px;
-      color: var(--muted);
       white-space: nowrap;
     }
     .interval-badge.T  { background: rgba(106,247,184,0.1);  color: var(--accent3); }
     .interval-badge.sT { background: rgba(247,106,106,0.15); color: var(--sharp); }
-    /* badge de ligação entre os dois tetracordes */
+
+    /* Badge de ligacao entre os dois tetracordes + label abaixo */
     .interval-link {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 0 0.2rem;
+      justify-content: flex-start;
+      gap: 0.2rem;
+      padding: 0 0.15rem;
       flex-shrink: 0;
     }
-    .interval-link span {
+    .interval-link .link-badge {
       font-size: 0.65rem;
       font-weight: 700;
       border-radius: 6px;
@@ -191,11 +186,41 @@
       background: rgba(106,247,184,0.1);
       color: var(--accent3);
       white-space: nowrap;
+      border: 1px dashed rgba(106,247,184,0.4);
     }
-    .interval-link span.sT {
+    .interval-link .link-badge.sT {
       background: rgba(247,106,106,0.15);
       color: var(--sharp);
+      border-color: rgba(247,106,106,0.4);
     }
+    .interval-link .link-label {
+      font-size: 0.58rem;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+
+    /* Nota de rodape sobre o Tom de ligacao */
+    .link-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.4rem;
+      background: rgba(106,247,184,0.06);
+      border: 1px dashed rgba(106,247,184,0.25);
+      border-radius: 8px;
+      padding: 0.45rem 0.65rem;
+      margin: 0.4rem 0 0.2rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .link-note .link-note-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+    .link-note strong { color: var(--accent3); }
 
     .arrow-sep { text-align: center; font-size: 1.5rem; color: var(--accent); margin: 0.4rem 0; }
 
@@ -220,7 +245,6 @@
     .scale-table td.key-col { color: var(--accent2); font-weight: 700; }
     .scale-table tr.highlight td { background: rgba(124,106,247,0.07); }
 
-    /* Key signatures visual */
     .key-sig-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -272,6 +296,25 @@
     }
     .int-step.T  { background: rgba(106,247,184,0.15); color: var(--accent3); border: 1px solid var(--accent3); }
     .int-step.sT { background: rgba(247,106,106,0.15); color: var(--sharp);   border: 1px solid var(--sharp); }
+    /* destaque especial para o T de ligacao no hero */
+    .int-step.T-link {
+      background: rgba(106,247,184,0.25);
+      color: var(--accent3);
+      border: 1.5px dashed var(--accent3);
+      position: relative;
+    }
+    .int-step.T-link::after {
+      content: 'ligação';
+      position: absolute;
+      bottom: -1.1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.52rem;
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
 
     .sep-label { text-align: center; color: var(--accent); font-size: 0.8rem; font-weight: 700; margin: 0.4rem 0; letter-spacing: 1px; }
 
@@ -338,7 +381,12 @@
         <span class="pill t1">1º Tetracorde</span>
         <span class="pill t2">2º Tetracorde</span>
       </div>
-      <p style="margin-top:0.5rem;">O 1º tetracorde vai de <strong>Dó a Fá</strong>. O 2º tetracorde vai de <strong>Sol a Dó</strong>.</p>
+      <p style="margin-top:0.5rem;">O 1º tetracorde vai de <strong>Dó a Fá</strong>. O 2º tetracorde vai de <strong>Sol a Dó</strong>. Entre eles há sempre um intervalo de <strong style="color:var(--accent3);">1 Tom</strong> (Fá→Sol).</p>
+
+      <div class="link-note">
+        <span class="link-note-icon">💡</span>
+        <span>O <strong>Tom de ligação</strong> entre os dois tetracordes é o 4º intervalo do padrão (T·T·sT·<strong>T</strong>·T·T·sT). Ele é fixo e sempre igual a <strong>1 Tom</strong> em qualquer escala maior.</span>
+      </div>
     </div>
   </section>
 
@@ -347,16 +395,20 @@
     <h2><span class="icon">📐</span> Padrão de Intervalos</h2>
     <div class="interval-hero">
       <p style="font-size:0.85rem;color:var(--muted);text-align:center;">Toda escala maior segue este padrão:</p>
-      <div class="pattern">
+      <div class="pattern" style="margin-bottom:1.4rem;">
         <div class="int-step T">T</div>
         <div class="int-step T">T</div>
         <div class="int-step sT">sT</div>
-        <div class="int-step T">T</div>
+        <div class="int-step T-link">T</div>
         <div class="int-step T">T</div>
         <div class="int-step T">T</div>
         <div class="int-step sT">sT</div>
       </div>
-      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.5rem;"><span style="color:var(--accent3);">T</span> = Tom (2 semitons) &nbsp;|&nbsp; <span style="color:var(--sharp);">sT</span> = Semitom (1 semitom)</p>
+      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:0.3rem;">
+        <span style="color:var(--accent3);">T</span> = Tom (2 semitons) &nbsp;|&nbsp;
+        <span style="color:var(--sharp);">sT</span> = Semitom (1 semitom) &nbsp;|&nbsp;
+        <span style="color:var(--accent3);border-bottom:1px dashed var(--accent3);">T</span> = Tom de ligação
+      </p>
     </div>
     <div class="card">
       <p><strong>Dó Maior com intervalos:</strong></p>
@@ -381,7 +433,10 @@
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT</div>
           </div>
-          <div class="interval-link"><span class="T">T</span></div>
+          <div class="interval-link">
+            <span class="link-badge">T</span>
+            <span class="link-label">ligação</span>
+          </div>
           <div class="interval-block">
             <div class="interval-badge T">T</div>
             <div class="interval-badge T">T</div>
@@ -446,7 +501,10 @@
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT</div>
           </div>
-          <div class="interval-link"><span class="T">T</span></div>
+          <div class="interval-link">
+            <span class="link-badge">T</span>
+            <span class="link-label">ligação</span>
+          </div>
           <div class="interval-block">
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT ❌</div>
@@ -478,7 +536,10 @@
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT</div>
           </div>
-          <div class="interval-link"><span class="T">T</span></div>
+          <div class="interval-link">
+            <span class="link-badge">T</span>
+            <span class="link-label">ligação</span>
+          </div>
           <div class="interval-block">
             <div class="interval-badge T">T</div>
             <div class="interval-badge T">T</div>
@@ -515,7 +576,10 @@
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT</div>
           </div>
-          <div class="interval-link"><span class="T">T</span></div>
+          <div class="interval-link">
+            <span class="link-badge">T</span>
+            <span class="link-label">ligação</span>
+          </div>
           <div class="interval-block">
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT ❌</div>
@@ -547,7 +611,10 @@
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT</div>
           </div>
-          <div class="interval-link"><span class="T">T</span></div>
+          <div class="interval-link">
+            <span class="link-badge">T</span>
+            <span class="link-label">ligação</span>
+          </div>
           <div class="interval-block">
             <div class="interval-badge T">T</div>
             <div class="interval-badge T">T</div>
@@ -584,7 +651,10 @@
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT</div>
           </div>
-          <div class="interval-link"><span class="T">T</span></div>
+          <div class="interval-link">
+            <span class="link-badge">T</span>
+            <span class="link-label">ligação</span>
+          </div>
           <div class="interval-block">
             <div class="interval-badge sT">sT ❌</div>
             <div class="interval-badge T">T ❌</div>
@@ -616,7 +686,10 @@
             <div class="interval-badge T">T</div>
             <div class="interval-badge sT">sT</div>
           </div>
-          <div class="interval-link"><span class="T">T</span></div>
+          <div class="interval-link">
+            <span class="link-badge">T</span>
+            <span class="link-label">ligação</span>
+          </div>
           <div class="interval-block">
             <div class="interval-badge T">T</div>
             <div class="interval-badge T">T</div>
