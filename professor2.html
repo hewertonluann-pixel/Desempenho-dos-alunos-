@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Professor — Desempenho dos Alunos</title>
+  <link rel="stylesheet" href="loader.css">
+  <script src="js/html2pdf.bundle.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* =============================================
+       RESET & TOKENS
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:       #0d1117;
+      --bg-surface:    #161b22;
+      --bg-elevated:   #1c2431;
+      --bg-hover:      #21262d;
+      --border:        #30363d;
+      --border-accent: #388bfd40;
+      --text-primary:  #e6edf3;
+      --text-secondary:#8b949e;
+      --text-muted:    #484f58;
+      --accent:        #388bfd;
+      --accent-dim:    #1f6feb;
+      --accent-glow:   rgba(56,139,253,.18);
+      --green:         #3fb950;
+      --green-dim:     #238636;
+      --red:           #f85149;
+      --red-dim:       #da3633;
+      --yellow:        #d29922;
+      --purple:        #a371f7;
+      --purple-dim:    #8957e5;
+      --cyan:          #39d353;
+      --radius-sm:     6px;
+      --radius-md:     10px;
+      --radius-lg:     16px;
+      --shadow-sm:     0 1px 3px rgba(0,0,0,.4);
+      --shadow-md:     0 4px 16px rgba(0,0,0,.5);
+      --shadow-lg:     0 8px 32px rgba(0,0,0,.6);
+      --transition:    all .18s ease;
+      --sidebar-w:     260px;
+      --header-h:      60px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* =============================================
+       TOP HEADER BAR
+    ============================================= */
+    .app-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+      z-index: 200;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-primary);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .header-logo .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .header-sep {
+      width: 1px; height: 24px;
+      background: var(--border);
+    }
+
+    .header-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .header-breadcrumb span { color: var(--text-primary); font-weight: 500; }
+
+    .header-spacer { flex: 1; }
+
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+
+    .header-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .header-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+    .header-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .header-btn.primary:hover {
+      background: var(--accent-dim);
+      filter: brightness(1.05);
+    }
+
+    /* Mobile toggle */
+    .btn-mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+      margin-right: 4px;
+    }
+    @media (max-width: 768px) { .btn-mobile-menu { display: flex; align-items: center; } }
+
+    /* =============================================
+       LAYOUT SHELL
+    ============================================= */
+    .app-shell {
+      display: flex;
+      padding-top: var(--header-h);
+      min-height: 100vh;
+    }
+
+    /* =============================================
+       SIDEBAR
+    ============================================= */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      padding: 16px 12px;
+      transition: transform .25s ease;
+      z-index: 150;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-lg);
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 140;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+    .sidebar-overlay.visible { display: block; opacity: 1; }
+
+    .sidebar-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 8px 10px 6px;
+      margin-top: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+      width: 100%;
+      background: none;
+      text-align: left;
+      text-decoration: none;
+    }
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    .nav-item.active {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border-color: var(--border-accent);
+    }
+    .nav-item .nav-icon {
+      font-size: 15px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .nav-item .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+    }
+
+    /* =============================================
+       MAIN CONTENT AREA
+    ============================================= */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 28px 32px;
+      min-width: 0;
+    }
+    @media (max-width: 768px) {
+      .main-content {
+        margin-left: 0;
+        padding: 20px 16px;
+      }
+    }
+
+    /* Page header */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Stats bar */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .stat-desc { font-size: 11px; color: var(--text-secondary); }
+
+    /* =============================================
+       PANELS
+    ============================================= */
+    .panel {
+      display: none;
+      animation: panelIn .22s ease;
+    }
+    .panel.active { display: block; }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =============================================
+       ALUNOS GRID
+    ============================================= */
+    #painelAlunos { display: none; }
+    #painelAlunos.active { display: block; }
+
+    .alunos-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 180px;
+      max-width: 320px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      padding: 7px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition);
+    }
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .alunos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    /* STUDENT CARD */
+    .ficha {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .ficha::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .ficha:hover {
+      border-color: var(--border-accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .ficha:hover::before { opacity: 1; }
+
+    .ficha-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .foto-wrapper { position: relative; flex-shrink: 0; }
+    .foto {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      background: var(--bg-elevated);
+    }
+    .foto img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 22px;
+      background: var(--bg-elevated);
+    }
+    .btn-camera {
+      position: absolute;
+      bottom: -2px; right: -2px;
+      width: 20px; height: 20px;
+      background: var(--accent);
+      border: 2px solid var(--bg-surface);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: #fff;
+      transition: var(--transition);
+    }
+    .btn-camera:hover { transform: scale(1.15); background: var(--accent-dim); }
+
+    .ficha-info { flex: 1; min-width: 0; }
+    .nome {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .instrumento-label {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    /* Notas inline */
+    .notas-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .nota-line {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nota-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nota-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .nota-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-decrease, .btn-increase {
+      width: 24px; height: 24px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      line-height: 1;
+    }
+    .btn-decrease:hover { background: var(--red-dim); border-color: var(--red); color: #fff; }
+    .btn-increase:hover { background: var(--green-dim); border-color: var(--green); color: #fff; }
+    .nota-input {
+      width: 38px; height: 24px;
+      text-align: center;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      outline: none;
+    }
+    .nota-input:focus { border-color: var(--accent); }
+    .metodo-text {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Edit fields */
+    .edit-section input {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition);
+    }
+    .edit-section input:focus { border-color: var(--accent); }
+    .edit-section input::placeholder { color: var(--text-muted); }
+
+    /* Card actions */
+    .ficha-actions {
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+    .btn-classificar, .btn-remover {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .btn-classificar {
+      background: transparent;
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .btn-classificar:hover {
+      background: var(--green-dim);
+      color: #fff;
+      border-color: var(--green-dim);
+    }
+    .btn-remover {
+      background: transparent;
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .btn-remover:hover {
+      background: var(--red-dim);
+      color: #fff;
+      border-color: var(--red-dim);
+    }
+
+    /* =============================================
+       SECTION PANEL CONTAINER
+    ============================================= */
+    .section-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      max-width: 780px;
+    }
+    .section-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-panel-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: var(--accent-glow);
+    }
+    .section-panel-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .section-panel-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* =============================================
+       FORM ELEMENTS
+    ============================================= */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .form-grid-full { grid-column: 1 / -1; }
+    @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .form-input, .form-select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition);
+      width: 100%;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+
+    /* Buttons */
+    .btn {
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .btn-primary:not(:disabled):hover {
+      background: var(--accent-dim);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(56,139,253,.35);
+    }
+    .btn-success {
+      background: var(--green-dim);
+      color: #fff;
+      border-color: var(--green-dim);
+    }
+    .btn-success:not(:disabled):hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .btn-danger {
+      background: var(--red-dim);
+      color: #fff;
+      border-color: var(--red-dim);
+    }
+    .btn-danger:not(:disabled):hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+    .btn-ghost:not(:disabled):hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    .btn-warning {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #fff;
+    }
+    .btn-warning:not(:disabled):hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .btn-purple {
+      background: linear-gradient(135deg, var(--purple-dim), #6d28d9);
+      color: #fff;
+    }
+    .btn-purple:not(:disabled):hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(139,87,229,.4);
+    }
+    .btn-full { width: 100%; justify-content: center; }
+    .btn-lg { padding: 13px 24px; font-size: 14px; }
+
+    /* =============================================
+       SNAPSHOTS PANEL
+    ============================================= */
+    .snap-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+    .snap-auto-titulo {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--yellow);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .snap-auto-desc {
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      margin-bottom: 16px;
+      line-height: 1.7;
+    }
+    .snap-auto-grid {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .snap-auto-grid .form-field { flex: 1; min-width: 100px; }
+    #logAuto {
+      margin-top: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--green);
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      display: none;
+    }
+    #logAuto::-webkit-scrollbar { width: 4px; }
+    #logAuto::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .log-linha-criado  { color: #3fb950; }
+    .log-linha-pulado  { color: var(--text-muted); }
+    .log-linha-aluno   { color: var(--accent); font-weight: bold; margin-top: 6px; }
+    .log-linha-resumo  { color: var(--yellow); font-weight: bold; margin-top: 8px; }
+
+    #msgSnapshot { margin-top: 12px; font-size: 13px; font-weight: 600; min-height: 20px; }
+    .msg-ok  { color: var(--green); }
+    .msg-err { color: var(--red); }
+
+    #listaSnapshots {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    #listaSnapshots::-webkit-scrollbar { width: 4px; }
+    #listaSnapshots::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .snap-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      gap: 8px;
+      flex-wrap: wrap;
+      transition: var(--transition);
+    }
+    .snap-item:hover { border-color: var(--border-accent); }
+    .snap-item .snap-chave  { font-weight: 700; color: var(--accent); min-width: 60px; }
+    .snap-item .snap-nome   { flex: 1; color: var(--text-primary); }
+    .snap-item .snap-vals   { color: var(--green); font-weight: 600; white-space: nowrap; }
+    .snap-item .snap-origem { font-size: 11px; color: var(--text-muted); }
+    .snap-item.retroativo  { border-color: rgba(210,153,34,.3); }
+    .snap-item.automatico-inteligente { border-color: rgba(163,113,247,.3); }
+
+    /* =============================================
+       PDF PANEL
+    ============================================= */
+    #painelPDFMultiplo { max-width: 880px; }
+
+    .pdf-multi-controles {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .pdf-multi-contador {
+      margin-left: auto;
+      background: rgba(163,113,247,.12);
+      border: 1px solid rgba(163,113,247,.35);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      color: var(--purple);
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .pdf-multi-grade {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 14px;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+    }
+    .pdf-multi-grade::-webkit-scrollbar { width: 4px; }
+    .pdf-multi-grade::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .pdf-aluno-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+    }
+    .pdf-aluno-card:hover {
+      border-color: rgba(163,113,247,.4);
+      transform: translateY(-1px);
+    }
+    .pdf-aluno-card.selecionado {
+      background: rgba(163,113,247,.12);
+      border-color: var(--purple);
+    }
+    .pdf-check {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      border-radius: 3px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      transition: var(--transition);
+    }
+    .pdf-aluno-card.selecionado .pdf-check {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+    .pdf-aluno-nome {
+      font-size: 12px;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pdf-progresso {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .pdf-progresso.visivel { display: block; }
+    .pdf-barra-wrap {
+      width: 100%; height: 6px;
+      background: rgba(163,113,247,.15);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .pdf-barra-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple-dim), var(--purple));
+      transition: width .35s ease;
+      border-radius: 3px;
+    }
+    .pdf-progresso-texto {
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* =============================================
+       TOAST NOTIFICATIONS
+    ============================================= */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 9999;
+    }
+    .toast {
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: var(--shadow-md);
+      transform: translateX(120%);
+      transition: transform .3s ease, opacity .3s ease;
+      max-width: 320px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-left: 4px solid transparent;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { background: #1a2e1a; border-color: var(--green); color: var(--green); }
+    .toast.info    { background: #1a2340; border-color: var(--accent); color: var(--accent); }
+    .toast.error   { background: #2e1a1a; border-color: var(--red); color: var(--red); }
+
+    /* =============================================
+       MODALS
+    ============================================= */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(6px);
+      justify-content: center;
+      align-items: center;
+      z-index: 300;
+      padding: 20px;
+    }
+    .modal.ativo { display: flex; animation: fadeIn .2s ease; }
+    .modal-conteudo {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-conteudo h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .campo-modal {
+      margin-bottom: 14px;
+    }
+    .campo-modal label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 5px;
+    }
+    .campo-modal input {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: var(--transition);
+    }
+    .campo-modal input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .botoes-modal {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .botoes-modal button { flex: 1; }
+    .btn-adicionar { background: var(--green-dim); color: #fff; border-color: var(--green-dim); }
+    .btn-adicionar:hover { filter: brightness(1.1); }
+    .btn-cancelar { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-cancelar:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .fechar-modal {
+      position: absolute;
+      top: 16px; right: 20px;
+      font-size: 22px;
+      color: var(--text-muted);
+      cursor: pointer;
+      line-height: 1;
+    }
+    .fechar-modal:hover { color: var(--text-primary); }
+
+    /* =============================================
+       LOADER
+    ============================================= */
+    .loader-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =============================================
+       EMPTY STATE
+    ============================================= */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state-title { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .empty-state-desc  { font-size: 13px; line-height: 1.6; }
+
+    /* =============================================
+       LIÇÕES PANEL
+    ============================================= */
+    .painel-licoes-prof { }
+
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      .alunos-grid { grid-template-columns: 1fr; }
+      .notas-section { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .section-panel { padding: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Global loader -->
+  <div id="global-loader">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div id="emoji-container">🎷</div>
+      <div id="verse-container">
+        <div id="verse-text"></div>
+        <div id="verse-reference"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <button class="btn-mobile-menu" id="btnMobileMenu" aria-label="Menu">☰</button>
+    <a class="header-logo" href="#">
+      <div class="logo-icon">🎵</div>
+      <span>Asafe</span>
+    </a>
+    <div class="header-sep"></div>
+    <div class="header-breadcrumb">
+      Painel / <span>Professor</span>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="header-btn primary" id="btnAdicionarAlunoHeader">
+        <span>+</span> Novo Aluno
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Navigation script -->
+  <script type="module" src="navegacao.js"></script>
+
+  <!-- App shell -->
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section-label">Alunos</div>
+      <button class="nav-item" id="btnMostrarAlunos">
+        <span class="nav-icon">👥</span> Gerenciar Alunos
+      </button>
+      <button class="nav-item" id="btnAdicionarAluno">
+        <span class="nav-icon">➕</span> Adicionar Aluno
+      </button>
+
+      <div class="sidebar-section-label">Avaliações</div>
+      <button class="nav-item" onclick="mostrarPainelLicoes()">
+        <span class="nav-icon">🎤</span> Avaliar Lições
+      </button>
+      <button class="nav-item" id="btnAtualizarComprometimento">
+        <span class="nav-icon">⚡</span> Comprometimento
+      </button>
+      <button class="nav-item" onclick="carregarModulo('relatorio')">
+        <span class="nav-icon">📊</span> Relatório Mensal
+      </button>
+
+      <div class="sidebar-section-label">Presença</div>
+      <button class="nav-item" id="btnCriarChamada">
+        <span class="nav-icon">📋</span> Fazer Chamada
+      </button>
+      <button class="nav-item" onclick="window.location.href='gerenciar-eventos.html'">
+        <span class="nav-icon">🗂️</span> Gerenciar Chamadas
+      </button>
+
+      <div class="sidebar-section-label">Evolução</div>
+      <button class="nav-item" onclick="mostrarPainelSnapshots()">
+        <span class="nav-icon">📸</span> Evolução Mensal
+      </button>
+      <button class="nav-item" onclick="mostrarPainelPDFMultiplo()" style="color: var(--purple);">
+        <span class="nav-icon">📄</span> PDF Múltiplos Alunos
+      </button>
+
+      <div class="sidebar-section-label">Configurações</div>
+      <button class="nav-item" onclick="window.location.href='configuracoes-grupo.html'">
+        <span class="nav-icon">🏢</span> Editar Grupo
+      </button>
+    </nav>
+
+    <!-- Main content -->
+    <main class="main-content" id="mainContent">
+
+      <!-- Default welcome state -->
+      <div id="painelBemVindo">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Painel do Professor</div>
+            <div class="page-subtitle">Gerencie alunos, chamadas, evolução e relatórios</div>
+          </div>
+        </div>
+
+        <div class="stats-row" id="statsRow">
+          <div class="stat-card">
+            <div class="stat-label">Total de Alunos</div>
+            <div class="stat-value" id="statTotalAlunos">—</div>
+            <div class="stat-desc">cadastrados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avaliações</div>
+            <div class="stat-value">📊</div>
+            <div class="stat-desc">relatório disponível</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Chamadas</div>
+            <div class="stat-value">📋</div>
+            <div class="stat-desc">controle de presença</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Evolução</div>
+            <div class="stat-value">📈</div>
+            <div class="stat-desc">snapshots mensais</div>
+          </div>
+        </div>
+
+        <div class="empty-state">
+          <div class="empty-state-icon">🎶</div>
+          <div class="empty-state-title">Selecione uma opção no menu lateral</div>
+          <div class="empty-state-desc">Use a navegação à esquerda para gerenciar alunos,<br>fazer chamadas, registrar evolução e gerar relatórios.</div>
+        </div>
+      </div>
+
+      <!-- Painel Alunos -->
+      <div id="painelAlunos">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Gerenciar Alunos</div>
+            <div class="page-subtitle" id="subtitleAlunos">Carregando...</div>
+          </div>
+          <button class="btn btn-primary" id="btnAdicionarAlunoPanel">+ Novo Aluno</button>
+        </div>
+        <div class="alunos-toolbar">
+          <input type="text" class="search-input" id="searchAlunos" placeholder="🔍  Buscar aluno...">
+        </div>
+        <div id="loader" style="display:none;">
+          <div class="loader-state"><div class="spinner"></div><p>Carregando alunos...</p></div>
+        </div>
+        <div class="alunos-grid" id="painel"></div>
+      </div>
+
+      <!-- Dynamic content area -->
+      <div id="conteudo"></div>
+
+      <!-- Lições panel -->
+      <div class="painel-licoes-prof" id="painelLicoesProf" style="display:none;"></div>
+
+      <!-- ===== SNAPSHOTS PANEL ===== -->
+      <div id="painelSnapshots" style="display:none;">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Evolução Mensal</div>
+            <div class="page-subtitle">Registre e visualize o progresso dos alunos mês a mês</div>
+          </div>
+        </div>
+
+        <div class="section-panel">
+          <div class="section-panel-header">
+            <div class="section-panel-icon">📸</div>
+            <div>
+              <div class="section-panel-title">Lançar Pegada Mensal</div>
+              <div class="section-panel-subtitle">Registre o nível do aluno em um período específico</div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field form-grid-full">
+              <label class="form-label">Aluno</label>
+              <select class="form-select" id="snapAluno"><option value="">Carregando alunos...</option></select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Ano</label>
+              <input type="number" class="form-input" id="snapAno" min="2020" max="2030" value="2026">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Mês</label>
+              <select class="form-select" id="snapMes">
+                <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                <option value="3" selected>Março</option><option value="4">Abril</option>
+                <option value="5">Maio</option><option value="6">Junho</option>
+                <option value="7">Julho</option><option value="8">Agosto</option>
+                <option value="9">Setembro</option><option value="10">Outubro</option>
+                <option value="11">Novembro</option><option value="12">Dezembro</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Nível Bona (Leitura)</label>
+              <input type="number" class="form-input" id="snapLeitura" min="0" max="200" placeholder="0">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Nível Método</label>
+              <input type="number" class="form-input" id="snapMetodo" min="0" max="100" placeholder="0">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Lição Leitura (opcional)</label>
+              <input type="text" class="form-input" id="snapLicaoLeitura" placeholder="ex: Bona pág. 45">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Lição Método (opcional)</label>
+              <input type="text" class="form-input" id="snapLicaoMetodo" placeholder="ex: Arban pág. 20">
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="btnSalvarSnapshot">💾 Salvar Pegada Mensal</button>
+          <div id="msgSnapshot"></div>
+          <div id="listaSnapshots"></div>
+
+          <hr class="snap-divider">
+
+          <div class="snap-auto-titulo">✨ Preenchimento Automático Inteligente</div>
+          <p class="snap-auto-desc">
+            Reconstrói as pegadas mensais a partir do histórico de alterações de nível.<br>
+            • Nível inicial padrão: <strong style="color:var(--text-primary)">Leitura 60</strong> · <strong style="color:var(--text-primary)">Método 1</strong><br>
+            • Meses que já possuem pegada são pulados (sem sobrescrever)
+          </p>
+          <div class="snap-auto-grid">
+            <div class="form-field">
+              <label class="form-label">Ano a preencher</label>
+              <input type="number" class="form-input" id="autoAno" min="2020" max="2030" value="2026">
+            </div>
+            <button class="btn btn-purple" id="btnAutoUm">🔍 Preencher aluno selecionado</button>
+            <button class="btn btn-warning" id="btnAutoTodos">🚀 Preencher TODOS os alunos</button>
+          </div>
+          <div id="logAuto"></div>
+        </div>
+      </div>
+
+      <!-- ===== PDF MÚLTIPLOS ===== -->
+      <div id="painelPDFMultiplo" style="display:none;">
+        <div class="page-header">
+          <div>
+            <div class="page-title">PDF — Múltiplos Alunos</div>
+            <div class="page-subtitle">Gere relatórios consolidados de desempenho em PDF</div>
+          </div>
+        </div>
+
+        <div class="section-panel" id="painelPDFMultiploInner" style="max-width:880px;">
+          <div class="section-panel-header">
+            <div class="section-panel-icon" style="background:rgba(163,113,247,.12);">📄</div>
+            <div>
+              <div class="section-panel-title">Selecionar Alunos</div>
+              <div class="section-panel-subtitle">Cada aluno terá sua própria página no PDF consolidado</div>
+            </div>
+          </div>
+
+          <div class="pdf-multi-controles">
+            <button class="btn btn-success" id="btnPDFSelecionarTodos">✅ Selecionar Todos</button>
+            <button class="btn btn-danger" id="btnPDFDesmarcarTodos">❌ Desmarcar Todos</button>
+            <div class="pdf-multi-contador" id="pdfContador">0 alunos selecionados</div>
+          </div>
+
+          <div class="pdf-multi-grade" id="pdfGradeAlunos">
+            <p style="color:var(--text-muted);font-size:12px;grid-column:1/-1;text-align:center;">Carregando alunos...</p>
+          </div>
+
+          <button class="btn btn-purple btn-full btn-lg" id="btnGerarPDFConsolidado" disabled>
+            📥 Gerar PDF Consolidado
+          </button>
+
+          <div class="pdf-progresso" id="pdfProgresso">
+            <div class="pdf-barra-wrap">
+              <div class="pdf-barra-fill" id="pdfBarraFill" style="width:0%"></div>
+            </div>
+            <div class="pdf-progresso-texto" id="pdfProgressoTexto">Preparando...</div>
+          </div>
+        </div>
+      </div>
+      <!-- ===== FIM PDF ===== -->
+
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Modals -->
+  <div id="modalAdicionar" class="modal">
+    <div class="modal-conteudo">
+      <h2>➕ Novo Aluno</h2>
+      <div class="campo-modal"><label>Nome</label><input type="text" id="novoNome"></div>
+      <div class="campo-modal"><label>Instrumento</label><input type="text" id="novoInstrumento"></div>
+      <div class="campo-modal"><label>Foto</label><input type="file" id="novoFoto" accept="image/*"></div>
+      <div class="campo-modal"><label>Método de Solfejo</label><input type="text" id="novaLeitura" placeholder="ex.: Bona"></div>
+      <div class="campo-modal"><label>Método Instrumental</label><input type="text" id="novoMetodo" placeholder="ex.: Amadeu Russo"></div>
+      <div class="botoes-modal">
+        <button id="btnConfirmarAdicionar" class="btn btn-adicionar">✅ Adicionar</button>
+        <button id="btnCancelarAdicionar" class="btn btn-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalSolfejo" class="modal">
+    <div class="modal-conteudo" style="position:relative;">
+      <span class="fechar-modal" onclick="this.closest('.modal').classList.remove('ativo')">&times;</span>
+      <h2>✏️ Método de Solfejo</h2>
+      <div class="campo-modal"><input type="text" id="editSolfejo" placeholder="Digite o método"></div>
+      <div class="botoes-modal">
+        <button class="btn btn-cancelar" id="btnCancelSolfejo">Cancelar</button>
+        <button class="btn btn-primary" id="btnSalvarSolfejo">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalInstrumental" class="modal">
+    <div class="modal-conteudo" style="position:relative;">
+      <span class="fechar-modal" onclick="this.closest('.modal').classList.remove('ativo')">&times;</span>
+      <h2>🎵 Método Instrumental</h2>
+      <div class="campo-modal"><input type="text" id="editInstrumental" placeholder="Digite o método"></div>
+      <div class="botoes-modal">
+        <button class="btn btn-cancelar" id="btnCancelInstrumental">Cancelar</button>
+        <button class="btn btn-primary" id="btnSalvarInstrumental">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script>
+    /* ── Toast helper ── */
+    function showToast(msg, type = 'success', duration = 3000) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icons = { success: '✅', info: 'ℹ️', error: '❌' };
+      toast.innerHTML = `<span>${icons[type] || ''}</span> ${msg}`;
+      container.appendChild(toast);
+      requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 350);
+      }, duration);
+    }
+
+    /* ── Compatibility shim for professor.js ── */
+    const mensagemSucesso = document.createElement('div');
+    mensagemSucesso.id = 'mensagemSucesso';
+    mensagemSucesso.style.display = 'none';
+    document.body.appendChild(mensagemSucesso);
+    const mensagemInfo = document.createElement('div');
+    mensagemInfo.id = 'mensagemInfo';
+    mensagemInfo.style.display = 'none';
+    document.body.appendChild(mensagemInfo);
+
+    /* Override native showMsg if defined by professor.js */
+    const _originalSet = Object.getOwnPropertyDescriptor(Element.prototype, 'textContent');
+    const _proxyObserver = new MutationObserver(() => {
+      const el = document.getElementById('mensagemSucesso');
+      if (el && el.textContent && el.textContent !== '' && el.classList.contains('visivel')) {
+        showToast(el.textContent, 'success');
+        el.classList.remove('visivel');
+        el.textContent = '';
+      }
+      const el2 = document.getElementById('mensagemInfo');
+      if (el2 && el2.textContent && el2.textContent !== '' && el2.classList.contains('visivel')) {
+        showToast(el2.textContent, 'info');
+        el2.classList.remove('visivel');
+        el2.textContent = '';
+      }
+    });
+    _proxyObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+    /* ── Panel management ── */
+    function ocultarTodosPaineis() {
+      document.getElementById('painelBemVindo').style.display    = 'none';
+      document.getElementById('painelAlunos').style.display      = 'none';
+      document.getElementById('conteudo').innerHTML               = '';
+      document.getElementById('painelLicoesProf').style.display  = 'none';
+      document.getElementById('painelSnapshots').style.display   = 'none';
+      document.getElementById('painelPDFMultiplo').style.display = 'none';
+      const painel = document.getElementById('painel');
+      if (painel) painel.innerHTML = '';
+      // Reset active nav
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    }
+
+    function mostrarPainelAlunos() {
+      ocultarTodosPaineis();
+      document.getElementById('painelAlunos').style.display = 'block';
+      document.getElementById('btnMostrarAlunos').classList.add('active');
+    }
+
+    function mostrarPainelSnapshots() {
+      ocultarTodosPaineis();
+      document.getElementById('painelSnapshots').style.display = 'block';
+    }
+
+    function mostrarPainelPDFMultiplo() {
+      ocultarTodosPaineis();
+      document.getElementById('painelPDFMultiplo').style.display = 'block';
+      if (typeof carregarAlunosPDFMultiplo === 'function') carregarAlunosPDFMultiplo();
+    }
+
+    function mostrarPainelLicoes() {
+      ocultarTodosPaineis();
+      const pl = document.getElementById('painelLicoesProf');
+      pl.style.display = 'block';
+    }
+
+    /* ── Mobile sidebar ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnMenu  = document.getElementById('btnMobileMenu');
+      const sidebar  = document.getElementById('sidebar');
+      const overlay  = document.getElementById('sidebarOverlay');
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+      }
+      function openSidebar() {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+      }
+
+      btnMenu?.addEventListener('click', () => {
+        sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+      });
+      overlay?.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+      /* Close sidebar on nav click (mobile) */
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (window.innerWidth <= 768) closeSidebar();
+        });
+      });
+
+      /* Wire "Gerenciar Alunos" nav + header btn + panel btn */
+      document.getElementById('btnMostrarAlunos')?.addEventListener('click', mostrarPainelAlunos);
+
+      const openAdd = () => document.getElementById('modalAdicionar')?.classList.add('ativo');
+      document.getElementById('btnAdicionarAluno')?.addEventListener('click', openAdd);
+      document.getElementById('btnAdicionarAlunoHeader')?.addEventListener('click', openAdd);
+      document.getElementById('btnAdicionarAlunoPanel')?.addEventListener('click', openAdd);
+
+      /* Search filter */
+      document.getElementById('searchAlunos')?.addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        document.querySelectorAll('#painel .ficha').forEach(card => {
+          const nome = card.querySelector('.nome')?.textContent.toLowerCase() || '';
+          card.style.display = nome.includes(q) ? '' : 'none';
+        });
+      });
+    });
+  </script>
+
+  <script src="loader.js"></script>
+  <script type="module" src="professor.js"></script>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import {
+      criarSnapshotRetroativo,
+      carregarSnapshotsAluno,
+      preenchimentoAutomaticoPegadas,
+      preenchimentoAutomaticoTodosAlunos
+    } from "./snapshots-mensais.js";
+
+    const nomesMes = ["","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+    let alunosCache = [];
+
+    // ── Populate student count ──────────────────────────
+    async function carregarEstatisticas() {
+      try {
+        const snap = await getDocs(collection(db, "alunos"));
+        const el = document.getElementById('statTotalAlunos');
+        if (el) el.textContent = snap.size;
+      } catch(e) { /* silently fail */ }
+    }
+    carregarEstatisticas();
+
+    // ── Snapshots ──────────────────────────────────────
+    async function popularSelectAlunos() {
+      const snap = await getDocs(collection(db, "alunos"));
+      const sel  = document.getElementById("snapAluno");
+      if (!sel) return;
+      alunosCache = [];
+      sel.innerHTML = '<option value="">Selecionar aluno...</option>';
+      snap.forEach(d => {
+        const a = { id: d.id, ...d.data() };
+        alunosCache.push(a);
+        const op = document.createElement("option");
+        op.value = JSON.stringify({
+          id: a.id, nome: a.nome,
+          leitura: a.leitura || 0, metodo: a.metodo || 0,
+          solfejoNome: a.leituraNome || "Bona",
+          metodoNome:  a.metodoNome  || "-"
+        });
+        op.textContent = a.nome;
+        sel.appendChild(op);
+      });
+
+      // Subtitle update for alunos panel
+      const sub = document.getElementById('subtitleAlunos');
+      if (sub) sub.textContent = `${snap.size} aluno${snap.size !== 1 ? 's' : ''} cadastrado${snap.size !== 1 ? 's' : ''}`;
+    }
+
+    document.getElementById("snapAluno")?.addEventListener("change", async (e) => {
+      if (!e.target.value) return;
+      const aluno = JSON.parse(e.target.value);
+      document.getElementById("snapLeitura").value = aluno.leitura;
+      document.getElementById("snapMetodo").value  = aluno.metodo;
+      await renderizarHistorico(aluno);
+    });
+
+    async function renderizarHistorico(aluno) {
+      const lista = await carregarSnapshotsAluno(aluno);
+      const div   = document.getElementById("listaSnapshots");
+      if (!div) return;
+      if (!lista.length) {
+        div.innerHTML = '<p style="color:var(--text-muted);font-size:12px;margin-top:12px;">Nenhum snapshot encontrado para este aluno.</p>';
+        return;
+      }
+      div.innerHTML = `
+        <p style="color:var(--text-muted);font-size:11px;margin-bottom:10px;font-weight:600;letter-spacing:.06em;">HISTÓRICO DE PEGADAS (${lista.length})</p>
+        ${lista.map(s => `
+          <div class="snap-item ${s.origem}">
+            <span class="snap-chave">${nomesMes[Number(s.mes)]}/${s.ano}</span>
+            <span class="snap-nome">${s.alunoNome}</span>
+            <span class="snap-vals">Bona ${s.leitura} · Mét. ${s.metodo}</span>
+            <span class="snap-origem">${s.origem}</span>
+          </div>`).join('')}
+      `;
+    }
+
+    document.getElementById("btnSalvarSnapshot")?.addEventListener("click", async () => {
+      const msg = document.getElementById("msgSnapshot");
+      const selAluno = document.getElementById("snapAluno").value;
+      if (!selAluno) { msg.textContent = "Selecione um aluno."; msg.className = "msg-err"; return; }
+      const aluno   = JSON.parse(selAluno);
+      const ano     = Number(document.getElementById("snapAno").value);
+      const mes     = Number(document.getElementById("snapMes").value);
+      const leitura = Number(document.getElementById("snapLeitura").value) || 0;
+      const metodo  = Number(document.getElementById("snapMetodo").value)  || 0;
+      const licaoL  = document.getElementById("snapLicaoLeitura").value.trim();
+      const licaoM  = document.getElementById("snapLicaoMetodo").value.trim();
+      const btn = document.getElementById("btnSalvarSnapshot");
+      btn.disabled = true; msg.textContent = "Salvando..."; msg.className = "";
+      try {
+        await criarSnapshotRetroativo({
+          aluno, ano, mes, leitura, metodo,
+          licaoLeitura: licaoL, licaoMetodo: licaoM,
+          nomeMetodoLeitura: aluno.solfejoNome,
+          nomeMetodoInstrumental: aluno.metodoNome
+        });
+        msg.textContent = `✅ Pegada de ${nomesMes[mes]}/${ano} salva para ${aluno.nome}!`;
+        msg.className = "msg-ok";
+        await renderizarHistorico(aluno);
+      } catch (e) {
+        console.error(e);
+        msg.textContent = "❌ Erro ao salvar. Verifique o console.";
+        msg.className = "msg-err";
+      } finally { btn.disabled = false; }
+    });
+
+    document.getElementById("btnAutoUm")?.addEventListener("click", async () => {
+      const selAluno = document.getElementById("snapAluno").value;
+      if (!selAluno) { alert("Selecione um aluno primeiro."); return; }
+      const aluno = JSON.parse(selAluno);
+      const ano   = Number(document.getElementById("autoAno").value);
+      const log   = document.getElementById("logAuto");
+      const btn   = document.getElementById("btnAutoUm");
+      btn.disabled = true;
+      log.style.display = "block";
+      log.innerHTML = `<span class="log-linha-aluno">👤 Processando ${aluno.nome}...</span><br>`;
+      try {
+        const result = await preenchimentoAutomaticoPegadas(aluno, ano, (d) => {
+          const cls = d.status === "criado" ? "log-linha-criado" : "log-linha-pulado";
+          const icon = d.status === "criado" ? "✅" : "⏭️";
+          log.innerHTML += `<span class="${cls}">${icon} ${d.chave} → Leitura ${d.leitura} · Método ${d.metodo} (${d.status})</span><br>`;
+          log.scrollTop = log.scrollHeight;
+        });
+        log.innerHTML += `<span class="log-linha-resumo">🎉 Concluído: ${result.criados} criados · ${result.pulados} já existiam</span>`;
+        await renderizarHistorico(aluno);
+      } catch (e) {
+        console.error(e);
+        log.innerHTML += `<span style="color:var(--red)">❌ Erro: ${e.message}</span>`;
+      } finally { btn.disabled = false; }
+    });
+
+    document.getElementById("btnAutoTodos")?.addEventListener("click", async () => {
+      if (!confirm("Isso irá preencher automaticamente as pegadas de TODOS os alunos. Meses já existentes não serão alterados. Continuar?")) return;
+      const ano = Number(document.getElementById("autoAno").value);
+      const log = document.getElementById("logAuto");
+      const btn = document.getElementById("btnAutoTodos");
+      btn.disabled = true;
+      document.getElementById("btnAutoUm").disabled = true;
+      log.style.display = "block";
+      log.innerHTML = `<span class="log-linha-resumo">🚀 Iniciando preenchimento automático para ${ano}...</span><br>`;
+      try {
+        const result = await preenchimentoAutomaticoTodosAlunos(ano, (d) => {
+          if (d.fase === "aluno") {
+            log.innerHTML += `<span class="log-linha-aluno">👤 ${d.nome} (${d.processados + 1}/${d.total})</span><br>`;
+          } else {
+            const cls  = d.status === "criado" ? "log-linha-criado" : "log-linha-pulado";
+            const icon = d.status === "criado" ? "✅" : "⏭️";
+            log.innerHTML += `<span class="${cls}">&nbsp;&nbsp;${icon} ${d.chave} → L${d.leitura} M${d.metodo} (${d.status})</span><br>`;
+          }
+          log.scrollTop = log.scrollHeight;
+        });
+        log.innerHTML += `<span class="log-linha-resumo">🎉 CONCLUÍDO: ${result.totalAlunos} alunos · ${result.totalCriados} pegadas criadas · ${result.totalPulados} puladas</span>`;
+      } catch (e) {
+        console.error(e);
+        log.innerHTML += `<span style="color:var(--red)">❌ Erro: ${e.message}</span>`;
+      } finally {
+        btn.disabled = false;
+        document.getElementById("btnAutoUm").disabled = false;
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      popularSelectAlunos();
+      const mesAtual = new Date().getMonth() + 1;
+      const selMes = document.getElementById("snapMes");
+      if (selMes) selMes.value = String(mesAtual);
+    });
+
+    // ── PDF MÚLTIPLOS ALUNOS ────────────────────────────
+    let pdfAlunosCache = [];
+    let pdfSelecionados = new Set();
+
+    window.carregarAlunosPDFMultiplo = async function() {
+      const grade = document.getElementById('pdfGradeAlunos');
+      grade.innerHTML = '<p style="color:var(--text-muted);font-size:12px;grid-column:1/-1;text-align:center;">Carregando...</p>';
+      pdfSelecionados.clear();
+      atualizarContadorPDF();
+      const snap = await getDocs(collection(db, "alunos"));
+      pdfAlunosCache = [];
+      snap.forEach(d => pdfAlunosCache.push({ id: d.id, ...d.data() }));
+      pdfAlunosCache.sort((a, b) => a.nome.localeCompare(b.nome));
+      grade.innerHTML = pdfAlunosCache.map(a => `
+        <div class="pdf-aluno-card" data-id="${a.id}">
+          <div class="pdf-check">✓</div>
+          <div class="pdf-aluno-nome" title="${a.nome}">${a.nome}</div>
+        </div>
+      `).join('');
+      grade.querySelectorAll('.pdf-aluno-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.dataset.id;
+          if (pdfSelecionados.has(id)) {
+            pdfSelecionados.delete(id);
+            card.classList.remove('selecionado');
+          } else {
+            pdfSelecionados.add(id);
+            card.classList.add('selecionado');
+          }
+          atualizarContadorPDF();
+        });
+      });
+    };
+
+    function atualizarContadorPDF() {
+      const n = pdfSelecionados.size;
+      document.getElementById('pdfContador').textContent = `${n} aluno${n !== 1 ? 's' : ''} selecionado${n !== 1 ? 's' : ''}`;
+      document.getElementById('btnGerarPDFConsolidado').disabled = n === 0;
+    }
+
+    document.getElementById('btnPDFSelecionarTodos')?.addEventListener('click', () => {
+      document.querySelectorAll('.pdf-aluno-card').forEach(c => {
+        pdfSelecionados.add(c.dataset.id);
+        c.classList.add('selecionado');
+      });
+      atualizarContadorPDF();
+    });
+
+    document.getElementById('btnPDFDesmarcarTodos')?.addEventListener('click', () => {
+      pdfSelecionados.clear();
+      document.querySelectorAll('.pdf-aluno-card').forEach(c => c.classList.remove('selecionado'));
+      atualizarContadorPDF();
+    });
+
+    document.getElementById('btnGerarPDFConsolidado')?.addEventListener('click', async () => {
+      if (!pdfSelecionados.size) return;
+      const btnGerar  = document.getElementById('btnGerarPDFConsolidado');
+      const progresso = document.getElementById('pdfProgresso');
+      const barra     = document.getElementById('pdfBarraFill');
+      const textoP    = document.getElementById('pdfProgressoTexto');
+      btnGerar.disabled = true;
+      progresso.classList.add('visivel');
+      barra.style.width = '5%';
+      textoP.textContent = 'Preparando relatórios...';
+      try {
+        const selecionados = pdfAlunosCache.filter(a => pdfSelecionados.has(a.id));
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        let html = `
+          <div style="font-family:Arial,sans-serif;padding:30px;text-align:center;page-break-after:always;">
+            <div style="font-size:3rem;margin-bottom:12px;">🎵</div>
+            <h1 style="color:#0ea5e9;font-size:26px;margin-bottom:6px;">Orquestra Filhos de Asafe</h1>
+            <h2 style="color:#64748b;font-size:18px;margin-bottom:24px;">Relatório Consolidado de Desempenho</h2>
+            <p style="color:#475569;font-size:14px;margin:6px 0;"><strong>Total de alunos:</strong> ${selecionados.length}</p>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px auto;width:60%;">
+            <p style="color:#0ea5e9;font-size:13px;line-height:2;">
+              ${selecionados.map(a => `<strong>${a.nome}</strong>`).join(' &nbsp;•&nbsp; ')}
+            </p>
+            <p style="color:#94a3b8;font-size:11px;margin-top:30px;">Gerado em ${dataHoje}</p>
+          </div>
+        `;
+        for (let i = 0; i < selecionados.length; i++) {
+          const a = selecionados[i];
+          const pct = Math.round(10 + ((i + 1) / selecionados.length) * 80);
+          barra.style.width = `${pct}%`;
+          textoP.textContent = `Processando ${a.nome} (${i + 1}/${selecionados.length})...`;
+          const notas = [
+            { label: 'Solfejo',       val: a.notaSolfejo       ?? '-' },
+            { label: 'Instrumento',   val: a.notaInstrumento   ?? '-' },
+            { label: 'Teoria',        val: a.notaTeoria        ?? '-' },
+            { label: 'Comportamento', val: a.notaComportamento ?? '-' },
+          ];
+          const media = notas
+            .map(n => Number(n.val))
+            .filter(v => !isNaN(v))
+            .reduce((s, v, _, arr) => s + v / arr.length, 0)
+            .toFixed(1);
+          html += `
+            <div style="font-family:Arial,sans-serif;padding:28px;page-break-after:always;background:#fff;">
+              <div style="border-bottom:3px solid #0ea5e9;padding-bottom:14px;margin-bottom:20px;">
+                <h2 style="color:#0ea5e9;font-size:22px;margin:0;">${a.nome}</h2>
+                <p style="color:#64748b;font-size:13px;margin:4px 0 0;">${a.instrumento || 'Instrumento não informado'} | ${dataHoje}</p>
+              </div>
+              <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+                <thead><tr style="background:#f1f5f9;">
+                  <th style="padding:10px 14px;text-align:left;color:#475569;font-size:13px;border-bottom:2px solid #e2e8f0;">Disciplina</th>
+                  <th style="padding:10px 14px;text-align:center;color:#475569;font-size:13px;border-bottom:2px solid #e2e8f0;">Nota</th>
+                </tr></thead>
+                <tbody>
+                  ${notas.map(n => `<tr>
+                    <td style="padding:9px 14px;color:#334155;font-size:13px;border-bottom:1px solid #f1f5f9;">${n.label}</td>
+                    <td style="padding:9px 14px;text-align:center;font-weight:bold;color:#0ea5e9;font-size:14px;border-bottom:1px solid #f1f5f9;">${n.val}</td>
+                  </tr>`).join('')}
+                </tbody>
+              </table>
+              <div style="display:flex;gap:16px;margin-bottom:20px;">
+                <div style="flex:1;background:#f8fafc;border-radius:8px;padding:14px;text-align:center;"><div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Média</div><div style="font-size:28px;font-weight:bold;color:#0ea5e9;">${media}</div></div>
+                <div style="flex:1;background:#f8fafc;border-radius:8px;padding:14px;text-align:center;"><div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Nível Bona</div><div style="font-size:28px;font-weight:bold;color:#7c3aed;">${a.leitura ?? '-'}</div></div>
+                <div style="flex:1;background:#f8fafc;border-radius:8px;padding:14px;text-align:center;"><div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Nível Método</div><div style="font-size:28px;font-weight:bold;color:#16a34a;">${a.metodo ?? '-'}</div></div>
+              </div>
+              ${a.analise ? `<div style="background:#f8fafc;border-left:4px solid #0ea5e9;border-radius:0 8px 8px 0;padding:14px;"><div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Análise</div><p style="color:#334155;font-size:13px;line-height:1.6;margin:0;">${a.analise}</p></div>` : ''}
+            </div>
+          `;
+          await new Promise(r => setTimeout(r, 30));
+        }
+        barra.style.width = '95%';
+        textoP.textContent = 'Gerando PDF...';
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        document.body.appendChild(container);
+        const opt = {
+          margin: [8, 8],
+          filename: `Relatorio_${selecionados.length}_alunos_${new Date().toISOString().slice(0,10)}.pdf`,
+          image: { type: 'jpeg', quality: 0.97 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        await html2pdf().set(opt).from(container).save();
+        document.body.removeChild(container);
+        barra.style.width = '100%';
+        textoP.textContent = `✅ PDF gerado com ${selecionados.length} aluno(s)!`;
+        setTimeout(() => {
+          progresso.classList.remove('visivel');
+          barra.style.width = '0%';
+          btnGerar.disabled = false;
+        }, 2500);
+      } catch (err) {
+        console.error('Erro ao gerar PDF:', err);
+        textoP.textContent = '❌ Erro ao gerar PDF. Veja o console.';
+        btnGerar.disabled = false;
+      }
+    });
+  </script>
+
+  <script src="loader.js"></script>
+</body>
+</html>
