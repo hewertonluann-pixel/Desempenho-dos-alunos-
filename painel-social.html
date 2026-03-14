@@ -29,6 +29,65 @@
 
     @media (min-width: 1400px) { .grid-principal { grid-template-columns: repeat(5, 1fr); } }
 
+    /* ===== BARRA DE CONTROLE DE VISUALIZAÇÃO ===== */
+    .barra-visualizacao {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 12px;
+      margin-bottom: 4px;
+    }
+    .barra-visualizacao-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .toggle-visualizacao {
+      display: flex;
+      background: rgba(15,23,42,0.8);
+      border-radius: 999px;
+      border: 1px solid rgba(34,211,238,0.2);
+      overflow: hidden;
+    }
+    .toggle-btn {
+      padding: 5px 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .toggle-btn.ativo {
+      background: rgba(34,211,238,0.15);
+      color: #22d3ee;
+    }
+    .select-ordenacao {
+      padding: 5px 10px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 999px;
+      color: #22d3ee;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .select-ordenacao:hover { border-color: rgba(34,211,238,0.5); }
+    .select-ordenacao option { background: #0b1020; color: #e5e7eb; }
+    .select-ordenacao:disabled { opacity: 0.35; cursor: default; }
+
     /* ===== PAINEL DA BANDA ===== */
     .painel-banda {
       background: linear-gradient(145deg, #0b1220, #020617);
@@ -210,6 +269,7 @@
     @media (max-width: 768px) {
       .grid-principal  { grid-template-columns: 1fr; }
       .separador-grupo { grid-column: 1; }
+      .barra-visualizacao { grid-column: 1; }
     }
     @media (min-width: 1024px) { body { padding-inline: 40px; } }
   </style>
@@ -242,6 +302,10 @@
     let abaAtual      = "nivel";
     let mesAtual      = new Date().getMonth();
     let dadosGrupo    = { nome: 'Filhos de Asafe', anoCriacao: '2021', descricao: '', logoUrl: '' };
+
+    // Persistência de preferências
+    let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
+    let ordenacaoGeral = localStorage.getItem("ps_ordenacaoGeral") || "nivel";
 
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -311,6 +375,15 @@
         sub.get(c.label).alunos.push(a);
       });
       return map;
+    }
+
+    function ordenarAlunosGeral(alunos, criterio) {
+      return alunos.slice().sort((a, b) => {
+        if (criterio === "nivel")          return ((b.leitura ?? 0) + (b.metodo ?? 0)) - ((a.leitura ?? 0) + (a.metodo ?? 0));
+        if (criterio === "comp_anual")     return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
+        if (criterio === "comp_mensal")    return (b.frequenciaMensal?.porcentagem ?? 0) - (a.frequenciaMensal?.porcentagem ?? 0);
+        return 0;
+      });
     }
 
     // ================================================================
@@ -460,6 +533,23 @@
       return `<div class="separador-grupo" id="${id}"><div class="separador-linha"></div><div class="separador-texto">🎼 ${nome} <span class="separador-count">${qtd} aluno${qtd > 1 ? 's' : ''}</span></div><div class="separador-linha"></div></div>`;
     }
 
+    function htmlBarraVisualizacao() {
+      const desabilitarOrdenacao = modoBancada;
+      return `
+        <div class="barra-visualizacao">
+          <span class="barra-visualizacao-label">Visualização:</span>
+          <div class="toggle-visualizacao">
+            <button class="toggle-btn ${modoBancada ? 'ativo' : ''}" onclick="alternarModo(true)">🎼 Por Bancada</button>
+            <button class="toggle-btn ${!modoBancada ? 'ativo' : ''}" onclick="alternarModo(false)">👥 Geral</button>
+          </div>
+          <select class="select-ordenacao" id="selectOrdenacao" onchange="alterarOrdenacao(this.value)" ${desabilitarOrdenacao ? 'disabled' : ''}>
+            <option value="nivel"       ${ordenacaoGeral === 'nivel'       ? 'selected' : ''}>🎯 Nível Geral</option>
+            <option value="comp_anual"  ${ordenacaoGeral === 'comp_anual'  ? 'selected' : ''}>📊 Comprometimento Anual</option>
+            <option value="comp_mensal" ${ordenacaoGeral === 'comp_mensal' ? 'selected' : ''}>📅 Comprometimento Mensal</option>
+          </select>
+        </div>`;
+    }
+
     function renderizarTudo() {
       const container   = document.getElementById("gridCompleto");
       const grupoMap    = agruparPorGrupo(todosAtivos);
@@ -468,6 +558,7 @@
       const maestroHTML = maestros.map(htmlCard).join("");
 
       let html = `
+        ${htmlBarraVisualizacao()}
         ${htmlPainelBanda()}
         ${htmlPainelSobre()}
         ${htmlPainelGeral(todosAtivos)}
@@ -476,13 +567,24 @@
         ${maestroHTML}
       `;
 
-      [...grupoMap.keys()].filter(k => k !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(grupo => {
-        const alunosOrdenados = grupoMap.get(grupo).slice()
-          .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
-          .sort((a, b) => { if (a._c.ordem !== b._c.ordem) return a._c.ordem - b._c.ordem; return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0); });
-        html += htmlSeparadorGrupo(grupo, alunosOrdenados.length);
-        html += alunosOrdenados.map(htmlCard).join("");
-      });
+      if (modoBancada) {
+        // Modo por bancada — comportamento original
+        [...grupoMap.keys()].filter(k => k !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(grupo => {
+          const alunosOrdenados = grupoMap.get(grupo).slice()
+            .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
+            .sort((a, b) => { if (a._c.ordem !== b._c.ordem) return a._c.ordem - b._c.ordem; return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0); });
+          html += htmlSeparadorGrupo(grupo, alunosOrdenados.length);
+          html += alunosOrdenados.map(htmlCard).join("");
+        });
+      } else {
+        // Modo geral — sem separadores, ordenado pelo critério selecionado
+        const semMaestro = todosAtivos.filter(a => {
+          const { grupo } = classificarInstrumento(a.instrumento);
+          return grupo !== "Maestro";
+        });
+        const ordenados = ordenarAlunosGeral(semMaestro, ordenacaoGeral);
+        html += ordenados.map(htmlCard).join("");
+      }
 
       container.innerHTML = html;
     }
@@ -492,6 +594,16 @@
     window.scrollParaGrupo = nome  => {
       const id = nome.toLowerCase().replace(/[\s\/]+/g, "-");
       document.getElementById(`grupo-${id}`)?.scrollIntoView({ behavior:'smooth', block:'start' });
+    };
+    window.alternarModo = (bancada) => {
+      modoBancada = bancada;
+      localStorage.setItem("ps_modoBancada", bancada);
+      renderizarTudo();
+    };
+    window.alterarOrdenacao = (criterio) => {
+      ordenacaoGeral = criterio;
+      localStorage.setItem("ps_ordenacaoGeral", criterio);
+      renderizarTudo();
     };
 
     async function carregarAlunos() {
