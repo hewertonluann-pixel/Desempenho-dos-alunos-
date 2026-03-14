@@ -72,8 +72,8 @@ export async function carregarNotificacoes() {
   try {
     const todasNotificacoes = [];
 
-    // Buscar lições — apenas envios e devoluções
-    // Aprovações são omitidas pois já aparecem como avanço de nível
+    // Buscar lições — apenas envios
+    // Devoluções e aprovações são omitidas para não desmotivar o aluno
     const licoesSnap = await getDocs(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(15)));
     licoesSnap.forEach(doc => {
       const d = doc.data();
@@ -87,16 +87,7 @@ export async function carregarNotificacoes() {
         texto: `<strong>${nomeAluno}</strong> enviou a lição <em>${d.titulo || "Sem título"}</em>`
       });
 
-      // Notificação de DEVOLUÇÃO (reprovado) — mantida pois não tem equivalente no avanço de nível
-      if (d.status === "reprovado" && d.avaliadoEm) {
-        todasNotificacoes.push({
-          data: d.avaliadoEm,
-          tipo: "rejeicao",
-          icone: "❌",
-          texto: `<strong>${nomeAluno}</strong> teve a lição <em>${d.titulo || "Sem título"}</em> devolvida`
-        });
-      }
-      // Aprovação removida — já coberta pela notificação de avanço de nível
+      // Notificações de DEVOLUÇÃO removidas — para não desmotivar o aluno
     });
 
     // Buscar downloads
@@ -198,8 +189,7 @@ export function adicionarNotificacaoTeste(tipo = "envio") {
   const tipos = {
     envio:    { icone: "📘", texto: "<strong>Aluno Teste</strong> enviou a lição <em>Método 20</em>" },
     download: { icone: "⬇️", texto: "<strong>Aluno Teste</strong> baixou o método <em>Arban Completo</em>" },
-    nivel:    { icone: "🚀", texto: "<strong>Aluno Teste</strong> avançou para o <em>Nível 35</em> de leitura" },
-    rejeicao: { icone: "❌", texto: "<strong>Aluno Teste</strong> teve a lição <em>Método 61</em> devolvida" }
+    nivel:    { icone: "🚀", texto: "<strong>Aluno Teste</strong> avançou para o <em>Nível 35</em> de leitura" }
   };
 
   const notif = tipos[tipo] || tipos.envio;
