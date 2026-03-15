@@ -14,12 +14,13 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 /**
- * Verifica se o usuário logado é professor
+ * Verifica se o usuário logado é professor.
+ * Um aluno é considerado professor quando classificado === true.
  */
 function isProfessor() {
   try {
     const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
-    return usuario?.tipo === "professor" || usuario?.professor === true;
+    return usuario?.classificado === true;
   } catch {
     return false;
   }
