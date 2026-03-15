@@ -43,11 +43,11 @@ function htmlParaWhatsApp(html) {
  */
 function formatarTempoRelativo(dataFirebase) {
   if (!dataFirebase) return "agora mesmo";
-  
-  const data = dataFirebase instanceof Timestamp 
-    ? dataFirebase.toDate() 
+
+  const data = dataFirebase instanceof Timestamp
+    ? dataFirebase.toDate()
     : new Date(dataFirebase);
-  
+
   const agora = new Date();
   const diferencaMs = agora - data;
   const diferencaSegundos = Math.floor(diferencaMs / 1000);
@@ -59,62 +59,55 @@ function formatarTempoRelativo(dataFirebase) {
   if (diferencaMinutos < 60) return `há ${diferencaMinutos} minuto${diferencaMinutos > 1 ? 's' : ''}`;
   if (diferencaHoras < 24) return `há ${diferencaHoras} hora${diferencaHoras > 1 ? 's' : ''}`;
   if (diferencaDias < 7) return `há ${diferencaDias} dia${diferencaDias > 1 ? 's' : ''}`;
-  
+
   return data.toLocaleDateString('pt-BR');
 }
 
 /**
- * Adiciona uma notificação à lista (sempre no topo)
+ * Adiciona uma notificação à lista (sempre no topo).
+ * Para notificações de nível quando o usuário é professor,
+ * o item inteiro é clicável e copia o texto formatado para WhatsApp.
  */
 export function adicionarNotificacao(tipo, icone, texto, tempo = null) {
   const lista = document.getElementById("listaNotificacoes");
   if (!lista) return;
 
-  const li = document.createElement("li");
-  li.className = `notificacao ${tipo}`;
+  const professor = isProfessor();
+  const ehNivel = tipo === "nivel";
+  const clicavel = ehNivel && professor;
 
-  // Botão de copiar visível apenas para professor e somente em notificações de nível
-  const botaoCopiar = (tipo === "nivel" && isProfessor())
-    ? `<button
-         class="btn-copiar-wpp"
-         title="Copiar para WhatsApp"
-         onclick="(function(btn){
-           const msg = '🚀 ' + '${htmlParaWhatsApp(texto).replace(/'/g, "\\'").replace(/\n/g, " ")}' + ' ✨';
-           navigator.clipboard.writeText(msg).then(function(){
-             const orig = btn.textContent;
-             btn.textContent = '✅';
-             setTimeout(function(){ btn.textContent = orig; }, 2000);
-             const toast = document.createElement('span');
-             toast.textContent = 'Texto copiado! ';
-             toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25D366;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;z-index:9999;pointer-events:none;';
-             document.body.appendChild(toast);
-             setTimeout(function(){ toast.remove(); }, 2000);
-           });
-         })(this)"
-         style="
-           margin-left:8px;
-           background:#25D366;
-           color:#fff;
-           border:none;
-           border-radius:50%;
-           width:26px;
-           height:26px;
-           font-size:13px;
-           cursor:pointer;
-           line-height:26px;
-           padding:0;
-           flex-shrink:0;
-         ">📋</button>`
-    : "";
+  const li = document.createElement("li");
+  li.className = `notificacao ${tipo}${clicavel ? " copiavel" : ""}`;
+
+  if (clicavel) {
+    li.title = "Clique para copiar para o WhatsApp";
+    li.style.cssText = "cursor:pointer; transition: opacity 0.15s;";
+
+    li.addEventListener("click", function () {
+      const msg = `🚀 ${htmlParaWhatsApp(texto)} ✨`;
+      navigator.clipboard.writeText(msg).then(() => {
+        // Feedback visual: pisca verde por 1.5s
+        const estiloOriginal = li.style.cssText;
+        li.style.cssText = "cursor:pointer; transition: background 0.15s; background: rgba(37,211,102,0.18); border-radius: 8px;";
+        setTimeout(() => { li.style.cssText = estiloOriginal; }, 1500);
+
+        // Toast de confirmação
+        const toast = document.createElement("span");
+        toast.textContent = "Texto copiado! ";
+        toast.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25D366;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;z-index:9999;pointer-events:none;";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+      });
+    });
+  }
 
   li.innerHTML = `
     <span class="icone">${icone}</span>
-    <div class="conteudo" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-      <span>${texto} <small>${tempo || "agora mesmo"}</small></span>
-      ${botaoCopiar}
+    <div class="conteudo">
+      ${texto} <small>${tempo || "agora mesmo"}</small>
     </div>
   `;
-  
+
   lista.prepend(li);
 
   // Limitar a 50 notificações na tela
@@ -134,21 +127,16 @@ export async function carregarNotificacoes() {
     const todasNotificacoes = [];
 
     // Buscar lições — apenas envios
-    // Devoluções e aprovações são omitidas para não desmotivar o aluno
     const licoesSnap = await getDocs(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(15)));
     licoesSnap.forEach(doc => {
       const d = doc.data();
       const nomeAluno = d.alunoNome || d.nomeAluno || "Aluno";
-
-      // Notificação de ENVIO
       todasNotificacoes.push({
         data: d.dataEnvio,
         tipo: "envio",
         icone: "📘",
         texto: `<strong>${nomeAluno}</strong> enviou a lição <em>${d.titulo || "Sem título"}</em>`
       });
-
-      // Notificações de DEVOLUÇÃO removidas — para não desmotivar o aluno
     });
 
     // Buscar downloads
@@ -177,7 +165,7 @@ export async function carregarNotificacoes() {
       });
     });
 
-    // Ordenar da mais antiga para mais recente (prepend deixa a mais recente no topo)
+    // Ordenar da mais antiga para mais recente
     todasNotificacoes.sort((a, b) => {
       const dateA = a.data instanceof Timestamp ? a.data.toDate() : new Date(a.data);
       const dateB = b.data instanceof Timestamp ? b.data.toDate() : new Date(b.data);
@@ -185,7 +173,6 @@ export async function carregarNotificacoes() {
     });
 
     lista.innerHTML = "";
-
     todasNotificacoes.forEach(n => {
       adicionarNotificacao(n.tipo, n.icone, n.texto, formatarTempoRelativo(n.data));
     });
@@ -193,7 +180,6 @@ export async function carregarNotificacoes() {
     // Listeners em tempo real
     const agora = Timestamp.now();
 
-    // Listener de lições — apenas envios novos
     onSnapshot(query(collection(db, "licoes"), orderBy("dataEnvio", "desc"), limit(1)), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
@@ -206,7 +192,6 @@ export async function carregarNotificacoes() {
       });
     });
 
-    // Listener de downloads
     onSnapshot(query(collection(db, "downloads"), orderBy("data", "desc"), limit(1)), (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
@@ -218,7 +203,6 @@ export async function carregarNotificacoes() {
       });
     });
 
-    // Listener de nível em tempo real
     onSnapshot(
       query(collection(db, "notificacoes"), orderBy("data", "desc"), limit(1)),
       (snapshot) => {
