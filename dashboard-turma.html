@@ -31,7 +31,6 @@ a{color:var(--acc);text-decoration:none}
 .dash-header-back:hover{background:rgba(255,255,255,.15)}
 .dash-header-title{flex:1; min-width:0;}
 .dash-header-title h1{font-size:1.2rem;color:var(--acc);letter-spacing:.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.dash-header-title p{font-size:.78rem;color:var(--muted);margin-top:2px}
 .dash-header-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap; width:100%;}
 .chip{background:rgba(56,189,248,.12);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:.75rem;color:var(--acc); white-space:nowrap;}
 .chip.green{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.25);color:var(--green)}
@@ -81,7 +80,6 @@ a{color:var(--acc);text-decoration:none}
 }
 .chart-card{
   background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;
-  /* Garante que o card nunca ultrapasse o container */
   min-width:0; width:100%;
 }
 .chart-card.full{grid-column:1/-1}
@@ -91,15 +89,14 @@ a{color:var(--acc);text-decoration:none}
 }
 .chart-card h3 span{font-size:.73rem;color:var(--muted);font-weight:400}
 
-/* Contêiner do canvas: altura fixa no desktop */
 .chart-wrap{
   position:relative;
-  width:100%;        /* ocupa todo o card */
+  width:100%;
   height:220px;
 }
 .chart-wrap canvas{
   display:block;
-  width:100% !important;   /* Chart.js respeita o !important */
+  width:100% !important;
   max-height:220px;
 }
 
@@ -196,108 +193,48 @@ tr:hover td{background:rgba(255,255,255,.03)}
 /* ── EMPTY ── */
 .empty-row td{text-align:center;color:var(--muted);padding:28px;font-size:.85rem}
 
-/* ═══════════════════════════════════════════════
-   TABLET  ≤ 900px
-═══════════════════════════════════════════════ */
 @media(max-width:900px){
   .panels-row{grid-template-columns:1fr}
-  /* Uma coluna + sem min-width fixo: cards ocupam 100% */
-  .charts-grid{
-    grid-template-columns:1fr;
-  }
+  .charts-grid{grid-template-columns:1fr;}
   .chart-card.full{grid-column:auto}
 }
 
-/* ═══════════════════════════════════════════════
-   MOBILE  ≤ 600px
-═══════════════════════════════════════════════ */
 @media(max-width:600px){
-  /* Header */
   .dash-header{padding:10px 14px; gap:8px;}
   .dash-header-title h1{font-size:1rem;}
   .dash-header-back{padding:6px 10px; font-size:.8rem;}
   .dash-header-meta{gap:5px;}
   .chip{font-size:.68rem; padding:3px 8px;}
-
-  /* Body sem overflow lateral */
   .dash-body{padding:12px; overflow-x:hidden;}
-
-  /* KPIs: 2 colunas */
   .kpi-grid{grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px;}
   .kpi{padding:14px;}
   .kpi-icon{font-size:1.2rem; margin-bottom:6px;}
   .kpi-val{font-size:1.6rem;}
   .kpi-label{font-size:.72rem;}
   .kpi-trend{font-size:.68rem;}
-
-  /* ─────────────────────────────────────────────
-     GRÁFICOS: 1 coluna, 100% largura, sem overflow
-  ───────────────────────────────────────────── */
-  .charts-grid{
-    grid-template-columns:1fr;
-    gap:12px;
-    margin-bottom:24px;
-    /* Impede qualquer vazamento para fora do viewport */
-    width:100%;
-    overflow:hidden;
-  }
-  .chart-card{
-    padding:14px;
-    width:100%;
-    /* Remove qualquer largura mínima herdada */
-    min-width:0;
-    max-width:100%;
-    overflow:hidden;
-  }
+  .charts-grid{grid-template-columns:1fr;gap:12px;margin-bottom:24px;width:100%;overflow:hidden;}
+  .chart-card{padding:14px;width:100%;min-width:0;max-width:100%;overflow:hidden;}
   .chart-card h3{font-size:.82rem; margin-bottom:12px;}
-
-  /* chart-wrap: troca altura fixa por aspect-ratio
-     para se adaptar perfeitamente à largura disponível */
-  .chart-wrap{
-    position:relative;
-    width:100%;
-    height:auto;
-    /* proporção 16:9 aproximada para gráficos de barra/linha */
-    aspect-ratio:16/9;
-  }
-  .chart-wrap canvas{
-    position:absolute;
-    inset:0;
-    width:100% !important;
-    height:100% !important;
-    max-height:none;
-  }
-
-  /* Doughnuts ficam melhor em proporção quadrada */
+  .chart-wrap{position:relative;width:100%;height:auto;aspect-ratio:16/9;}
+  .chart-wrap canvas{position:absolute;inset:0;width:100% !important;height:100% !important;max-height:none;}
   .chart-card:has(#ch-freq-dist) .chart-wrap,
-  .chart-card:has(#ch-nivel-dist) .chart-wrap{
-    aspect-ratio:1/1;
-    max-height:260px;
-  }
-
-  /* Paineis: empilhados */
+  .chart-card:has(#ch-nivel-dist) .chart-wrap{aspect-ratio:1/1;max-height:260px;}
   .panels-row{gap:12px; margin-bottom:24px;}
   .alerts-panel, .ranking-panel{padding:14px;}
   .alerts-panel h3, .ranking-panel h3{font-size:.83rem;}
   .alert-row{padding:9px; font-size:.78rem;}
   .alert-body strong{font-size:.79rem;}
   .alert-names{font-size:.72rem;}
-
-  /* Ranking */
   .rank-tabs{gap:5px;}
   .rank-tab{font-size:.7rem; padding:4px 9px;}
   .rank-item{padding:8px; gap:7px; font-size:.78rem;}
   .rank-bar-wrap{width:36px;}
   .rank-val{font-size:.85rem;}
-
-  /* Filtros em coluna */
   .table-section{padding:14px; margin-bottom:24px;}
   .table-section h3{font-size:.83rem;}
   .filters-bar{flex-direction:column; gap:7px;}
   .filter-sel{min-width:unset; width:100%;}
   .search-inp{font-size:.79rem;}
-
-  /* Tabela com scroll horizontal controlado */
   .tbl-wrap{border-radius:8px;}
   table{font-size:.76rem; min-width:560px;}
   th{padding:8px; font-size:.63rem;}
@@ -305,37 +242,27 @@ tr:hover td{background:rgba(255,255,255,.03)}
   .col-hide-mobile{display:none;}
 }
 
-/* ═══════════════════════════════════════════════
-   EXTRA SMALL  ≤ 380px
-═══════════════════════════════════════════════ */
 @media(max-width:380px){
   .kpi-grid{grid-template-columns:1fr;}
   .kpi-val{font-size:1.4rem;}
   .dash-header-meta .chip:nth-child(n+3){display:none;}
-  /* aspect-ratio menor para ter mais cards visíveis */
   .chart-wrap{aspect-ratio:4/3;}
   .chart-card:has(#ch-freq-dist) .chart-wrap,
-  .chart-card:has(#ch-nivel-dist) .chart-wrap{
-    aspect-ratio:1/1;
-    max-height:220px;
-  }
+  .chart-card:has(#ch-nivel-dist) .chart-wrap{aspect-ratio:1/1;max-height:220px;}
 }
 </style>
 </head>
 <body>
 
-<!-- LOADER -->
 <div id="dash-loader">
   <div class="spin"></div>
   <p id="dash-load-msg">Carregando dados do Firestore…</p>
 </div>
 
-<!-- HEADER -->
 <header class="dash-header">
   <button class="dash-header-back" onclick="history.back()">← Voltar</button>
   <div class="dash-header-title">
     <h1 id="dash-title">📊 Dashboard Gerencial</h1>
-    <p id="dash-subtitle"></p>
   </div>
   <div class="dash-header-meta">
     <span class="chip" id="hdr-total">— alunos</span>
@@ -347,7 +274,6 @@ tr:hover td{background:rgba(255,255,255,.03)}
 
 <main class="dash-body">
 
-  <!-- KPIs -->
   <p class="sec-title">KPIs da Turma</p>
   <div class="kpi-grid" id="kpi-grid">
     <div class="kpi c-blue"><div class="kpi-icon">👥</div><div class="kpi-val c-blue" id="k-ativos">—</div><div class="kpi-label">Alunos Ativos</div><div class="kpi-trend" id="k-ativos-t"></div></div>
@@ -360,7 +286,6 @@ tr:hover td{background:rgba(255,255,255,.03)}
     <div class="kpi c-green"><div class="kpi-icon">✅</div><div class="kpi-val c-green" id="k-destaque">—</div><div class="kpi-label">Em Destaque (&gt;85% freq)</div></div>
   </div>
 
-  <!-- GRÁFICOS -->
   <p class="sec-title">Gráficos &amp; Análises</p>
   <div class="charts-grid">
     <div class="chart-card full">
@@ -385,7 +310,6 @@ tr:hover td{background:rgba(255,255,255,.03)}
     </div>
   </div>
 
-  <!-- ALERTAS + RANKING -->
   <p class="sec-title">Alertas &amp; Rankings</p>
   <div class="panels-row">
     <div class="alerts-panel">
@@ -404,7 +328,6 @@ tr:hover td{background:rgba(255,255,255,.03)}
     </div>
   </div>
 
-  <!-- TABELA -->
   <p class="sec-title">Dados Individuais</p>
   <div class="table-section">
     <h3>👥 Todos os Alunos <span id="tbl-count"></span></h3>
@@ -485,7 +408,6 @@ async function carregar() {
       if (d.id === 'grupo') {
         const cfg = d.data();
         document.getElementById('dash-title').textContent = `📊 ${cfg.nome || 'Dashboard Gerencial'}`;
-        document.getElementById('dash-subtitle').textContent = cfg.descricao || '';
       }
     });
   } catch {}
