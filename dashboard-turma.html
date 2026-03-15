@@ -16,7 +16,6 @@ html{scroll-behavior:smooth}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg0);color:var(--text);min-height:100vh}
 a{color:var(--acc);text-decoration:none}
 
-/* ── HEADER ── */
 .dash-header{
   background:linear-gradient(135deg,var(--bg1),var(--bg2));
   border-bottom:1px solid var(--border);
@@ -37,17 +36,14 @@ a{color:var(--acc);text-decoration:none}
 .chip.yellow{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.25);color:var(--yellow)}
 .chip.red{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.25);color:var(--red)}
 
-/* ── MAIN LAYOUT ── */
 .dash-body{padding:20px;max-width:1500px;margin:0 auto}
 
-/* ── SECTION TITLES ── */
 .sec-title{
   font-size:.72rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
   color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;
 }
 .sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* ── KPI CARDS ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:32px}
 .kpi{
   background:var(--bg2);border:1px solid var(--border);border-radius:14px;
@@ -71,7 +67,6 @@ a{color:var(--acc);text-decoration:none}
 .kpi-trend{font-size:.75rem;font-weight:600;margin-top:6px}
 .kpi-trend.up{color:var(--green)}.kpi-trend.down{color:var(--red)}.kpi-trend.neu{color:var(--yellow)}
 
-/* ── CHARTS GRID ── */
 .charts-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(400px,1fr));
@@ -100,10 +95,8 @@ a{color:var(--acc);text-decoration:none}
   max-height:220px;
 }
 
-/* ── PANELS ROW ── */
 .panels-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:32px}
 
-/* ── ALERTS ── */
 .alerts-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
 .alerts-panel h3{font-size:.88rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .alert-row{
@@ -118,7 +111,6 @@ a{color:var(--acc);text-decoration:none}
 .alert-body strong{display:block;font-size:.83rem;margin-bottom:3px}
 .alert-names{color:var(--muted);font-size:.76rem;line-height:1.5}
 
-/* ── RANKING ── */
 .ranking-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
 .ranking-panel h3{font-size:.88rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .rank-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
@@ -145,7 +137,6 @@ a{color:var(--acc);text-decoration:none}
 .rank-bar-wrap{width:50px;height:5px;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;flex-shrink:0;}
 .rank-bar-fill{height:100%;border-radius:20px;transition:.6s}
 
-/* ── TABLE ── */
 .table-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:32px}
 .table-section h3{font-size:.88rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
@@ -181,7 +172,6 @@ tr:hover td{background:rgba(255,255,255,.03)}
 .pct-val{font-weight:700;font-size:.77rem}
 .pct-high{color:var(--green)}.pct-mid{color:var(--yellow)}.pct-low{color:var(--red)}
 
-/* ── LOADER ── */
 #dash-loader{
   position:fixed;inset:0;background:var(--bg0);z-index:999;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
@@ -190,7 +180,6 @@ tr:hover td{background:rgba(255,255,255,.03)}
 @keyframes spin{to{transform:rotate(360deg)}}
 #dash-loader p{color:var(--muted);font-size:.9rem}
 
-/* ── EMPTY ── */
 .empty-row td{text-align:center;color:var(--muted);padding:28px;font-size:.85rem}
 
 @media(max-width:900px){
@@ -568,17 +557,18 @@ function renderCharts() {
     }
   });
 
-  // 🎓 Distribuição Nível Geral — faixas atualizadas:
-  // Baixo: freq anual ≤ 60%
-  // Médio: freq anual 61–70%  (71–84% fica sem categoria — incluído no médio aqui como transição)
-  // Alto:  freq anual ≥ 85%
-  const nAlto  = ativos.filter(a => (G_freqAnual[a.nome]||0) >= 85).length;
-  const nMedio = ativos.filter(a => { const v = G_freqAnual[a.nome]||0; return v >= 61 && v <= 84; }).length;
-  const nBaixo = ativos.filter(a => (G_freqAnual[a.nome]||0) <= 60).length;
+  // 🎓 Distribuição Nível Geral — baseado em leitura (Bona) + método (pts)
+  // Baixo:  total ≤ 60pts
+  // Médio:  total 61–70pts
+  // Alto:   total ≥ 85pts
+  // (71–84 fica numa faixa intermediária incluída no médio)
+  const nAlto  = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) >= 85).length;
+  const nMedio = ativos.filter(a => { const v=(Number(a.leitura)||0)+(Number(a.metodo)||0); return v>=61&&v<=84; }).length;
+  const nBaixo = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) <= 60).length;
   mkChart('ch-nivel-dist', {
     type: 'doughnut',
     data: {
-      labels: ['Alto ≥85%', 'Médio 61-70%', 'Baixo ≤60%'],
+      labels: ['Alto ≥85pts', 'Médio 61-70pts', 'Baixo ≤60pts'],
       datasets: [{ data: [nAlto,nMedio,nBaixo], backgroundColor: ['#818cf8','#38bdf8','#f87171'], borderWidth: 0 }]
     },
     options: {
