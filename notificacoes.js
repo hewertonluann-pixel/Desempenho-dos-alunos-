@@ -14,6 +14,30 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 /**
+ * Verifica se o usuário logado é professor
+ */
+function isProfessor() {
+  try {
+    const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+    return usuario?.tipo === "professor" || usuario?.professor === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Remove tags HTML e retorna texto puro formatado para WhatsApp
+ * <strong>texto</strong> → *texto*
+ * <em>texto</em>       → _texto_
+ */
+function htmlParaWhatsApp(html) {
+  return html
+    .replace(/<strong>(.*?)<\/strong>/gi, "*$1*")
+    .replace(/<em>(.*?)<\/em>/gi, "_$1_")
+    .replace(/<[^>]+>/g, "");
+}
+
+/**
  * Formata o tempo relativo (ex: "há 2 minutos", "há 1 hora")
  */
 function formatarTempoRelativo(dataFirebase) {
@@ -47,10 +71,46 @@ export function adicionarNotificacao(tipo, icone, texto, tempo = null) {
 
   const li = document.createElement("li");
   li.className = `notificacao ${tipo}`;
+
+  // Botão de copiar visível apenas para professor e somente em notificações de nível
+  const botaoCopiar = (tipo === "nivel" && isProfessor())
+    ? `<button
+         class="btn-copiar-wpp"
+         title="Copiar para WhatsApp"
+         onclick="(function(btn){
+           const msg = '🚀 ' + '${htmlParaWhatsApp(texto).replace(/'/g, "\\'").replace(/\n/g, " ")}' + ' ✨';
+           navigator.clipboard.writeText(msg).then(function(){
+             const orig = btn.textContent;
+             btn.textContent = '✅';
+             setTimeout(function(){ btn.textContent = orig; }, 2000);
+             const toast = document.createElement('span');
+             toast.textContent = 'Texto copiado! ';
+             toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#25D366;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;z-index:9999;pointer-events:none;';
+             document.body.appendChild(toast);
+             setTimeout(function(){ toast.remove(); }, 2000);
+           });
+         })(this)"
+         style="
+           margin-left:8px;
+           background:#25D366;
+           color:#fff;
+           border:none;
+           border-radius:50%;
+           width:26px;
+           height:26px;
+           font-size:13px;
+           cursor:pointer;
+           line-height:26px;
+           padding:0;
+           flex-shrink:0;
+         ">📋</button>`
+    : "";
+
   li.innerHTML = `
     <span class="icone">${icone}</span>
-    <div class="conteudo">
-      ${texto} <small>${tempo || "agora mesmo"}</small>
+    <div class="conteudo" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+      <span>${texto} <small>${tempo || "agora mesmo"}</small></span>
+      ${botaoCopiar}
     </div>
   `;
   
