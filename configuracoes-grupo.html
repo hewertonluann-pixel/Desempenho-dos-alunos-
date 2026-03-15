@@ -120,7 +120,7 @@
     <div class="field-group">
       <label>Nome do Grupo</label>
       <input type="text" id="nomeGrupo" placeholder="Ex: Orquestra Filhos de Asafe">
-      <p class="field-hint">Aparece na barra de navegação e no painel "A Banda".</p>
+      <p class="field-hint">Aparece na barra de navegação e no painel “A Banda”.</p>
     </div>
 
     <div class="field-group">
@@ -131,7 +131,7 @@
     <div class="field-group">
       <label>Descrição / Sobre nós</label>
       <textarea id="descricaoGrupo" placeholder="Escreva uma apresentação do grupo, missão, valores..."></textarea>
-      <p class="field-hint">Exibida no painel "Sobre Nós" na página Comunidade.</p>
+      <p class="field-hint">Exibida no painel “Sobre Nós” na página Comunidade.</p>
     </div>
   </div>
 
@@ -186,9 +186,7 @@
     const REF = doc(db, "config", "grupo");
 
     const DESCRICAO_PADRAO =
-`Somos um projeto voluntário de ensino musical vinculado à Assembleia de Deus Ministério de Diamantina, realizado por meio da Comunidade de Obras Sociais de Diamantina. Desde 2021, abrimos as portas da música para crianças, jovens e adultos, oferecendo gratuitamente aulas de teoria musical e prática instrumental.
-
-As aulas acontecem todos os sábados, das 09h às 11h, no Templo Sede da Assembleia de Deus — Rua Getúlio Vargas, 235, Vila Operária, Diamantina – MG.
+`As aulas acontecem todos os sábados, das 09h às 11h, no Templo Sede da Assembleia de Deus — Rua Getúlio Vargas, 235, Vila Operária, Diamantina – MG.
 
 Acreditamos que a música transforma vidas, une comunidades e glorifica a Deus. É com esse propósito que seguimos ensinando, tocando e crescendo juntos.`;
 
@@ -205,7 +203,6 @@ Acreditamos que a música transforma vidas, une comunidades e glorifica a Deus. 
             document.getElementById('logoPreview').src  = d.logoUrl;
           }
         } else {
-          // Documento ainda não existe — pré-preenche a descrição
           document.getElementById('descricaoGrupo').value = DESCRICAO_PADRAO;
         }
       } catch(e) { console.error(e); }
