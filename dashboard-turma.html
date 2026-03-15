@@ -20,26 +20,26 @@ a{color:var(--acc);text-decoration:none}
 .dash-header{
   background:linear-gradient(135deg,var(--bg1),var(--bg2));
   border-bottom:1px solid var(--border);
-  padding:18px 28px; display:flex; align-items:center; gap:16px;
-  position:sticky; top:0; z-index:50;
+  padding:14px 20px; display:flex; align-items:center; gap:12px;
+  position:sticky; top:0; z-index:50; flex-wrap:wrap;
 }
 .dash-header-back{
   background:rgba(255,255,255,.08); border:1px solid var(--border);
   color:var(--text); padding:7px 14px; border-radius:8px; font-size:.88rem;
-  cursor:pointer; transition:.2s; white-space:nowrap;
+  cursor:pointer; transition:.2s; white-space:nowrap; flex-shrink:0;
 }
 .dash-header-back:hover{background:rgba(255,255,255,.15)}
-.dash-header-title{flex:1}
-.dash-header-title h1{font-size:1.4rem;color:var(--acc);letter-spacing:.5px}
-.dash-header-title p{font-size:.82rem;color:var(--muted);margin-top:2px}
-.dash-header-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.chip{background:rgba(56,189,248,.12);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.78rem;color:var(--acc)}
+.dash-header-title{flex:1; min-width:0;}
+.dash-header-title h1{font-size:1.2rem;color:var(--acc);letter-spacing:.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.dash-header-title p{font-size:.78rem;color:var(--muted);margin-top:2px}
+.dash-header-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap; width:100%;}
+.chip{background:rgba(56,189,248,.12);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:.75rem;color:var(--acc); white-space:nowrap;}
 .chip.green{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.25);color:var(--green)}
 .chip.yellow{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.25);color:var(--yellow)}
 .chip.red{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.25);color:var(--red)}
 
 /* ── MAIN LAYOUT ── */
-.dash-body{padding:28px;max-width:1500px;margin:0 auto}
+.dash-body{padding:20px;max-width:1500px;margin:0 auto}
 
 /* ── SECTION TITLES ── */
 .sec-title{
@@ -49,10 +49,10 @@ a{color:var(--acc);text-decoration:none}
 .sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
 /* ── KPI CARDS ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:36px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:32px}
 .kpi{
   background:var(--bg2);border:1px solid var(--border);border-radius:14px;
-  padding:20px 22px;position:relative;overflow:hidden;transition:.25s;
+  padding:18px 20px;position:relative;overflow:hidden;transition:.25s;
 }
 .kpi:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.35)}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
@@ -61,61 +61,60 @@ a{color:var(--acc);text-decoration:none}
 .kpi.c-yellow::before{background:linear-gradient(90deg,var(--yellow),#d97706)}
 .kpi.c-red::before{background:linear-gradient(90deg,var(--red),#dc2626)}
 .kpi.c-purple::before{background:linear-gradient(90deg,var(--acc2),#7c3aed)}
-.kpi-icon{font-size:1.6rem;margin-bottom:10px}
-.kpi-val{font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:4px}
+.kpi-icon{font-size:1.4rem;margin-bottom:8px}
+.kpi-val{font-size:2rem;font-weight:800;line-height:1;margin-bottom:4px}
 .kpi-val.c-blue{color:var(--acc)}
 .kpi-val.c-green{color:var(--green)}
 .kpi-val.c-yellow{color:var(--yellow)}
 .kpi-val.c-red{color:var(--red)}
 .kpi-val.c-purple{color:var(--acc2)}
-.kpi-label{font-size:.8rem;color:var(--muted)}
-.kpi-trend{font-size:.78rem;font-weight:600;margin-top:6px}
+.kpi-label{font-size:.78rem;color:var(--muted)}
+.kpi-trend{font-size:.75rem;font-weight:600;margin-top:6px}
 .kpi-trend.up{color:var(--green)}.kpi-trend.down{color:var(--red)}.kpi-trend.neu{color:var(--yellow)}
 
 /* ── CHARTS GRID ── */
-.charts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:20px;margin-bottom:36px}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:18px;margin-bottom:32px}
 .chart-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;
 }
 .chart-card.full{grid-column:1/-1}
-.chart-card h3{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.chart-card h3 span{font-size:.75rem;color:var(--muted);font-weight:400}
-.chart-wrap{position:relative;height:240px}
-.chart-wrap canvas{max-height:240px}
+.chart-card h3{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.chart-card h3 span{font-size:.73rem;color:var(--muted);font-weight:400}
+.chart-wrap{position:relative;height:220px}
+.chart-wrap canvas{max-height:220px}
 
 /* ── PANELS ROW ── */
-.panels-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:36px}
-@media(max-width:900px){.panels-row{grid-template-columns:1fr}}
+.panels-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:32px}
 
 /* ── ALERTS ── */
-.alerts-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px}
-.alerts-panel h3{font-size:.9rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.alerts-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.alerts-panel h3{font-size:.88rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .alert-row{
-  display:flex;align-items:flex-start;gap:12px;padding:12px;
-  border-radius:10px;margin-bottom:10px;font-size:.83rem;
+  display:flex;align-items:flex-start;gap:10px;padding:11px;
+  border-radius:10px;margin-bottom:8px;font-size:.82rem;
 }
 .alert-row:last-child{margin-bottom:0}
 .alert-row.danger{background:rgba(248,113,113,.1);border-left:3px solid var(--red)}
 .alert-row.warning{background:rgba(251,191,36,.1);border-left:3px solid var(--yellow)}
 .alert-row.ok{background:rgba(52,211,153,.1);border-left:3px solid var(--green)}
-.alert-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
-.alert-body strong{display:block;font-size:.85rem;margin-bottom:3px}
-.alert-names{color:var(--muted);font-size:.78rem;line-height:1.5}
+.alert-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.alert-body strong{display:block;font-size:.83rem;margin-bottom:3px}
+.alert-names{color:var(--muted);font-size:.76rem;line-height:1.5}
 
 /* ── RANKING ── */
-.ranking-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px}
-.ranking-panel h3{font-size:.9rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.rank-tabs{display:flex;gap:8px;margin-bottom:16px}
+.ranking-panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.ranking-panel h3{font-size:.88rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.rank-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
 .rank-tab{
   background:transparent;border:1px solid var(--border);color:var(--muted);
-  padding:5px 12px;border-radius:20px;cursor:pointer;font-size:.78rem;transition:.2s;
+  padding:5px 11px;border-radius:20px;cursor:pointer;font-size:.76rem;transition:.2s;
 }
 .rank-tab.active{background:rgba(56,189,248,.15);border-color:var(--acc);color:var(--acc)}
 .rank-list{list-style:none}
 .rank-item{
-  display:flex;align-items:center;gap:12px;padding:10px 12px;
+  display:flex;align-items:center;gap:10px;padding:9px 10px;
   border-radius:8px;margin-bottom:6px;background:var(--bg3);
-  font-size:.83rem;transition:.15s;
+  font-size:.82rem;transition:.15s;
 }
 .rank-item:hover{background:var(--bg1)}
 .rank-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0}
@@ -123,45 +122,46 @@ a{color:var(--acc);text-decoration:none}
 .rank-num.silver{background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff}
 .rank-num.bronze{background:linear-gradient(135deg,#a16207,#78350f);color:#fff}
 .rank-num.normal{background:rgba(255,255,255,.1);color:var(--muted)}
-.rank-name{flex:1;font-weight:600}
-.rank-instr{font-size:.72rem;color:var(--muted);margin-top:1px}
-.rank-val{font-weight:800;font-size:1rem;text-align:right}
-.rank-bar-wrap{width:70px;height:5px;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden}
+.rank-name{flex:1;font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.rank-instr{font-size:.7rem;color:var(--muted);margin-top:1px}
+.rank-val{font-weight:800;font-size:.95rem;text-align:right;white-space:nowrap;}
+.rank-bar-wrap{width:50px;height:5px;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden;flex-shrink:0;}
 .rank-bar-fill{height:100%;border-radius:20px;transition:.6s}
 
 /* ── TABLE ── */
-.table-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:36px}
-.table-section h3{font-size:.9rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.filters-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.table-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:32px}
+.table-section h3{font-size:.88rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.filters-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .filter-sel{
   background:var(--bg3);border:1px solid var(--border);color:var(--text);
-  padding:7px 12px;border-radius:8px;font-size:.82rem;outline:none;cursor:pointer;
+  padding:7px 10px;border-radius:8px;font-size:.8rem;outline:none;cursor:pointer;
+  flex:1; min-width:130px;
 }
 .filter-sel:focus{border-color:var(--acc)}
 .search-inp{
   background:var(--bg3);border:1px solid var(--border);color:var(--text);
-  padding:7px 14px;border-radius:8px;font-size:.82rem;outline:none;flex:1;min-width:180px;
+  padding:7px 12px;border-radius:8px;font-size:.8rem;outline:none;width:100%;
 }
 .search-inp::placeholder{color:var(--muted)}
 .search-inp:focus{border-color:var(--acc)}
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:.8rem; min-width:620px;}
 thead tr{border-bottom:2px solid var(--border)}
 th{
-  padding:10px 12px;text-align:left;font-weight:700;font-size:.7rem;
+  padding:9px 10px;text-align:left;font-weight:700;font-size:.68rem;
   text-transform:uppercase;letter-spacing:.7px;color:var(--muted);white-space:nowrap;
 }
-td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);white-space:nowrap}
 tr:hover td{background:rgba(255,255,255,.03)}
 .tbl-name{font-weight:600;color:var(--text)}
-.tbl-instr{font-size:.72rem;color:var(--muted)}
-.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.73rem;font-weight:600}
+.tbl-instr{font-size:.7rem;color:var(--muted)}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.71rem;font-weight:600}
 .badge.active{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.3)}
 .badge.inactive{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
 .lvl-bar{display:inline-flex;align-items:center;gap:6px}
-.lvl-bg{width:60px;height:5px;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden}
+.lvl-bg{width:50px;height:5px;background:rgba(255,255,255,.1);border-radius:20px;overflow:hidden}
 .lvl-fill{height:100%;border-radius:20px}
-.pct-val{font-weight:700;font-size:.78rem}
+.pct-val{font-weight:700;font-size:.77rem}
 .pct-high{color:var(--green)}.pct-mid{color:var(--yellow)}.pct-low{color:var(--red)}
 
 /* ── LOADER ── */
@@ -176,15 +176,83 @@ tr:hover td{background:rgba(255,255,255,.03)}
 /* ── EMPTY ── */
 .empty-row td{text-align:center;color:var(--muted);padding:28px;font-size:.85rem}
 
-/* ── RESPONSIVE ── */
-@media(max-width:768px){
-  .dash-body{padding:16px}
+/* ────────────────────────────────────────────────
+   RESPONSIVE — TABLET  ≤900px
+──────────────────────────────────────────────── */
+@media(max-width:900px){
+  .panels-row{grid-template-columns:1fr}
   .charts-grid{grid-template-columns:1fr}
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .chart-card.full{grid-column:auto}
 }
-@media(max-width:480px){
-  .kpi-grid{grid-template-columns:1fr}
+
+/* ────────────────────────────────────────────────
+   RESPONSIVE — MOBILE  ≤600px
+──────────────────────────────────────────────── */
+@media(max-width:600px){
+  /* Header */
+  .dash-header{padding:10px 14px; gap:8px;}
+  .dash-header-title h1{font-size:1rem;}
+  .dash-header-back{padding:6px 10px; font-size:.8rem;}
+  .dash-header-meta{gap:5px;}
+  .chip{font-size:.68rem; padding:3px 8px;}
+
+  /* Body */
+  .dash-body{padding:12px}
+
+  /* KPIs: 2 colunas no mobile */
+  .kpi-grid{grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px;}
+  .kpi{padding:14px 14px;}
+  .kpi-icon{font-size:1.2rem; margin-bottom:6px;}
+  .kpi-val{font-size:1.6rem;}
+  .kpi-label{font-size:.72rem;}
+  .kpi-trend{font-size:.68rem;}
+
+  /* Charts: altura menor no mobile */
+  .charts-grid{gap:12px; margin-bottom:24px;}
+  .chart-card{padding:14px;}
+  .chart-card h3{font-size:.82rem; margin-bottom:12px;}
+  .chart-wrap{height:180px;}
+  .chart-wrap canvas{max-height:180px;}
+
+  /* Paineis: empilhados */
+  .panels-row{gap:12px; margin-bottom:24px;}
+  .alerts-panel, .ranking-panel{padding:14px;}
+  .alerts-panel h3, .ranking-panel h3{font-size:.83rem;}
+  .alert-row{padding:9px; font-size:.78rem;}
+  .alert-body strong{font-size:.79rem;}
+  .alert-names{font-size:.72rem;}
+
+  /* Ranking: tabs wrap, bar menor */
+  .rank-tabs{gap:5px;}
+  .rank-tab{font-size:.7rem; padding:4px 9px;}
+  .rank-item{padding:8px 8px; gap:7px; font-size:.78rem;}
+  .rank-bar-wrap{width:36px;}
+  .rank-val{font-size:.85rem;}
+
+  /* Filtros em coluna */
+  .table-section{padding:14px; margin-bottom:24px;}
+  .table-section h3{font-size:.83rem;}
+  .filters-bar{flex-direction:column; gap:7px;}
+  .filter-sel{min-width:unset; width:100%;}
+  .search-inp{font-size:.79rem;}
+
+  /* Tabela: scroll horizontal suave */
+  .tbl-wrap{border-radius:8px; margin: 0 -2px;}
+  table{font-size:.76rem; min-width:560px;}
+  th{padding:8px 8px; font-size:.63rem;}
+  td{padding:8px 8px;}
+
+  /* Oculta colunas menos importantes no mobile */
+  .col-hide-mobile{display:none;}
+}
+
+/* ── EXTRA SMALL  ≤380px ── */
+@media(max-width:380px){
+  .kpi-grid{grid-template-columns:1fr;}
+  .kpi-val{font-size:1.4rem;}
+  .dash-header-meta .chip:nth-child(n+3){display:none;} /* mostra só 2 chips */
+  .chart-wrap{height:160px;}
+  .chart-wrap canvas{max-height:160px;}
 }
 </style>
 </head>
@@ -201,7 +269,7 @@ tr:hover td{background:rgba(255,255,255,.03)}
   <button class="dash-header-back" onclick="history.back()">← Voltar</button>
   <div class="dash-header-title">
     <h1 id="dash-title">📊 Dashboard Gerencial</h1>
-    <!--<p id="dash-subtitle">Carregando…</p>-->
+    <p id="dash-subtitle"></p>
   </div>
   <div class="dash-header-meta">
     <span class="chip" id="hdr-total">— alunos</span>
@@ -223,14 +291,14 @@ tr:hover td{background:rgba(255,255,255,.03)}
     <div class="kpi c-green"><div class="kpi-icon">📈</div><div class="kpi-val c-green" id="k-freq-anual">—%</div><div class="kpi-label">Freq. Anual Média</div><div class="kpi-trend" id="k-freq-t"></div></div>
     <div class="kpi c-blue"><div class="kpi-icon">📅</div><div class="kpi-val c-blue" id="k-freq-mes">—%</div><div class="kpi-label">Freq. Mês Atual</div></div>
     <div class="kpi c-red"><div class="kpi-icon">🚨</div><div class="kpi-val c-red" id="k-alertas">—</div><div class="kpi-label">Alertas Críticos</div><div class="kpi-trend neu" id="k-alertas-t"></div></div>
-    <div class="kpi c-green"><div class="kpi-icon">✅</div><div class="kpi-val c-green" id="k-destaque">—</div><div class="kpi-label">Alunos em Destaque (&gt;85% freq)</div></div>
+    <div class="kpi c-green"><div class="kpi-icon">✅</div><div class="kpi-val c-green" id="k-destaque">—</div><div class="kpi-label">Em Destaque (&gt;85% freq)</div></div>
   </div>
 
   <!-- GRÁFICOS -->
-  <p class="sec-title">Gráficos & Análises</p>
+  <p class="sec-title">Gráficos &amp; Análises</p>
   <div class="charts-grid">
     <div class="chart-card full">
-      <h3>📈 Evolução do Nível Médio Mensal <span>— últimos snapshots registrados</span></h3>
+      <h3>📈 Evolução do Nível Médio Mensal <span>— últimos snapshots</span></h3>
       <div class="chart-wrap"><canvas id="ch-evolucao"></canvas></div>
     </div>
     <div class="chart-card">
@@ -252,21 +320,19 @@ tr:hover td{background:rgba(255,255,255,.03)}
   </div>
 
   <!-- ALERTAS + RANKING -->
-  <p class="sec-title">Alertas & Rankings</p>
+  <p class="sec-title">Alertas &amp; Rankings</p>
   <div class="panels-row">
-
     <div class="alerts-panel">
-      <h3>⚡ Sinais de Atenção & Segurança</h3>
+      <h3>⚡ Sinais de Atenção &amp; Segurança</h3>
       <div id="alerts-list"><div style="color:var(--muted);font-size:.85rem">Carregando…</div></div>
     </div>
-
     <div class="ranking-panel">
       <h3>🏆 Rankings</h3>
       <div class="rank-tabs">
-        <button class="rank-tab active" data-tab="nivel" onclick="switchTab(this,'nivel')">Nível Geral</button>
+        <button class="rank-tab active" data-tab="nivel" onclick="switchTab(this,'nivel')">Nível</button>
         <button class="rank-tab" data-tab="leitura" onclick="switchTab(this,'leitura')">Leitura</button>
         <button class="rank-tab" data-tab="metodo" onclick="switchTab(this,'metodo')">Método</button>
-        <button class="rank-tab" data-tab="freq" onclick="switchTab(this,'freq')">Frequência</button>
+        <button class="rank-tab" data-tab="freq" onclick="switchTab(this,'freq')">Freq.</button>
       </div>
       <ul class="rank-list" id="rank-list"></ul>
     </div>
@@ -303,13 +369,13 @@ tr:hover td{background:rgba(255,255,255,.03)}
           <tr>
             <th>#</th>
             <th>Nome / Instrumento</th>
-            <th>Nível Total</th>
-            <th>Leitura</th>
-            <th>Método</th>
+            <th>Nível</th>
+            <th class="col-hide-mobile">Leitura</th>
+            <th class="col-hide-mobile">Método</th>
             <th>Freq Anual</th>
-            <th>Freq Mês</th>
+            <th class="col-hide-mobile">Freq Mês</th>
             <th>Status</th>
-            <th>Alerta</th>
+            <th class="col-hide-mobile">Alerta</th>
           </tr>
         </thead>
         <tbody id="tbl-body"></tbody>
@@ -329,29 +395,23 @@ const ANO = new Date().getFullYear();
 const MES_ATUAL = new Date().getMonth() + 1;
 const NOMES_MES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
-// ─── estado global ───────────────────────────────────────────────
 let G_alunos = [];
-let G_freqAnual = {}; // { nomeAluno: % }
-let G_freqMensal = {}; // { nomeAluno: { '2026-01': %, ... } }
-let G_freqMensalTurma = {}; // { '2026-01': %médio }
-let G_snapshots = []; // todos snapshots
-let G_evolucao = {}; // { 'YYYY-MM': mediaTotal }
+let G_freqAnual = {};
+let G_freqMensal = {};
+let G_freqMensalTurma = {};
+let G_snapshots = [];
+let G_evolucao = {};
 
-// ─── helpers ────────────────────────────────────────────────────
 const pct = (p) => `${Math.round(p)}%`;
 const avg = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
 const colorPct = (v) => v >= 80 ? 'var(--green)' : v >= 50 ? 'var(--yellow)' : 'var(--red)';
 const classFreq = (v) => v >= 80 ? 'high' : v >= 50 ? 'mid' : 'low';
 
-// ─── CARREGAR DADOS ─────────────────────────────────────────────
 async function carregar() {
   msg('Buscando alunos…');
-
-  // 1. Alunos
   const snapAlunos = await getDocs(collection(db, 'alunos'));
   G_alunos = snapAlunos.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // Config do grupo
   msg('Carregando configuração do grupo…');
   try {
     const snapCfg = await getDocs(collection(db, 'config'));
@@ -359,17 +419,15 @@ async function carregar() {
       if (d.id === 'grupo') {
         const cfg = d.data();
         document.getElementById('dash-title').textContent = `📊 ${cfg.nome || 'Dashboard Gerencial'}`;
-        document.getElementById('dash-subtitle').textContent = cfg.descricao || 'Painel gerencial da turma';
+        document.getElementById('dash-subtitle').textContent = cfg.descricao || '';
       }
     });
   } catch {}
 
-  // 2. Eventos de frequência
   msg('Calculando frequências…');
   const eventos = await obterEventosDoAno(ANO);
   const agrupado = agruparEventosPorMes(eventos);
 
-  // Frequência por aluno por mês
   G_alunos.forEach(a => {
     const mesesPct = {};
     let totalPresencas = 0, totalEventos = 0;
@@ -385,18 +443,15 @@ async function carregar() {
     G_freqAnual[a.nome]  = totalEventos > 0 ? Math.round((totalPresencas / totalEventos) * 100) : 0;
   });
 
-  // Frequência mensal média da turma
   for (let m = 1; m <= 12; m++) {
     const chave = `${ANO}-${String(m).padStart(2,'0')}`;
     const vals = G_alunos.map(a => G_freqMensal[a.nome]?.[chave] || 0);
     G_freqMensalTurma[chave] = Math.round(avg(vals));
   }
 
-  // 3. Snapshots → evolução mensal
   msg('Carregando evolução de nível…');
   G_snapshots = await carregarTodosSnapshots();
 
-  // Agrupar snapshots por chave YYYY-MM → média (leitura+metodo)
   const snapPorMes = {};
   G_snapshots.forEach(s => {
     if (!snapPorMes[s.chave]) snapPorMes[s.chave] = [];
@@ -406,7 +461,6 @@ async function carregar() {
     G_evolucao[k] = Math.round(avg(v) * 10) / 10;
   });
 
-  // ─── RENDER ───────────────────────────────────────────────────
   msg('Renderizando dashboard…');
   renderKPIs();
   renderCharts();
@@ -419,7 +473,6 @@ async function carregar() {
 
 function msg(t) { document.getElementById('dash-load-msg').textContent = t; }
 
-// ─── KPIs ────────────────────────────────────────────────────────
 function renderKPIs() {
   const ativos   = G_alunos.filter(a => a.ativo !== false);
   const medNivel = avg(ativos.map(a => (Number(a.leitura)||0) + (Number(a.metodo)||0)));
@@ -446,28 +499,25 @@ function renderKPIs() {
   document.getElementById('k-media-t').className    = 'kpi-trend ' + (medNivel >= 10 ? 'up' : 'down');
   document.getElementById('k-alertas-t').textContent = alertas.length > 0 ? `${alertas.length} aluno(s) precisam atenção` : 'Sem alertas críticos';
 
-  // Header chips
-  document.getElementById('hdr-total').textContent = `${ativos.length} alunos ativos`;
-  document.getElementById('hdr-media').textContent = `Média ${medNivel.toFixed(1)} pts`;
+  document.getElementById('hdr-total').textContent = `${ativos.length} alunos`;
+  document.getElementById('hdr-media').textContent = `Média ${medNivel.toFixed(1)}`;
   document.getElementById('hdr-freq').textContent  = `Freq ${pct(medFreqAnual)}`;
   document.getElementById('hdr-alerta').textContent= `${alertas.length} alertas`;
   document.getElementById('hdr-alerta').className  = 'chip ' + (alertas.length === 0 ? 'green' : 'red');
 }
 
-// ─── CHARTS ──────────────────────────────────────────────────────
 function mkChart(id, cfg) {
   const el = document.getElementById(id);
   if (!el) return;
   return new Chart(el, cfg);
 }
 
-const darkTick = { color: '#64748b', font: { size: 11 } };
+const darkTick = { color: '#64748b', font: { size: 10 } };
 const gridLine = { color: 'rgba(255,255,255,0.06)' };
 
 function renderCharts() {
   const ativos = G_alunos.filter(a => a.ativo !== false);
 
-  // ── 1. Evolução nível mensal ──────────────────────────────────
   const evolChaves = Object.keys(G_evolucao).sort().slice(-12);
   mkChart('ch-evolucao', {
     type: 'line',
@@ -482,7 +532,7 @@ function renderCharts() {
         borderColor: '#38bdf8',
         backgroundColor: 'rgba(56,189,248,.12)',
         pointBackgroundColor: '#38bdf8',
-        tension: 0.45, fill: true, pointRadius: 4
+        tension: 0.45, fill: true, pointRadius: 3
       }]
     },
     options: {
@@ -495,7 +545,6 @@ function renderCharts() {
     }
   });
 
-  // ── 2. Alunos por instrumento ─────────────────────────────────
   const instrMap = {};
   ativos.forEach(a => {
     const k = a.instrumento || 'Não definido';
@@ -512,11 +561,10 @@ function renderCharts() {
     options: {
       responsive: true, maintainAspectRatio: false, indexAxis: 'y',
       plugins: { legend: { display: false } },
-      scales: { x: { ticks: darkTick, grid: gridLine }, y: { ticks: darkTick, grid: { color: 'transparent' } } }
+      scales: { x: { ticks: darkTick, grid: gridLine }, y: { ticks: { ...darkTick, font:{size:9} }, grid: { color: 'transparent' } } }
     }
   });
 
-  // ── 3. Distribuição frequência anual ─────────────────────────
   const fAlta  = ativos.filter(a => (G_freqAnual[a.nome]||0) > 80).length;
   const fMedia = ativos.filter(a => { const v=G_freqAnual[a.nome]||0; return v>=50&&v<=80; }).length;
   const fBaixa = ativos.filter(a => (G_freqAnual[a.nome]||0) < 50).length;
@@ -528,11 +576,10 @@ function renderCharts() {
     },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '68%',
-      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12 } } }
     }
   });
 
-  // ── 4. Distribuição nível geral ───────────────────────────────
   const nAlto   = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) > 15).length;
   const nMedio  = ativos.filter(a => { const v=(Number(a.leitura)||0)+(Number(a.metodo)||0); return v>=8&&v<=15; }).length;
   const nBaixo  = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) < 8).length;
@@ -544,11 +591,10 @@ function renderCharts() {
     },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '68%',
-      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } }
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12 } } }
     }
   });
 
-  // ── 5. Frequência mensal da turma ─────────────────────────────
   const mesesLabels = Array.from({length:12},(_,i)=>NOMES_MES[i]);
   const mesesVals   = Array.from({length:12},(_,i)=>{
     const k=`${ANO}-${String(i+1).padStart(2,'0')}`;
@@ -576,63 +622,37 @@ function renderCharts() {
   });
 }
 
-// ─── ALERTAS ─────────────────────────────────────────────────────
 function renderAlertas() {
   const ativos = G_alunos.filter(a => a.ativo !== false);
   const container = document.getElementById('alerts-list');
   const alertas = [];
 
-  // Baixa frequência
   const baixaFreq = ativos.filter(a => (G_freqAnual[a.nome]||0) < 50);
-  if (baixaFreq.length) {
-    alertas.push({ tipo:'danger', icon:'🚨', titulo:'Frequência Crítica (<50% anual)',
-      desc: baixaFreq.map(a=>`${a.nome} — ${G_freqAnual[a.nome]||0}%`).join('<br>') });
-  }
+  if (baixaFreq.length) alertas.push({ tipo:'danger', icon:'🚨', titulo:'Frequência Crítica (<50% anual)', desc: baixaFreq.map(a=>`${a.nome} — ${G_freqAnual[a.nome]||0}%`).join('<br>') });
 
-  // Frequência em risco (50-65%)
   const riscoFreq = ativos.filter(a => { const v=G_freqAnual[a.nome]||0; return v>=50&&v<65; });
-  if (riscoFreq.length) {
-    alertas.push({ tipo:'warning', icon:'⚠️', titulo:'Frequência em Risco (50-65%)',
-      desc: riscoFreq.map(a=>`${a.nome} — ${G_freqAnual[a.nome]||0}%`).join('<br>') });
-  }
+  if (riscoFreq.length) alertas.push({ tipo:'warning', icon:'⚠️', titulo:'Frequência em Risco (50-65%)', desc: riscoFreq.map(a=>`${a.nome} — ${G_freqAnual[a.nome]||0}%`).join('<br>') });
 
-  // Nível muito baixo
   const nivelBaixo = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) < 5);
-  if (nivelBaixo.length) {
-    alertas.push({ tipo:'danger', icon:'📉', titulo:'Nível Muito Baixo (<5pts)',
-      desc: nivelBaixo.map(a=>`${a.nome} — ${(Number(a.leitura)||0)+(Number(a.metodo)||0)}pts`).join('<br>') });
-  }
+  if (nivelBaixo.length) alertas.push({ tipo:'danger', icon:'📉', titulo:'Nível Muito Baixo (<5pts)', desc: nivelBaixo.map(a=>`${a.nome} — ${(Number(a.leitura)||0)+(Number(a.metodo)||0)}pts`).join('<br>') });
 
-  // Destaques
   const destaques = ativos.filter(a => (G_freqAnual[a.nome]||0) >= 85 && ((Number(a.leitura)||0)+(Number(a.metodo)||0)) >= 15);
-  if (destaques.length) {
-    alertas.push({ tipo:'ok', icon:'🌟', titulo:'Excelência — Alto Nível + Alta Frequência',
-      desc: destaques.map(a=>`${a.nome} — Nível ${(Number(a.leitura)||0)+(Number(a.metodo)||0)}pts | Freq ${G_freqAnual[a.nome]||0}%`).join('<br>') });
-  }
+  if (destaques.length) alertas.push({ tipo:'ok', icon:'🌟', titulo:'Excelência — Alto Nível + Alta Frequência', desc: destaques.map(a=>`${a.nome} — ${(Number(a.leitura)||0)+(Number(a.metodo)||0)}pts | ${G_freqAnual[a.nome]||0}%`).join('<br>') });
 
-  // Alta frequência geral
   const altaFreq = ativos.filter(a => (G_freqAnual[a.nome]||0) >= 85);
-  if (altaFreq.length) {
-    alertas.push({ tipo:'ok', icon:'✅', titulo:`Alta Frequência (≥85%) — ${altaFreq.length} aluno(s)`,
-      desc: altaFreq.map(a=>`${a.nome} — ${G_freqAnual[a.nome]||0}%`).join('<br>') });
-  }
+  if (altaFreq.length) alertas.push({ tipo:'ok', icon:'✅', titulo:`Alta Frequência (≥85%) — ${altaFreq.length} aluno(s)`, desc: altaFreq.map(a=>`${a.nome} — ${G_freqAnual[a.nome]||0}%`).join('<br>') });
 
   if (!alertas.length) {
     container.innerHTML = '<div class="alert-row ok"><div class="alert-icon">✅</div><div class="alert-body"><strong>Tudo OK!</strong><div class="alert-names">Nenhum alerta crítico no momento.</div></div></div>';
     return;
   }
-
-  container.innerHTML = alertas.map(al => `
+  container.innerHTML = alertas.map(al=>`
     <div class="alert-row ${al.tipo}">
       <div class="alert-icon">${al.icon}</div>
-      <div class="alert-body">
-        <strong>${al.titulo}</strong>
-        <div class="alert-names">${al.desc}</div>
-      </div>
+      <div class="alert-body"><strong>${al.titulo}</strong><div class="alert-names">${al.desc}</div></div>
     </div>`).join('');
 }
 
-// ─── RANKING ─────────────────────────────────────────────────────
 let G_rankTab = 'nivel';
 function switchTab(btn, tab) {
   G_rankTab = tab;
@@ -644,8 +664,7 @@ window.switchTab = switchTab;
 
 function renderRanking(tab) {
   const ativos = G_alunos.filter(a => a.ativo !== false);
-  let sorted;
-  let maxVal;
+  let sorted, maxVal;
   if (tab === 'nivel') {
     sorted = [...ativos].sort((a,b)=>((Number(b.leitura)||0)+(Number(b.metodo)||0))-((Number(a.leitura)||0)+(Number(a.metodo)||0)));
     maxVal = Math.max(...sorted.map(a=>(Number(a.leitura)||0)+(Number(a.metodo)||0)),1);
@@ -659,7 +678,6 @@ function renderRanking(tab) {
     sorted = [...ativos].sort((a,b)=>(G_freqAnual[b.nome]||0)-(G_freqAnual[a.nome]||0));
     maxVal = 100;
   }
-
   const top = sorted.slice(0,8);
   const medalClass = (i) => i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
   const getVal = (a) => {
@@ -674,15 +692,11 @@ function renderRanking(tab) {
     if (tab==='metodo') return Number(a.metodo)||0;
     return G_freqAnual[a.nome]||0;
   };
-  const barColor = (a) => {
-    if (tab==='freq') return colorPct(getRaw(a));
-    return '#818cf8';
-  };
-
+  const barColor = (a) => tab==='freq' ? colorPct(getRaw(a)) : '#818cf8';
   document.getElementById('rank-list').innerHTML = top.map((a,i)=>`
     <li class="rank-item">
       <span class="rank-num ${medalClass(i)}">${i+1}</span>
-      <div style="flex:1">
+      <div style="flex:1;min-width:0">
         <div class="rank-name">${a.nome}</div>
         <div class="rank-instr">${a.instrumento||'—'}</div>
       </div>
@@ -691,7 +705,6 @@ function renderRanking(tab) {
     </li>`).join('');
 }
 
-// ─── TABELA ───────────────────────────────────────────────────────
 function popularFiltroInstrumento() {
   const sel = document.getElementById('f-instrumento');
   const instrs = [...new Set(G_alunos.map(a=>a.instrumento||'').filter(Boolean))].sort();
@@ -704,7 +717,6 @@ window.renderTabela = function() {
   const st    = document.getElementById('f-status').value;
   const nf    = document.getElementById('f-nivel').value;
   const ff    = document.getElementById('f-freq').value;
-
   const mesMes = `${ANO}-${String(MES_ATUAL).padStart(2,'0')}`;
 
   let lista = G_alunos.filter(a => {
@@ -737,31 +749,23 @@ window.renderTabela = function() {
     const freqA   = G_freqAnual[a.nome]||0;
     const freqM   = G_freqMensal[a.nome]?.[mesMes]||0;
     const ativo   = a.ativo !== false;
-
-    const nAlert = total < 5 ? '🚨 Nível Crítico' : total < 8 ? '⚠️ Nível Baixo' : '';
-    const fAlert = freqA < 50 ? '🚨 Freq. Crítica' : freqA < 65 ? '⚠️ Freq. Risco' : '';
+    const nAlert  = total < 5 ? '🚨 Crítico' : total < 8 ? '⚠️ Baixo' : '';
+    const fAlert  = freqA < 50 ? '🚨 Freq. Crítica' : freqA < 65 ? '⚠️ Risco' : '';
     const alertaTxt = [nAlert,fAlert].filter(Boolean).join(' · ') || '<span style="color:var(--green)">✅ OK</span>';
-
     return `<tr>
       <td style="color:var(--muted)">${i+1}</td>
       <td><div class="tbl-name">${a.nome}</div><div class="tbl-instr">${a.instrumento||'—'}</div></td>
-      <td>
-        <div class="lvl-bar">
-          <div class="lvl-bg"><div class="lvl-fill" style="width:${Math.min(total/30*100,100)}%;background:${total>=15?'var(--green)':total>=8?'var(--acc)':'var(--red)'}"></div></div>
-          <strong>${total}</strong>
-        </div>
-      </td>
-      <td>${leitura}</td>
-      <td>${metodo}</td>
+      <td><div class="lvl-bar"><div class="lvl-bg"><div class="lvl-fill" style="width:${Math.min(total/30*100,100)}%;background:${total>=15?'var(--green)':total>=8?'var(--acc)':'var(--red)'}"></div></div><strong>${total}</strong></div></td>
+      <td class="col-hide-mobile">${leitura}</td>
+      <td class="col-hide-mobile">${metodo}</td>
       <td><span class="pct-val pct-${classFreq(freqA)}">${freqA}%</span></td>
-      <td><span class="pct-val pct-${classFreq(freqM)}">${freqM}%</span></td>
+      <td class="col-hide-mobile"><span class="pct-val pct-${classFreq(freqM)}">${freqM}%</span></td>
       <td><span class="badge ${ativo?'active':'inactive'}">${ativo?'Ativo':'Inativo'}</span></td>
-      <td style="font-size:.75rem">${alertaTxt}</td>
+      <td class="col-hide-mobile" style="font-size:.73rem">${alertaTxt}</td>
     </tr>`;
   }).join('');
 };
 
-// ─── INICIAR ─────────────────────────────────────────────────────
 carregar().catch(e => {
   console.error(e);
   document.getElementById('dash-load-msg').textContent = '❌ Erro ao carregar dados. Verifique o console.';
