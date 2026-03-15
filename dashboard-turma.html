@@ -568,13 +568,17 @@ function renderCharts() {
     }
   });
 
-  const nAlto   = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) > 15).length;
-  const nMedio  = ativos.filter(a => { const v=(Number(a.leitura)||0)+(Number(a.metodo)||0); return v>=8&&v<=15; }).length;
-  const nBaixo  = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) < 8).length;
+  // 🎓 Distribuição Nível Geral — faixas atualizadas:
+  // Baixo: freq anual ≤ 60%
+  // Médio: freq anual 61–70%  (71–84% fica sem categoria — incluído no médio aqui como transição)
+  // Alto:  freq anual ≥ 85%
+  const nAlto  = ativos.filter(a => (G_freqAnual[a.nome]||0) >= 85).length;
+  const nMedio = ativos.filter(a => { const v = G_freqAnual[a.nome]||0; return v >= 61 && v <= 84; }).length;
+  const nBaixo = ativos.filter(a => (G_freqAnual[a.nome]||0) <= 60).length;
   mkChart('ch-nivel-dist', {
     type: 'doughnut',
     data: {
-      labels: ['Alto >15pts', 'Médio 8-15pts', 'Baixo <8pts'],
+      labels: ['Alto ≥85%', 'Médio 61-70%', 'Baixo ≤60%'],
       datasets: [{ data: [nAlto,nMedio,nBaixo], backgroundColor: ['#818cf8','#38bdf8','#f87171'], borderWidth: 0 }]
     },
     options: {
