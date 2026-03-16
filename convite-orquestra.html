@@ -36,7 +36,6 @@
   }
   .export-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(201,168,76,0.6); }
 
-  /* ── CARD ── */
   #convite {
     width: 600px;
     background: linear-gradient(160deg, #0d0d1a 0%, #12122a 40%, #0a1628 100%);
@@ -60,267 +59,138 @@
     top: 0; left: 0; right: 0; bottom: 0;
     opacity: 0.04;
     background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 18px,
-      #c9a84c 18px,
-      #c9a84c 19px
+      0deg, transparent, transparent 18px, #c9a84c 18px, #c9a84c 19px
     );
     pointer-events: none;
   }
 
-  .inner {
-    position: relative;
-    padding: 36px 40px 32px;
-    z-index: 1;
-  }
+  .inner { position: relative; padding: 36px 40px 32px; z-index: 1; }
 
-  .header {
-    text-align: center;
-    margin-bottom: 22px;
-  }
+  .header { text-align: center; margin-bottom: 22px; }
   .badge-top {
     display: inline-block;
     background: linear-gradient(135deg, #c9a84c22, #c9a84c44);
     border: 1px solid #c9a84c88;
     color: #f0d080;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 4px 18px;
-    border-radius: 20px;
-    margin-bottom: 14px;
+    font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    padding: 4px 18px; border-radius: 20px; margin-bottom: 14px;
   }
-  .nota-deco {
-    font-size: 36px;
-    line-height: 1;
-    margin-bottom: 8px;
-    filter: drop-shadow(0 0 8px #c9a84c88);
-  }
+  .nota-deco { font-size: 36px; line-height: 1; margin-bottom: 8px; filter: drop-shadow(0 0 8px #c9a84c88); }
   .titulo-orquestra {
-    font-family: 'Cinzel', serif;
-    font-size: 26px;
-    font-weight: 900;
-    color: #f0d080;
-    letter-spacing: 1px;
-    line-height: 1.2;
+    font-family: 'Cinzel', serif; font-size: 26px; font-weight: 900;
+    color: #f0d080; letter-spacing: 1px; line-height: 1.2;
     text-shadow: 0 0 20px rgba(240,208,128,0.4);
   }
   .subtitulo-orquestra {
-    font-family: 'Cinzel', serif;
-    font-size: 12px;
-    color: #c9a84c;
-    letter-spacing: 4px;
-    margin-top: 4px;
-    text-transform: uppercase;
+    font-family: 'Cinzel', serif; font-size: 12px; color: #c9a84c;
+    letter-spacing: 4px; margin-top: 4px; text-transform: uppercase;
   }
 
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 18px 0;
-  }
-  .divider-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #c9a84c66, transparent);
-  }
+  .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0; }
+  .divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #c9a84c66, transparent); }
   .divider-icon { color: #c9a84c; font-size: 14px; }
 
-  .chamada {
+  .chamada { text-align: center; margin-bottom: 20px; }
+  .chamada-label { font-size: 11px; color: #8899bb; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+  .chamada-titulo { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700; color: #ffffff; line-height: 1.3; }
+  .chamada-titulo span { color: #f0d080; }
+  .chamada-sub { font-size: 13px; color: #aabbcc; margin-top: 6px; line-height: 1.5; }
+
+  /* BANNER DATA */
+  .banner-data {
+    background: linear-gradient(135deg, #c9a84c18, #f0d08022);
+    border: 2px solid #c9a84c;
+    border-radius: 14px;
+    padding: 16px 20px;
     text-align: center;
     margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
   }
-  .chamada-label {
-    font-size: 11px;
-    color: #8899bb;
+  .banner-data::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(240,208,128,0.06));
+  }
+  .banner-data .bd-label {
+    font-size: 10px;
+    color: #c9a84c;
     letter-spacing: 3px;
     text-transform: uppercase;
     margin-bottom: 6px;
-  }
-  .chamada-titulo {
-    font-family: 'Cinzel', serif;
-    font-size: 20px;
     font-weight: 700;
-    color: #ffffff;
-    line-height: 1.3;
   }
-  .chamada-titulo span { color: #f0d080; }
-  .chamada-sub {
-    font-size: 13px;
-    color: #aabbcc;
-    margin-top: 6px;
-    line-height: 1.5;
+  .banner-data .bd-data {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #f0d080;
+    text-shadow: 0 0 16px rgba(240,208,128,0.5);
+    line-height: 1.2;
+  }
+  .banner-data .bd-sub {
+    font-size: 12px;
+    color: #ddc88a;
+    margin-top: 4px;
   }
 
-  .info-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+  .info-row { display: flex; gap: 12px; margin-bottom: 20px; }
   .info-box {
     flex: 1;
     background: rgba(201,168,76,0.07);
     border: 1px solid rgba(201,168,76,0.25);
-    border-radius: 12px;
-    padding: 14px 12px;
-    text-align: center;
+    border-radius: 12px; padding: 14px 12px; text-align: center;
   }
   .info-box .icon { font-size: 20px; margin-bottom: 4px; }
-  .info-box .label {
-    font-size: 9px;
-    color: #8899bb;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 3px;
-  }
-  .info-box .value {
-    font-size: 13px;
-    font-weight: 700;
-    color: #e8e8f0;
-    line-height: 1.3;
-  }
-  .info-box .value-gold {
-    font-size: 14px;
-    font-weight: 700;
-    color: #f0d080;
-  }
+  .info-box .label { font-size: 9px; color: #8899bb; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3px; }
+  .info-box .value { font-size: 13px; font-weight: 700; color: #e8e8f0; line-height: 1.3; }
+  .info-box .value-gold { font-size: 14px; font-weight: 700; color: #f0d080; }
 
   .fases-titulo {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    color: #c9a84c;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    text-align: center;
-    margin-bottom: 14px;
+    font-family: 'Cinzel', serif; font-size: 13px; color: #c9a84c;
+    letter-spacing: 3px; text-transform: uppercase; text-align: center; margin-bottom: 14px;
   }
-  .fases-grid {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+  .fases-grid { display: flex; gap: 10px; margin-bottom: 20px; }
   .fase-card {
-    flex: 1;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(201,168,76,0.2);
-    border-radius: 12px;
-    padding: 14px 10px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+    flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 12px; padding: 14px 10px; text-align: center; position: relative; overflow: hidden;
   }
   .fase-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--fase-color);
-    opacity: 0.8;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--fase-color); opacity: 0.8;
   }
   .fase-card.fase1 { --fase-color: #4a9eff; }
   .fase-card.fase2 { --fase-color: #c9a84c; }
   .fase-card.fase3 { --fase-color: #4aff8c; }
 
-  .fase-num {
-    font-family: 'Cinzel', serif;
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--fase-color);
-    line-height: 1;
-    margin-bottom: 4px;
-    opacity: 0.9;
-  }
-  .fase-nome {
-    font-size: 10px;
-    font-weight: 700;
-    color: #ddeeff;
-    letter-spacing: 0.5px;
-    line-height: 1.3;
-    margin-bottom: 6px;
-  }
-  .fase-desc {
-    font-size: 9.5px;
-    color: #8899bb;
-    line-height: 1.4;
-  }
-  .fase-avaliacao {
-    margin-top: 8px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 6px;
-    padding: 5px 6px;
-    font-size: 9px;
-    color: var(--fase-color);
-    line-height: 1.3;
-  }
+  .fase-num { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 900; color: var(--fase-color); line-height: 1; margin-bottom: 4px; opacity: 0.9; }
+  .fase-nome { font-size: 10px; font-weight: 700; color: #ddeeff; letter-spacing: 0.5px; line-height: 1.3; margin-bottom: 6px; }
+  .fase-desc { font-size: 9.5px; color: #8899bb; line-height: 1.4; }
+  .fase-avaliacao { margin-top: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 5px 6px; font-size: 9px; color: var(--fase-color); line-height: 1.3; }
 
   .destaque-final {
     background: linear-gradient(135deg, rgba(74,255,140,0.08), rgba(201,168,76,0.08));
     border: 1px solid rgba(74,255,140,0.25);
-    border-radius: 12px;
-    padding: 14px 18px;
-    text-align: center;
-    margin-bottom: 20px;
+    border-radius: 12px; padding: 14px 18px; text-align: center; margin-bottom: 20px;
   }
   .destaque-final .icon { font-size: 24px; margin-bottom: 6px; }
-  .destaque-final p {
-    font-size: 12px;
-    color: #aaccbb;
-    line-height: 1.6;
-  }
+  .destaque-final p { font-size: 12px; color: #aaccbb; line-height: 1.6; }
   .destaque-final strong { color: #4aff8c; }
 
   .local-box {
-    background: rgba(201,168,76,0.06);
-    border: 1px solid rgba(201,168,76,0.2);
-    border-radius: 12px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 18px;
+    background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 12px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px;
   }
   .local-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-  .local-info .local-label {
-    font-size: 9px;
-    color: #8899bb;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .local-info .local-nome {
-    font-size: 13px;
-    font-weight: 700;
-    color: #f0d080;
-    margin-bottom: 2px;
-  }
-  .local-info .local-end {
-    font-size: 11.5px;
-    color: #aabbcc;
-    line-height: 1.5;
-  }
+  .local-info .local-label { font-size: 9px; color: #8899bb; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .local-info .local-nome { font-size: 13px; font-weight: 700; color: #f0d080; margin-bottom: 2px; }
+  .local-info .local-end { font-size: 11.5px; color: #aabbcc; line-height: 1.5; }
 
-  .footer {
-    text-align: center;
-    border-top: 1px solid rgba(201,168,76,0.2);
-    padding-top: 16px;
-  }
+  .footer { text-align: center; border-top: 1px solid rgba(201,168,76,0.2); padding-top: 16px; }
   .footer-notas { font-size: 22px; letter-spacing: 4px; margin-bottom: 4px; filter: drop-shadow(0 0 6px #c9a84c66); }
-  .footer-cta {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    color: #c9a84c;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .footer-igreeja {
-    font-size: 10px;
-    color: #66778899;
-    margin-top: 6px;
-    letter-spacing: 1px;
-  }
+  .footer-cta { font-family: 'Cinzel', serif; font-size: 13px; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; }
+  .footer-igreeja { font-size: 10px; color: #66778899; margin-top: 6px; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -354,6 +224,13 @@
         Aprenda música do zero e torne-se um músico completo.<br>
         Inscrições abertas para todas as idades!
       </div>
+    </div>
+
+    <!-- BANNER DATA DE INSCRIÇÃO -->
+    <div class="banner-data">
+      <div class="bd-label">📅 Data de Inscrição</div>
+      <div class="bd-data">Sábado, 21 de Março de 2026</div>
+      <div class="bd-sub">Basta comparecer neste sábado — das 09:00 às 11:00</div>
     </div>
 
     <div class="info-row">
@@ -435,23 +312,15 @@ async function exportarPNG() {
   const btn = document.querySelector('.export-btn');
   btn.textContent = '⏳ Gerando imagem...';
   btn.disabled = true;
-
   await document.fonts.ready;
-
   const el = document.getElementById('convite');
   const canvas = await html2canvas(el, {
-    scale: 3,
-    useCORS: true,
-    backgroundColor: null,
-    logging: false,
-    windowWidth: 600,
+    scale: 3, useCORS: true, backgroundColor: null, logging: false, windowWidth: 600,
   });
-
   const link = document.createElement('a');
   link.download = 'convite-orquestra-filhos-de-asafe.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
-
   btn.textContent = '✅ PNG Exportado! Clique para baixar novamente';
   btn.disabled = false;
 }
