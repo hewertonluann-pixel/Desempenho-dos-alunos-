@@ -7,6 +7,8 @@ import {
   collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
+import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
+
 if (!db) {
   console.error("❌ Firebase DB não carregado.");
 }
@@ -190,6 +192,15 @@ function setupModalSolfejo() {
       try {
         await updateDoc(doc(db, "alunos", currentAlunoId), { leituraNome: valor });
         mostrarMensagem("mensagemSucesso", "✅ Método de Solfejo atualizado!");
+
+        // Atualizar snapshot do mês com o novo nome do método
+        const todosSnap = await getDocs(collection(db, "alunos"));
+        const alunoDoc = todosSnap.docs.find(d => d.id === currentAlunoId);
+        if (alunoDoc) {
+          const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), solfejoNome: valor };
+          await atualizarSnapshotMesAtual(dadosAtualizados);
+        }
+
         renderizarPainel();
       } catch (error) {
         console.error("Erro ao atualizar Solfejo:", error);
@@ -218,6 +229,15 @@ function setupModalInstrumental() {
       try {
         await updateDoc(doc(db, "alunos", currentAlunoId), { metodoNome: valor });
         mostrarMensagem("mensagemSucesso", "✅ Método Instrumental atualizado!");
+
+        // Atualizar snapshot do mês com o novo nome do método instrumental
+        const todosSnap = await getDocs(collection(db, "alunos"));
+        const alunoDoc = todosSnap.docs.find(d => d.id === currentAlunoId);
+        if (alunoDoc) {
+          const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), metodoNome: valor };
+          await atualizarSnapshotMesAtual(dadosAtualizados);
+        }
+
         renderizarPainel();
       } catch (error) {
         console.error("Erro ao atualizar Instrumental:", error);
@@ -278,7 +298,7 @@ export async function renderizarPainel() {
               <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
             </div>
           </div>
-          <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || 'Bona'}')">${aluno.leituraNome || 'Bona'}</div>
+          <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || 'Bona'}')">${ aluno.leituraNome || 'Bona'}</div>
           <div class="divider"></div>
           <div class="campo nota-linha">
             <label>Método</label>
@@ -288,7 +308,7 @@ export async function renderizarPainel() {
               <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
             </div>
           </div>
-          <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || 'Método'}')">${aluno.metodoNome || 'Método'}</div>
+          <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || 'Método'}')">${ aluno.metodoNome || 'Método'}</div>
           <div class="divider"></div>
           <div class="campo">
             <label>Instrumento</label>
@@ -337,6 +357,13 @@ window.alterarNota = async function(id, campo, delta) {
     mostrarMensagem("mensagemSucesso", "✅ Nota ajustada!");
     // Grava notificação de nível
     await gravarNotificacaoNivel(id, campo, v);
+    // Atualiza snapshot do mês com o novo nível
+    const todosSnap = await getDocs(collection(db, "alunos"));
+    const alunoDoc = todosSnap.docs.find(d => d.id === id);
+    if (alunoDoc) {
+      const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), [campo]: v };
+      await atualizarSnapshotMesAtual(dadosAtualizados);
+    }
   } catch (error) {
     console.error("Erro ao ajustar nota:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
@@ -352,6 +379,13 @@ window.atualizarNota = async function(id, campo, valor) {
     mostrarMensagem("mensagemSucesso", "✅ Nota atualizada!");
     // Grava notificação de nível
     await gravarNotificacaoNivel(id, campo, v);
+    // Atualiza snapshot do mês com o novo nível
+    const todosSnap = await getDocs(collection(db, "alunos"));
+    const alunoDoc = todosSnap.docs.find(d => d.id === id);
+    if (alunoDoc) {
+      const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), [campo]: v };
+      await atualizarSnapshotMesAtual(dadosAtualizados);
+    }
   } catch (error) {
     console.error("Erro ao atualizar nota:", error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
