@@ -911,8 +911,13 @@ export async function carregarLicoesAluno(nomeAluno) {
     card.className = "card-licao";
     
     // Badge de status
-    const statusClass = l.status === "pendente" ? "pendente" : l.status === "aprovada" ? "aprovada" : "reprovada";
-    const statusTexto = l.status === "pendente" ? "PENDENTE" : l.status === "aprovada" ? "APROVADA" : "REPROVADA";
+   const s = (l.status || "").toLowerCase();
+const statusClass = s === "pendente" ? "pendente"
+                  : (s === "aprovado" || s === "aprovada") ? "aprovada"
+                  : "reprovada";
+const statusTexto = s === "pendente" ? "PENDENTE"
+                  : (s === "aprovado" || s === "aprovada") ? "APROVADA"
+                  : "REPROVADA";
     
     // Botão de deletar (X)
     const btnDelete = document.createElement("button");
