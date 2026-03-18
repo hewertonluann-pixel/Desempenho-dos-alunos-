@@ -9,6 +9,8 @@ import {
   updateDoc,
   addDoc,
   doc,
+  getDoc,
+  setDoc,
   Timestamp,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
@@ -358,8 +360,49 @@ async function tratar(card, aprovar) {
       avaliadoEm: Timestamp.fromDate(agora)
     });
 
+    // ── SNAPSHOT MENSAL ───────────────────────────────────────────
+    // Grava/atualiza o snapshot do mês atual para que o gráfico
+    // 📈 Evolução Técnica reflita a aprovação imediatamente.
+    const anoAtual = agora.getFullYear();
+    const mesAtual = agora.getMonth() + 1; // 1–12
+    const chave = `${alunoId}_${anoAtual}_${String(mesAtual).padStart(2, "0")}`;
+
+    // Buscar dados atuais do aluno para preservar campos do método no snapshot
+    const alunoDocSnap = await getDoc(doc(db, "alunos", alunoId));
+    const alunoData = alunoDocSnap.exists() ? alunoDocSnap.data() : {};
+
+    const snapshotPayload = {
+      alunoId,
+      ano:    anoAtual,
+      mes:    mesAtual,
+      chave,
+      origem: "aprovacao_professor",
+      atualizadoEm: Timestamp.fromDate(agora)
+    };
+
+    if (tipo === "leitura") {
+      snapshotPayload.leitura             = numero;
+      snapshotPayload.licaoLeitura        = `${nomeMetodo} #${numero}`;
+      snapshotPayload.nomeMetodoLeitura   = nomeMetodo;
+      // Preserva dados do método instrumental existentes
+      snapshotPayload.metodo              = alunoData.metodo ?? 0;
+      snapshotPayload.licaoMetodo         = alunoData.licaoMetodo || "";
+      snapshotPayload.nomeMetodoInstrumental = alunoData.metodoNome || "-";
+    } else {
+      snapshotPayload.metodo              = numero;
+      snapshotPayload.licaoMetodo         = `${nomeMetodo} #${numero}`;
+      snapshotPayload.nomeMetodoInstrumental = nomeMetodo;
+      // Preserva dados de leitura existentes
+      snapshotPayload.leitura             = alunoData.leitura ?? 0;
+      snapshotPayload.licaoLeitura        = alunoData.licaoLeitura || "";
+      snapshotPayload.nomeMetodoLeitura   = alunoData.leituraNome || "Bona";
+    }
+
+    // merge:true garante que outros campos do mesmo mês não sejam perdidos
+    await setDoc(doc(db, "snapshotsMensais", chave), snapshotPayload, { merge: true });
+    // ─────────────────────────────────────────────────────────────
+
     // ── NOTIFICAÇÃO DE NÍVEL ──────────────────────────────────────
-    // Ao aprovar uma lição, o placar avança para o número da lição aprovada
     const tipoLabel = tipo === "leitura" ? "leitura" : "método";
     await addDoc(collection(db, "notificacoes"), {
       tipo: "nivel",
