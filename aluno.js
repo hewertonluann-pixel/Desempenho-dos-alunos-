@@ -10,7 +10,9 @@ import {
   collection,
   getDocs,
   doc,
-  updateDoc
+  updateDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 import {
@@ -22,7 +24,6 @@ import {
 
 import { carregarLicoesAluno } from "./licoes.js";
 import { gerarPainelConquistas } from "./conquistas.js";
-import { carregarHistoricoProgressoAluno } from "./evolucao.js";
 
 /* ========================================================
     1. OBTER ALUNO LOGADO (pela URL)
@@ -90,7 +91,6 @@ export function atualizarEnergiaVisual(valor, tipo = "mensal") {
   barra.style.width = valor + "%";
   numero.textContent = valor + "%";
 
-  // Cores baseadas no valor
   if (valor >= 80) barra.style.backgroundColor = "var(--verde)";
   else if (valor >= 40) barra.style.backgroundColor = "var(--amarelo)";
   else barra.style.backgroundColor = "var(--vermelho)";
@@ -100,7 +100,6 @@ export function atualizarEnergiaVisual(valor, tipo = "mensal") {
     4. GRÁFICO FREQUÊNCIA ANUAL
    ======================================================== */
 export async function montarGraficoFrequencia(aluno) {
-  // Usando fuso horário de Brasília (GMT-3)
   const anoAtual = parseInt(new Intl.DateTimeFormat('pt-BR', {
     timeZone: 'America/Sao_Paulo',
     year: 'numeric'
@@ -128,14 +127,12 @@ export async function abrirPopupFrequencia(info, destino) {
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
 
-  // Obter conquistas do mês
   const aluno = await carregarAlunoAtual();
   const { mapaConquistas } = await import("./conquistas.js");
-  
-  // Simular o estado do aluno naquele mês para as conquistas de frequência
-  const alunoSimulado = { 
-    ...aluno, 
-    frequenciaMensal: { porcentagem: info.percentual } 
+
+  const alunoSimulado = {
+    ...aluno,
+    frequenciaMensal: { porcentagem: info.percentual }
   };
 
   const conquistasMes = [];
@@ -165,7 +162,7 @@ export async function abrirPopupFrequencia(info, destino) {
     <div class="modal-conquistas-section">
       <h4>Medalhas do Mês</h4>
       <div class="modal-conquistas-list">
-        ${conquistasMes.length > 0 
+        ${conquistasMes.length > 0
           ? conquistasMes.map(c => `
               <div class="mini-achievement ${c.raridade}">
                 <span>${c.icone}</span>
@@ -188,7 +185,7 @@ window.fecharPopupFrequencia = () => {
 };
 
 /* ========================================================
-    5. CONQUISTAS (CORREÇÃO: FUNCIONANDO AGORA)
+    5. CONQUISTAS
    ======================================================== */
 window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
   console.log('🔍 Abrindo popup de conquista:', titulo);
@@ -198,13 +195,11 @@ window.abrirPopupConquista = function(icone, titulo, descricao, detalhes) {
     return;
   }
 
-  // Preencher com dados
   safeSet('conquistaIcone', icone || '🏆');
   safeSet('conquistaTitulo', titulo || 'Conquista');
   safeSet('conquistaDescricao', descricao || 'Descrição não disponível.');
   safeHTML('conquistaDetalhes', detalhes ? detalhes.map(item => `<li>${item}</li>`).join('') : '');
 
-  // Mostrar modal
   popup.style.display = 'flex';
   popup.classList.add('active');
 };
@@ -222,7 +217,6 @@ window.fecharPopupConquista = function() {
     6. CALCULAR ENERGIA (Frequência do mês e ano)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
-  // Usando fuso horário de Brasília (GMT-3)
   const brasilia = new Intl.DateTimeFormat('pt-BR', {
     timeZone: 'America/Sao_Paulo',
     year: 'numeric',
@@ -231,16 +225,14 @@ export async function calcularEnergiaDoAluno(aluno) {
   const [mesAtual, anoAtual] = brasilia.split('/');
 
   const eventosAno = await obterEventosDoAno(anoAtual);
-  
-  // 1. Cálculo Mensal
+
   const grupos = agruparEventosPorMes(eventosAno);
   const chaveMes = `${anoAtual}-${mesAtual}`;
   const eventosMes = grupos[chaveMes] || [];
   const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
-  
+
   atualizarEnergiaVisual(freqMensal.percentual, "mensal");
 
-  // 2. Cálculo Geral (Anual)
   const freqGeral = calcularFrequenciaMensalParaAluno(eventosAno, aluno.nome);
   atualizarEnergiaVisual(freqGeral.percentual, "geral");
 
@@ -248,25 +240,42 @@ export async function calcularEnergiaDoAluno(aluno) {
 }
 
 /* ========================================================
-    7. INICIALIZAÇÃO FINAL
+    7. CARREGAR SNAPSHOTS MENSAIS (para o gráfico Evolução Técnica)
+   ======================================================== */
+async function carregarSnapshotsMensais(alunoId) {
+  try {
+    const q = query(
+      collection(db, "snapshotsMensais"),
+      where("alunoId", "==", alunoId)
+    );
+    const snap = await getDocs(q);
+    const lista = [];
+    snap.forEach(d => lista.push({ id: d.id, ...d.data() }));
+    return lista;
+  } catch (e) {
+    console.warn("⚠️ Não foi possível carregar snapshotsMensais:", e);
+    return [];
+  }
+}
+
+/* ========================================================
+    8. INICIALIZAÇÃO FINAL
    ======================================================== */
 export async function iniciarPainelAluno() {
   const aluno = await carregarAlunoAtual();
   if (!aluno) return;
 
   // =====================================================
-  // 🔥 CONTROLE DE PERMISSÃO (mostrar / esconder funções)
+  // 🔥 CONTROLE DE PERMISSÃO
   // =====================================================
   const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
   const ehDonoDaPagina = usuario.nome && usuario.nome === aluno.nome;
 
-  // Ocultar botão de alterar senha
   if (!ehDonoDaPagina) {
     const btnSenha = document.querySelector(".btn-change-password");
     if (btnSenha) btnSenha.style.display = "none";
   }
 
-  // Ocultar edição de foto
   if (!ehDonoDaPagina) {
     const labelFoto = document.querySelector('label[for="novaFoto"]');
     const inputFoto = document.getElementById("novaFoto");
@@ -274,7 +283,6 @@ export async function iniciarPainelAluno() {
     if (inputFoto) inputFoto.style.display = "none";
   }
 
-  // 🔥 Ocultar painel de lições inteiramente
   if (!ehDonoDaPagina) {
     const painelLicoes = document.querySelector(".lessons-section");
     if (painelLicoes) painelLicoes.style.display = "none";
@@ -284,35 +292,30 @@ export async function iniciarPainelAluno() {
   // 👁️ PREFERÊNCIAS DE VISUALIZAÇÃO
   // =====================================================
   const preferencias = aluno.preferencias || {};
-  
+
   if (preferencias.comprometimento === false) {
-    const painelComprometimento = document.querySelector(".energy-section");
-    if (painelComprometimento) painelComprometimento.style.display = "none";
+    const p = document.querySelector(".energy-section");
+    if (p) p.style.display = "none";
   }
-  
   if (preferencias.frequencia === false) {
-    const painelFrequencia = document.querySelector(".frequency-section");
-    if (painelFrequencia) painelFrequencia.style.display = "none";
+    const p = document.querySelector(".frequency-section");
+    if (p) p.style.display = "none";
   }
-  
   if (preferencias.conquistas === false) {
-    const painelConquistas = document.querySelector(".achievements-section");
-    if (painelConquistas) painelConquistas.style.display = "none";
+    const p = document.querySelector(".achievements-section");
+    if (p) p.style.display = "none";
   }
-  
   if (preferencias.evolucao === false) {
-    const painelEvolucao = document.querySelector(".evolution-section");
-    if (painelEvolucao) painelEvolucao.style.display = "none";
+    const p = document.querySelector(".evolution-section");
+    if (p) p.style.display = "none";
   }
-  
   if (preferencias.notificacoes === false) {
-    const painelNotificacoes = document.querySelector(".notifications-section");
-    if (painelNotificacoes) painelNotificacoes.style.display = "none";
+    const p = document.querySelector(".notifications-section");
+    if (p) p.style.display = "none";
   }
-  
   if (preferencias.licoes === false && ehDonoDaPagina) {
-    const painelLicoes = document.querySelector(".lessons-section");
-    if (painelLicoes) painelLicoes.style.display = "none";
+    const p = document.querySelector(".lessons-section");
+    if (p) p.style.display = "none";
   }
 
   // =====================================================
@@ -322,25 +325,26 @@ export async function iniciarPainelAluno() {
 
   const energia = await calcularEnergiaDoAluno(aluno);
 
-  // Histórico real
-  const historico = await carregarHistoricoProgressoAluno(aluno);
+  // ── GRÁFICO EVOLUÇÃO TÉCNICA ─────────────────────────────────────────
+  // Lê snapshotsMensais (formato correto esperado pelo gráfico)
+  // em vez de historicoProgresso (formato incompatível)
+  const snapshots = await carregarSnapshotsMensais(aluno.id);
 
-  // Gráfico histórico
   const destinoGrafico = document.getElementById("painelEvolucao");
   if (window.gerarGraficoEvolucao) {
-    gerarGraficoEvolucao(aluno, energia, destinoGrafico, historico);
+    gerarGraficoEvolucao(aluno, energia, destinoGrafico, snapshots);
   }
+  // ──────────────────────────────────────────────────────────────
 
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
 
-  // Carregar lições (SOMENTE se dono da página)
   if (ehDonoDaPagina) {
     await carregarLicoesAluno(aluno.nome);
   }
 }
 
 /* ========================================================
-    8. POPUP SENHA
+    9. POPUP SENHA
    ======================================================== */
 window.abrirPopup = () => {
   document.getElementById("popupSenha").style.display = "flex";
@@ -372,7 +376,7 @@ window.salvarSenha = async () => {
 };
 
 /* ========================================================
-    9. FOTO / MODO PROFESSOR
+    10. FOTO / MODO PROFESSOR
    ======================================================== */
 window.enviarNovaFoto = () => {
   alert("Upload de foto ainda não implementado.");
