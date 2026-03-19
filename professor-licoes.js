@@ -187,6 +187,56 @@ function inserirPainel() {
       opacity: 0.5;
       pointer-events: none;
     }
+    /* ── Estilos do painel de edição ── */
+    .licao-edicao-section {
+      background: rgba(251, 146, 60, 0.08);
+      border: 1px solid rgba(251, 146, 60, 0.35);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .licao-edicao-section .edicao-titulo {
+      font-size: 0.78em;
+      font-weight: 700;
+      color: #fb923c;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .edicao-campos {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .edicao-grupo {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .edicao-grupo label {
+      font-size: 0.75em;
+      color: #94a3b8;
+    }
+    .edicao-grupo select,
+    .edicao-grupo input[type="number"] {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(251, 146, 60, 0.4);
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 0.85em;
+      padding: 5px 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .edicao-grupo select:focus,
+    .edicao-grupo input[type="number"]:focus {
+      border-color: #fb923c;
+      box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.2);
+    }
+    .edicao-grupo input[type="number"] {
+      width: 72px;
+    }
   `;
   document.head.appendChild(estilo);
 
@@ -201,7 +251,7 @@ function inserirPainel() {
 
   card.innerHTML = `
     <h2 style="color:#22d3ee;margin:0 0 10px 0;font-size:1.1rem;">🔔 Solicitações de lição</h2>
-    <p style="opacity:0.8;font-size:0.85rem;margin-top:-6px;">Aprove ou reprove as lições enviadas pelos alunos.</p>
+    <p style="opacity:0.8;font-size:0.85rem;margin-top:-6px;">Aprove ou reprove as lições enviadas pelos alunos. Corrija o tipo ou número se necessário.</p>
     <button id="btnAtualizarSolicitacoes"
       style="margin:8px 0 14px 0;width:100%;padding:8px;border-radius:8px;border:none;background:#0ea5e9;color:#fff;font-weight:600;cursor:pointer;">
       Atualizar lista
@@ -267,7 +317,9 @@ async function carregarSolicitacoes() {
       data-numerolicao="${item.numero}"
       data-alunoid="${item.alunoId}"
       data-alunonome="${item.alunoNome || ''}"
-      data-nomemetodo="${nomeMetodo}">
+      data-nomemetodo="${nomeMetodo}"
+      data-solfejonomeorig="${item.solfejoNome || 'Bona'}"
+      data-metodonomeorig="${item.metodoNome || 'N/A'}">
       
       <!-- Cabeçalho -->
       <div class="licao-header">
@@ -286,6 +338,29 @@ async function carregarSolicitacoes() {
         </div>
         <div class="licao-info-item">
           <span class="licao-info-value" style="color: #facc15;">⏳ Pendente</span>
+        </div>
+      </div>
+
+      <!-- ✏️ Correção pelo professor -->
+      <div class="licao-edicao-section">
+        <div class="edicao-titulo">✏️ Corrigir dados (se necessário)</div>
+        <div class="edicao-campos">
+          <div class="edicao-grupo" style="flex:1;">
+            <label>Tipo</label>
+            <select class="select-tipo-edicao">
+              <option value="leitura" ${item.tipo === "leitura" ? "selected" : ""}>Leitura (Bona)</option>
+              <option value="metodo" ${item.tipo === "metodo" ? "selected" : ""}>Método</option>
+            </select>
+          </div>
+          <div class="edicao-grupo">
+            <label>Nº da lição</label>
+            <input
+              type="number"
+              class="input-numero-edicao"
+              min="1"
+              value="${item.numero}"
+              placeholder="Nº" />
+          </div>
         </div>
       </div>
 
@@ -334,11 +409,22 @@ async function carregarSolicitacoes() {
 
 async function tratar(card, aprovar) {
   const id = card.dataset.id;
-  const tipo = card.dataset.tipolicao;          // "leitura" ou "metodo"
-  const numero = parseInt(card.dataset.numerolicao, 10);
   const alunoId = card.dataset.alunoid;
   const alunoNome = card.dataset.alunonome || "Aluno";
-  const nomeMetodo = card.dataset.nomemetodo || (tipo === "leitura" ? "leitura" : "método");
+
+  // ── Lê os valores dos campos de correção (podem ter sido editados) ──
+  const selectTipo   = card.querySelector(".select-tipo-edicao");
+  const inputNumero  = card.querySelector(".input-numero-edicao");
+  const tipo         = selectTipo  ? selectTipo.value : card.dataset.tipolicao;
+  const numero       = inputNumero ? parseInt(inputNumero.value, 10) : parseInt(card.dataset.numerolicao, 10);
+
+  // Determina o nome do método correto de acordo com o tipo (possivelmente corrigido)
+  let nomeMetodo;
+  if (tipo === "leitura") {
+    nomeMetodo = card.dataset.solfejonomeorig || "Bona";
+  } else {
+    nomeMetodo = card.dataset.metodonomeorig || "N/A";
+  }
 
   // Capturar o feedback do professor
   const textarea = card.querySelector(".textarea-feedback-prof");
@@ -346,14 +432,22 @@ async function tratar(card, aprovar) {
 
   const agora = new Date();
 
+  // ── Monta os dados corrigidos para salvar na lição ──────────────
+  const dadosCorrigidos = {
+    tipo,
+    numero,
+    corrigidoPeloProf: (tipo !== card.dataset.tipolicao || numero !== parseInt(card.dataset.numerolicao, 10))
+  };
+
   if (aprovar) {
-    // Atualizar progresso do aluno
+    // Atualizar progresso do aluno com tipo e número possivelmente corrigidos
     await updateDoc(doc(db, "alunos", alunoId), {
       [tipo]: numero
     });
 
-    // Atualizar status da lição com feedback
+    // Atualizar status da lição com feedback e dados corrigidos
     await updateDoc(doc(db, "licoes", id), {
+      ...dadosCorrigidos,
       status: "aprovado",
       observacaoProfessor: feedback,
       respondidoEm: agora.toISOString(),
@@ -361,13 +455,10 @@ async function tratar(card, aprovar) {
     });
 
     // ── SNAPSHOT MENSAL ───────────────────────────────────────────
-    // Grava/atualiza o snapshot do mês atual para que o gráfico
-    // 📈 Evolução Técnica reflita a aprovação imediatamente.
     const anoAtual = agora.getFullYear();
-    const mesAtual = agora.getMonth() + 1; // 1–12
+    const mesAtual = agora.getMonth() + 1;
     const chave = `${alunoId}_${anoAtual}_${String(mesAtual).padStart(2, "0")}`;
 
-    // Buscar dados atuais do aluno para preservar campos do método no snapshot
     const alunoDocSnap = await getDoc(doc(db, "alunos", alunoId));
     const alunoData = alunoDocSnap.exists() ? alunoDocSnap.data() : {};
 
@@ -384,7 +475,6 @@ async function tratar(card, aprovar) {
       snapshotPayload.leitura             = numero;
       snapshotPayload.licaoLeitura        = `${nomeMetodo} #${numero}`;
       snapshotPayload.nomeMetodoLeitura   = nomeMetodo;
-      // Preserva dados do método instrumental existentes
       snapshotPayload.metodo              = alunoData.metodo ?? 0;
       snapshotPayload.licaoMetodo         = alunoData.licaoMetodo || "";
       snapshotPayload.nomeMetodoInstrumental = alunoData.metodoNome || "-";
@@ -392,13 +482,11 @@ async function tratar(card, aprovar) {
       snapshotPayload.metodo              = numero;
       snapshotPayload.licaoMetodo         = `${nomeMetodo} #${numero}`;
       snapshotPayload.nomeMetodoInstrumental = nomeMetodo;
-      // Preserva dados de leitura existentes
       snapshotPayload.leitura             = alunoData.leitura ?? 0;
       snapshotPayload.licaoLeitura        = alunoData.licaoLeitura || "";
       snapshotPayload.nomeMetodoLeitura   = alunoData.leituraNome || "Bona";
     }
 
-    // merge:true garante que outros campos do mesmo mês não sejam perdidos
     await setDoc(doc(db, "snapshotsMensais", chave), snapshotPayload, { merge: true });
     // ─────────────────────────────────────────────────────────────
 
@@ -414,8 +502,9 @@ async function tratar(card, aprovar) {
     // ─────────────────────────────────────────────────────────────
 
   } else {
-    // Atualizar status da lição como reprovada com feedback
+    // Reprovar: salva também os dados corrigidos e o feedback
     await updateDoc(doc(db, "licoes", id), {
+      ...dadosCorrigidos,
       status: "reprovado",
       observacaoProfessor: feedback,
       respondidoEm: agora.toISOString(),
@@ -423,10 +512,10 @@ async function tratar(card, aprovar) {
     });
   }
 
-  // Adicionar classe de processada e desabilitar interação
+  // Desabilitar card
   card.classList.add("licao-processada");
   
-  // Mostrar mensagem de sucesso
+  // Atualizar badge de status
   const statusBox = card.querySelector(".licao-info-value[style*='facc15']");
   if (statusBox) {
     statusBox.textContent = aprovar ? "✅ Aprovada" : "❌ Reprovada";
@@ -441,14 +530,12 @@ export function mostrarPainelLicoes() {
     return;
   }
 
-  // Se o painel ainda não foi inserido, insere agora
   if (!document.getElementById("cardSolicitacoesLicao")) {
     inserirPainel();
     destino.style.display = "block";
     return;
   }
 
-  // Toggle: alterna visibilidade
   if (destino.style.display === "none" || destino.style.display === "") {
     destino.style.display = "block";
   } else {
