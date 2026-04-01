@@ -10,6 +10,7 @@ import {
   addDoc,
   getDocs,
   setDoc,
+  deleteDoc,
   doc,
   query,
   where,
@@ -31,23 +32,14 @@ function getAnoMesAtual() {
   return { ano: agora.getFullYear(), mes: agora.getMonth() + 1 };
 }
 
-async function snapExiste(alunoId, chave) {
-  const q = query(
-    collection(db, COLECAO),
-    where("alunoId", "==", alunoId),
-    where("chave",   "==", chave)
-  );
-  const snap = await getDocs(q);
-  return !snap.empty;
-}
-
 // ── Snapshot automático do mês atual ──────────────────────────────────────
+// Usa setDoc com ID determinístico para evitar duplicatas
 export async function garantirSnapshotDoMes(aluno) {
   const { ano, mes } = getAnoMesAtual();
   const chave = getChaveMes(ano, mes);
-  if (await snapExiste(aluno.id, chave)) return false;
+  const docId = `${aluno.id}_${chave}`;
 
-  await addDoc(collection(db, COLECAO), {
+  await setDoc(doc(db, COLECAO, docId), {
     alunoId:                aluno.id,
     alunoNome:              aluno.nome,
     ano,
@@ -61,8 +53,9 @@ export async function garantirSnapshotDoMes(aluno) {
     nomeMetodoInstrumental: aluno.metodoNome              || "-",
     criadoEm:               serverTimestamp(),
     origem:                 "automatico"
-  });
-  console.log(`📸 Snapshot criado: ${aluno.nome} · ${chave}`);
+  }, { merge: false });
+
+  console.log(`📸 Snapshot garantido: ${aluno.nome} · ${chave}`);
   return true;
 }
 
@@ -101,6 +94,12 @@ export async function atualizarSnapshotMesAtual(aluno) {
     criadoEm: serverTimestamp(), origem: "atualizado"
   });
   console.log(`🔄 Snapshot atualizado: ${aluno.nome} · ${chave}`);
+}
+
+// ── Excluir snapshot por ID do documento ──────────────────────────────────
+export async function excluirSnapshot(docId) {
+  await deleteDoc(doc(db, COLECAO, docId));
+  console.log(`🗑️ Snapshot excluído: ${docId}`);
 }
 
 // ── Carregar snapshots de um aluno ──────────────────────────────────────────
@@ -156,12 +155,10 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
   );
 
   // Mapear alterações por chave "YYYY-MM"
-  // Cada entrada: { leitura?: number, metodo?: number }
   const alteracoesPorMes = {};
 
   snapNotif.forEach(d => {
     const notif = d.data();
-    // Extrair data da notificação
     let dt;
     if (notif.data && typeof notif.data.toDate === "function") dt = notif.data.toDate();
     else if (notif.data instanceof Date) dt = notif.data;
@@ -175,16 +172,13 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
 
     if (!alteracoesPorMes[chave]) alteracoesPorMes[chave] = {};
 
-    // Detectar se é leitura ou método pelo texto da notificação
     const texto = notif.texto || "";
-    // Extrair o número do nível: "Nível 65 de leitura" ou "Nível 5 de método"
     const matchNivel = texto.match(/Nível\s+(\d+)/i);
     const novoNivel  = matchNivel ? Number(matchNivel[1]) : null;
 
     if (novoNivel === null) return;
 
     if (/leitura/i.test(texto)) {
-      // Guarda o maior nível de leitura registrado no mês
       if (!alteracoesPorMes[chave].leitura || novoNivel > alteracoesPorMes[chave].leitura) {
         alteracoesPorMes[chave].leitura = novoNivel;
       }
@@ -205,8 +199,6 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
   let leituraAtual = LEITURA_INICIAL;
   let metodoAtual  = METODO_INICIAL;
 
-  // Se o aluno já tem nível diferente do padrão e NÃO há nenhuma notificação,
-  // usa o nível atual do aluno como base para todos os meses
   const temAlteracoes = Object.keys(alteracoesPorMes).length > 0;
   if (!temAlteracoes) {
     leituraAtual = aluno.leitura ?? LEITURA_INICIAL;
@@ -220,7 +212,6 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
   for (let mes = 1; mes <= mesFinal; mes++) {
     const chave = getChaveMes(ano, mes);
 
-    // Aplicar alteração se houver neste mês
     if (alteracoesPorMes[chave]) {
       if (alteracoesPorMes[chave].leitura != null)
         leituraAtual = alteracoesPorMes[chave].leitura;
@@ -228,7 +219,6 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
         metodoAtual  = alteracoesPorMes[chave].metodo;
     }
 
-    // Pular se já existe snapshot salvo
     if (chavesExistentes.has(chave)) {
       pulados++;
       if (onProgress) onProgress({ chave, status: "pulado", leitura: leituraAtual, metodo: metodoAtual });
