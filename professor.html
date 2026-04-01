@@ -145,13 +145,48 @@
     #msgSnapshot { margin-top: 12px; font-size: 0.88rem; font-weight: 600; min-height: 20px; }
     .msg-ok  { color: #22c55e; } .msg-err { color: #f87171; }
     #listaSnapshots { margin-top: 22px; max-height: 320px; overflow-y: auto; }
-    .snap-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 8px; margin-bottom: 6px; background: rgba(30,41,59,0.8); border: 1px solid rgba(56,189,248,0.15); font-size: 0.82rem; color: #cbd5e1; gap: 8px; flex-wrap: wrap; }
+    .snap-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
+      background: rgba(30,41,59,0.8); border: 1px solid rgba(56,189,248,0.15);
+      font-size: 0.82rem; color: #cbd5e1; gap: 8px; flex-wrap: wrap;
+    }
     .snap-item .snap-chave  { font-weight: 700; color: #38bdf8; min-width: 60px; }
     .snap-item .snap-nome   { flex: 1; }
     .snap-item .snap-vals   { color: #86efac; white-space: nowrap; }
     .snap-item .snap-origem { font-size: 0.72rem; color: #6b7280; }
     .snap-item.retroativo  { border-color: rgba(251,191,36,0.3); }
     .snap-item.automatico-inteligente { border-color: rgba(167,139,250,0.3); }
+
+    /* Botão excluir pegada */
+    .btn-excluir-snap {
+      background: transparent;
+      border: 1px solid rgba(239,68,68,0.5);
+      color: #f87171;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-excluir-snap:hover {
+      background: rgba(239,68,68,0.15);
+      border-color: #f87171;
+      color: #fca5a5;
+      transform: scale(1.05);
+    }
+    /* Aviso de pegada indefinida */
+    .snap-item.indefinido {
+      border-color: rgba(239,68,68,0.4);
+      background: rgba(239,68,68,0.06);
+    }
+    .snap-aviso-indefinido {
+      font-size: 0.68rem;
+      color: #f87171;
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -365,12 +400,14 @@
     import {
       criarSnapshotRetroativo,
       carregarSnapshotsAluno,
+      excluirSnapshot,
       preenchimentoAutomaticoPegadas,
       preenchimentoAutomaticoTodosAlunos
     } from "./snapshots-mensais.js";
 
     const nomesMes = ["","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
     let alunosCache = [];
+    let alunoAtual  = null; // aluno selecionado atualmente
 
     async function popularSelectAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
@@ -394,11 +431,11 @@
     }
 
     document.getElementById("snapAluno")?.addEventListener("change", async (e) => {
-      if (!e.target.value) return;
-      const aluno = JSON.parse(e.target.value);
-      document.getElementById("snapLeitura").value = aluno.leitura;
-      document.getElementById("snapMetodo").value  = aluno.metodo;
-      await renderizarHistorico(aluno);
+      if (!e.target.value) { alunoAtual = null; return; }
+      alunoAtual = JSON.parse(e.target.value);
+      document.getElementById("snapLeitura").value = alunoAtual.leitura;
+      document.getElementById("snapMetodo").value  = alunoAtual.metodo;
+      await renderizarHistorico(alunoAtual);
     });
 
     async function renderizarHistorico(aluno) {
@@ -409,16 +446,57 @@
         div.innerHTML = '<p style="color:#6b7280;font-size:0.82rem;margin-top:12px;">Nenhum snapshot encontrado para este aluno.</p>';
         return;
       }
+
+      // Detectar pegadas com nome indefinido/inválido
+      const checarIndefinido = (s) => !s.alunoNome || s.alunoNome === 'undefined' || s.alunoNome === 'null';
+
       div.innerHTML = `
         <p style="color:#94a3b8;font-size:0.78rem;margin-bottom:10px;font-weight:600;">HISTÓRICO DE PEGADAS (${lista.length})</p>
-        ${lista.map(s => `
-          <div class="snap-item ${s.origem}">
+        ${lista.map(s => {
+          const indefinido = checarIndefinido(s);
+          return `
+          <div class="snap-item ${s.origem}${indefinido ? ' indefinido' : ''}" data-snap-id="${s.id}">
             <span class="snap-chave">${nomesMes[Number(s.mes)]}/${s.ano}</span>
-            <span class="snap-nome">${s.alunoNome}</span>
+            <span class="snap-nome">${indefinido ? '<span style="color:#f87171;font-style:italic">⚠️ indefinido</span>' : s.alunoNome}</span>
             <span class="snap-vals">Bona ${s.leitura} · Mét. ${s.metodo}</span>
             <span class="snap-origem">${s.origem}</span>
-          </div>`).join('')}
+            <button class="btn-excluir-snap" title="Excluir esta pegada">🗑️ Excluir</button>
+          </div>`;
+        }).join('')}
       `;
+
+      // Vincular eventos dos botões de excluir
+      div.querySelectorAll(".btn-excluir-snap").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const item    = e.target.closest(".snap-item");
+          const snapId  = item?.dataset.snapId;
+          const chave   = item?.querySelector(".snap-chave")?.textContent || "essa pegada";
+          const nomeExib = item?.querySelector(".snap-nome")?.textContent?.trim() || "aluno";
+
+          if (!snapId) return;
+          if (!confirm(`Deseja excluir a pegada de ${chave} (${nomeExib})?\n\nEssa ação não pode ser desfeita.`)) return;
+
+          try {
+            btn.disabled = true;
+            btn.textContent = "...";
+            await excluirSnapshot(snapId);
+            item.style.opacity = "0";
+            item.style.transition = "opacity 0.3s";
+            setTimeout(() => {
+              item.remove();
+              // Atualizar contagem no cabeçalho
+              const header = div.querySelector("p");
+              const restantes = div.querySelectorAll(".snap-item").length;
+              if (header) header.textContent = `HISTÓRICO DE PEGADAS (${restantes})`;
+            }, 300);
+          } catch (err) {
+            console.error("Erro ao excluir snapshot:", err);
+            alert("❌ Erro ao excluir a pegada. Verifique o console.");
+            btn.disabled = false;
+            btn.textContent = "🗑️ Excluir";
+          }
+        });
+      });
     }
 
     document.getElementById("btnSalvarSnapshot")?.addEventListener("click", async () => {
@@ -426,6 +504,7 @@
       const selAluno = document.getElementById("snapAluno").value;
       if (!selAluno) { msg.textContent = "Selecione um aluno."; msg.className = "msg-err"; return; }
       const aluno   = JSON.parse(selAluno);
+      alunoAtual    = aluno;
       const ano     = Number(document.getElementById("snapAno").value);
       const mes     = Number(document.getElementById("snapMes").value);
       const leitura = Number(document.getElementById("snapLeitura").value) || 0;
@@ -455,6 +534,7 @@
       const selAluno = document.getElementById("snapAluno").value;
       if (!selAluno) { alert("Selecione um aluno primeiro."); return; }
       const aluno = JSON.parse(selAluno);
+      alunoAtual  = aluno;
       const ano   = Number(document.getElementById("autoAno").value);
       const log   = document.getElementById("logAuto");
       const btn   = document.getElementById("btnAutoUm");
