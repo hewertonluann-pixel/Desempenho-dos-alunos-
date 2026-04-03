@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HUD Preview — Painel do Aluno</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* ─── RESET & BASE ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0c10;
+      --bg2:       #10141c;
+      --bg3:       #161b26;
+      --border:    rgba(255,255,255,0.07);
+      --azul:      #3b82f6;
+      --azul-glow: rgba(59,130,246,0.35);
+      --verde:     #22c55e;
+      --verde-glow:rgba(34,197,94,0.35);
+      --amarelo:   #f59e0b;
+      --amar-glow: rgba(245,158,11,0.35);
+      --roxo:      #a855f7;
+      --roxo-glow: rgba(168,85,247,0.35);
+      --vermelho:  #ef4444;
+      --ciano:     #06b6d4;
+      --ciano-glow:rgba(6,182,212,0.30);
+      --txt:       #e2e8f0;
+      --txt2:      #94a3b8;
+      --txt3:      #475569;
+      --radius:    12px;
+      --radius-lg: 18px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* scanline overlay sutil */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.04) 3px,
+        rgba(0,0,0,0.04) 4px
+      );
+    }
+
+    /* ─── TOPBAR ────────────────────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+      height: 56px;
+      background: rgba(10,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo {
+      font-size: 18px; font-weight: 900; letter-spacing: -0.5px;
+      color: var(--azul); text-shadow: 0 0 12px var(--azul-glow);
+    }
+    .topbar-sep { width: 1px; height: 22px; background: var(--border); }
+    .topbar-name { font-size: 14px; font-weight: 600; color: var(--txt); }
+    .topbar-instrument {
+      font-size: 12px; color: var(--txt2);
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2px 10px;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .status-chip {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+    }
+    .status-chip.online {
+      background: rgba(34,197,94,0.12); color: var(--verde);
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+    .status-chip .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--verde);
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.8); }
+    }
+    .topbar-back {
+      font-size: 12px; color: var(--txt2); text-decoration: none;
+      padding: 5px 12px; border-radius: 8px;
+      border: 1px solid var(--border);
+      transition: all .2s;
+    }
+    .topbar-back:hover { color: var(--txt); border-color: var(--azul); }
+
+    /* ─── MAIN GRID ─────────────────────────────────────────────── */
+    .hud-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      grid-template-rows: auto auto;
+      gap: 16px;
+      padding: 16px 20px 100px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1100px) {
+      .hud-grid { grid-template-columns: 240px 1fr; }
+      .zone-right { grid-column: 1 / -1; }
+    }
+    @media (max-width: 720px) {
+      .hud-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── CARD BASE ─────────────────────────────────────────────── */
+    .hud-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s;
+    }
+    .hud-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(59,130,246,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hud-card:hover { border-color: rgba(59,130,246,0.25); }
+
+    .card-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      color: var(--txt3); text-transform: uppercase; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .card-label .dot-accent {
+      width: 5px; height: 5px; border-radius: 50%;
+    }
+
+    /* ─── ZONA ESQUERDA ─────────────────────────────────────────── */
+    .zone-left {
+      grid-row: 1 / 3;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    /* PERFIL CARD */
+    .profile-hud {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 10px;
+    }
+    .avatar-ring {
+      position: relative; width: 90px; height: 90px;
+    }
+    .avatar-ring img {
+      width: 90px; height: 90px; border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid transparent;
+      background-clip: padding-box;
+    }
+    .avatar-ring::before {
+      content: ''; position: absolute; inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(var(--azul) 0%, var(--verde) 40%, var(--amarelo) 70%, var(--azul) 100%);
+      animation: spin-ring 6s linear infinite;
+      z-index: -1;
+    }
+    .avatar-ring::after {
+      content: ''; position: absolute; inset: -3px;
+      border-radius: 50%;
+      background: conic-gradient(var(--azul) 0%, var(--verde) 40%, var(--amarelo) 70%, var(--azul) 100%);
+      filter: blur(8px); opacity: .6;
+      animation: spin-ring 6s linear infinite;
+      z-index: -2;
+    }
+    @keyframes spin-ring {
+      to { transform: rotate(360deg); }
+    }
+
+    .player-name {
+      font-size: 17px; font-weight: 800;
+      color: var(--txt); line-height: 1.2;
+    }
+    .player-instrument {
+      font-size: 12px; color: var(--ciano);
+      background: rgba(6,182,212,0.1);
+      border: 1px solid rgba(6,182,212,0.25);
+      border-radius: 20px; padding: 3px 12px;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+
+    .level-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 20px; padding: 4px 14px;
+      font-size: 13px; font-weight: 800; color: var(--amarelo);
+    }
+    .level-badge .star { font-size: 14px; }
+
+    /* XP bar */
+    .xp-section { width: 100%; }
+    .xp-header {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--txt2); margin-bottom: 6px;
+    }
+    .xp-bar {
+      width: 100%; height: 8px; background: var(--bg3);
+      border-radius: 99px; overflow: hidden;
+    }
+    .xp-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, var(--azul), var(--ciano));
+      box-shadow: 0 0 8px var(--azul-glow);
+      animation: fill-xp 1.2s cubic-bezier(.4,0,.2,1) forwards;
+      transform-origin: left;
+    }
+    @keyframes fill-xp { from { width: 0; } }
+
+    /* Atributos RPG */
+    .attr-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      width: 100%;
+    }
+    .attr-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .attr-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      color: var(--txt3); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .attr-value {
+      font-size: 22px; font-weight: 900; line-height: 1;
+    }
+    .attr-value.blue { color: var(--azul); text-shadow: 0 0 10px var(--azul-glow); }
+    .attr-value.purple { color: var(--roxo); text-shadow: 0 0 10px var(--roxo-glow); }
+    .attr-sub {
+      font-size: 10px; color: var(--txt2); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .attr-bar {
+      height: 3px; background: var(--bg); border-radius: 99px;
+      overflow: hidden; margin-top: 6px;
+    }
+    .attr-bar-fill { height: 100%; border-radius: 99px; }
+    .attr-bar-fill.blue  { background: var(--azul); }
+    .attr-bar-fill.purple{ background: var(--roxo); }
+
+    /* Barras de vida */
+    .vita-section { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .vita-row { display: flex; flex-direction: column; gap: 4px; }
+    .vita-header {
+      display: flex; justify-content: space-between;
+      font-size: 11px;
+    }
+    .vita-label { color: var(--txt2); }
+    .vita-pct { font-weight: 700; }
+    .vita-track {
+      width: 100%; height: 10px; background: var(--bg3);
+      border-radius: 99px; overflow: hidden; position: relative;
+    }
+    .vita-fill {
+      height: 100%; border-radius: 99px;
+      animation: fill-bar 1.4s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes fill-bar { from { width: 0 !important; } }
+    .vita-fill.blue  { background: linear-gradient(90deg,var(--azul),var(--ciano)); box-shadow: 0 0 6px var(--azul-glow); }
+    .vita-fill.green { background: linear-gradient(90deg,var(--verde),#86efac);   box-shadow: 0 0 6px var(--verde-glow); }
+    .vita-fill.yellow{ background: linear-gradient(90deg,var(--amarelo),#fcd34d); box-shadow: 0 0 6px var(--amar-glow); }
+    .vita-fill.red   { background: linear-gradient(90deg,var(--vermelho),#f87171);}
+
+    .vita-pct.blue  { color: var(--azul); }
+    .vita-pct.green { color: var(--verde); }
+    .vita-pct.yellow{ color: var(--amarelo); }
+    .vita-pct.red   { color: var(--vermelho); }
+
+    /* ─── ZONA CENTRAL ──────────────────────────────────────────── */
+    .zone-center {
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    /* GAUGE ROW */
+    .gauge-row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .gauge-row { grid-template-columns: 1fr; }
+    }
+    .gauge-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px;
+    }
+    .gauge-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      color: var(--txt3); text-transform: uppercase;
+    }
+    .gauge-value {
+      font-size: 38px; font-weight: 900; line-height: 1;
+      color: var(--amarelo);
+      text-shadow: 0 0 20px var(--amar-glow);
+    }
+    .gauge-sub { font-size: 12px; color: var(--txt2); }
+
+    /* Stats right of gauge */
+    .stats-quick {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .stat-chip {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .stat-chip-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      color: var(--txt3); text-transform: uppercase;
+    }
+    .stat-chip-val {
+      font-size: 24px; font-weight: 900; line-height: 1;
+    }
+    .stat-chip-sub { font-size: 10px; color: var(--txt2); }
+    .stat-chip-val.blue   { color: var(--azul); text-shadow: 0 0 8px var(--azul-glow); }
+    .stat-chip-val.green  { color: var(--verde); text-shadow: 0 0 8px var(--verde-glow); }
+    .stat-chip-val.yellow { color: var(--amarelo); text-shadow: 0 0 8px var(--amar-glow); }
+    .stat-chip-val.ciano  { color: var(--ciano);  text-shadow: 0 0 8px var(--ciano-glow); }
+    .stat-chip-val.purple { color: var(--roxo);   text-shadow: 0 0 8px var(--roxo-glow); }
+
+    /* SPARKLINE */
+    .chart-wrap { width: 100%; height: 160px; position: relative; }
+
+    /* RANKING + VS TURMA ROW */
+    .rank-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    @media (max-width: 800px) { .rank-row { grid-template-columns: 1fr; } }
+
+    /* Ranking */
+    .rank-list { display: flex; flex-direction: column; gap: 8px; }
+    .rank-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px;
+      background: var(--bg3); border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: all .2s;
+    }
+    .rank-item.me {
+      border-color: var(--amarelo);
+      background: rgba(245,158,11,0.07);
+      box-shadow: 0 0 12px rgba(245,158,11,0.12);
+    }
+    .rank-pos {
+      font-size: 16px; font-weight: 900; width: 28px; text-align: center;
+    }
+    .rank-medal { font-size: 18px; }
+    .rank-info { flex: 1; }
+    .rank-name { font-size: 13px; font-weight: 600; }
+    .rank-sub  { font-size: 11px; color: var(--txt2); }
+    .rank-score {
+      font-size: 14px; font-weight: 800; color: var(--amarelo);
+    }
+
+    /* VS Turma */
+    .vs-list { display: flex; flex-direction: column; gap: 8px; }
+    .vs-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg3); border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .vs-metric { font-size: 12px; color: var(--txt2); }
+    .vs-vals { display: flex; gap: 6px; align-items: center; }
+    .vs-val { font-size: 15px; font-weight: 800; }
+    .vs-chip {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 20px;
+    }
+    .vs-chip.above { background: rgba(34,197,94,0.15); color: var(--verde); }
+    .vs-chip.below { background: rgba(239,68,68,0.15);  color: var(--vermelho); }
+    .vs-chip.equal { background: rgba(148,163,184,0.15);color: var(--txt2); }
+
+    /* ─── ZONA DIREITA ──────────────────────────────────────────── */
+    .zone-right {
+      grid-row: 1 / 3;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    /* MISSÕES */
+    .mission-list { display: flex; flex-direction: column; gap: 8px; }
+    .mission-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .mission-header {
+      display: flex; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .mission-name { font-size: 12px; font-weight: 600; }
+    .mission-pct  { font-size: 12px; font-weight: 800; }
+    .mission-bar  {
+      height: 5px; background: var(--bg); border-radius: 99px; overflow: hidden;
+    }
+    .mission-fill {
+      height: 100%; border-radius: 99px;
+      animation: fill-bar 1.4s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    .mission-fill.green  { background: var(--verde); box-shadow: 0 0 5px var(--verde-glow); }
+    .mission-fill.yellow { background: var(--amarelo); box-shadow: 0 0 5px var(--amar-glow); }
+    .mission-fill.blue   { background: var(--azul); box-shadow: 0 0 5px var(--azul-glow); }
+    .mission-fill.red    { background: var(--vermelho); }
+    .mission-sub {
+      font-size: 10px; color: var(--txt2); margin-top: 4px;
+    }
+
+    /* AGENDA */
+    .agenda-list { display: flex; flex-direction: column; gap: 8px; }
+    .agenda-item {
+      display: flex; gap: 12px; align-items: center;
+      padding: 10px 12px;
+      background: var(--bg3); border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .agenda-date {
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 8px;
+      padding: 4px 10px; min-width: 44px;
+    }
+    .agenda-day { font-size: 20px; font-weight: 900; color: var(--azul); line-height: 1; }
+    .agenda-mon { font-size: 9px; font-weight: 700; color: var(--txt2); text-transform: uppercase; }
+    .agenda-info { flex: 1; }
+    .agenda-title { font-size: 12px; font-weight: 600; }
+    .agenda-sub   { font-size: 10px; color: var(--txt2); margin-top: 2px; }
+    .agenda-countdown {
+      font-size: 10px; font-weight: 700;
+      background: rgba(168,85,247,0.12);
+      border: 1px solid rgba(168,85,247,0.25);
+      color: var(--roxo); padding: 3px 8px; border-radius: 20px;
+    }
+
+    /* STREAK */
+    .streak-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .streak-fire {
+      font-size: 28px;
+      filter: drop-shadow(0 0 8px var(--amar-glow));
+      animation: bounce-fire .8s ease-in-out infinite alternate;
+    }
+    @keyframes bounce-fire {
+      from { transform: scale(1) translateY(0); }
+      to   { transform: scale(1.1) translateY(-3px); }
+    }
+    .streak-count {
+      font-size: 32px; font-weight: 900; color: var(--amarelo);
+      text-shadow: 0 0 15px var(--amar-glow);
+    }
+    .streak-label { font-size: 11px; color: var(--txt2); }
+    .streak-months {
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+    }
+    .streak-month {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .streak-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+      border: 2px solid;
+      transition: all .3s;
+    }
+    .streak-circle.hit {
+      background: rgba(34,197,94,0.15);
+      border-color: var(--verde);
+      color: var(--verde);
+      box-shadow: 0 0 8px var(--verde-glow);
+    }
+    .streak-circle.miss {
+      background: rgba(239,68,68,0.1);
+      border-color: rgba(239,68,68,0.3);
+      color: rgba(239,68,68,0.5);
+    }
+    .streak-circle.current {
+      background: rgba(245,158,11,0.15);
+      border-color: var(--amarelo);
+      color: var(--amarelo);
+      box-shadow: 0 0 10px var(--amar-glow);
+      animation: pulse-curr 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-curr {
+      0%,100% { box-shadow: 0 0 8px var(--amar-glow); }
+      50%      { box-shadow: 0 0 18px var(--amar-glow); }
+    }
+    .streak-circle.future {
+      background: var(--bg3); border-color: var(--border); color: var(--txt3);
+    }
+    .streak-month-name { font-size: 8px; color: var(--txt3); text-transform: uppercase; }
+
+    /* ANÁLISE AUTOMÁTICA */
+    .analise-box {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 12px; line-height: 1.7; color: var(--txt2);
+    }
+    .analise-box strong { color: var(--txt); }
+    .analise-tag {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 6px; margin: 3px 3px 3px 0;
+    }
+    .analise-tag.pos { background: rgba(34,197,94,0.15); color: var(--verde); }
+    .analise-tag.warn { background: rgba(245,158,11,0.15); color: var(--amarelo); }
+    .analise-tag.info { background: rgba(59,130,246,0.15); color: var(--azul); }
+
+    /* CONQUISTAS STRIP */
+    .achievements-strip {
+      grid-column: 1 / -1;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .achievements-row {
+      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+    }
+    .achievements-row::-webkit-scrollbar { height: 4px; }
+    .achievements-row::-webkit-scrollbar-track { background: var(--bg3); border-radius: 99px; }
+    .achievements-row::-webkit-scrollbar-thumb { background: var(--azul); border-radius: 99px; }
+
+    .badge-card {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 12px 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px; cursor: pointer;
+      transition: all .25s;
+      min-width: 80px;
+    }
+    .badge-card:hover {
+      border-color: var(--amarelo);
+      box-shadow: 0 0 14px rgba(245,158,11,0.2);
+      transform: translateY(-2px);
+    }
+    .badge-card.locked { opacity: .3; filter: grayscale(1); }
+    .badge-emoji { font-size: 24px; }
+    .badge-name { font-size: 9px; font-weight: 700; color: var(--txt2); text-align: center; text-transform: uppercase; letter-spacing: .5px; }
+
+    /* ─── RELATORIO INFO BAR ────────────────────────────────────── */
+    .report-bar {
+      grid-column: 1 / -1;
+      display: flex; gap: 10px; overflow-x: auto;
+      padding: 0 0 4px;
+    }
+    .report-bar::-webkit-scrollbar { height: 4px; }
+    .report-bar::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 99px; }
+    .rbar-chip {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 14px;
+    }
+    .rbar-icon { font-size: 16px; }
+    .rbar-info { display: flex; flex-direction: column; }
+    .rbar-val { font-size: 15px; font-weight: 800; }
+    .rbar-val.blue   { color: var(--azul); }
+    .rbar-val.green  { color: var(--verde); }
+    .rbar-val.yellow { color: var(--amarelo); }
+    .rbar-val.purple { color: var(--roxo); }
+    .rbar-key { font-size: 9px; color: var(--txt3); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ─── SECTION DIVIDER ───────────────────────────────────────── */
+    .section-divider {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 10px;
+      color: var(--txt3); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .section-divider::before, .section-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ─── ANIMAÇÃO ENTRADA ──────────────────────────────────────── */
+    .hud-card, .rbar-chip, .badge-card {
+      animation: fadeSlideIn .5s ease both;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hud-card:nth-child(1) { animation-delay: .05s; }
+    .hud-card:nth-child(2) { animation-delay: .10s; }
+    .hud-card:nth-child(3) { animation-delay: .15s; }
+    .hud-card:nth-child(4) { animation-delay: .20s; }
+    .hud-card:nth-child(5) { animation-delay: .25s; }
+    .hud-card:nth-child(6) { animation-delay: .30s; }
+
+    /* ─── MOBILE NAV ────────────────────────────────────────────── */
+    .bottom-nav {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(10,12,16,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 8px 0 14px;
+    }
+    .bottom-nav-inner {
+      display: flex; justify-content: space-around;
+    }
+    .bnav-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; color: var(--txt2); text-decoration: none;
+      font-size: 10px;
+    }
+    .bnav-item.active { color: var(--azul); }
+    .bnav-item i { font-size: 18px; }
+    @media (max-width: 720px) { .bottom-nav { display: block; } }
+  </style>
+</head>
+<body>
+
+<!-- ╔════════════════════════════════════════════════╗ -->
+<!-- ║  TOPBAR                                        ║ -->
+<!-- ╚════════════════════════════════════════════════╝ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">🎵 FA</span>
+    <div class="topbar-sep"></div>
+    <span class="topbar-name">Lucas Oliveira</span>
+    <span class="topbar-instrument">🎺 Trompete</span>
+  </div>
+  <div class="topbar-right">
+    <div class="status-chip online">
+      <span class="dot"></span> Online
+    </div>
+    <a href="aluno.html" class="topbar-back">← Painel atual</a>
+  </div>
+</header>
+
+<!-- ╔════════════════════════════════════════════════╗ -->
+<!-- ║  BARRA DE RESUMO DO RELATÓRIO MENSAL           ║ -->
+<!-- ╚════════════════════════════════════════════════╝ -->
+<div style="padding: 12px 20px 0; max-width: 1400px; margin: 0 auto;">
+  <div class="report-bar">
+    <div class="rbar-chip">
+      <span class="rbar-icon">📅</span>
+      <div class="rbar-info">
+        <span class="rbar-val yellow">Abril 2026</span>
+        <span class="rbar-key">Mês atual</span>
+      </div>
+    </div>
+    <div class="rbar-chip">
+      <span class="rbar-icon">✅</span>
+      <div class="rbar-info">
+        <span class="rbar-val green">8 / 10</span>
+        <span class="rbar-key">Ensaios presentes</span>
+      </div>
+    </div>
+    <div class="rbar-chip">
+      <span class="rbar-icon">📝</span>
+      <div class="rbar-info">
+        <span class="rbar-val blue">6</span>
+        <span class="rbar-key">Lições enviadas</span>
+      </div>
+    </div>
+    <div class="rbar-chip">
+      <span class="rbar-icon">⭐</span>
+      <div class="rbar-info">
+        <span class="rbar-val yellow">4.8</span>
+        <span class="rbar-key">Nota média</span>
+      </div>
+    </div>
+    <div class="rbar-chip">
+      <span class="rbar-icon">🏅</span>
+      <div class="rbar-info">
+        <span class="rbar-val purple">3°</span>
+        <span class="rbar-key">Ranking turma</span>
+      </div>
+    </div>
+    <div class="rbar-chip">
+      <span class="rbar-icon">📈</span>
+      <div class="rbar-info">
+        <span class="rbar-val green">+2 níveis</span>
+        <span class="rbar-key">Evolução no mês</span>
+      </div>
+    </div>
+    <div class="rbar-chip">
+      <span class="rbar-icon">🎯</span>
+      <div class="rbar-info">
+        <span class="rbar-val blue">2 / 3</span>
+        <span class="rbar-key">Metas concluídas</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔════════════════════════════════════════════════╗ -->
+<!-- ║  HUD GRID PRINCIPAL                            ║ -->
+<!-- ╚════════════════════════════════════════════════╝ -->
+<div class="hud-grid">
+
+  <!-- ══════════════════════════════════════════════
+       ZONA ESQUERDA — Ficha do Personagem
+  ══════════════════════════════════════════════ -->
+  <div class="zone-left">
+
+    <!-- Perfil -->
+    <div class="hud-card">
+      <div class="profile-hud">
+        <div class="avatar-ring">
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed=Lucas+Oliveira&backgroundColor=1e3a5f" alt="Avatar">
+        </div>
+        <div class="player-name">Lucas Oliveira</div>
+        <div class="player-instrument">🎺 Trompete</div>
+        <div class="level-badge"><span class="star">⭐</span> Nível Geral 12</div>
+
+        <!-- XP bar -->
+        <div class="xp-section">
+          <div class="xp-header">
+            <span>Progresso XP</span>
+            <span style="color:var(--ciano)">720 / 1000 XP</span>
+          </div>
+          <div class="xp-bar">
+            <div class="xp-fill" style="width:72%"></div>
+          </div>
+        </div>
+
+        <!-- Atributos RPG -->
+        <div class="attr-grid">
+          <div class="attr-card">
+            <div class="attr-label">Leitura</div>
+            <div class="attr-value blue">7</div>
+            <div class="attr-sub">Método Breeze</div>
+            <div class="attr-bar"><div class="attr-bar-fill blue" style="width:70%"></div></div>
+          </div>
+          <div class="attr-card">
+            <div class="attr-label">Método</div>
+            <div class="attr-value purple">5</div>
+            <div class="attr-sub">Arban Completo</div>
+            <div class="attr-bar"><div class="attr-bar-fill purple" style="width:50%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barras de Vida -->
+    <div class="hud-card">
+      <div class="card-label">
+        <span class="dot-accent" style="background:var(--verde)"></span>
+        Frequência
+      </div>
+      <div class="vita-section">
+        <div class="vita-row">
+          <div class="vita-header">
+            <span class="vita-label">Anual 2026</span>
+            <span class="vita-pct blue">85%</span>
+          </div>
+          <div class="vita-track">
+            <div class="vita-fill blue" style="width:85%"></div>
+          </div>
+        </div>
+        <div class="vita-row">
+          <div class="vita-header">
+            <span class="vita-label">Mensal Abril</span>
+            <span class="vita-pct green">80%</span>
+          </div>
+          <div class="vita-track">
+            <div class="vita-fill green" style="width:80%"></div>
+          </div>
+        </div>
+        <div class="vita-row">
+          <div class="vita-header">
+            <span class="vita-label">Lições enviadas</span>
+            <span class="vita-pct yellow">60%</span>
+          </div>
+          <div class="vita-track">
+            <div class="vita-fill yellow" style="width:60%"></div>
+          </div>
+        </div>
+        <div class="vita-row">
+          <div class="vita-header">
+            <span class="vita-label">Nota média</span>
+            <span class="vita-pct green">96%</span>
+          </div>
+          <div class="vita-track">
+            <div class="vita-fill green" style="width:96%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- fim zone-left -->
+
+  <!-- ══════════════════════════════════════════════
+       ZONA CENTRAL
+  ══════════════════════════════════════════════ -->
+  <div class="zone-center">
+
+    <!-- Gauge + Quick Stats -->
+    <div class="hud-card">
+      <div class="gauge-row">
+        <!-- Gauge -->
+        <div class="gauge-wrap">
+          <div class="gauge-label">Nível Geral</div>
+          <canvas id="gaugeChart" width="180" height="180"></canvas>
+          <div class="gauge-value" style="margin-top:-20px">12</div>
+          <div class="gauge-sub">de 20 níveis</div>
+        </div>
+        <!-- Quick Stats -->
+        <div class="stats-quick">
+          <div class="stat-chip">
+            <span class="stat-chip-label">Comprometimento</span>
+            <span class="stat-chip-val yellow">85%</span>
+            <span class="stat-chip-sub">↑ +5% vs mês ant.</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip-label">Leitura</span>
+            <span class="stat-chip-val blue">Nv. 7</span>
+            <span class="stat-chip-sub">Breeze Easy</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip-label">Método</span>
+            <span class="stat-chip-val purple">Nv. 5</span>
+            <span class="stat-chip-sub">Arban Cap. 5</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip-label">Ensaios</span>
+            <span class="stat-chip-val green">8/10</span>
+            <span class="stat-chip-sub">Abril</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip-label">Lições</span>
+            <span class="stat-chip-val ciano">6</span>
+            <span class="stat-chip-sub">enviadas</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip-label">Streak</span>
+            <span class="stat-chip-val yellow">🔥 4</span>
+            <span class="stat-chip-sub">meses seguidos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sparkline Evolução -->
+    <div class="hud-card">
+      <div class="card-label">
+        <span class="dot-accent" style="background:var(--ciano)"></span>
+        Evolução Técnica — Últimos 6 Meses
+      </div>
+      <div class="chart-wrap">
+        <canvas id="sparklineChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Ranking + VS Turma -->
+    <div class="rank-row">
+      <!-- Ranking -->
+      <div class="hud-card">
+        <div class="card-label">
+          <span class="dot-accent" style="background:var(--amarelo)"></span>
+          🏅 Ranking na Turma
+        </div>
+        <div class="rank-list">
+          <div class="rank-item">
+            <span class="rank-pos" style="color:var(--amarelo)">1°</span>
+            <span class="rank-medal">🥇</span>
+            <div class="rank-info">
+              <div class="rank-name">Mariana Costa</div>
+              <div class="rank-sub">Flauta · Nv. 14</div>
+            </div>
+            <span class="rank-score">940 XP</span>
+          </div>
+          <div class="rank-item">
+            <span class="rank-pos" style="color:var(--txt2)">2°</span>
+            <span class="rank-medal">🥈</span>
+            <div class="rank-info">
+              <div class="rank-name">Pedro Lima</div>
+              <div class="rank-sub">Clarinete · Nv. 13</div>
+            </div>
+            <span class="rank-score">870 XP</span>
+          </div>
+          <div class="rank-item me">
+            <span class="rank-pos" style="color:var(--amarelo)">3°</span>
+            <span class="rank-medal">🥉</span>
+            <div class="rank-info">
+              <div class="rank-name">Você — Lucas</div>
+              <div class="rank-sub">Trompete · Nv. 12</div>
+            </div>
+            <span class="rank-score">720 XP</span>
+          </div>
+          <div class="rank-item">
+            <span class="rank-pos" style="color:var(--txt3)">4°</span>
+            <span class="rank-medal">👤</span>
+            <div class="rank-info">
+              <div class="rank-name">Ana Souza</div>
+              <div class="rank-sub">Violino · Nv. 11</div>
+            </div>
+            <span class="rank-score">680 XP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VS Turma -->
+      <div class="hud-card">
+        <div class="card-label">
+          <span class="dot-accent" style="background:var(--ciano)"></span>
+          📊 Você vs Média da Turma
+        </div>
+        <div class="vs-list">
+          <div class="vs-item">
+            <span class="vs-metric">Frequência mensal</span>
+            <div class="vs-vals">
+              <span class="vs-val" style="color:var(--verde)">80%</span>
+              <span class="vs-chip above">▲ +5%</span>
+            </div>
+          </div>
+          <div class="vs-item">
+            <span class="vs-metric">Nível geral</span>
+            <div class="vs-vals">
+              <span class="vs-val" style="color:var(--azul)">12</span>
+              <span class="vs-chip above">▲ +2</span>
+            </div>
+          </div>
+          <div class="vs-item">
+            <span class="vs-metric">Lições enviadas</span>
+            <div class="vs-vals">
+              <span class="vs-val" style="color:var(--txt2)">6</span>
+              <span class="vs-chip equal">● Média</span>
+            </div>
+          </div>
+          <div class="vs-item">
+            <span class="vs-metric">Nota média</span>
+            <div class="vs-vals">
+              <span class="vs-val" style="color:var(--verde)">4.8</span>
+              <span class="vs-chip above">▲ +0.6</span>
+            </div>
+          </div>
+          <div class="vs-item">
+            <span class="vs-metric">Comprometimento</span>
+            <div class="vs-vals">
+              <span class="vs-val" style="color:var(--amarelo)">85%</span>
+              <span class="vs-chip above">▲ +10%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- fim rank-row -->
+
+  </div>
+  <!-- fim zone-center -->
+
+  <!-- ══════════════════════════════════════════════
+       ZONA DIREITA
+  ══════════════════════════════════════════════ -->
+  <div class="zone-right">
+
+    <!-- Missões Ativas -->
+    <div class="hud-card">
+      <div class="card-label">
+        <span class="dot-accent" style="background:var(--verde)"></span>
+        🎯 Missões de Abril
+      </div>
+      <div class="mission-list">
+        <div class="mission-item">
+          <div class="mission-header">
+            <span class="mission-name">Atingir 90% de frequência</span>
+            <span class="mission-pct" style="color:var(--amarelo)">80%</span>
+          </div>
+          <div class="mission-bar"><div class="mission-fill yellow" style="width:80%"></div></div>
+          <div class="mission-sub">2 ensaios restantes no mês</div>
+        </div>
+        <div class="mission-item">
+          <div class="mission-header">
+            <span class="mission-name">Avançar para Leitura Nv.8</span>
+            <span class="mission-pct" style="color:var(--verde)">✅ 100%</span>
+          </div>
+          <div class="mission-bar"><div class="mission-fill green" style="width:100%"></div></div>
+          <div class="mission-sub">Meta concluída! 🎉</div>
+        </div>
+        <div class="mission-item">
+          <div class="mission-header">
+            <span class="mission-name">Enviar 8 lições no mês</span>
+            <span class="mission-pct" style="color:var(--azul)">75%</span>
+          </div>
+          <div class="mission-bar"><div class="mission-fill blue" style="width:75%"></div></div>
+          <div class="mission-sub">6 de 8 enviadas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agenda -->
+    <div class="hud-card">
+      <div class="card-label">
+        <span class="dot-accent" style="background:var(--azul)"></span>
+        📅 Próximos Ensaios
+      </div>
+      <div class="agenda-list">
+        <div class="agenda-item">
+          <div class="agenda-date">
+            <span class="agenda-day">05</span>
+            <span class="agenda-mon">ABR</span>
+          </div>
+          <div class="agenda-info">
+            <div class="agenda-title">Ensaio Geral — Sede</div>
+            <div class="agenda-sub">Sáb · 09h → 12h</div>
+          </div>
+          <span class="agenda-countdown">2 dias</span>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-date">
+            <span class="agenda-day">10</span>
+            <span class="agenda-mon">ABR</span>
+          </div>
+          <div class="agenda-info">
+            <div class="agenda-title">Ensaio Naipes — Metais</div>
+            <div class="agenda-sub">Qui · 19h → 21h</div>
+          </div>
+          <span class="agenda-countdown">7 dias</span>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-date">
+            <span class="agenda-day">19</span>
+            <span class="agenda-mon">ABR</span>
+          </div>
+          <div class="agenda-info">
+            <div class="agenda-title">Apresentação Pública</div>
+            <div class="agenda-sub">Sáb · 15h → 18h</div>
+          </div>
+          <span class="agenda-countdown">16 dias</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Streak -->
+    <div class="hud-card">
+      <div class="card-label">
+        <span class="dot-accent" style="background:var(--amarelo)"></span>
+        Sequência de Comprometimento
+      </div>
+      <div class="streak-header">
+        <div>
+          <div class="streak-count">🔥 4</div>
+          <div class="streak-label">meses consecutivos acima de 75%</div>
+        </div>
+      </div>
+      <div class="streak-months">
+        <div class="streak-month">
+          <div class="streak-circle hit">✓</div>
+          <span class="streak-month-name">Jan</span>
+        </div>
+        <div class="streak-month">
+          <div class="streak-circle miss">✗</div>
+          <span class="streak-month-name">Fev</span>
+        </div>
+        <div class="streak-month">
+          <div class="streak-circle hit">✓</div>
+          <span class="streak-month-name">Mar</span>
+        </div>
+        <div class="streak-month">
+          <div class="streak-circle hit">✓</div>
+          <span class="streak-month-name">Abr</span>
+        </div>
+        <div class="streak-month">
+          <div class="streak-circle hit">✓</div>
+          <span class="streak-month-name">Mai</span>
+        </div>
+        <div class="streak-month">
+          <div class="streak-circle current">?</div>
+          <span class="streak-month-name">Jun</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Análise Automática -->
+    <div class="hud-card">
+      <div class="card-label">
+        <span class="dot-accent" style="background:var(--roxo)"></span>
+        🤖 Análise do Mês
+      </div>
+      <div class="analise-box">
+        <p>Lucas, você teve um <strong>ótimo desempenho</strong> em Abril. Sua frequência de <strong>80%</strong> está acima da média da turma.</p>
+        <br>
+        <p>Pontos de destaque:</p>
+        <span class="analise-tag pos">✅ Frequência acima da média</span>
+        <span class="analise-tag pos">✅ Meta de leitura atingida</span>
+        <span class="analise-tag warn">⚠️ Faltam 2 lições para a meta</span>
+        <span class="analise-tag info">📈 +2 níveis no mês</span>
+      </div>
+    </div>
+
+  </div>
+  <!-- fim zone-right -->
+
+  <!-- ══════════════════════════════════════════════
+       FAIXA DE CONQUISTAS
+  ══════════════════════════════════════════════ -->
+  <div class="section-divider">🏆 Conquistas</div>
+  <div class="achievements-strip">
+    <div class="achievements-row">
+      <div class="badge-card"><span class="badge-emoji">🎯</span><span class="badge-name">100% Presença</span></div>
+      <div class="badge-card"><span class="badge-emoji">⭐</span><span class="badge-name">Nível 10</span></div>
+      <div class="badge-card"><span class="badge-emoji">🔥</span><span class="badge-name">Streak 3</span></div>
+      <div class="badge-card"><span class="badge-emoji">📝</span><span class="badge-name">10 Lições</span></div>
+      <div class="badge-card"><span class="badge-emoji">🎺</span><span class="badge-name">Metais</span></div>
+      <div class="badge-card"><span class="badge-emoji">🏅</span><span class="badge-name">Top 3</span></div>
+      <div class="badge-card locked"><span class="badge-emoji">💎</span><span class="badge-name">Nível 20</span></div>
+      <div class="badge-card locked"><span class="badge-emoji">👑</span><span class="badge-name">Nº 1 Turma</span></div>
+      <div class="badge-card locked"><span class="badge-emoji">🌟</span><span class="badge-name">Streak 12</span></div>
+      <div class="badge-card locked"><span class="badge-emoji">🎼</span><span class="badge-name">50 Lições</span></div>
+    </div>
+  </div>
+
+</div>
+<!-- fim hud-grid -->
+
+<!-- Mobile Nav -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a href="aluno.html" class="bnav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="painel-social.html" class="bnav-item"><i class="fas fa-users"></i><span>Turma</span></a>
+    <a href="biblioteca.html" class="bnav-item"><i class="fas fa-book"></i><span>Biblioteca</span></a>
+    <a href="atividades.html" class="bnav-item"><i class="fas fa-clipboard-list"></i><span>Atividades</span></a>
+  </div>
+</nav>
+
+<script>
+// ─── GAUGE CHART ────────────────────────────────────────────
+const gCtx = document.getElementById('gaugeChart').getContext('2d');
+new Chart(gCtx, {
+  type: 'doughnut',
+  data: {
+    datasets: [{
+      data: [12, 8],
+      backgroundColor: ['#f59e0b', 'rgba(255,255,255,0.05)'],
+      borderColor: ['#f59e0b', 'rgba(255,255,255,0.03)'],
+      borderWidth: 1,
+      circumference: 270,
+      rotation: 225,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    cutout: '75%',
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    animation: { animateRotate: true, duration: 1200 }
+  }
+});
+
+// ─── SPARKLINE EVOLUÇÃO ──────────────────────────────────────
+const sCtx = document.getElementById('sparklineChart').getContext('2d');
+new Chart(sCtx, {
+  type: 'line',
+  data: {
+    labels: ['Nov', 'Dez', 'Jan', 'Fev', 'Mar', 'Abr'],
+    datasets: [
+      {
+        label: 'Leitura',
+        data: [4, 5, 5, 6, 7, 7],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.08)',
+        borderWidth: 2, pointRadius: 4,
+        pointBackgroundColor: '#3b82f6',
+        tension: 0.4, fill: true
+      },
+      {
+        label: 'Método',
+        data: [2, 3, 3, 4, 4, 5],
+        borderColor: '#a855f7',
+        backgroundColor: 'rgba(168,85,247,0.08)',
+        borderWidth: 2, pointRadius: 4,
+        pointBackgroundColor: '#a855f7',
+        tension: 0.4, fill: true
+      },
+      {
+        label: 'Comprometimento',
+        data: [60, 72, 65, 78, 80, 85],
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.06)',
+        borderWidth: 2, pointRadius: 4,
+        pointBackgroundColor: '#f59e0b',
+        tension: 0.4, fill: true,
+        yAxisID: 'y2'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#64748b', font: { size: 11 } }
+      },
+      y: {
+        min: 0, max: 20,
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: '#64748b', font: { size: 11 }, stepSize: 5 }
+      },
+      y2: {
+        position: 'right', min: 0, max: 100,
+        grid: { display: false },
+        ticks: { color: '#64748b', font: { size: 11 }, callback: v => v + '%' }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12 }
+      },
+      tooltip: {
+        backgroundColor: '#161b26',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        titleColor: '#e2e8f0',
+        bodyColor: '#94a3b8'
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
