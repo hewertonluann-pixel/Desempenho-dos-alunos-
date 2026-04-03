@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview — Novos Painéis do Aluno</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --card: #0b1220;
+      --card-alt: #0f172a;
+      --border: rgba(56,189,248,0.25);
+      --ink: #e2e8f0;
+      --muted: #94a3b8;
+      --azul: #0ea5e9;
+      --azul-escuro: #1e293b;
+      --azul-suave: rgba(56,189,248,0.2);
+      --verde: #22c55e;
+      --verde-suave: rgba(34,197,94,0.25);
+      --amarelo: #facc15;
+      --vermelho: #ef4444;
+    }
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #000 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: rgba(11,18,32,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-title { color: var(--azul); font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .topbar-badge {
+      background: rgba(34,197,94,0.15);
+      color: #22c55e;
+      border: 1px solid rgba(34,197,94,0.35);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .btn-voltar {
+      background: var(--azul-escuro);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .2s, border-color .2s;
+    }
+    .btn-voltar:hover { color: var(--azul); border-color: var(--azul-suave); }
+
+    /* ── WRAPPER ── */
+    .page-wrapper { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 40px 0 14px;
+    }
+    .section-label-num {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--azul), #22d3ee);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+    }
+    .section-label-text { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+    .section-label-sub  { font-size: 0.8rem; color: var(--muted); margin-left: 4px; }
+
+    /* ── CARD BASE ── */
+    .card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+    }
+    .card h2 {
+      margin: 0 0 18px;
+      color: var(--azul);
+      font-size: 1.15rem;
+      border-bottom: 1px solid var(--azul-suave);
+      padding-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ════════════════════════════════════════
+       PAINEL 1 — RANKING NA TURMA
+    ════════════════════════════════════════ */
+    .ranking-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .rank-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s;
+    }
+    .rank-card:hover { transform: translateY(-4px); }
+    .rank-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .rank-card.azul::before  { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+    .rank-card.verde::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .rank-card.amarelo::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .rank-card-label {
+      font-size: 0.68rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px;
+    }
+    .rank-pos {
+      font-size: 2.8rem; font-weight: 900; line-height: 1;
+    }
+    .rank-pos.ouro   { color: #d97706; text-shadow: 0 0 16px rgba(217,119,6,.4); }
+    .rank-pos.prata  { color: #94a3b8; text-shadow: 0 0 16px rgba(148,163,184,.4); }
+    .rank-pos.normal { color: var(--azul); text-shadow: 0 0 16px rgba(14,165,233,.4); }
+    .rank-total { font-size: 0.72rem; color: var(--muted); margin: 4px 0 8px; }
+    .rank-badge {
+      display: inline-block;
+      font-size: 0.68rem; font-weight: 700;
+      padding: 3px 9px; border-radius: 20px;
+    }
+    .badge-ouro   { background: rgba(253,230,138,.15); color: #fbbf24; border: 1px solid #fbbf24; }
+    .badge-prata  { background: rgba(148,163,184,.12); color: #94a3b8; border: 1px solid #94a3b8; }
+    .badge-normal { background: rgba(59,130,246,.12); color: #60a5fa; border: 1px solid #3b82f6; }
+
+    /* ════════════════════════════════════════
+       PAINEL 2 — VOCÊ VS MÉDIA DA TURMA
+    ════════════════════════════════════════ */
+    .vs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .vs-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+    .vs-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+    .vs-row { display: flex; align-items: baseline; justify-content: center; gap: 5px; margin-bottom: 6px; }
+    .vs-seu { font-size: 1.8rem; font-weight: 900; }
+    .vs-sep { font-size: 0.7rem; color: #475569; }
+    .vs-media { font-size: 0.9rem; color: var(--muted); }
+    .vs-chip {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      padding: 3px 8px; border-radius: 20px;
+    }
+    .chip-acima  { background: rgba(34,197,94,.15);  color: #22c55e; border: 1px solid rgba(34,197,94,.4); }
+    .chip-abaixo { background: rgba(239,68,68,.15);  color: #ef4444; border: 1px solid rgba(239,68,68,.4); }
+    .chip-igual  { background: rgba(245,158,11,.15); color: #f59e0b; border: 1px solid rgba(245,158,11,.4); }
+    .vs-seu.acima  { color: #22c55e; }
+    .vs-seu.abaixo { color: #ef4444; }
+    .vs-seu.igual  { color: #f59e0b; }
+
+    /* ════════════════════════════════════════
+       PAINEL 3 — METAS DO MÊS
+    ════════════════════════════════════════ */
+    .metas-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .meta-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 14px;
+    }
+    .meta-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .meta-titulo { font-size: 0.78rem; font-weight: 700; color: var(--ink); }
+    .meta-icone  { font-size: 1.3rem; }
+    .meta-valores {
+      display: flex; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .meta-val-item { text-align: center; }
+    .meta-val-label { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .meta-val-num { font-size: 1.3rem; font-weight: 800; color: var(--ink); }
+    .meta-val-item.destaque .meta-val-num { color: var(--azul); }
+    .meta-val-item.meta .meta-val-num { color: var(--amarelo); }
+    .meta-bar { background: rgba(255,255,255,.08); border-radius: 100px; height: 6px; overflow: hidden; }
+    .meta-bar-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
+    .fill-azul   { background: linear-gradient(90deg, #3b82f6, var(--azul)); }
+    .fill-verde  { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .fill-amarelo{ background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .meta-status {
+      text-align: right; font-size: 0.67rem; font-weight: 600;
+      margin-top: 5px; color: var(--muted);
+    }
+
+    /* ════════════════════════════════════════
+       PAINEL 4 — ANÁLISE AUTOMÁTICA
+    ════════════════════════════════════════ */
+    .analise-card {
+      background: linear-gradient(135deg, rgba(14,165,233,.08), rgba(34,211,238,.04));
+      border: 1px solid rgba(56,189,248,.3);
+      border-radius: 16px;
+      padding: 22px;
+    }
+    .analise-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--azul-suave);
+    }
+    .analise-mes-badge {
+      background: rgba(14,165,233,.2);
+      color: var(--azul);
+      border: 1px solid rgba(14,165,233,.4);
+      border-radius: 20px; padding: 3px 12px;
+      font-size: 0.72rem; font-weight: 700;
+    }
+    .analise-titulo-text { font-size: 1rem; font-weight: 700; color: var(--ink); }
+    .analise-texto {
+      font-size: 0.88rem; line-height: 1.7; color: #cbd5e1;
+    }
+    .analise-texto strong { color: var(--azul); }
+    .analise-highlights {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px;
+    }
+    .analise-tag {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 0.72rem; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* ════════════════════════════════════════
+       PAINEL 5 — AGENDA / PRÓXIMOS ENSAIOS
+    ════════════════════════════════════════ */
+    .agenda-list { display: flex; flex-direction: column; gap: 10px; }
+    .agenda-item {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      transition: transform .2s;
+    }
+    .agenda-item:hover { transform: translateX(4px); }
+    .agenda-item:first-child { border-color: rgba(34,197,94,.4); box-shadow: 0 0 12px rgba(34,197,94,.1); }
+    .agenda-data-box {
+      background: var(--azul-escuro);
+      border: 1px solid var(--azul-suave);
+      border-radius: 10px; padding: 8px 12px;
+      text-align: center; flex-shrink: 0; min-width: 52px;
+    }
+    .agenda-data-box.proximo {
+      background: rgba(34,197,94,.12);
+      border-color: rgba(34,197,94,.35);
+    }
+    .agenda-dia { font-size: 1.5rem; font-weight: 900; line-height: 1; color: var(--ink); }
+    .agenda-mes { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+    .agenda-info { flex: 1; }
+    .agenda-titulo { font-size: 0.9rem; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+    .agenda-subtitulo { font-size: 0.75rem; color: var(--muted); }
+    .agenda-chip {
+      font-size: 0.65rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .chip-hoje   { background: rgba(34,197,94,.15); color: #22c55e; border: 1px solid rgba(34,197,94,.4); }
+    .chip-breve  { background: rgba(14,165,233,.12); color: var(--azul); border: 1px solid var(--azul-suave); }
+    .chip-normal { background: rgba(148,163,184,.1); color: var(--muted); border: 1px solid rgba(148,163,184,.2); }
+
+    /* ════════════════════════════════════════
+       PAINEL 6 — SPARKLINE EVOLUÇÃO
+    ════════════════════════════════════════ */
+    .sparkline-card {
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+    }
+    .sparkline-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .sparkline-header-left h2 { font-size: 1.1rem; color: var(--azul); font-weight: 700; margin: 0 0 4px; }
+    .sparkline-header-left p  { font-size: 0.75rem; color: var(--muted); margin: 0; }
+    .sparkline-delta {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(34,197,94,.1);
+      border: 1px solid rgba(34,197,94,.3);
+      border-radius: 8px; padding: 6px 12px;
+    }
+    .sparkline-delta-val { font-size: 1.1rem; font-weight: 800; color: #22c55e; }
+    .sparkline-delta-label { font-size: 0.65rem; color: var(--muted); }
+    .sparkline-wrap { height: 120px; }
+    .sparkline-legend {
+      display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;
+    }
+    .sparkline-leg-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--muted); }
+    .sparkline-leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ════════════════════════════════════════
+       PAINEL 7 — STREAK / SEQUÊNCIA
+    ════════════════════════════════════════ */
+    .streak-card {
+      background: linear-gradient(135deg, rgba(245,158,11,.06), rgba(251,191,36,.04));
+      border: 1px solid rgba(245,158,11,.3);
+      border-radius: 16px;
+      padding: 22px;
+    }
+    .streak-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .streak-top h2 { font-size: 1.1rem; font-weight: 700; color: #f59e0b; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .streak-big {
+      text-align: center;
+      background: rgba(245,158,11,.1);
+      border: 2px solid rgba(245,158,11,.35);
+      border-radius: 14px; padding: 12px 20px;
+    }
+    .streak-num { font-size: 2.8rem; font-weight: 900; color: #f59e0b; line-height: 1; }
+    .streak-sub { font-size: 0.65rem; color: var(--muted); font-weight: 600; }
+    .streak-months {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .streak-month-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1; min-width: 52px;
+    }
+    .streak-circle {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 800;
+      transition: transform .2s;
+    }
+    .streak-circle:hover { transform: scale(1.1); }
+    .streak-circle.ok     { background: rgba(34,197,94,.15); border: 2px solid #22c55e; color: #22c55e; }
+    .streak-circle.fail   { background: rgba(239,68,68,.1);  border: 2px solid rgba(239,68,68,.3); color: #ef4444; }
+    .streak-circle.future { background: rgba(148,163,184,.08); border: 2px dashed rgba(148,163,184,.3); color: var(--muted); }
+    .streak-circle.atual  { background: rgba(245,158,11,.2); border: 2px solid #f59e0b; color: #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,.3); }
+    .streak-month-name { font-size: 0.6rem; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+    .streak-tip { margin-top: 14px; padding: 10px 14px; background: rgba(245,158,11,.08); border-radius: 8px; font-size: 0.78rem; color: #fcd34d; border-left: 3px solid #f59e0b; }
+
+    /* ── GRID LAYOUT ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) {
+      .two-col, .three-col { grid-template-columns: 1fr; }
+      .ranking-grid, .vs-grid, .metas-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title">
+      🎵 Painel do Aluno
+      <span class="topbar-badge">Preview — Novos Painéis</span>
+    </div>
+    <a href="aluno.html" class="btn-voltar">← Voltar ao Painel Real</a>
+  </div>
+
+  <div class="page-wrapper">
+
+    <!-- ══════════════════════════════════════════
+         PAINEL 1 — RANKING NA TURMA
+    ══════════════════════════════════════════ -->
+    <div class="section-label">
+      <div class="section-label-num">1</div>
+      <div>
+        <span class="section-label-text">🏅 Ranking na Turma</span>
+        <span class="section-label-sub">— Sua posição em relação aos outros alunos</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🏅 Ranking na Turma</h2>
+      <div class="ranking-grid">
+        <div class="rank-card azul">
+          <div class="rank-card-label">Nível Geral</div>
+          <div class="rank-pos ouro">2º</div>
+          <div class="rank-total">de 18 alunos</div>
+          <span class="rank-badge badge-ouro">🥇 Top 10%</span>
+        </div>
+        <div class="rank-card verde">
+          <div class="rank-card-label">Leitura Musical</div>
+          <div class="rank-pos prata">3º</div>
+          <div class="rank-total">de 18 alunos</div>
+          <span class="rank-badge badge-prata">🥈 Top 15%</span>
+        </div>
+        <div class="rank-card amarelo">
+          <div class="rank-card-label">Frequência</div>
+          <div class="rank-pos normal">5º</div>
+          <div class="rank-total">de 18 alunos</div>
+          <span class="rank-badge badge-normal">Top 28%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PAINEL 2 — VOCÊ VS MÉDIA DA TURMA
+    ══════════════════════════════════════════ -->
+    <div class="section-label">
+      <div class="section-label-num">2</div>
+      <div>
+        <span class="section-label-text">📊 Você vs Média da Turma</span>
+        <span class="section-label-sub">— Compare seu desempenho com o grupo</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Você vs Média da Turma</h2>
+      <div class="vs-grid">
+        <div class="vs-card">
+          <div class="vs-label">Nível Total</div>
+          <div class="vs-row">
+            <span class="vs-seu acima">28</span>
+            <span class="vs-sep">vs</span>
+            <span class="vs-media">21.4</span>
+          </div>
+          <span class="vs-chip chip-acima">▲ +6.6 pts acima</span>
+        </div>
+        <div class="vs-card">
+          <div class="vs-label">Leitura</div>
+          <div class="vs-row">
+            <span class="vs-seu acima">15</span>
+            <span class="vs-sep">vs</span>
+            <span class="vs-media">11.2</span>
+          </div>
+          <span class="vs-chip chip-acima">▲ +3.8 pts acima</span>
+        </div>
+        <div class="vs-card">
+          <div class="vs-label">Frequência</div>
+          <div class="vs-row">
+            <span class="vs-seu igual">72%</span>
+            <span class="vs-sep">vs</span>
+            <span class="vs-media">74%</span>
+          </div>
+          <span class="vs-chip chip-igual">● Na média</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PAINEL 3 — METAS DO MÊS
+    ══════════════════════════════════════════ -->
+    <div class="section-label">
+      <div class="section-label-num">3</div>
+      <div>
+        <span class="section-label-text">🎯 Metas de Abril</span>
+        <span class="section-label-sub">— Acompanhe seu progresso em tempo real</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Metas de Abril</h2>
+      <div class="metas-grid">
+        <div class="meta-card">
+          <div class="meta-header">
+            <span class="meta-titulo">Presença Mensal</span>
+            <span class="meta-icone">📅</span>
+          </div>
+          <div class="meta-valores">
+            <div class="meta-val-item">
+              <div class="meta-val-label">Atual</div>
+              <div class="meta-val-num destaque" style="color:var(--azul)">72%</div>
+            </div>
+            <div class="meta-val-item">
+              <div class="meta-val-label">Meta</div>
+              <div class="meta-val-num" style="color:var(--amarelo)">80%</div>
+            </div>
+            <div class="meta-val-item">
+              <div class="meta-val-label">Faltas</div>
+              <div class="meta-val-num" style="color:#ef4444">2</div>
+            </div>
+          </div>
+          <div class="meta-bar"><div class="meta-bar-fill fill-azul" style="width:72%"></div></div>
+          <div class="meta-status">8 pts para a meta</div>
+        </div>
+
+        <div class="meta-card">
+          <div class="meta-header">
+            <span class="meta-titulo">Lição de Leitura</span>
+            <span class="meta-icone">📖</span>
+          </div>
+          <div class="meta-valores">
+            <div class="meta-val-item">
+              <div class="meta-val-label">Atual</div>
+              <div class="meta-val-num" style="color:var(--azul)">Lição 15</div>
+            </div>
+            <div class="meta-val-item">
+              <div class="meta-val-label">Meta</div>
+              <div class="meta-val-num" style="color:var(--amarelo)">Lição 17</div>
+            </div>
+          </div>
+          <div class="meta-bar"><div class="meta-bar-fill fill-verde" style="width:55%"></div></div>
+          <div class="meta-status">2 lições restantes</div>
+        </div>
+
+        <div class="meta-card">
+          <div class="meta-header">
+            <span class="meta-titulo">Unidade do Método</span>
+            <span class="meta-icone">🎼</span>
+          </div>
+          <div class="meta-valores">
+            <div class="meta-val-item">
+              <div class="meta-val-label">Atual</div>
+              <div class="meta-val-num" style="color:var(--azul)">Unid. 13</div>
+            </div>
+            <div class="meta-val-item">
+              <div class="meta-val-label">Meta</div>
+              <div class="meta-val-num" style="color:var(--amarelo)">Unid. 15</div>
+            </div>
+          </div>
+          <div class="meta-bar"><div class="meta-bar-fill fill-amarelo" style="width:65%"></div></div>
+          <div class="meta-status">2 unidades restantes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PAINEL 4 — ANÁLISE AUTOMÁTICA
+    ══════════════════════════════════════════ -->
+    <div class="section-label">
+      <div class="section-label-num">4</div>
+      <div>
+        <span class="section-label-text">📝 Análise Automática de Desempenho</span>
+        <span class="section-label-sub">— Gerada pelo sistema com base nos seus dados</span>
+      </div>
+    </div>
+
+    <div class="analise-card">
+      <div class="analise-header">
+        <div>
+          <div class="analise-titulo-text">📝 Análise de Abril / 2026</div>
+        </div>
+        <span class="analise-mes-badge">Atualizado hoje</span>
+      </div>
+      <p class="analise-texto">
+        <strong>João</strong>, sua frequência chegou a <strong>72%</strong> neste mês — você está no caminho certo, mas precisa de mais 2 presenças para bater a meta de 80%. 
+        Sua leitura avançou de <strong>13 → 15</strong> (Bona) — excelente progresso, continue assim! 
+        No método, você está estável na <strong>Unid. 13</strong> por 2 meses — desafie-se a avançar até a Unid. 15 até o fim de abril. 
+        Seu comprometimento anual está em <strong>78%</strong>, acima da média da turma — ótimo sinal de disciplina!
+      </p>
+      <div class="analise-highlights">
+        <div class="analise-tag">✅ Leitura em alta</div>
+        <div class="analise-tag">⚠️ Método estagnado</div>
+        <div class="analise-tag">📅 Faltam 2 presenças p/ meta</div>
+        <div class="analise-tag">🏆 Acima da média anual</div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PAINEL 5 — AGENDA / PRÓXIMOS ENSAIOS
+    ══════════════════════════════════════════ -->
+    <div class="section-label">
+      <div class="section-label-num">5</div>
+      <div>
+        <span class="section-label-text">📅 Próximos Ensaios</span>
+        <span class="section-label-sub">— Não perca nenhum compromisso</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📅 Próximos Ensaios</h2>
+      <div class="agenda-list">
+        <div class="agenda-item">
+          <div class="agenda-data-box proximo">
+            <div class="agenda-dia" style="color:#22c55e">05</div>
+            <div class="agenda-mes">ABR</div>
+          </div>
+          <div class="agenda-info">
+            <div class="agenda-titulo">Ensaio Geral — Orquestra</div>
+            <div class="agenda-subtitulo">🕖 18h00 · Salão Principal</div>
+          </div>
+          <span class="agenda-chip chip-hoje">Em 2 dias</span>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-data-box">
+            <div class="agenda-dia">12</div>
+            <div class="agenda-mes">ABR</div>
+          </div>
+          <div class="agenda-info">
+            <div class="agenda-titulo">Ensaio de Naipe — Sopros</div>
+            <div class="agenda-subtitulo">🕖 17h30 · Sala B</div>
+          </div>
+          <span class="agenda-chip chip-breve">Em 9 dias</span>
+        </div>
+        <div class="agenda-item">
+          <div class="agenda-data-box">
+            <div class="agenda-dia">19</div>
+            <div class="agenda-mes">ABR</div>
+          </div>
+          <div class="agenda-info">
+            <div class="agenda-titulo">Apresentação — Culto de Jubileu</div>
+            <div class="agenda-subtitulo">🕔 16h00 · Auditório Central</div>
+          </div>
+          <span class="agenda-chip chip-normal">Em 16 dias</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PAINEL 6 + 7 — SPARKLINE + STREAK (lado a lado)
+    ══════════════════════════════════════════ -->
+    <div class="section-label">
+      <div class="section-label-num">6</div>
+      <div>
+        <span class="section-label-text">📈 Mini-Histórico de Evolução</span>
+        <span class="section-label-sub">— Últimos 6 meses em um olhar</span>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:0">
+      <div class="section-label-num">7</div>
+      <div>
+        <span class="section-label-text">🔥 Sequência de Comprometimento</span>
+        <span class="section-label-sub">— Meses consecutivos com ≥ 80% de presença</span>
+      </div>
+    </div>
+
+    <div class="two-col">
+
+      <!-- SPARKLINE -->
+      <div class="sparkline-card">
+        <div class="sparkline-header">
+          <div class="sparkline-header-left">
+            <h2>📈 Evolução dos Últimos 6 Meses</h2>
+            <p>Nível Total · Leitura · Método</p>
+          </div>
+          <div class="sparkline-delta">
+            <div>
+              <div class="sparkline-delta-val">+7</div>
+              <div class="sparkline-delta-label">pts ganhos</div>
+            </div>
+          </div>
+        </div>
+        <div class="sparkline-wrap">
+          <canvas id="chartSparkline"></canvas>
+        </div>
+        <div class="sparkline-legend">
+          <div class="sparkline-leg-item"><div class="sparkline-leg-dot" style="background:#3b82f6"></div> Nível Total</div>
+          <div class="sparkline-leg-item"><div class="sparkline-leg-dot" style="background:#22c55e"></div> Leitura</div>
+          <div class="sparkline-leg-item"><div class="sparkline-leg-dot" style="background:#f59e0b"></div> Método</div>
+        </div>
+      </div>
+
+      <!-- STREAK -->
+      <div class="streak-card">
+        <div class="streak-top">
+          <h2>🔥 Sequência de Comprometimento</h2>
+          <div class="streak-big">
+            <div class="streak-num">3</div>
+            <div class="streak-sub">MESES SEGUIDOS</div>
+          </div>
+        </div>
+        <div class="streak-months">
+          <div class="streak-month-item">
+            <div class="streak-circle ok">✓</div>
+            <div class="streak-month-name">Nov</div>
+          </div>
+          <div class="streak-month-item">
+            <div class="streak-circle fail">✗</div>
+            <div class="streak-month-name">Dez</div>
+          </div>
+          <div class="streak-month-item">
+            <div class="streak-circle ok">✓</div>
+            <div class="streak-month-name">Jan</div>
+          </div>
+          <div class="streak-month-item">
+            <div class="streak-circle ok">✓</div>
+            <div class="streak-month-name">Fev</div>
+          </div>
+          <div class="streak-month-item">
+            <div class="streak-circle ok">✓</div>
+            <div class="streak-month-name">Mar</div>
+          </div>
+          <div class="streak-month-item">
+            <div class="streak-circle atual">→</div>
+            <div class="streak-month-name">Abr</div>
+          </div>
+        </div>
+        <div class="streak-tip">🎯 Mantenha ≥ 80% em Abril para chegar a 4 meses seguidos e desbloquear uma conquista!</div>
+      </div>
+
+    </div>
+
+  </div><!-- /page-wrapper -->
+
+  <script>
+    // ── SPARKLINE CHART ──────────────────────────────────────────
+    const ctx = document.getElementById('chartSparkline').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Nov/25','Dez/25','Jan/26','Fev/26','Mar/26','Abr/26'],
+        datasets: [
+          {
+            label: 'Nível Total',
+            data: [18, 19, 21, 23, 26, 28],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            pointBackgroundColor: '#3b82f6',
+            tension: 0.4, fill: true, pointRadius: 4, borderWidth: 2
+          },
+          {
+            label: 'Leitura',
+            data: [9, 10, 11, 12, 13, 15],
+            borderColor: '#22c55e',
+            backgroundColor: 'transparent',
+            pointBackgroundColor: '#22c55e',
+            tension: 0.4, fill: false, pointRadius: 3,
+            borderDash: [4, 3], borderWidth: 1.5
+          },
+          {
+            label: 'Método',
+            data: [9, 9, 10, 11, 13, 13],
+            borderColor: '#f59e0b',
+            backgroundColor: 'transparent',
+            pointBackgroundColor: '#f59e0b',
+            tension: 0.4, fill: false, pointRadius: 3,
+            borderDash: [4, 3], borderWidth: 1.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { mode: 'index', intersect: false,
+            backgroundColor: '#0b1220',
+            borderColor: 'rgba(56,189,248,0.3)',
+            borderWidth: 1,
+            titleColor: '#e2e8f0',
+            bodyColor: '#94a3b8'
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#64748b', font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.04)' }
+          },
+          y: {
+            beginAtZero: false,
+            ticks: { color: '#64748b', font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.04)' }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
