@@ -8,7 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
   <style>
-    @page { size: A4; margin: 10mm; }
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); color: #e2e8f0; min-height: 100vh; padding: 20px; }
 
@@ -69,7 +72,7 @@
       flex: 1; min-width: 0;
       background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
       padding: 8px 10px; display: flex; flex-direction: column;
-      overflow: hidden; /* impede o canvas de vazar */
+      overflow: hidden;
     }
 
     .painel-bloco { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; }
@@ -112,50 +115,25 @@
     .evolucao-titulo { font-size: 0.65em; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
     .evolucao-chart-wrap {
       position: relative; flex: 1; min-height: 110px;
-      overflow: hidden; /* corta o canvas se ultrapassar */
-      width: 100%;      /* garante que nunca ultrapasse o pai */
+      overflow: hidden;
+      width: 100%;
     }
     .evolucao-chart-wrap canvas { max-width: 100% !important; }
     .evolucao-sem-dados { color: #94a3b8; font-style: italic; font-size: 0.75em; text-align: center; padding: 16px 0; }
 
     /* ════════════════════════════════════════════════════════════
        PAINEL INFERIOR
-       Linha 1: [comprometimento 44%] | [análise 56%]
-       Linha 2: [conquistas — faixa horizontal 100%]
     ════════════════════════════════════════════════════════════ */
     .painel-inferior-wrap { margin-bottom: 14px; }
-
-    /* Linha 1: comprometimento + análise */
     .painel-linha1 { display: flex; gap: 8px; align-items: stretch; margin-bottom: 6px; }
-
-    /* Comprometimento (esq, 44%) */
     .comp-freq-bloco {
-      flex: 0 0 44%;
-      min-width: 0;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
+      flex: 0 0 44%; min-width: 0;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 8px 10px; display: flex; flex-direction: column; gap: 5px;
     }
-    .comp-freq-titulo {
-      font-size: 0.62em; font-weight: 700; color: #0ea5e9;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      margin-bottom: 2px;
-    }
-    /* Os 2 cards lado a lado dentro do bloco de comprometimento */
-    .comp-freq-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px;
-      flex: 1;
-    }
-    .comp-freq-card {
-      background: #fff; border: 1px solid #e2e8f0; border-radius: 7px;
-      padding: 6px 8px; text-align: center;
-    }
+    .comp-freq-titulo { font-size: 0.62em; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+    .comp-freq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; flex: 1; }
+    .comp-freq-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 7px; padding: 6px 8px; text-align: center; }
     .comp-freq-label   { font-size: 0.58em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
     .comp-freq-valor   { font-size: 1.55em; font-weight: 800; color: #0f172a; line-height: 1; }
     .comp-freq-detalhe { font-size: 0.57em; color: #94a3b8; margin-top: 2px; }
@@ -165,8 +143,6 @@
     .fill-amarelo  { background: linear-gradient(90deg, #f59e0b, #d97706); }
     .fill-vermelho { background: linear-gradient(90deg, #ef4444, #dc2626); }
     .fill-azul     { background: linear-gradient(90deg, #3b82f6, #2563eb); }
-
-    /* Análise (dir, resto) */
     .painel-inf-dir {
       flex: 1; min-width: 0;
       background: #f0f9ff; border: 1px solid #bae6fd;
@@ -175,27 +151,14 @@
     }
     .analise-titulo { font-size: 0.65em; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
     .analise-texto  { line-height: 1.6; font-size: 0.82em; color: #0f172a; flex: 1; }
-
-    /* Linha 2: conquistas — faixa horizontal */
-    .conquistas-faixa {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 8px 12px;
-    }
+    .conquistas-faixa { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; }
     .conquistas-faixa-titulo {
       font-size: 0.62em; font-weight: 700; color: #f59e0b;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
       display: flex; align-items: center; gap: 5px;
     }
     .conquistas-faixa-titulo::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
-    /* Conquistas em linha horizontal com wrap */
-    .conquistas-linha {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
+    .conquistas-linha { display: flex; flex-wrap: wrap; gap: 5px; }
     .conquista-item {
       display: flex; align-items: center; gap: 5px;
       background: #fff; border: 1px solid #e2e8f0;
@@ -227,7 +190,7 @@
     .exportando.mostrar { display: flex; }
     .spinner-export { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 20px; }
 
-    /* ── Exportar A4 ── */
+    /* ── Exportar A4 (JPG) ── */
     .exportar-a4 {
       width: 794px !important; min-width: 794px !important; max-width: 794px !important;
       padding: 22px 28px !important; box-shadow: none !important; border-radius: 0 !important;
@@ -242,16 +205,46 @@
     .exportar-a4 .comp-freq-grid    { grid-template-columns: 1fr 1fr !important; }
     .exportar-a4 .rel-header        { flex-direction: row !important; text-align: left !important; }
     .exportar-a4 .rel-logo          { margin-left: auto !important; text-align: right !important; }
-    /* garante que o canvas respeite o container no modo A4 */
     .exportar-a4 .evolucao-chart-wrap { overflow: hidden !important; }
     .exportar-a4 .evolucao-chart-wrap canvas { max-width: 100% !important; }
     .exportar-a4 .painel-turma-dir { overflow: hidden !important; }
 
-    /* ── Impressão ── */
+    /* ════════════════════════════════════════════════════════════
+       IMPRESSÃO — escala dinâmica para caber em 1 página A4
+       A4 portrait em px a 96dpi: 794 × 1123
+    ════════════════════════════════════════════════════════════ */
     @media print {
-      body { background: white !important; padding: 0 !important; color: #1a202c !important; }
+      html, body {
+        width: 210mm !important;
+        height: 297mm !important;
+        overflow: hidden !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
       .top-bar { display: none !important; }
-      .page { box-shadow: none !important; border-radius: 0 !important; padding: 10mm !important; max-width: 100% !important; }
+
+      /*
+        O .page é transformado para caber exatamente em 1 página.
+        A escala exata é calculada em JS via beforeprint e aplicada
+        como variável CSS --print-scale. Fallback estático: 0.72.
+      */
+      .page {
+        --print-scale: 0.72;
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+        width: 794px !important;
+        max-width: 794px !important;
+        transform-origin: top left !important;
+        transform: scale(var(--print-scale)) !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 22px 28px !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        /* layout interno igual ao A4 */
+        flex-direction: row !important;
+      }
       .indicadores-grid  { grid-template-columns: repeat(3,1fr) !important; }
       .painel-turma      { flex-direction: row !important; }
       .painel-turma-esq  { flex: 0 0 52% !important; }
@@ -261,11 +254,11 @@
       .comp-freq-grid    { grid-template-columns: 1fr 1fr !important; }
       .rel-header        { flex-direction: row !important; }
       .rel-logo          { margin-left: auto !important; }
-      .indicador-card, .painel-turma, .painel-inferior-wrap, .presenca-section { break-inside: avoid; }
-      /* corta overflow do gráfico na impressão também */
       .evolucao-chart-wrap { overflow: hidden !important; }
       .evolucao-chart-wrap canvas { max-width: 100% !important; }
-      .painel-turma-dir { overflow: hidden !important; }
+      .painel-turma-dir  { overflow: hidden !important; }
+      /* evita quebras de página dentro de seções */
+      .indicador-card, .painel-turma, .painel-inferior-wrap, .presenca-section { break-inside: avoid; }
     }
 
     /* ── Mobile ── */
@@ -288,7 +281,7 @@
     <h1>📊 Relatório de Progresso Mensal</h1>
     <div class="top-bar-actions">
       <button class="btn-voltar" onclick="history.back()">← Voltar</button>
-      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      <button class="btn-print" onclick="imprimirRelatorio()">🖨️ Imprimir / Salvar PDF</button>
       <button class="btn-jpg" id="btn-jpg">🖼️ Exportar JPG</button>
     </div>
   </div>
@@ -309,6 +302,39 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+  <script>
+    /*
+     * Calcula a escala necessária para o conteúdo caber em 1 página A4.
+     * A4 portrait a 96 dpi = 794 × 1123 px.
+     * Aplicamos a escala como variável CSS no elemento .page antes de imprimir.
+     */
+    const A4_H_PX = 1123; // 297mm a 96dpi
+    const A4_W_PX = 794;  // 210mm a 96dpi
+
+    function calcularEscalaImpressao() {
+      const pagina = document.getElementById('pagina-relatorio');
+      if (!pagina || pagina.style.display === 'none') return;
+      const alturaConteudo = pagina.scrollHeight;
+      const larguraConteudo = 794; // sempre 794 no layout
+      const escalaH = A4_H_PX / alturaConteudo;
+      const escalaW = A4_W_PX / larguraConteudo;
+      const escala  = Math.min(escalaH, escalaW, 1); // nunca maior que 1
+      pagina.style.setProperty('--print-scale', escala.toFixed(4));
+    }
+
+    function imprimirRelatorio() {
+      calcularEscalaImpressao();
+      window.print();
+    }
+
+    // Garante a escala também se o usuário usar Ctrl+P diretamente
+    window.addEventListener('beforeprint', calcularEscalaImpressao);
+    window.addEventListener('afterprint', () => {
+      const pagina = document.getElementById('pagina-relatorio');
+      if (pagina) pagina.style.removeProperty('--print-scale');
+    });
+  </script>
+
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
@@ -327,7 +353,6 @@
     const alunoId        = params.get("id");
     const mesSelecionado = params.get("mes");
 
-    // instância global do chart para poder chamar .resize() antes da exportação
     let chartEvolucao = null;
 
     if (!alunoId) {
@@ -343,18 +368,13 @@
       exportando.classList.add('mostrar');
       try {
         pagina.classList.add('exportar-a4');
-        // aguarda o layout estabilizar
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-        // força o chart a se redimensionar para o container A4
         if (chartEvolucao) {
           const wrap = document.getElementById('mini-chart-evolucao')?.parentElement;
           if (wrap) {
-            const w = wrap.clientWidth;
-            const h = wrap.clientHeight;
-            chartEvolucao.resize(w, h);
+            chartEvolucao.resize(wrap.clientWidth, wrap.clientHeight);
           }
-          // aguarda o redesenho do chart
           await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
         }
 
@@ -378,7 +398,6 @@
         alert('Erro ao gerar imagem.');
       } finally {
         pagina.classList.remove('exportar-a4');
-        // restaura o tamanho original do chart
         if (chartEvolucao) chartEvolucao.resize();
       }
     });
@@ -422,8 +441,8 @@
     function calcularRankings(aluno, dadosTurma, freqAnual) {
       if (!dadosTurma) return null;
       const { todosAlunos, freqPorAluno } = dadosTurma;
-      const mA =  Number(aluno.metodo)||0;
-      const lA =  Number(aluno.leitura)||0;
+      const mA = Number(aluno.metodo)||0;
+      const lA = Number(aluno.leitura)||0;
       return {
         total: todosAlunos.length,
         rankMetodo:  todosAlunos.map(a=>Number(a.metodo)||0).filter(v=>v>mA).length+1,
@@ -576,7 +595,6 @@
       const analise = gerarAnalise(aluno,freqMes,freqGeral,freqMesAnterior,
         leituraAtual,leituraAnterior,metodoAtual,metodoAnterior);
 
-      // ── Painel Turma ──────────────────────────────────────────────────
       let painelTurmaHTML = '';
       if (rankings && dadosTurma) {
         const {rankMetodo,rankLeitura,rankFreq,total} = rankings;
@@ -636,7 +654,6 @@
           </div>`;
       }
 
-      // ── Painel Inferior ───────────────────────────────────────────────
       const conquistasHTML = conquistasMes.length
         ? conquistasMes.map(c=>`
             <div class="conquista-item ${c.raridade||''}">
@@ -648,11 +665,7 @@
       const painelInferiorHTML = `
         <div class="rel-titulo-secao">⚡ Comprometimento &amp; 🏆 Conquistas</div>
         <div class="painel-inferior-wrap">
-
-          <!-- Linha 1: comprometimento (esq) + análise (dir) -->
           <div class="painel-linha1">
-
-            <!-- Comprometimento: 2 cards lado a lado -->
             <div class="comp-freq-bloco">
               <div class="comp-freq-titulo">⚡ Comprometimento</div>
               <div class="comp-freq-grid">
@@ -670,24 +683,17 @@
                 </div>
               </div>
             </div>
-
-            <!-- Análise -->
             <div class="painel-inf-dir">
               <div class="analise-titulo">📝 Análise do Desempenho</div>
               <div class="analise-texto">${analise}</div>
             </div>
-
           </div>
-
-          <!-- Linha 2: conquistas em faixa horizontal completa -->
           <div class="conquistas-faixa">
             <div class="conquistas-faixa-titulo">🏆 Conquistas do Mês</div>
             <div class="conquistas-linha">${conquistasHTML}</div>
           </div>
-
         </div>`;
 
-      // ── Tabela de presença ────────────────────────────────────────────
       const presencaHTML = presencaDetalhada.length
         ? presencaDetalhada.map(p=>`<tr><td>${p.data}</td><td class="${p.status==='Presente'?'td-presente':'td-ausente'}">${p.status}</td></tr>`).join("")
         : `<tr><td colspan="2" style="color:#94a3b8;font-style:italic;">Sem registros neste mês.</td></tr>`;
@@ -765,7 +771,6 @@
       if (evolucaoAluno.length>=2) {
         const ctx = document.getElementById('mini-chart-evolucao');
         if (ctx) {
-          // destroi instância anterior se existir
           if (chartEvolucao) { chartEvolucao.destroy(); chartEvolucao = null; }
           chartEvolucao = new Chart(ctx, {
             type: 'line',
