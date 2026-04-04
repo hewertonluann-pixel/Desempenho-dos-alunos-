@@ -385,11 +385,11 @@
     function calcularRankings(aluno, dadosTurma, freqAnual) {
       if (!dadosTurma) return null;
       const { todosAlunos, freqPorAluno } = dadosTurma;
-      const nA = (Number(aluno.leitura)||0)+(Number(aluno.metodo)||0);
+      const mA =  Number(aluno.metodo)||0;
       const lA =  Number(aluno.leitura)||0;
       return {
         total: todosAlunos.length,
-        rankNivel:   todosAlunos.map(a=>(Number(a.leitura)||0)+(Number(a.metodo)||0)).filter(v=>v>nA).length+1,
+        rankMetodo:  todosAlunos.map(a=>Number(a.metodo)||0).filter(v=>v>mA).length+1,
         rankLeitura: todosAlunos.map(a=>Number(a.leitura)||0).filter(v=>v>lA).length+1,
         rankFreq:    todosAlunos.map(a=>freqPorAluno[a.nome]||0).filter(v=>v>freqAnual).length+1
       };
@@ -542,9 +542,10 @@
       // ── Painel Turma ──────────────────────────────────────────────────
       let painelTurmaHTML = '';
       if (rankings && dadosTurma) {
-        const {rankNivel,rankLeitura,rankFreq,total} = rankings;
-        const {mediaNivel,mediaLeitura,mediaFreq}    = dadosTurma;
-        const nivelAluno = (Number(aluno.leitura)||0)+(Number(aluno.metodo)||0);
+        const {rankMetodo,rankLeitura,rankFreq,total} = rankings;
+        const {mediaMetodo,mediaLeitura,mediaFreq}    = dadosTurma;
+        const metodoAluno  = Number(aluno.metodo)||0;
+        const leituraAluno = Number(aluno.leitura)||0;
         const mkRank = (label,pos,cls) => {
           const mc=medalhaClasse(pos);
           return `<div class="rank-mini-card ${cls}">
@@ -577,7 +578,7 @@
               <div class="painel-bloco">
                 <div class="painel-bloco-label">🏅 Ranking na Turma</div>
                 <div class="rank-mini-grid">
-                  ${mkRank('Nível Geral',rankNivel,'rmc-blue')}
+                  ${mkRank('Método',rankMetodo,'rmc-blue')}
                   ${mkRank('Leitura',rankLeitura,'rmc-green')}
                   ${mkRank('Frequência',rankFreq,'rmc-yellow')}
                 </div>
@@ -585,8 +586,8 @@
               <div class="painel-bloco">
                 <div class="painel-bloco-label">📊 Você vs Turma</div>
                 <div class="comp-mini-grid">
-                  ${mkComp('Nível',nivelAluno,mediaNivel,'pts')}
-                  ${mkComp('Leitura',Number(aluno.leitura)||0,mediaLeitura,'pts')}
+                  ${mkComp('Método',metodoAluno,mediaMetodo,'pts')}
+                  ${mkComp('Leitura',leituraAluno,mediaLeitura,'pts')}
                   ${mkComp('Frequência',freqGeral.percentual,mediaFreq,'%')}
                 </div>
               </div>
