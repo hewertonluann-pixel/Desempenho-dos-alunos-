@@ -514,6 +514,9 @@
         const pagesList = document.getElementById('pages-list');
         let pageIndex = 0;
 
+        // Map para guardar referências diretas: alunoId → { canvasEl, snaps }
+        const graficosParaRenderizar = new Map();
+
         // ── Capa ──
         const capaEl = criarCapa(nomeMes, ano, alunos.length);
         adicionarPagina(pagesList, capaEl, 'Capa', pageIndex++);
@@ -570,13 +573,20 @@
           const rankings = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
           const evolucaoAluno = snaps.slice(-6);
 
+          // Criar elemento canvas real para passar ao criarPaginaAluno
+          let canvasRef = null;
+          if (evolucaoAluno.length >= 2) {
+            canvasRef = document.createElement('canvas');
+            graficosParaRenderizar.set(aluno.id, { canvasEl: canvasRef, snaps: evolucaoAluno });
+          }
+
           const pageEl = criarPaginaAluno({
             aluno, ano, mes, nomeMes, chave,
             freqMes, freqGeral, freqMesAnterior,
             conquistasMes, presencaDetalhada,
             leituraAtual, leituraAnterior, leituraMeta,
             metodoAtual, metodoAnterior, metodoMeta,
-            dadosTurma, rankings, evolucaoAluno, pageIndex
+            dadosTurma, rankings, evolucaoAluno, canvasRef
           });
 
           adicionarPagina(pagesList, pageEl, aluno.nome, pageIndex++);
@@ -584,7 +594,7 @@
 
         // Renderizar gráficos após DOM estar pronto
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-        renderizarGraficos(alunos, snapshotsPorAluno);
+        renderizarGraficos(graficosParaRenderizar);
 
         // Mostrar preview
         document.getElementById('loader-turma').style.display = 'none';
@@ -639,7 +649,7 @@
       const excluidas = document.querySelectorAll('.page-wrapper.excluida').length;
       const ativas   = total - excluidas;
       document.getElementById('preview-pages-count').textContent =
-        `${ativas} página${ativas!==1?'s':''} ativas (${excluidas} excluída${excluidas!==1?'s':''})` ;
+        `${ativas} página${ativas!==1?'s':''} ativas (${excluidas} excluída${excluidas!==1?'s':''})`;
     }
 
     // ── CAPA ──
@@ -669,7 +679,6 @@
       const rows = resumos.map((r,i) => {
         const stL = statusTexto(r.lAtual, r.lAnt);
         const stM = statusTexto(r.mAtual, r.mAnt);
-        const stF = r.freqMes.total===0 ? 'neutro' : statusTexto(r.freqMes.percentual, null);
         const geral = (stL==='evoluiu'||stM==='evoluiu') ? 'evoluiu' :
                       (stL==='regrediu'||stM==='regrediu') ? 'regrediu' :
                       (stL==='estavel'||stM==='estavel') ? 'estavel' : 'neutro';
@@ -726,13 +735,14 @@
     }
 
     // ── PÁGINA INDIVIDUAL DO ALUNO ──
+    // CORREÇÃO: canvasRef substitui chartId string — referência direta ao elemento <canvas>
     function criarPaginaAluno({
       aluno, ano, mes, nomeMes, chave,
       freqMes, freqGeral, freqMesAnterior,
       conquistasMes, presencaDetalhada,
       leituraAtual, leituraAnterior, leituraMeta,
       metodoAtual, metodoAnterior, metodoMeta,
-      dadosTurma, rankings, evolucaoAluno, pageIndex
+      dadosTurma, rankings, evolucaoAluno, canvasRef
     }) {
       const stPresenca = freqMes.total===0
         ? {texto:"— Sem chamadas",classe:"status-neutro"}
@@ -746,6 +756,7 @@
 
       // Painel turma
       let painelTurmaHTML = '';
+      let chartWrapEl = null;
       if (rankings && dadosTurma) {
         const {rankMetodo,rankLeitura,rankFreq,total} = rankings;
         const {mediaMetodo,mediaLeitura,mediaFreq}    = dadosTurma;
@@ -772,9 +783,11 @@
             <span class="comp-chip-sm ${c.chip}">${c.txt}</span>
           </div>`;
         };
-        const chartId = `chart-${pageIndex}-${aluno.id}`;
-        const grafico = evolucaoAluno.length>=2
-          ? `<div class="evolucao-chart-wrap"><canvas id="${chartId}"></canvas></div>`
+
+        // Slot de gráfico — será preenchido via DOM depois
+        const graficoSlotId = `grafico-slot-${aluno.id}`;
+        const graficoHTML = canvasRef
+          ? `<div class="evolucao-chart-wrap" id="${graficoSlotId}"></div>`
           : `<div class="evolucao-sem-dados">Histórico insuficiente (mín. 2)</div>`;
 
         painelTurmaHTML = `
@@ -800,7 +813,7 @@
             </div>
             <div class="painel-turma-dir">
               <div class="evolucao-titulo">📈 Evolução — Últimos Meses</div>
-              ${grafico}
+              ${graficoHTML}
             </div>
           </div>`;
       }
@@ -913,18 +926,20 @@
           </div>
           <div class="assinatura-linha">Professor Responsável</div>
         </div>`;
+
+      // Injetar o canvas real diretamente no slot (sem depender de ID)
+      if (canvasRef) {
+        const slot = div.querySelector(`#grafico-slot-${aluno.id}`);
+        if (slot) slot.appendChild(canvasRef);
+      }
+
       return div;
     }
 
-    // ── RENDERIZAR GRÁFICOS ──
-    function renderizarGraficos(alunos, snapshotsPorAluno) {
-      alunos.forEach((aluno, i) => {
-        const snaps = (snapshotsPorAluno[aluno.id] || []).slice(-6);
-        if (snaps.length < 2) return;
-        const chartId = `chart-${i+2}-${aluno.id}`; // +2 por capa e índice
-        const ctx = document.getElementById(chartId);
-        if (!ctx) return;
-        new Chart(ctx, {
+    // ── RENDERIZAR GRÁFICOS (recebe Map com referências diretas) ──
+    function renderizarGraficos(graficosMap) {
+      graficosMap.forEach(({ canvasEl, snaps }) => {
+        new Chart(canvasEl, {
           type: 'line',
           data: {
             labels: snaps.map(s => {
@@ -932,9 +947,9 @@
               return NOMES_MES_CURTO[Number(m)-1]+'/'+y.slice(2);
             }),
             datasets: [
-              {label:'Total', data:snaps.map(s=>(Number(s.leitura)||0)+(Number(s.metodo)||0)), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', pointBackgroundColor:'#3b82f6', tension:0.4, fill:true, pointRadius:4},
-              {label:'Leitura', data:snaps.map(s=>Number(s.leitura)||0), borderColor:'#22c55e', backgroundColor:'transparent', pointBackgroundColor:'#22c55e', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]},
-              {label:'Método',  data:snaps.map(s=>Number(s.metodo)||0),  borderColor:'#f59e0b', backgroundColor:'transparent', pointBackgroundColor:'#f59e0b', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]}
+              {label:'Total',   data:snaps.map(s=>(Number(s.leitura)||0)+(Number(s.metodo)||0)), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', pointBackgroundColor:'#3b82f6', tension:0.4, fill:true,  pointRadius:4},
+              {label:'Leitura', data:snaps.map(s=>Number(s.leitura)||0),                         borderColor:'#22c55e', backgroundColor:'transparent',           pointBackgroundColor:'#22c55e', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]},
+              {label:'Método',  data:snaps.map(s=>Number(s.metodo)||0),                          borderColor:'#f59e0b', backgroundColor:'transparent',           pointBackgroundColor:'#f59e0b', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]}
             ]
           },
           options: {
@@ -953,7 +968,7 @@
     }
 
     // ══════════════════════════════════════════════
-    // FUNÇÕES UTILITÁRIAS (espelho do relatorio-mensal.html)
+    // FUNÇÕES UTILITÁRIAS
     // ══════════════════════════════════════════════
     function calcularFrequencia(eventos, nomeAluno) {
       if (!eventos?.length) return { total:0, presencas:0, percentual:0 };
@@ -1006,7 +1021,7 @@
       const nome  = aluno.nome ? aluno.nome.split(" ")[0] : "você";
       const lNome = aluno.leituraNome || "Bona";
       const mNome = aluno.metodoNome  || "Método";
-      const p = [], pct = freqMes.percentual, pctAnt = freqMesAnterior.total>0?freqMesAnterior.percentual:null;
+      const p = [], pct = freqMes.percentual;
       if (freqMes.total===0) p.push(`${nome}, sem registros de chamada neste mês.`);
       else if (pct===100)    p.push(`${nome}, presença perfeita neste mês! Parabéns!`);
       else if (pct>=80)      p.push(`${nome}, manteve ${pct}% de presença — muito bom!`);
