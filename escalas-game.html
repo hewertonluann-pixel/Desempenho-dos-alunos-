@@ -23,7 +23,37 @@
     h1 { text-align: center; font-size: 1.8rem; margin-bottom: 4px;
          background: linear-gradient(90deg,#f9a825,#ff6f00); -webkit-background-clip:text;
          -webkit-text-fill-color:transparent; }
-    .subtitle { text-align:center; font-size:0.88rem; color:#aaa; margin-bottom:24px; }
+    .subtitle { text-align:center; font-size:0.88rem; color:#aaa; margin-bottom:16px; }
+
+    /* Banner sugestão horizontal - só aparece em portrait no mobile */
+    .rotate-hint {
+      display: none;
+      align-items: center; gap: 10px;
+      background: rgba(249,168,37,0.1);
+      border: 1px solid rgba(249,168,37,0.3);
+      border-radius: 10px; padding: 10px 14px;
+      margin-bottom: 18px; font-size: 0.83rem; color: #fde68a;
+      position: relative;
+    }
+    .rotate-hint .icon {
+      font-size: 1.4rem;
+      animation: tiltHint 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .rotate-hint .close-hint {
+      position: absolute; top: 6px; right: 10px;
+      background: none; border: none; color: #fde68a;
+      font-size: 1rem; cursor: pointer; opacity: 0.7; line-height: 1;
+    }
+    .rotate-hint .close-hint:hover { opacity: 1; }
+    @keyframes tiltHint {
+      0%,100% { transform: rotate(0deg); }
+      40%     { transform: rotate(75deg); }
+      60%     { transform: rotate(75deg); }
+    }
+    @media screen and (orientation: portrait) and (max-width: 768px) {
+      .rotate-hint { display: flex; }
+    }
 
     .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius:99px; height:8px; margin-bottom:8px; }
     .progress-bar { height:8px; border-radius:99px;
@@ -104,33 +134,8 @@
     .btn-restart:hover { opacity:0.85; }
     .stars { font-size:2.5rem; margin-bottom:12px; }
 
-    /* Landscape / rotate overlay */
-    .rotate-overlay {
-      display: none;
-      position: fixed; inset: 0; z-index: 9999;
-      background: #1a1a2e;
-      flex-direction: column; align-items: center; justify-content: center;
-      color: white; text-align: center; padding: 30px;
-    }
-    .rotate-overlay .icon {
-      font-size: 4rem; margin-bottom: 16px;
-      animation: rotateHint 1.5s ease-in-out infinite;
-    }
-    .rotate-overlay h2 { font-size: 1.3rem; color: #f9a825; margin-bottom: 8px; }
-    .rotate-overlay p  { font-size: 0.9rem; color: #aaa; }
-    @keyframes rotateHint {
-      0%   { transform: rotate(0deg); }
-      40%  { transform: rotate(90deg); }
-      60%  { transform: rotate(90deg); }
-      100% { transform: rotate(0deg); }
-    }
-    @media screen and (orientation: portrait) and (max-width: 768px) {
-      .rotate-overlay { display: flex; }
-      body > .container { filter: blur(4px); pointer-events: none; user-select: none; }
-    }
+    /* Landscape: ajustes opcionais para melhor experiência */
     @media screen and (orientation: landscape) {
-      .rotate-overlay { display: none !important; }
-      body > .container { filter: none; pointer-events: auto; user-select: auto; }
       body { align-items: center; min-height: 100vh; padding: 16px 10px; }
       .container { padding: 20px 28px; }
       h1 { font-size: 1.4rem; }
@@ -144,15 +149,16 @@
 <body>
 <div class="toast" id="toast"></div>
 
-<div class="rotate-overlay" id="rotate-overlay">
-  <div class="icon">📱</div>
-  <h2>Gire o dispositivo</h2>
-  <p>Este jogo foi feito para ser jogado<br>na <strong style="color:#f9a825">horizontal</strong> 🎵</p>
-</div>
-
 <div class="container">
   <h1>🎵 Notas Musicais</h1>
   <p class="subtitle">Complete cada escala escolhendo as notas corretas</p>
+
+  <!-- Banner de sugestão (dispensável) -->
+  <div class="rotate-hint" id="rotate-hint">
+    <span class="icon">📱</span>
+    <span>Dica: vire o celular na <strong>horizontal</strong> para melhor visualização!</span>
+    <button class="close-hint" onclick="dismissHint()" title="Fechar">×</button>
+  </div>
 
   <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
   <div class="progress-label">
@@ -207,6 +213,10 @@ function shuffle(arr) {
 let currentScale=0, correct=[], anchorSet=new Set(),
     filled=[], currentSlot=0, blanks=[],
     score=0, lives=3, combo=0, refVisible=false;
+
+function dismissHint(){
+  document.getElementById('rotate-hint').style.display='none';
+}
 
 function initGame(){
   score=0; lives=3; combo=0; currentScale=0;
