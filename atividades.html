@@ -15,19 +15,15 @@
       font-family: 'Inter', 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 28px 16px 80px;
-      color: #e2e8f0;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 28px 16px 80px; color: #e2e8f0;
     }
     .page-header {
       width: 100%; max-width: 900px;
       display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
     }
     .back-btn {
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
       color: #e2e8f0; padding: 8px 16px; border-radius: 10px;
       font-size: 0.88rem; font-weight: 600; cursor: pointer;
       text-decoration: none; display: flex; align-items: center; gap: 6px;
@@ -41,52 +37,39 @@
       text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
     .page-title p { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; }
-
-    /* ── seção de nível ── */
     .level-section { width: 100%; max-width: 900px; margin-bottom: 36px; }
     .level-header {
       display: flex; align-items: center; gap: 12px;
       margin-bottom: 14px; padding-bottom: 10px;
       border-bottom: 1.5px solid rgba(255,255,255,0.07);
     }
-    .level-dot {
-      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
-    }
+    .level-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
     .level-dot.green  { background: #22c55e; box-shadow: 0 0 8px #22c55e88; }
     .level-dot.yellow { background: #eab308; box-shadow: 0 0 8px #eab30888; }
     .level-dot.red    { background: #ef4444; box-shadow: 0 0 8px #ef444488; }
-    .level-title {
-      font-size: 1rem; font-weight: 700; letter-spacing: 0.5px;
-    }
+    .level-title { font-size: 1rem; font-weight: 700; letter-spacing: 0.5px; }
     .level-title.green  { color: #4ade80; }
     .level-title.yellow { color: #facc15; }
     .level-title.red    { color: #f87171; }
     .level-desc { font-size: 0.8rem; color: #64748b; margin-left: auto; }
-
-    /* ── grid ── */
     .atividades-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 18px; width: 100%;
     }
     .atividade-card {
-      background: rgba(255,255,255,0.06);
-      border: 1.5px solid rgba(255,255,255,0.1);
-      border-radius: 16px; overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-      text-decoration: none; color: inherit;
-      display: flex; flex-direction: column;
+      text-decoration: none; color: inherit; display: flex; flex-direction: column;
       backdrop-filter: blur(6px);
     }
     .atividade-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+      transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.45);
       border-color: #a855f7;
     }
     .card-banner {
-      height: 100px;
-      display: flex; align-items: center; justify-content: center;
+      height: 100px; display: flex; align-items: center; justify-content: center;
       font-size: 2.8rem; position: relative;
     }
     .card-banner.purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
@@ -97,17 +80,13 @@
     .card-banner.indigo { background: linear-gradient(135deg, #4338ca, #6366f1); }
     .card-banner.amber  { background: linear-gradient(135deg, #b45309, #f59e0b); }
     .card-banner.rose   { background: linear-gradient(135deg, #9f1239, #f43f5e); }
-
-    /* número do card */
     .card-num {
       position: absolute; top: 10px; left: 12px;
-      background: rgba(0,0,0,0.35);
-      color: rgba(255,255,255,0.85);
+      background: rgba(0,0,0,0.35); color: rgba(255,255,255,0.9);
       font-size: 0.7rem; font-weight: 800;
       width: 22px; height: 22px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
     }
-    /* badge de nível */
     .level-pill {
       position: absolute; top: 10px; right: 12px;
       font-size: 0.68rem; font-weight: 700;
@@ -117,7 +96,6 @@
     .level-pill.green  { background: rgba(34,197,94,0.25);  color: #86efac; border: 1px solid #22c55e55; }
     .level-pill.yellow { background: rgba(234,179,8,0.25);  color: #fde68a; border: 1px solid #eab30855; }
     .level-pill.red    { background: rgba(239,68,68,0.25);  color: #fca5a5; border: 1px solid #ef444455; }
-
     .card-badge {
       position: absolute; bottom: 10px; right: 12px;
       background: rgba(255,255,255,0.18); color: #fff;
@@ -134,11 +112,9 @@
     }
     .card-coming { opacity: 0.42; pointer-events: none; cursor: default; }
     .card-coming .card-banner::after {
-      content: 'Em breve';
-      position: absolute; bottom: 0; left: 0; right: 0;
+      content: 'Em breve'; position: absolute; bottom: 0; left: 0; right: 0;
       background: rgba(0,0,0,0.55); color: #fff;
-      text-align: center; padding: 4px;
-      font-size: 0.78rem; font-weight: 600;
+      text-align: center; padding: 4px; font-size: 0.78rem; font-weight: 600;
     }
     @media (max-width: 600px) {
       .atividades-grid { grid-template-columns: 1fr; }
@@ -149,7 +125,6 @@
 </head>
 <body>
   <!-- HEADER INSERIDO AUTOMATICAMENTE PELO header-template.js -->
-
   <div id="global-loader">
     <div class="spinner-container">
       <div class="spinner"></div>
@@ -169,7 +144,7 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════ INICIAIS -->
+  <!-- ══ INICIAIS ══ -->
   <div class="level-section">
     <div class="level-header">
       <div class="level-dot green"></div>
@@ -178,21 +153,21 @@
     </div>
     <div class="atividades-grid">
 
-      <!-- 1: Nomeie as Notas -->
-      <a href="atividades-notas.html" class="atividade-card">
-        <div class="card-banner purple">
+      <!-- 1: Notas Musicais -->
+      <a href="escalas-game.html" class="atividade-card">
+        <div class="card-banner amber">
           <span class="card-num">1</span>
-          <span>𝄞</span>
+          <span>🎹</span>
           <span class="level-pill green">Inicial</span>
-          <span class="card-badge">5 Níveis</span>
+          <span class="card-badge">5 Escalas</span>
         </div>
         <div class="card-body">
-          <div class="card-title">Nomeie as Notas</div>
-          <div class="card-desc">Identifique as notas escritas na pauta musical em clave de sol. Escolha entre 5 opções e avance por níveis progressivos.</div>
+          <div class="card-title">Notas Musicais</div>
+          <div class="card-desc">Complete as escalas musicais escolhendo as notas corretas em sequência. Ganhe pontos extras com combos.</div>
           <div class="card-meta">
-            <span>🎯 Teoria</span>
-            <span>🔊 Com som</span>
-            <span>📈 Progressivo</span>
+            <span>🎵 Escalas</span>
+            <span>🔥 Combos</span>
+            <span>📱 Horizontal</span>
           </div>
         </div>
       </a>
@@ -216,10 +191,29 @@
         </div>
       </a>
 
+      <!-- 3: Nomeie as Notas -->
+      <a href="atividades-notas.html" class="atividade-card">
+        <div class="card-banner purple">
+          <span class="card-num">3</span>
+          <span>𝄞</span>
+          <span class="level-pill green">Inicial</span>
+          <span class="card-badge">5 Níveis</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Nomeie as Notas</div>
+          <div class="card-desc">Identifique as notas escritas na pauta musical em clave de sol. Escolha entre 5 opções e avance por níveis progressivos.</div>
+          <div class="card-meta">
+            <span>🎯 Teoria</span>
+            <span>🔊 Com som</span>
+            <span>📈 Progressivo</span>
+          </div>
+        </div>
+      </a>
+
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════ INTERMEDIÁRIAS -->
+  <!-- ══ INTERMEDIÁRIAS ══ -->
   <div class="level-section">
     <div class="level-header">
       <div class="level-dot yellow"></div>
@@ -227,25 +221,6 @@
       <span class="level-desc">Intervalos e sequências de notas</span>
     </div>
     <div class="atividades-grid">
-
-      <!-- 3: Notas Musicais -->
-      <a href="escalas-game.html" class="atividade-card">
-        <div class="card-banner amber">
-          <span class="card-num">3</span>
-          <span>🎹</span>
-          <span class="level-pill yellow">Intermediário</span>
-          <span class="card-badge">5 Escalas</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Notas Musicais</div>
-          <div class="card-desc">Complete as escalas musicais escolhendo as notas corretas em sequência. Ganhe pontos extras com combos.</div>
-          <div class="card-meta">
-            <span>🎵 Escalas</span>
-            <span>🔥 Combos</span>
-            <span>📱 Horizontal</span>
-          </div>
-        </div>
-      </a>
 
       <!-- 4: Tom ou Semitom -->
       <a href="jogo-tom-semitom.html" class="atividade-card">
@@ -266,24 +241,12 @@
         </div>
       </a>
 
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════ AVANÇADAS -->
-  <div class="level-section">
-    <div class="level-header">
-      <div class="level-dot red"></div>
-      <span class="level-title red">🔴 Nível Avançado</span>
-      <span class="level-desc">Teoria musical aplicada</span>
-    </div>
-    <div class="atividades-grid">
-
       <!-- 5: Tetracordes -->
       <a href="tetracordes.html" class="atividade-card">
         <div class="card-banner indigo">
           <span class="card-num">5</span>
           <span>🎼</span>
-          <span class="level-pill red">Avançado</span>
+          <span class="level-pill yellow">Intermediário</span>
           <span class="card-badge">5 Fases</span>
         </div>
         <div class="card-body">
@@ -296,6 +259,18 @@
           </div>
         </div>
       </a>
+
+    </div>
+  </div>
+
+  <!-- ══ AVANÇADAS ══ -->
+  <div class="level-section">
+    <div class="level-header">
+      <div class="level-dot red"></div>
+      <span class="level-title red">🔴 Nível Avançado</span>
+      <span class="level-desc">Teoria musical aplicada</span>
+    </div>
+    <div class="atividades-grid">
 
       <!-- 6: Em breve - Ditado Rítmico -->
       <div class="atividade-card card-coming">
@@ -368,6 +343,5 @@
   <script src="loader.js"></script>
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="bottom-nav.js"></script>
-
 </body>
 </html>
