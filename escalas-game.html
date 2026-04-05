@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notas Musicais</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh; display: flex; justify-content: center;
+      align-items: flex-start; padding: 30px 10px;
+    }
+    .container {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 32px 36px;
+      max-width: 700px; width: 100%;
+      color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 4px;
+         background: linear-gradient(90deg,#f9a825,#ff6f00); -webkit-background-clip:text;
+         -webkit-text-fill-color:transparent; }
+    .subtitle { text-align:center; font-size:0.88rem; color:#aaa; margin-bottom:24px; }
+
+    .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius:99px; height:8px; margin-bottom:8px; }
+    .progress-bar { height:8px; border-radius:99px;
+      background: linear-gradient(90deg,#f9a825,#ff6f00); transition: width 0.4s; }
+    .progress-label { display:flex; justify-content:space-between; font-size:0.78rem; color:#aaa; margin-bottom:20px; }
+
+    .hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    .score-box { font-size:1.1rem; font-weight:bold; color:#f9a825; }
+    .lives { display:flex; gap:4px; font-size:1.3rem; }
+
+    .ref-wrap { margin-bottom:20px; }
+    .ref-toggle {
+      background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+      border-radius:8px; padding:8px 14px; cursor:pointer; font-size:0.85rem; color:#ccc;
+      display:flex; align-items:center; gap:8px; transition:background 0.2s; width:100%;
+    }
+    .ref-toggle:hover { background:rgba(255,255,255,0.14); }
+    .ref-scale {
+      display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;
+      padding:12px 14px; background:rgba(255,255,255,0.06);
+      border-radius:8px; justify-content:center;
+    }
+    .ref-note {
+      background:rgba(249,168,37,0.2); border:1px solid #f9a825;
+      border-radius:6px; padding:4px 12px; font-weight:bold; font-size:0.95rem; color:#f9a825;
+    }
+    .hidden { display:none; }
+
+    .scale-label {
+      text-align:center; font-size:0.82rem; color:#aaa; margin-bottom:10px; letter-spacing:1px;
+      text-transform:uppercase;
+    }
+    .scale-row {
+      display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:24px;
+    }
+    .slot { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .note-box {
+      width:60px; height:52px; border-radius:10px; display:flex; align-items:center;
+      justify-content:center; font-weight:bold; font-size:1.05rem; transition: all 0.25s;
+    }
+    .note-box.filled  { background:rgba(255,255,255,0.12); border:2px solid rgba(255,255,255,0.25); color:white; }
+    .note-box.anchor  { background:rgba(249,168,37,0.25); border:2px solid #f9a825; color:#f9a825; }
+    .note-box.empty   { background:rgba(255,255,255,0.04); border:2px dashed rgba(255,255,255,0.2); color:transparent; }
+    .note-box.correct { background:rgba(46,125,50,0.35); border:2px solid #66bb6a; color:#a5d6a7; animation:pop 0.3s ease; }
+    .note-box.wrong   { background:rgba(198,40,40,0.35); border:2px solid #ef5350; color:#ef9a9a; animation:shake 0.35s ease; }
+    .note-box.active  { background:rgba(21,101,192,0.35); border:2px dashed #42a5f5; color:#90caf9; }
+    .slot-num { font-size:0.65rem; color:#666; }
+
+    @keyframes pop   { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+    .options-label { text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:10px; }
+    .options { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:28px; }
+    .opt-btn {
+      width:62px; height:52px; border-radius:10px;
+      background:rgba(21,101,192,0.3); border:2px solid #1565c0;
+      color:white; font-weight:bold; font-size:1rem; cursor:pointer; transition:all 0.18s;
+    }
+    .opt-btn:hover:not(:disabled) { background:rgba(21,101,192,0.55); transform:translateY(-2px); }
+    .opt-btn:disabled { opacity:0.35; cursor:default; }
+
+    .toast {
+      position:fixed; top:24px; left:50%; transform:translateX(-50%);
+      padding:10px 28px; border-radius:10px; font-weight:bold; font-size:1rem;
+      pointer-events:none; opacity:0; transition:opacity 0.3s; z-index:9998;
+    }
+    .toast.show { opacity:1; }
+    .toast.ok  { background:#2e7d32; color:#c8e6c9; }
+    .toast.err { background:#b71c1c; color:#ffcdd2; }
+
+    .end-screen { text-align:center; padding:20px 0; }
+    .end-screen h2 { font-size:2rem; margin-bottom:8px; color:#f9a825; }
+    .end-screen p  { color:#ccc; margin-bottom:20px; font-size:1rem; }
+    .btn-restart {
+      padding:12px 36px; border-radius:10px; background:linear-gradient(90deg,#f9a825,#ff6f00);
+      border:none; color:#1a1a2e; font-weight:bold; font-size:1rem; cursor:pointer; transition:opacity 0.2s;
+    }
+    .btn-restart:hover { opacity:0.85; }
+    .stars { font-size:2.5rem; margin-bottom:12px; }
+
+    /* Landscape / rotate overlay */
+    .rotate-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9999;
+      background: #1a1a2e;
+      flex-direction: column; align-items: center; justify-content: center;
+      color: white; text-align: center; padding: 30px;
+    }
+    .rotate-overlay .icon {
+      font-size: 4rem; margin-bottom: 16px;
+      animation: rotateHint 1.5s ease-in-out infinite;
+    }
+    .rotate-overlay h2 { font-size: 1.3rem; color: #f9a825; margin-bottom: 8px; }
+    .rotate-overlay p  { font-size: 0.9rem; color: #aaa; }
+    @keyframes rotateHint {
+      0%   { transform: rotate(0deg); }
+      40%  { transform: rotate(90deg); }
+      60%  { transform: rotate(90deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @media screen and (orientation: portrait) and (max-width: 768px) {
+      .rotate-overlay { display: flex; }
+      body > .container { filter: blur(4px); pointer-events: none; user-select: none; }
+    }
+    @media screen and (orientation: landscape) {
+      .rotate-overlay { display: none !important; }
+      body > .container { filter: none; pointer-events: auto; user-select: auto; }
+      body { align-items: center; min-height: 100vh; padding: 16px 10px; }
+      .container { padding: 20px 28px; }
+      h1 { font-size: 1.4rem; }
+      .options { gap: 8px; }
+      .opt-btn  { width: 56px; height: 46px; font-size: 0.95rem; }
+      .note-box { width: 52px; height: 44px; font-size: 0.95rem; }
+      .scale-row { gap: 6px; margin-bottom: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="rotate-overlay" id="rotate-overlay">
+  <div class="icon">📱</div>
+  <h2>Gire o dispositivo</h2>
+  <p>Este jogo foi feito para ser jogado<br>na <strong style="color:#f9a825">horizontal</strong> 🎵</p>
+</div>
+
+<div class="container">
+  <h1>🎵 Notas Musicais</h1>
+  <p class="subtitle">Complete cada escala escolhendo as notas corretas</p>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div class="progress-label">
+    <span id="progress-text">Escala 1 de 5</span>
+    <span id="combo-text"></span>
+  </div>
+
+  <div class="hud">
+    <div class="score-box">⭐ <span id="score">0</span> pts</div>
+    <div class="lives" id="lives"></div>
+  </div>
+
+  <div class="ref-wrap">
+    <button class="ref-toggle" onclick="toggleRef()" id="ref-toggle">
+      <span>🎼</span> <span>Mostrar escala de referência</span> <span style="margin-left:auto">▼</span>
+    </button>
+    <div class="ref-scale hidden" id="ref-scale">
+      <div class="ref-note">Dó</div><div class="ref-note">Ré</div><div class="ref-note">Mi</div>
+      <div class="ref-note">Fá</div><div class="ref-note">Sol</div><div class="ref-note">Lá</div>
+      <div class="ref-note">Si</div><div class="ref-note">Dó</div>
+    </div>
+  </div>
+
+  <div id="game-area"></div>
+  <div id="end-screen" class="end-screen hidden"></div>
+</div>
+
+<script>
+const NOTES = ["Dó","Ré","Mi","Fá","Sol","Lá","Si"];
+
+const SCALES = [
+  { anchorNote:"Ré",  anchors:[{pos:1}],                        label:"Escala com Ré" },
+  { anchorNote:"Dó",  anchors:[{pos:1},{pos:6,note:"Si"}],      label:"Escala com Dó e Si" },
+  { anchorNote:"Mi",  anchors:[{pos:0},{pos:7,note:"Dó"}],      label:"Escala com Mi e Dó" },
+  { anchorNote:"Fá",  anchors:[{pos:2},{pos:5,note:"Ré"}],      label:"Escala com Fá e Ré" },
+  { anchorNote:"Sol", anchors:[{pos:2},{pos:7,note:"Mi"}],      label:"Escala com Sol e Mi" },
+];
+
+function buildRow(anchorNote, anchorPos) {
+  return Array.from({length:8}, (_,i) => {
+    const delta = i - anchorPos;
+    return NOTES[(NOTES.indexOf(anchorNote) + delta + 700) % 7];
+  });
+}
+
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let currentScale=0, correct=[], anchorSet=new Set(),
+    filled=[], currentSlot=0, blanks=[],
+    score=0, lives=3, combo=0, refVisible=false;
+
+function initGame(){
+  score=0; lives=3; combo=0; currentScale=0;
+  document.getElementById("end-screen").classList.add("hidden");
+  document.getElementById("game-area").classList.remove("hidden");
+  renderLives(); loadScale();
+}
+
+function renderLives(){
+  document.getElementById("lives").innerHTML =
+    Array.from({length:3},(_,i)=>`<span>${i<lives?"❤️":"🖤"}</span>`).join("");
+}
+
+function loadScale(){
+  const s = SCALES[currentScale];
+  const anchorPos = s.anchors[0].pos;
+  correct = buildRow(s.anchorNote, anchorPos);
+  anchorSet = new Set();
+  s.anchors.forEach(a => anchorSet.add(a.pos));
+  filled  = correct.map((n,i) => anchorSet.has(i) ? n : null);
+  blanks  = correct.map((_,i)=>i).filter(i=>!anchorSet.has(i));
+  currentSlot = 0;
+  const pct = (currentScale / SCALES.length) * 100;
+  document.getElementById("progress-bar").style.width = pct + "%";
+  document.getElementById("progress-text").textContent = `Escala ${currentScale+1} de ${SCALES.length}`;
+  document.getElementById("score").textContent = score;
+  updateComboText();
+  renderBoard();
+}
+
+function updateComboText(){
+  const el = document.getElementById("combo-text");
+  el.textContent = combo>=3 ? `🔥 Combo x${combo}` : combo>0 ? `✨ Combo x${combo}` : "";
+}
+
+function renderBoard(){
+  const s = SCALES[currentScale];
+  const activePos = blanks[currentSlot] ?? -1;
+  let html = `<div class="scale-label">${s.label}</div><div class="scale-row">`;
+  for(let i=0;i<8;i++){
+    let cls="note-box", label="";
+    if(anchorSet.has(i))      { cls+=" anchor";  label=correct[i]; }
+    else if(filled[i]!==null) { cls+=" filled";  label=filled[i];  }
+    else if(i===activePos)    { cls+=" active";  label="?";        }
+    else                      { cls+=" empty";   label="";         }
+    html+=`<div class="slot"><div class="${cls}" id="slot-${i}">${label}</div><div class="slot-num">${i+1}</div></div>`;
+  }
+  html+=`</div>`;
+  if(currentSlot < blanks.length){
+    const ans = correct[activePos];
+    const choices = shuffle([ans, ...shuffle(NOTES.filter(n=>n!==ans)).slice(0,3)]);
+    html+=`<div class="options-label">Escolha a nota correta para a posição ${activePos+1}:</div><div class="options">`;
+    choices.forEach(n=>{ html+=`<button class="opt-btn" onclick="choose('${n}')">${n}</button>`; });
+    html+=`</div>`;
+  }
+  document.getElementById("game-area").innerHTML = html;
+}
+
+function choose(note){
+  const activePos = blanks[currentSlot];
+  const ans = correct[activePos];
+  const slotEl = document.getElementById(`slot-${activePos}`);
+  document.querySelectorAll(".opt-btn").forEach(b=>b.disabled=true);
+  if(note===ans){
+    slotEl.textContent=note; slotEl.className="note-box correct";
+    filled[activePos]=note;
+    combo++;
+    const bonus = combo>=3 ? 20 : 10;
+    score+=bonus;
+    document.getElementById("score").textContent=score;
+    updateComboText();
+    showToast(combo>=3 ? `🔥 +${bonus} Combo!` : `✅ +${bonus}`, "ok");
+    currentSlot++;
+    if(currentSlot>=blanks.length){ setTimeout(nextScale,700); }
+    else { setTimeout(renderBoard,400); }
+  } else {
+    slotEl.textContent=note; slotEl.className="note-box wrong";
+    lives--; combo=0;
+    renderLives(); updateComboText();
+    showRefForced();
+    showToast(`❌ Errou! Era "${ans}"`, "err");
+    setTimeout(()=>{
+      slotEl.textContent="?"; slotEl.className="note-box active";
+      renderBoard();
+    }, 950);
+    if(lives<=0){ setTimeout(endGame,1100); }
+  }
+}
+
+function showRefForced(){
+  document.getElementById("ref-scale").classList.remove("hidden");
+  refVisible=true;
+  document.getElementById("ref-toggle").querySelector("span:last-child").textContent="▲";
+}
+
+function toggleRef(){
+  refVisible=!refVisible;
+  document.getElementById("ref-scale").classList.toggle("hidden",!refVisible);
+  document.getElementById("ref-toggle").querySelector("span:last-child").textContent=refVisible?"▲":"▼";
+}
+
+function nextScale(){
+  currentScale++;
+  if(currentScale>=SCALES.length){ endGame(); return; }
+  loadScale();
+}
+
+function endGame(){
+  document.getElementById("game-area").classList.add("hidden");
+  const pct = score/(SCALES.length*8*20);
+  const stars = pct>0.8?"⭐⭐⭐":pct>0.5?"⭐⭐":"⭐";
+  const won = lives>0;
+  const end = document.getElementById("end-screen");
+  end.classList.remove("hidden");
+  end.innerHTML=`
+    <div class="stars">${stars}</div>
+    <h2>${won?"🎉 Parabéns!":"😢 Fim de Jogo"}</h2>
+    <p>${won?"Você completou todas as escalas!":"Suas vidas acabaram!"}</p>
+    <p style="font-size:1.6rem;font-weight:bold;color:#f9a825;margin-bottom:20px">⭐ ${score} pontos</p>
+    <button class="btn-restart" onclick="initGame()">🔄 Jogar Novamente</button>
+  `;
+  document.getElementById("progress-bar").style.width="100%";
+}
+
+function showToast(msg,type){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.className=`toast ${type} show`;
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{t.className="toast";},1800);
+}
+
+initGame();
+</script>
+</body>
+</html>
