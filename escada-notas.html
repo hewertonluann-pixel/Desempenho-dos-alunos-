@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Escada de Notas</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex; justify-content: center; align-items: flex-start;
+      padding: 24px 10px 40px;
+    }
+    .container {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 28px 32px;
+      max-width: 720px; width: 100%;
+      color: white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    h1 {
+      text-align: center; font-size: 1.75rem; margin-bottom: 4px;
+      background: linear-gradient(90deg,#f9a825,#ff6f00);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle { text-align:center; font-size:0.88rem; color:#aaa; margin-bottom:20px; }
+
+    /* Progress */
+    .progress-bar-wrap { background:rgba(255,255,255,0.1); border-radius:99px; height:8px; margin-bottom:6px; }
+    .progress-bar { height:8px; border-radius:99px; background:linear-gradient(90deg,#f9a825,#ff6f00); transition:width 0.4s; }
+    .progress-label { display:flex; justify-content:space-between; font-size:0.78rem; color:#aaa; margin-bottom:18px; }
+
+    /* HUD */
+    .hud { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .score-box { font-size:1.1rem; font-weight:bold; color:#f9a825; }
+    .lives { display:flex; gap:4px; font-size:1.3rem; }
+
+    /* Ref toggle */
+    .ref-wrap { margin-bottom:16px; }
+    .ref-toggle {
+      background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+      border-radius:8px; padding:8px 14px; cursor:pointer; font-size:0.85rem; color:#ccc;
+      display:flex; align-items:center; gap:8px; transition:background 0.2s; width:100%;
+      text-align:left;
+    }
+    .ref-toggle:hover { background:rgba(255,255,255,0.14); }
+    .ref-scale {
+      display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;
+      padding:10px 14px; background:rgba(255,255,255,0.06);
+      border-radius:8px; justify-content:center;
+    }
+    .ref-note {
+      background:rgba(249,168,37,0.2); border:1px solid #f9a825;
+      border-radius:6px; padding:4px 12px; font-weight:bold; font-size:0.9rem; color:#f9a825;
+    }
+    .hidden { display:none !important; }
+
+    /* Stair canvas area */
+    .stair-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      min-height: 280px;
+    }
+    #stair-svg {
+      overflow: visible;
+    }
+
+    /* Options */
+    .options-label { text-align:center; font-size:0.82rem; color:#aaa; margin-bottom:10px; }
+    .options {
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .opt-btn {
+      min-width:62px; height:50px; border-radius:10px; padding: 0 14px;
+      background:rgba(21,101,192,0.3); border:2px solid #1565c0;
+      color:white; font-weight:bold; font-size:1rem; cursor:pointer; transition:all 0.18s;
+    }
+    .opt-btn:hover:not(:disabled) { background:rgba(21,101,192,0.6); transform:translateY(-2px); }
+    .opt-btn:disabled { opacity:0.35; cursor:default; }
+
+    /* Toast */
+    .toast {
+      position:fixed; top:24px; left:50%; transform:translateX(-50%);
+      padding:10px 28px; border-radius:10px; font-weight:bold; font-size:1rem;
+      pointer-events:none; opacity:0; transition:opacity 0.3s; z-index:9998;
+    }
+    .toast.show { opacity:1; }
+    .toast.ok  { background:#2e7d32; color:#c8e6c9; }
+    .toast.err { background:#b71c1c; color:#ffcdd2; }
+
+    /* End screen */
+    .end-screen { text-align:center; padding:20px 0; }
+    .end-screen h2 { font-size:2rem; margin-bottom:8px; color:#f9a825; }
+    .end-screen p  { color:#ccc; margin-bottom:16px; font-size:1rem; }
+    .btn-restart {
+      padding:12px 36px; border-radius:10px;
+      background:linear-gradient(90deg,#f9a825,#ff6f00);
+      border:none; color:#1a1a2e; font-weight:bold; font-size:1rem;
+      cursor:pointer; transition:opacity 0.2s;
+    }
+    .btn-restart:hover { opacity:0.85; }
+    .stars { font-size:2.5rem; margin-bottom:12px; }
+
+    /* Direction badge */
+    .dir-badge {
+      display:inline-block; text-align:center;
+      background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15);
+      border-radius:8px; padding:4px 14px; font-size:0.8rem; color:#94a3b8;
+      margin-bottom:12px;
+    }
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="container">
+  <h1>🪜 Escada de Notas</h1>
+  <p class="subtitle">Complete cada degrau escolhendo a nota correta</p>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div class="progress-label">
+    <span id="progress-text">Escada 1 de 6</span>
+    <span id="combo-text"></span>
+  </div>
+
+  <div class="hud">
+    <div class="score-box">⭐ <span id="score">0</span> pts</div>
+    <div class="lives" id="lives"></div>
+  </div>
+
+  <div class="ref-wrap">
+    <button class="ref-toggle" onclick="toggleRef()">
+      <span>🎼</span>
+      <span>Ver escala de referência (Dó maior)</span>
+      <span style="margin-left:auto" id="ref-arrow">▼</span>
+    </button>
+    <div class="ref-scale hidden" id="ref-scale">
+      <div class="ref-note">Dó</div><div class="ref-note">Ré</div><div class="ref-note">Mi</div>
+      <div class="ref-note">Fá</div><div class="ref-note">Sol</div><div class="ref-note">Lá</div>
+      <div class="ref-note">Si</div><div class="ref-note">Dó</div>
+    </div>
+  </div>
+
+  <div id="game-area">
+    <div class="stair-area"><svg id="stair-svg" width="600" height="280"></svg></div>
+    <div class="options-label" id="opt-label"></div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <div id="end-screen" class="end-screen hidden"></div>
+</div>
+
+<script>
+// ── notas e alturas visuais ─────────────────────────────────────────────────
+const NOTES   = ['Dó','Ré','Mi','Fá','Sol','Lá','Si'];
+const NOTE_IDX = Object.fromEntries(NOTES.map((n,i)=>[n,i]));
+
+// altura em pixels para cada nota (Dó=0 = base mais alta na escada)
+const NOTE_H = { 'Dó':0,'Ré':1,'Mi':2,'Fá':3,'Sol':4,'Lá':5,'Si':6 };
+
+// ── escadas a completar ─────────────────────────────────────────────────────
+// type: 'up'|'down'|'up-down'  revela: índices das notas JÁ reveladas
+const STAIRS = [
+  { label:'Escada 1', type:'up',      notes:['Dó','Ré','Mi','Fá','Sol','Lá','Si'], reveal:[0,3] },
+  { label:'Escada 2', type:'up',      notes:['Sol','Lá','Si','Dó','Ré','Mi','Fá'], reveal:[0,4] },
+  { label:'Escada 3', type:'down',    notes:['Si','Lá','Sol','Fá','Mi','Ré','Dó'], reveal:[0,4] },
+  { label:'Escada 4', type:'down',    notes:['Mi','Ré','Dó','Si','Lá','Sol','Fá'], reveal:[0,3] },
+  { label:'Escada 5', type:'up',      notes:['Ré','Mi','Fá','Sol','Lá','Si','Dó'], reveal:[0,2,6] },
+  { label:'Escada 6', type:'down',    notes:['Lá','Sol','Fá','Mi','Ré','Dó','Si'], reveal:[0,3,6] },
+];
+
+// ── estado ──────────────────────────────────────────────────────────────────
+let cs=0, filled=[], blanks=[], currentBlank=0,
+    score=0, lives=3, combo=0, refVisible=false;
+
+// ── utilitários ─────────────────────────────────────────────────────────────
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]];}return b;}
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',1900);
+}
+
+// ── SVG helpers ─────────────────────────────────────────────────────────────
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){
+  const e=document.createElementNS(SVG_NS,tag);
+  for(const [k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+
+// ── desenhar escada ──────────────────────────────────────────────────────────
+function drawStair(){
+  const stair = STAIRS[cs];
+  const n     = stair.notes.length;  // 7 notas
+  const svg   = document.getElementById('stair-svg');
+  svg.innerHTML = '';
+
+  // dimensões
+  const W = 580, H = 270;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height', H);
+
+  const stepW = Math.floor(W / (n + 1));  // largura de cada degrau
+  const stepH = Math.floor((H - 60) / (n));  // altura de cada degrau
+  const baseY = H - 30;                  // base do SVG
+
+  // traça os degraus
+  let pathD = '';
+  const xs=[], ys=[]; // centros dos degraus
+
+  if(stair.type === 'up'){
+    // começa embaixo à esquerda, sobe pra direita
+    let cx = stepW * 0.5;
+    let cy = baseY;
+    pathD += `M ${cx} ${cy}`;
+    for(let i=0;i<n;i++){
+      const top = baseY - stepH*(i+1);
+      const left = stepW * i;
+      const right = stepW * (i+1);
+      pathD += ` L ${right} ${cy} L ${right} ${top}`;
+      xs.push(left + stepW/2);
+      ys.push(top);
+      cy = top;
+    }
+    // linha final horizontal
+    pathD += ` L ${stepW*(n+0.5)} ${cy}`;
+  } else {
+    // começa em cima à esquerda, desce para a direita
+    let cy = baseY - stepH*n;
+    let cx = stepW*0.5;
+    pathD += `M ${cx} ${cy}`;
+    for(let i=0;i<n;i++){
+      const nextY = cy + stepH;
+      const right = stepW*(i+1);
+      pathD += ` L ${right} ${cy} L ${right} ${nextY}`;
+      xs.push(stepW*i + stepW/2);
+      ys.push(cy);
+      cy = nextY;
+    }
+    pathD += ` L ${stepW*(n+0.5)} ${cy}`;
+  }
+
+  // desenha a linha da escada
+  el('path',{
+    d: pathD,
+    stroke: 'rgba(255,255,255,0.35)',
+    'stroke-width': '2.5',
+    fill: 'none',
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round'
+  }, svg);
+
+  // desenha os blocos de nota sobre cada degrau
+  const bw = Math.min(stepW - 8, 60);
+  const bh = 34;
+
+  for(let i=0;i<n;i++){
+    const bx = xs[i] - bw/2;
+    const by = ys[i] - bh - 6;  // acima da linha
+    const note = stair.notes[i];
+    const isRevealed = stair.reveal.includes(i);
+    const isFilled   = filled[i] !== null;
+    const isActive   = blanks[currentBlank] === i;
+
+    let fill, stroke, textColor;
+    if(isRevealed){
+      fill='rgba(249,168,37,0.25)'; stroke='#f9a825'; textColor='#f9a825';
+    } else if(isFilled && filled[i]==='correct'){
+      fill='rgba(46,125,50,0.4)'; stroke='#66bb6a'; textColor='#a5d6a7';
+    } else if(isFilled && filled[i]==='wrong'){
+      fill='rgba(198,40,40,0.4)'; stroke='#ef5350'; textColor='#ef9a9a';
+    } else if(isActive){
+      fill='rgba(21,101,192,0.4)'; stroke='#42a5f5'; textColor='#90caf9';
+    } else {
+      fill='rgba(255,255,255,0.04)'; stroke='rgba(255,255,255,0.2)'; textColor='transparent';
+    }
+
+    // retângulo
+    const rect = el('rect',{
+      x:bx, y:by, width:bw, height:bh,
+      rx:'8', ry:'8',
+      fill, stroke, 'stroke-width':'2'
+    }, svg);
+
+    // animação
+    if(isFilled && filled[i]==='correct'){
+      rect.style.animation='none';
+    }
+
+    // texto
+    let label = '';
+    if(isRevealed) label = note;
+    else if(isFilled==='correct') label = note;
+    else if(isActive) label = '?';
+    // se preenchido corretamente, pega da lista filled_notes
+    if(!isRevealed && filled[i] && filled[i]!=='wrong' && filled[i]!=='correct') label = filled[i];
+    if(!isRevealed && filled[i]==='correct') label = note;
+    if(isRevealed) label = note;
+    if(isActive && !isFilled) label = '?';
+
+    el('text',{
+      x: xs[i], y: by + bh/2 + 5,
+      'text-anchor':'middle',
+      fill: textColor,
+      'font-size':'13',
+      'font-weight':'bold',
+      'font-family':'Segoe UI, Arial, sans-serif',
+      'pointer-events':'none'
+    }, svg).textContent = label;
+
+    // número do degrau embaixo
+    el('text',{
+      x: xs[i], y: ys[i]+16,
+      'text-anchor':'middle',
+      fill:'rgba(255,255,255,0.2)',
+      'font-size':'10',
+      'font-family':'Segoe UI, Arial, sans-serif',
+      'pointer-events':'none'
+    }, svg).textContent = (i+1);
+  }
+
+  // seta indicando direção
+  const arrowLabel = stair.type==='up' ? '↑ Ascendente' : '↓ Descendente';
+  el('text',{
+    x: W/2, y: H-6,
+    'text-anchor':'middle',
+    fill:'rgba(255,255,255,0.25)',
+    'font-size':'11',
+    'font-family':'Segoe UI, Arial, sans-serif'
+  }, svg).textContent = arrowLabel;
+}
+
+// ── renderizar opções de escolha ─────────────────────────────────────────────
+function renderOptions(){
+  const stair  = STAIRS[cs];
+  const bidx   = blanks[currentBlank];
+  const ans    = stair.notes[bidx];
+  const others = shuffle(NOTES.filter(n=>n!==ans)).slice(0,3);
+  const choices= shuffle([ans,...others]);
+
+  document.getElementById('opt-label').textContent =
+    `Qual é a nota do degrau ${bidx+1}?`;
+
+  const div = document.getElementById('options');
+  div.innerHTML = '';
+  choices.forEach(n=>{
+    const b=document.createElement('button');
+    b.className='opt-btn'; b.textContent=n;
+    b.onclick=()=>choose(n);
+    div.appendChild(b);
+  });
+}
+
+// ── escolha do aluno ─────────────────────────────────────────────────────────
+function choose(note){
+  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  const stair = STAIRS[cs];
+  const bidx  = blanks[currentBlank];
+  const ans   = stair.notes[bidx];
+
+  if(note===ans){
+    filled[bidx]='correct';
+    combo++;
+    const bonus = combo>=3?20:10;
+    score+=bonus;
+    document.getElementById('score').textContent=score;
+    updateCombo();
+    showToast(combo>=3?`🔥 +${bonus} Combo!`:`✅ +${bonus}`,'ok');
+    drawStair();
+    currentBlank++;
+    if(currentBlank>=blanks.length){ setTimeout(nextStair,700); }
+    else { setTimeout(()=>{ drawStair(); renderOptions(); },400); }
+  } else {
+    filled[bidx]='wrong';
+    lives--; combo=0;
+    renderLives(); updateCombo();
+    showRefForced();
+    showToast(`❌ Errou! Era "${ans}"`,'err');
+    drawStair();
+    setTimeout(()=>{
+      filled[bidx]=null;
+      drawStair();
+      if(lives<=0){ endGame(); return; }
+      renderOptions();
+    },950);
+  }
+}
+
+// ── próxima escada ───────────────────────────────────────────────────────────
+function nextStair(){
+  cs++;
+  if(cs>=STAIRS.length){ endGame(); return; }
+  loadStair();
+}
+
+// ── carregar escada ──────────────────────────────────────────────────────────
+function loadStair(){
+  const stair = STAIRS[cs];
+  filled      = stair.notes.map((_,i)=> stair.reveal.includes(i)?'revealed':null);
+  blanks      = stair.notes.map((_,i)=>i).filter(i=>!stair.reveal.includes(i));
+  currentBlank= 0;
+  document.getElementById('progress-bar').style.width=(cs/STAIRS.length*100)+'%';
+  document.getElementById('progress-text').textContent=`${stair.label} de ${STAIRS.length}`;
+  document.getElementById('score').textContent=score;
+  updateCombo();
+  drawStair();
+  renderOptions();
+}
+
+// ── lives ────────────────────────────────────────────────────────────────────
+function renderLives(){
+  document.getElementById('lives').innerHTML=
+    Array.from({length:3},(_,i)=>`<span>${i<lives?'❤️':'🖤'}</span>`).join('');
+}
+function updateCombo(){
+  const el=document.getElementById('combo-text');
+  el.textContent=combo>=3?`🔥 Combo x${combo}`:combo>0?`✨ Combo x${combo}`:'';
+}
+
+// ── ref ──────────────────────────────────────────────────────────────────────
+function showRefForced(){
+  document.getElementById('ref-scale').classList.remove('hidden');
+  document.getElementById('ref-arrow').textContent='▲';
+  refVisible=true;
+}
+function toggleRef(){
+  refVisible=!refVisible;
+  document.getElementById('ref-scale').classList.toggle('hidden',!refVisible);
+  document.getElementById('ref-arrow').textContent=refVisible?'▲':'▼';
+}
+
+// ── fim de jogo ───────────────────────────────────────────────────────────────
+function endGame(){
+  document.getElementById('game-area').classList.add('hidden');
+  const pct=score/(STAIRS.length*5*20);
+  const stars=pct>0.8?'⭐⭐⭐':pct>0.5?'⭐⭐':'⭐';
+  const won=lives>0;
+  const end=document.getElementById('end-screen');
+  end.classList.remove('hidden');
+  end.innerHTML=`
+    <div class="stars">${stars}</div>
+    <h2>${won?'🎉 Parabéns!':'😢 Fim de Jogo'}</h2>
+    <p>${won?'Você completou todas as escadas!':'Suas vidas acabaram.'}</p>
+    <p style="font-size:1.6rem;font-weight:bold;color:#f9a825;margin-bottom:20px">⭐ ${score} pontos</p>
+    <button class="btn-restart" onclick="initGame()">🔄 Jogar Novamente</button>
+  `;
+  document.getElementById('progress-bar').style.width='100%';
+}
+
+// ── iniciar ───────────────────────────────────────────────────────────────────
+function initGame(){
+  cs=0; score=0; lives=3; combo=0; refVisible=false;
+  document.getElementById('ref-scale').classList.add('hidden');
+  document.getElementById('ref-arrow').textContent='▼';
+  document.getElementById('end-screen').classList.add('hidden');
+  document.getElementById('game-area').classList.remove('hidden');
+  renderLives();
+  loadStair();
+}
+
+initGame();
+</script>
+</body>
+</html>
