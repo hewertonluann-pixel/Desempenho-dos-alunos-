@@ -113,6 +113,7 @@ function inserirNavbar() {
           <a id="navInicio" href="#">İnício</a>
           <a href="painel-social.html">Comunidade</a>
           <a href="biblioteca.html">Biblioteca</a>
+          <a href="atividades.html">Atividades</a>
           <a id="navProfessor" href="professor.html" style="display:none;">Professor</a>
           <a id="navSair" href="#" style="color:#f87171;">Sair</a>
         </div>
