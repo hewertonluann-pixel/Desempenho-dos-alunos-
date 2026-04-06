@@ -68,6 +68,12 @@
       transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.45);
       border-color: #a855f7;
     }
+    .atividade-card.tutorial-card {
+      border-color: rgba(34,197,94,0.35);
+    }
+    .atividade-card.tutorial-card:hover {
+      border-color: #22c55e;
+    }
     .card-banner {
       height: 100px; display: flex; align-items: center; justify-content: center;
       font-size: 2.8rem; position: relative;
@@ -80,6 +86,7 @@
     .card-banner.indigo { background: linear-gradient(135deg, #4338ca, #6366f1); }
     .card-banner.amber  { background: linear-gradient(135deg, #b45309, #f59e0b); }
     .card-banner.rose   { background: linear-gradient(135deg, #9f1239, #f43f5e); }
+    .card-banner.cyan   { background: linear-gradient(135deg, #0e7490, #22d3ee); }
     .card-num {
       position: absolute; top: 10px; left: 12px;
       background: rgba(0,0,0,0.35); color: rgba(255,255,255,0.9);
@@ -102,6 +109,10 @@
       font-size: 0.68rem; font-weight: 700;
       padding: 2px 9px; border-radius: 20px;
       letter-spacing: 0.4px; text-transform: uppercase;
+    }
+    .card-badge.new {
+      background: rgba(34,197,94,0.35); color: #86efac;
+      border: 1px solid rgba(34,197,94,0.5);
     }
     .card-body { padding: 14px 16px 18px; flex: 1; display: flex; flex-direction: column; }
     .card-title { font-size: 1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 5px; }
@@ -187,6 +198,25 @@
             <span>📊 Altura</span>
             <span>↕️ Ascend./Desc.</span>
             <span>🔥 Combos</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 2.5: Como Funciona a Pauta (Tutorial) -->
+      <a href="como-funciona-pauta.html" class="atividade-card tutorial-card">
+        <div class="card-banner cyan">
+          <span class="card-num" style="font-size:0.6rem;width:26px">2.5</span>
+          <span>🎼</span>
+          <span class="level-pill green">Inicial</span>
+          <span class="card-badge new">✨ Tutorial</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Como Funciona a Pauta</div>
+          <div class="card-desc">Aprenda como as linhas e espaços da pauta são os degraus da escada musical, e como a Clave de Sol define o nome de cada nota.</div>
+          <div class="card-meta">
+            <span>📖 Explicação</span>
+            <span>🔑 Clave de Sol</span>
+            <span>🔊 Com som</span>
           </div>
         </div>
       </a>
