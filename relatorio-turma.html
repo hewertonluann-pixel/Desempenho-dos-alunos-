@@ -16,6 +16,7 @@
       padding: 20px;
     }
 
+    /* ── TOP BAR ── */
     .top-bar {
       display: flex; justify-content: space-between; align-items: center;
       max-width: 900px; margin: 0 auto 20px; gap: 12px; flex-wrap: wrap;
@@ -27,307 +28,330 @@
       font-size: 0.95em; font-weight: 600; cursor: pointer;
       transition: all 0.3s ease; color: #fff;
     }
-    .btn-primary { background: linear-gradient(135deg, #0ea5e9, #0284c7); box-shadow: 0 4px 15px rgba(14,165,233,0.3); }
-    .btn-primary:hover { background: linear-gradient(135deg, #0284c7, #0369a1); transform: translateY(-2px); }
-    .btn-secondary { background: rgba(30,41,59,0.9); color: #94a3b8; border: 1px solid rgba(56,189,248,0.3); }
-    .btn-secondary:hover { color: #22d3ee; border-color: rgba(34,211,238,0.6); }
+    .btn-primary  { background: linear-gradient(135deg,#0ea5e9,#0284c7); box-shadow: 0 4px 15px rgba(14,165,233,.3); }
+    .btn-primary:hover  { background: linear-gradient(135deg,#0284c7,#0369a1); transform: translateY(-2px); }
+    .btn-secondary { background: rgba(30,41,59,.9); color: #94a3b8; border: 1px solid rgba(56,189,248,.3); }
+    .btn-secondary:hover { color: #22d3ee; border-color: rgba(34,211,238,.6); }
 
+    /* ── CONFIG ── */
     .config-box {
       max-width: 900px; margin: 0 auto 20px;
-      background: rgba(15,23,42,0.95); border: 2px solid rgba(34,211,238,0.35);
+      background: rgba(15,23,42,.95); border: 2px solid rgba(34,211,238,.35);
       border-radius: 16px; padding: 20px 24px;
     }
     .config-box h2 { color: #22d3ee; font-size: 1.1em; margin-bottom: 16px; }
-    .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 14px; }
+    .config-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 14px; }
     .config-field { display: flex; flex-direction: column; gap: 5px; }
-    .config-field label { font-size: 0.78em; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .config-field label { font-size: .78em; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
     .config-field select, .config-field input {
       background: #1e293b; border: 1px solid #334155;
-      border-radius: 8px; color: #e2e8f0; padding: 8px 10px;
-      font-size: 0.9em; outline: none;
+      border-radius: 8px; color: #e2e8f0; padding: 8px 10px; font-size: .9em; outline: none;
     }
-    .config-field select:focus, .config-field input:focus {
-      border-color: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,0.15);
-    }
+    .config-field select:focus, .config-field input:focus { border-color: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,.15); }
     .btn-gerar {
-      margin-top: 16px;
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      color: #fff; border: none; border-radius: 10px;
-      padding: 12px 30px; font-weight: 700; font-size: 0.95em;
-      cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      margin-top: 16px; background: linear-gradient(135deg,#0ea5e9,#0284c7);
+      color: #fff; border: none; border-radius: 10px; padding: 12px 30px;
+      font-weight: 700; font-size: .95em; cursor: pointer; transition: all .2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
     }
     .btn-gerar:hover { transform: translateY(-2px); }
     .btn-gerar:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
-    #loader-turma {
-      text-align: center; padding: 60px 20px; color: #22d3ee;
-      max-width: 900px; margin: 0 auto;
-    }
+    /* ── LOADER ── */
+    #loader-turma { text-align: center; padding: 60px 20px; color: #22d3ee; max-width: 900px; margin: 0 auto; }
     .spinner-rel {
-      width: 50px; height: 50px; border: 4px solid rgba(34,211,238,0.2);
+      width: 50px; height: 50px; border: 4px solid rgba(34,211,238,.2);
       border-top-color: #22d3ee; border-radius: 50%;
       animation: spin 1s linear infinite; margin: 0 auto 16px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    #preview-container {
-      display: none;
-      max-width: 900px; margin: 0 auto;
-    }
+    /* ── PREVIEW CONTAINER ── */
+    #preview-container { display: none; max-width: 900px; margin: 0 auto; }
     .preview-toolbar {
-      background: rgba(15,23,42,0.95); border: 2px solid rgba(34,211,238,0.35);
+      background: rgba(15,23,42,.95); border: 2px solid rgba(34,211,238,.35);
       border-radius: 16px; padding: 16px 20px; margin-bottom: 16px;
       display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
     }
     .preview-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .preview-info-label { color: #94a3b8; font-size: 0.85em; }
+    .preview-info-label { color: #94a3b8; font-size: .85em; }
     .preview-pages-count { color: #22d3ee; font-weight: 700; font-size: 1em; }
     .preview-hint {
-      font-size: 0.78em; color: #fbbf24;
-      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3);
+      font-size: .78em; color: #fbbf24;
+      background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3);
       padding: 5px 12px; border-radius: 20px;
     }
     .preview-actions { display: flex; gap: 10px; }
 
+    /* ── PAGE WRAPPER (tela) ── */
     .page-wrapper { position: relative; margin-bottom: 24px; }
-    .page-wrapper.excluida { opacity: 0.35; pointer-events: none; }
+    .page-wrapper.excluida { opacity: .35; pointer-events: none; }
     .page-exclude-btn {
       position: absolute; top: -12px; right: -12px; z-index: 20;
-      width: 32px; height: 32px;
-      background: #ef4444; color: #fff; border: none;
-      border-radius: 50%; font-size: 16px; cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-      transition: all 0.2s ease;
+      width: 32px; height: 32px; background: #ef4444; color: #fff;
+      border: none; border-radius: 50%; font-size: 16px; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4); transition: all .2s ease;
       display: flex; align-items: center; justify-content: center;
     }
     .page-exclude-btn:hover { background: #dc2626; transform: scale(1.15); }
     .page-exclude-btn.restaurar { background: #22c55e; pointer-events: all; }
     .page-label {
       position: absolute; top: -12px; left: 12px; z-index: 20;
-      background: rgba(15,23,42,0.95); color: #94a3b8;
-      font-size: 0.72em; font-weight: 600; padding: 2px 10px;
-      border-radius: 20px; border: 1px solid rgba(56,189,248,0.2);
+      background: rgba(15,23,42,.95); color: #94a3b8;
+      font-size: .72em; font-weight: 600; padding: 2px 10px;
+      border-radius: 20px; border: 1px solid rgba(56,189,248,.2);
     }
     .page-excluida-overlay {
-      display: none;
-      position: absolute; inset: 0; z-index: 10;
-      background: rgba(239,68,68,0.08);
-      border: 2px dashed rgba(239,68,68,0.4); border-radius: 16px;
-      align-items: center; justify-content: center;
-      font-size: 1em; color: #f87171; font-weight: 700;
-      pointer-events: none;
+      display: none; position: absolute; inset: 0; z-index: 10;
+      background: rgba(239,68,68,.08); border: 2px dashed rgba(239,68,68,.4);
+      border-radius: 16px; align-items: center; justify-content: center;
+      font-size: 1em; color: #f87171; font-weight: 700; pointer-events: none;
     }
     .page-wrapper.excluida .page-excluida-overlay { display: flex; }
 
-    /* ── PÁGINA A4 ── */
+    /* ── PÁGINA A4 (tela) ── */
     .page {
-      width: 100%; max-width: 900px;
-      background: #fff; color: #1a202c;
+      width: 100%; max-width: 900px; background: #fff; color: #1a202c;
       margin: 0 auto; padding: 28px 36px;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,.5);
       overflow: hidden;
     }
 
     /* ── CAPA ── */
-    .capa { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 600px; text-align: center; gap: 20px; }
-    .capa-logo { font-size: 4em; margin-bottom: 8px; }
-    .capa-titulo-sistema { font-size: 1.5em; font-weight: 800; color: #0ea5e9; margin-bottom: 2px; }
-    .capa-subtitulo { font-size: 0.95em; color: #64748b; }
-    .capa-divider { width: 120px; height: 3px; background: linear-gradient(90deg,#0ea5e9,#6366f1); border-radius: 100px; margin: 14px 0; }
-    .capa-titulo-rel { font-size: 2em; font-weight: 900; color: #0f172a; line-height: 1.2; }
-    .capa-periodo { font-size: 1.15em; color: #475569; margin-top: 4px; }
-    .capa-total { font-size: 0.9em; color: #94a3b8; margin-top: 20px; background: #f1f5f9; padding: 8px 18px; border-radius: 20px; }
-    .capa-gerado { font-size: 0.78em; color: #94a3b8; margin-top: 40px; }
+    .capa { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:600px; text-align:center; gap:20px; }
+    .capa-logo { font-size:4em; margin-bottom:8px; }
+    .capa-titulo-sistema { font-size:1.5em; font-weight:800; color:#0ea5e9; margin-bottom:2px; }
+    .capa-subtitulo { font-size:.95em; color:#64748b; }
+    .capa-divider { width:120px; height:3px; background:linear-gradient(90deg,#0ea5e9,#6366f1); border-radius:100px; margin:14px 0; }
+    .capa-titulo-rel { font-size:2em; font-weight:900; color:#0f172a; line-height:1.2; }
+    .capa-periodo { font-size:1.15em; color:#475569; margin-top:4px; }
+    .capa-total { font-size:.9em; color:#94a3b8; margin-top:20px; background:#f1f5f9; padding:8px 18px; border-radius:20px; }
+    .capa-gerado { font-size:.78em; color:#94a3b8; margin-top:40px; }
 
     /* ── ÍNDICE ── */
-    .indice-titulo-secao { font-size: 1.1em; font-weight: 800; color: #0f172a; border-left: 4px solid #0ea5e9; padding-left: 10px; margin-bottom: 20px; margin-top: 8px; }
-    .indice-table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
-    .indice-table th { background: #f1f5f9; font-weight: 700; color: #475569; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.05em; padding: 8px 12px; border: 1px solid #e2e8f0; text-align: left; }
-    .indice-table td { border: 1px solid #e2e8f0; padding: 7px 12px; }
-    .indice-table tr:nth-child(even) td { background: #f8fafc; }
-    .indice-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.78em; font-weight: 700; }
-    .badge-evoluiu  { background: #dcfce7; color: #166534; }
-    .badge-estavel  { background: #fef9c3; color: #854d0e; }
-    .badge-regrediu { background: #fee2e2; color: #991b1b; }
-    .badge-neutro   { background: #dbeafe; color: #1d4ed8; }
-    .indice-resumo-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
-    .indice-resumo-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: center; }
-    .indice-resumo-card .val { font-size: 1.8em; font-weight: 900; color: #0f172a; line-height: 1; }
-    .indice-resumo-card .lbl { font-size: 0.65em; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+    .indice-titulo-secao { font-size:1.1em; font-weight:800; color:#0f172a; border-left:4px solid #0ea5e9; padding-left:10px; margin-bottom:20px; margin-top:8px; }
+    .indice-table { width:100%; border-collapse:collapse; font-size:.88em; }
+    .indice-table th { background:#f1f5f9; font-weight:700; color:#475569; text-transform:uppercase; font-size:.75em; letter-spacing:.05em; padding:8px 12px; border:1px solid #e2e8f0; text-align:left; }
+    .indice-table td { border:1px solid #e2e8f0; padding:7px 12px; }
+    .indice-table tr:nth-child(even) td { background:#f8fafc; }
+    .indice-badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:.78em; font-weight:700; }
+    .badge-evoluiu  { background:#dcfce7; color:#166534; }
+    .badge-estavel  { background:#fef9c3; color:#854d0e; }
+    .badge-regrediu { background:#fee2e2; color:#991b1b; }
+    .badge-neutro   { background:#dbeafe; color:#1d4ed8; }
+    .indice-resumo-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+    .indice-resumo-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; text-align:center; }
+    .indice-resumo-card .val { font-size:1.8em; font-weight:900; color:#0f172a; line-height:1; }
+    .indice-resumo-card .lbl { font-size:.65em; color:#64748b; text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
 
     /* ── CABEÇALHO RELATÓRIO ── */
-    .rel-header { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #0ea5e9; padding-bottom: 14px; margin-bottom: 16px; }
-    .rel-foto { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 3px solid #0ea5e9; flex-shrink: 0; background: #e2e8f0; }
-    .rel-info h1 { font-size: 1.55em; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
-    .rel-info .instrumento { font-size: 0.9em; color: #475569; font-weight: 500; }
-    .rel-info .periodo { font-size: 0.82em; color: #64748b; margin-top: 2px; }
-    .rel-logo { margin-left: auto; text-align: right; flex-shrink: 0; }
-    .rel-logo .titulo-sistema { font-size: 0.95em; font-weight: 700; color: #0ea5e9; }
-    .rel-logo .subtitulo-sistema { font-size: 0.75em; color: #64748b; }
-    .rel-titulo-secao { font-size: 0.92em; font-weight: 700; color: #0f172a; border-left: 3px solid #0ea5e9; padding-left: 8px; margin-bottom: 8px; margin-top: 14px; }
-    .rel-footer { border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 8px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 0.72em; color: #94a3b8; }
-    .assinatura-linha { border-top: 1px solid #94a3b8; width: 180px; text-align: center; padding-top: 5px; font-size: 0.85em; color: #475569; }
+    .rel-header { display:flex; align-items:center; gap:16px; border-bottom:3px solid #0ea5e9; padding-bottom:14px; margin-bottom:16px; }
+    .rel-foto { width:80px; height:80px; border-radius:10px; object-fit:cover; border:3px solid #0ea5e9; flex-shrink:0; background:#e2e8f0; }
+    .rel-info h1 { font-size:1.55em; font-weight:700; color:#0f172a; margin-bottom:2px; }
+    .rel-info .instrumento { font-size:.9em; color:#475569; font-weight:500; }
+    .rel-info .periodo { font-size:.82em; color:#64748b; margin-top:2px; }
+    .rel-logo { margin-left:auto; text-align:right; flex-shrink:0; }
+    .rel-logo .titulo-sistema { font-size:.95em; font-weight:700; color:#0ea5e9; }
+    .rel-logo .subtitulo-sistema { font-size:.75em; color:#64748b; }
+    .rel-titulo-secao { font-size:.92em; font-weight:700; color:#0f172a; border-left:3px solid #0ea5e9; padding-left:8px; margin-bottom:8px; margin-top:14px; }
+    .rel-footer { border-top:1px solid #e2e8f0; padding-top:10px; margin-top:8px; display:flex; justify-content:space-between; align-items:flex-end; font-size:.72em; color:#94a3b8; }
+    .assinatura-linha { border-top:1px solid #94a3b8; width:180px; text-align:center; padding-top:5px; font-size:.85em; color:#475569; }
 
     /* ── INDICADORES ── */
-    .indicadores-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-    .indicador-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; text-align: center; background: #f8fafc; }
-    .indicador-card h4 { font-size: 0.75em; color: #475569; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-    .indicador-valores { display: flex; justify-content: space-between; gap: 5px; margin-bottom: 8px; }
-    .ind-val { flex: 1; padding: 5px 3px; border-radius: 7px; background: #f1f5f9; font-size: 0.72em; color: #475569; }
-    .ind-val span { display: block; font-size: 1.08em; font-weight: 700; color: #1e293b; margin-top: 1px; }
-    .ind-val.atual { background: #dbeafe; border: 2px solid #3b82f6; }
-    .ind-val.atual span { color: #1d4ed8; }
-    .ind-val.evoluiu { background: #dcfce7; border: 2px solid #22c55e; }
-    .indicador-status { font-size: 0.76em; font-weight: 700; padding: 4px 8px; border-radius: 20px; display: inline-block; }
-    .status-evoluiu  { background: #dcfce7; color: #166534; }
-    .status-estavel  { background: #fef9c3; color: #854d0e; }
-    .status-regrediu { background: #fee2e2; color: #991b1b; }
-    .status-neutro   { background: #dbeafe; color: #1d4ed8; }
+    .indicadores-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+    .indicador-card { border:1px solid #e2e8f0; border-radius:10px; padding:10px; text-align:center; background:#f8fafc; }
+    .indicador-card h4 { font-size:.75em; color:#475569; margin-bottom:8px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+    .indicador-valores { display:flex; justify-content:space-between; gap:5px; margin-bottom:8px; }
+    .ind-val { flex:1; padding:5px 3px; border-radius:7px; background:#f1f5f9; font-size:.72em; color:#475569; }
+    .ind-val span { display:block; font-size:1.08em; font-weight:700; color:#1e293b; margin-top:1px; }
+    .ind-val.atual { background:#dbeafe; border:2px solid #3b82f6; }
+    .ind-val.atual span { color:#1d4ed8; }
+    .ind-val.evoluiu { background:#dcfce7; border:2px solid #22c55e; }
+    .indicador-status { font-size:.76em; font-weight:700; padding:4px 8px; border-radius:20px; display:inline-block; }
+    .status-evoluiu  { background:#dcfce7; color:#166534; }
+    .status-estavel  { background:#fef9c3; color:#854d0e; }
+    .status-regrediu { background:#fee2e2; color:#991b1b; }
+    .status-neutro   { background:#dbeafe; color:#1d4ed8; }
 
     /* ── PAINEL TURMA ── */
-    .painel-turma { display: flex; gap: 8px; margin-bottom: 14px; align-items: stretch; }
-    .painel-turma-esq { display: flex; flex-direction: column; gap: 6px; flex: 0 0 52%; min-width: 0; }
-    .painel-turma-dir { flex: 1; min-width: 0; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; overflow: hidden; }
-    .painel-bloco { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; }
-    .painel-bloco-label { font-size: 0.65em; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
-    .painel-bloco-label::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
-    .rank-mini-grid, .comp-mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-    .rank-mini-card { text-align: center; padding: 5px 3px; border-radius: 7px; background: #fff; border: 1px solid #e2e8f0; position: relative; overflow: hidden; }
-    .rank-mini-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-    .rmc-blue::before   { background: linear-gradient(90deg,#3b82f6,#6366f1); }
-    .rmc-green::before  { background: linear-gradient(90deg,#22c55e,#16a34a); }
-    .rmc-yellow::before { background: linear-gradient(90deg,#f59e0b,#d97706); }
-    .rank-mini-label { font-size: 0.6em; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-    .rank-mini-pos { font-size: 1.35em; font-weight: 900; line-height: 1.1; }
-    .rank-mini-pos.ouro   { color: #d97706; }
-    .rank-mini-pos.prata  { color: #64748b; }
-    .rank-mini-pos.bronze { color: #92400e; }
-    .rank-mini-pos.normal { color: #1e293b; }
-    .rank-mini-total { font-size: 0.58em; color: #94a3b8; }
-    .rank-mini-badge { display: inline-block; font-size: 0.56em; font-weight: 700; padding: 2px 5px; border-radius: 8px; margin-top: 1px; }
-    .rmb-ouro   { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
-    .rmb-prata  { background: #f1f5f9; color: #475569; border: 1px solid #94a3b8; }
-    .rmb-bronze { background: #fef3c7; color: #78350f; border: 1px solid #d97706; }
-    .rmb-normal { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
-    .comp-mini-card { text-align: center; padding: 5px 3px; border-radius: 7px; background: #fff; border: 1px solid #e2e8f0; }
-    .comp-mini-label  { font-size: 0.58em; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 2px; }
-    .comp-mini-row    { display: flex; justify-content: center; align-items: baseline; gap: 2px; }
-    .comp-mini-voce   { font-size: 1.05em; font-weight: 800; }
-    .comp-mini-voce.acima  { color: #16a34a; }
-    .comp-mini-voce.abaixo { color: #dc2626; }
-    .comp-mini-voce.igual  { color: #d97706; }
-    .comp-mini-vs     { font-size: 0.58em; color: #cbd5e1; }
-    .comp-mini-media  { font-size: 0.68em; color: #64748b; }
-    .comp-chip-sm { display: inline-block; font-size: 0.56em; font-weight: 700; padding: 1px 5px; border-radius: 7px; margin-top: 1px; }
-    .chip-acima  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-    .chip-abaixo { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .chip-igual  { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
-    .evolucao-titulo { font-size: 0.65em; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
-    .evolucao-chart-wrap { position: relative; flex: 1; min-height: 110px; overflow: hidden; width: 100%; }
-    .evolucao-chart-wrap canvas { max-width: 100% !important; }
-    .evolucao-sem-dados { color: #94a3b8; font-style: italic; font-size: 0.75em; text-align: center; padding: 16px 0; }
+    .painel-turma { display:flex; gap:8px; margin-bottom:14px; align-items:stretch; }
+    .painel-turma-esq { display:flex; flex-direction:column; gap:6px; flex:0 0 52%; min-width:0; }
+    .painel-turma-dir { flex:1; min-width:0; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px 10px; display:flex; flex-direction:column; overflow:hidden; }
+    .painel-bloco { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px 10px; }
+    .painel-bloco-label { font-size:.65em; font-weight:700; color:#0ea5e9; text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; display:flex; align-items:center; gap:5px; }
+    .painel-bloco-label::after { content:''; flex:1; height:1px; background:#e2e8f0; }
+    .rank-mini-grid, .comp-mini-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+    .rank-mini-card { text-align:center; padding:5px 3px; border-radius:7px; background:#fff; border:1px solid #e2e8f0; position:relative; overflow:hidden; }
+    .rank-mini-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+    .rmc-blue::before   { background:linear-gradient(90deg,#3b82f6,#6366f1); }
+    .rmc-green::before  { background:linear-gradient(90deg,#22c55e,#16a34a); }
+    .rmc-yellow::before { background:linear-gradient(90deg,#f59e0b,#d97706); }
+    .rank-mini-label { font-size:.6em; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    .rank-mini-pos { font-size:1.35em; font-weight:900; line-height:1.1; }
+    .rank-mini-pos.ouro   { color:#d97706; }
+    .rank-mini-pos.prata  { color:#64748b; }
+    .rank-mini-pos.bronze { color:#92400e; }
+    .rank-mini-pos.normal { color:#1e293b; }
+    .rank-mini-total { font-size:.58em; color:#94a3b8; }
+    .rank-mini-badge { display:inline-block; font-size:.56em; font-weight:700; padding:2px 5px; border-radius:8px; margin-top:1px; }
+    .rmb-ouro   { background:#fef3c7; color:#92400e; border:1px solid #fbbf24; }
+    .rmb-prata  { background:#f1f5f9; color:#475569; border:1px solid #94a3b8; }
+    .rmb-bronze { background:#fef3c7; color:#78350f; border:1px solid #d97706; }
+    .rmb-normal { background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; }
+    .comp-mini-card { text-align:center; padding:5px 3px; border-radius:7px; background:#fff; border:1px solid #e2e8f0; }
+    .comp-mini-label  { font-size:.58em; color:#94a3b8; font-weight:600; text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; }
+    .comp-mini-row    { display:flex; justify-content:center; align-items:baseline; gap:2px; }
+    .comp-mini-voce   { font-size:1.05em; font-weight:800; }
+    .comp-mini-voce.acima  { color:#16a34a; }
+    .comp-mini-voce.abaixo { color:#dc2626; }
+    .comp-mini-voce.igual  { color:#d97706; }
+    .comp-mini-vs     { font-size:.58em; color:#cbd5e1; }
+    .comp-mini-media  { font-size:.68em; color:#64748b; }
+    .comp-chip-sm { display:inline-block; font-size:.56em; font-weight:700; padding:1px 5px; border-radius:7px; margin-top:1px; }
+    .chip-acima  { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+    .chip-abaixo { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+    .chip-igual  { background:#fef9c3; color:#854d0e; border:1px solid #fde047; }
+    .evolucao-titulo { font-size:.65em; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px; }
+    .evolucao-chart-wrap { position:relative; flex:1; min-height:110px; overflow:hidden; width:100%; }
+    .evolucao-chart-wrap canvas { max-width:100% !important; }
+    .evolucao-sem-dados { color:#94a3b8; font-style:italic; font-size:.75em; text-align:center; padding:16px 0; }
 
     /* ── PAINEL INFERIOR ── */
-    .painel-inferior-wrap { margin-bottom: 14px; }
-    .painel-linha1 { display: flex; gap: 8px; align-items: stretch; margin-bottom: 6px; }
-    .comp-freq-bloco { flex: 0 0 44%; min-width: 0; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
-    .comp-freq-titulo { font-size: 0.62em; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-    .comp-freq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; flex: 1; }
-    .comp-freq-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 7px; padding: 6px 8px; text-align: center; }
-    .comp-freq-label   { font-size: 0.58em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
-    .comp-freq-valor   { font-size: 1.55em; font-weight: 800; color: #0f172a; line-height: 1; }
-    .comp-freq-detalhe { font-size: 0.57em; color: #94a3b8; margin-top: 2px; }
-    .comp-barra-wrap   { margin-top: 5px; background: #e2e8f0; border-radius: 100px; height: 4px; overflow: hidden; }
-    .comp-barra-fill   { height: 100%; border-radius: 100px; }
-    .fill-verde    { background: linear-gradient(90deg, #22c55e, #16a34a); }
-    .fill-amarelo  { background: linear-gradient(90deg, #f59e0b, #d97706); }
-    .fill-vermelho { background: linear-gradient(90deg, #ef4444, #dc2626); }
-    .fill-azul     { background: linear-gradient(90deg, #3b82f6, #2563eb); }
-    .painel-inf-dir { flex: 1; min-width: 0; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px 13px; display: flex; flex-direction: column; }
-    .analise-titulo { font-size: 0.65em; font-weight: 700; color: #0ea5e9; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-    .analise-texto  { line-height: 1.6; font-size: 0.82em; color: #0f172a; flex: 1; }
-    .conquistas-faixa { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; }
-    .conquistas-faixa-titulo { font-size: 0.62em; font-weight: 700; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
-    .conquistas-faixa-titulo::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
-    .conquistas-linha { display: flex; flex-wrap: wrap; gap: 5px; }
-    .conquista-item { display: flex; align-items: center; gap: 5px; background: #fff; border: 1px solid #e2e8f0; border-radius: 7px; padding: 5px 10px; font-size: 0.72em; }
-    .conquista-item.ouro     { border-color: #f59e0b; background: #fffbeb; }
-    .conquista-item.prata    { border-color: #94a3b8; background: #f8fafc; }
-    .conquista-item.lendario { border-color: #8b5cf6; background: #f5f3ff; }
-    .conquista-icone { font-size: 1.15em; flex-shrink: 0; }
-    .conquista-info strong { display: block; font-weight: 700; color: #1e293b; font-size: 0.95em; line-height: 1.2; }
-    .conquista-info span   { font-size: 0.82em; color: #64748b; line-height: 1.2; }
-    .sem-conquistas { color: #94a3b8; font-style: italic; font-size: 0.78em; }
+    .painel-inferior-wrap { margin-bottom:14px; }
+    .painel-linha1 { display:flex; gap:8px; align-items:stretch; margin-bottom:6px; }
+    .comp-freq-bloco { flex:0 0 44%; min-width:0; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px 10px; display:flex; flex-direction:column; gap:5px; }
+    .comp-freq-titulo { font-size:.62em; font-weight:700; color:#0ea5e9; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
+    .comp-freq-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; flex:1; }
+    .comp-freq-card { background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:6px 8px; text-align:center; }
+    .comp-freq-label   { font-size:.58em; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:3px; }
+    .comp-freq-valor   { font-size:1.55em; font-weight:800; color:#0f172a; line-height:1; }
+    .comp-freq-detalhe { font-size:.57em; color:#94a3b8; margin-top:2px; }
+    .comp-barra-wrap   { margin-top:5px; background:#e2e8f0; border-radius:100px; height:4px; overflow:hidden; }
+    .comp-barra-fill   { height:100%; border-radius:100px; }
+    .fill-verde    { background:linear-gradient(90deg,#22c55e,#16a34a); }
+    .fill-amarelo  { background:linear-gradient(90deg,#f59e0b,#d97706); }
+    .fill-vermelho { background:linear-gradient(90deg,#ef4444,#dc2626); }
+    .fill-azul     { background:linear-gradient(90deg,#3b82f6,#2563eb); }
+    .painel-inf-dir { flex:1; min-width:0; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:10px 13px; display:flex; flex-direction:column; }
+    .analise-titulo { font-size:.65em; font-weight:700; color:#0ea5e9; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+    .analise-texto  { line-height:1.6; font-size:.82em; color:#0f172a; flex:1; }
+    .conquistas-faixa { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px 12px; }
+    .conquistas-faixa-titulo { font-size:.62em; font-weight:700; color:#f59e0b; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+    .conquistas-faixa-titulo::after { content:''; flex:1; height:1px; background:#e2e8f0; }
+    .conquistas-linha { display:flex; flex-wrap:wrap; gap:5px; }
+    .conquista-item { display:flex; align-items:center; gap:5px; background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:5px 10px; font-size:.72em; }
+    .conquista-item.ouro     { border-color:#f59e0b; background:#fffbeb; }
+    .conquista-item.prata    { border-color:#94a3b8; background:#f8fafc; }
+    .conquista-item.lendario { border-color:#8b5cf6; background:#f5f3ff; }
+    .conquista-icone { font-size:1.15em; flex-shrink:0; }
+    .conquista-info strong { display:block; font-weight:700; color:#1e293b; font-size:.95em; line-height:1.2; }
+    .conquista-info span   { font-size:.82em; color:#64748b; line-height:1.2; }
+    .sem-conquistas { color:#94a3b8; font-style:italic; font-size:.78em; }
 
-    .presenca-section { margin-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
-    th, td { border: 1px solid #e2e8f0; padding: 5px 10px; text-align: center; }
-    th { background: #f1f5f9; font-weight: 700; color: #475569; text-transform: uppercase; font-size: 0.75em; letter-spacing: 0.05em; }
-    tr:nth-child(even) td { background: #f8fafc; }
-    .td-presente { color: #16a34a; font-weight: 700; }
-    .td-ausente  { color: #dc2626; font-weight: 700; }
+    /* ── TABELA PRESENÇA ── */
+    .presenca-section { margin-bottom:10px; }
+    table { width:100%; border-collapse:collapse; font-size:.8em; }
+    th, td { border:1px solid #e2e8f0; padding:5px 10px; text-align:center; }
+    th { background:#f1f5f9; font-weight:700; color:#475569; text-transform:uppercase; font-size:.75em; letter-spacing:.05em; }
+    tr:nth-child(even) td { background:#f8fafc; }
+    .td-presente { color:#16a34a; font-weight:700; }
+    .td-ausente  { color:#dc2626; font-weight:700; }
 
-    /* ══════════════════════════════════════════
-       IMPRESSÃO — cada .page-wrapper vira uma
-       página A4 separada via page-break.
-       NÃO usar position:fixed (sobrepõe tudo).
-    ══════════════════════════════════════════ */
-    @page { size: A4 portrait; margin: 10mm; }
+    /* ══════════════════════════════════════════════════════
+       IMPRESSÃO
+       Estratégia:
+         1. Cada .page-wrapper ocupa exatamente uma folha A4
+            usando um container de altura fixa (A4_H = 277mm
+            com margens 0) e overflow:hidden.
+         2. O .page interno é escalado via transform:scale()
+            para caber nesse container — a escala é calculada
+            em JS (calcularEscalas) logo antes de imprimir.
+         3. Sem position:fixed → sem sobreposição de páginas.
+    ══════════════════════════════════════════════════════ */
+    @page { size: A4 portrait; margin: 0; }
 
     @media print {
       html, body {
-        width: auto !important;
         background: white !important;
         padding: 0 !important;
         margin: 0 !important;
+        width: 210mm !important;
       }
 
       .top-bar, .config-box, .preview-toolbar { display: none !important; }
-      #preview-container { display: block !important; max-width: none !important; }
 
-      /* Cada wrapper = uma folha A4 */
-      .page-wrapper {
-        page-break-before: always;
-        break-before: page;
+      #preview-container {
+        display: block !important;
+        max-width: none !important;
         margin: 0 !important;
         padding: 0 !important;
       }
-      .page-wrapper:first-child {
-        page-break-before: avoid;
-        break-before: avoid;
+
+      #pages-list {
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Cada wrapper = uma folha A4 exata (297mm × 210mm) */
+      .page-wrapper {
+        display: block !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        overflow: hidden !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        position: relative !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+      }
+      .page-wrapper:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
       }
       .page-wrapper.excluida { display: none !important; }
       .page-exclude-btn, .page-label, .page-excluida-overlay { display: none !important; }
 
-      /* A página ocupa a folha inteira, sem position:fixed */
+      /*
+        O .page é posicionado no topo-esquerdo do wrapper A4.
+        A escala é definida pelo JS em --print-scale.
+        transform-origin: top left garante que o conteúdo
+        escale a partir do canto superior esquerdo sem
+        deslocar para fora do container.
+      */
       .page {
-        width: 100% !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 794px !important;       /* largura em px de um A4 a 96dpi */
         max-width: none !important;
-        min-height: 0 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
         margin: 0 !important;
+        padding: 22px 28px !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
         overflow: visible !important;
-        /* Reduz tudo a ~75% para caber em A4 */
-        font-size: 75% !important;
+        transform-origin: top left !important;
+        transform: scale(var(--print-scale, 0.707)) !important;
+        /* 210mm / 794px ≈ 0.707 é o fallback sem JS */
       }
 
-      /* Corrige layouts que dependem de flex/grid em tela */
-      .indicadores-grid       { grid-template-columns: repeat(3,1fr) !important; }
-      .indice-resumo-grid     { grid-template-columns: repeat(4,1fr) !important; }
-      .painel-turma           { flex-direction: row !important; }
-      .painel-turma-esq       { flex: 0 0 52% !important; }
+      /* Garante que grids/flex não colem em coluna */
+      .indicadores-grid   { grid-template-columns: repeat(3,1fr) !important; }
+      .indice-resumo-grid { grid-template-columns: repeat(4,1fr) !important; }
+      .painel-turma       { flex-direction: row !important; }
+      .painel-turma-esq   { flex: 0 0 52% !important; }
       .rank-mini-grid,
-      .comp-mini-grid         { grid-template-columns: repeat(3,1fr) !important; }
-      .painel-linha1          { flex-direction: row !important; }
-      .comp-freq-bloco        { flex: 0 0 44% !important; }
-      .comp-freq-grid         { grid-template-columns: 1fr 1fr !important; }
-      .rel-header             { flex-direction: row !important; }
-      .rel-logo               { margin-left: auto !important; }
-      .evolucao-chart-wrap    { overflow: visible !important; }
-      .painel-turma-dir       { overflow: visible !important; }
+      .comp-mini-grid     { grid-template-columns: repeat(3,1fr) !important; }
+      .painel-linha1      { flex-direction: row !important; }
+      .comp-freq-bloco    { flex: 0 0 44% !important; }
+      .comp-freq-grid     { grid-template-columns: 1fr 1fr !important; }
+      .rel-header         { flex-direction: row !important; }
+      .rel-logo           { margin-left: auto !important; }
+      /* Garante que o gráfico não estoure */
+      .evolucao-chart-wrap { overflow: hidden !important; }
+      .painel-turma-dir    { overflow: hidden !important; }
     }
   </style>
 </head>
@@ -386,17 +410,21 @@
 
   <script type="module">
     import { db } from "./firebase-config.js";
-    import {
-      collection, getDocs, doc, getDoc, query, where, orderBy
-    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { regrasDeConquistas } from "./conquistas.js";
 
-    const MESES = { "01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro" };
+    const MESES = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
     const NOMES_MES_CURTO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+    /* Altura do container A4 em px (297mm a 96dpi).                    */
+    /* O .page tem width:794px. A escala ideal para A4 retrato é:        */
+    /* scale = 1122 / scrollHeight  (se scrollHeight > 1122, escala < 1) */
+    const A4_H_PX = 1122;
+    const A4_W_PX = 794;
 
     const agora = new Date();
     document.getElementById('sel-mes').value = String(agora.getMonth()+1).padStart(2,'0');
-    document.getElementById('sel-ano').value = agora.getFullYear();
+    document.getElementById('sel-ano').value  = agora.getFullYear();
 
     document.getElementById('btn-gerar').addEventListener('click', gerarRelatorioTurma);
     document.getElementById('btn-nova-config').addEventListener('click', () => {
@@ -405,17 +433,45 @@
       document.getElementById('top-bar-main').style.display = 'flex';
       document.getElementById('pages-list').innerHTML = '';
     });
-    document.getElementById('btn-imprimir').addEventListener('click', () => window.print());
+    document.getElementById('btn-imprimir').addEventListener('click', () => {
+      calcularEscalas();
+      window.print();
+    });
+    /* Recalcula antes de cada impressão (ex: janela redimensionada) */
+    window.addEventListener('beforeprint', calcularEscalas);
+    window.addEventListener('afterprint', () => {
+      document.querySelectorAll('.page').forEach(p => p.style.removeProperty('--print-scale'));
+    });
 
+    /**
+     * Para cada .page visível, calcula a escala necessária para que o
+     * conteúdo caiba exatamente dentro de um container A4 (1122px de altura).
+     * A escala é aplicada via CSS custom property --print-scale.
+     */
+    function calcularEscalas() {
+      document.querySelectorAll('.page-wrapper:not(.excluida) .page').forEach(page => {
+        /* Remove escala anterior para medir a altura real */
+        page.style.removeProperty('--print-scale');
+        page.style.transform = 'none';
+
+        const alturaReal = page.scrollHeight;
+        const escala = Math.min(A4_H_PX / alturaReal, 1);
+
+        page.style.removeProperty('transform');
+        page.style.setProperty('--print-scale', escala.toFixed(4));
+      });
+    }
+
+    /* ══════════════════════════════════════════════════════════════ */
     async function gerarRelatorioTurma() {
       const mes = document.getElementById('sel-mes').value;
       const ano = document.getElementById('sel-ano').value;
-      const chave = `${ano}-${mes}`;
+      const chave   = `${ano}-${mes}`;
       const nomeMes = MESES[mes] || mes;
 
-      document.getElementById('config-box').style.display = 'none';
-      document.getElementById('top-bar-main').style.display = 'none';
-      document.getElementById('loader-turma').style.display = 'block';
+      document.getElementById('config-box').style.display    = 'none';
+      document.getElementById('top-bar-main').style.display  = 'none';
+      document.getElementById('loader-turma').style.display  = 'block';
       document.getElementById('preview-container').style.display = 'none';
       document.getElementById('pages-list').innerHTML = '';
 
@@ -430,8 +486,8 @@
         setLoaderMsg('Carregando eventos...');
         const snapEventos = await getDocs(collection(db,'eventos'));
         const todosEventos = snapEventos.docs.map(d=>({id:d.id,...d.data()}));
-        const eventosMes = todosEventos.filter(e=>e.data?.startsWith(chave));
-        const eventosAno = todosEventos.filter(e=>e.data?.startsWith(`${ano}-`));
+        const eventosMes   = todosEventos.filter(e => e.data?.startsWith(chave));
+        const eventosAno   = todosEventos.filter(e => e.data?.startsWith(`${ano}-`));
 
         const freqPorAluno = {};
         alunos.forEach(a => {
@@ -440,7 +496,8 @@
         });
         const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
         const dadosTurma = {
-          todosAlunos: alunos, freqPorAluno,
+          todosAlunos:  alunos,
+          freqPorAluno,
           mediaNivel:   avg(alunos.map(a=>(Number(a.leitura)||0)+(Number(a.metodo)||0))),
           mediaLeitura: avg(alunos.map(a=>Number(a.leitura)||0)),
           mediaMetodo:  avg(alunos.map(a=>Number(a.metodo)||0)),
@@ -462,35 +519,38 @@
         let pageIndex = 0;
         const graficosParaRenderizar = new Map();
 
+        /* ── Capa ── */
         adicionarPagina(pagesList, criarCapa(nomeMes, ano, alunos.length), 'Capa', pageIndex++);
 
+        /* ── Índice ── */
         const resumoAlunos = alunos.map(aluno => {
-          const snaps = snapshotsPorAluno[aluno.id] || [];
+          const snaps        = snapshotsPorAluno[aluno.id] || [];
           const snapAtual    = snaps.find(s=>s.chave===chave);
           const snapAnterior = snaps.find(s=>s.chave===chaveAnterior);
           return {
             aluno,
-            lAtual: snapAtual?.leitura ?? aluno.leitura ?? 1,
+            lAtual: snapAtual?.leitura    ?? aluno.leitura ?? 1,
             lAnt:   snapAnterior?.leitura ?? null,
-            mAtual: snapAtual?.metodo  ?? aluno.metodo  ?? 1,
-            mAnt:   snapAnterior?.metodo ?? null,
-            freqMes: calcularFrequencia(eventosMes, aluno.nome),
-            freqPorAluno: freqPorAluno[aluno.nome]||0
+            mAtual: snapAtual?.metodo     ?? aluno.metodo  ?? 1,
+            mAnt:   snapAnterior?.metodo  ?? null,
+            freqMes:      calcularFrequencia(eventosMes, aluno.nome),
+            freqPorAluno: freqPorAluno[aluno.nome] || 0
           };
         });
         adicionarPagina(pagesList, criarIndice(nomeMes, ano, resumoAlunos, alunos.length), 'Índice Geral', pageIndex++);
 
+        /* ── Páginas individuais ── */
         for (let i = 0; i < alunos.length; i++) {
-          const aluno = alunos[i];
+          const aluno        = alunos[i];
           setLoaderMsg(`Gerando ${aluno.nome} (${i+1}/${alunos.length})...`);
 
-          const snaps = snapshotsPorAluno[aluno.id] || [];
+          const snaps        = snapshotsPorAluno[aluno.id] || [];
           const snapAtual    = snaps.find(s=>s.chave===chave);
           const snapAnterior = snaps.find(s=>s.chave===chaveAnterior);
 
-          const leituraAtual    = snapAtual?.leitura    ?? aluno.leitura    ?? 1;
+          const leituraAtual    = snapAtual?.leitura    ?? aluno.leitura ?? 1;
           const leituraAnterior = snapAnterior?.leitura ?? null;
-          const metodoAtual     = snapAtual?.metodo     ?? aluno.metodo     ?? 1;
+          const metodoAtual     = snapAtual?.metodo     ?? aluno.metodo  ?? 1;
           const metodoAnterior  = snapAnterior?.metodo  ?? null;
 
           const freqMes         = calcularFrequencia(eventosMes, aluno.nome);
@@ -500,12 +560,14 @@
           const conquistasMes = regrasDeConquistas.filter(c =>
             c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual}})
           );
-          const presencaDetalhada = eventosMes.map(ev => {
-            const p = ev.presencas?.find(x=>x.nome===aluno.nome);
-            return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : "Ausente" };
-          }).sort((a,b)=>a.data.localeCompare(b.data));
+          const presencaDetalhada = eventosMes
+            .map(ev => {
+              const p = ev.presencas?.find(x=>x.nome===aluno.nome);
+              return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : "Ausente" };
+            })
+            .sort((a,b)=>a.data.localeCompare(b.data));
 
-          const rankings = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
+          const rankings      = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
           const evolucaoAluno = snaps.slice(-6);
 
           let canvasRef = null;
@@ -519,18 +581,24 @@
             freqMes, freqGeral, freqMesAnterior,
             conquistasMes, presencaDetalhada,
             leituraAtual, leituraAnterior, leituraMeta: leituraAtual+2,
-            metodoAtual, metodoAnterior, metodoMeta: metodoAtual+2,
+            metodoAtual,  metodoAnterior,  metodoMeta:  metodoAtual+2,
             dadosTurma, rankings, evolucaoAluno, canvasRef
           });
           adicionarPagina(pagesList, pageEl, aluno.nome, pageIndex++);
         }
 
-        document.getElementById('loader-turma').style.display = 'none';
+        /* Mostra preview antes de renderizar gráficos (Chart.js precisa do DOM visível) */
+        document.getElementById('loader-turma').style.display   = 'none';
         document.getElementById('preview-container').style.display = 'block';
         atualizarContador();
 
+        /* Aguarda 2 frames para o navegador calcular layout */
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
         renderizarGraficos(graficosParaRenderizar);
+
+        /* Pré-calcula escalas logo após renderizar os gráficos */
+        await new Promise(r => setTimeout(r, 300));
+        calcularEscalas();
 
       } catch(e) {
         console.error(e);
@@ -538,6 +606,7 @@
       }
     }
 
+    /* ── Adiciona página ao preview ── */
     function adicionarPagina(container, pageContent, label, index) {
       const wrapper = document.createElement('div');
       wrapper.className = 'page-wrapper';
@@ -567,7 +636,7 @@
     function togglePagina(wrapper, btn) {
       const excluida = wrapper.classList.toggle('excluida');
       btn.classList.toggle('restaurar', excluida);
-      btn.title = excluida ? 'Restaurar página' : 'Excluir página';
+      btn.title   = excluida ? 'Restaurar página' : 'Excluir página';
       btn.innerHTML = excluida ? '↩' : '✕';
       atualizarContador();
     }
@@ -580,6 +649,7 @@
         `${ativas} página${ativas!==1?'s':''} ativas (${excluidas} excluída${excluidas!==1?'s':''})`;
     }
 
+    /* ── CAPA ── */
     function criarCapa(nomeMes, ano, totalAlunos) {
       const div = document.createElement('div');
       div.className = 'page';
@@ -597,6 +667,7 @@
       return div;
     }
 
+    /* ── ÍNDICE ── */
     function criarIndice(nomeMes, ano, resumos, totalAlunos) {
       const totalEvoluiu = resumos.filter(r => statusTexto(r.lAtual,r.lAnt)==='evoluiu' || statusTexto(r.mAtual,r.mAnt)==='evoluiu').length;
       const mediaFreqMes = resumos.length ? Math.round(resumos.reduce((s,r)=>s+r.freqMes.percentual,0)/resumos.length) : 0;
@@ -605,9 +676,9 @@
       const rows = resumos.map((r,i) => {
         const stL = statusTexto(r.lAtual, r.lAnt);
         const stM = statusTexto(r.mAtual, r.mAnt);
-        const geral = (stL==='evoluiu'||stM==='evoluiu') ? 'evoluiu' :
-                      (stL==='regrediu'||stM==='regrediu') ? 'regrediu' :
-                      (stL==='estavel'||stM==='estavel') ? 'estavel' : 'neutro';
+        const geral = (stL==='evoluiu'||stM==='evoluiu') ? 'evoluiu'
+                    : (stL==='regrediu'||stM==='regrediu') ? 'regrediu'
+                    : (stL==='estavel'||stM==='estavel') ? 'estavel' : 'neutro';
         const freqStr = r.freqMes.total===0 ? '—' : `${r.freqMes.percentual}%`;
         return `<tr>
           <td style="text-align:left;font-weight:600;color:#0f172a">${i+1}. ${r.aluno.nome}</td>
@@ -645,27 +716,28 @@
         </table>
         <div class="rel-footer">
           <div>Gerado em: ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div>
-          <div style="font-size:0.9em;color:#475569">Filhos de Asafe — Relatório Geral</div>
+          <div style="font-size:.9em;color:#475569">Filhos de Asafe — Relatório Geral</div>
         </div>`;
       return div;
     }
 
+    /* ── PÁGINA INDIVIDUAL DO ALUNO ── */
     function criarPaginaAluno({
       aluno, ano, mes, nomeMes, chave,
       freqMes, freqGeral, freqMesAnterior,
       conquistasMes, presencaDetalhada,
       leituraAtual, leituraAnterior, leituraMeta,
-      metodoAtual, metodoAnterior, metodoMeta,
+      metodoAtual,  metodoAnterior,  metodoMeta,
       dadosTurma, rankings, evolucaoAluno, canvasRef
     }) {
       const stPresenca = freqMes.total===0
         ? {texto:"— Sem chamadas",classe:"status-neutro"}
         : gerarStatus(freqMes.percentual, freqMesAnterior.total>0?freqMesAnterior.percentual:null);
-      const stLeitura = gerarStatus(leituraAtual, leituraAnterior);
-      const stMetodo  = gerarStatus(metodoAtual,  metodoAnterior);
+      const stLeitura    = gerarStatus(leituraAtual, leituraAnterior);
+      const stMetodo     = gerarStatus(metodoAtual,  metodoAnterior);
       const metaPresenca = freqMes.percentual>=80?100:80;
-      const clsAntL = (leituraAnterior!==null&&leituraAtual>leituraAnterior)?"evoluiu":"";
-      const clsAntM = (metodoAnterior!==null&&metodoAtual>metodoAnterior)?"evoluiu":"";
+      const clsAntL = (leituraAnterior!==null && leituraAtual>leituraAnterior) ? "evoluiu" : "";
+      const clsAntM = (metodoAnterior!==null  && metodoAtual>metodoAnterior)   ? "evoluiu" : "";
       const analise = gerarAnalise(aluno,freqMes,freqGeral,freqMesAnterior,leituraAtual,leituraAnterior,metodoAtual,metodoAnterior);
 
       let painelTurmaHTML = '';
@@ -674,16 +746,17 @@
         const {mediaMetodo,mediaLeitura,mediaFreq}    = dadosTurma;
         const metodoAluno  = Number(aluno.metodo)||0;
         const leituraAluno = Number(aluno.leitura)||0;
+
         const mkRank = (label,pos,cls) => {
-          const mc=medalhaClasse(pos);
+          const mc = medalhaClasse(pos);
           return `<div class="rank-mini-card ${cls}"><div class="rank-mini-label">${label}</div><div class="rank-mini-pos ${mc}">${pos}º</div><div class="rank-mini-total">de ${total}</div><span class="rank-mini-badge rmb-${mc}">${medalhaTexto(pos)}</span></div>`;
         };
         const mkComp = (label,val,media,unid) => {
-          const c=chipComp(val,media);
+          const c = chipComp(val,media);
           return `<div class="comp-mini-card"><div class="comp-mini-label">${label}</div><div class="comp-mini-row"><span class="comp-mini-voce ${c.cls}">${val}${unid}</span><span class="comp-mini-vs">vs</span><span class="comp-mini-media">${media.toFixed(1)}${unid}</span></div><span class="comp-chip-sm ${c.chip}">${c.txt}</span></div>`;
         };
         const graficoSlotId = `grafico-slot-${aluno.id}`;
-        const graficoHTML = canvasRef
+        const graficoHTML   = canvasRef
           ? `<div class="evolucao-chart-wrap" id="${graficoSlotId}"></div>`
           : `<div class="evolucao-sem-dados">Histórico insuficiente (mín. 2)</div>`;
 
@@ -693,11 +766,19 @@
             <div class="painel-turma-esq">
               <div class="painel-bloco">
                 <div class="painel-bloco-label">🏅 Ranking na Turma</div>
-                <div class="rank-mini-grid">${mkRank('Método',rankMetodo,'rmc-blue')}${mkRank('Leitura',rankLeitura,'rmc-green')}${mkRank('Frequência',rankFreq,'rmc-yellow')}</div>
+                <div class="rank-mini-grid">
+                  ${mkRank('Método',  rankMetodo, 'rmc-blue')}
+                  ${mkRank('Leitura', rankLeitura,'rmc-green')}
+                  ${mkRank('Frequência',rankFreq, 'rmc-yellow')}
+                </div>
               </div>
               <div class="painel-bloco">
                 <div class="painel-bloco-label">📊 Você vs Turma</div>
-                <div class="comp-mini-grid">${mkComp('Método',metodoAluno,mediaMetodo,'pts')}${mkComp('Leitura',leituraAluno,mediaLeitura,'pts')}${mkComp('Frequência',freqGeral.percentual,mediaFreq,'%')}</div>
+                <div class="comp-mini-grid">
+                  ${mkComp('Método',   metodoAluno, mediaMetodo,'pts')}
+                  ${mkComp('Leitura',  leituraAluno,mediaLeitura,'pts')}
+                  ${mkComp('Frequência',freqGeral.percentual,mediaFreq,'%')}
+                </div>
               </div>
             </div>
             <div class="painel-turma-dir">
@@ -810,30 +891,40 @@
       return div;
     }
 
+    /* ── RENDERIZAR GRÁFICOS ── */
     function renderizarGraficos(graficosMap) {
       graficosMap.forEach(({ canvasEl, snaps }) => {
         new Chart(canvasEl, {
           type: 'line',
           data: {
-            labels: snaps.map(s => { const [y,m] = s.chave.split('-'); return NOMES_MES_CURTO[Number(m)-1]+'/'+y.slice(2); }),
+            labels: snaps.map(s => {
+              const [y,m] = s.chave.split('-');
+              return NOMES_MES_CURTO[Number(m)-1]+'/'+y.slice(2);
+            }),
             datasets: [
-              {label:'Total',   data:snaps.map(s=>(Number(s.leitura)||0)+(Number(s.metodo)||0)), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', pointBackgroundColor:'#3b82f6', tension:0.4, fill:true,  pointRadius:4},
-              {label:'Leitura', data:snaps.map(s=>Number(s.leitura)||0), borderColor:'#22c55e', backgroundColor:'transparent', pointBackgroundColor:'#22c55e', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]},
-              {label:'Método',  data:snaps.map(s=>Number(s.metodo)||0),  borderColor:'#f59e0b', backgroundColor:'transparent', pointBackgroundColor:'#f59e0b', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]}
+              { label:'Total',   data:snaps.map(s=>(Number(s.leitura)||0)+(Number(s.metodo)||0)), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', pointBackgroundColor:'#3b82f6', tension:0.4, fill:true,  pointRadius:4 },
+              { label:'Leitura', data:snaps.map(s=>Number(s.leitura)||0), borderColor:'#22c55e', backgroundColor:'transparent', pointBackgroundColor:'#22c55e', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3] },
+              { label:'Método',  data:snaps.map(s=>Number(s.metodo)||0),  borderColor:'#f59e0b', backgroundColor:'transparent', pointBackgroundColor:'#f59e0b', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3] }
             ]
           },
           options: {
-            responsive:true, maintainAspectRatio:false,
-            plugins: { legend:{labels:{color:'#475569',font:{size:9},boxWidth:9,padding:6}}, tooltip:{mode:'index',intersect:false} },
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend:  { labels:{ color:'#475569', font:{size:9}, boxWidth:9, padding:6 } },
+              tooltip: { mode:'index', intersect:false }
+            },
             scales: {
-              x: {ticks:{color:'#64748b',font:{size:8}}, grid:{color:'rgba(0,0,0,0.04)'}},
-              y: {beginAtZero:true, ticks:{color:'#64748b',font:{size:8}}, grid:{color:'rgba(0,0,0,0.04)'}}
+              x: { ticks:{color:'#64748b',font:{size:8}}, grid:{color:'rgba(0,0,0,0.04)'} },
+              y: { beginAtZero:true, ticks:{color:'#64748b',font:{size:8}}, grid:{color:'rgba(0,0,0,0.04)'} }
             }
           }
         });
       });
     }
 
+    /* ══════════════════════════════════════════════════════════════ */
+    /* UTILITÁRIOS                                                     */
+    /* ══════════════════════════════════════════════════════════════ */
     function calcularFrequencia(eventos, nomeAluno) {
       if (!eventos?.length) return { total:0, presencas:0, percentual:0 };
       const total     = eventos.length;
@@ -841,33 +932,35 @@
       return { total, presencas, percentual: Math.round((presencas/total)*100) };
     }
     function getMesAnterior(chave) {
-      const [ano,mes] = chave.split("-").map(Number);
+      const [ano,mes] = chave.split('-').map(Number);
       const d = new Date(ano, mes-2, 1);
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"00")}`;
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
     }
     function formatarData(iso) {
-      if (!iso) return "-"; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`;
+      if (!iso) return '-';
+      const [a,m,d] = iso.split('-');
+      return `${d}/${m}/${a}`;
     }
     function gerarStatus(atual, anterior) {
-      if (anterior===null)  return { texto:"— Sem histórico", classe:"status-neutro" };
+      if (anterior===null)  return { texto:"— Sem histórico", classe:"status-neutro"  };
       if (atual>anterior)   return { texto:"▲ Evoluiu",       classe:"status-evoluiu" };
       if (atual===anterior) return { texto:"● Estável",        classe:"status-estavel" };
-      return                       { texto:"▼ Regrediu",      classe:"status-regrediu" };
+      return                       { texto:"▼ Regrediu",      classe:"status-regrediu"};
     }
     function statusTexto(atual, anterior) {
-      if (anterior===null) return 'neutro';
-      if (atual>anterior)  return 'evoluiu';
+      if (anterior===null)  return 'neutro';
+      if (atual>anterior)   return 'evoluiu';
       if (atual===anterior) return 'estavel';
       return 'regrediu';
     }
-    function corBarra(pct) { return pct>=80?"fill-verde":pct>=50?"fill-amarelo":"fill-vermelho"; }
+    function corBarra(pct) { return pct>=80?'fill-verde':pct>=50?'fill-amarelo':'fill-vermelho'; }
     function medalhaClasse(pos) { return pos===1?'ouro':pos===2?'prata':pos===3?'bronze':'normal'; }
     function medalhaTexto(pos)  { return pos===1?'🥇 1º':pos===2?'🥈 2º':pos===3?'🥉 3º':`${pos}º`; }
     function chipComp(val, media) {
-      const d = val-media;
-      if (d> 0.5) return {cls:'acima', chip:'chip-acima', txt:`▲ +${d.toFixed(1)}`};
-      if (d<-0.5) return {cls:'abaixo',chip:'chip-abaixo',txt:`▼ ${d.toFixed(1)}`};
-      return              {cls:'igual', chip:'chip-igual', txt:'● Média'};
+      const d = val - media;
+      if (d> 0.5) return { cls:'acima', chip:'chip-acima', txt:`▲ +${d.toFixed(1)}` };
+      if (d<-0.5) return { cls:'abaixo',chip:'chip-abaixo',txt:`▼ ${d.toFixed(1)}`  };
+      return              { cls:'igual', chip:'chip-igual', txt:'● Média'             };
     }
     function calcularRankings(aluno, dadosTurma, freqAnual) {
       if (!dadosTurma) return null;
@@ -875,31 +968,31 @@
       const mA = Number(aluno.metodo)||0;
       const lA = Number(aluno.leitura)||0;
       return {
-        total: todosAlunos.length,
+        total:       todosAlunos.length,
         rankMetodo:  todosAlunos.map(a=>Number(a.metodo)||0).filter(v=>v>mA).length+1,
         rankLeitura: todosAlunos.map(a=>Number(a.leitura)||0).filter(v=>v>lA).length+1,
         rankFreq:    todosAlunos.map(a=>freqPorAluno[a.nome]||0).filter(v=>v>freqAnual).length+1
       };
     }
     function gerarAnalise(aluno,freqMes,freqGeral,freqMesAnterior,leituraAtual,leituraAnterior,metodoAtual,metodoAnterior) {
-      const nome  = aluno.nome ? aluno.nome.split(" ")[0] : "você";
-      const lNome = aluno.leituraNome || "Bona";
-      const mNome = aluno.metodoNome  || "Método";
+      const nome  = aluno.nome ? aluno.nome.split(' ')[0] : 'você';
+      const lNome = aluno.leituraNome || 'Bona';
+      const mNome = aluno.metodoNome  || 'Método';
       const p = [], pct = freqMes.percentual;
-      if (freqMes.total===0) p.push(`${nome}, sem registros de chamada neste mês.`);
-      else if (pct===100)    p.push(`${nome}, presença perfeita neste mês! Parabéns!`);
-      else if (pct>=80)      p.push(`${nome}, manteve ${pct}% de presença — muito bom!`);
-      else if (pct>=50)      p.push(`${nome}, frequência em ${pct}%. Tente chegar a 80%.`);
-      else p.push(`${nome}, presença de ${pct}% precisa de atenção.`);
-      if (leituraAnterior===null)              p.push(`Leitura na lição ${leituraAtual} (${lNome}).`);
-      else if (leituraAtual>leituraAnterior)   p.push(`Leitura avançou ${leituraAnterior} → ${leituraAtual} (${lNome}) — excelente!`);
-      else if (leituraAtual===leituraAnterior) p.push(`Lição ${leituraAtual} (${lNome}) há 2 meses. Avance!`);
-      else p.push(`Leitura recuou para ${leituraAtual}. Redobrar atenção.`);
-      if (metodoAnterior===null)              p.push(`Método na unid. ${metodoAtual} (${mNome}).`);
-      else if (metodoAtual>metodoAnterior)    p.push(`Método avançou ${metodoAnterior} → ${metodoAtual} — notável!`);
-      else if (metodoAtual===metodoAnterior)  p.push(`Unid. ${metodoAtual} por 2 meses. Avance!`);
-      else p.push(`Método recuou. Retome com calma.`);
-      return p.join(" ");
+      if      (freqMes.total===0) p.push(`${nome}, sem registros de chamada neste mês.`);
+      else if (pct===100)         p.push(`${nome}, presença perfeita neste mês! Parabéns!`);
+      else if (pct>=80)           p.push(`${nome}, manteve ${pct}% de presença — muito bom!`);
+      else if (pct>=50)           p.push(`${nome}, frequência em ${pct}%. Tente chegar a 80%.`);
+      else                        p.push(`${nome}, presença de ${pct}% precisa de atenção.`);
+      if      (leituraAnterior===null)              p.push(`Leitura na lição ${leituraAtual} (${lNome}).`);
+      else if (leituraAtual>leituraAnterior)         p.push(`Leitura avançou ${leituraAnterior} → ${leituraAtual} (${lNome}) — excelente!`);
+      else if (leituraAtual===leituraAnterior)       p.push(`Lição ${leituraAtual} (${lNome}) há 2 meses. Avance!`);
+      else                                           p.push(`Leitura recuou para ${leituraAtual}. Redobrar atenção.`);
+      if      (metodoAnterior===null)               p.push(`Método na unid. ${metodoAtual} (${mNome}).`);
+      else if (metodoAtual>metodoAnterior)           p.push(`Método avançou ${metodoAnterior} → ${metodoAtual} — notável!`);
+      else if (metodoAtual===metodoAnterior)         p.push(`Unid. ${metodoAtual} por 2 meses. Avance!`);
+      else                                           p.push(`Método recuou. Retome com calma.`);
+      return p.join(' ');
     }
     function setLoaderMsg(msg) {
       const el = document.getElementById('loader-msg');
