@@ -18,13 +18,7 @@
       display:flex;flex-direction:column;align-items:center;
       padding:0 16px 90px;
     }
-
-    /* TOP BAR */
-    .top-bar{
-      width:100%;max-width:600px;
-      display:flex;align-items:center;gap:10px;
-      padding:18px 0 0;
-    }
+    .top-bar{width:100%;max-width:600px;display:flex;align-items:center;gap:10px;padding:18px 0 0;}
     .back-btn{
       background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
       color:#e2e8f0;padding:8px 14px;border-radius:10px;
@@ -36,167 +30,101 @@
     .title-info h1{font-size:1.15rem;font-weight:800;color:#fbbf24;}
     .title-info p{font-size:.78rem;color:#64748b;margin-top:2px;}
 
-    /* MODO SELECTOR */
-    .mode-selector{
-      width:100%;max-width:600px;margin-top:16px;
-      display:flex;gap:8px;
-    }
+    .mode-selector{width:100%;max-width:600px;margin-top:16px;display:flex;gap:8px;}
     .mode-btn{
       flex:1;padding:10px 6px;
-      background:rgba(255,255,255,.06);
-      border:1.5px solid rgba(255,255,255,.1);
-      border-radius:12px;cursor:pointer;
-      text-align:center;transition:all .2s;
-      position:relative;
+      background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);
+      border-radius:12px;cursor:pointer;text-align:center;transition:all .2s;position:relative;
     }
-    .mode-btn.active{
-      background:rgba(168,85,247,.2);
-      border-color:#a855f7;
-    }
-    .mode-btn.locked{
-      opacity:.4;pointer-events:none;
-    }
-    .mode-btn .m-num{
-      font-size:.68rem;color:#64748b;font-weight:700;
-      text-transform:uppercase;letter-spacing:.4px;
-    }
-    .mode-btn .m-name{
-      font-size:.82rem;font-weight:700;color:#e2e8f0;
-      margin-top:2px;
-    }
+    .mode-btn.active{background:rgba(168,85,247,.2);border-color:#a855f7;}
+    .mode-btn.locked{opacity:.4;pointer-events:none;}
+    .mode-btn .m-num{font-size:.68rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+    .mode-btn .m-name{font-size:.82rem;font-weight:700;color:#e2e8f0;margin-top:2px;}
     .mode-btn .m-icon{font-size:1.1rem;margin-bottom:3px;}
-    .lock-icon{
-      position:absolute;top:6px;right:8px;
-      font-size:.7rem;color:#475569;
-    }
-    .mode-btn.done .lock-icon::before{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;color:#22c55e;}
+    .lock-icon{position:absolute;top:6px;right:8px;font-size:.7rem;color:#475569;}
 
-    /* HUD */
-    .hud{
-      width:100%;max-width:600px;margin-top:12px;
-      display:flex;align-items:center;gap:10px;
-    }
+    .hud{width:100%;max-width:600px;margin-top:12px;display:flex;align-items:center;gap:10px;}
     .lives{display:flex;gap:4px;font-size:1.05rem;}
     .combo-badge{
       background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);
-      color:#fbbf24;border-radius:20px;
-      padding:3px 10px;font-size:.78rem;font-weight:700;
+      color:#fbbf24;border-radius:20px;padding:3px 10px;font-size:.78rem;font-weight:700;
       transition:transform .15s;
     }
     .combo-badge.bump{transform:scale(1.25);}
-    .score-display{
-      margin-left:auto;font-size:.95rem;font-weight:800;color:#f1f5f9;
-    }
+    .score-display{margin-left:auto;font-size:.95rem;font-weight:800;color:#f1f5f9;}
 
-    /* PROGRESS BAR */
     .prog-wrap{width:100%;max-width:600px;margin-top:8px;}
-    .prog-bar{
-      height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;
-    }
-    .prog-fill{
-      height:100%;background:linear-gradient(90deg,#7c3aed,#a855f7);
-      border-radius:99px;transition:width .4s;
-    }
-    .prog-label{
-      font-size:.72rem;color:#64748b;margin-top:4px;text-align:right;
-    }
+    .prog-bar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+    .prog-fill{height:100%;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:99px;transition:width .4s;}
+    .prog-label{font-size:.72rem;color:#64748b;margin-top:4px;text-align:right;}
 
-    /* CARTA / PERGUNTA */
+    /* CARTA PERGUNTA */
     .question-card{
       width:100%;max-width:600px;margin-top:16px;
-      background:rgba(255,255,255,.07);
-      border:1.5px solid rgba(255,255,255,.12);
-      border-radius:20px;padding:28px 24px;
-      text-align:center;min-height:180px;
-      display:flex;flex-direction:column;
-      align-items:center;justify-content:center;
+      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:24px 24px 20px;
+      text-align:center;min-height:200px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
       backdrop-filter:blur(6px);
     }
     .q-label{
-      font-size:.8rem;color:#64748b;
-      text-transform:uppercase;letter-spacing:.6px;
-      font-weight:700;margin-bottom:12px;
+      font-size:.8rem;color:#64748b;text-transform:uppercase;
+      letter-spacing:.6px;font-weight:700;margin-bottom:14px;
     }
-    .q-main{
-      font-size:3.5rem;line-height:1;
+    /* container do SVG da figura */
+    .q-figure{
+      display:flex;align-items:center;justify-content:center;
       margin-bottom:10px;
       transition:transform .2s;
     }
-    .q-main.pop{transform:scale(1.2);}
-    .q-sub{
-      font-size:1.1rem;font-weight:800;color:#f1f5f9;
-      margin-bottom:4px;
+    .q-figure.pop{transform:scale(1.18);}
+    /* quando a questão mostra texto (modo 2) */
+    .q-text-main{
+      font-size:1.8rem;font-weight:900;color:#f1f5f9;
+      margin-bottom:8px;transition:transform .2s;
+      line-height:1.1;
     }
-    .q-hint{font-size:.82rem;color:#94a3b8;}
+    .q-text-main.pop{transform:scale(1.15);}
+    .q-sub{font-size:1rem;font-weight:700;color:#94a3b8;margin-bottom:4px;}
+    .q-hint{font-size:.78rem;color:#64748b;}
 
-    /* TIMER */
-    .timer-bar-wrap{
-      width:100%;max-width:600px;margin-top:8px;
-    }
-    .timer-bar{
-      height:5px;background:rgba(255,255,255,.08);
-      border-radius:99px;overflow:hidden;
-    }
-    .timer-fill{
-      height:100%;background:#22c55e;
-      border-radius:99px;
-      transition:width .1s linear, background .3s;
-    }
+    .timer-bar-wrap{width:100%;max-width:600px;margin-top:8px;}
+    .timer-bar{height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+    .timer-fill{height:100%;background:#22c55e;border-radius:99px;transition:width .1s linear,background .3s;}
 
-    /* OPÇÕES */
     .options-grid{
       width:100%;max-width:600px;
       display:grid;grid-template-columns:1fr 1fr;
       gap:10px;margin-top:14px;
     }
     .opt-btn{
-      background:rgba(255,255,255,.07);
-      border:2px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);
       border-radius:14px;padding:14px 12px;
       font-size:.92rem;font-weight:700;color:#e2e8f0;
-      cursor:pointer;text-align:center;
-      transition:all .18s;
+      cursor:pointer;text-align:center;transition:all .18s;
       display:flex;align-items:center;justify-content:center;gap:8px;
     }
     .opt-btn:hover{background:rgba(255,255,255,.14);border-color:#a855f7;}
-    .opt-btn.correct{
-      background:rgba(34,197,94,.2);
-      border-color:#22c55e;color:#86efac;
-    }
-    .opt-btn.wrong{
-      background:rgba(239,68,68,.2);
-      border-color:#ef4444;color:#fca5a5;
-    }
+    .opt-btn.correct{background:rgba(34,197,94,.2);border-color:#22c55e;color:#86efac;}
+    .opt-btn.wrong{background:rgba(239,68,68,.2);border-color:#ef4444;color:#fca5a5;}
     .opt-btn:disabled{cursor:default;}
+    /* opções que mostram SVG (modo 1 e 3 com figura) */
+    .opt-btn.has-svg{padding:10px 8px;flex-direction:column;gap:5px;}
+    .opt-btn.has-svg .opt-label{font-size:.78rem;color:#94a3b8;}
 
-    /* FEEDBACK */
     .feedback-box{
       width:100%;max-width:600px;margin-top:12px;
       border-radius:14px;padding:14px 18px;
-      font-size:.88rem;font-weight:600;line-height:1.5;
-      display:none;
+      font-size:.88rem;font-weight:600;line-height:1.5;display:none;
     }
     .feedback-box.show{display:block;}
-    .feedback-box.ok{
-      background:rgba(34,197,94,.15);
-      border:1.5px solid rgba(34,197,94,.35);
-      color:#86efac;
-    }
-    .feedback-box.err{
-      background:rgba(239,68,68,.15);
-      border:1.5px solid rgba(239,68,68,.35);
-      color:#fca5a5;
-    }
+    .feedback-box.ok{background:rgba(34,197,94,.15);border:1.5px solid rgba(34,197,94,.35);color:#86efac;}
+    .feedback-box.err{background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.35);color:#fca5a5;}
 
-    /* TELA DE RESULTADO */
     .result-screen{
-      width:100%;max-width:600px;
-      margin-top:20px;
-      background:rgba(255,255,255,.07);
-      border:1.5px solid rgba(255,255,255,.12);
-      border-radius:20px;padding:32px 24px;
-      text-align:center;
-      display:none;
+      width:100%;max-width:600px;margin-top:20px;
+      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:32px 24px;text-align:center;display:none;
     }
     .result-screen.show{display:block;}
     .result-emoji{font-size:3.5rem;margin-bottom:10px;}
@@ -205,22 +133,18 @@
     .result-score{font-size:2rem;font-weight:900;color:#e2e8f0;margin-bottom:20px;}
     .result-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
     .r-btn{
-      padding:12px 22px;border-radius:12px;
-      font-size:.9rem;font-weight:700;cursor:pointer;
-      border:2px solid transparent;transition:all .2s;
+      padding:12px 22px;border-radius:12px;font-size:.9rem;font-weight:700;
+      cursor:pointer;border:2px solid transparent;transition:all .2s;
       text-decoration:none;display:inline-block;
     }
     .r-btn.primary{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
     .r-btn.secondary{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:#e2e8f0;}
     .r-btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
 
-    /* TELA INICIAL */
     .start-screen{
       width:100%;max-width:600px;margin-top:16px;
-      background:rgba(255,255,255,.07);
-      border:1.5px solid rgba(255,255,255,.12);
-      border-radius:20px;padding:28px 22px;
-      text-align:center;
+      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:28px 22px;text-align:center;
     }
     .start-title{font-size:1.2rem;font-weight:800;color:#fbbf24;margin-bottom:8px;}
     .start-desc{font-size:.87rem;color:#94a3b8;line-height:1.6;margin-bottom:20px;}
@@ -237,8 +161,7 @@
     .start-btn:hover{filter:brightness(1.15);}
 
     @media(max-width:420px){
-      .options-grid{grid-template-columns:1fr;}
-      .q-main{font-size:2.8rem;}
+      .options-grid{grid-template-columns:1fr 1fr;}
     }
   </style>
 </head>
@@ -254,7 +177,6 @@
     </div>
   </div>
 
-  <!-- TOP BAR -->
   <div class="top-bar">
     <a href="figuras-musicais.html" class="back-btn">← Tutorial</a>
     <div class="title-info">
@@ -263,161 +185,225 @@
     </div>
   </div>
 
-  <!-- MODO SELECTOR -->
   <div class="mode-selector" id="modeSelector"></div>
 
-  <!-- HUD -->
   <div class="hud" id="hudWrap" style="display:none;">
     <div class="lives" id="livesDisplay"></div>
     <div class="combo-badge" id="comboBadge">🔥 x1</div>
     <div class="score-display" id="scoreDisplay">0 pts</div>
   </div>
 
-  <!-- PROGRESS -->
   <div class="prog-wrap" id="progWrap" style="display:none;">
     <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%;"></div></div>
     <div class="prog-label" id="progLabel">0 / 10</div>
   </div>
 
-  <!-- TELA INICIAL -->
   <div class="start-screen" id="startScreen">
     <div class="start-title">🎼 Jogo das Figuras Musicais</div>
     <div class="start-desc">Teste seu conhecimento sobre as figuras musicais em 3 modos progressivos. Complete o Modo 1 para desbloquear o Modo 2, e assim por diante!</div>
     <div class="start-rules">
-      <div class="rule-item"><span class="rule-icon">❓</span><span><strong>Modo 1:</strong> Veja a figura e escolha o nome correto</span></div>
-      <div class="rule-item"><span class="rule-icon">🔢</span><span><strong>Modo 2:</strong> Veja o nome e escolha o número (cifra) correto</span></div>
-      <div class="rule-item"><span class="rule-icon">↔️</span><span><strong>Modo 3:</strong> Quantas figuras cabem em uma semibreve?</span></div>
+      <div class="rule-item"><span class="rule-icon">❓</span><span><strong>Modo 1:</strong> Veja a figura desenhada — escolha o nome correto</span></div>
+      <div class="rule-item"><span class="rule-icon">🔢</span><span><strong>Modo 2:</strong> Veja o nome — escolha o número (cifra) correto</span></div>
+      <div class="rule-item"><span class="rule-icon">↔️</span><span><strong>Modo 3:</strong> Quantas dessa figura cabem em 1 semibreve?</span></div>
       <div class="rule-item"><span class="rule-icon">❤️</span><span>3 vidas por rodada · combos aumentam seus pontos</span></div>
       <div class="rule-item"><span class="rule-icon">⏱️</span><span>Timer de 8 segundos por questão</span></div>
     </div>
     <button class="start-btn" onclick="startMode(0)">🚀 Começar Modo 1</button>
   </div>
 
-  <!-- PERGUNTA -->
   <div class="question-card" id="questionCard" style="display:none;">
     <div class="q-label" id="qLabel"></div>
-    <div class="q-main" id="qMain"></div>
+    <div class="q-figure" id="qFigure"></div>
+    <div class="q-text-main" id="qTextMain" style="display:none;"></div>
     <div class="q-sub" id="qSub"></div>
     <div class="q-hint" id="qHint"></div>
   </div>
 
-  <!-- TIMER -->
   <div class="timer-bar-wrap" id="timerWrap" style="display:none;">
     <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%;"></div></div>
   </div>
 
-  <!-- OPÇÕES -->
   <div class="options-grid" id="optionsGrid" style="display:none;"></div>
-
-  <!-- FEEDBACK -->
   <div class="feedback-box" id="feedbackBox"></div>
-
-  <!-- RESULTADO -->
   <div class="result-screen" id="resultScreen"></div>
 
   <nav class="bottom-nav">
-    <a href="aluno.html" class="nav-item" data-page="home">
-      <i class="fas fa-home nav-icon"></i>
-      <span class="nav-label">Home</span>
-    </a>
-    <a href="painel-social.html" class="nav-item" data-page="comunidade">
-      <i class="fas fa-users nav-icon"></i>
-      <span class="nav-label">Comunidade</span>
-    </a>
-    <a href="biblioteca.html" class="nav-item" data-page="biblioteca">
-      <i class="fas fa-book nav-icon"></i>
-      <span class="nav-label">Biblioteca</span>
-    </a>
-    <a href="atividades.html" class="nav-item active" data-page="atividades">
-      <i class="fas fa-clipboard-list nav-icon"></i>
-      <span class="nav-label">Atividades</span>
-    </a>
+    <a href="aluno.html" class="nav-item" data-page="home"><i class="fas fa-home nav-icon"></i><span class="nav-label">Home</span></a>
+    <a href="painel-social.html" class="nav-item" data-page="comunidade"><i class="fas fa-users nav-icon"></i><span class="nav-label">Comunidade</span></a>
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca"><i class="fas fa-book nav-icon"></i><span class="nav-label">Biblioteca</span></a>
+    <a href="atividades.html" class="nav-item active" data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i><span class="nav-label">Atividades</span></a>
   </nav>
 
   <script src="loader.js"></script>
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="bottom-nav.js"></script>
   <script>
-  // ═════ DADOS ═════
+  // ══════════════════════════════════════════
+  //  SVG DE CADA FIGURA  (w=60 h=90, cor injetada via `c`)
+  //  Cada função retorna string SVG completa
+  // ══════════════════════════════════════════
+  function svgWrap(inner, w=60, h=90){
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${inner}</svg>`;
+  }
+
+  // Cabeça vazia (oval) usada por semibreve e mínima
+  function headOpen(cx,cy,c){ return `<ellipse cx="${cx}" cy="${cy}" rx="10" ry="7" fill="none" stroke="${c}" stroke-width="2.5" transform="rotate(-20,${cx},${cy})"/>`; }
+  // Cabeça preenchida
+  function headFilled(cx,cy,c){ return `<ellipse cx="${cx}" cy="${cy}" rx="10" ry="7" fill="${c}" stroke="${c}" stroke-width="1.5" transform="rotate(-20,${cx},${cy})"/>`; }
+  // Haste (sobe à direita)
+  function stem(cx,cy,c,up=true){
+    const x1=cx+9, y1=cy, x2=x1, y2=up?cy-38:cy+38;
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="2.2"/>`;
+  }
+  // Bandeirola simples (colcheia)
+  function flag1(x,y,c){ return `<path d="M${x} ${y} C${x+18} ${y+8} ${x+16} ${y+20} ${x+4} ${y+22}" fill="none" stroke="${c}" stroke-width="2.2"/>`; }
+  // Segunda bandeirola
+  function flag2(x,y,c){ return `<path d="M${x} ${y+12} C${x+18} ${y+20} ${x+16} ${y+32} ${x+4} ${y+34}" fill="none" stroke="${c}" stroke-width="2.2"/>`; }
+  // Terceira bandeirola
+  function flag3(x,y,c){ return `<path d="M${x} ${y+24} C${x+18} ${y+32} ${x+16} ${y+44} ${x+4} ${y+46}" fill="none" stroke="${c}" stroke-width="2.2"/>`; }
+  // Quarta bandeirola
+  function flag4(x,y,c){ return `<path d="M${x} ${y+36} C${x+18} ${y+44} ${x+16} ${y+56} ${x+4} ${y+58}" fill="none" stroke="${c}" stroke-width="2.2"/>`; }
+
+  const NOTA_SVG = {
+    // 1 — Semibreve: oval aberta, SEM haste
+    1: c => svgWrap(
+      `<ellipse cx="30" cy="52" rx="14" ry="9" fill="none" stroke="${c}" stroke-width="3" transform="rotate(-15,30,52)"/>`+
+      // buraco interno para parecer anel
+      `<ellipse cx="30" cy="52" rx="6" ry="3.5" fill="none" stroke="${c}" stroke-width="1.5" transform="rotate(-15,30,52)"/>`,
+      60, 90
+    ),
+    // 2 — Mínima: oval ABERTA + haste
+    2: c => svgWrap(
+      headOpen(22,68,c)+stem(22,68,c,true),
+      60, 90
+    ),
+    // 4 — Semínima: oval PREENCHIDA + haste
+    4: c => svgWrap(
+      headFilled(22,68,c)+stem(22,68,c,true),
+      60, 90
+    ),
+    // 8 — Colcheia: preenchida + haste + 1 bandeirola
+    8: c => svgWrap(
+      headFilled(22,68,c)+stem(22,68,c,true)+flag1(31,30,c),
+      60, 90
+    ),
+    // 16 — Semicolcheia: preenchida + haste + 2 bandeirolas
+    16: c => svgWrap(
+      headFilled(22,68,c)+stem(22,68,c,true)+flag1(31,18,c)+flag2(31,18,c),
+      60, 90
+    ),
+    // 32 — Fusa: preenchida + haste + 3 bandeirolas
+    32: c => svgWrap(
+      headFilled(22,68,c)+stem(22,68,c,true)+flag1(31,10,c)+flag2(31,10,c)+flag3(31,10,c),
+      60, 90
+    ),
+    // 64 — Semifusa: preenchida + haste + 4 bandeirolas
+    64: c => svgWrap(
+      headFilled(22,68,c)+stem(22,68,c,true)+flag1(31,4,c)+flag2(31,4,c)+flag3(31,4,c)+flag4(31,4,c),
+      60, 90
+    ),
+  };
+
+  // SVG de pausas (para o Modo pausa futuro / feedback visual)
+  const PAUSA_SVG = {
+    // Semibreve: bloco pendurado
+    1: c => svgWrap(`<rect x="12" y="38" width="36" height="10" rx="2" fill="${c}"/><line x1="10" y1="38" x2="50" y2="38" stroke="${c}" stroke-width="2"/>`,60,90),
+    // Mínima: bloco apoiado
+    2: c => svgWrap(`<rect x="12" y="44" width="36" height="10" rx="2" fill="${c}"/><line x1="10" y1="54" x2="50" y2="54" stroke="${c}" stroke-width="2"/>`,60,90),
+    // Semínima: gancho
+    4: c => svgWrap(`<path d="M28 30 Q38 38 30 50 Q22 58 30 68" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`,60,90),
+    // Colcheia: 7 simples
+    8: c => svgWrap(`<path d="M30 25 L30 55 Q38 62 34 70" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><circle cx="30" cy="25" r="4" fill="${c}"/>`,60,90),
+    // Semicolcheia: 7 duplo
+    16: c => svgWrap(`<path d="M30 22 L30 55 Q38 60 34 68" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><circle cx="30" cy="22" r="4" fill="${c}"/><path d="M30 34 Q40 40 34 48" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`,60,90),
+    // Fusa/Semifusa: simplificadas
+    32: c => svgWrap(`<text x="18" y="62" font-size="40" fill="${c}" font-family="serif">𝅀</text>`,60,90),
+    64: c => svgWrap(`<text x="18" y="62" font-size="40" fill="${c}" font-family="serif">𝅁</text>`,60,90),
+  };
+
+  // Wrapper de tamanho: grande (card pergunta) ou pequeno (opções)
+  function figSVG(num, color, size='lg'){
+    const fn = NOTA_SVG[num];
+    if(!fn) return '';
+    const raw = fn(color);
+    if(size==='sm'){
+      // reescala para 38x57 via CSS wrapper
+      return `<span style="display:inline-block;width:38px;height:57px;">${raw.replace('width="60" height="90"','width="38" height="57"').replace('viewBox="0 0 60 90"','viewBox="0 0 60 90"')}</span>`;
+    }
+    return raw;
+  }
+
+  // ══════════════════════════════════════════
+  //  DADOS
+  // ══════════════════════════════════════════
   const FIGURAS = [
-    { num:1,  name:'Semibreve',    sym:'○',  color:'#f59e0b', freq:523.25 },
-    { num:2,  name:'Mínima',       sym:'♩',  color:'#3b82f6', freq:493.88 },
-    { num:4,  name:'Semínima',     sym:'♩',  color:'#a855f7', freq:440.00 },
-    { num:8,  name:'Colcheia',     sym:'♪',  color:'#22c55e', freq:392.00 },
-    { num:16, name:'Semicolcheia', sym:'♬',  color:'#06b6d4', freq:349.23 },
-    { num:32, name:'Fusa',         sym:'♬',  color:'#f43f5e', freq:329.63 },
-    { num:64, name:'Semifusa',     sym:'♬',  color:'#f97316', freq:293.66 },
+    { num:1,  name:'Semibreve',    color:'#f59e0b', freq:523.25 },
+    { num:2,  name:'Mínima',       color:'#3b82f6', freq:493.88 },
+    { num:4,  name:'Semínima',     color:'#a855f7', freq:440.00 },
+    { num:8,  name:'Colcheia',     color:'#22c55e', freq:392.00 },
+    { num:16, name:'Semicolcheia', color:'#06b6d4', freq:349.23 },
+    { num:32, name:'Fusa',         color:'#f43f5e', freq:329.63 },
+    { num:64, name:'Semifusa',     color:'#f97316', freq:293.66 },
   ];
 
   const MODES = [
     {
-      title:'Qual é a Figura?',
-      icon:'❓',
-      desc:'Veja o símbolo — escolha o nome',
-      questions: 10,
+      title:'Qual é a Figura?', icon:'❓', desc:'Veja o desenho — escolha o nome',
+      questions:10,
       build(f, all){
         return {
-          label: 'Como se chama esta figura?',
-          main:  f.sym,
-          sub:   '',
-          hint:  '',
+          tipo:'figura',
+          label:'Como se chama esta figura?',
+          figNum: f.num, figColor: f.color,
+          sub:'', hint:'',
           answer: f.name,
-          options: shuffle([f, ...pick(all,f,3)]).map(x=>({ text: x.name, val: x.name, color: x.color })),
+          options: shuffle([f,...pick(all,f,3)]).map(x=>({text:x.name, val:x.name, color:x.color})),
         };
       }
     },
     {
-      title:'Qual é o Número?',
-      icon:'🔢',
-      desc:'Veja o nome — escolha a cifra',
-      questions: 10,
+      title:'Qual é o Número?', icon:'🔢', desc:'Veja o nome — escolha a cifra',
+      questions:10,
       build(f, all){
         return {
-          label: 'Qual é o número desta figura?',
-          main:  f.name,
-          sub:   '',
-          hint:  '(número que identifica a figura na fórmula de compasso)',
+          tipo:'texto',
+          label:'Qual é o número desta figura?',
+          textMain: f.name, figColor: f.color,
+          sub:'', hint:'(número que identifica a figura na fórmula de compasso)',
           answer: String(f.num),
-          options: shuffle([f, ...pick(all,f,3)]).map(x=>({ text: String(x.num), val: String(x.num), color: x.color })),
+          options: shuffle([f,...pick(all,f,3)]).map(x=>({text:String(x.num), val:String(x.num), color:x.color})),
         };
       }
     },
     {
-      title:'Quantas Cabem?',
-      icon:'↔️',
-      desc:'Quantas dessa figura cabem em 1 semibreve?',
-      questions: 10,
+      title:'Quantas Cabem?', icon:'↔️', desc:'Quantas dessa figura cabem em 1 semibreve?',
+      questions:10,
       build(f, all){
         const correct = f.num;
-        // distractors: valores vizinhos
         const pool = FIGURAS.map(x=>x.num).filter(n=>n!==correct);
-        const distractors = shuffle(pool).slice(0,3);
-        const opts = shuffle([correct,...distractors]);
+        const opts = shuffle([correct,...shuffle(pool).slice(0,3)]);
         return {
-          label: 'Quantas cabem em 1 Semibreve?',
-          main:  f.sym,
-          sub:   f.name,
-          hint:  '',
+          tipo:'figura',
+          label:'Quantas dessa figura cabem em 1 Semibreve?',
+          figNum: f.num, figColor: f.color,
+          sub: f.name, hint:'',
           answer: String(correct),
-          options: opts.map(v=>({ text: String(v), val: String(v), color: FIGURAS.find(x=>x.num===v)?.color||'#64748b' })),
+          options: opts.map(v=>({text:String(v), val:String(v), color:FIGURAS.find(x=>x.num===v)?.color||'#64748b'})),
         };
       }
     },
   ];
 
-  // unlock state
+  // ═════ STATE ═════
   const unlocked = JSON.parse(localStorage.getItem('figuras_unlocked')||'[true,false,false]');
-  let currentMode = 0;
-  let qIndex = 0, lives = 3, combo = 0, score = 0;
-  let timerInt = null;
-  let answering = false;
-  let questions = [];
+  let currentMode=0, qIndex=0, lives=3, combo=0, score=0;
+  let timerInt=null, answering=false, questions=[];
 
   // ═════ AUDIO ═════
-  let audioCtx = null;
+  let audioCtx=null;
   function getCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
   function beep(freq,dur,type='sine',vol=.4){
-    const ctx=getCtx(), o=ctx.createOscillator(), g=ctx.createGain();
+    const ctx=getCtx(),o=ctx.createOscillator(),g=ctx.createGain();
     o.connect(g);g.connect(ctx.destination);
     o.type=type;o.frequency.value=freq;
     g.gain.setValueAtTime(vol,ctx.currentTime);
@@ -429,219 +415,188 @@
 
   // ═════ HELPERS ═════
   function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
-  function pick(arr, exclude, n){
-    return shuffle(arr.filter(x=>x!==exclude)).slice(0,n);
-  }
-  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function pick(arr,exclude,n){ return shuffle(arr.filter(x=>x!==exclude)).slice(0,n); }
 
-  // ═════ BUILD MODES UI ═════
+  // ═════ MODE SELECTOR ═════
   function buildModeSelector(){
-    const wrap = document.getElementById('modeSelector');
-    wrap.innerHTML = '';
+    const wrap=document.getElementById('modeSelector');
+    wrap.innerHTML='';
     MODES.forEach((m,i)=>{
-      const btn = document.createElement('div');
-      btn.className = 'mode-btn' + (i===currentMode?' active':'') + (!unlocked[i]?' locked':'') + (unlocked[i] && i<currentMode?' done':'');
-      btn.innerHTML = `
+      const btn=document.createElement('div');
+      btn.className='mode-btn'+(i===currentMode?' active':'')+(!unlocked[i]?' locked':'');
+      btn.innerHTML=`
         <div class="m-icon">${m.icon}</div>
         <div class="m-num">Modo ${i+1}</div>
         <div class="m-name">${m.title}</div>
         ${!unlocked[i]?'<div class="lock-icon"><i class="fas fa-lock"></i></div>':''}
-        ${unlocked[i]&&i<currentMode?'<div class="lock-icon"></div>':''}
       `;
-      if(unlocked[i]) btn.onclick = ()=>{ currentMode=i; startMode(i); };
+      if(unlocked[i]) btn.onclick=()=>{ currentMode=i; startMode(i); };
       wrap.appendChild(btn);
     });
   }
-
   buildModeSelector();
 
-  // ═════ GERAR PERGUNTAS ═════
-  function genQuestions(modeIdx){
-    const mode = MODES[modeIdx];
-    const qs = [];
-    const pool = shuffle([...FIGURAS,...FIGURAS]).slice(0, mode.questions);
-    pool.forEach(f=> qs.push(mode.build(f, FIGURAS)));
+  // ═════ GEN QUESTIONS ═════
+  function genQuestions(mi){
+    const mode=MODES[mi], qs=[];
+    // garante variedade: duplica o pool e embaralha
+    const pool=shuffle([...FIGURAS,...FIGURAS]).slice(0,mode.questions);
+    pool.forEach(f=>qs.push(mode.build(f,FIGURAS)));
     return qs;
   }
 
-  // ═════ START MODE ═════
-  function startMode(modeIdx){
-    if(!unlocked[modeIdx]) return;
-    currentMode = modeIdx;
-    qIndex = 0; lives = 3; combo = 0; score = 0; answering = false;
-    questions = genQuestions(modeIdx);
-
-    document.getElementById('startScreen').style.display = 'none';
+  // ═════ START ═════
+  function startMode(mi){
+    if(!unlocked[mi]) return;
+    currentMode=mi; qIndex=0; lives=3; combo=0; score=0; answering=false;
+    questions=genQuestions(mi);
+    document.getElementById('startScreen').style.display='none';
     document.getElementById('resultScreen').classList.remove('show');
-    document.getElementById('questionCard').style.display = 'flex';
-    document.getElementById('optionsGrid').style.display = 'grid';
-    document.getElementById('timerWrap').style.display = 'block';
-    document.getElementById('hudWrap').style.display = 'flex';
-    document.getElementById('progWrap').style.display = 'block';
+    document.getElementById('questionCard').style.display='flex';
+    document.getElementById('optionsGrid').style.display='grid';
+    document.getElementById('timerWrap').style.display='block';
+    document.getElementById('hudWrap').style.display='flex';
+    document.getElementById('progWrap').style.display='block';
     document.getElementById('feedbackBox').classList.remove('show');
-
-    buildModeSelector();
-    updateHUD();
-    loadQuestion();
+    buildModeSelector(); updateHUD(); loadQuestion();
   }
 
   // ═════ HUD ═════
   function updateHUD(){
-    const lv = document.getElementById('livesDisplay');
-    lv.innerHTML = Array(3).fill(0).map((_,i)=>i<lives?'❤️':'🧡').join('');
-    const cb = document.getElementById('comboBadge');
-    cb.textContent = `🔥 x${Math.min(combo+1,4)}`;
-    cb.classList.add('bump');
-    setTimeout(()=>cb.classList.remove('bump'),180);
-    document.getElementById('scoreDisplay').textContent = score+' pts';
-    const total = MODES[currentMode].questions;
-    document.getElementById('progFill').style.width = (qIndex/total*100)+'%';
-    document.getElementById('progLabel').textContent = `${qIndex} / ${total}`;
+    document.getElementById('livesDisplay').innerHTML=Array(3).fill(0).map((_,i)=>i<lives?'❤️':'🧡').join('');
+    const cb=document.getElementById('comboBadge');
+    cb.textContent=`🔥 x${Math.min(combo+1,4)}`;
+    cb.classList.add('bump'); setTimeout(()=>cb.classList.remove('bump'),180);
+    document.getElementById('scoreDisplay').textContent=score+' pts';
+    const tot=MODES[currentMode].questions;
+    document.getElementById('progFill').style.width=(qIndex/tot*100)+'%';
+    document.getElementById('progLabel').textContent=`${qIndex} / ${tot}`;
   }
 
   // ═════ TIMER ═════
-  const TIMER_SEC = 8;
-  let timerPct = 100;
+  const TIMER_SEC=8; let timerPct=100;
   function startTimer(){
-    clearInterval(timerInt);
-    timerPct = 100;
-    setTimerFill(100);
-    timerInt = setInterval(()=>{
-      timerPct -= (100/(TIMER_SEC*10));
-      if(timerPct<=0){
-        timerPct=0; setTimerFill(0);
-        clearInterval(timerInt);
-        if(!answering) timeOut();
-      } else { setTimerFill(timerPct); }
+    clearInterval(timerInt); timerPct=100; setTimerFill(100);
+    timerInt=setInterval(()=>{
+      timerPct-=(100/(TIMER_SEC*10));
+      if(timerPct<=0){ timerPct=0; setTimerFill(0); clearInterval(timerInt); if(!answering) timeOut(); }
+      else setTimerFill(timerPct);
     },100);
   }
-  function setTimerFill(pct){
-    const el = document.getElementById('timerFill');
-    el.style.width = pct+'%';
-    el.style.background = pct>50?'#22c55e':pct>25?'#eab308':'#ef4444';
+  function setTimerFill(p){
+    const el=document.getElementById('timerFill');
+    el.style.width=p+'%';
+    el.style.background=p>50?'#22c55e':p>25?'#eab308':'#ef4444';
   }
   function timeOut(){
-    answering = true;
-    combo = 0;
-    lives--;
-    updateHUD();
-    showFeedback(false, '⏰ Tempo esgotado! A resposta era: <strong>'+questions[qIndex].answer+'</strong>');
+    answering=true; combo=0; lives--; updateHUD();
+    showFeedback(false,'⏰ Tempo esgotado! A resposta era: <strong>'+questions[qIndex].answer+'</strong>');
     document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
-    setTimeout(()=>nextQuestion(), 1800);
+    setTimeout(()=>nextQuestion(),1800);
   }
 
   // ═════ QUESTION ═════
   function loadQuestion(){
-    if(qIndex >= MODES[currentMode].questions){ endMode(); return; }
-    answering = false;
+    if(qIndex>=MODES[currentMode].questions){ endMode(); return; }
+    answering=false;
     document.getElementById('feedbackBox').classList.remove('show');
+    const q=questions[qIndex];
 
-    const q = questions[qIndex];
-    document.getElementById('qLabel').textContent = q.label;
-    document.getElementById('qMain').textContent  = q.main;
-    document.getElementById('qSub').textContent   = q.sub;
-    document.getElementById('qHint').textContent  = q.hint;
+    document.getElementById('qLabel').textContent=q.label;
+    document.getElementById('qSub').textContent=q.sub||'';
+    document.getElementById('qHint').textContent=q.hint||'';
 
-    const main = document.getElementById('qMain');
-    main.classList.add('pop');
-    setTimeout(()=>main.classList.remove('pop'),220);
+    const figEl=document.getElementById('qFigure');
+    const txtEl=document.getElementById('qTextMain');
 
-    buildOptions(q);
-    updateHUD();
-    startTimer();
+    if(q.tipo==='figura'){
+      figEl.innerHTML=figSVG(q.figNum, q.figColor, 'lg');
+      figEl.style.display='flex';
+      txtEl.style.display='none';
+      figEl.classList.add('pop'); setTimeout(()=>figEl.classList.remove('pop'),220);
+    } else {
+      figEl.style.display='none';
+      txtEl.style.display='block';
+      txtEl.style.color=q.figColor;
+      txtEl.textContent=q.textMain;
+      txtEl.classList.add('pop'); setTimeout(()=>txtEl.classList.remove('pop'),220);
+    }
+
+    buildOptions(q); updateHUD(); startTimer();
   }
 
   function buildOptions(q){
-    const grid = document.getElementById('optionsGrid');
-    grid.innerHTML = '';
+    const grid=document.getElementById('optionsGrid');
+    grid.innerHTML='';
     q.options.forEach(opt=>{
-      const btn = document.createElement('button');
-      btn.className = 'opt-btn';
-      btn.style.borderColor = opt.color+'55';
-      btn.innerHTML = `<span style="color:${opt.color};font-size:1.1em;font-weight:900;">${opt.text}</span>`;
-      btn.addEventListener('click',()=>answer(opt.val, q, btn));
+      const btn=document.createElement('button');
+      btn.className='opt-btn';
+      btn.style.borderColor=opt.color+'55';
+      btn.innerHTML=`<span style="color:${opt.color};font-size:1rem;font-weight:900;">${opt.text}</span>`;
+      btn.addEventListener('click',()=>answer(opt.val,q,btn));
       grid.appendChild(btn);
     });
   }
 
-  function answer(val, q, btn){
+  function answer(val,q,btn){
     if(answering) return;
-    answering = true;
-    clearInterval(timerInt);
+    answering=true; clearInterval(timerInt);
     document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
-
-    const correct = val === q.answer;
+    const correct=val===q.answer;
     if(correct){
       btn.classList.add('correct');
       combo++;
-      const mult = Math.min(combo, 4);
-      score += 10 * mult;
+      const mult=Math.min(combo,4);
+      score+=10*mult;
       playCorrect();
-      showFeedback(true, `✅ Correto! <strong style="color:#fbbf24;">+${10*mult} pts</strong>${mult>1?' · combo ×'+mult:''}`);
+      showFeedback(true,`✅ Correto! <strong style="color:#fbbf24;">+${10*mult} pts</strong>${mult>1?' · combo ×'+mult:''}`);
     } else {
       btn.classList.add('wrong');
-      // highlight correct
       document.querySelectorAll('.opt-btn').forEach(b=>{
-        if(b.querySelector('span').textContent === q.answer) b.classList.add('correct');
+        if(b.querySelector('span').textContent.trim()===q.answer) b.classList.add('correct');
       });
-      combo = 0; lives--;
+      combo=0; lives--;
       playWrong();
-      showFeedback(false, `❌ Resposta: <strong>${q.answer}</strong>`);
-      if(lives<=0){
-        updateHUD();
-        setTimeout(()=>endMode(true),1400);
-        return;
-      }
+      showFeedback(false,`❌ Resposta correta: <strong>${q.answer}</strong>`);
+      if(lives<=0){ updateHUD(); setTimeout(()=>endMode(true),1400); return; }
     }
     updateHUD();
-    setTimeout(()=>nextQuestion(), 1500);
+    setTimeout(()=>nextQuestion(),1500);
   }
 
-  function showFeedback(ok, msg){
-    const box = document.getElementById('feedbackBox');
-    box.className = 'feedback-box show ' + (ok?'ok':'err');
-    box.innerHTML = msg;
+  function showFeedback(ok,msg){
+    const box=document.getElementById('feedbackBox');
+    box.className='feedback-box show '+(ok?'ok':'err');
+    box.innerHTML=msg;
   }
+  function nextQuestion(){ qIndex++; loadQuestion(); }
 
-  function nextQuestion(){
-    qIndex++;
-    loadQuestion();
-  }
-
-  // ═════ FIM DE MODO ═════
+  // ═════ END MODE ═════
   function endMode(fail=false){
     clearInterval(timerInt);
     document.getElementById('questionCard').style.display='none';
     document.getElementById('optionsGrid').style.display='none';
     document.getElementById('timerWrap').style.display='none';
     document.getElementById('feedbackBox').classList.remove('show');
-
-    const total = MODES[currentMode].questions;
-    const pct = Math.round(score / (total*40) * 100);
-    const passed = !fail && lives>0;
-
-    if(passed && currentMode < MODES.length-1){
-      unlocked[currentMode+1] = true;
-      localStorage.setItem('figuras_unlocked', JSON.stringify(unlocked));
+    const passed=!fail&&lives>0;
+    if(passed&&currentMode<MODES.length-1){
+      unlocked[currentMode+1]=true;
+      localStorage.setItem('figuras_unlocked',JSON.stringify(unlocked));
     }
-
-    const nextModeIdx = currentMode+1;
-    const hasNext = nextModeIdx < MODES.length;
-
-    const res = document.getElementById('resultScreen');
-    res.innerHTML = `
+    const nextModeIdx=currentMode+1, hasNext=nextModeIdx<MODES.length;
+    const res=document.getElementById('resultScreen');
+    res.innerHTML=`
       <div class="result-emoji">${passed?'🏆':'💔'}</div>
       <div class="result-title">${passed?'Parabéns!':'Que pena…'}</div>
       <div class="result-sub">${passed?'Você completou o Modo '+(currentMode+1)+'!':'Você ficou sem vidas. Tente novamente!'}</div>
       <div class="result-score">${score} <span style="font-size:1rem;color:#64748b;">pontos</span></div>
       <div class="result-actions">
         <button class="r-btn secondary" onclick="startMode(${currentMode})">&#x21BA; Repetir</button>
-        ${passed && hasNext ? `<button class="r-btn primary" onclick="startMode(${nextModeIdx})">Modo ${nextModeIdx+1} &rarr;</button>` : ''}
+        ${passed&&hasNext?`<button class="r-btn primary" onclick="startMode(${nextModeIdx})">Modo ${nextModeIdx+1} &rarr;</button>`:''}
         <a href="atividades.html" class="r-btn secondary">Atividades</a>
       </div>
     `;
-    res.classList.add('show');
-    buildModeSelector();
+    res.classList.add('show'); buildModeSelector();
   }
   </script>
 </body>
