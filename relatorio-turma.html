@@ -7,9 +7,6 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
-    /* ══════════════════════════════════════════
-       BASE
-    ══════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -19,9 +16,6 @@
       padding: 20px;
     }
 
-    /* ══════════════════════════════════════════
-       TOP BAR
-    ══════════════════════════════════════════ */
     .top-bar {
       display: flex; justify-content: space-between; align-items: center;
       max-width: 900px; margin: 0 auto 20px; gap: 12px; flex-wrap: wrap;
@@ -37,12 +31,7 @@
     .btn-primary:hover { background: linear-gradient(135deg, #0284c7, #0369a1); transform: translateY(-2px); }
     .btn-secondary { background: rgba(30,41,59,0.9); color: #94a3b8; border: 1px solid rgba(56,189,248,0.3); }
     .btn-secondary:hover { color: #22d3ee; border-color: rgba(34,211,238,0.6); }
-    .btn-danger { background: linear-gradient(135deg,#ef4444,#dc2626); }
-    .btn-danger:hover { transform: translateY(-2px); }
 
-    /* ══════════════════════════════════════════
-       CONFIGURAÇÕES
-    ══════════════════════════════════════════ */
     .config-box {
       max-width: 900px; margin: 0 auto 20px;
       background: rgba(15,23,42,0.95); border: 2px solid rgba(34,211,238,0.35);
@@ -70,9 +59,6 @@
     .btn-gerar:hover { transform: translateY(-2px); }
     .btn-gerar:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
-    /* ══════════════════════════════════════════
-       LOADER
-    ══════════════════════════════════════════ */
     #loader-turma {
       text-align: center; padding: 60px 20px; color: #22d3ee;
       max-width: 900px; margin: 0 auto;
@@ -84,9 +70,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ══════════════════════════════════════════
-       PAINEL DE VISUALIZAÇÃO
-    ══════════════════════════════════════════ */
     #preview-container {
       display: none;
       max-width: 900px; margin: 0 auto;
@@ -96,9 +79,7 @@
       border-radius: 16px; padding: 16px 20px; margin-bottom: 16px;
       display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
     }
-    .preview-info {
-      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-    }
+    .preview-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
     .preview-info-label { color: #94a3b8; font-size: 0.85em; }
     .preview-pages-count { color: #22d3ee; font-weight: 700; font-size: 1em; }
     .preview-hint {
@@ -108,15 +89,8 @@
     }
     .preview-actions { display: flex; gap: 10px; }
 
-    /* ══════════════════════════════════════════
-       WRAPPER DE PÁGINA (preview)
-    ══════════════════════════════════════════ */
-    .page-wrapper {
-      position: relative; margin-bottom: 24px;
-    }
-    .page-wrapper.excluida {
-      opacity: 0.35; pointer-events: none;
-    }
+    .page-wrapper { position: relative; margin-bottom: 24px; }
+    .page-wrapper.excluida { opacity: 0.35; pointer-events: none; }
     .page-exclude-btn {
       position: absolute; top: -12px; right: -12px; z-index: 20;
       width: 32px; height: 32px;
@@ -127,9 +101,7 @@
       display: flex; align-items: center; justify-content: center;
     }
     .page-exclude-btn:hover { background: #dc2626; transform: scale(1.15); }
-    .page-exclude-btn.restaurar {
-      background: #22c55e; pointer-events: all;
-    }
+    .page-exclude-btn.restaurar { background: #22c55e; pointer-events: all; }
     .page-label {
       position: absolute; top: -12px; left: 12px; z-index: 20;
       background: rgba(15,23,42,0.95); color: #94a3b8;
@@ -147,9 +119,7 @@
     }
     .page-wrapper.excluida .page-excluida-overlay { display: flex; }
 
-    /* ══════════════════════════════════════════
-       PÁGINAS A4 (brancas, igual ao relatorio-mensal.html)
-    ══════════════════════════════════════════ */
+    /* ── PÁGINA A4 ── */
     .page {
       width: 100%; max-width: 900px;
       background: #fff; color: #1a202c;
@@ -160,11 +130,7 @@
     }
 
     /* ── CAPA ── */
-    .capa {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      min-height: 600px; text-align: center; gap: 20px;
-    }
+    .capa { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 600px; text-align: center; gap: 20px; }
     .capa-logo { font-size: 4em; margin-bottom: 8px; }
     .capa-titulo-sistema { font-size: 1.5em; font-weight: 800; color: #0ea5e9; margin-bottom: 2px; }
     .capa-subtitulo { font-size: 0.95em; color: #64748b; }
@@ -190,7 +156,7 @@
     .indice-resumo-card .val { font-size: 1.8em; font-weight: 900; color: #0f172a; line-height: 1; }
     .indice-resumo-card .lbl { font-size: 0.65em; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
 
-    /* ── CABEÇALHO DO RELATÓRIO INDIVIDUAL ── */
+    /* ── CABEÇALHO RELATÓRIO ── */
     .rel-header { display: flex; align-items: center; gap: 16px; border-bottom: 3px solid #0ea5e9; padding-bottom: 14px; margin-bottom: 16px; }
     .rel-foto { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 3px solid #0ea5e9; flex-shrink: 0; background: #e2e8f0; }
     .rel-info h1 { font-size: 1.55em; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
@@ -294,7 +260,6 @@
     .conquista-info span   { font-size: 0.82em; color: #64748b; line-height: 1.2; }
     .sem-conquistas { color: #94a3b8; font-style: italic; font-size: 0.78em; }
 
-    /* ── TABELA PRESENÇA ── */
     .presenca-section { margin-bottom: 10px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
     th, td { border: 1px solid #e2e8f0; padding: 5px 10px; text-align: center; }
@@ -304,42 +269,54 @@
     .td-ausente  { color: #dc2626; font-weight: 700; }
 
     /* ══════════════════════════════════════════
-       IMPRESSÃO
+       IMPRESSÃO — cada .page-wrapper vira uma
+       página A4 separada via page-break.
+       NÃO usar position:fixed (sobrepõe tudo).
     ══════════════════════════════════════════ */
-    @page { size: A4 portrait; margin: 0; }
+    @page { size: A4 portrait; margin: 10mm; }
 
     @media print {
       html, body {
-        width: 210mm !important; background: white !important;
-        padding: 0 !important; margin: 0 !important;
+        width: auto !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
+
       .top-bar, .config-box, .preview-toolbar { display: none !important; }
       #preview-container { display: block !important; max-width: none !important; }
 
+      /* Cada wrapper = uma folha A4 */
       .page-wrapper {
-        page-break-after: always;
-        break-after: page;
+        page-break-before: always;
+        break-before: page;
         margin: 0 !important;
-        position: relative;
+        padding: 0 !important;
+      }
+      .page-wrapper:first-child {
+        page-break-before: avoid;
+        break-before: avoid;
       }
       .page-wrapper.excluida { display: none !important; }
       .page-exclude-btn, .page-label, .page-excluida-overlay { display: none !important; }
 
+      /* A página ocupa a folha inteira, sem position:fixed */
       .page {
-        --print-scale: 0.72;
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
-        width: 794px !important;
-        max-width: 794px !important;
-        transform-origin: top left !important;
-        transform: scale(var(--print-scale)) !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 0 !important;
         box-shadow: none !important;
         border-radius: 0 !important;
-        padding: 22px 28px !important;
+        padding: 0 !important;
         margin: 0 !important;
-        overflow: hidden !important;
+        overflow: visible !important;
+        /* Reduz tudo a ~75% para caber em A4 */
+        font-size: 75% !important;
       }
+
+      /* Corrige layouts que dependem de flex/grid em tela */
       .indicadores-grid       { grid-template-columns: repeat(3,1fr) !important; }
+      .indice-resumo-grid     { grid-template-columns: repeat(4,1fr) !important; }
       .painel-turma           { flex-direction: row !important; }
       .painel-turma-esq       { flex: 0 0 52% !important; }
       .rank-mini-grid,
@@ -349,16 +326,13 @@
       .comp-freq-grid         { grid-template-columns: 1fr 1fr !important; }
       .rel-header             { flex-direction: row !important; }
       .rel-logo               { margin-left: auto !important; }
-      .evolucao-chart-wrap    { overflow: hidden !important; }
-      .evolucao-chart-wrap canvas { max-width: 100% !important; }
-      .painel-turma-dir       { overflow: hidden !important; }
-      .indice-resumo-grid     { grid-template-columns: repeat(4,1fr) !important; }
+      .evolucao-chart-wrap    { overflow: visible !important; }
+      .painel-turma-dir       { overflow: visible !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- TOP BAR -->
   <div class="top-bar" id="top-bar-main">
     <h1>📚 Relatório Geral da Turma</h1>
     <div class="top-bar-actions">
@@ -366,7 +340,6 @@
     </div>
   </div>
 
-  <!-- CONFIGURAÇÕES -->
   <div class="config-box" id="config-box">
     <h2>⚙️ Configurações do Relatório</h2>
     <div class="config-grid">
@@ -389,13 +362,11 @@
     <button class="btn-gerar" id="btn-gerar">🚀 Gerar Relatório da Turma</button>
   </div>
 
-  <!-- LOADER -->
   <div id="loader-turma" style="display:none;">
     <div class="spinner-rel"></div>
     <p id="loader-msg">Carregando dados da turma...</p>
   </div>
 
-  <!-- PREVIEW CONTAINER -->
   <div id="preview-container">
     <div class="preview-toolbar">
       <div class="preview-info">
@@ -420,17 +391,13 @@
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { regrasDeConquistas } from "./conquistas.js";
 
-    // ── Constantes ──
     const MESES = { "01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro" };
     const NOMES_MES_CURTO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const A4_H_PX = 1123;
 
-    // ── Inicializar mês/ano com o mês atual ──
     const agora = new Date();
     document.getElementById('sel-mes').value = String(agora.getMonth()+1).padStart(2,'0');
     document.getElementById('sel-ano').value = agora.getFullYear();
 
-    // ── Controles ──
     document.getElementById('btn-gerar').addEventListener('click', gerarRelatorioTurma);
     document.getElementById('btn-nova-config').addEventListener('click', () => {
       document.getElementById('preview-container').style.display = 'none';
@@ -438,26 +405,8 @@
       document.getElementById('top-bar-main').style.display = 'flex';
       document.getElementById('pages-list').innerHTML = '';
     });
-    document.getElementById('btn-imprimir').addEventListener('click', () => {
-      calcularEscalasTodas();
-      window.print();
-    });
-    window.addEventListener('beforeprint', calcularEscalasTodas);
-    window.addEventListener('afterprint', () => {
-      document.querySelectorAll('.page').forEach(p => p.style.removeProperty('--print-scale'));
-    });
+    document.getElementById('btn-imprimir').addEventListener('click', () => window.print());
 
-    function calcularEscalasTodas() {
-      document.querySelectorAll('.page-wrapper:not(.excluida) .page').forEach(page => {
-        const alt = page.scrollHeight;
-        const escala = Math.min(A4_H_PX / alt, 1);
-        page.style.setProperty('--print-scale', escala.toFixed(4));
-      });
-    }
-
-    // ══════════════════════════════════════════════
-    // GERAÇÃO PRINCIPAL
-    // ══════════════════════════════════════════════
     async function gerarRelatorioTurma() {
       const mes = document.getElementById('sel-mes').value;
       const ano = document.getElementById('sel-ano').value;
@@ -481,10 +430,9 @@
         setLoaderMsg('Carregando eventos...');
         const snapEventos = await getDocs(collection(db,'eventos'));
         const todosEventos = snapEventos.docs.map(d=>({id:d.id,...d.data()}));
-        const eventosMes    = todosEventos.filter(e=>e.data?.startsWith(chave));
-        const eventosAno    = todosEventos.filter(e=>e.data?.startsWith(`${ano}-`));
+        const eventosMes = todosEventos.filter(e=>e.data?.startsWith(chave));
+        const eventosAno = todosEventos.filter(e=>e.data?.startsWith(`${ano}-`));
 
-        // Dados de turma (médias)
         const freqPorAluno = {};
         alunos.forEach(a => {
           const p = eventosAno.filter(ev=>ev.presencas?.find(x=>x.nome===a.nome)?.presenca==='presente').length;
@@ -499,7 +447,6 @@
           mediaFreq:    avg(alunos.map(a=>freqPorAluno[a.nome]||0))
         };
 
-        // Buscar todos os snapshots de uma vez
         setLoaderMsg('Carregando snapshots...');
         const snapShotsAll = await getDocs(collection(db,'snapshotsMensais'));
         const snapshotsPorAluno = {};
@@ -513,33 +460,26 @@
         const chaveAnterior = getMesAnterior(chave);
         const pagesList = document.getElementById('pages-list');
         let pageIndex = 0;
-
-        // Map para guardar referências diretas: alunoId → { canvasEl, snaps }
         const graficosParaRenderizar = new Map();
 
-        // ── Capa ──
-        const capaEl = criarCapa(nomeMes, ano, alunos.length);
-        adicionarPagina(pagesList, capaEl, 'Capa', pageIndex++);
+        adicionarPagina(pagesList, criarCapa(nomeMes, ano, alunos.length), 'Capa', pageIndex++);
 
-        // ── Índice ──
         const resumoAlunos = alunos.map(aluno => {
           const snaps = snapshotsPorAluno[aluno.id] || [];
           const snapAtual    = snaps.find(s=>s.chave===chave);
           const snapAnterior = snaps.find(s=>s.chave===chaveAnterior);
-          const lAtual = snapAtual?.leitura ?? aluno.leitura ?? 1;
-          const lAnt   = snapAnterior?.leitura ?? null;
-          const mAtual = snapAtual?.metodo  ?? aluno.metodo  ?? 1;
-          const mAnt   = snapAnterior?.metodo ?? null;
-          const freqMes = calcularFrequencia(eventosMes, aluno.nome);
-          const freqAnt = calcularFrequencia(
-            todosEventos.filter(e=>e.data?.startsWith(chaveAnterior)), aluno.nome
-          );
-          return { aluno, lAtual, lAnt, mAtual, mAnt, freqMes, freqPorAluno: freqPorAluno[aluno.nome]||0 };
+          return {
+            aluno,
+            lAtual: snapAtual?.leitura ?? aluno.leitura ?? 1,
+            lAnt:   snapAnterior?.leitura ?? null,
+            mAtual: snapAtual?.metodo  ?? aluno.metodo  ?? 1,
+            mAnt:   snapAnterior?.metodo ?? null,
+            freqMes: calcularFrequencia(eventosMes, aluno.nome),
+            freqPorAluno: freqPorAluno[aluno.nome]||0
+          };
         });
-        const indiceEl = criarIndice(nomeMes, ano, resumoAlunos, alunos.length);
-        adicionarPagina(pagesList, indiceEl, 'Índice Geral', pageIndex++);
+        adicionarPagina(pagesList, criarIndice(nomeMes, ano, resumoAlunos, alunos.length), 'Índice Geral', pageIndex++);
 
-        // ── Página por aluno ──
         for (let i = 0; i < alunos.length; i++) {
           const aluno = alunos[i];
           setLoaderMsg(`Gerando ${aluno.nome} (${i+1}/${alunos.length})...`);
@@ -552,19 +492,14 @@
           const leituraAnterior = snapAnterior?.leitura ?? null;
           const metodoAtual     = snapAtual?.metodo     ?? aluno.metodo     ?? 1;
           const metodoAnterior  = snapAnterior?.metodo  ?? null;
-          const leituraMeta     = leituraAtual + 2;
-          const metodoMeta      = metodoAtual  + 2;
 
           const freqMes         = calcularFrequencia(eventosMes, aluno.nome);
           const freqGeral       = calcularFrequencia(eventosAno, aluno.nome);
-          const freqMesAnterior = calcularFrequencia(
-            todosEventos.filter(e=>e.data?.startsWith(chaveAnterior)), aluno.nome
-          );
+          const freqMesAnterior = calcularFrequencia(todosEventos.filter(e=>e.data?.startsWith(chaveAnterior)), aluno.nome);
 
           const conquistasMes = regrasDeConquistas.filter(c =>
             c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual}})
           );
-
           const presencaDetalhada = eventosMes.map(ev => {
             const p = ev.presencas?.find(x=>x.nome===aluno.nome);
             return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : "Ausente" };
@@ -573,7 +508,6 @@
           const rankings = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
           const evolucaoAluno = snaps.slice(-6);
 
-          // Criar elemento canvas real para passar ao criarPaginaAluno
           let canvasRef = null;
           if (evolucaoAluno.length >= 2) {
             canvasRef = document.createElement('canvas');
@@ -584,23 +518,17 @@
             aluno, ano, mes, nomeMes, chave,
             freqMes, freqGeral, freqMesAnterior,
             conquistasMes, presencaDetalhada,
-            leituraAtual, leituraAnterior, leituraMeta,
-            metodoAtual, metodoAnterior, metodoMeta,
+            leituraAtual, leituraAnterior, leituraMeta: leituraAtual+2,
+            metodoAtual, metodoAnterior, metodoMeta: metodoAtual+2,
             dadosTurma, rankings, evolucaoAluno, canvasRef
           });
-
           adicionarPagina(pagesList, pageEl, aluno.nome, pageIndex++);
         }
 
-        // CORREÇÃO: Mostrar o preview ANTES de renderizar os gráficos.
-        // O Chart.js precisa que o container seja visível no DOM para calcular
-        // as dimensões do canvas corretamente (responsive: true).
         document.getElementById('loader-turma').style.display = 'none';
         document.getElementById('preview-container').style.display = 'block';
         atualizarContador();
 
-        // Aguardar dois frames para garantir que o navegador calculou o layout
-        // e os canvas tenham dimensões reais antes de instanciar os gráficos.
         await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
         renderizarGraficos(graficosParaRenderizar);
 
@@ -610,9 +538,6 @@
       }
     }
 
-    // ══════════════════════════════════════════════
-    // RENDERIZAÇÃO DAS PÁGINAS
-    // ══════════════════════════════════════════════
     function adicionarPagina(container, pageContent, label, index) {
       const wrapper = document.createElement('div');
       wrapper.className = 'page-wrapper';
@@ -655,7 +580,6 @@
         `${ativas} página${ativas!==1?'s':''} ativas (${excluidas} excluída${excluidas!==1?'s':''})`;
     }
 
-    // ── CAPA ──
     function criarCapa(nomeMes, ano, totalAlunos) {
       const div = document.createElement('div');
       div.className = 'page';
@@ -673,11 +597,10 @@
       return div;
     }
 
-    // ── ÍNDICE ──
     function criarIndice(nomeMes, ano, resumos, totalAlunos) {
-      const totalEvoluiu  = resumos.filter(r => statusTexto(r.lAtual,r.lAnt)==='evoluiu' || statusTexto(r.mAtual,r.mAnt)==='evoluiu').length;
-      const mediaFreqMes  = resumos.length ? Math.round(resumos.reduce((s,r)=>s+r.freqMes.percentual,0)/resumos.length) : 0;
-      const mediaFreqAno  = resumos.length ? Math.round(resumos.reduce((s,r)=>s+r.freqPorAluno,0)/resumos.length) : 0;
+      const totalEvoluiu = resumos.filter(r => statusTexto(r.lAtual,r.lAnt)==='evoluiu' || statusTexto(r.mAtual,r.mAnt)==='evoluiu').length;
+      const mediaFreqMes = resumos.length ? Math.round(resumos.reduce((s,r)=>s+r.freqMes.percentual,0)/resumos.length) : 0;
+      const mediaFreqAno = resumos.length ? Math.round(resumos.reduce((s,r)=>s+r.freqPorAluno,0)/resumos.length) : 0;
 
       const rows = resumos.map((r,i) => {
         const stL = statusTexto(r.lAtual, r.lAnt);
@@ -709,27 +632,17 @@
             <div class="subtitulo-sistema">Sistema de Desempenho Musical</div>
           </div>
         </div>
-
         <div class="indice-resumo-grid">
           <div class="indice-resumo-card"><div class="val">${totalAlunos}</div><div class="lbl">Alunos Ativos</div></div>
           <div class="indice-resumo-card"><div class="val">${totalEvoluiu}</div><div class="lbl">Evoluíram</div></div>
           <div class="indice-resumo-card"><div class="val">${mediaFreqMes}%</div><div class="lbl">Freq. Média (Mês)</div></div>
           <div class="indice-resumo-card"><div class="val">${mediaFreqAno}%</div><div class="lbl">Freq. Média (Ano)</div></div>
         </div>
-
         <div class="indice-titulo-secao">📋 Alunos — ${nomeMes} ${ano}</div>
         <table class="indice-table">
-          <thead><tr>
-            <th>Nome</th>
-            <th>Instrumento</th>
-            <th>Leitura / Método</th>
-            <th>Freq. Mês</th>
-            <th>Freq. Ano</th>
-            <th>Status</th>
-          </tr></thead>
+          <thead><tr><th>Nome</th><th>Instrumento</th><th>Leitura / Método</th><th>Freq. Mês</th><th>Freq. Ano</th><th>Status</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
-
         <div class="rel-footer">
           <div>Gerado em: ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div>
           <div style="font-size:0.9em;color:#475569">Filhos de Asafe — Relatório Geral</div>
@@ -737,7 +650,6 @@
       return div;
     }
 
-    // ── PÁGINA INDIVIDUAL DO ALUNO ──
     function criarPaginaAluno({
       aluno, ano, mes, nomeMes, chave,
       freqMes, freqGeral, freqMesAnterior,
@@ -756,7 +668,6 @@
       const clsAntM = (metodoAnterior!==null&&metodoAtual>metodoAnterior)?"evoluiu":"";
       const analise = gerarAnalise(aluno,freqMes,freqGeral,freqMesAnterior,leituraAtual,leituraAnterior,metodoAtual,metodoAnterior);
 
-      // Painel turma
       let painelTurmaHTML = '';
       if (rankings && dadosTurma) {
         const {rankMetodo,rankLeitura,rankFreq,total} = rankings;
@@ -765,27 +676,12 @@
         const leituraAluno = Number(aluno.leitura)||0;
         const mkRank = (label,pos,cls) => {
           const mc=medalhaClasse(pos);
-          return `<div class="rank-mini-card ${cls}">
-            <div class="rank-mini-label">${label}</div>
-            <div class="rank-mini-pos ${mc}">${pos}º</div>
-            <div class="rank-mini-total">de ${total}</div>
-            <span class="rank-mini-badge rmb-${mc}">${medalhaTexto(pos)}</span>
-          </div>`;
+          return `<div class="rank-mini-card ${cls}"><div class="rank-mini-label">${label}</div><div class="rank-mini-pos ${mc}">${pos}º</div><div class="rank-mini-total">de ${total}</div><span class="rank-mini-badge rmb-${mc}">${medalhaTexto(pos)}</span></div>`;
         };
         const mkComp = (label,val,media,unid) => {
           const c=chipComp(val,media);
-          return `<div class="comp-mini-card">
-            <div class="comp-mini-label">${label}</div>
-            <div class="comp-mini-row">
-              <span class="comp-mini-voce ${c.cls}">${val}${unid}</span>
-              <span class="comp-mini-vs">vs</span>
-              <span class="comp-mini-media">${media.toFixed(1)}${unid}</span>
-            </div>
-            <span class="comp-chip-sm ${c.chip}">${c.txt}</span>
-          </div>`;
+          return `<div class="comp-mini-card"><div class="comp-mini-label">${label}</div><div class="comp-mini-row"><span class="comp-mini-voce ${c.cls}">${val}${unid}</span><span class="comp-mini-vs">vs</span><span class="comp-mini-media">${media.toFixed(1)}${unid}</span></div><span class="comp-chip-sm ${c.chip}">${c.txt}</span></div>`;
         };
-
-        // Slot de gráfico — canvas real será injetado via DOM após criação
         const graficoSlotId = `grafico-slot-${aluno.id}`;
         const graficoHTML = canvasRef
           ? `<div class="evolucao-chart-wrap" id="${graficoSlotId}"></div>`
@@ -797,19 +693,11 @@
             <div class="painel-turma-esq">
               <div class="painel-bloco">
                 <div class="painel-bloco-label">🏅 Ranking na Turma</div>
-                <div class="rank-mini-grid">
-                  ${mkRank('Método',rankMetodo,'rmc-blue')}
-                  ${mkRank('Leitura',rankLeitura,'rmc-green')}
-                  ${mkRank('Frequência',rankFreq,'rmc-yellow')}
-                </div>
+                <div class="rank-mini-grid">${mkRank('Método',rankMetodo,'rmc-blue')}${mkRank('Leitura',rankLeitura,'rmc-green')}${mkRank('Frequência',rankFreq,'rmc-yellow')}</div>
               </div>
               <div class="painel-bloco">
                 <div class="painel-bloco-label">📊 Você vs Turma</div>
-                <div class="comp-mini-grid">
-                  ${mkComp('Método',metodoAluno,mediaMetodo,'pts')}
-                  ${mkComp('Leitura',leituraAluno,mediaLeitura,'pts')}
-                  ${mkComp('Frequência',freqGeral.percentual,mediaFreq,'%')}
-                </div>
+                <div class="comp-mini-grid">${mkComp('Método',metodoAluno,mediaMetodo,'pts')}${mkComp('Leitura',leituraAluno,mediaLeitura,'pts')}${mkComp('Frequência',freqGeral.percentual,mediaFreq,'%')}</div>
               </div>
             </div>
             <div class="painel-turma-dir">
@@ -819,15 +707,10 @@
           </div>`;
       }
 
-      // Conquistas
       const conquistasHTML = conquistasMes.length
-        ? conquistasMes.map(c=>`<div class="conquista-item ${c.raridade||''}">
-            <span class="conquista-icone">${c.icone}</span>
-            <div class="conquista-info"><strong>${c.titulo}</strong><span>${c.descricao}</span></div>
-          </div>`).join('')
+        ? conquistasMes.map(c=>`<div class="conquista-item ${c.raridade||''}"><span class="conquista-icone">${c.icone}</span><div class="conquista-info"><strong>${c.titulo}</strong><span>${c.descricao}</span></div></div>`).join('')
         : `<span class="sem-conquistas">Nenhuma conquista neste mês.</span>`;
 
-      // Presença
       const presencaHTML = presencaDetalhada.length
         ? presencaDetalhada.map(p=>`<tr><td>${p.data}</td><td class="${p.status==='Presente'?'td-presente':'td-ausente'}">${p.status}</td></tr>`).join('')
         : `<tr><td colspan="2" style="color:#94a3b8;font-style:italic;">Sem registros neste mês.</td></tr>`;
@@ -847,7 +730,6 @@
             <div class="subtitulo-sistema">Sistema de Desempenho Musical</div>
           </div>
         </div>
-
         <div class="rel-titulo-secao">📈 Indicadores de Progresso</div>
         <div class="indicadores-grid">
           <div class="indicador-card">
@@ -878,9 +760,7 @@
             <span class="indicador-status ${stMetodo.classe}">${stMetodo.texto}</span>
           </div>
         </div>
-
         ${painelTurmaHTML}
-
         <div class="rel-titulo-secao">⚡ Comprometimento &amp; 🏆 Conquistas</div>
         <div class="painel-inferior-wrap">
           <div class="painel-linha1">
@@ -911,15 +791,10 @@
             <div class="conquistas-linha">${conquistasHTML}</div>
           </div>
         </div>
-
         <div class="rel-titulo-secao">📋 Presença — ${nomeMes} ${ano}</div>
         <div class="presenca-section">
-          <table>
-            <thead><tr><th>Data</th><th>Status</th></tr></thead>
-            <tbody>${presencaHTML}</tbody>
-          </table>
+          <table><thead><tr><th>Data</th><th>Status</th></tr></thead><tbody>${presencaHTML}</tbody></table>
         </div>
-
         <div class="rel-footer">
           <div>
             <div>Gerado em: ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div>
@@ -928,37 +803,28 @@
           <div class="assinatura-linha">Professor Responsável</div>
         </div>`;
 
-      // Injetar o canvas real diretamente no slot
       if (canvasRef) {
         const slot = div.querySelector(`#grafico-slot-${aluno.id}`);
         if (slot) slot.appendChild(canvasRef);
       }
-
       return div;
     }
 
-    // ── RENDERIZAR GRÁFICOS (recebe Map com referências diretas) ──
     function renderizarGraficos(graficosMap) {
       graficosMap.forEach(({ canvasEl, snaps }) => {
         new Chart(canvasEl, {
           type: 'line',
           data: {
-            labels: snaps.map(s => {
-              const [y,m] = s.chave.split('-');
-              return NOMES_MES_CURTO[Number(m)-1]+'/'+y.slice(2);
-            }),
+            labels: snaps.map(s => { const [y,m] = s.chave.split('-'); return NOMES_MES_CURTO[Number(m)-1]+'/'+y.slice(2); }),
             datasets: [
               {label:'Total',   data:snaps.map(s=>(Number(s.leitura)||0)+(Number(s.metodo)||0)), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', pointBackgroundColor:'#3b82f6', tension:0.4, fill:true,  pointRadius:4},
-              {label:'Leitura', data:snaps.map(s=>Number(s.leitura)||0),                         borderColor:'#22c55e', backgroundColor:'transparent',           pointBackgroundColor:'#22c55e', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]},
-              {label:'Método',  data:snaps.map(s=>Number(s.metodo)||0),                          borderColor:'#f59e0b', backgroundColor:'transparent',           pointBackgroundColor:'#f59e0b', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]}
+              {label:'Leitura', data:snaps.map(s=>Number(s.leitura)||0), borderColor:'#22c55e', backgroundColor:'transparent', pointBackgroundColor:'#22c55e', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]},
+              {label:'Método',  data:snaps.map(s=>Number(s.metodo)||0),  borderColor:'#f59e0b', backgroundColor:'transparent', pointBackgroundColor:'#f59e0b', tension:0.4, fill:false, pointRadius:3, borderDash:[4,3]}
             ]
           },
           options: {
             responsive:true, maintainAspectRatio:false,
-            plugins: {
-              legend:  {labels:{color:'#475569',font:{size:9},boxWidth:9,padding:6}},
-              tooltip: {mode:'index',intersect:false}
-            },
+            plugins: { legend:{labels:{color:'#475569',font:{size:9},boxWidth:9,padding:6}}, tooltip:{mode:'index',intersect:false} },
             scales: {
               x: {ticks:{color:'#64748b',font:{size:8}}, grid:{color:'rgba(0,0,0,0.04)'}},
               y: {beginAtZero:true, ticks:{color:'#64748b',font:{size:8}}, grid:{color:'rgba(0,0,0,0.04)'}}
@@ -968,9 +834,6 @@
       });
     }
 
-    // ══════════════════════════════════════════════
-    // FUNÇÕES UTILITÁRIAS
-    // ══════════════════════════════════════════════
     function calcularFrequencia(eventos, nomeAluno) {
       if (!eventos?.length) return { total:0, presencas:0, percentual:0 };
       const total     = eventos.length;
@@ -980,7 +843,7 @@
     function getMesAnterior(chave) {
       const [ano,mes] = chave.split("-").map(Number);
       const d = new Date(ano, mes-2, 1);
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"00")}`;
     }
     function formatarData(iso) {
       if (!iso) return "-"; const [a,m,d] = iso.split("-"); return `${d}/${m}/${a}`;
@@ -1028,8 +891,8 @@
       else if (pct>=80)      p.push(`${nome}, manteve ${pct}% de presença — muito bom!`);
       else if (pct>=50)      p.push(`${nome}, frequência em ${pct}%. Tente chegar a 80%.`);
       else p.push(`${nome}, presença de ${pct}% precisa de atenção.`);
-      if (leituraAnterior===null)             p.push(`Leitura na lição ${leituraAtual} (${lNome}).`);
-      else if (leituraAtual>leituraAnterior)  p.push(`Leitura avançou ${leituraAnterior} → ${leituraAtual} (${lNome}) — excelente!`);
+      if (leituraAnterior===null)              p.push(`Leitura na lição ${leituraAtual} (${lNome}).`);
+      else if (leituraAtual>leituraAnterior)   p.push(`Leitura avançou ${leituraAnterior} → ${leituraAtual} (${lNome}) — excelente!`);
       else if (leituraAtual===leituraAnterior) p.push(`Lição ${leituraAtual} (${lNome}) há 2 meses. Avance!`);
       else p.push(`Leitura recuou para ${leituraAtual}. Redobrar atenção.`);
       if (metodoAnterior===null)              p.push(`Método na unid. ${metodoAtual} (${mNome}).`);
