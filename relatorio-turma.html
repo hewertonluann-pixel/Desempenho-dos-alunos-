@@ -592,14 +592,17 @@
           adicionarPagina(pagesList, pageEl, aluno.nome, pageIndex++);
         }
 
-        // Renderizar gráficos após DOM estar pronto
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-        renderizarGraficos(graficosParaRenderizar);
-
-        // Mostrar preview
+        // CORREÇÃO: Mostrar o preview ANTES de renderizar os gráficos.
+        // O Chart.js precisa que o container seja visível no DOM para calcular
+        // as dimensões do canvas corretamente (responsive: true).
         document.getElementById('loader-turma').style.display = 'none';
         document.getElementById('preview-container').style.display = 'block';
         atualizarContador();
+
+        // Aguardar dois frames para garantir que o navegador calculou o layout
+        // e os canvas tenham dimensões reais antes de instanciar os gráficos.
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        renderizarGraficos(graficosParaRenderizar);
 
       } catch(e) {
         console.error(e);
@@ -735,7 +738,6 @@
     }
 
     // ── PÁGINA INDIVIDUAL DO ALUNO ──
-    // CORREÇÃO: canvasRef substitui chartId string — referência direta ao elemento <canvas>
     function criarPaginaAluno({
       aluno, ano, mes, nomeMes, chave,
       freqMes, freqGeral, freqMesAnterior,
@@ -756,7 +758,6 @@
 
       // Painel turma
       let painelTurmaHTML = '';
-      let chartWrapEl = null;
       if (rankings && dadosTurma) {
         const {rankMetodo,rankLeitura,rankFreq,total} = rankings;
         const {mediaMetodo,mediaLeitura,mediaFreq}    = dadosTurma;
@@ -784,7 +785,7 @@
           </div>`;
         };
 
-        // Slot de gráfico — será preenchido via DOM depois
+        // Slot de gráfico — canvas real será injetado via DOM após criação
         const graficoSlotId = `grafico-slot-${aluno.id}`;
         const graficoHTML = canvasRef
           ? `<div class="evolucao-chart-wrap" id="${graficoSlotId}"></div>`
@@ -927,7 +928,7 @@
           <div class="assinatura-linha">Professor Responsável</div>
         </div>`;
 
-      // Injetar o canvas real diretamente no slot (sem depender de ID)
+      // Injetar o canvas real diretamente no slot
       if (canvasRef) {
         const slot = div.querySelector(`#grafico-slot-${aluno.id}`);
         if (slot) slot.appendChild(canvasRef);
