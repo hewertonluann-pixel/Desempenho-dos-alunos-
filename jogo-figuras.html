@@ -63,26 +63,16 @@
       backdrop-filter:blur(6px);
     }
     .q-label{font-size:.8rem;color:#64748b;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:14px;}
-    .q-figure{
-      display:flex;align-items:center;justify-content:center;
-      margin-bottom:10px;transition:transform .2s;
-    }
+    .q-figure{display:flex;align-items:center;justify-content:center;margin-bottom:10px;transition:transform .2s;}
     .q-figure.pop{transform:scale(1.15);}
-    .q-text-main{
-      font-size:1.8rem;font-weight:900;color:#f1f5f9;
-      margin-bottom:8px;transition:transform .2s;line-height:1.1;
-    }
+    .q-text-main{font-size:1.8rem;font-weight:900;color:#f1f5f9;margin-bottom:8px;transition:transform .2s;line-height:1.1;}
     .q-text-main.pop{transform:scale(1.12);}
     .q-sub{font-size:1rem;font-weight:700;color:#94a3b8;margin-bottom:4px;}
     .q-hint{font-size:.78rem;color:#64748b;}
     .timer-bar-wrap{width:100%;max-width:600px;margin-top:8px;}
     .timer-bar{height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
     .timer-fill{height:100%;background:#22c55e;border-radius:99px;transition:width .1s linear,background .3s;}
-    .options-grid{
-      width:100%;max-width:600px;
-      display:grid;grid-template-columns:1fr 1fr;
-      gap:10px;margin-top:14px;
-    }
+    .options-grid{width:100%;max-width:600px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
     .opt-btn{
       background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);
       border-radius:14px;padding:14px 12px;
@@ -94,50 +84,28 @@
     .opt-btn.correct{background:rgba(34,197,94,.2);border-color:#22c55e;color:#86efac;}
     .opt-btn.wrong{background:rgba(239,68,68,.2);border-color:#ef4444;color:#fca5a5;}
     .opt-btn:disabled{cursor:default;}
-    .feedback-box{
-      width:100%;max-width:600px;margin-top:12px;
-      border-radius:14px;padding:14px 18px;
-      font-size:.88rem;font-weight:600;line-height:1.5;display:none;
-    }
+    .feedback-box{width:100%;max-width:600px;margin-top:12px;border-radius:14px;padding:14px 18px;font-size:.88rem;font-weight:600;line-height:1.5;display:none;}
     .feedback-box.show{display:block;}
     .feedback-box.ok{background:rgba(34,197,94,.15);border:1.5px solid rgba(34,197,94,.35);color:#86efac;}
     .feedback-box.err{background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.35);color:#fca5a5;}
-    .result-screen{
-      width:100%;max-width:600px;margin-top:20px;
-      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
-      border-radius:20px;padding:32px 24px;text-align:center;display:none;
-    }
+    .result-screen{width:100%;max-width:600px;margin-top:20px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:20px;padding:32px 24px;text-align:center;display:none;}
     .result-screen.show{display:block;}
     .result-emoji{font-size:3.5rem;margin-bottom:10px;}
     .result-title{font-size:1.5rem;font-weight:900;color:#fbbf24;margin-bottom:6px;}
     .result-sub{font-size:.9rem;color:#94a3b8;margin-bottom:20px;}
     .result-score{font-size:2rem;font-weight:900;color:#e2e8f0;margin-bottom:20px;}
     .result-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
-    .r-btn{
-      padding:12px 22px;border-radius:12px;font-size:.9rem;font-weight:700;
-      cursor:pointer;border:2px solid transparent;transition:all .2s;
-      text-decoration:none;display:inline-block;
-    }
+    .r-btn{padding:12px 22px;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;border:2px solid transparent;transition:all .2s;text-decoration:none;display:inline-block;}
     .r-btn.primary{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
     .r-btn.secondary{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:#e2e8f0;}
     .r-btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
-    .start-screen{
-      width:100%;max-width:600px;margin-top:16px;
-      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);
-      border-radius:20px;padding:28px 22px;text-align:center;
-    }
+    .start-screen{width:100%;max-width:600px;margin-top:16px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:20px;padding:28px 22px;text-align:center;}
     .start-title{font-size:1.2rem;font-weight:800;color:#fbbf24;margin-bottom:8px;}
     .start-desc{font-size:.87rem;color:#94a3b8;line-height:1.6;margin-bottom:20px;}
     .start-rules{text-align:left;margin-bottom:22px;display:flex;flex-direction:column;gap:8px;}
     .rule-item{display:flex;align-items:flex-start;gap:10px;font-size:.85rem;color:#cbd5e1;}
     .rule-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
-    .start-btn{
-      display:block;width:100%;
-      background:linear-gradient(135deg,#7c3aed,#a855f7);
-      color:#fff;border:none;border-radius:12px;
-      padding:14px;font-size:1rem;font-weight:800;
-      cursor:pointer;transition:filter .2s;
-    }
+    .start-btn{display:block;width:100%;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:800;cursor:pointer;transition:filter .2s;}
     .start-btn:hover{filter:brightness(1.15);}
     @media(max-width:420px){.options-grid{grid-template-columns:1fr 1fr;}}
   </style>
@@ -212,174 +180,132 @@
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="bottom-nav.js"></script>
   <script>
-  // ════════════════════════════════════════
-  //  FIGURAS SVG — coordenadas absolutas fixas
+  // ═══════════════════════════════════════
+  //  FIGURAS SVG — bandeirolas como linhas retas
   //
   //  ViewBox: 0 0 60 110
-  //  Cabeça: cx=20, cy=90
-  //  Haste: x=29, de y=90 até y=10  (comprimento 80)
-  //  Bandeirolas nascem em x=29 e descem para a direita
-  //  Cada bandeirola ocupa 14px verticais, bem separadas
-  // ════════════════════════════════════════
+  //  Cabeça: cx=20, cy=92
+  //  Haste:  x=29, y1=90 → y2=8
+  //  Bandeirola i: linha reta de (29, 8 + i*14) até (50, 18 + i*14)
+  //  Espaçamento garantido de 14px entre cada bandeirola
+  // ═══════════════════════════════════════
 
-  const VW = 60, VH = 110;
+  const VW=60, VH=110;
 
-  function svg(content){
-    return `<svg xmlns="http://www.w3.org/2000/svg"
-      width="${VW}" height="${VH}"
-      viewBox="0 0 ${VW} ${VH}"
-      style="display:block;">${content}</svg>`;
+  function svg(c){
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${VW}" height="${VH}" viewBox="0 0 ${VW} ${VH}" style="display:block;">${c}</svg>`;
   }
 
-  // Cabeça vazia (Mínima / Semibreve)
+  // Cabeça vazia (Mínima)
   function ovaAberta(c){
-    return `<ellipse cx="20" cy="90" rx="11" ry="7"
-      fill="none" stroke="${c}" stroke-width="2.8"
-      transform="rotate(-20 20 90)"/>`;
+    return `<ellipse cx="20" cy="92" rx="11" ry="7" fill="none" stroke="${c}" stroke-width="2.8" transform="rotate(-20 20 92)"/>`;
   }
   // Cabeça preenchida
   function ovaCheia(c){
-    return `<ellipse cx="20" cy="90" rx="11" ry="7"
-      fill="${c}" stroke="${c}" stroke-width="1"
-      transform="rotate(-20 20 90)"/>`;
+    return `<ellipse cx="20" cy="92" rx="11" ry="7" fill="${c}" stroke="${c}" stroke-width="1" transform="rotate(-20 20 92)"/>`;
   }
-  // Haste vertical (sobe de cy=88 até topo)
-  function haste(c, topo=10){
-    return `<line x1="29" y1="88" x2="29" y2="${topo}"
-      stroke="${c}" stroke-width="2.5"
-      stroke-linecap="round"/>`;
+  // Haste vertical
+  function haste(c){
+    return `<line x1="29" y1="90" x2="29" y2="8" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`;
   }
-  // Uma bandeirola: nasce em (29, yStart), curva para a direita e desce
-  // yStart = topo da haste para aquela bandeirola
-  function bandeirola(c, yStart){
-    // Curva: começa no topo da haste (29, yStart),
-    // controle 1 em (50, yStart+4), controle 2 em (48, yStart+10),
-    // termina em (29, yStart+13) — reenchega à haste
-    return `<path
-      d="M 29 ${yStart}
-         C 52 ${yStart+4}
-           50 ${yStart+10}
-           29 ${yStart+13}"
-      fill="none" stroke="${c}"
-      stroke-width="2.4"
-      stroke-linecap="round"/>`;
-  }
-
-  // As bandeirolas são empilhadas de cima para baixo a partir do topo da haste
-  // Espaçamento de 14px entre cada uma
-  const TOPO_HASTE = 10; // y mais alto da haste
-  const FLAG_STEP  = 14; // pixels entre bandeirolas
+  // Bandeirola como linha reta diagonal
+  // Nasce na haste (29, yTopo + i*14) e vai para (50, yTopo + 10 + i*14)
+  const FLAG_TOPO = 8;   // y do topo da haste
+  const FLAG_STEP = 14;  // espaçamento vertical entre bandeirolas
 
   function flags(c, n){
-    let out = '';
+    let out='';
     for(let i=0;i<n;i++){
-      out += bandeirola(c, TOPO_HASTE + i * FLAG_STEP);
+      const y1 = FLAG_TOPO + i * FLAG_STEP;
+      const y2 = y1 + 10;
+      out += `<line x1="29" y1="${y1}" x2="50" y2="${y2}" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`;
     }
     return out;
   }
 
-  // Haste começa no topo necessário para acomodar n bandeirolas sem invadir a cabeça
-  // Cada figura com bandeirola precisa que a haste termine em y=10
-  // e a última bandeirola termine em y = 10 + (n-1)*14 + 13
-  // Para n=4: 10 + 3*14 + 13 = 65  — bem acima da cabeça em y=90 ✔
-
   const NOTA_SVG = {
-    // Semibreve: oval DUPLA aberta, sem haste
+    // Semibreve: oval dupla aberta, sem haste
     1: c => svg(
-      `<ellipse cx="22" cy="70" rx="15" ry="10"
-         fill="none" stroke="${c}" stroke-width="3"
-         transform="rotate(-15 22 70)"/>
-       <ellipse cx="22" cy="70" rx="7" ry="4"
-         fill="none" stroke="${c}" stroke-width="1.8"
-         transform="rotate(-15 22 70)"/>`
+      `<ellipse cx="22" cy="68" rx="15" ry="10" fill="none" stroke="${c}" stroke-width="3" transform="rotate(-15 22 68)"/>` +
+      `<ellipse cx="22" cy="68" rx="7"  ry="4"  fill="none" stroke="${c}" stroke-width="1.8" transform="rotate(-15 22 68)"/>`
     ),
     // Mínima: oval aberta + haste
     2: c => svg(ovaAberta(c) + haste(c)),
-    // Semínima: oval CHEIA + haste
-    4: c => svg(ovaCheia(c) + haste(c)),
-    // Colcheia: cheia + haste + 1 bandeirola
-    8: c => svg(ovaCheia(c) + haste(c) + flags(c,1)),
-    // Semicolcheia: cheia + haste + 2 bandeirolas
-    16: c => svg(ovaCheia(c) + haste(c) + flags(c,2)),
-    // Fusa: cheia + haste + 3 bandeirolas
-    32: c => svg(ovaCheia(c) + haste(c) + flags(c,3)),
-    // Semifusa: cheia + haste + 4 bandeirolas
-    64: c => svg(ovaCheia(c) + haste(c) + flags(c,4)),
+    // Semínima: oval cheia + haste
+    4: c => svg(ovaCheia(c)  + haste(c)),
+    // Colcheia: cheia + haste + 1 traço diagonal
+    8: c => svg(ovaCheia(c)  + haste(c) + flags(c,1)),
+    // Semicolcheia: cheia + haste + 2 traços
+   16: c => svg(ovaCheia(c)  + haste(c) + flags(c,2)),
+    // Fusa: cheia + haste + 3 traços
+   32: c => svg(ovaCheia(c)  + haste(c) + flags(c,3)),
+    // Semifusa: cheia + haste + 4 traços
+   64: c => svg(ovaCheia(c)  + haste(c) + flags(c,4)),
   };
 
   function figSVG(num, color, size='lg'){
-    const fn = NOTA_SVG[num];
+    const fn=NOTA_SVG[num];
     if(!fn) return '';
-    let s = fn(color);
-    if(size==='sm'){
-      s = s.replace(`width="${VW}" height="${VH}"`,
-                    `width="${VW*.65}" height="${VH*.65}"`);
-    }
+    let s=fn(color);
+    if(size==='sm') s=s.replace(`width="${VW}" height="${VH}"`,`width="${Math.round(VW*.65)}" height="${Math.round(VH*.65)}"`);
     return s;
   }
 
-  // ════════════════════════════════════════
+  // ═══════════════════════════════════════
   //  DADOS
-  // ════════════════════════════════════════
-  const FIGURAS = [
-    { num:1,  name:'Semibreve',    color:'#f59e0b' },
-    { num:2,  name:'Mínima',       color:'#3b82f6' },
-    { num:4,  name:'Semínima',     color:'#a855f7' },
-    { num:8,  name:'Colcheia',     color:'#22c55e' },
-    { num:16, name:'Semicolcheia', color:'#06b6d4' },
-    { num:32, name:'Fusa',         color:'#f43f5e' },
-    { num:64, name:'Semifusa',     color:'#f97316' },
+  // ═══════════════════════════════════════
+  const FIGURAS=[
+    {num:1,  name:'Semibreve',    color:'#f59e0b'},
+    {num:2,  name:'Mínima',       color:'#3b82f6'},
+    {num:4,  name:'Semínima',     color:'#a855f7'},
+    {num:8,  name:'Colcheia',     color:'#22c55e'},
+    {num:16, name:'Semicolcheia', color:'#06b6d4'},
+    {num:32, name:'Fusa',         color:'#f43f5e'},
+    {num:64, name:'Semifusa',     color:'#f97316'},
   ];
 
-  const MODES = [
+  const MODES=[
     {
-      title:'Qual é a Figura?', icon:'❓',
-      questions:10,
+      title:'Qual é a Figura?', icon:'❓', questions:10,
       build(f,all){
         return {
           tipo:'figura', label:'Como se chama esta figura?',
-          figNum:f.num, figColor:f.color,
-          sub:'', hint:'', answer:f.name,
+          figNum:f.num, figColor:f.color, sub:'', hint:'', answer:f.name,
           options:shuffle([f,...pick(all,f,3)]).map(x=>({text:x.name,val:x.name,color:x.color})),
         };
       }
     },
     {
-      title:'Qual é o Número?', icon:'🔢',
-      questions:10,
+      title:'Qual é o Número?', icon:'🔢', questions:10,
       build(f,all){
         return {
           tipo:'texto', label:'Qual é o número desta figura?',
-          textMain:f.name, figColor:f.color,
-          sub:'', hint:'(número que identifica a figura na fórmula de compasso)',
+          textMain:f.name, figColor:f.color, sub:'',
+          hint:'(número que identifica a figura na fórmula de compasso)',
           answer:String(f.num),
           options:shuffle([f,...pick(all,f,3)]).map(x=>({text:String(x.num),val:String(x.num),color:x.color})),
         };
       }
     },
     {
-      title:'Quantas Cabem?', icon:'↔️',
-      questions:10,
+      title:'Quantas Cabem?', icon:'↔️', questions:10,
       build(f,all){
         const correct=f.num;
         const pool=FIGURAS.map(x=>x.num).filter(n=>n!==correct);
         const opts=shuffle([correct,...shuffle(pool).slice(0,3)]);
         return {
           tipo:'figura', label:'Quantas dessa figura cabem em 1 Semibreve?',
-          figNum:f.num, figColor:f.color,
-          sub:f.name, hint:'', answer:String(correct),
+          figNum:f.num, figColor:f.color, sub:f.name, hint:'', answer:String(correct),
           options:opts.map(v=>({text:String(v),val:String(v),color:FIGURAS.find(x=>x.num===v)?.color||'#64748b'})),
         };
       }
     },
   ];
 
-  // STATE
   const unlocked=JSON.parse(localStorage.getItem('figuras_unlocked')||'[true,false,false]');
   let currentMode=0,qIndex=0,lives=3,combo=0,score=0;
   let timerInt=null,answering=false,questions=[];
 
-  // AUDIO
   let audioCtx=null;
   function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
   function beep(freq,dur,type='sine',vol=.4){
@@ -393,23 +319,16 @@
   function playCorrect(){beep(880,.12);setTimeout(()=>beep(1100,.15),100);}
   function playWrong(){beep(220,.35,'sawtooth',.25);}
 
-  // HELPERS
   function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
   function pick(arr,exclude,n){return shuffle(arr.filter(x=>x!==exclude)).slice(0,n);}
 
-  // MODE SELECTOR
   function buildModeSelector(){
     const wrap=document.getElementById('modeSelector');
     wrap.innerHTML='';
     MODES.forEach((m,i)=>{
       const btn=document.createElement('div');
       btn.className='mode-btn'+(i===currentMode?' active':'')+(!unlocked[i]?' locked':'');
-      btn.innerHTML=`
-        <div class="m-icon">${m.icon}</div>
-        <div class="m-num">Modo ${i+1}</div>
-        <div class="m-name">${m.title}</div>
-        ${!unlocked[i]?'<div class="lock-icon"><i class="fas fa-lock"></i></div>':''}
-      `;
+      btn.innerHTML=`<div class="m-icon">${m.icon}</div><div class="m-num">Modo ${i+1}</div><div class="m-name">${m.title}</div>${!unlocked[i]?'<div class="lock-icon"><i class="fas fa-lock"></i></div>':''}`;
       if(unlocked[i]) btn.onclick=()=>{currentMode=i;startMode(i);};
       wrap.appendChild(btn);
     });
