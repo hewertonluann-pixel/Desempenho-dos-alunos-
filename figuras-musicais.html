@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Figuras Musicais</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="loader.css">
+  <link rel="stylesheet" href="bottom-nav.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Inter','Segoe UI',sans-serif;
+      background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+      min-height:100vh;color:#e2e8f0;
+      display:flex;flex-direction:column;align-items:center;
+      padding:0 0 80px;
+    }
+
+    /* ── HEADER ── */
+    .top-bar{
+      width:100%;max-width:700px;
+      display:flex;align-items:center;gap:12px;
+      padding:20px 16px 0;
+    }
+    .back-btn{
+      background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
+      color:#e2e8f0;padding:8px 14px;border-radius:10px;
+      font-size:.85rem;font-weight:600;cursor:pointer;
+      text-decoration:none;display:flex;align-items:center;gap:6px;
+      transition:background .18s,border-color .18s;white-space:nowrap;
+    }
+    .back-btn:hover{background:rgba(255,255,255,.15);border-color:#a855f7;}
+    .header-info{flex:1;}
+    .header-info h1{font-size:1.25rem;font-weight:800;color:#fbbf24;display:flex;align-items:center;gap:8px;}
+    .header-info p{font-size:.82rem;color:#94a3b8;margin-top:3px;}
+
+    /* ── PROGRESS ── */
+    .progress-wrap{width:100%;max-width:700px;padding:14px 16px 0;}
+    .progress-steps{display:flex;gap:6px;}
+    .step-dot{
+      flex:1;height:5px;border-radius:99px;
+      background:rgba(255,255,255,.12);
+      transition:background .35s;
+    }
+    .step-dot.done{background:#a855f7;}
+    .step-dot.active{background:#fbbf24;}
+
+    /* ── SLIDES ── */
+    .slides-viewport{
+      width:100%;max-width:700px;
+      overflow:hidden;padding:0 16px;
+      margin-top:18px;
+    }
+    .slides-track{
+      display:flex;
+      transition:transform .4s cubic-bezier(.4,0,.2,1);
+    }
+    .slide{
+      min-width:100%;padding-bottom:4px;
+    }
+
+    /* ── CARD BASE ── */
+    .card{
+      background:rgba(255,255,255,.06);
+      border:1.5px solid rgba(255,255,255,.1);
+      border-radius:18px;padding:22px 20px;
+      backdrop-filter:blur(6px);
+    }
+    .card-title{
+      font-size:1.05rem;font-weight:800;
+      display:flex;align-items:center;gap:9px;
+      margin-bottom:14px;
+    }
+    .card-title .icon{
+      width:36px;height:36px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.1rem;flex-shrink:0;
+    }
+
+    /* ── SLIDE 1: Introdução ── */
+    .intro-visual{
+      display:flex;align-items:center;justify-content:center;
+      gap:18px;flex-wrap:wrap;margin:18px 0;
+    }
+    .intro-box{
+      background:rgba(255,255,255,.07);border-radius:14px;
+      padding:16px 20px;text-align:center;flex:1;min-width:130px;
+    }
+    .intro-box .big{font-size:2rem;margin-bottom:6px;}
+    .intro-box .lbl{font-size:.8rem;color:#94a3b8;}
+    .intro-arrow{font-size:1.6rem;color:#a855f7;flex-shrink:0;}
+    .tip-box{
+      background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);
+      border-radius:12px;padding:12px 16px;
+      font-size:.85rem;color:#d8b4fe;line-height:1.6;margin-top:14px;
+    }
+
+    /* ── SLIDE 2: Quadro de figuras ── */
+    .figuras-grid{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+    .figura-row{
+      display:flex;align-items:center;gap:10px;
+      background:rgba(255,255,255,.05);border-radius:12px;
+      padding:10px 14px;cursor:pointer;
+      border:1.5px solid transparent;
+      transition:border-color .2s,background .2s;
+    }
+    .figura-row:hover,.figura-row.playing{
+      background:rgba(255,255,255,.1);
+    }
+    .figura-num{
+      width:32px;height:32px;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:.85rem;font-weight:900;color:#fff;flex-shrink:0;
+    }
+    .figura-symbol{
+      width:44px;text-align:center;font-size:1.6rem;flex-shrink:0;
+      line-height:1;
+    }
+    .figura-info{flex:1;}
+    .figura-info .fname{font-size:.95rem;font-weight:700;color:#f1f5f9;}
+    .figura-info .fval{font-size:.78rem;color:#94a3b8;margin-top:2px;}
+    .figura-play{
+      font-size:.75rem;color:#64748b;
+      display:flex;align-items:center;gap:4px;
+    }
+    .figura-row.playing .figura-play{color:#fbbf24;}
+
+    /* ── SLIDE 3: Árvore de blocos ── */
+    .tree-hint{
+      font-size:.8rem;color:#64748b;
+      display:flex;align-items:center;gap:6px;
+      margin-bottom:10px;
+    }
+    .tree-hint.visible{color:#fbbf24;}
+    .tree-container{
+      display:flex;align-items:flex-start;gap:0;
+    }
+    /* coluna fixa esquerda */
+    .tree-labels{
+      flex-shrink:0;display:flex;flex-direction:column;gap:5px;
+      padding-right:8px;padding-top:2px;
+    }
+    .tree-label-row{
+      height:40px;display:flex;align-items:center;gap:6px;
+    }
+    .tree-label-num{
+      width:26px;height:26px;border-radius:7px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:.72rem;font-weight:900;color:#fff;flex-shrink:0;
+    }
+    .tree-label-name{
+      font-size:.75rem;font-weight:600;color:#cbd5e1;
+      white-space:nowrap;
+    }
+    /* área scrollável */
+    .tree-scroll{
+      flex:1;overflow-x:auto;
+      scrollbar-width:thin;scrollbar-color:#334155 transparent;
+      border-radius:8px;
+    }
+    .tree-scroll::-webkit-scrollbar{height:4px;}
+    .tree-scroll::-webkit-scrollbar-track{background:transparent;}
+    .tree-scroll::-webkit-scrollbar-thumb{background:#334155;border-radius:99px;}
+    .tree-inner{
+      min-width:560px;display:flex;flex-direction:column;gap:5px;
+    }
+    .tree-row{
+      height:40px;display:flex;gap:3px;
+    }
+    .tree-block{
+      border-radius:6px;height:100%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:filter .15s,transform .1s;
+      overflow:hidden;position:relative;
+      border:1.5px solid transparent;
+    }
+    .tree-block:hover,.tree-block.active{
+      filter:brightness(1.3);transform:scaleY(1.06);
+      border-color:rgba(255,255,255,.4);
+      z-index:2;
+    }
+    .tree-block span{
+      font-size:.68rem;font-weight:700;color:rgba(255,255,255,.9);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      padding:0 4px;pointer-events:none;
+    }
+    /* tooltip / painel de info */
+    .tree-info{
+      background:rgba(15,52,96,.95);
+      border:1.5px solid rgba(255,255,255,.15);
+      border-radius:12px;padding:12px 16px;
+      margin-top:10px;min-height:64px;
+      transition:opacity .2s;
+      display:flex;align-items:center;gap:14px;
+    }
+    .tree-info .ti-icon{font-size:1.8rem;flex-shrink:0;}
+    .tree-info .ti-body{}
+    .tree-info .ti-name{font-size:.95rem;font-weight:800;color:#f1f5f9;}
+    .tree-info .ti-rel{font-size:.8rem;color:#94a3b8;margin-top:3px;}
+    .tree-info .ti-num{
+      margin-left:auto;flex-shrink:0;
+      width:38px;height:38px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1rem;font-weight:900;color:#fff;
+    }
+
+    /* ── SLIDE 4: Pausas ── */
+    .pausas-grid{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+    .pausa-row{
+      display:flex;align-items:center;gap:10px;
+      background:rgba(255,255,255,.05);border-radius:12px;
+      padding:10px 14px;
+    }
+    .pausa-num{
+      width:28px;height:28px;border-radius:7px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:.75rem;font-weight:900;color:#fff;flex-shrink:0;
+    }
+    .pausa-pair{display:flex;align-items:center;gap:8px;flex:1;}
+    .pausa-figura{text-align:center;min-width:36px;}
+    .pausa-figura .sym{font-size:1.4rem;line-height:1;}
+    .pausa-figura .lbl{font-size:.65rem;color:#64748b;margin-top:2px;}
+    .pausa-arrow{color:#475569;font-size:.9rem;flex-shrink:0;}
+    .pausa-silence{text-align:center;min-width:36px;}
+    .pausa-silence .sym{font-size:1.4rem;line-height:1;}
+    .pausa-silence .lbl{font-size:.65rem;color:#64748b;margin-top:2px;}
+    .pausa-name{flex:1;font-size:.82rem;font-weight:600;color:#cbd5e1;padding-left:4px;}
+    .pausa-desc{font-size:.72rem;color:#64748b;margin-top:2px;}
+
+    /* ── SLIDE 5: Figuras na pauta ── */
+    .pauta-wrap{
+      background:rgba(255,255,255,.04);border-radius:14px;
+      padding:18px 16px;margin:12px 0;
+      overflow-x:auto;
+    }
+    .pauta-svg{display:block;margin:0 auto;}
+    .pauta-legenda{
+      display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;
+    }
+    .pauta-leg-item{
+      display:flex;align-items:center;gap:6px;
+      background:rgba(255,255,255,.06);border-radius:8px;
+      padding:6px 10px;font-size:.78rem;cursor:pointer;
+      transition:background .18s;
+    }
+    .pauta-leg-item:hover{background:rgba(255,255,255,.12);}
+    .pauta-leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+    /* ── SLIDE 6: Revisão ── */
+    .resumo-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.82rem;}
+    .resumo-table th{
+      background:rgba(255,255,255,.08);color:#94a3b8;
+      padding:8px 10px;text-align:left;font-weight:600;
+      font-size:.75rem;letter-spacing:.5px;text-transform:uppercase;
+    }
+    .resumo-table td{
+      padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:middle;
+    }
+    .resumo-table tr:last-child td{border-bottom:none;}
+    .resumo-table tr:hover td{background:rgba(255,255,255,.04);}
+    .r-num{
+      width:28px;height:28px;border-radius:7px;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:.75rem;font-weight:900;color:#fff;
+    }
+    .r-sym{font-size:1.3rem;line-height:1;}
+    .next-btn{
+      display:block;width:100%;margin-top:16px;
+      background:linear-gradient(135deg,#7c3aed,#a855f7);
+      color:#fff;border:none;border-radius:12px;
+      padding:14px;font-size:1rem;font-weight:800;
+      cursor:pointer;text-align:center;text-decoration:none;
+      transition:filter .2s,transform .1s;
+    }
+    .next-btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+
+    /* ── NAVEGAÇÃO ── */
+    .nav-bar{
+      width:100%;max-width:700px;
+      display:flex;align-items:center;gap:10px;
+      padding:18px 16px 0;
+    }
+    .nav-btn{
+      background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);
+      color:#e2e8f0;padding:10px 20px;border-radius:12px;
+      font-size:.9rem;font-weight:700;cursor:pointer;
+      transition:background .18s,border-color .18s;
+      display:flex;align-items:center;gap:6px;
+    }
+    .nav-btn:hover{background:rgba(255,255,255,.15);border-color:#a855f7;}
+    .nav-btn:disabled{opacity:.35;pointer-events:none;}
+    .nav-btn.primary{
+      background:linear-gradient(135deg,#7c3aed,#a855f7);
+      border-color:transparent;margin-left:auto;
+    }
+    .nav-btn.primary:hover{filter:brightness(1.15);}
+    .step-counter{
+      font-size:.82rem;color:#64748b;margin-left:auto;margin-right:0;
+    }
+    .nav-btn.primary + .step-counter{display:none;}
+
+    @media(max-width:480px){
+      .tree-label-name{display:none;}
+      .intro-arrow{display:none;}
+    }
+  </style>
+</head>
+<body>
+  <div id="global-loader">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div id="emoji-container">🎼</div>
+      <div id="verse-container">
+        <div id="verse-text"></div>
+        <div id="verse-reference"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="top-bar">
+    <a href="atividades.html" class="back-btn">← Atividades</a>
+    <div class="header-info">
+      <h1>🎼 Figuras Musicais</h1>
+      <p>Tutorial interativo · 6 passos</p>
+    </div>
+  </div>
+
+  <!-- PROGRESSO -->
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progressSteps"></div>
+  </div>
+
+  <!-- SLIDES -->
+  <div class="slides-viewport">
+    <div class="slides-track" id="slidesTrack">
+
+      <!-- ══ PASSO 1: O que é uma figura musical? ══ -->
+      <div class="slide">
+        <div class="card">
+          <div class="card-title">
+            <div class="icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">🎵</div>
+            <span>O que é uma Figura Musical?</span>
+          </div>
+          <p style="font-size:.9rem;color:#94a3b8;line-height:1.65;">
+            Você já sabe que a <strong style="color:#e2e8f0;">pauta</strong> diz <em>qual</em> nota tocar —
+            mas ainda falta saber <em>por quanto tempo</em> tocar cada nota.
+            É exatamente isso que as <strong style="color:#fbbf24;">figuras musicais</strong> fazem!
+          </p>
+          <div class="intro-visual">
+            <div class="intro-box">
+              <div class="big">🎼</div>
+              <div style="font-size:.9rem;font-weight:700;color:#e2e8f0;">Pauta</div>
+              <div class="lbl">diz qual nota tocar</div>
+            </div>
+            <div class="intro-arrow">+</div>
+            <div class="intro-box">
+              <div class="big">𝅗𝅥</div>
+              <div style="font-size:.9rem;font-weight:700;color:#fbbf24;">Figura</div>
+              <div class="lbl">diz por quanto tempo</div>
+            </div>
+            <div class="intro-arrow">=</div>
+            <div class="intro-box">
+              <div class="big">🎶</div>
+              <div style="font-size:.9rem;font-weight:700;color:#4ade80;">Música!</div>
+              <div class="lbl">nota + duração</div>
+            </div>
+          </div>
+          <div class="tip-box">
+            💡 Pense assim: a pauta é o <strong>mapa</strong> das notas e as figuras são o
+            <strong>relógio</strong> que diz quando parar cada som.
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PASSO 2: Quadro de Figuras ══ -->
+      <div class="slide">
+        <div class="card">
+          <div class="card-title">
+            <div class="icon" style="background:linear-gradient(135deg,#b45309,#f59e0b);">📊</div>
+            <span>Quadro de Figuras</span>
+          </div>
+          <p style="font-size:.85rem;color:#94a3b8;margin-bottom:2px;">
+            Toque em cada figura para ouvi-la 🔊
+          </p>
+          <div class="figuras-grid" id="figurasGrid"></div>
+        </div>
+      </div>
+
+      <!-- ══ PASSO 3: Árvore de Blocos ══ -->
+      <div class="slide">
+        <div class="card">
+          <div class="card-title">
+            <div class="icon" style="background:linear-gradient(135deg,#0d9488,#14b8a6);">🌳</div>
+            <span>Comparação de Valores</span>
+          </div>
+          <p style="font-size:.85rem;color:#94a3b8;margin-bottom:10px;">
+            Cada linha tem o mesmo comprimento — veja como as figuras se encaixam!
+            Toque em qualquer bloco para saber mais.
+          </p>
+          <div class="tree-hint" id="treeHint">
+            <i class="fas fa-arrows-left-right"></i> deslize para ver tudo
+          </div>
+          <div class="tree-container">
+            <div class="tree-labels" id="treeLabels"></div>
+            <div class="tree-scroll" id="treeScroll">
+              <div class="tree-inner" id="treeInner"></div>
+            </div>
+          </div>
+          <div class="tree-info" id="treeInfo">
+            <div class="ti-icon">👆</div>
+            <div class="ti-body">
+              <div class="ti-name">Toque em um bloco</div>
+              <div class="ti-rel">para ver a relação entre as figuras</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PASSO 4: As Pausas ══ -->
+      <div class="slide">
+        <div class="card">
+          <div class="card-title">
+            <div class="icon" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);">🤫</div>
+            <span>As Pausas</span>
+          </div>
+          <p style="font-size:.88rem;color:#94a3b8;line-height:1.6;margin-bottom:12px;">
+            Cada figura tem uma <strong style="color:#e2e8f0;">pausa</strong> correspondente —
+            o símbolo que representa o <em>silêncio</em> com a mesma duração.
+          </p>
+          <div class="pausas-grid" id="pausasGrid"></div>
+        </div>
+      </div>
+
+      <!-- ══ PASSO 5: Figuras na Pauta ══ -->
+      <div class="slide">
+        <div class="card">
+          <div class="card-title">
+            <div class="icon" style="background:linear-gradient(135deg,#166534,#22c55e);">🎼</div>
+            <span>Figuras na Pauta</span>
+          </div>
+          <p style="font-size:.85rem;color:#94a3b8;margin-bottom:4px;">
+            Veja um compasso 4/4 com figuras reais. Toque nas cores para ouvir cada nota.
+          </p>
+          <div class="pauta-wrap">
+            <svg class="pauta-svg" id="pautaSVG" width="520" height="120" viewBox="0 0 520 120"></svg>
+          </div>
+          <div class="pauta-legenda" id="pautaLegenda"></div>
+          <div class="tip-box" style="margin-top:14px;">
+            💡 Neste compasso 4/4: <strong style="color:#fbbf24;">1 mínima</strong> (2 tempos)
+            + <strong style="color:#a855f7;">2 semínimas</strong> (1+1) = 4 tempos. Compasso cheio!
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PASSO 6: Revisão ══ -->
+      <div class="slide">
+        <div class="card">
+          <div class="card-title">
+            <div class="icon" style="background:linear-gradient(135deg,#9f1239,#f43f5e);">🏆</div>
+            <span>Você aprendeu!</span>
+          </div>
+          <p style="font-size:.85rem;color:#94a3b8;margin-bottom:4px;">
+            Quadro completo das figuras e suas pausas:
+          </p>
+          <div style="overflow-x:auto;">
+            <table class="resumo-table" id="resumoTable"></table>
+          </div>
+          <a href="jogo-figuras.html" class="next-btn" style="margin-top:20px;">
+            🎮 Praticar agora — Jogo das Figuras →
+          </a>
+        </div>
+      </div>
+
+    </div><!-- /slides-track -->
+  </div><!-- /slides-viewport -->
+
+  <!-- NAVEGAÇÃO -->
+  <div class="nav-bar">
+    <button class="nav-btn" id="btnPrev" onclick="changeSlide(-1)">← Anterior</button>
+    <span class="step-counter" id="stepCounter">1 / 6</span>
+    <button class="nav-btn primary" id="btnNext" onclick="changeSlide(1)">Próximo →</button>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="aluno.html" class="nav-item" data-page="home">
+      <i class="fas fa-home nav-icon"></i>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="painel-social.html" class="nav-item" data-page="comunidade">
+      <i class="fas fa-users nav-icon"></i>
+      <span class="nav-label">Comunidade</span>
+    </a>
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca">
+      <i class="fas fa-book nav-icon"></i>
+      <span class="nav-label">Biblioteca</span>
+    </a>
+    <a href="atividades.html" class="nav-item active" data-page="atividades">
+      <i class="fas fa-clipboard-list nav-icon"></i>
+      <span class="nav-label">Atividades</span>
+    </a>
+  </nav>
+
+  <script src="loader.js"></script>
+  <script type="module" src="navegacao.js"></script>
+  <script type="module" src="bottom-nav.js"></script>
+  <script>
+  // ══════════════════════════════════════════
+  //  DADOS
+  // ══════════════════════════════════════════
+  const FIGURAS = [
+    { num:1,  name:'Semibreve',    sym:'𝅝',  symAlt:'○',  pause:'𝄻', pauseSym:'▬', color:'#f59e0b', freq:523.25, dur:1.6,  rel:'Figura mais longa — base de todas',             pauseDesc:'Bloco pendurado abaixo da 4ª linha' },
+    { num:2,  name:'Mínima',       sym:'𝅗𝅥', symAlt:'♩',  pause:'𝄼', pauseSym:'▭', color:'#3b82f6', freq:493.88, dur:0.9,  rel:'Vale metade de 1 Semibreve',                    pauseDesc:'Bloco apoiado sobre a 3ª linha' },
+    { num:4,  name:'Semínima',     sym:'♩',  symAlt:'♩',  pause:'𝄽', pauseSym:'𝄽', color:'#a855f7', freq:440.00, dur:0.5,  rel:'Vale metade de 1 Mínima · base do tempo',       pauseDesc:'Símbolo em "z" curvado' },
+    { num:8,  name:'Colcheia',     sym:'♪',  symAlt:'♪',  pause:'𝄾', pauseSym:'𝄾', color:'#22c55e', freq:392.00, dur:0.28, rel:'Vale metade de 1 Semínima',                      pauseDesc:'Símbolo em "7" simples' },
+    { num:16, name:'Semicolcheia', sym:'♬',  symAlt:'♬',  pause:'𝄿', pauseSym:'𝄿', color:'#06b6d4', freq:349.23, dur:0.15, rel:'Vale metade de 1 Colcheia',                      pauseDesc:'"7" com 2 bandeirolas' },
+    { num:32, name:'Fusa',         sym:'♬',  symAlt:'𝅘𝅥𝅯', pause:'𝅀', pauseSym:'𝅀', color:'#f43f5e', freq:329.63, dur:0.08, rel:'Vale metade de 1 Semicolcheia',                  pauseDesc:'"7" com 3 bandeirolas' },
+    { num:64, name:'Semifusa',     sym:'♬',  symAlt:'𝅘𝅥𝅰', pause:'𝅁', pauseSym:'𝅁', color:'#f97316', freq:293.66, dur:0.04, rel:'Menor figura usual — vale metade de 1 Fusa',    pauseDesc:'"7" com 4 bandeirolas' },
+  ];
+
+  // ══════════════════════════════════════════
+  //  SLIDES
+  // ══════════════════════════════════════════
+  let current = 0;
+  const TOTAL = 6;
+
+  function buildProgress(){
+    const wrap = document.getElementById('progressSteps');
+    wrap.innerHTML = '';
+    for(let i=0;i<TOTAL;i++){
+      const d = document.createElement('div');
+      d.className = 'step-dot' + (i<current?' done':i===current?' active':'');
+      wrap.appendChild(d);
+    }
+  }
+
+  function changeSlide(dir){
+    const next = current + dir;
+    if(next<0||next>=TOTAL) return;
+    current = next;
+    document.getElementById('slidesTrack').style.transform = `translateX(-${current*100}%)`;
+    document.getElementById('stepCounter').textContent = `${current+1} / ${TOTAL}`;
+    document.getElementById('btnPrev').disabled = current===0;
+    document.getElementById('btnNext').style.display = current===TOTAL-1?'none':'flex';
+    buildProgress();
+    if(current===2) initTree();
+    if(current===4) initPauta();
+  }
+
+  // Init
+  document.getElementById('btnPrev').disabled = true;
+  buildProgress();
+
+  // ══════════════════════════════════════════
+  //  WEB AUDIO
+  // ══════════════════════════════════════════
+  let audioCtx = null;
+  function getCtx(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+
+  function playTone(freq, dur, color){
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type='sine'; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(.5,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+    osc.start(); osc.stop(ctx.currentTime+dur);
+  }
+
+  // ══════════════════════════════════════════
+  //  SLIDE 2 — Quadro de figuras
+  // ══════════════════════════════════════════
+  (function buildFigurasGrid(){
+    const grid = document.getElementById('figurasGrid');
+    FIGURAS.forEach(f=>{
+      const row = document.createElement('div');
+      row.className = 'figura-row';
+      row.style.borderColor = f.color+'44';
+      row.innerHTML = `
+        <div class="figura-num" style="background:${f.color}22;color:${f.color};">${f.num}</div>
+        <div class="figura-symbol">${f.symAlt}</div>
+        <div class="figura-info">
+          <div class="fname">${f.name}</div>
+          <div class="fval">${f.rel}</div>
+        </div>
+        <div class="figura-play"><i class="fas fa-volume-up"></i> ouvir</div>
+      `;
+      row.addEventListener('click',()=>{
+        document.querySelectorAll('.figura-row').forEach(r=>r.classList.remove('playing'));
+        row.classList.add('playing');
+        playTone(f.freq, f.dur, f.color);
+        setTimeout(()=>row.classList.remove('playing'), f.dur*1000+200);
+      });
+      grid.appendChild(row);
+    });
+  })();
+
+  // ══════════════════════════════════════════
+  //  SLIDE 3 — Árvore de blocos
+  // ══════════════════════════════════════════
+  let treeBuilt = false;
+  function initTree(){
+    if(treeBuilt) return;
+    treeBuilt = true;
+
+    const labels = document.getElementById('treeLabels');
+    const inner  = document.getElementById('treeInner');
+    const info   = document.getElementById('treeInfo');
+    const hint   = document.getElementById('treeHint');
+    const scroll = document.getElementById('treeScroll');
+
+    // Hint de scroll: mostra por 2.5s
+    hint.classList.add('visible');
+    setTimeout(()=>hint.classList.remove('visible'),2500);
+
+    FIGURAS.forEach((f, fi)=>{
+      // — label fixo esquerdo —
+      const lrow = document.createElement('div');
+      lrow.className = 'tree-label-row';
+      lrow.innerHTML = `
+        <div class="tree-label-num" style="background:${f.color}33;color:${f.color};">${f.num}</div>
+        <div class="tree-label-name" style="color:${f.color}cc;">${f.name}</div>
+      `;
+      labels.appendChild(lrow);
+
+      // — linha de blocos —
+      const row = document.createElement('div');
+      row.className = 'tree-row';
+      const count = f.num; // 1,2,4,8,16,32,64
+
+      for(let i=0;i<count;i++){
+        const block = document.createElement('div');
+        block.className = 'tree-block';
+        block.style.flex = '1';
+        block.style.background = f.color + (fi%2===0?'cc':'aa');
+
+        // conteúdo do bloco baseado na largura esperada (560/count)
+        const w = 560/count;
+        let content = '';
+        if(w >= 80) content = `<span>${f.symAlt} ${f.name}</span>`;
+        else if(w >= 40) content = `<span>${f.symAlt}</span>`;
+        else if(w >= 12) content = `<span style="font-size:.55rem;">${f.symAlt}</span>`;
+        // abaixo de 12px não mostra nada
+
+        block.innerHTML = content;
+        block.title = `${f.name} (${f.num}) — ${f.rel}`;
+
+        block.addEventListener('click',()=>{
+          document.querySelectorAll('.tree-block').forEach(b=>b.classList.remove('active'));
+          document.querySelectorAll('.tree-row').forEach(r=>r.style.opacity='0.45');
+          row.style.opacity='1';
+          block.classList.add('active');
+          playTone(f.freq, f.dur, f.color);
+
+          const semCount = f.num;
+          info.innerHTML = `
+            <div class="ti-icon">${f.symAlt}</div>
+            <div class="ti-body">
+              <div class="ti-name" style="color:${f.color};">${f.name}</div>
+              <div class="ti-rel">1 Semibreve = <strong style="color:${f.color};">${semCount}</strong> ${f.name}${semCount>1?'s':''}</div>
+              <div class="ti-rel" style="margin-top:3px;">${f.rel}</div>
+            </div>
+            <div class="ti-num" style="background:${f.color}33;color:${f.color};">${f.num}</div>
+          `;
+
+          setTimeout(()=>{
+            document.querySelectorAll('.tree-row').forEach(r=>r.style.opacity='1');
+            document.querySelectorAll('.tree-block').forEach(b=>b.classList.remove('active'));
+          },2200);
+        });
+
+        row.appendChild(block);
+      }
+      inner.appendChild(row);
+    });
+  }
+
+  // ══════════════════════════════════════════
+  //  SLIDE 4 — Pausas
+  // ══════════════════════════════════════════
+  (function buildPausas(){
+    const grid = document.getElementById('pausasGrid');
+    // Símbolos de pausas com SVG inline
+    const pausaSymbols = ['𝄻','𝄼','𝄽','𝄾','𝄿','𝅀','𝅁'];
+    const pausaNames = [
+      'Pausa de Semibreve',
+      'Pausa de Mínima',
+      'Pausa de Semínima',
+      'Pausa de Colcheia',
+      'Pausa de Semicolcheia',
+      'Pausa de Fusa',
+      'Pausa de Semifusa',
+    ];
+    FIGURAS.forEach((f,i)=>{
+      const row = document.createElement('div');
+      row.className = 'pausa-row';
+      row.innerHTML = `
+        <div class="pausa-num" style="background:${f.color}22;color:${f.color};">${f.num}</div>
+        <div class="pausa-pair">
+          <div class="pausa-figura">
+            <div class="sym">${f.symAlt}</div>
+            <div class="lbl">${f.name}</div>
+          </div>
+          <div class="pausa-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="pausa-silence">
+            <div class="sym" style="color:${f.color};">${pausaSymbols[i]}</div>
+            <div class="lbl" style="color:${f.color}88;">${pausaNames[i]}</div>
+          </div>
+          <div class="pausa-name">
+            <div style="font-size:.8rem;font-weight:600;color:#cbd5e1;">${pausaNames[i]}</div>
+            <div class="pausa-desc">${f.pauseDesc}</div>
+          </div>
+        </div>
+      `;
+      grid.appendChild(row);
+    });
+  })();
+
+  // ══════════════════════════════════════════
+  //  SLIDE 5 — Pauta SVG
+  // ══════════════════════════════════════════
+  let pautaBuilt = false;
+  function initPauta(){
+    if(pautaBuilt) return;
+    pautaBuilt = true;
+
+    const svg = document.getElementById('pautaSVG');
+    const W=520, H=120;
+    const lineY = [30,42,54,66,78]; // 5 linhas da pauta
+    const staffColor = '#475569';
+
+    let html = '';
+
+    // Linhas da pauta
+    lineY.forEach(y=>{
+      html += `<line x1="20" y1="${y}" x2="${W-20}" y2="${y}" stroke="${staffColor}" stroke-width="1.5"/>`;
+    });
+
+    // Clave de Sol (simplificada como texto)
+    html += `<text x="22" y="68" font-size="52" fill="#94a3b8" font-family="serif">𝄞</text>`;
+
+    // Barra de compasso
+    html += `<line x1="75" y1="30" x2="75" y2="78" stroke="${staffColor}" stroke-width="1.5"/>`;
+
+    // Fórmula de compasso 4/4
+    html += `<text x="80" y="52" font-size="18" fill="#64748b" font-weight="bold">4</text>`;
+    html += `<text x="80" y="72" font-size="18" fill="#64748b" font-weight="bold">4</text>`;
+
+    // Nota 1: Mínima em Dó (linha central) — azul — x=120
+    const minColor = '#3b82f6';
+    html += `<ellipse cx="120" cy="54" rx="8" ry="6" fill="none" stroke="${minColor}" stroke-width="2.2"/>`;
+    html += `<line x1="128" y1="54" x2="128" y2="22" stroke="${minColor}" stroke-width="2"/>`;
+    html += `<text x="110" y="100" font-size="10" fill="${minColor}" font-weight="700">mínima</text>`;
+
+    // Nota 2: Semínima em Mi (1ª linha) — roxa — x=200
+    const semColor = '#a855f7';
+    html += `<ellipse cx="200" cy="54" rx="8" ry="6" fill="${semColor}" stroke="${semColor}" stroke-width="1.5"/>`;
+    html += `<line x1="208" y1="54" x2="208" y2="22" stroke="${semColor}" stroke-width="2"/>`;
+    html += `<text x="188" y="100" font-size="10" fill="${semColor}" font-weight="700">semínima</text>`;
+
+    // Nota 3: Semínima em Sol (2ª linha) — roxa — x=270
+    html += `<ellipse cx="270" cy="42" rx="8" ry="6" fill="${semColor}" stroke="${semColor}" stroke-width="1.5"/>`;
+    html += `<line x1="278" y1="42" x2="278" y2="10" stroke="${semColor}" stroke-width="2"/>`;
+    html += `<text x="258" y="100" font-size="10" fill="${semColor}" font-weight="700">semínima</text>`;
+
+    // Barra final
+    html += `<line x1="${W-20}" y1="30" x2="${W-20}" y2="78" stroke="${staffColor}" stroke-width="2"/>`;
+    html += `<line x1="${W-23}" y1="30" x2="${W-23}" y2="78" stroke="${staffColor}" stroke-width="4"/>`;
+
+    svg.innerHTML = html;
+
+    // Legenda
+    const leg = document.getElementById('pautaLegenda');
+    const items = [
+      {color:'#3b82f6',label:'Mínima (2 tempos)'},
+      {color:'#a855f7',label:'Semínima × 2 (1+1 tempo)'},
+    ];
+    items.forEach(it=>{
+      const el = document.createElement('div');
+      el.className = 'pauta-leg-item';
+      el.innerHTML = `<div class="pauta-leg-dot" style="background:${it.color};"></div> ${it.label}`;
+      leg.appendChild(el);
+    });
+  }
+
+  // ══════════════════════════════════════════
+  //  SLIDE 6 — Tabela resumo
+  // ══════════════════════════════════════════
+  (function buildResumo(){
+    const t = document.getElementById('resumoTable');
+    const pausaNames = ['Semibreve','Mínima','Semínima','Colcheia','Semicolcheia','Fusa','Semifusa'];
+    const pausaSyms  = ['𝄻','𝄼','𝄽','𝄾','𝄿','𝅀','𝅁'];
+    t.innerHTML = `
+      <thead><tr>
+        <th>Nº</th><th>Figura</th><th>Símbolo</th><th>Pausa</th>
+      </tr></thead>
+      <tbody>
+        ${FIGURAS.map((f,i)=>`
+          <tr>
+            <td><span class="r-num" style="background:${f.color}22;color:${f.color};">${f.num}</span></td>
+            <td style="font-weight:600;color:#f1f5f9;">${f.name}</td>
+            <td class="r-sym">${f.symAlt}</td>
+            <td class="r-sym" style="color:${f.color};">${pausaSyms[i]}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+  })();
+  </script>
+</body>
+</html>
