@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Como Funciona a Pauta – Teoria Musical</title>
+  <title>Como Funciona a Pauta – Tutorial</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,748 +11,645 @@
       font-family: 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       min-height: 100vh;
-      display: flex; flex-direction: column;
-      align-items: center;
-      padding: 24px 12px 48px;
-      color: white;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 14px 48px;
+      color: #e2e8f0;
     }
-
-    /* ── Header ─────────────────────────────────────────── */
     .back-btn {
       align-self: flex-start;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff; padding: 8px 16px; border-radius: 8px;
-      font-size: 0.9rem; cursor: pointer; margin-bottom: 18px;
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
+      color: #e2e8f0; padding: 8px 16px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
       text-decoration: none; display: flex; align-items: center; gap: 6px;
-      transition: background 0.2s;
+      transition: background 0.18s; margin-bottom: 20px;
     }
-    .back-btn:hover { background: rgba(255,255,255,0.18); }
+    .back-btn:hover { background: rgba(255,255,255,0.15); }
 
-    h1 {
-      font-size: 1.6rem; font-weight: 800;
-      background: linear-gradient(90deg, #e2b96f, #f7971e);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 4px; text-align: center;
+    /* Cabeçalho */
+    .page-header { text-align: center; margin-bottom: 28px; }
+    .page-header h1 {
+      font-size: 1.7rem; font-weight: 800; color: #e2b96f;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
     }
-    .page-sub { font-size: 0.9rem; color: #94a3b8; margin-bottom: 24px; text-align: center; }
+    .page-header p { font-size: 0.9rem; color: #94a3b8; margin-top: 6px; }
 
-    /* ── Steps indicator ────────────────────────────────── */
+    /* Indicador de passos */
     .steps-indicator {
-      display: flex; gap: 10px; margin-bottom: 24px; align-items: center;
+      display: flex; gap: 8px; margin-bottom: 28px;
     }
     .step-dot {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-      border: 2px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 700; color: #94a3b8;
-      transition: all 0.3s;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); transition: all 0.3s;
     }
-    .step-dot.active {
-      background: linear-gradient(135deg, #e2b96f, #f7971e);
-      border-color: #e2b96f; color: #1a1a2e;
-      box-shadow: 0 0 14px rgba(226,185,111,0.5);
-    }
-    .step-dot.done {
-      background: rgba(34,197,94,0.25);
-      border-color: #22c55e; color: #86efac;
-    }
-    .step-line {
-      width: 28px; height: 2px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-    }
-    .step-line.done { background: #22c55e; }
+    .step-dot.active { background: #e2b96f; transform: scale(1.3); }
+    .step-dot.done   { background: #22c55e; }
 
-    /* ── Card principal ─────────────────────────────────── */
+    /* Card do passo */
     .card {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px);
-      border: 1.5px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 28px 24px;
-      max-width: 680px; width: 100%;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 28px 24px; max-width: 680px; width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4); backdrop-filter: blur(6px);
+      animation: fadeIn 0.35s ease;
     }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .card-title {
+      font-size: 1.25rem; font-weight: 800; color: #e2b96f;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .card-text {
+      font-size: 0.95rem; color: #cbd5e1; line-height: 1.65;
+      margin-bottom: 18px;
+    }
+    .card-text strong { color: #e2b96f; }
+    .card-text em { color: #93c5fd; font-style: normal; font-weight: 600; }
 
-    .step-title {
-      font-size: 1.2rem; font-weight: 800; color: #e2b96f;
-      margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
-    }
-    .step-text {
-      font-size: 0.95rem; color: #cbd5e1; line-height: 1.7;
-      margin-bottom: 20px;
-    }
-    .step-text strong { color: #e2b96f; }
-    .step-text em { color: #86efac; font-style: normal; }
-
-    /* ── Canvas / SVG ───────────────────────────────────── */
+    /* Área do canvas */
     .canvas-wrap {
-      background: #fffef5;
-      border-radius: 14px;
-      padding: 16px 12px 10px;
-      margin-bottom: 20px;
+      background: #fffef5; border-radius: 14px;
+      padding: 14px 16px 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      margin-bottom: 18px;
       overflow-x: auto;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      display: flex; justify-content: center;
     }
     canvas { display: block; max-width: 100%; }
 
-    /* ── Legenda de notas ───────────────────────────────── */
-    .nota-legenda {
-      display: flex; flex-wrap: wrap; gap: 8px;
-      justify-content: center; margin-bottom: 20px;
+    /* Legenda da escada/pauta */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-bottom: 18px;
     }
-    .nota-chip {
-      padding: 6px 14px; border-radius: 20px;
-      font-weight: 700; font-size: 0.88rem;
-      border: 2px solid;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
+    .legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.82rem; color: #94a3b8;
     }
-    .nota-chip:hover { transform: translateY(-2px); }
-    .nota-chip.linha  { background: rgba(226,185,111,0.15); border-color: #e2b96f; color: #fde68a; }
-    .nota-chip.espaco { background: rgba(99,102,241,0.15);  border-color: #818cf8; color: #c7d2fe; }
-    .nota-chip.active { transform: scale(1.12); box-shadow: 0 0 12px currentColor; }
-
-    /* ── Escada SVG (passo 1) ───────────────────────────── */
-    .stair-wrap {
-      display: flex; justify-content: center;
-      margin-bottom: 20px;
+    .legend-dot {
+      width: 12px; height: 12px; border-radius: 3px;
     }
 
-    /* ── Info boxes ─────────────────────────────────────── */
-    .info-box {
-      border-radius: 12px; padding: 14px 18px;
-      margin-bottom: 16px; font-size: 0.9rem; line-height: 1.6;
+    /* Tabela de linhas/espaços */
+    .table-wrap { overflow-x: auto; margin-bottom: 18px; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.88rem; color: #cbd5e1;
     }
-    .info-box.gold  { background: rgba(226,185,111,0.1); border: 1.5px solid rgba(226,185,111,0.4); color: #fde68a; }
-    .info-box.blue  { background: rgba(99,102,241,0.1);  border: 1.5px solid rgba(99,102,241,0.4);  color: #c7d2fe; }
-    .info-box.green { background: rgba(34,197,94,0.1);   border: 1.5px solid rgba(34,197,94,0.4);   color: #86efac; }
+    th {
+      background: rgba(226,185,111,0.15); color: #e2b96f;
+      padding: 8px 12px; text-align: left; font-weight: 700;
+      border-bottom: 1.5px solid rgba(226,185,111,0.3);
+    }
+    td { padding: 7px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    tr:hover td { background: rgba(255,255,255,0.04); }
+    .badge-linha  { background: rgba(59,130,246,0.25); color:#93c5fd; padding:2px 8px; border-radius:20px; font-size:0.78rem; font-weight:700; }
+    .badge-espaco { background: rgba(168,85,247,0.25); color:#d8b4fe; padding:2px 8px; border-radius:20px; font-size:0.78rem; font-weight:700; }
+    .badge-nota   { background: rgba(226,185,111,0.25); color:#fde68a; padding:2px 8px; border-radius:20px; font-size:0.78rem; font-weight:700; }
+    .badge-clave  { background: rgba(34,197,94,0.25); color:#86efac; padding:2px 8px; border-radius:20px; font-size:0.78rem; font-weight:700; }
 
-    /* ── Tabela de posições ─────────────────────────────── */
-    .pos-table {
-      width: 100%; border-collapse: collapse; margin-bottom: 20px;
-      font-size: 0.88rem;
-    }
-    .pos-table th {
-      padding: 8px 12px; text-align: left;
-      background: rgba(255,255,255,0.05);
-      color: #94a3b8; font-weight: 700;
-      border-bottom: 1.5px solid rgba(255,255,255,0.1);
-    }
-    .pos-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .pos-table tr.linha-row td  { color: #fde68a; }
-    .pos-table tr.espaco-row td { color: #c7d2fe; }
-    .pos-table .badge {
-      display: inline-block; padding: 2px 10px; border-radius: 20px;
-      font-size: 0.75rem; font-weight: 700;
-    }
-    .badge.l { background: rgba(226,185,111,0.2); color: #fde68a; border: 1px solid #e2b96f55; }
-    .badge.e { background: rgba(99,102,241,0.2);  color: #c7d2fe; border: 1px solid #818cf855; }
-    .badge.ref { background: rgba(34,197,94,0.25); color: #86efac; border: 1px solid #22c55e66; }
-
-    /* ── Botões de navegação ────────────────────────────── */
+    /* Botões de navegação */
     .nav-btns {
-      display: flex; gap: 12px; margin-top: 4px;
+      display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;
     }
-    .btn-nav {
-      flex: 1; padding: 13px 0; border-radius: 12px;
-      border: none; font-size: 1rem; font-weight: 700;
-      cursor: pointer; transition: all 0.2s;
+    .btn-back {
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.2);
+      color: #94a3b8; padding: 11px 22px; border-radius: 10px;
+      font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
     }
-    .btn-prev {
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.15);
-      color: #94a3b8;
-    }
-    .btn-prev:hover { background: rgba(255,255,255,0.14); }
+    .btn-back:hover { background: rgba(255,255,255,0.14); color: #e2e8f0; }
     .btn-next {
-      background: linear-gradient(90deg, #e2b96f, #f7971e);
-      color: #1a1a2e;
+      background: linear-gradient(135deg, #e2b96f, #f59e0b);
+      border: none; color: #1a1a2e;
+      padding: 11px 28px; border-radius: 10px;
+      font-size: 0.92rem; font-weight: 800; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 8px;
     }
-    .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-finish {
-      background: linear-gradient(90deg, #22c55e, #16a34a);
-      color: #fff;
+    .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(226,185,111,0.4); }
+    .btn-next.green {
+      background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff;
     }
-    .btn-finish:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    /* ── Tooltip de som ─────────────────────────────────── */
-    .sound-hint { text-align: center; font-size: 0.8rem; color: #64748b; margin-bottom: 12px; }
-
-    /* ── Clave decorativa ───────────────────────────────── */
-    .clef-highlight {
-      display: flex; align-items: center; gap: 16px;
+    /* Destaque de nota interativa */
+    .note-interactive {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; margin-bottom: 18px;
+    }
+    .note-btn {
+      width: 58px; height: 58px;
+      border-radius: 12px;
+      border: 2px solid rgba(226,185,111,0.4);
       background: rgba(226,185,111,0.08);
-      border: 1.5px solid rgba(226,185,111,0.3);
-      border-radius: 14px; padding: 14px 18px; margin-bottom: 18px;
+      color: #e2b96f; font-size: 1rem; font-weight: 800;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px;
     }
-    .clef-symbol {
-      font-size: 4.5rem; line-height: 1;
-      background: linear-gradient(135deg, #e2b96f, #f7971e);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .clef-text { font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; }
-    .clef-text strong { color: #e2b96f; }
+    .note-btn span.pos { font-size: 0.6rem; color: #94a3b8; font-weight: 400; }
+    .note-btn:hover { background: rgba(226,185,111,0.2); transform: translateY(-3px); box-shadow: 0 6px 18px rgba(226,185,111,0.3); }
+    .note-btn.linha  { border-color: #3b82f6; color: #93c5fd; background: rgba(59,130,246,0.1); }
+    .note-btn.linha:hover  { background: rgba(59,130,246,0.25); box-shadow: 0 6px 18px rgba(59,130,246,0.3); }
+    .note-btn.espaco { border-color: #a855f7; color: #d8b4fe; background: rgba(168,85,247,0.1); }
+    .note-btn.espaco:hover { background: rgba(168,85,247,0.25); box-shadow: 0 6px 18px rgba(168,85,247,0.3); }
 
-    @media (max-width: 520px) {
-      .card { padding: 20px 14px; }
-      h1 { font-size: 1.3rem; }
-      .step-title { font-size: 1.05rem; }
+    /* Callout / destaque informativo */
+    .callout {
+      background: rgba(34,197,94,0.08); border-left: 4px solid #22c55e;
+      border-radius: 0 10px 10px 0; padding: 12px 16px;
+      font-size: 0.88rem; color: #86efac; line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .callout.amber {
+      background: rgba(226,185,111,0.1); border-left-color: #e2b96f; color: #fde68a;
+    }
+    .callout.blue {
+      background: rgba(59,130,246,0.1); border-left-color: #3b82f6; color: #93c5fd;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: 100%; max-width: 680px;
+      background: rgba(255,255,255,0.08); border-radius: 20px;
+      height: 6px; margin-bottom: 20px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 20px;
+      background: linear-gradient(90deg, #e2b96f, #22c55e);
+      transition: width 0.5s ease;
+    }
+
+    @media (max-width: 600px) {
+      .card { padding: 20px 16px; }
+      .card-title { font-size: 1.1rem; }
+      .note-btn { width: 48px; height: 48px; font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
 
   <a href="atividades.html" class="back-btn">← Atividades</a>
-  <h1>🎼 Como Funciona a Pauta</h1>
-  <p class="page-sub">Entenda como linhas e espaços identificam as notas musicais</p>
 
-  <!-- Indicador de passos -->
+  <div class="page-header">
+    <h1>🎼 Como Funciona a Pauta</h1>
+    <p>Tutorial: entenda as linhas, espaços e a Clave de Sol</p>
+  </div>
+
   <div class="steps-indicator" id="stepsIndicator"></div>
 
-  <!-- Card do passo atual -->
-  <div class="card" id="stepCard"></div>
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+
+  <div class="card" id="mainCard"></div>
 
 <script>
-// ─────────────────────────────────────────────────
-// ÁUDIO
-// ─────────────────────────────────────────────────
-const SLOT_FREQ = {
-  [-2]:261.63, [-1]:293.66, [0]:329.63, [1]:349.23,
-  [2]:392, [3]:440, [4]:493.88, [5]:523.25,
-  [6]:587.33, [7]:659.25, [8]:698.46
-};
+// ─── Áudio ──────────────────────────────────────────────────────────────────
 let audioCtx = null;
 function getACtx() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return audioCtx;
 }
-function playFreq(freq, dur=1.1) {
+const NOTE_FREQS = {
+  'Mi': 329.63, 'Fá': 349.23, 'Sol': 392.00,
+  'Lá': 440.00, 'Si': 493.88, 'Dó': 523.25,
+  'Ré': 587.33, 'Mi2': 659.25
+};
+function playNote(noteName) {
+  const freq = NOTE_FREQS[noteName] || NOTE_FREQS['Mi2'];
   try {
     const ac = getACtx();
-    [[freq,.45,dur],[freq*2,.12,dur*.6],[freq*3,.06,dur*.4]].forEach(([f,v,d]) => {
+    [[freq, 0.45, 1.2], [freq*2, 0.12, 0.6]].forEach(([f, v, d]) => {
       const o = ac.createOscillator(), g = ac.createGain();
       o.type = 'sine'; o.frequency.setValueAtTime(f, ac.currentTime);
       g.gain.setValueAtTime(0, ac.currentTime);
-      g.gain.linearRampToValueAtTime(v, ac.currentTime + .015);
-      g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d);
+      g.gain.linearRampToValueAtTime(v, ac.currentTime + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + d);
       o.connect(g).connect(ac.destination);
       o.start(ac.currentTime); o.stop(ac.currentTime + d);
     });
   } catch(e) {}
 }
-function playSlot(slot) { const f = SLOT_FREQ[slot]; if (f) playFreq(f); }
 
-// ─────────────────────────────────────────────────
-// DADOS DAS NOTAS NA PAUTA (clave de sol)
-// slot 0 = 1ª linha (Mi), alternando linha/espaço
-// ─────────────────────────────────────────────────
-const PAUTA_NOTAS = [
-  { nome:'Mi', slot:0, pos:'linha',  num:1, desc:'1ª linha' },
-  { nome:'Fá', slot:1, pos:'espaco', num:1, desc:'1º espaço' },
-  { nome:'Sol',slot:2, pos:'linha',  num:2, desc:'2ª linha', referencia:true },
-  { nome:'Lá', slot:3, pos:'espaco', num:2, desc:'2º espaço' },
-  { nome:'Si', slot:4, pos:'linha',  num:3, desc:'3ª linha' },
-  { nome:'Dó', slot:5, pos:'espaco', num:3, desc:'3º espaço' },
-  { nome:'Ré', slot:6, pos:'linha',  num:4, desc:'4ª linha' },
-  { nome:'Mi', slot:7, pos:'espaco', num:4, desc:'4º espaço' },
-  { nome:'Fá', slot:8, pos:'linha',  num:5, desc:'5ª linha' },
+// ─── Dados das notas na pauta (clave de sol) ─────────────────────────────────
+// slot: posição no sistema de linhas/espaços (0 = 1ª linha, 1 = 1º espaço, ...)
+const STAFF_NOTES = [
+  { nota: 'Mi',  slot: 0, tipo: 'linha',  pos: '1ª linha',   degrau: 1 },
+  { nota: 'Fá',  slot: 1, tipo: 'espaco', pos: '1º espaço',  degrau: 2 },
+  { nota: 'Sol', slot: 2, tipo: 'linha',  pos: '2ª linha',   degrau: 3, clave: true },
+  { nota: 'Lá',  slot: 3, tipo: 'espaco', pos: '2º espaço',  degrau: 4 },
+  { nota: 'Si',  slot: 4, tipo: 'linha',  pos: '3ª linha',   degrau: 5 },
+  { nota: 'Dó',  slot: 5, tipo: 'espaco', pos: '3º espaço',  degrau: 6 },
+  { nota: 'Ré',  slot: 6, tipo: 'linha',  pos: '4ª linha',   degrau: 7 },
+  { nota: 'Mi',  slot: 7, tipo: 'espaco', pos: '4º espaço',  degrau: 8 },
+  { nota: 'Fá',  slot: 8, tipo: 'linha',  pos: '5ª linha',   degrau: 9 },
 ];
 
-// ─────────────────────────────────────────────────
-// DESENHO DA PAUTA (canvas)
-// ─────────────────────────────────────────────────
-const LINE1_Y  = 148;
-const LINE_GAP = 14;
-const NOTE_R   = 9;
-const STAFF_X  = 72;
-const STAFF_W  = 500;
-
-function slotToY(s) { return LINE1_Y - s * (LINE_GAP / 2); }
-
-function desenharPauta(canvasId, opcoes = {}) {
-  const {
-    notasVisiveis   = [],   // array de slots que mostram nota
-    notasNomeadas   = [],   // array de slots que mostram o nome
-    notaAtiva       = null, // slot com destaque especial
-    notaReferencia  = true, // marca a 2ª linha com destaque de clave
-    mostrarClave    = true,
-    mostrarDegraus  = false,
-  } = opcoes;
-
+// ─── Canvas: desenha pauta com notas ─────────────────────────────────────────
+function desenharPauta(canvasId, opcoesVisuais) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const W = canvas.width, H = canvas.height;
+  const LINE1_Y = H - 50;  // posição da 1ª linha (de baixo)
+  const GAP = 14;           // espaço entre linhas
+  const NOTE_R = 9;
+  const STAFF_X = 70;
+  const STAFF_W = W - STAFF_X - 20;
 
-  // Fundo
+  ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#fffef5';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, W, H);
 
-  // Destaque da 2ª linha (Sol) se referencia ativa
-  if (notaReferencia) {
-    const y2 = slotToY(2);
-    ctx.fillStyle = 'rgba(226,185,111,0.12)';
-    ctx.fillRect(STAFF_X, y2 - 12, STAFF_W, 24);
-  }
+  // Função: converte slot para Y na pauta
+  function slotToY(slot) { return LINE1_Y - slot * GAP; }
 
-  // 5 linhas da pauta
-  ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+  // Desenha as 5 linhas da pauta
   for (let i = 0; i < 5; i++) {
     const y = slotToY(i * 2);
-    ctx.beginPath();
-    ctx.moveTo(STAFF_X, y);
-    ctx.lineTo(STAFF_X + STAFF_W, y);
-    ctx.stroke();
+    ctx.strokeStyle = '#444'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(STAFF_X, y); ctx.lineTo(STAFF_X + STAFF_W, y); ctx.stroke();
   }
 
-  // Números das linhas (à esquerda)
-  ctx.fillStyle = '#aaa'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
-  for (let i = 0; i < 5; i++) {
-    const y = slotToY(i * 2);
-    ctx.fillText((i + 1) + 'ª linha', STAFF_X - 4, y + 4);
-  }
+  // Clave de Sol
+  ctx.fillStyle = '#222';
+  ctx.font = 'bold 88px serif';
+  ctx.fillText('\uD834\uDD1E', STAFF_X - 12, slotToY(0) + 20);
 
-  // Números dos espaços (à esquerda)
-  ctx.fillStyle = '#99a';
-  for (let i = 0; i < 4; i++) {
-    const y = slotToY(i * 2 + 1);
-    ctx.fillText((i + 1) + 'º esp.', STAFF_X - 4, y + 4);
-  }
+  const {
+    notaDestaque = null,    // slot da nota em destaque
+    mostrarNomes = false,   // mostrar nomes em todas
+    mostrarDegraus = false, // mostrar números dos degraus
+    mostrarTipo = false,    // colorir linha vs espaço
+    destacarClave = false,  // destacar 2ª linha (Sol)
+    apenasNota = null,      // mostrar apenas esta nota (slot)
+    notasVisiveis = null,   // array de slots visíveis
+  } = opcoesVisuais || {};
 
-  // Clave de sol
-  if (mostrarClave) {
-    ctx.fillStyle = '#222';
-    ctx.font = 'bold 86px serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('𝄞', STAFF_X - 10, slotToY(0) + 20);
-  }
-
-  // Notas
-  PAUTA_NOTAS.forEach(nota => {
-    const visivel  = notasVisiveis.includes(nota.slot);
-    const nomeada  = notasNomeadas.includes(nota.slot);
-    const ativa    = notaAtiva === nota.slot;
-    const ehRef    = nota.referencia;
-
+  // Desenha notas
+  STAFF_NOTES.forEach((n, idx) => {
+    const x = STAFF_X + 90 + idx * 50;
+    const y = slotToY(n.slot);
+    const visivel = notasVisiveis ? notasVisiveis.includes(n.slot) : (apenasNota === null || apenasNota === n.slot);
     if (!visivel) return;
 
-    const x = 180 + nota.slot * 42;
-    const y = slotToY(nota.slot);
+    const ehDestaque = notaDestaque === n.slot;
+    const ehClave = destacarClave && n.clave;
 
-    // Linha suplementar inferior (Mi grave, Ré abaixo)
-    if (nota.slot <= -1) {
-      ctx.strokeStyle = '#444'; ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.moveTo(x - 16, slotToY(nota.slot));
-      ctx.lineTo(x + 16, slotToY(nota.slot));
-      ctx.stroke();
+    // Linha de ledger se necessário (acima da 5ª linha ou abaixo da 1ª)
+    // (não necessário para estas notas)
+
+    // Seta indicadora acima da nota em destaque
+    if (ehDestaque) {
+      ctx.fillStyle = '#e2b96f';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('▼', x, y - NOTE_R - 4);
     }
 
-    // Halo nota de referência
-    if (ehRef && notaReferencia) {
-      ctx.beginPath();
-      ctx.arc(x, y, NOTE_R + 5, 0, 2 * Math.PI);
-      ctx.fillStyle = 'rgba(226,185,111,0.25)';
-      ctx.fill();
-    }
-
-    // Halo nota ativa
-    if (ativa) {
-      ctx.beginPath();
-      ctx.arc(x, y, NOTE_R + 6, 0, 2 * Math.PI);
-      ctx.fillStyle = 'rgba(99,102,241,0.3)';
-      ctx.fill();
-    }
-
-    // Corpo da nota (elipse)
+    // Corpo da nota
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(1.28, 1);
     ctx.beginPath();
-    ctx.ellipse(0, 0, NOTE_R, NOTE_R * .72, 0, 0, 2 * Math.PI);
-    if (ativa) {
-      ctx.fillStyle = '#818cf8';
-      ctx.strokeStyle = '#6366f1';
-    } else if (ehRef && notaReferencia) {
-      ctx.fillStyle = '#e2b96f';
-      ctx.strokeStyle = '#b45309';
-    } else {
-      ctx.fillStyle = nota.pos === 'linha' ? '#444' : '#555';
-      ctx.strokeStyle = '#222';
-    }
-    ctx.lineWidth = 1.4;
+    ctx.ellipse(0, 0, NOTE_R, NOTE_R * 0.72, -0.3, 0, 2 * Math.PI);
+
+    let notaColor = '#555';
+    if (ehDestaque) notaColor = '#e2b96f';
+    else if (ehClave) notaColor = '#22c55e';
+    else if (mostrarTipo && n.tipo === 'linha') notaColor = '#3b82f6';
+    else if (mostrarTipo && n.tipo === 'espaco') notaColor = '#a855f7';
+
+    ctx.fillStyle = notaColor;
+    ctx.strokeStyle = ehDestaque ? '#b45309' : (ehClave ? '#166534' : '#333');
+    ctx.lineWidth = 1.5;
     ctx.fill(); ctx.stroke();
-    // Furo central
     ctx.beginPath();
-    ctx.ellipse(0, 0, NOTE_R * .42, NOTE_R * .28, 0, 0, 2 * Math.PI);
-    ctx.fillStyle = ativa ? '#c7d2fe' : (ehRef && notaReferencia ? '#fef9c3' : '#fffef5');
-    ctx.fill();
+    ctx.ellipse(0, 0, NOTE_R * 0.42, NOTE_R * 0.28, -0.3, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fffef5'; ctx.fill();
     ctx.restore();
 
     // Nome da nota
-    if (nomeada || ativa) {
-      ctx.font = 'bold 11px sans-serif';
+    if (mostrarNomes || ehDestaque || ehClave) {
+      ctx.fillStyle = ehDestaque ? '#b45309' : (ehClave ? '#166534' : '#333');
+      ctx.font = `bold 11px Segoe UI, sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillStyle = ativa ? '#818cf8' : (ehRef && notaReferencia ? '#e2b96f' : '#333');
-      ctx.fillText(nota.nome, x, y - NOTE_R - 5);
+      ctx.fillText(n.nota, x, y + NOTE_R + 13);
     }
 
-    // Degrau numérico abaixo (opcional)
+    // Número do degrau
     if (mostrarDegraus) {
-      ctx.font = '9px sans-serif';
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.font = '9.5px Segoe UI, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#aaa';
-      ctx.fillText('D' + (nota.slot + 1), x, y + NOTE_R + 12);
+      ctx.fillText(n.degrau, x, y - NOTE_R - (ehDestaque ? 20 : 6));
+    }
+
+    // Badge de tipo (linha/espaço) acima das notas
+    if (mostrarTipo) {
+      const tipoLabel = n.tipo === 'linha' ? 'L' : 'E';
+      const tipoColor = n.tipo === 'linha' ? '#3b82f6' : '#a855f7';
+      ctx.fillStyle = tipoColor;
+      ctx.font = 'bold 9px Segoe UI, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(tipoLabel, x, y - NOTE_R - 7);
     }
   });
 }
 
-// ─────────────────────────────────────────────────
-// DESENHO DA ESCADA (SVG — passo 1)
-// ─────────────────────────────────────────────────
-function desenharEscada(svgId) {
-  const svg = document.getElementById(svgId);
-  if (!svg) return;
-  const NS = 'http://www.w3.org/2000/svg';
-  function el(tag, attrs, parent) {
-    const e = document.createElementNS(NS, tag);
-    for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, v);
-    if (parent) parent.appendChild(e);
-    return e;
-  }
-  svg.innerHTML = '';
+// ─── Escada simples (passo 1) ─────────────────────────────────────────────────
+function desenharEscada(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#fffef5'; ctx.fillRect(0, 0, W, H);
 
-  const NOTES = ['Dó','Ré','Mi','Fá','Sol','Lá','Si'];
-  const COLORS = ['#a78bfa','#818cf8','#60a5fa','#34d399','#e2b96f','#fb923c','#f87171'];
-  const PAD_L=28, PAD_T=48, PAD_B=24;
-  const STEP_W=52, ROW_H=28, ROWS=7;
-  const W = PAD_L + NOTES.length * STEP_W + 28;
-  const H = PAD_T + ROWS * ROW_H + PAD_B;
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', H);
+  const notas = ['Mi','Fá','Sol','Lá','Si','Dó','Ré','Mi'];
+  const n = notas.length;
+  const PAD_L = 30, PAD_B = 30;
+  const STEP_W = 52, ROW_H = 22;
+  const TOTAL_H = n * ROW_H;
 
-  function noteY(idx) { return PAD_T + (ROWS - 1 - idx) * ROW_H; }
-
-  // Guias horizontais
-  for (let r = 0; r < ROWS; r++) {
-    const y = PAD_T + r * ROW_H;
-    el('line', { x1:PAD_L, y1:y, x2:W-20, y2:y, stroke:'rgba(255,255,255,0.05)', 'stroke-width':'1' }, svg);
-    el('text', {
-      x:PAD_L-4, y:y+4, 'text-anchor':'end', fill:'rgba(255,255,255,0.18)',
-      'font-size':'9', 'font-family':'Segoe UI,sans-serif'
-    }, svg).textContent = NOTES[ROWS-1-r];
+  // Linhas de guia
+  ctx.strokeStyle = 'rgba(0,0,0,0.05)'; ctx.lineWidth = 1;
+  for (let i = 0; i < n; i++) {
+    const y = H - PAD_B - i * ROW_H;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - 20, y); ctx.stroke();
   }
 
-  // Caminho da escada (ascendente)
-  let pathD = '';
-  const cx = [], cy = [];
-  for (let i = 0; i < NOTES.length; i++) {
+  // Escada
+  ctx.strokeStyle = '#888'; ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'miter'; ctx.lineCap = 'square';
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
     const x0 = PAD_L + i * STEP_W;
-    const x1 = PAD_L + (i+1) * STEP_W;
-    const y  = noteY(i);
-    cx.push(x0 + STEP_W/2); cy.push(y);
-    if (i === 0) pathD += `M ${x0} ${y}`;
-    pathD += ` L ${x1} ${y}`;
-    if (i < NOTES.length - 1) pathD += ` L ${x1} ${noteY(i+1)}`;
+    const x1 = PAD_L + (i + 1) * STEP_W;
+    const y  = H - PAD_B - i * ROW_H;
+    if (i === 0) ctx.moveTo(x0, y);
+    ctx.lineTo(x1, y);
+    if (i < n - 1) ctx.lineTo(x1, H - PAD_B - (i + 1) * ROW_H);
   }
-  el('path', { d:pathD, stroke:'rgba(255,255,255,0.5)', 'stroke-width':'2.5', fill:'none',
-    'stroke-linecap':'square', 'stroke-linejoin':'miter' }, svg);
+  ctx.stroke();
 
   // Blocos de nota
-  for (let i = 0; i < NOTES.length; i++) {
-    const BW=44, BH=26;
-    const bx=cx[i]-BW/2, by=cy[i]-BH-5;
-    el('rect', { x:bx, y:by, width:BW, height:BH, rx:'7', fill:COLORS[i]+'44',
-      stroke:COLORS[i], 'stroke-width':'2' }, svg);
-    el('text', { x:cx[i], y:by+BH/2+4.5, 'text-anchor':'middle', fill:COLORS[i],
-      'font-size':'12', 'font-weight':'bold', 'font-family':'Segoe UI,sans-serif' }, svg).textContent = NOTES[i];
-    el('text', { x:cx[i], y:cy[i]+13, 'text-anchor':'middle', fill:'rgba(255,255,255,0.22)',
-      'font-size':'9', 'font-family':'Segoe UI,sans-serif' }, svg).textContent = i+1;
-  }
+  notas.forEach((nota, i) => {
+    const cx = PAD_L + i * STEP_W + STEP_W / 2;
+    const cy = H - PAD_B - i * ROW_H;
+    const bw = 40, bh = 22;
+    ctx.fillStyle = 'rgba(249,168,37,0.2)';
+    ctx.strokeStyle = '#f9a825'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(cx - bw/2, cy - bh - 3, bw, bh, 6);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#92400e'; ctx.font = 'bold 11px Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(nota, cx, cy - bh/2 + 1);
+    // número do degrau
+    ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.font = '9px sans-serif';
+    ctx.fillText(i + 1, cx, cy + 12);
+  });
 }
 
-// ─────────────────────────────────────────────────
-// ESTADO
-// ─────────────────────────────────────────────────
-let currentStep = 0;
-const TOTAL_STEPS = 5;
-
-// ─────────────────────────────────────────────────
-// RENDERIZAÇÃO DOS PASSOS
-// ─────────────────────────────────────────────────
-const STEPS = [
-
-  // ══ PASSO 1: A Escada de Notas ════════════════
-  function renderStep1() {
-    return `
-      <div class="step-title">🪜 Passo 1 — Lembra da escada de notas?</div>
-      <p class="step-text">
-        Na atividade anterior, você aprendeu que as notas são como
-        <strong>degraus de uma escada</strong>: subindo de Dó até Si e voltando de volta.
-        Cada degrau acima representa uma nota <em>mais aguda</em>.
-      </p>
-      <div class="stair-wrap">
-        <svg id="escada-svg"></svg>
-      </div>
-      <div class="info-box gold">
-        🎯 <strong>A escada tem 7 notas:</strong> Dó · Ré · Mi · Fá · Sol · Lá · Si<br/>
-        Depois do Si, a escada recomeça em Dó — mas mais agudo!
-      </div>
-      <div class="nav-btns">
-        <button class="btn-nav btn-next" onclick="nextStep()">Próximo →</button>
-      </div>
-    `;
-  },
-
-  // ══ PASSO 2: A Pauta como escada deitada ══════
-  function renderStep2() {
-    return `
-      <div class="step-title">🎼 Passo 2 — A pauta é a escada <em style="color:#86efac">deitada</em></div>
-      <p class="step-text">
-        Na música escrita, a escada de notas é <strong>deitada no papel</strong> e vira a <strong>pauta musical</strong>.
-        O que eram degraus agora são <strong>linhas e espaços</strong> — e funcionam exatamente igual:
-        quanto mais alto na pauta, mais aguda a nota.
-      </p>
-      <div class="canvas-wrap">
-        <canvas id="pauta-c2" width="620" height="200"></canvas>
-      </div>
-      <div class="info-box blue">
-        📐 A pauta tem <strong>5 linhas horizontais</strong> e <strong>4 espaços</strong> entre elas.
-        Isso dá <strong>9 posições</strong> para escrever as notas — sem contar linhas suplementares!
-      </div>
-      <div class="nav-btns">
-        <button class="btn-nav btn-prev" onclick="prevStep()">← Anterior</button>
-        <button class="btn-nav btn-next" onclick="nextStep()">Próximo →</button>
-      </div>
-    `;
-  },
-
-  // ══ PASSO 3: Linhas e Espaços alternados ══════
-  function renderStep3() {
-    const chips = PAUTA_NOTAS.map(n => `
-      <div class="nota-chip ${n.pos}" id="chip-${n.slot}"
-           onclick="ativarNota(${n.slot})">
-        ${n.desc}
-      </div>
-    `).join('');
-    return `
-      <div class="step-title">↕️ Passo 3 — Linhas e espaços se alternam</div>
-      <p class="step-text">
-        Os degraus da pauta <strong>alternam entre linha e espaço</strong>.
-        Começamos pela <strong>1ª linha</strong> (mais baixa), subimos para o <strong>1º espaço</strong>,
-        depois a <strong>2ª linha</strong>, e assim por diante.
-        Clique em cada posição abaixo para ver onde ela fica na pauta!
-      </p>
-      <div class="sound-hint">🔊 Clique nas posições para tocar o som de cada nota</div>
-      <div class="canvas-wrap">
-        <canvas id="pauta-c3" width="620" height="210"></canvas>
-      </div>
-      <div class="nota-legenda">${chips}</div>
-      <div class="info-box gold">
-        🟡 <strong>Linhas</strong> &nbsp;|&nbsp; 🔵 <strong>Espaços</strong><br/>
-        Degrau 1 = 1ª linha · Degrau 2 = 1º espaço · Degrau 3 = 2ª linha · ...
-      </div>
-      <div class="nav-btns">
-        <button class="btn-nav btn-prev" onclick="prevStep()">← Anterior</button>
-        <button class="btn-nav btn-next" onclick="nextStep()">Próximo →</button>
-      </div>
-    `;
-  },
-
-  // ══ PASSO 4: A Clave de Sol ════════════════════
-  function renderStep4() {
-    return `
-      <div class="step-title">🔑 Passo 4 — A Clave de Sol é a chave</div>
-      <p class="step-text">
-        Sabemos que os degraus se alternam entre linha e espaço — mas como saber
-        o <strong>nome</strong> de cada degrau? Para isso existe a <strong>Clave</strong>.
-      </p>
-      <div class="clef-highlight">
-        <div class="clef-symbol">𝄞</div>
-        <div class="clef-text">
-          A <strong>Clave de Sol</strong> define que a <strong>2ª linha</strong> da pauta
-          se chama <strong style="color:#e2b96f">SOL</strong>.<br/>
-          Com essa informação, é só contar os degraus para cima e para baixo!
+// ─── Definição dos 5 passos do tutorial ──────────────────────────────────────
+const PASSOS = [
+  // Passo 1: Relembrando a escada
+  {
+    titulo: '🪜 Passo 1 – Lembra da Escada?',
+    renderizar(container) {
+      container.innerHTML = `
+        <div class="card-text">
+          Na atividade anterior você viu que as notas musicais formam uma <strong>escada sonora</strong>.
+          Cada degrau sobe uma nota: <em>Mi → Fá → Sol → Lá → Si → Dó → Ré → Mi</em>.
+          Quanto mais alto o degrau, <strong>mais agudo é o som</strong>.
         </div>
-      </div>
-      <div class="canvas-wrap">
-        <canvas id="pauta-c4" width="620" height="210"></canvas>
-      </div>
-      <div class="info-box green">
-        ✅ <strong>2ª linha = Sol</strong> (definido pela clave)<br/>
-        Subindo: Sol → Lá (2º espaço) → Si (3ª linha) → Dó (3º espaço) …<br/>
-        Descendo: Sol → Fá (1º espaço) → Mi (1ª linha)
-      </div>
-      <div class="nav-btns">
-        <button class="btn-nav btn-prev" onclick="prevStep()">← Anterior</button>
-        <button class="btn-nav btn-next" onclick="nextStep()">Próximo →</button>
-      </div>
-    `;
+        <div class="canvas-wrap">
+          <canvas id="cv1" width="490" height="210"></canvas>
+        </div>
+        <div class="callout amber">
+          🎯 <strong>Ideia central:</strong> a pauta musical é exatamente essa escada —
+          só que deitada horizontalmente no papel.
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#f9a825"></div> Degrau (nota)</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(0,0,0,0.15);border:1px solid #888"></div> Número do degrau</div>
+        </div>
+      `;
+      desenharEscada('cv1');
+    }
   },
 
-  // ══ PASSO 5: Mapa completo ════════════════════
-  function renderStep5() {
-    const linhas = PAUTA_NOTAS.filter(n => n.pos === 'linha');
-    const espacos = PAUTA_NOTAS.filter(n => n.pos === 'espaco');
-    const rows = PAUTA_NOTAS.map(n => `
-      <tr class="${n.pos}-row">
-        <td>${n.slot + 1}º degrau</td>
-        <td><span class="badge ${n.pos === 'linha' ? 'l' : 'e'}">${n.pos === 'linha' ? 'Linha' : 'Espaço'}</span></td>
-        <td>${n.desc}</td>
-        <td><strong>${n.nome}</strong> ${n.referencia ? '<span class="badge ref">← Clave de Sol</span>' : ''}</td>
-        <td><button onclick="playSlot(${n.slot})" style="background:none;border:none;cursor:pointer;font-size:1rem;">🔊</button></td>
-      </tr>
-    `).join('');
-    return `
-      <div class="step-title">🗺️ Passo 5 — Mapa completo da pauta!</div>
-      <p class="step-text">
-        Agora você já sabe tudo! Veja o mapa completo das notas na pauta em <strong>Clave de Sol</strong>.
-        Clique em 🔊 para ouvir cada nota.
-      </p>
-      <div class="canvas-wrap">
-        <canvas id="pauta-c5" width="620" height="210"></canvas>
-      </div>
-      <table class="pos-table">
-        <thead>
-          <tr>
-            <th>Degrau</th>
-            <th>Tipo</th>
-            <th>Posição</th>
-            <th>Nota</th>
-            <th>Som</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div class="info-box green">
-        🎉 Você está pronto para a <strong>Atividade 3 — Nomeie as Notas</strong>!
-        Agora identifique as notas na pauta usando o que aprendeu.
-      </div>
-      <div class="nav-btns">
-        <button class="btn-nav btn-prev" onclick="prevStep()">← Anterior</button>
-        <a href="atividades-notas.html" class="btn-nav btn-finish" style="text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;">
-          🎯 Praticar — Atividade 3
-        </a>
-      </div>
-    `;
+  // Passo 2: A pauta é a escada deitada
+  {
+    titulo: '🎼 Passo 2 – A Pauta é a Escada Deitada',
+    renderizar(container) {
+      container.innerHTML = `
+        <div class="card-text">
+          A <strong>pauta musical</strong> tem <em>5 linhas horizontais</em>. Entre elas existem
+          <em>4 espaços</em>. Juntas, essas posições formam 9 degraus — como a escada!
+          Quanto mais <strong>alto na pauta</strong>, mais <strong>aguda</strong> é a nota.
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="cv2" width="580" height="200"></canvas>
+        </div>
+        <div class="callout blue">
+          📌 As notas estão escritas <strong>sobre as linhas</strong> ou <strong>nos espaços</strong> entre elas.
+          Notas escritas mais acima soam mais agudo; mais abaixo, mais grave.
+        </div>
+      `;
+      desenharPauta('cv2', { notasVisiveis: [] });
+      // Redesenha só as linhas (sem notas)
+      const canvas = document.getElementById('cv2');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const LINE1_Y = H - 50, GAP = 14, STAFF_X = 70, STAFF_W = W - STAFF_X - 20;
+      // Setas e labels para linhas
+      const linhaLabels = ['1ª linha','2ª linha','3ª linha','4ª linha','5ª linha'];
+      const espacoLabels = ['1º espaço','2º espaço','3º espaço','4º espaço'];
+      ctx.font = '10px Segoe UI, sans-serif'; ctx.textAlign = 'right';
+      for (let i = 0; i < 5; i++) {
+        const y = LINE1_Y - i * 2 * GAP;
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillText(linhaLabels[i], STAFF_X - 4, y + 4);
+      }
+      ctx.fillStyle = '#a855f7';
+      for (let i = 0; i < 4; i++) {
+        const y = LINE1_Y - (i * 2 + 1) * GAP;
+        ctx.fillText(espacoLabels[i], STAFF_X - 4, y + 4);
+      }
+    }
   },
+
+  // Passo 3: Linhas e Espaços são os Degraus
+  {
+    titulo: '🔢 Passo 3 – Linhas e Espaços: os Degraus',
+    renderizar(container) {
+      container.innerHTML = `
+        <div class="card-text">
+          Os degraus da pauta <strong>alternam entre linhas e espaços</strong>, sempre de baixo para cima:
+          <em>1ª linha → 1º espaço → 2ª linha → 2º espaço → ...</em>
+          Cada posição é um degrau. Abaixo você pode <strong>clicar em cada nota</strong> para ouvi-la!
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="cv3" width="580" height="200"></canvas>
+        </div>
+        <div id="noteButtons" class="note-interactive"></div>
+        <div class="callout">
+          ✅ Cada posição (linha ou espaço) = um degrau = uma nota diferente.
+          <strong>Linhas e espaços se alternam</strong>, como os degraus de uma escada.
+        </div>
+      `;
+      let slotAtivo = null;
+      function redesenhar() {
+        desenharPauta('cv3', { mostrarTipo: true, mostrarDegraus: true, notaDestaque: slotAtivo, notasVisiveis: STAFF_NOTES.map(n => n.slot) });
+      }
+      redesenhar();
+      // Botões de nota
+      const div = document.getElementById('noteButtons');
+      STAFF_NOTES.forEach(n => {
+        const btn = document.createElement('button');
+        btn.className = `note-btn ${n.tipo}`;
+        btn.innerHTML = `${n.nota}<span class="pos">${n.pos}</span>`;
+        btn.onclick = () => {
+          slotAtivo = n.slot;
+          redesenhar();
+          playNote(n.nota === 'Mi' && n.degrau > 1 ? 'Mi2' : n.nota);
+        };
+        div.appendChild(btn);
+      });
+    }
+  },
+
+  // Passo 4: A Clave de Sol define tudo
+  {
+    titulo: '🔑 Passo 4 – A Clave de Sol Define o Nome',
+    renderizar(container) {
+      container.innerHTML = `
+        <div class="card-text">
+          Mas como sabemos o <strong>nome</strong> de cada degrau da pauta?
+          É aí que entra a <em>Clave de Sol</em> 𝄞 — o símbolo no início da pauta.
+          Ela <strong>enrola ao redor da 2ª linha</strong> e declara:
+          <em>"Esta linha se chama SOL"</em>.
+          A partir do Sol, seguimos os degraus para cima e para baixo para descobrir todas as notas.
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="cv4" width="580" height="200"></canvas>
+        </div>
+        <div class="callout">
+          🔑 <strong>A Clave de Sol define: 2ª linha = Sol.</strong><br>
+          Subindo um degrau: <strong>Lá, Si, Dó, Ré, Mi, Fá...</strong><br>
+          Descendo um degrau da 2ª linha: <strong>Fá, Mi...</strong>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Posição</th><th>Tipo</th><th>Nome da Nota</th><th>Degrau</th></tr>
+            </thead>
+            <tbody>
+              ${STAFF_NOTES.map(n => `
+                <tr>
+                  <td>${n.pos}</td>
+                  <td><span class="badge-${n.tipo}">${n.tipo === 'linha' ? 'Linha' : 'Espaço'}</span></td>
+                  <td>
+                    <span class="badge-nota">${n.nota}</span>
+                    ${n.clave ? '<span class="badge-clave" style="margin-left:6px">← Clave de Sol</span>' : ''}
+                  </td>
+                  <td>${n.degrau}º</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      desenharPauta('cv4', { mostrarNomes: true, destacarClave: true, notasVisiveis: STAFF_NOTES.map(n => n.slot) });
+    }
+  },
+
+  // Passo 5: Revisão e praticar
+  {
+    titulo: '🎉 Passo 5 – Agora Você Sabe!',
+    renderizar(container) {
+      container.innerHTML = `
+        <div class="card-text">
+          Muito bem! Veja o resumo do que aprendemos:
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="cv5" width="580" height="200"></canvas>
+        </div>
+        <div class="callout amber">
+          🎯 <strong>Resumo:</strong> A pauta é uma escada deitada. Cada linha e cada espaço é um degrau.
+          Os degraus alternam: linha → espaço → linha → espaço...
+          A <strong>Clave de Sol</strong> define que a <strong>2ª linha = Sol</strong>,
+          e daí derivamos todas as outras: <em>Mi – Fá – Sol – Lá – Si – Dó – Ré – Mi – Fá</em>.
+        </div>
+        <div class="note-interactive" id="noteButtons5"></div>
+        <div class="callout">
+          ✅ Agora pratique! Na próxima atividade você vai <strong>identificar as notas na pauta</strong>.
+          Clique no botão abaixo quando estiver pronto.
+        </div>
+      `;
+      desenharPauta('cv5', { mostrarNomes: true, mostrarTipo: true, notasVisiveis: STAFF_NOTES.map(n => n.slot) });
+      const div = document.getElementById('noteButtons5');
+      STAFF_NOTES.forEach(n => {
+        const btn = document.createElement('button');
+        btn.className = `note-btn ${n.tipo}`;
+        btn.innerHTML = `${n.nota}<span class="pos">${n.pos}</span>`;
+        btn.onclick = () => playNote(n.nota === 'Mi' && n.degrau > 1 ? 'Mi2' : n.nota);
+        div.appendChild(btn);
+      });
+    }
+  }
 ];
 
-// ─────────────────────────────────────────────────
-// ESTADO INTERATIVO DO PASSO 3
-// ─────────────────────────────────────────────────
-let notaAtivaAtual = null;
+// ─── Navegação entre passos ───────────────────────────────────────────────────
+let passoAtual = 0;
+const TOTAL = PASSOS.length;
 
-function ativarNota(slot) {
-  notaAtivaAtual = slot;
-  playSlot(slot);
-  // Atualiza chips
-  document.querySelectorAll('.nota-chip').forEach(c => c.classList.remove('active'));
-  const chip = document.getElementById('chip-' + slot);
-  if (chip) chip.classList.add('active');
-  // Redesenha pauta
-  const todosSlots = PAUTA_NOTAS.map(n => n.slot);
-  desenharPauta('pauta-c3', {
-    notasVisiveis:  todosSlots,
-    notasNomeadas:  [slot],
-    notaAtiva:      slot,
-    notaReferencia: false,
-    mostrarDegraus: true,
-  });
-}
+function renderizarPasso() {
+  const passo = PASSOS[passoAtual];
+  const card = document.getElementById('mainCard');
 
-// ─────────────────────────────────────────────────
-// NAVEGAÇÃO
-// ─────────────────────────────────────────────────
-function renderIndicator() {
-  const wrap = document.getElementById('stepsIndicator');
-  let html = '';
-  for (let i = 0; i < TOTAL_STEPS; i++) {
-    if (i > 0) html += `<div class="step-line ${i <= currentStep ? 'done' : ''}"></div>`;
-    const cls = i === currentStep ? 'active' : (i < currentStep ? 'done' : '');
-    const icon = i < currentStep ? '✓' : (i + 1);
-    html += `<div class="step-dot ${cls}">${icon}</div>`;
+  // Atualiza barra de progresso
+  document.getElementById('progressFill').style.width = ((passoAtual + 1) / TOTAL * 100) + '%';
+
+  // Atualiza indicadores de passo
+  const stepsDiv = document.getElementById('stepsIndicator');
+  stepsDiv.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i < passoAtual ? ' done' : i === passoAtual ? ' active' : '');
+    stepsDiv.appendChild(dot);
   }
-  wrap.innerHTML = html;
-}
 
-function renderStep() {
-  const card = document.getElementById('stepCard');
-  card.innerHTML = STEPS[currentStep]();
-  renderIndicator();
+  // Monta o card
+  card.innerHTML = `<div class="card-title">${passo.titulo}</div><div id="conteudoPasso"></div>`;
+  passo.renderizar(document.getElementById('conteudoPasso'));
 
-  // Pós-render: desenha elementos que precisam do DOM
-  requestAnimationFrame(() => {
-    if (currentStep === 0) {
-      desenharEscada('escada-svg');
-    }
-    if (currentStep === 1) {
-      const todos = PAUTA_NOTAS.map(n => n.slot);
-      desenharPauta('pauta-c2', {
-        notasVisiveis:  todos,
-        notasNomeadas:  todos,
-        notaReferencia: false,
-        mostrarDegraus: false,
-      });
-    }
-    if (currentStep === 2) {
-      // Mostra notas sem nome inicialmente
-      const todos = PAUTA_NOTAS.map(n => n.slot);
-      desenharPauta('pauta-c3', {
-        notasVisiveis:  todos,
-        notasNomeadas:  [],
-        notaReferencia: false,
-        mostrarDegraus: true,
-      });
-      notaAtivaAtual = null;
-    }
-    if (currentStep === 3) {
-      const todos = PAUTA_NOTAS.map(n => n.slot);
-      desenharPauta('pauta-c4', {
-        notasVisiveis:  todos,
-        notasNomeadas:  todos,
-        notaAtiva:      null,
-        notaReferencia: true,
-        mostrarDegraus: false,
-      });
-    }
-    if (currentStep === 4) {
-      const todos = PAUTA_NOTAS.map(n => n.slot);
-      desenharPauta('pauta-c5', {
-        notasVisiveis:  todos,
-        notasNomeadas:  todos,
-        notaReferencia: true,
-        mostrarDegraus: false,
-      });
-    }
-  });
-}
-
-function nextStep() {
-  if (currentStep < TOTAL_STEPS - 1) {
-    currentStep++;
-    renderStep();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Botões de navegação
+  const nav = document.createElement('div');
+  nav.className = 'nav-btns';
+  if (passoAtual > 0) {
+    const btnBack = document.createElement('button');
+    btnBack.className = 'btn-back';
+    btnBack.textContent = '← Anterior';
+    btnBack.onclick = () => { passoAtual--; renderizarPasso(); window.scrollTo({top:0, behavior:'smooth'}); };
+    nav.appendChild(btnBack);
   }
-}
-
-function prevStep() {
-  if (currentStep > 0) {
-    currentStep--;
-    renderStep();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (passoAtual < TOTAL - 1) {
+    const btnNext = document.createElement('button');
+    btnNext.className = 'btn-next';
+    btnNext.innerHTML = 'Próximo &#8594;';
+    btnNext.onclick = () => { passoAtual++; renderizarPasso(); window.scrollTo({top:0, behavior:'smooth'}); };
+    nav.appendChild(btnNext);
+  } else {
+    const btnPratica = document.createElement('button');
+    btnPratica.className = 'btn-next green';
+    btnPratica.innerHTML = '🎯 Praticar agora – Atividade 3';
+    btnPratica.onclick = () => { window.location.href = 'atividades-notas.html'; };
+    nav.appendChild(btnPratica);
   }
+  document.getElementById('conteudoPasso').appendChild(nav);
 }
 
-// Inicializa
-renderStep();
+renderizarPasso();
 </script>
 </body>
 </html>
