@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jogo das Figuras</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="loader.css">
+  <link rel="stylesheet" href="bottom-nav.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Inter','Segoe UI',sans-serif;
+      background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+      min-height:100vh;color:#e2e8f0;
+      display:flex;flex-direction:column;align-items:center;
+      padding:0 16px 90px;
+    }
+
+    /* TOP BAR */
+    .top-bar{
+      width:100%;max-width:600px;
+      display:flex;align-items:center;gap:10px;
+      padding:18px 0 0;
+    }
+    .back-btn{
+      background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
+      color:#e2e8f0;padding:8px 14px;border-radius:10px;
+      font-size:.85rem;font-weight:600;cursor:pointer;
+      text-decoration:none;display:flex;align-items:center;gap:6px;
+      transition:background .18s;white-space:nowrap;
+    }
+    .back-btn:hover{background:rgba(255,255,255,.15);}
+    .title-info h1{font-size:1.15rem;font-weight:800;color:#fbbf24;}
+    .title-info p{font-size:.78rem;color:#64748b;margin-top:2px;}
+
+    /* MODO SELECTOR */
+    .mode-selector{
+      width:100%;max-width:600px;margin-top:16px;
+      display:flex;gap:8px;
+    }
+    .mode-btn{
+      flex:1;padding:10px 6px;
+      background:rgba(255,255,255,.06);
+      border:1.5px solid rgba(255,255,255,.1);
+      border-radius:12px;cursor:pointer;
+      text-align:center;transition:all .2s;
+      position:relative;
+    }
+    .mode-btn.active{
+      background:rgba(168,85,247,.2);
+      border-color:#a855f7;
+    }
+    .mode-btn.locked{
+      opacity:.4;pointer-events:none;
+    }
+    .mode-btn .m-num{
+      font-size:.68rem;color:#64748b;font-weight:700;
+      text-transform:uppercase;letter-spacing:.4px;
+    }
+    .mode-btn .m-name{
+      font-size:.82rem;font-weight:700;color:#e2e8f0;
+      margin-top:2px;
+    }
+    .mode-btn .m-icon{font-size:1.1rem;margin-bottom:3px;}
+    .lock-icon{
+      position:absolute;top:6px;right:8px;
+      font-size:.7rem;color:#475569;
+    }
+    .mode-btn.done .lock-icon::before{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;color:#22c55e;}
+
+    /* HUD */
+    .hud{
+      width:100%;max-width:600px;margin-top:12px;
+      display:flex;align-items:center;gap:10px;
+    }
+    .lives{display:flex;gap:4px;font-size:1.05rem;}
+    .combo-badge{
+      background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);
+      color:#fbbf24;border-radius:20px;
+      padding:3px 10px;font-size:.78rem;font-weight:700;
+      transition:transform .15s;
+    }
+    .combo-badge.bump{transform:scale(1.25);}
+    .score-display{
+      margin-left:auto;font-size:.95rem;font-weight:800;color:#f1f5f9;
+    }
+
+    /* PROGRESS BAR */
+    .prog-wrap{width:100%;max-width:600px;margin-top:8px;}
+    .prog-bar{
+      height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;
+    }
+    .prog-fill{
+      height:100%;background:linear-gradient(90deg,#7c3aed,#a855f7);
+      border-radius:99px;transition:width .4s;
+    }
+    .prog-label{
+      font-size:.72rem;color:#64748b;margin-top:4px;text-align:right;
+    }
+
+    /* CARTA / PERGUNTA */
+    .question-card{
+      width:100%;max-width:600px;margin-top:16px;
+      background:rgba(255,255,255,.07);
+      border:1.5px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:28px 24px;
+      text-align:center;min-height:180px;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      backdrop-filter:blur(6px);
+    }
+    .q-label{
+      font-size:.8rem;color:#64748b;
+      text-transform:uppercase;letter-spacing:.6px;
+      font-weight:700;margin-bottom:12px;
+    }
+    .q-main{
+      font-size:3.5rem;line-height:1;
+      margin-bottom:10px;
+      transition:transform .2s;
+    }
+    .q-main.pop{transform:scale(1.2);}
+    .q-sub{
+      font-size:1.1rem;font-weight:800;color:#f1f5f9;
+      margin-bottom:4px;
+    }
+    .q-hint{font-size:.82rem;color:#94a3b8;}
+
+    /* TIMER */
+    .timer-bar-wrap{
+      width:100%;max-width:600px;margin-top:8px;
+    }
+    .timer-bar{
+      height:5px;background:rgba(255,255,255,.08);
+      border-radius:99px;overflow:hidden;
+    }
+    .timer-fill{
+      height:100%;background:#22c55e;
+      border-radius:99px;
+      transition:width .1s linear, background .3s;
+    }
+
+    /* OPÇÕES */
+    .options-grid{
+      width:100%;max-width:600px;
+      display:grid;grid-template-columns:1fr 1fr;
+      gap:10px;margin-top:14px;
+    }
+    .opt-btn{
+      background:rgba(255,255,255,.07);
+      border:2px solid rgba(255,255,255,.1);
+      border-radius:14px;padding:14px 12px;
+      font-size:.92rem;font-weight:700;color:#e2e8f0;
+      cursor:pointer;text-align:center;
+      transition:all .18s;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .opt-btn:hover{background:rgba(255,255,255,.14);border-color:#a855f7;}
+    .opt-btn.correct{
+      background:rgba(34,197,94,.2);
+      border-color:#22c55e;color:#86efac;
+    }
+    .opt-btn.wrong{
+      background:rgba(239,68,68,.2);
+      border-color:#ef4444;color:#fca5a5;
+    }
+    .opt-btn:disabled{cursor:default;}
+
+    /* FEEDBACK */
+    .feedback-box{
+      width:100%;max-width:600px;margin-top:12px;
+      border-radius:14px;padding:14px 18px;
+      font-size:.88rem;font-weight:600;line-height:1.5;
+      display:none;
+    }
+    .feedback-box.show{display:block;}
+    .feedback-box.ok{
+      background:rgba(34,197,94,.15);
+      border:1.5px solid rgba(34,197,94,.35);
+      color:#86efac;
+    }
+    .feedback-box.err{
+      background:rgba(239,68,68,.15);
+      border:1.5px solid rgba(239,68,68,.35);
+      color:#fca5a5;
+    }
+
+    /* TELA DE RESULTADO */
+    .result-screen{
+      width:100%;max-width:600px;
+      margin-top:20px;
+      background:rgba(255,255,255,.07);
+      border:1.5px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:32px 24px;
+      text-align:center;
+      display:none;
+    }
+    .result-screen.show{display:block;}
+    .result-emoji{font-size:3.5rem;margin-bottom:10px;}
+    .result-title{font-size:1.5rem;font-weight:900;color:#fbbf24;margin-bottom:6px;}
+    .result-sub{font-size:.9rem;color:#94a3b8;margin-bottom:20px;}
+    .result-score{font-size:2rem;font-weight:900;color:#e2e8f0;margin-bottom:20px;}
+    .result-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+    .r-btn{
+      padding:12px 22px;border-radius:12px;
+      font-size:.9rem;font-weight:700;cursor:pointer;
+      border:2px solid transparent;transition:all .2s;
+      text-decoration:none;display:inline-block;
+    }
+    .r-btn.primary{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
+    .r-btn.secondary{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:#e2e8f0;}
+    .r-btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+
+    /* TELA INICIAL */
+    .start-screen{
+      width:100%;max-width:600px;margin-top:16px;
+      background:rgba(255,255,255,.07);
+      border:1.5px solid rgba(255,255,255,.12);
+      border-radius:20px;padding:28px 22px;
+      text-align:center;
+    }
+    .start-title{font-size:1.2rem;font-weight:800;color:#fbbf24;margin-bottom:8px;}
+    .start-desc{font-size:.87rem;color:#94a3b8;line-height:1.6;margin-bottom:20px;}
+    .start-rules{text-align:left;margin-bottom:22px;display:flex;flex-direction:column;gap:8px;}
+    .rule-item{display:flex;align-items:flex-start;gap:10px;font-size:.85rem;color:#cbd5e1;}
+    .rule-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+    .start-btn{
+      display:block;width:100%;
+      background:linear-gradient(135deg,#7c3aed,#a855f7);
+      color:#fff;border:none;border-radius:12px;
+      padding:14px;font-size:1rem;font-weight:800;
+      cursor:pointer;transition:filter .2s;
+    }
+    .start-btn:hover{filter:brightness(1.15);}
+
+    @media(max-width:420px){
+      .options-grid{grid-template-columns:1fr;}
+      .q-main{font-size:2.8rem;}
+    }
+  </style>
+</head>
+<body>
+  <div id="global-loader">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div id="emoji-container">🎵</div>
+      <div id="verse-container">
+        <div id="verse-text"></div>
+        <div id="verse-reference"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="figuras-musicais.html" class="back-btn">← Tutorial</a>
+    <div class="title-info">
+      <h1>🎮 Jogo das Figuras</h1>
+      <p>3 modos · desbloqueio progressivo</p>
+    </div>
+  </div>
+
+  <!-- MODO SELECTOR -->
+  <div class="mode-selector" id="modeSelector"></div>
+
+  <!-- HUD -->
+  <div class="hud" id="hudWrap" style="display:none;">
+    <div class="lives" id="livesDisplay"></div>
+    <div class="combo-badge" id="comboBadge">🔥 x1</div>
+    <div class="score-display" id="scoreDisplay">0 pts</div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="prog-wrap" id="progWrap" style="display:none;">
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%;"></div></div>
+    <div class="prog-label" id="progLabel">0 / 10</div>
+  </div>
+
+  <!-- TELA INICIAL -->
+  <div class="start-screen" id="startScreen">
+    <div class="start-title">🎼 Jogo das Figuras Musicais</div>
+    <div class="start-desc">Teste seu conhecimento sobre as figuras musicais em 3 modos progressivos. Complete o Modo 1 para desbloquear o Modo 2, e assim por diante!</div>
+    <div class="start-rules">
+      <div class="rule-item"><span class="rule-icon">❓</span><span><strong>Modo 1:</strong> Veja a figura e escolha o nome correto</span></div>
+      <div class="rule-item"><span class="rule-icon">🔢</span><span><strong>Modo 2:</strong> Veja o nome e escolha o número (cifra) correto</span></div>
+      <div class="rule-item"><span class="rule-icon">↔️</span><span><strong>Modo 3:</strong> Quantas figuras cabem em uma semibreve?</span></div>
+      <div class="rule-item"><span class="rule-icon">❤️</span><span>3 vidas por rodada · combos aumentam seus pontos</span></div>
+      <div class="rule-item"><span class="rule-icon">⏱️</span><span>Timer de 8 segundos por questão</span></div>
+    </div>
+    <button class="start-btn" onclick="startMode(0)">🚀 Começar Modo 1</button>
+  </div>
+
+  <!-- PERGUNTA -->
+  <div class="question-card" id="questionCard" style="display:none;">
+    <div class="q-label" id="qLabel"></div>
+    <div class="q-main" id="qMain"></div>
+    <div class="q-sub" id="qSub"></div>
+    <div class="q-hint" id="qHint"></div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="timer-bar-wrap" id="timerWrap" style="display:none;">
+    <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%;"></div></div>
+  </div>
+
+  <!-- OPÇÕES -->
+  <div class="options-grid" id="optionsGrid" style="display:none;"></div>
+
+  <!-- FEEDBACK -->
+  <div class="feedback-box" id="feedbackBox"></div>
+
+  <!-- RESULTADO -->
+  <div class="result-screen" id="resultScreen"></div>
+
+  <nav class="bottom-nav">
+    <a href="aluno.html" class="nav-item" data-page="home">
+      <i class="fas fa-home nav-icon"></i>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="painel-social.html" class="nav-item" data-page="comunidade">
+      <i class="fas fa-users nav-icon"></i>
+      <span class="nav-label">Comunidade</span>
+    </a>
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca">
+      <i class="fas fa-book nav-icon"></i>
+      <span class="nav-label">Biblioteca</span>
+    </a>
+    <a href="atividades.html" class="nav-item active" data-page="atividades">
+      <i class="fas fa-clipboard-list nav-icon"></i>
+      <span class="nav-label">Atividades</span>
+    </a>
+  </nav>
+
+  <script src="loader.js"></script>
+  <script type="module" src="navegacao.js"></script>
+  <script type="module" src="bottom-nav.js"></script>
+  <script>
+  // ═════ DADOS ═════
+  const FIGURAS = [
+    { num:1,  name:'Semibreve',    sym:'○',  color:'#f59e0b', freq:523.25 },
+    { num:2,  name:'Mínima',       sym:'♩',  color:'#3b82f6', freq:493.88 },
+    { num:4,  name:'Semínima',     sym:'♩',  color:'#a855f7', freq:440.00 },
+    { num:8,  name:'Colcheia',     sym:'♪',  color:'#22c55e', freq:392.00 },
+    { num:16, name:'Semicolcheia', sym:'♬',  color:'#06b6d4', freq:349.23 },
+    { num:32, name:'Fusa',         sym:'♬',  color:'#f43f5e', freq:329.63 },
+    { num:64, name:'Semifusa',     sym:'♬',  color:'#f97316', freq:293.66 },
+  ];
+
+  const MODES = [
+    {
+      title:'Qual é a Figura?',
+      icon:'❓',
+      desc:'Veja o símbolo — escolha o nome',
+      questions: 10,
+      build(f, all){
+        return {
+          label: 'Como se chama esta figura?',
+          main:  f.sym,
+          sub:   '',
+          hint:  '',
+          answer: f.name,
+          options: shuffle([f, ...pick(all,f,3)]).map(x=>({ text: x.name, val: x.name, color: x.color })),
+        };
+      }
+    },
+    {
+      title:'Qual é o Número?',
+      icon:'🔢',
+      desc:'Veja o nome — escolha a cifra',
+      questions: 10,
+      build(f, all){
+        return {
+          label: 'Qual é o número desta figura?',
+          main:  f.name,
+          sub:   '',
+          hint:  '(número que identifica a figura na fórmula de compasso)',
+          answer: String(f.num),
+          options: shuffle([f, ...pick(all,f,3)]).map(x=>({ text: String(x.num), val: String(x.num), color: x.color })),
+        };
+      }
+    },
+    {
+      title:'Quantas Cabem?',
+      icon:'↔️',
+      desc:'Quantas dessa figura cabem em 1 semibreve?',
+      questions: 10,
+      build(f, all){
+        const correct = f.num;
+        // distractors: valores vizinhos
+        const pool = FIGURAS.map(x=>x.num).filter(n=>n!==correct);
+        const distractors = shuffle(pool).slice(0,3);
+        const opts = shuffle([correct,...distractors]);
+        return {
+          label: 'Quantas cabem em 1 Semibreve?',
+          main:  f.sym,
+          sub:   f.name,
+          hint:  '',
+          answer: String(correct),
+          options: opts.map(v=>({ text: String(v), val: String(v), color: FIGURAS.find(x=>x.num===v)?.color||'#64748b' })),
+        };
+      }
+    },
+  ];
+
+  // unlock state
+  const unlocked = JSON.parse(localStorage.getItem('figuras_unlocked')||'[true,false,false]');
+  let currentMode = 0;
+  let qIndex = 0, lives = 3, combo = 0, score = 0;
+  let timerInt = null;
+  let answering = false;
+  let questions = [];
+
+  // ═════ AUDIO ═════
+  let audioCtx = null;
+  function getCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+  function beep(freq,dur,type='sine',vol=.4){
+    const ctx=getCtx(), o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.type=type;o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+dur);
+    o.start();o.stop(ctx.currentTime+dur);
+  }
+  function playCorrect(){ beep(880,.12);setTimeout(()=>beep(1100,.15),100); }
+  function playWrong(){ beep(220,.35,'sawtooth',.25); }
+
+  // ═════ HELPERS ═════
+  function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+  function pick(arr, exclude, n){
+    return shuffle(arr.filter(x=>x!==exclude)).slice(0,n);
+  }
+  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  // ═════ BUILD MODES UI ═════
+  function buildModeSelector(){
+    const wrap = document.getElementById('modeSelector');
+    wrap.innerHTML = '';
+    MODES.forEach((m,i)=>{
+      const btn = document.createElement('div');
+      btn.className = 'mode-btn' + (i===currentMode?' active':'') + (!unlocked[i]?' locked':'') + (unlocked[i] && i<currentMode?' done':'');
+      btn.innerHTML = `
+        <div class="m-icon">${m.icon}</div>
+        <div class="m-num">Modo ${i+1}</div>
+        <div class="m-name">${m.title}</div>
+        ${!unlocked[i]?'<div class="lock-icon"><i class="fas fa-lock"></i></div>':''}
+        ${unlocked[i]&&i<currentMode?'<div class="lock-icon"></div>':''}
+      `;
+      if(unlocked[i]) btn.onclick = ()=>{ currentMode=i; startMode(i); };
+      wrap.appendChild(btn);
+    });
+  }
+
+  buildModeSelector();
+
+  // ═════ GERAR PERGUNTAS ═════
+  function genQuestions(modeIdx){
+    const mode = MODES[modeIdx];
+    const qs = [];
+    const pool = shuffle([...FIGURAS,...FIGURAS]).slice(0, mode.questions);
+    pool.forEach(f=> qs.push(mode.build(f, FIGURAS)));
+    return qs;
+  }
+
+  // ═════ START MODE ═════
+  function startMode(modeIdx){
+    if(!unlocked[modeIdx]) return;
+    currentMode = modeIdx;
+    qIndex = 0; lives = 3; combo = 0; score = 0; answering = false;
+    questions = genQuestions(modeIdx);
+
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('resultScreen').classList.remove('show');
+    document.getElementById('questionCard').style.display = 'flex';
+    document.getElementById('optionsGrid').style.display = 'grid';
+    document.getElementById('timerWrap').style.display = 'block';
+    document.getElementById('hudWrap').style.display = 'flex';
+    document.getElementById('progWrap').style.display = 'block';
+    document.getElementById('feedbackBox').classList.remove('show');
+
+    buildModeSelector();
+    updateHUD();
+    loadQuestion();
+  }
+
+  // ═════ HUD ═════
+  function updateHUD(){
+    const lv = document.getElementById('livesDisplay');
+    lv.innerHTML = Array(3).fill(0).map((_,i)=>i<lives?'❤️':'🧡').join('');
+    const cb = document.getElementById('comboBadge');
+    cb.textContent = `🔥 x${Math.min(combo+1,4)}`;
+    cb.classList.add('bump');
+    setTimeout(()=>cb.classList.remove('bump'),180);
+    document.getElementById('scoreDisplay').textContent = score+' pts';
+    const total = MODES[currentMode].questions;
+    document.getElementById('progFill').style.width = (qIndex/total*100)+'%';
+    document.getElementById('progLabel').textContent = `${qIndex} / ${total}`;
+  }
+
+  // ═════ TIMER ═════
+  const TIMER_SEC = 8;
+  let timerPct = 100;
+  function startTimer(){
+    clearInterval(timerInt);
+    timerPct = 100;
+    setTimerFill(100);
+    timerInt = setInterval(()=>{
+      timerPct -= (100/(TIMER_SEC*10));
+      if(timerPct<=0){
+        timerPct=0; setTimerFill(0);
+        clearInterval(timerInt);
+        if(!answering) timeOut();
+      } else { setTimerFill(timerPct); }
+    },100);
+  }
+  function setTimerFill(pct){
+    const el = document.getElementById('timerFill');
+    el.style.width = pct+'%';
+    el.style.background = pct>50?'#22c55e':pct>25?'#eab308':'#ef4444';
+  }
+  function timeOut(){
+    answering = true;
+    combo = 0;
+    lives--;
+    updateHUD();
+    showFeedback(false, '⏰ Tempo esgotado! A resposta era: <strong>'+questions[qIndex].answer+'</strong>');
+    document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+    setTimeout(()=>nextQuestion(), 1800);
+  }
+
+  // ═════ QUESTION ═════
+  function loadQuestion(){
+    if(qIndex >= MODES[currentMode].questions){ endMode(); return; }
+    answering = false;
+    document.getElementById('feedbackBox').classList.remove('show');
+
+    const q = questions[qIndex];
+    document.getElementById('qLabel').textContent = q.label;
+    document.getElementById('qMain').textContent  = q.main;
+    document.getElementById('qSub').textContent   = q.sub;
+    document.getElementById('qHint').textContent  = q.hint;
+
+    const main = document.getElementById('qMain');
+    main.classList.add('pop');
+    setTimeout(()=>main.classList.remove('pop'),220);
+
+    buildOptions(q);
+    updateHUD();
+    startTimer();
+  }
+
+  function buildOptions(q){
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    q.options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.style.borderColor = opt.color+'55';
+      btn.innerHTML = `<span style="color:${opt.color};font-size:1.1em;font-weight:900;">${opt.text}</span>`;
+      btn.addEventListener('click',()=>answer(opt.val, q, btn));
+      grid.appendChild(btn);
+    });
+  }
+
+  function answer(val, q, btn){
+    if(answering) return;
+    answering = true;
+    clearInterval(timerInt);
+    document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+
+    const correct = val === q.answer;
+    if(correct){
+      btn.classList.add('correct');
+      combo++;
+      const mult = Math.min(combo, 4);
+      score += 10 * mult;
+      playCorrect();
+      showFeedback(true, `✅ Correto! <strong style="color:#fbbf24;">+${10*mult} pts</strong>${mult>1?' · combo ×'+mult:''}`);
+    } else {
+      btn.classList.add('wrong');
+      // highlight correct
+      document.querySelectorAll('.opt-btn').forEach(b=>{
+        if(b.querySelector('span').textContent === q.answer) b.classList.add('correct');
+      });
+      combo = 0; lives--;
+      playWrong();
+      showFeedback(false, `❌ Resposta: <strong>${q.answer}</strong>`);
+      if(lives<=0){
+        updateHUD();
+        setTimeout(()=>endMode(true),1400);
+        return;
+      }
+    }
+    updateHUD();
+    setTimeout(()=>nextQuestion(), 1500);
+  }
+
+  function showFeedback(ok, msg){
+    const box = document.getElementById('feedbackBox');
+    box.className = 'feedback-box show ' + (ok?'ok':'err');
+    box.innerHTML = msg;
+  }
+
+  function nextQuestion(){
+    qIndex++;
+    loadQuestion();
+  }
+
+  // ═════ FIM DE MODO ═════
+  function endMode(fail=false){
+    clearInterval(timerInt);
+    document.getElementById('questionCard').style.display='none';
+    document.getElementById('optionsGrid').style.display='none';
+    document.getElementById('timerWrap').style.display='none';
+    document.getElementById('feedbackBox').classList.remove('show');
+
+    const total = MODES[currentMode].questions;
+    const pct = Math.round(score / (total*40) * 100);
+    const passed = !fail && lives>0;
+
+    if(passed && currentMode < MODES.length-1){
+      unlocked[currentMode+1] = true;
+      localStorage.setItem('figuras_unlocked', JSON.stringify(unlocked));
+    }
+
+    const nextModeIdx = currentMode+1;
+    const hasNext = nextModeIdx < MODES.length;
+
+    const res = document.getElementById('resultScreen');
+    res.innerHTML = `
+      <div class="result-emoji">${passed?'🏆':'💔'}</div>
+      <div class="result-title">${passed?'Parabéns!':'Que pena…'}</div>
+      <div class="result-sub">${passed?'Você completou o Modo '+(currentMode+1)+'!':'Você ficou sem vidas. Tente novamente!'}</div>
+      <div class="result-score">${score} <span style="font-size:1rem;color:#64748b;">pontos</span></div>
+      <div class="result-actions">
+        <button class="r-btn secondary" onclick="startMode(${currentMode})">&#x21BA; Repetir</button>
+        ${passed && hasNext ? `<button class="r-btn primary" onclick="startMode(${nextModeIdx})">Modo ${nextModeIdx+1} &rarr;</button>` : ''}
+        <a href="atividades.html" class="r-btn secondary">Atividades</a>
+      </div>
+    `;
+    res.classList.add('show');
+    buildModeSelector();
+  }
+  </script>
+</body>
+</html>
