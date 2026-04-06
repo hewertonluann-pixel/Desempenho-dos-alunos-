@@ -30,6 +30,7 @@ let blobAtual = null;
 let urlAudioTemp = null;
 let timerId = null;
 let segundos = 0;
+let streamAtual = null; // FIX: guardar referência do stream para liberar o microfone
 
 // Cache do ID do aluno para evitar múltiplas queries
 let alunoIdCache = null;
@@ -530,7 +531,7 @@ function abrirModalEnviarLicao() {
 function fecharModalLicao() {
   const modal = document.getElementById("modalLicao");
   if (modal) modal.classList.remove("ativo");
-  if (mediaRecorder && gravando) {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
     mediaRecorder.stop();
   }
   resetarEstado();
@@ -540,6 +541,11 @@ function resetarEstado() {
   gravando = false;
   chunks = [];
   blobAtual = null;
+  // FIX: liberar microfone ao resetar
+  if (streamAtual) {
+    streamAtual.getTracks().forEach(track => track.stop());
+    streamAtual = null;
+  }
   if (urlAudioTemp) {
     URL.revokeObjectURL(urlAudioTemp);
     urlAudioTemp = null;
@@ -632,6 +638,9 @@ async function iniciarGravacao() {
         sampleRate: 16000  // Reduz de 48kHz para 16kHz (suficiente para voz)
       }
     });
+
+    // FIX: guardar referência do stream para liberar o microfone depois
+    streamAtual = stream;
     
     // Tentar usar codec mais eficiente
     let options = { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 24000 }; // 24kbps (baixo)
@@ -651,7 +660,15 @@ async function iniciarGravacao() {
     };
 
     mediaRecorder.onstop = () => {
+      // FIX: controlar gravando=false apenas aqui, no evento assíncrono correto
       gravando = false;
+
+      // FIX: liberar o microfone assim que a gravação terminar
+      if (streamAtual) {
+        streamAtual.getTracks().forEach(track => track.stop());
+        streamAtual = null;
+      }
+
       const mime = mediaRecorder.mimeType || "audio/webm";
       const blob = new Blob(chunks, { type: mime });
 
@@ -676,7 +693,9 @@ async function iniciarGravacao() {
       if (status) status.textContent = `Gravação concluída! (${tamanhoMB}MB) Você pode ouvir antes de enviar.`;
     };
 
-    mediaRecorder.start();
+    // FIX: start(250) coleta chunks a cada 250ms, garantindo que o final do áudio
+    // não seja perdido no buffer quando .stop() é chamado
+    mediaRecorder.start(250);
     if (status) status.textContent = "Gravando... fale normalmente.";
     if (btnGravar) btnGravar.disabled = true;
     if (btnParar) btnParar.disabled = false;
@@ -698,9 +717,10 @@ function pararGravacao() {
   const btnGravar = document.getElementById("btnGravarLicao");
   const btnParar = document.getElementById("btnPararLicao");
 
-  if (mediaRecorder && gravando) {
+  // FIX: usar mediaRecorder.state para verificação mais segura (não depende da flag gravando)
+  // FIX: gravando=false foi movido para dentro do onstop (evita condição de corrida)
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
     mediaRecorder.stop();
-    gravando = false;
     if (btnParar) btnParar.disabled = true;
     if (btnGravar) btnGravar.disabled = false;
     if (timerId) {
