@@ -9,6 +9,45 @@
   <script src="js/html2pdf.bundle.min.js"></script>
 
   <style>
+    /* ── SELETOR DE TURMA ── */
+    .turma-seletor-wrapper {
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(56,189,248,0.2);
+    }
+    .turma-seletor-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .turma-seletor-select {
+      width: 100%;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(56,189,248,0.35);
+      border-radius: 8px;
+      color: #e2e8f0;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .turma-seletor-select:focus { border-color: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,0.15); }
+    .turma-badge {
+      margin-top: 6px;
+      font-size: 0.72rem;
+      color: #22d3ee;
+      min-height: 16px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* restante do CSS existente ── */
     .btn-toggle-sidebar {
       display: none; position: fixed; left: 20px; top: 90%;
       transform: translateY(-50%);
@@ -107,7 +146,6 @@
     }
     #btnSalvarSnapshot:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
     #btnSalvarSnapshot:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-
     .snap-divider { border: none; border-top: 1px solid rgba(56,189,248,0.2); margin: 22px 0; }
     .snap-auto-titulo { color: #fbbf24; font-size: 0.92rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
     .snap-auto-desc { color: #94a3b8; font-size: 0.78rem; margin-bottom: 14px; line-height: 1.5; }
@@ -141,7 +179,6 @@
     .log-linha-pulado  { color: #6b7280; }
     .log-linha-aluno   { color: #38bdf8; font-weight: bold; margin-top: 6px; }
     .log-linha-resumo  { color: #fbbf24; font-weight: bold; margin-top: 8px; }
-
     #msgSnapshot { margin-top: 12px; font-size: 0.88rem; font-weight: 600; min-height: 20px; }
     .msg-ok  { color: #22c55e; } .msg-err { color: #f87171; }
     #listaSnapshots { margin-top: 22px; max-height: 320px; overflow-y: auto; }
@@ -157,36 +194,15 @@
     .snap-item .snap-origem { font-size: 0.72rem; color: #6b7280; }
     .snap-item.retroativo  { border-color: rgba(251,191,36,0.3); }
     .snap-item.automatico-inteligente { border-color: rgba(167,139,250,0.3); }
-
-    /* Botão excluir pegada */
     .btn-excluir-snap {
-      background: transparent;
-      border: 1px solid rgba(239,68,68,0.5);
-      color: #f87171;
-      border-radius: 6px;
-      padding: 3px 8px;
-      font-size: 0.72rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-      flex-shrink: 0;
+      background: transparent; border: 1px solid rgba(239,68,68,0.5);
+      color: #f87171; border-radius: 6px; padding: 3px 8px;
+      font-size: 0.72rem; cursor: pointer; transition: all 0.2s ease;
+      white-space: nowrap; flex-shrink: 0;
     }
-    .btn-excluir-snap:hover {
-      background: rgba(239,68,68,0.15);
-      border-color: #f87171;
-      color: #fca5a5;
-      transform: scale(1.05);
-    }
-    /* Aviso de pegada indefinida */
-    .snap-item.indefinido {
-      border-color: rgba(239,68,68,0.4);
-      background: rgba(239,68,68,0.06);
-    }
-    .snap-aviso-indefinido {
-      font-size: 0.68rem;
-      color: #f87171;
-      font-weight: 600;
-    }
+    .btn-excluir-snap:hover { background: rgba(239,68,68,0.15); border-color: #f87171; color: #fca5a5; transform: scale(1.05); }
+    .snap-item.indefinido { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.06); }
+    .snap-aviso-indefinido { font-size: 0.68rem; color: #f87171; font-weight: 600; }
   </style>
 </head>
 
@@ -220,6 +236,16 @@
   <div class="layout-professor">
     <div class="coluna-botoes-prof" id="sidebar">
       <h2 class="titulo-card-prof">Menu Professor</h2>
+
+      <!-- ── SELETOR DE TURMA ATIVA (NOVO) ── -->
+      <div class="turma-seletor-wrapper">
+        <span class="turma-seletor-label">🏫 Turma ativa</span>
+        <select class="turma-seletor-select" id="seletorTurma">
+          <option value="">Carregando turmas...</option>
+        </select>
+        <div class="turma-badge" id="turmaBadge"></div>
+      </div>
+
       <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
       <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
       <button onclick="mostrarPainelLicoes()">🎤 Avaliar Lições</button>
@@ -244,7 +270,6 @@
       <!-- ===== PAINEL SNAPSHOTS ===== -->
       <div id="painelSnapshots">
         <h2>📸 Evolução Mensal — Lançamento</h2>
-
         <div class="snap-form-grid">
           <div class="snap-field snap-full">
             <label>Aluno</label>
@@ -285,7 +310,6 @@
         <button id="btnSalvarSnapshot">💾 Salvar Pegada Mensal</button>
         <div id="msgSnapshot"></div>
         <div id="listaSnapshots"></div>
-
         <hr class="snap-divider">
         <div class="snap-auto-titulo">✨ Preenchimento Automático Inteligente</div>
         <p class="snap-auto-desc">
@@ -305,7 +329,6 @@
         </div>
         <div id="logAuto"></div>
       </div>
-
     </div>
   </div>
 
@@ -391,6 +414,85 @@
     }
   </script>
 
+  <!-- ── SELETOR DE TURMA: lógica ── -->
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      collection, getDocs, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const sel   = document.getElementById("seletorTurma");
+    const badge = document.getElementById("turmaBadge");
+
+    // ── Chave no localStorage
+    const CHAVE_TURMA = "turmaAtiva";
+
+    function getTurmaAtiva() {
+      try { return JSON.parse(localStorage.getItem(CHAVE_TURMA)); } catch { return null; }
+    }
+
+    function setTurmaAtiva(turma) {
+      localStorage.setItem(CHAVE_TURMA, JSON.stringify(turma));
+      // Notifica professor.js e outros módulos
+      window.dispatchEvent(new CustomEvent("turmaAtualChanged", { detail: turma }));
+    }
+
+    function atualizarBadge(turma) {
+      badge.textContent = turma
+        ? `Fase ${turma.fase ?? "?"} · ${turma.tipo ?? ""}`
+        : "";
+    }
+
+    async function carregarTurmas() {
+      try {
+        const snap = await getDocs(
+          query(collection(db, "turmas"), orderBy("nome"))
+        );
+
+        sel.innerHTML = '<option value="">— Todas as turmas —</option>';
+
+        if (snap.empty) {
+          sel.innerHTML = '<option value="">Nenhuma turma cadastrada</option>';
+          return;
+        }
+
+        snap.forEach(d => {
+          const t  = { id: d.id, ...d.data() };
+          const op = document.createElement("option");
+          op.value       = JSON.stringify(t);
+          op.textContent = t.nome;
+          sel.appendChild(op);
+        });
+
+        // Restaurar turma salva
+        const salva = getTurmaAtiva();
+        if (salva) {
+          for (const op of sel.options) {
+            if (!op.value) continue;
+            if (JSON.parse(op.value).id === salva.id) {
+              sel.value = op.value;
+              break;
+            }
+          }
+          atualizarBadge(salva);
+          setTurmaAtiva(salva); // re-dispara o evento ao carregar a página
+        }
+
+      } catch (e) {
+        console.error("Erro ao carregar turmas:", e);
+        sel.innerHTML = '<option value="">Erro ao carregar</option>';
+      }
+    }
+
+    sel.addEventListener("change", () => {
+      const turma = sel.value ? JSON.parse(sel.value) : null;
+      setTurmaAtiva(turma);
+      atualizarBadge(turma);
+    });
+
+    carregarTurmas();
+  </script>
+
   <script src="loader.js"></script>
   <script type="module" src="professor.js"></script>
 
@@ -407,26 +509,21 @@
 
     const nomesMes = ["","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
     let alunosCache = [];
-    let alunoAtual  = null; // aluno selecionado atualmente
+    let alunoAtual  = null;
 
     async function popularSelectAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
-      const sel  = document.getElementById("snapAluno");
-      if (!sel) return;
+      const s    = document.getElementById("snapAluno");
+      if (!s) return;
       alunosCache = [];
-      sel.innerHTML = '<option value="">Selecionar aluno...</option>';
+      s.innerHTML = '<option value="">Selecionar aluno...</option>';
       snap.forEach(d => {
         const a = { id: d.id, ...d.data() };
         alunosCache.push(a);
         const op = document.createElement("option");
-        op.value = JSON.stringify({
-          id: a.id, nome: a.nome,
-          leitura: a.leitura || 0, metodo: a.metodo || 0,
-          solfejoNome: a.leituraNome || "Bona",
-          metodoNome:  a.metodoNome  || "-"
-        });
+        op.value = JSON.stringify({ id: a.id, nome: a.nome, leitura: a.leitura || 0, metodo: a.metodo || 0, solfejoNome: a.leituraNome || "Bona", metodoNome: a.metodoNome || "-" });
         op.textContent = a.nome;
-        sel.appendChild(op);
+        s.appendChild(op);
       });
     }
 
@@ -442,58 +539,40 @@
       const lista = await carregarSnapshotsAluno(aluno);
       const div   = document.getElementById("listaSnapshots");
       if (!div) return;
-      if (!lista.length) {
-        div.innerHTML = '<p style="color:#6b7280;font-size:0.82rem;margin-top:12px;">Nenhum snapshot encontrado para este aluno.</p>';
-        return;
-      }
-
-      // Detectar pegadas com nome indefinido/inválido
+      if (!lista.length) { div.innerHTML = '<p style="color:#6b7280;font-size:0.82rem;margin-top:12px;">Nenhum snapshot encontrado.</p>'; return; }
       const checarIndefinido = (s) => !s.alunoNome || s.alunoNome === 'undefined' || s.alunoNome === 'null';
-
       div.innerHTML = `
         <p style="color:#94a3b8;font-size:0.78rem;margin-bottom:10px;font-weight:600;">HISTÓRICO DE PEGADAS (${lista.length})</p>
         ${lista.map(s => {
-          const indefinido = checarIndefinido(s);
-          return `
-          <div class="snap-item ${s.origem}${indefinido ? ' indefinido' : ''}" data-snap-id="${s.id}">
+          const indef = checarIndefinido(s);
+          return `<div class="snap-item ${s.origem}${indef ? ' indefinido' : ''}" data-snap-id="${s.id}">
             <span class="snap-chave">${nomesMes[Number(s.mes)]}/${s.ano}</span>
-            <span class="snap-nome">${indefinido ? '<span style="color:#f87171;font-style:italic">⚠️ indefinido</span>' : s.alunoNome}</span>
+            <span class="snap-nome">${indef ? '<span style="color:#f87171;font-style:italic">⚠️ indefinido</span>' : s.alunoNome}</span>
             <span class="snap-vals">Bona ${s.leitura} · Mét. ${s.metodo}</span>
             <span class="snap-origem">${s.origem}</span>
-            <button class="btn-excluir-snap" title="Excluir esta pegada">🗑️ Excluir</button>
+            <button class="btn-excluir-snap">🗑️ Excluir</button>
           </div>`;
-        }).join('')}
-      `;
-
-      // Vincular eventos dos botões de excluir
+        }).join('')}`;
       div.querySelectorAll(".btn-excluir-snap").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const item    = e.target.closest(".snap-item");
-          const snapId  = item?.dataset.snapId;
-          const chave   = item?.querySelector(".snap-chave")?.textContent || "essa pegada";
-          const nomeExib = item?.querySelector(".snap-nome")?.textContent?.trim() || "aluno";
-
-          if (!snapId) return;
-          if (!confirm(`Deseja excluir a pegada de ${chave} (${nomeExib})?\n\nEssa ação não pode ser desfeita.`)) return;
-
+          const item = e.target.closest(".snap-item");
+          const snapId = item?.dataset.snapId;
+          const chave  = item?.querySelector(".snap-chave")?.textContent || "essa pegada";
+          const nome   = item?.querySelector(".snap-nome")?.textContent?.trim() || "aluno";
+          if (!snapId || !confirm(`Excluir pegada de ${chave} (${nome})?\nEssa ação não pode ser desfeita.`)) return;
           try {
-            btn.disabled = true;
-            btn.textContent = "...";
+            btn.disabled = true; btn.textContent = "...";
             await excluirSnapshot(snapId);
-            item.style.opacity = "0";
-            item.style.transition = "opacity 0.3s";
+            item.style.opacity = "0"; item.style.transition = "opacity 0.3s";
             setTimeout(() => {
               item.remove();
-              // Atualizar contagem no cabeçalho
               const header = div.querySelector("p");
-              const restantes = div.querySelectorAll(".snap-item").length;
-              if (header) header.textContent = `HISTÓRICO DE PEGADAS (${restantes})`;
+              const rest   = div.querySelectorAll(".snap-item").length;
+              if (header) header.textContent = `HISTÓRICO DE PEGADAS (${rest})`;
             }, 300);
           } catch (err) {
-            console.error("Erro ao excluir snapshot:", err);
-            alert("❌ Erro ao excluir a pegada. Verifique o console.");
-            btn.disabled = false;
-            btn.textContent = "🗑️ Excluir";
+            console.error(err); alert("❌ Erro ao excluir.");
+            btn.disabled = false; btn.textContent = "🗑️ Excluir";
           }
         });
       });
@@ -501,12 +580,11 @@
 
     document.getElementById("btnSalvarSnapshot")?.addEventListener("click", async () => {
       const msg = document.getElementById("msgSnapshot");
-      const selAluno = document.getElementById("snapAluno").value;
-      if (!selAluno) { msg.textContent = "Selecione um aluno."; msg.className = "msg-err"; return; }
-      const aluno   = JSON.parse(selAluno);
-      alunoAtual    = aluno;
-      const ano     = Number(document.getElementById("snapAno").value);
-      const mes     = Number(document.getElementById("snapMes").value);
+      const selA = document.getElementById("snapAluno").value;
+      if (!selA) { msg.textContent = "Selecione um aluno."; msg.className = "msg-err"; return; }
+      const aluno = JSON.parse(selA); alunoAtual = aluno;
+      const ano = Number(document.getElementById("snapAno").value);
+      const mes = Number(document.getElementById("snapMes").value);
       const leitura = Number(document.getElementById("snapLeitura").value) || 0;
       const metodo  = Number(document.getElementById("snapMetodo").value)  || 0;
       const licaoL  = document.getElementById("snapLicaoLeitura").value.trim();
@@ -514,55 +592,41 @@
       const btn = document.getElementById("btnSalvarSnapshot");
       btn.disabled = true; msg.textContent = "Salvando..."; msg.className = "";
       try {
-        await criarSnapshotRetroativo({
-          aluno, ano, mes, leitura, metodo,
-          licaoLeitura: licaoL, licaoMetodo: licaoM,
-          nomeMetodoLeitura: aluno.solfejoNome,
-          nomeMetodoInstrumental: aluno.metodoNome
-        });
-        msg.textContent = `✅ Pegada de ${nomesMes[mes]}/${ano} salva para ${aluno.nome}!`;
-        msg.className = "msg-ok";
+        await criarSnapshotRetroativo({ aluno, ano, mes, leitura, metodo, licaoLeitura: licaoL, licaoMetodo: licaoM, nomeMetodoLeitura: aluno.solfejoNome, nomeMetodoInstrumental: aluno.metodoNome });
+        msg.textContent = `✅ Pegada de ${nomesMes[mes]}/${ano} salva para ${aluno.nome}!`; msg.className = "msg-ok";
         await renderizarHistorico(aluno);
-      } catch (e) {
-        console.error(e);
-        msg.textContent = "❌ Erro ao salvar. Verifique o console.";
-        msg.className = "msg-err";
-      } finally { btn.disabled = false; }
+      } catch (e) { console.error(e); msg.textContent = "❌ Erro ao salvar."; msg.className = "msg-err"; }
+      finally { btn.disabled = false; }
     });
 
     document.getElementById("btnAutoUm")?.addEventListener("click", async () => {
-      const selAluno = document.getElementById("snapAluno").value;
-      if (!selAluno) { alert("Selecione um aluno primeiro."); return; }
-      const aluno = JSON.parse(selAluno);
-      alunoAtual  = aluno;
-      const ano   = Number(document.getElementById("autoAno").value);
-      const log   = document.getElementById("logAuto");
-      const btn   = document.getElementById("btnAutoUm");
-      btn.disabled = true;
-      log.style.display = "block";
+      const selA = document.getElementById("snapAluno").value;
+      if (!selA) { alert("Selecione um aluno primeiro."); return; }
+      const aluno = JSON.parse(selA); alunoAtual = aluno;
+      const ano = Number(document.getElementById("autoAno").value);
+      const log = document.getElementById("logAuto");
+      const btn = document.getElementById("btnAutoUm");
+      btn.disabled = true; log.style.display = "block";
       log.innerHTML = `<span class="log-linha-aluno">👤 Processando ${aluno.nome}...</span><br>`;
       try {
         const result = await preenchimentoAutomaticoPegadas(aluno, ano, (d) => {
-          const cls = d.status === "criado" ? "log-linha-criado" : "log-linha-pulado";
+          const cls  = d.status === "criado" ? "log-linha-criado" : "log-linha-pulado";
           const icon = d.status === "criado" ? "✅" : "⏭️";
           log.innerHTML += `<span class="${cls}">${icon} ${d.chave} → Leitura ${d.leitura} · Método ${d.metodo} (${d.status})</span><br>`;
           log.scrollTop = log.scrollHeight;
         });
         log.innerHTML += `<span class="log-linha-resumo">🎉 Concluído: ${result.criados} criados · ${result.pulados} já existiam</span>`;
         await renderizarHistorico(aluno);
-      } catch (e) {
-        console.error(e);
-        log.innerHTML += `<span style="color:#f87171">❌ Erro: ${e.message}</span>`;
-      } finally { btn.disabled = false; }
+      } catch (e) { console.error(e); log.innerHTML += `<span style="color:#f87171">❌ Erro: ${e.message}</span>`; }
+      finally { btn.disabled = false; }
     });
 
     document.getElementById("btnAutoTodos")?.addEventListener("click", async () => {
-      if (!confirm("Isso irá preencher automaticamente as pegadas de TODOS os alunos. Meses já existentes não serão alterados. Continuar?")) return;
+      if (!confirm("Preencher automaticamente as pegadas de TODOS os alunos? Meses já existentes não serão alterados.")) return;
       const ano = Number(document.getElementById("autoAno").value);
       const log = document.getElementById("logAuto");
       const btn = document.getElementById("btnAutoTodos");
-      btn.disabled = true;
-      document.getElementById("btnAutoUm").disabled = true;
+      btn.disabled = true; document.getElementById("btnAutoUm").disabled = true;
       log.style.display = "block";
       log.innerHTML = `<span class="log-linha-resumo">🚀 Iniciando preenchimento automático para ${ano}...</span><br>`;
       try {
@@ -576,14 +640,9 @@
           }
           log.scrollTop = log.scrollHeight;
         });
-        log.innerHTML += `<span class="log-linha-resumo">🎉 CONCLUÍDO: ${result.totalAlunos} alunos · ${result.totalCriados} pegadas criadas · ${result.totalPulados} puladas</span>`;
-      } catch (e) {
-        console.error(e);
-        log.innerHTML += `<span style="color:#f87171">❌ Erro: ${e.message}</span>`;
-      } finally {
-        btn.disabled = false;
-        document.getElementById("btnAutoUm").disabled = false;
-      }
+        log.innerHTML += `<span class="log-linha-resumo">🎉 CONCLUÍDO: ${result.totalAlunos} alunos · ${result.totalCriados} criadas · ${result.totalPulados} puladas</span>`;
+      } catch (e) { console.error(e); log.innerHTML += `<span style="color:#f87171">❌ Erro: ${e.message}</span>`; }
+      finally { btn.disabled = false; document.getElementById("btnAutoUm").disabled = false; }
     });
 
     document.addEventListener("DOMContentLoaded", () => {
