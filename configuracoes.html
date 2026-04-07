@@ -5,9 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>⚙️ Configurações - Orquestra</title>
   <link rel="stylesheet" href="configuracoes.css">
+  <style>
+    /* ── DADOS PESSOAIS ── */
+    .foto-perfil-area {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .foto-perfil-preview {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 3px solid rgba(0,255,204,0.4);
+      background: rgba(0,255,204,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+    .foto-perfil-preview:hover { border-color: #00ffcc; }
+    .foto-perfil-preview img { width:100%; height:100%; object-fit:cover; }
+    .foto-perfil-info p { font-size: 0.82rem; color: #6b7280; line-height: 1.6; margin-bottom: 8px; }
+    .btn-trocar-foto {
+      padding: 7px 16px;
+      background: rgba(0,255,204,0.08);
+      border: 1px solid rgba(0,255,204,0.3);
+      border-radius: 8px;
+      color: #00ffcc;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .2s;
+    }
+    .btn-trocar-foto:hover { background: rgba(0,255,204,0.16); }
+    #inputFotoPerfil { display: none; }
+
+    .dados-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 520px) { .dados-grid { grid-template-columns: 1fr; } }
+    .dados-grid .full { grid-column: 1 / -1; }
+  </style>
 </head>
 <body>
-  <!-- Navegação -->
   <script type="module" src="navegacao.js"></script>
 
   <div class="config-container">
@@ -17,7 +66,49 @@
     </header>
 
     <main class="config-content">
-      <!-- Seção: Redefinir Senha -->
+
+      <!-- ── SEÇÃO: DADOS PESSOAIS (NOVA) ── -->
+      <section class="config-section">
+        <div class="section-header">
+          <h2>👤 Dados Pessoais</h2>
+          <p class="section-description">Mantenha seu perfil atualizado</p>
+        </div>
+        <div class="section-body">
+
+          <!-- FOTO -->
+          <div class="foto-perfil-area">
+            <div class="foto-perfil-preview" id="fotoPerfilPreview" onclick="document.getElementById('inputFotoPerfil').click()">🎵</div>
+            <div class="foto-perfil-info">
+              <p>Clique na foto para trocar.<br/>Máximo 3MB, formatos JPG ou PNG.</p>
+              <button type="button" class="btn-trocar-foto" onclick="document.getElementById('inputFotoPerfil').click()">📷 Trocar foto</button>
+            </div>
+            <input type="file" id="inputFotoPerfil" accept="image/*" />
+          </div>
+
+          <!-- CAMPOS -->
+          <div class="dados-grid">
+            <div class="input-group">
+              <label for="dpNascimento">Data de Nascimento</label>
+              <input type="date" id="dpNascimento" />
+            </div>
+
+            <div class="input-group">
+              <label for="dpContato">WhatsApp / Telefone</label>
+              <input type="tel" id="dpContato" placeholder="(00) 00000-0000" />
+            </div>
+
+            <div class="input-group full">
+              <label for="dpResponsavel">Nome do Responsável <span style="color:#4b5563;font-weight:400;font-size:0.78rem;">(para menores)</span></label>
+              <input type="text" id="dpResponsavel" placeholder="Nome do pai, mãe ou responsável" />
+            </div>
+          </div>
+
+          <button class="btn-primary" id="btnSalvarDados">💾 Salvar Dados Pessoais</button>
+          <p class="mensagem-feedback" id="mensagemDados"></p>
+        </div>
+      </section>
+
+      <!-- ── SEÇÃO: SEGURANÇA ── -->
       <section class="config-section">
         <div class="section-header">
           <h2>🔒 Segurança</h2>
@@ -41,7 +132,7 @@
         </div>
       </section>
 
-      <!-- Seção: Painéis Visíveis -->
+      <!-- ── SEÇÃO: PAINÉIS VISÍVEIS ── -->
       <section class="config-section">
         <div class="section-header">
           <h2>👁️ Painéis Visíveis</h2>
@@ -52,114 +143,187 @@
             <div class="toggle-item">
               <div class="toggle-info">
                 <span class="toggle-icon">⚡</span>
-                <div>
-                  <h3>Comprometimento</h3>
-                  <p>Gráficos de presença mensal e anual</p>
-                </div>
+                <div><h3>Comprometimento</h3><p>Gráficos de presença mensal e anual</p></div>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="toggleComprometimento" checked>
-                <span class="slider"></span>
-              </label>
+              <label class="switch"><input type="checkbox" id="toggleComprometimento" checked><span class="slider"></span></label>
             </div>
-
             <div class="toggle-item">
               <div class="toggle-info">
                 <span class="toggle-icon">📅</span>
-                <div>
-                  <h3>Frequência Anual</h3>
-                  <p>Visualização de presenças por mês</p>
-                </div>
+                <div><h3>Frequência Anual</h3><p>Visualização de presenças por mês</p></div>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="toggleFrequencia" checked>
-                <span class="slider"></span>
-              </label>
+              <label class="switch"><input type="checkbox" id="toggleFrequencia" checked><span class="slider"></span></label>
             </div>
-
             <div class="toggle-item">
               <div class="toggle-info">
                 <span class="toggle-icon">🏆</span>
-                <div>
-                  <h3>Conquistas</h3>
-                  <p>Medalhas e conquistas desbloqueadas</p>
-                </div>
+                <div><h3>Conquistas</h3><p>Medalhas e conquistas desbloqueadas</p></div>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="toggleConquistas" checked>
-                <span class="slider"></span>
-              </label>
+              <label class="switch"><input type="checkbox" id="toggleConquistas" checked><span class="slider"></span></label>
             </div>
-
             <div class="toggle-item">
               <div class="toggle-info">
                 <span class="toggle-icon">📈</span>
-                <div>
-                  <h3>Evolução Técnica</h3>
-                  <p>Gráfico de progresso em leitura e método</p>
-                </div>
+                <div><h3>Evolução Técnica</h3><p>Gráfico de progresso em leitura e método</p></div>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="toggleEvolucao" checked>
-                <span class="slider"></span>
-              </label>
+              <label class="switch"><input type="checkbox" id="toggleEvolucao" checked><span class="slider"></span></label>
             </div>
-
             <div class="toggle-item">
               <div class="toggle-info">
                 <span class="toggle-icon">🔔</span>
-                <div>
-                  <h3>Atividades Recentes</h3>
-                  <p>Notificações de lições enviadas</p>
-                </div>
+                <div><h3>Atividades Recentes</h3><p>Notificações de lições enviadas</p></div>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="toggleNotificacoes" checked>
-                <span class="slider"></span>
-              </label>
+              <label class="switch"><input type="checkbox" id="toggleNotificacoes" checked><span class="slider"></span></label>
             </div>
-
             <div class="toggle-item">
               <div class="toggle-info">
                 <span class="toggle-icon">📝</span>
-                <div>
-                  <h3>Lições Enviadas</h3>
-                  <p>Lista de lições pendentes e avaliadas</p>
-                </div>
+                <div><h3>Lições Enviadas</h3><p>Lista de lições pendentes e avaliadas</p></div>
               </div>
-              <label class="switch">
-                <input type="checkbox" id="toggleLicoes" checked>
-                <span class="slider"></span>
-              </label>
+              <label class="switch"><input type="checkbox" id="toggleLicoes" checked><span class="slider"></span></label>
             </div>
           </div>
-
           <button class="btn-primary" id="btnSalvarPreferencias">💾 Salvar Preferências</button>
           <p class="mensagem-feedback" id="mensagemPreferencias"></p>
         </div>
       </section>
 
-      <!-- Seção: Ordem dos Painéis -->
+      <!-- ── SEÇÃO: ORDEM DOS PAINÉIS ── -->
       <section class="config-section">
         <div class="section-header">
           <h2>🔄 Ordem dos Painéis</h2>
           <p class="section-description">Arraste os painéis para reorganizar a ordem de exibição</p>
         </div>
         <div class="section-body">
-          <div class="drag-list" id="painelOrdemLista">
-            <!-- Os itens serão carregados dinamicamente -->
-          </div>
+          <div class="drag-list" id="painelOrdemLista"></div>
           <button class="btn-primary" id="btnSalvarOrdem">💾 Salvar Ordem</button>
           <p class="mensagem-feedback" id="mensagemOrdem"></p>
         </div>
       </section>
 
-      <!-- Botão Voltar -->
       <div class="config-actions">
         <button class="btn-secondary" onclick="voltarParaPainel()">← Voltar ao Painel</button>
       </div>
     </main>
   </div>
+
+  <!-- SCRIPT DADOS PESSOAIS (módulo isolado) -->
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      collection, query, where, getDocs, updateDoc, doc
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    /* ── HELPERS ── */
+    function usuarioAtual() {
+      try { return JSON.parse(localStorage.getItem("usuarioAtual")); } catch { return null; }
+    }
+
+    function feedback(id, texto, tipo) {
+      const el = document.getElementById(id);
+      el.textContent = texto;
+      el.style.color = tipo === "ok" ? "#4ade80" : "#f87171";
+      el.style.display = "block";
+      setTimeout(() => { el.style.display = "none"; }, 4000);
+    }
+
+    /* ── BUSCAR DADOS DO ALUNO ── */
+    async function carregarDadosPessoais() {
+      const user = usuarioAtual();
+      if (!user || user.tipo !== "aluno") return;
+
+      try {
+        const q    = query(collection(db, "alunos"), where("nome", "==", user.nome));
+        const snap = await getDocs(q);
+        if (snap.empty) return;
+
+        const dados = snap.docs[0].data();
+
+        // Foto
+        if (dados.foto) {
+          const prev = document.getElementById("fotoPerfilPreview");
+          prev.innerHTML = `<img src="${dados.foto}" />`;
+        }
+
+        // Campos
+        if (dados.dataNascimento) document.getElementById("dpNascimento").value  = dados.dataNascimento;
+        if (dados.responsavel)    document.getElementById("dpResponsavel").value = dados.responsavel;
+        if (dados.contato)        document.getElementById("dpContato").value     = dados.contato;
+
+      } catch(e) { console.error("Erro ao carregar dados pessoais:", e); }
+    }
+
+    /* ── PREVIEW DA FOTO ── */
+    let novaFotoBase64 = "";
+
+    document.getElementById("inputFotoPerfil").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file || !file.type.startsWith("image/")) return;
+      if (file.size > 3 * 1024 * 1024) {
+        feedback("mensagemDados", "Foto muito grande. Use menos de 3MB.", "err");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = ev => {
+        novaFotoBase64 = ev.target.result;
+        const prev = document.getElementById("fotoPerfilPreview");
+        prev.innerHTML = `<img src="${novaFotoBase64}" />`;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    /* ── SALVAR DADOS PESSOAIS ── */
+    document.getElementById("btnSalvarDados").addEventListener("click", async () => {
+      const user = usuarioAtual();
+      if (!user || user.tipo !== "aluno") {
+        feedback("mensagemDados", "⚠️ Apenas alunos podem editar dados pessoais.", "err");
+        return;
+      }
+
+      const nascimento = document.getElementById("dpNascimento").value;
+      const responsavel= document.getElementById("dpResponsavel").value.trim();
+      const contato    = document.getElementById("dpContato").value.trim();
+      const btn        = document.getElementById("btnSalvarDados");
+
+      btn.disabled = true;
+      btn.textContent = "Salvando...";
+
+      try {
+        // Encontrar documento do aluno
+        const q    = query(collection(db, "alunos"), where("nome", "==", user.nome));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          feedback("mensagemDados", "❌ Aluno não encontrado.", "err");
+          return;
+        }
+
+        const docId  = snap.docs[0].id;
+        const update = {
+          dataNascimento: nascimento || "",
+          responsavel:    responsavel || "",
+          contato:        contato || ""
+        };
+
+        // Só atualiza foto se uma nova foi selecionada
+        if (novaFotoBase64) update.foto = novaFotoBase64;
+
+        await updateDoc(doc(db, "alunos", docId), update);
+
+        feedback("mensagemDados", "✅ Dados pessoais salvos com sucesso!", "ok");
+        novaFotoBase64 = ""; // limpar após salvar
+
+      } catch(e) {
+        console.error(e);
+        feedback("mensagemDados", "❌ Erro ao salvar. Tente novamente.", "err");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "💾 Salvar Dados Pessoais";
+      }
+    });
+
+    /* ── INIT ── */
+    carregarDadosPessoais();
+  </script>
 
   <script type="module" src="configuracoes.js"></script>
 </body>
