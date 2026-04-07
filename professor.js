@@ -98,7 +98,6 @@ function setupModalAdicionar() {
           reader.readAsDataURL(fotoFile);
         });
       }
-      // Vincular à turma ativa se houver
       const turmaAtiva = getTurmaAtiva();
       await addDoc(collection(db, "alunos"), {
         nome, instrumento, foto: fotoBase64,
@@ -165,16 +164,9 @@ function setupModalInstrumental() {
 }
 
 // ========== FUNÇÕES DE ALUNOS ==========
-
-/**
- * Carrega alunos do Firestore.
- * - Se houver turma ativa: filtra por turmaId
- * - Se não houver turma ativa: retorna TODOS os alunos
- */
 async function carregarAlunos() {
   const turmaAtiva = getTurmaAtiva();
   let snap;
-
   if (turmaAtiva?.id) {
     console.log(`🟡 Filtrando alunos da turma: ${turmaAtiva.nome}`);
     snap = await getDocs(
@@ -184,7 +176,6 @@ async function carregarAlunos() {
     console.log("🟡 Sem turma ativa — exibindo todos os alunos.");
     snap = await getDocs(collection(db, "alunos"));
   }
-
   return snap.docs
     .map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => a.nome.localeCompare(b.nome));
@@ -200,7 +191,6 @@ export async function renderizarPainel() {
   loader.style.display = "flex";
   painel.style.display = "none";
 
-  // Badge de turma ativa no topo do painel
   const turmaAtiva = getTurmaAtiva();
   const tituloPainel = document.getElementById("tituloPainelAlunos");
   if (tituloPainel) {
@@ -258,6 +248,7 @@ export async function renderizarPainel() {
             <input type="text" value="${aluno.instrumento || ''}" onchange="atualizarCampo('${aluno.id}','instrumento',this.value)">
           </div>
           <div class="acoes">
+            <button class="classificar" onclick="window.location.href='ficha-aluno.html?id=${aluno.id}'" title="Abrir ficha do aluno" style="background:#0ea5e9;">📋 Ficha</button>
             <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
             <button class="classificar"
               style="background: ${aluno.ativo === false ? '#22c55e' : '#f59e0b'}; color: #fff;"
@@ -383,40 +374,34 @@ window.abrirModalInstrumental = function(alunoId, valorAtual) {
 async function criarEventoGenerico() {
   try {
     const turmaAtiva = getTurmaAtiva();
-
-    // Exige turma ativa para criar chamada
     if (!turmaAtiva?.id) {
       mostrarMensagem("mensagemInfo", "⚠️ Selecione uma turma ativa antes de criar a chamada.");
       return;
     }
-
     const hoje = new Intl.DateTimeFormat('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       year: 'numeric', month: '2-digit', day: '2-digit'
     }).format(new Date()).split('/').reverse().join('-');
 
-    // Verifica se já existe chamada para ESTA TURMA hoje
     const snap = await getDocs(
       query(collection(db, "eventos"),
         where("turmaId", "==", turmaAtiva.id),
         where("data",    "==", hoje)
       )
     );
-
     if (!snap.empty) {
       mostrarMensagem("mensagemInfo", `📅 Já existe uma chamada para ${turmaAtiva.nome} hoje!`);
       setTimeout(() => window.location.href = `ensaio.html?id=${snap.docs[0].id}`, 1500);
       return;
     }
 
-    // Carregar alunos da turma para pré-popular presenças
     const alunosSnap = await getDocs(
       query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id))
     );
     const presencas = alunosSnap.docs.map(d => ({
       alunoId:  d.id,
       nome:     d.data().nome,
-      presenca: "falta"  // padrão: todos como falta, professor marca presença
+      presenca: "falta"
     }));
 
     const novo = await addDoc(collection(db, "eventos"), {
@@ -465,11 +450,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // ── Recarregar painel automaticamente quando a turma mudar ──
   window.addEventListener("turmaAtualChanged", (e) => {
     const turma = e.detail;
     console.log("🔄 Turma alterada:", turma?.nome ?? "todas");
-    // Só recarrega se o painel de alunos estiver visível
     const painel = document.getElementById("painel");
     if (painel && painel.style.display !== "none") {
       renderizarPainel();
