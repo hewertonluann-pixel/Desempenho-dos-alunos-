@@ -1,7 +1,4 @@
 // ========== professor.js ==========
-// Versão final corrigida: Com edição de métodos Solfejo e Instrumental nos cards
-// CORREÇÃO: Removido 'app' do import para evitar "app is not defined"
-
 import { db } from "./firebase-config.js";
 import {
   collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, serverTimestamp
@@ -9,8 +6,11 @@ import {
 
 import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
 
-if (!db) {
-  console.error("❌ Firebase DB não carregado.");
+if (!db) console.error("❌ Firebase DB não carregado.");
+
+// ========== TURMA ATIVA ==========
+function getTurmaAtiva() {
+  try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
 }
 
 // ========== UTILITÁRIOS ==========
@@ -23,42 +23,20 @@ function mostrarMensagem(id, texto) {
   }
 }
 
-/**
- * Grava uma notificação de nível na coleção "notificacoes" do Firestore.
- * Chamado quando o professor altera leitura ou método de um aluno manualmente.
- */
 async function gravarNotificacaoNivel(alunoId, campo, novoValor) {
   try {
-    // Buscar nome e dados do aluno
-    const snap = await getDocs(
-      query(collection(db, "alunos"), where("__name__", ">=", alunoId), where("__name__", "<=", alunoId))
-    );
-    // Busca direta pelo doc id é mais simples:
-    const alunoDocRef = doc(db, "alunos", alunoId);
-    // Usamos getDocs com a referência direta via getDoc (disponível)
-    // fallback: buscamos todos e filtramos (já temos id)
-    let alunoNome = "Aluno";
-    let nomeMetodo = campo === "leitura" ? "leitura" : "método";
-    let metodoLabel = "";
-
+    let alunoNome = "Aluno", nomeMetodo = campo === "leitura" ? "leitura" : "método", metodoLabel = "";
     const todosSnap = await getDocs(collection(db, "alunos"));
     const alunoDoc = todosSnap.docs.find(d => d.id === alunoId);
     if (alunoDoc) {
       const dados = alunoDoc.data();
       alunoNome = dados.nome || "Aluno";
-      if (campo === "leitura") {
-        nomeMetodo = "leitura";
-        metodoLabel = dados.leituraNome ? ` (${dados.leituraNome})` : "";
-      } else {
-        nomeMetodo = "método";
-        metodoLabel = dados.metodoNome ? ` (${dados.metodoNome})` : "";
-      }
+      metodoLabel = campo === "leitura"
+        ? (dados.leituraNome ? ` (${dados.leituraNome})` : "")
+        : (dados.metodoNome  ? ` (${dados.metodoNome})`  : "");
     }
-
     await addDoc(collection(db, "notificacoes"), {
-      tipo: "nivel",
-      icone: "🚀",
-      alunoNome,
+      tipo: "nivel", icone: "🚀", alunoNome,
       texto: `<strong>${alunoNome}</strong> avançou para o <em>Nível ${novoValor} de ${nomeMetodo}${metodoLabel}</em>`,
       data: serverTimestamp()
     });
@@ -67,75 +45,49 @@ async function gravarNotificacaoNivel(alunoId, campo, novoValor) {
   }
 }
 
-// Declarar currentAlunoId apenas uma vez no topo
 let currentAlunoId = null;
 
 // ========== CARREGAR MÓDULO ==========
 export async function carregarModulo(nome) {
-  const conteudo = document.getElementById("conteudo");
-  const painel = document.getElementById("painel");
+  const conteudo    = document.getElementById("conteudo");
+  const painel      = document.getElementById("painel");
   const painelLicoes = document.getElementById("painelLicoesProf");
-  const intro = document.querySelector(".intro-section");
-
-  if (!conteudo) {
-    console.error("Elemento #conteudo não encontrado.");
-    return;
-  }
-
-  // Ocultar outros painéis
+  const intro       = document.querySelector(".intro-section");
+  if (!conteudo) { console.error("Elemento #conteudo não encontrado."); return; }
   if (painel) painel.style.display = "none";
   if (painelLicoes) painelLicoes.style.display = "none";
   if (intro) intro.style.display = "none";
-  
   conteudo.style.display = "block";
   conteudo.innerHTML = `<p>⏳ Carregando módulo "${nome}"...</p>`;
-
   try {
     const response = await fetch(`modules/${nome}.html`);
     if (!response.ok) throw new Error(`Módulo ${nome}.html não encontrado (status ${response.status}).`);
-
-    const html = await response.text();
-    conteudo.innerHTML = html;
-
+    conteudo.innerHTML = await response.text();
     await import(`./modules/${nome}.js`);
-    console.log(`✅ Módulo "${nome}" carregado.`);
   } catch (erro) {
     conteudo.innerHTML = `<p style="color:#ff7777;">❌ Erro ao carregar o módulo: ${erro.message}</p>`;
-    console.error("Erro ao carregar módulo:", erro);
   }
 }
 window.carregarModulo = carregarModulo;
 
-// ========== EXPORTAR PDF ==========
-window.exportarPDF = function () {
-  alert("📄 Funcionalidade de exportar PDF removida temporariamente.");
-};
+window.exportarPDF = function () { alert("📄 Funcionalidade de exportar PDF removida temporariamente."); };
 
 // ========== MODAIS ==========
 function setupModalAdicionar() {
-  const modal = document.getElementById("modalAdicionar");
-  const btnAdd = document.getElementById("btnAdicionarAluno");
+  const modal      = document.getElementById("modalAdicionar");
+  const btnAdd     = document.getElementById("btnAdicionarAluno");
   const btnConfirm = document.getElementById("btnConfirmarAdicionar");
-  const btnCancel = document.getElementById("btnCancelarAdicionar");
+  const btnCancel  = document.getElementById("btnCancelarAdicionar");
+  if (!modal || !btnAdd || !btnConfirm || !btnCancel) return;
 
-  if (!modal || !btnAdd || !btnConfirm || !btnCancel) {
-    console.warn("❌ Elementos do modal Adicionar não encontrados.");
-    return;
-  }
-
-  btnAdd.onclick = () => modal.classList.add("ativo");
+  btnAdd.onclick    = () => modal.classList.add("ativo");
   btnCancel.onclick = () => modal.classList.remove("ativo");
 
   btnConfirm.onclick = async () => {
-    const nome = document.getElementById("novoNome")?.value.trim();
+    const nome        = document.getElementById("novoNome")?.value.trim();
     const instrumento = document.getElementById("novoInstrumento")?.value.trim();
-    const fotoFile = document.getElementById("novoFoto")?.files[0];
-
-    if (!nome || !instrumento) {
-      mostrarMensagem("mensagemInfo", "⚠️ Preencha nome e instrumento!");
-      return;
-    }
-
+    const fotoFile    = document.getElementById("novoFoto")?.files[0];
+    if (!nome || !instrumento) { mostrarMensagem("mensagemInfo", "⚠️ Preencha nome e instrumento!"); return; }
     try {
       let fotoBase64 = "";
       if (fotoFile) {
@@ -146,141 +98,132 @@ function setupModalAdicionar() {
           reader.readAsDataURL(fotoFile);
         });
       }
-
+      // Vincular à turma ativa se houver
+      const turmaAtiva = getTurmaAtiva();
       await addDoc(collection(db, "alunos"), {
-        nome,
-        instrumento,
-        foto: fotoBase64,
-        leituraNome: "Bona",  // PADRÃO
-        metodoNome: "Método", // PADRÃO
-        leitura: 1,
-        metodo: 1,
-        energia: 100,
-        frequenciaMensal: { porcentagem: 0 },
-        frequenciaAnual: {},
-        conquistas: [],
-        classificado: false,
-        senha: "asafe",
+        nome, instrumento, foto: fotoBase64,
+        leituraNome: "Bona", metodoNome: "Método",
+        leitura: 1, metodo: 1, energia: 100,
+        frequenciaMensal: { porcentagem: 0 }, frequenciaAnual: {},
+        conquistas: [], classificado: false, senha: "asafe",
+        turmaId:   turmaAtiva?.id   || "",
+        turmaNome: turmaAtiva?.nome || "",
         criadoEm: new Date().toISOString()
       });
-
       modal.classList.remove("ativo");
       mostrarMensagem("mensagemSucesso", `🎉 Aluno "${nome}" adicionado!`);
       renderizarPainel();
     } catch (error) {
       console.error("Erro ao adicionar aluno:", error);
-      mostrarMensagem("mensagemInfo", "❌ Erro ao adicionar aluno. Verifique conexão com Firestore.");
+      mostrarMensagem("mensagemInfo", "❌ Erro ao adicionar aluno.");
     }
   };
 }
 
 function setupModalSolfejo() {
-  const modal = document.getElementById("modalSolfejo");
+  const modal     = document.getElementById("modalSolfejo");
   const btnSalvar = document.getElementById("btnSalvarSolfejo");
   const btnCancel = document.getElementById("btnCancelSolfejo");
-
-  if (!modal || !btnSalvar || !btnCancel) {
-    console.warn("❌ Elementos do modal Solfejo não encontrados.");
-    return;
-  }
-
+  if (!modal || !btnSalvar || !btnCancel) return;
   btnCancel.onclick = () => modal.classList.remove("ativo");
-
   btnSalvar.onclick = async () => {
     const valor = document.getElementById("editSolfejo")?.value.trim();
     if (currentAlunoId && valor) {
       try {
         await updateDoc(doc(db, "alunos", currentAlunoId), { leituraNome: valor });
         mostrarMensagem("mensagemSucesso", "✅ Método de Solfejo atualizado!");
-
-        // Atualizar snapshot do mês com o novo nome do método
         const todosSnap = await getDocs(collection(db, "alunos"));
         const alunoDoc = todosSnap.docs.find(d => d.id === currentAlunoId);
-        if (alunoDoc) {
-          const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), solfejoNome: valor };
-          await atualizarSnapshotMesAtual(dadosAtualizados);
-        }
-
+        if (alunoDoc) await atualizarSnapshotMesAtual({ id: alunoDoc.id, ...alunoDoc.data(), solfejoNome: valor });
         renderizarPainel();
-      } catch (error) {
-        console.error("Erro ao atualizar Solfejo:", error);
-        mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-      }
+      } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
     }
     modal.classList.remove("ativo");
   };
 }
 
 function setupModalInstrumental() {
-  const modal = document.getElementById("modalInstrumental");
+  const modal     = document.getElementById("modalInstrumental");
   const btnSalvar = document.getElementById("btnSalvarInstrumental");
   const btnCancel = document.getElementById("btnCancelInstrumental");
-
-  if (!modal || !btnSalvar || !btnCancel) {
-    console.warn("❌ Elementos do modal Instrumental não encontrados.");
-    return;
-  }
-
+  if (!modal || !btnSalvar || !btnCancel) return;
   btnCancel.onclick = () => modal.classList.remove("ativo");
-
   btnSalvar.onclick = async () => {
     const valor = document.getElementById("editInstrumental")?.value.trim();
     if (currentAlunoId && valor) {
       try {
         await updateDoc(doc(db, "alunos", currentAlunoId), { metodoNome: valor });
         mostrarMensagem("mensagemSucesso", "✅ Método Instrumental atualizado!");
-
-        // Atualizar snapshot do mês com o novo nome do método instrumental
         const todosSnap = await getDocs(collection(db, "alunos"));
         const alunoDoc = todosSnap.docs.find(d => d.id === currentAlunoId);
-        if (alunoDoc) {
-          const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), metodoNome: valor };
-          await atualizarSnapshotMesAtual(dadosAtualizados);
-        }
-
+        if (alunoDoc) await atualizarSnapshotMesAtual({ id: alunoDoc.id, ...alunoDoc.data(), metodoNome: valor });
         renderizarPainel();
-      } catch (error) {
-        console.error("Erro ao atualizar Instrumental:", error);
-        mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-      }
+      } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
     }
     modal.classList.remove("ativo");
   };
 }
 
 // ========== FUNÇÕES DE ALUNOS ==========
+
+/**
+ * Carrega alunos do Firestore.
+ * - Se houver turma ativa: filtra por turmaId
+ * - Se não houver turma ativa: retorna TODOS os alunos
+ */
 async function carregarAlunos() {
-  console.log("🟡 Carregando alunos...");
-  try {
-    const snap = await getDocs(collection(db, "alunos"));
-    console.log(`✅ ${snap.docs.length} alunos carregado(s).`);
-    return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
-  } catch (error) {
-    console.error("❌ Erro ao carregar alunos:", error);
-    throw error;
+  const turmaAtiva = getTurmaAtiva();
+  let snap;
+
+  if (turmaAtiva?.id) {
+    console.log(`🟡 Filtrando alunos da turma: ${turmaAtiva.nome}`);
+    snap = await getDocs(
+      query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id))
+    );
+  } else {
+    console.log("🟡 Sem turma ativa — exibindo todos os alunos.");
+    snap = await getDocs(collection(db, "alunos"));
   }
+
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => a.nome.localeCompare(b.nome));
 }
 
 export async function renderizarPainel() {
-  const loader = document.getElementById("loader");
-  const painel = document.getElementById("painel");
+  const loader   = document.getElementById("loader");
+  const painel   = document.getElementById("painel");
   const conteudo = document.getElementById("conteudo");
-
-  if (conteudo) {
-    conteudo.innerHTML = "";
-    conteudo.style.display = "none";
-  }
-
-  if (!loader || !painel) {
-    console.error("❌ Elementos #loader ou #painel não encontrados.");
-    return;
-  }
+  if (conteudo) { conteudo.innerHTML = ""; conteudo.style.display = "none"; }
+  if (!loader || !painel) { console.error("❌ Elementos #loader ou #painel não encontrados."); return; }
 
   loader.style.display = "flex";
   painel.style.display = "none";
 
+  // Badge de turma ativa no topo do painel
+  const turmaAtiva = getTurmaAtiva();
+  const tituloPainel = document.getElementById("tituloPainelAlunos");
+  if (tituloPainel) {
+    tituloPainel.textContent = turmaAtiva
+      ? `👥 Alunos — ${turmaAtiva.nome}`
+      : "👥 Todos os Alunos";
+  }
+
   try {
     const alunos = await carregarAlunos();
+
+    if (!alunos.length) {
+      loader.style.display = "none";
+      painel.style.display = "flex";
+      painel.innerHTML = `
+        <p style="color:#94a3b8;padding:30px;text-align:center;">
+          ${turmaAtiva
+            ? `Nenhum aluno cadastrado na turma <strong>${turmaAtiva.nome}</strong>.`
+            : "Nenhum aluno cadastrado."}
+        </p>`;
+      return;
+    }
+
     painel.innerHTML = alunos.map(aluno => `
       <div class="ficha">
         <div class="foto-and-camera">
@@ -298,7 +241,7 @@ export async function renderizarPainel() {
               <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'leitura', 1)">+</button>
             </div>
           </div>
-          <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || 'Bona'}')">${ aluno.leituraNome || 'Bona'}</div>
+          <div class="campo link-edit" onclick="abrirModalSolfejo('${aluno.id}', '${aluno.leituraNome || 'Bona'}')">${aluno.leituraNome || 'Bona'}</div>
           <div class="divider"></div>
           <div class="campo nota-linha">
             <label>Método</label>
@@ -308,7 +251,7 @@ export async function renderizarPainel() {
               <button class="botao-nota" onclick="alterarNota('${aluno.id}', 'metodo', 1)">+</button>
             </div>
           </div>
-          <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || 'Método'}')">${ aluno.metodoNome || 'Método'}</div>
+          <div class="campo link-edit" onclick="abrirModalInstrumental('${aluno.id}', '${aluno.metodoNome || 'Método'}')">${aluno.metodoNome || 'Método'}</div>
           <div class="divider"></div>
           <div class="campo">
             <label>Instrumento</label>
@@ -316,8 +259,8 @@ export async function renderizarPainel() {
           </div>
           <div class="acoes">
             <button class="classificar" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">${aluno.classificado ? 'Desclassificar' : 'Classificar'}</button>
-            <button class="classificar" 
-              style="background: ${aluno.ativo === false ? '#22c55e' : '#f59e0b'}; color: #fff;" 
+            <button class="classificar"
+              style="background: ${aluno.ativo === false ? '#22c55e' : '#f59e0b'}; color: #fff;"
               onclick="alternarAtivo('${aluno.id}', ${aluno.ativo !== false})">
               ${aluno.ativo === false ? 'Ativar' : 'Desativar'}
             </button>
@@ -329,11 +272,10 @@ export async function renderizarPainel() {
 
     loader.style.display = "none";
     painel.style.display = "flex";
-    console.log("✅ Painel de alunos renderizado com métodos editáveis.");
   } catch (error) {
     console.error("❌ Erro ao renderizar painel:", error);
     loader.style.display = "none";
-    painel.innerHTML = `<p style="color:#ff7777; padding:20px;">❌ Falha ao carregar alunos. Verifique conexão com Firestore.</p>`;
+    painel.innerHTML = `<p style="color:#ff7777; padding:20px;">❌ Falha ao carregar alunos.</p>`;
     mostrarMensagem("mensagemInfo", "❌ Erro ao carregar alunos. Tente recarregar a página.");
   }
 }
@@ -342,7 +284,6 @@ window.renderizarPainel = renderizarPainel;
 window.selecionarFoto = function(id) {
   const input = document.getElementById(`foto-${id}`);
   if (input) input.click();
-  else console.warn(`❌ Input foto-${id} não encontrado.`);
 };
 
 window.alterarNota = async function(id, campo, delta) {
@@ -355,19 +296,11 @@ window.alterarNota = async function(id, campo, delta) {
     input.value = v;
     await updateDoc(doc(db, "alunos", id), { [campo]: v });
     mostrarMensagem("mensagemSucesso", "✅ Nota ajustada!");
-    // Grava notificação de nível
     await gravarNotificacaoNivel(id, campo, v);
-    // Atualiza snapshot do mês com o novo nível
     const todosSnap = await getDocs(collection(db, "alunos"));
     const alunoDoc = todosSnap.docs.find(d => d.id === id);
-    if (alunoDoc) {
-      const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), [campo]: v };
-      await atualizarSnapshotMesAtual(dadosAtualizados);
-    }
-  } catch (error) {
-    console.error("Erro ao ajustar nota:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-  }
+    if (alunoDoc) await atualizarSnapshotMesAtual({ id: alunoDoc.id, ...alunoDoc.data(), [campo]: v });
+  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
 };
 
 window.atualizarNota = async function(id, campo, valor) {
@@ -377,29 +310,18 @@ window.atualizarNota = async function(id, campo, valor) {
     if (v > 130) v = 130;
     await updateDoc(doc(db, "alunos", id), { [campo]: v });
     mostrarMensagem("mensagemSucesso", "✅ Nota atualizada!");
-    // Grava notificação de nível
     await gravarNotificacaoNivel(id, campo, v);
-    // Atualiza snapshot do mês com o novo nível
     const todosSnap = await getDocs(collection(db, "alunos"));
     const alunoDoc = todosSnap.docs.find(d => d.id === id);
-    if (alunoDoc) {
-      const dadosAtualizados = { id: alunoDoc.id, ...alunoDoc.data(), [campo]: v };
-      await atualizarSnapshotMesAtual(dadosAtualizados);
-    }
-  } catch (error) {
-    console.error("Erro ao atualizar nota:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-  }
+    if (alunoDoc) await atualizarSnapshotMesAtual({ id: alunoDoc.id, ...alunoDoc.data(), [campo]: v });
+  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
 };
 
 window.atualizarCampo = async function(id, campo, valor) {
   try {
     await updateDoc(doc(db, "alunos", id), { [campo]: valor });
     mostrarMensagem("mensagemSucesso", `✅ ${campo.charAt(0).toUpperCase() + campo.slice(1)} atualizado!`);
-  } catch (error) {
-    console.error("Erro ao atualizar campo:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-  }
+  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
 };
 
 window.atualizarFoto = async function(id, file) {
@@ -415,10 +337,7 @@ window.atualizarFoto = async function(id, file) {
       renderizarPainel();
     };
     reader.readAsDataURL(file);
-  } catch (error) {
-    console.error("Erro ao atualizar foto:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-  }
+  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
 };
 
 window.alternarClassificacao = async function(id, classificado) {
@@ -426,10 +345,7 @@ window.alternarClassificacao = async function(id, classificado) {
     await updateDoc(doc(db, "alunos", id), { classificado: !classificado });
     renderizarPainel();
     mostrarMensagem("mensagemSucesso", classificado ? "📤 Desclassificado!" : "🎯 Classificado!");
-  } catch (error) {
-    console.error("Erro ao alternar classificação:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-  }
+  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
 };
 
 window.alternarAtivo = async function(id, ativo) {
@@ -437,10 +353,7 @@ window.alternarAtivo = async function(id, ativo) {
     await updateDoc(doc(db, "alunos", id), { ativo: !ativo });
     renderizarPainel();
     mostrarMensagem("mensagemSucesso", ativo ? "⏸️ Aluno Desativado!" : "▶️ Aluno Ativado!");
-  } catch (error) {
-    console.error("Erro ao alternar status ativo:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
-  }
+  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
 };
 
 window.confirmarRemocao = async function(id, nome) {
@@ -449,57 +362,73 @@ window.confirmarRemocao = async function(id, nome) {
     await deleteDoc(doc(db, "alunos", id));
     mostrarMensagem("mensagemSucesso", `🗑️ ${nome} removido!`);
     renderizarPainel();
-  } catch (error) {
-    console.error("Erro ao remover aluno:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na remoção.");
-  }
+  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na remoção."); }
 };
 
 window.abrirModalSolfejo = function(alunoId, valorAtual) {
   currentAlunoId = alunoId;
   const input = document.getElementById("editSolfejo");
   if (input) input.value = valorAtual || "Bona";
-  const modal = document.getElementById("modalSolfejo");
-  if (modal) modal.classList.add("ativo");
-  else console.warn("❌ Modal Solfejo não encontrado.");
+  document.getElementById("modalSolfejo")?.classList.add("ativo");
 };
 
 window.abrirModalInstrumental = function(alunoId, valorAtual) {
   currentAlunoId = alunoId;
   const input = document.getElementById("editInstrumental");
   if (input) input.value = valorAtual || "Método";
-  const modal = document.getElementById("modalInstrumental");
-  if (modal) modal.classList.add("ativo");
-  else console.warn("❌ Modal Instrumental não encontrado.");
+  document.getElementById("modalInstrumental")?.classList.add("ativo");
 };
 
-// ========== EVENTOS ==========
+// ========== EVENTOS / CHAMADA ==========
 async function criarEventoGenerico() {
   try {
-    console.log("🟡 Criando chamada do dia...");
-    // Usando fuso horário de Brasília (GMT-3)
-    const hoje = new Intl.DateTimeFormat('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).format(new Date()).split('/').reverse().join('-');
-    
-    const snap = await getDocs(collection(db, "eventos"));
-    const existente = snap.docs.find(doc => doc.data().data === hoje);
-    if (existente) {
-      mostrarMensagem("mensagemInfo", "📅 Já existe uma chamada para hoje!");
-      setTimeout(() => window.location.href = `ensaio.html?id=${existente.id}`, 1500);
+    const turmaAtiva = getTurmaAtiva();
+
+    // Exige turma ativa para criar chamada
+    if (!turmaAtiva?.id) {
+      mostrarMensagem("mensagemInfo", "⚠️ Selecione uma turma ativa antes de criar a chamada.");
       return;
     }
 
+    const hoje = new Intl.DateTimeFormat('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    }).format(new Date()).split('/').reverse().join('-');
+
+    // Verifica se já existe chamada para ESTA TURMA hoje
+    const snap = await getDocs(
+      query(collection(db, "eventos"),
+        where("turmaId", "==", turmaAtiva.id),
+        where("data",    "==", hoje)
+      )
+    );
+
+    if (!snap.empty) {
+      mostrarMensagem("mensagemInfo", `📅 Já existe uma chamada para ${turmaAtiva.nome} hoje!`);
+      setTimeout(() => window.location.href = `ensaio.html?id=${snap.docs[0].id}`, 1500);
+      return;
+    }
+
+    // Carregar alunos da turma para pré-popular presenças
+    const alunosSnap = await getDocs(
+      query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id))
+    );
+    const presencas = alunosSnap.docs.map(d => ({
+      alunoId:  d.id,
+      nome:     d.data().nome,
+      presenca: "falta"  // padrão: todos como falta, professor marca presença
+    }));
+
     const novo = await addDoc(collection(db, "eventos"), {
-      data: hoje,
+      turmaId:   turmaAtiva.id,
+      turmaNome: turmaAtiva.nome,
+      data:      hoje,
+      tipo:      "aula",
       observacoes: "",
-      presencas: [],
-      tipo: "chamada"
+      presencas
     });
-    mostrarMensagem("mensagemSucesso", "🆕 Chamada criada!");
+
+    mostrarMensagem("mensagemSucesso", `📝 Chamada criada para ${turmaAtiva.nome}!`);
     setTimeout(() => window.location.href = `ensaio.html?id=${novo.id}`, 1500);
   } catch (error) {
     console.error("Erro ao criar chamada:", error);
@@ -508,25 +437,14 @@ async function criarEventoGenerico() {
 }
 
 window.mostrarPainelLicoes = function() {
-  console.log("🟢 Toggle painel lições");
   import('./professor-licoes.js').then(module => {
-    if (module.mostrarPainelLicoes) {
-      module.mostrarPainelLicoes();
-    } else {
-      console.error("Função mostrarPainelLicoes não encontrada no professor-licoes.js");
-    }
-  }).catch(error => {
-    console.error("Erro ao carregar professor-licoes.js:", error);
-  });
+    if (module.mostrarPainelLicoes) module.mostrarPainelLicoes();
+  }).catch(error => console.error("Erro ao carregar professor-licoes.js:", error));
 };
 
+// ========== DOMContentLoaded ==========
 document.addEventListener("DOMContentLoaded", () => {
-  if (!db) {
-    console.error("❌ Firebase DB não carregado.");
-    return;
-  }
-
-  console.log("🟢 Página professor carregada.");
+  if (!db) { console.error("❌ Firebase DB não carregado."); return; }
 
   const user = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
   const usuarioDiv = document.getElementById("usuarioLogado");
@@ -536,99 +454,70 @@ document.addEventListener("DOMContentLoaded", () => {
   setupModalSolfejo();
   setupModalInstrumental();
 
-  const btnMostrarAlunos = document.getElementById("btnMostrarAlunos");
-  if (btnMostrarAlunos) btnMostrarAlunos.onclick = renderizarPainel;
-
-  const btnLicoes = document.getElementById("btnMostrarLicoes");
-  if (btnLicoes) btnLicoes.onclick = mostrarPainelLicoes;
+  document.getElementById("btnMostrarAlunos")?.addEventListener("click", renderizarPainel);
+  document.getElementById("btnCriarChamada")?.addEventListener("click", criarEventoGenerico);
+  document.getElementById("btnAtualizarComprometimento")?.addEventListener("click", atualizarComprometimentoGeral);
 
   const btnModoAluno = document.getElementById("btnModoAluno");
   if (btnModoAluno) {
     btnModoAluno.onclick = () => {
-      if (user.nome) {
-        window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
-      } else {
-        console.warn("Nome de usuário não encontrado no localStorage.");
-      }
+      if (user.nome) window.location.href = `aluno.html?nome=${encodeURIComponent(user.nome)}`;
     };
   }
 
-  const btnCriarChamada = document.getElementById("btnCriarChamada");
-  if (btnCriarChamada) btnCriarChamada.onclick = criarEventoGenerico;
-
-  const btnAtualizarComprometimento = document.getElementById("btnAtualizarComprometimento");
-  if (btnAtualizarComprometimento) btnAtualizarComprometimento.onclick = atualizarComprometimentoGeral;
+  // ── Recarregar painel automaticamente quando a turma mudar ──
+  window.addEventListener("turmaAtualChanged", (e) => {
+    const turma = e.detail;
+    console.log("🔄 Turma alterada:", turma?.nome ?? "todas");
+    // Só recarrega se o painel de alunos estiver visível
+    const painel = document.getElementById("painel");
+    if (painel && painel.style.display !== "none") {
+      renderizarPainel();
+    }
+  });
 });
 
-// ========== ATUALIZAR COMPROMETIMENTO GERAL ==========
+// ========== COMPROMETIMENTO GERAL ==========
 async function atualizarComprometimentoGeral() {
   const btn = document.getElementById("btnAtualizarComprometimento");
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = "⏳ Atualizando...";
-  }
-
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Atualizando..."; }
   try {
-    console.log("🟡 Iniciando atualização de comprometimento...");
-    
-    // 1. Obter todos os eventos do ano atual
-    const anoAtual = new Date().getFullYear();
+    const anoAtual  = new Date().getFullYear();
+    const mesAtual  = String(new Date().getMonth() + 1).padStart(2, "0");
+    const chaveMes  = `${anoAtual}-${mesAtual}`;
+
     const snapEventos = await getDocs(collection(db, "eventos"));
-    const eventosAno = snapEventos.docs
+    const eventosMes  = snapEventos.docs
       .map(d => d.data())
-      .filter(d => d.data && d.data.startsWith(`${anoAtual}-`));
+      .filter(d => d.data?.startsWith(chaveMes));
 
-    // 2. Agrupar por mês para pegar o mês atual
-    const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
-    const chaveMesAtual = `${anoAtual}-${mesAtual}`;
-    const eventosMesAtual = eventosAno.filter(e => e.data.startsWith(chaveMesAtual));
-
-    // 3. Obter todos os alunos
     const snapAlunos = await getDocs(collection(db, "alunos"));
-    
-    let atualizados = 0;
+    let atualizados  = 0;
+
     for (const alunoDoc of snapAlunos.docs) {
-      const alunoData = alunoDoc.data();
-      
-      // Se o aluno estiver desativado, ignoramos ele no cálculo de comprometimento
-      if (alunoData.ativo === false) continue;
-
-      const nomeAluno = alunoData.nome;
-
-      // Calcular frequência do mês atual
-      let presencasNoMes = 0;
-      eventosMesAtual.forEach(ev => {
-        const presenca = ev.presencas?.find(p => p.nome === nomeAluno);
-        if (presenca && presenca.presenca === "presente") {
-          presencasNoMes++;
-        }
+      const dados = alunoDoc.data();
+      if (dados.ativo === false) continue;
+      const nomeAluno = dados.nome;
+      let presencas = 0;
+      eventosMes.forEach(ev => {
+        const p = ev.presencas?.find(p => p.nome === nomeAluno || p.alunoId === alunoDoc.id);
+        if (p?.presenca === "presente") presencas++;
       });
-
-      const totalEventosMes = eventosMesAtual.length;
-      const percentualMes = totalEventosMes > 0 
-        ? Math.round((presencasNoMes / totalEventosMes) * 100) 
-        : 0;
-
-      // Atualizar no Firestore
+      const total = eventosMes.length;
       await updateDoc(doc(db, "alunos", alunoDoc.id), {
-        "frequenciaMensal.porcentagem": percentualMes,
-        "frequenciaMensal.totalEventos": totalEventosMes,
-        "frequenciaMensal.presencas": presencasNoMes,
+        "frequenciaMensal.porcentagem":  total > 0 ? Math.round((presencas / total) * 100) : 0,
+        "frequenciaMensal.totalEventos": total,
+        "frequenciaMensal.presencas":    presencas,
         ultimaAtualizacaoComprometimento: serverTimestamp()
       });
       atualizados++;
     }
-
     mostrarMensagem("mensagemSucesso", `⚡ Comprometimento de ${atualizados} alunos atualizado!`);
-    console.log(`✅ Atualização concluída: ${atualizados} alunos.`);
   } catch (error) {
     console.error("❌ Erro ao atualizar comprometimento:", error);
-    mostrarMensagem("mensagemInfo", "❌ Erro na atualização. Verifique o console.");
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
   } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = "⚡ Atualizar Comprometimento";
-    }
+    if (btn) { btn.disabled = false; btn.textContent = "⚡ Atualizar Comprometimento"; }
   }
 }
 
