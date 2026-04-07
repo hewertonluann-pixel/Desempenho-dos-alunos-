@@ -6,6 +6,8 @@
   <title>Gerenciar Turmas</title>
   <link rel="stylesheet" href="professor.css" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <!-- QR Code lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -48,7 +50,7 @@
     }
     .btn-voltar:hover { background: rgba(0,255,204,0.12); }
 
-    /* ── LAYOUT DUAS COLUNAS ── */
+    /* ── LAYOUT ── */
     .layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -56,11 +58,9 @@
       max-width: 1100px;
       margin: 0 auto;
     }
-    @media (max-width: 768px) {
-      .layout { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
 
-    /* ── CARD / PAINEL ── */
+    /* ── CARD ── */
     .card {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(0,255,204,0.2);
@@ -79,21 +79,10 @@
       gap: 8px;
     }
 
-    /* ── FORM CRIAR TURMA ── */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-bottom: 14px;
-    }
-    .form-group label {
-      font-size: 0.82rem;
-      color: #00ffcc;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
-    .form-group input,
-    .form-group select {
+    /* ── FORM ── */
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .form-group label { font-size: 0.82rem; color: #00ffcc; font-weight: 700; letter-spacing: 0.3px; }
+    .form-group input, .form-group select {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(0,255,204,0.25);
       border-radius: 8px;
@@ -104,14 +93,11 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    .form-group input:focus,
-    .form-group select:focus {
+    .form-group input:focus, .form-group select:focus {
       border-color: #00ffcc;
       box-shadow: 0 0 8px rgba(0,255,204,0.2);
     }
     .form-group select option { background: #1b1b2f; }
-
-    /* fase oculta por padrão, aparece só para turma inicial */
     #grupoFase { display: none; }
 
     .btn-primary {
@@ -132,86 +118,216 @@
     .btn-primary:active { transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-    /* ── LISTA DE TURMAS ── */
+    /* ── TURMA CARD ── */
     .turma-card {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(0,255,204,0.15);
       border-radius: 12px;
       padding: 14px 16px;
       margin-bottom: 12px;
-      cursor: pointer;
       transition: all 0.2s;
       position: relative;
     }
-    .turma-card:hover {
-      border-color: rgba(0,255,204,0.45);
-      background: rgba(0,255,204,0.06);
-    }
-    .turma-card.ativa {
-      border-color: #00ffcc;
-      background: rgba(0,255,204,0.1);
-      box-shadow: 0 0 14px rgba(0,255,204,0.2);
-    }
-    .turma-card-header {
+    .turma-card:hover { border-color: rgba(0,255,204,0.35); background: rgba(0,255,204,0.04); }
+    .turma-card.ativa { border-color: #00ffcc; background: rgba(0,255,204,0.1); box-shadow: 0 0 14px rgba(0,255,204,0.2); }
+
+    .turma-card-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 8px;
+      cursor: pointer;
     }
-    .turma-nome {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #f5f5f5;
-    }
+    .turma-nome { font-size: 1rem; font-weight: 700; color: #f5f5f5; }
     .turma-card.ativa .turma-nome { color: #00ffcc; }
-    .turma-badges {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-    .badge {
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-    }
-    .badge-orquestra { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
-    .badge-inicial   { background: rgba(14,165,233,0.2); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
-    .badge-fase      { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
-    .badge-alunos    { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-    .badge-ativa-tag { background: rgba(0,255,204,0.15); color: #00ffcc; border: 1px solid rgba(0,255,204,0.4); }
+    .turma-selecionada-label { font-size: 0.7rem; color: #00ffcc; font-weight: 700; flex-shrink: 0; }
 
-    .turma-selecionada-label {
+    .turma-badges { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+    .badge { padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px; }
+    .badge-orquestra { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    .badge-inicial   { background: rgba(14,165,233,0.2);  color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
+    .badge-fase      { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
+    .badge-alunos    { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+
+    /* ── AÇÕES DO CARD ── */
+    .turma-acoes {
+      display: flex;
+      gap: 7px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      flex-wrap: wrap;
+    }
+    .btn-acao {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid;
+    }
+    .btn-copiar {
+      background: rgba(0,255,204,0.08);
+      border-color: rgba(0,255,204,0.25);
+      color: #00ffcc;
+    }
+    .btn-copiar:hover { background: rgba(0,255,204,0.18); }
+    .btn-copiar.copiado { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.35); color: #4ade80; }
+
+    .btn-qr {
+      background: rgba(168,85,247,0.08);
+      border-color: rgba(168,85,247,0.25);
+      color: #c084fc;
+    }
+    .btn-qr:hover { background: rgba(168,85,247,0.18); }
+
+    .btn-gerenciar {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+      color: #9ca3af;
+      margin-left: auto;
+    }
+    .btn-gerenciar:hover { color: #f5f5f5; border-color: rgba(255,255,255,0.25); }
+
+    /* ── MODAL QR ── */
+    .modal-qr {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(6px);
+    }
+    .modal-qr.ativo { display: flex; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+
+    .modal-qr-conteudo {
+      background: linear-gradient(160deg, #0f172a, #12121f);
+      border: 1px solid rgba(0,255,204,0.3);
+      border-radius: 20px;
+      padding: 32px 28px 24px;
+      width: 95%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0,255,204,0.15);
+      position: relative;
+    }
+    .modal-qr-fechar {
       position: absolute;
-      top: 10px;
-      right: 12px;
+      top: 12px; right: 16px;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .modal-qr-fechar:hover { color: #f5f5f5; }
+
+    .modal-qr-titulo {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #00ffcc;
+      margin-bottom: 4px;
+    }
+    .modal-qr-sub {
+      font-size: 0.78rem;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    /* container do QR (fundo branco para o QR ficar legível) */
+    #qrContainer {
+      display: inline-block;
+      background: #fff;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    #qrContainer img { display: block; }
+
+    .link-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 9px 12px;
       font-size: 0.72rem;
+      color: #6b7280;
+      word-break: break-all;
+      text-align: left;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .btn-baixar-qr {
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, #a855f7, #7c3aed);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.9rem;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: filter .2s;
+      margin-bottom: 8px;
+    }
+    .btn-baixar-qr:hover { filter: brightness(1.12); }
+
+    .btn-copiar-modal {
+      width: 100%;
+      padding: 10px;
+      background: rgba(0,255,204,0.08);
+      border: 1px solid rgba(0,255,204,0.25);
+      border-radius: 10px;
       color: #00ffcc;
       font-weight: 700;
+      font-size: 0.88rem;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: all .2s;
     }
+    .btn-copiar-modal:hover { background: rgba(0,255,204,0.16); }
 
-    .empty-state {
-      text-align: center;
-      color: #4b5563;
-      font-size: 0.9rem;
-      padding: 30px 0;
-    }
-
-    /* ── PAINEL ALUNOS DA TURMA ── */
-    .painel-alunos {
-      grid-column: 1 / -1;
-    }
-
-    .alunos-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    /* ── PAINEL ALUNOS ── */
+    .turma-info-bar {
+      background: rgba(0,255,204,0.07);
+      border: 1px solid rgba(0,255,204,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
       margin-bottom: 16px;
-      flex-wrap: wrap;
+      display: none;
+      align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
+    .turma-info-bar.visivel { display: flex; }
+    .turma-info-bar .ti-nome { font-weight: 800; color: #00ffcc; font-size: 1rem; }
+    .turma-info-bar .ti-sub  { font-size: 0.8rem; color: #6b7280; }
+
+    .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+    .tab {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: #6b7280;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.ativa { background: rgba(0,255,204,0.12); border-color: rgba(0,255,204,0.4); color: #00ffcc; }
+    .tab:hover:not(.ativa) { color: #d1d5db; border-color: rgba(255,255,255,0.2); }
 
     .busca-aluno {
       background: rgba(255,255,255,0.07);
@@ -251,198 +367,68 @@
       transition: all 0.2s;
       user-select: none;
     }
-    .aluno-item:hover {
-      border-color: rgba(0,255,204,0.3);
-      background: rgba(0,255,204,0.05);
-    }
-    .aluno-item.selecionado {
-      border-color: #00ffcc;
-      background: rgba(0,255,204,0.12);
-    }
+    .aluno-item:hover { border-color: rgba(0,255,204,0.3); background: rgba(0,255,204,0.05); }
+    .aluno-item.selecionado { border-color: #00ffcc; background: rgba(0,255,204,0.12); }
     .aluno-check {
-      width: 20px;
-      height: 20px;
+      width: 20px; height: 20px;
       border-radius: 6px;
       border: 2px solid rgba(0,255,204,0.35);
       background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      color: #00ffcc;
-      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; color: #00ffcc; flex-shrink: 0;
       transition: all 0.2s;
     }
-    .aluno-item.selecionado .aluno-check {
-      background: #00ffcc;
-      border-color: #00ffcc;
-      color: #12121f;
-    }
+    .aluno-item.selecionado .aluno-check { background: #00ffcc; border-color: #00ffcc; color: #12121f; }
     .aluno-foto-mini {
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       border-radius: 50%;
-      object-fit: cover;
       background: rgba(0,255,204,0.15);
       flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      color: #00ffcc;
-      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; color: #00ffcc; overflow: hidden;
     }
     .aluno-foto-mini img { width: 100%; height: 100%; object-fit: cover; }
     .aluno-info { flex: 1; min-width: 0; }
-    .aluno-nome-mini {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #e5e7eb;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .aluno-turma-atual {
-      font-size: 0.7rem;
-      color: #6b7280;
-      margin-top: 2px;
-    }
+    .aluno-nome-mini { font-size: 0.85rem; font-weight: 700; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .aluno-turma-atual { font-size: 0.7rem; color: #6b7280; margin-top: 2px; }
     .aluno-item.selecionado .aluno-turma-atual { color: #00ffcc99; }
 
-    .acoes-alunos {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
+    .acoes-alunos { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
     .btn-salvar-alunos {
-      flex: 1;
-      padding: 11px;
+      flex: 1; padding: 11px;
       background: linear-gradient(135deg, #00ffcc, #00bfff);
-      border: none;
-      border-radius: 10px;
-      color: #12121f;
-      font-weight: 800;
-      font-size: 0.95rem;
-      font-family: 'Nunito', sans-serif;
-      cursor: pointer;
-      transition: all 0.25s;
+      border: none; border-radius: 10px;
+      color: #12121f; font-weight: 800; font-size: 0.95rem;
+      font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.25s;
     }
     .btn-salvar-alunos:hover { filter: brightness(1.1); }
     .btn-salvar-alunos:disabled { opacity: 0.4; cursor: not-allowed; }
-
     .btn-selecionar-todos {
       padding: 10px 16px;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.12);
-      color: #9ca3af;
-      border-radius: 9px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s;
+      color: #9ca3af; border-radius: 9px;
+      font-family: 'Nunito', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
     }
     .btn-selecionar-todos:hover { color: #f5f5f5; border-color: rgba(255,255,255,0.25); }
-
-    /* ── CONTADORES ── */
-    .contador-selecionados {
-      font-size: 0.82rem;
-      color: #6b7280;
-      margin-top: 10px;
-    }
-    .contador-selecionados span { color: #00ffcc; font-weight: 700; }
-
-    /* ── MENSAGENS ── */
-    .msg {
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 12px;
-      display: none;
-    }
-    .msg.ok  { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); display: block; }
-    .msg.err { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); display: block; }
-
-    /* ── TURMA SELECIONADA INFO ── */
-    .turma-info-bar {
-      background: rgba(0,255,204,0.07);
-      border: 1px solid rgba(0,255,204,0.2);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      display: none;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .turma-info-bar.visivel { display: flex; }
-    .turma-info-bar .ti-nome {
-      font-weight: 800;
-      color: #00ffcc;
-      font-size: 1rem;
-    }
-    .turma-info-bar .ti-sub {
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-
-    /* ── TABS ── */
-    .tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 16px;
-    }
-    .tab {
-      padding: 7px 16px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: transparent;
-      color: #6b7280;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab.ativa {
-      background: rgba(0,255,204,0.12);
-      border-color: rgba(0,255,204,0.4);
-      color: #00ffcc;
-    }
-    .tab:hover:not(.ativa) { color: #d1d5db; border-color: rgba(255,255,255,0.2); }
-
-    /* ── DELETAR TURMA ── */
     .btn-deletar-turma {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.25);
-      color: #f87171;
-      padding: 7px 13px;
-      border-radius: 8px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25);
+      color: #f87171; padding: 7px 13px; border-radius: 8px;
+      font-family: 'Nunito', sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
     }
     .btn-deletar-turma:hover { background: rgba(239,68,68,0.2); }
 
-    /* ── LOADER ── */
-    .loader-inline {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #00ffcc;
-      font-size: 0.85rem;
-      padding: 20px 0;
-      justify-content: center;
-    }
-    .spinner-sm {
-      width: 20px; height: 20px;
-      border: 3px solid rgba(0,255,204,0.2);
-      border-top-color: #00ffcc;
-      border-radius: 50%;
-      animation: girar 0.8s linear infinite;
-    }
+    .contador-selecionados { font-size: 0.82rem; color: #6b7280; margin-top: 10px; }
+    .contador-selecionados span { color: #00ffcc; font-weight: 700; }
+
+    .msg { padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; margin-top: 12px; display: none; }
+    .msg.ok  { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); display: block; }
+    .msg.err { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); display: block; }
+
+    .empty-state { text-align: center; color: #4b5563; font-size: 0.9rem; padding: 30px 0; }
+
+    .loader-inline { display: flex; align-items: center; gap: 10px; color: #00ffcc; font-size: 0.85rem; padding: 20px 0; justify-content: center; }
+    .spinner-sm { width: 20px; height: 20px; border: 3px solid rgba(0,255,204,0.2); border-top-color: #00ffcc; border-radius: 50%; animation: girar 0.8s linear infinite; }
     @keyframes girar { to { transform: rotate(360deg); } }
   </style>
 </head>
@@ -450,27 +436,23 @@
 
   <div style="max-width:1100px;margin:0 auto;">
 
-    <!-- HEADER -->
     <div class="header">
       <h1>🎼 Gerenciar Turmas</h1>
       <a href="professor.html" class="btn-voltar">← Voltar ao Painel</a>
     </div>
 
-    <!-- LAYOUT PRINCIPAL -->
     <div class="layout">
 
-      <!-- COLUNA ESQUERDA: Criar + Listar -->
+      <!-- COLUNA ESQUERDA -->
       <div style="display:flex;flex-direction:column;gap:24px;">
 
         <!-- CRIAR TURMA -->
         <div class="card">
           <h2>➕ Nova Turma</h2>
-
           <div class="form-group">
             <label>Nome da turma</label>
             <input type="text" id="turmaNome" placeholder="Ex: Orquestra, Fase 1 - Manhã..." />
           </div>
-
           <div class="form-group">
             <label>Tipo</label>
             <select id="turmaTipo">
@@ -479,7 +461,6 @@
               <option value="inicial">📚 Turma Inicial</option>
             </select>
           </div>
-
           <div class="form-group" id="grupoFase">
             <label>Fase da turma inicial</label>
             <select id="turmaFase">
@@ -487,12 +468,10 @@
               <option value="2">Fase 2 — Método BONA (Leitura)</option>
             </select>
           </div>
-
           <div class="form-group">
             <label>Instrumento principal <span style="color:#4b5563;font-weight:400;">(opcional)</span></label>
             <input type="text" id="turmaInstrumento" placeholder="Ex: Violino, Flauta, Misto..." />
           </div>
-
           <button class="btn-primary" id="btnCriarTurma">Criar Turma</button>
           <div class="msg" id="msgCriar"></div>
         </div>
@@ -507,21 +486,20 @@
 
       </div>
 
-      <!-- COLUNA DIREITA: Gerenciar alunos da turma -->
+      <!-- COLUNA DIREITA: alunos -->
       <div class="card">
         <h2>👥 Alunos da Turma</h2>
 
         <div class="turma-info-bar" id="turmaInfoBar">
           <div>
             <div class="ti-nome" id="turmaInfoNome">—</div>
-            <div class="ti-sub" id="turmaInfoSub"></div>
+            <div class="ti-sub"  id="turmaInfoSub"></div>
           </div>
         </div>
 
-        <!-- Tabs: Na turma / Disponíveis -->
         <div class="tabs" id="tabsAlunos" style="display:none;">
-          <button class="tab ativa" id="tabNaTurma" onclick="mudarTab('naTurma')">Na turma</button>
-          <button class="tab" id="tabDisponiveis" onclick="mudarTab('disponiveis')">Adicionar alunos</button>
+          <button class="tab ativa" id="tabNaTurma"    onclick="mudarTab('naTurma')">Na turma</button>
+          <button class="tab"       id="tabDisponiveis" onclick="mudarTab('disponiveis')">Adicionar alunos</button>
         </div>
 
         <div id="painelNaTurma">
@@ -545,10 +523,22 @@
           </div>
           <div class="msg" id="msgAlunos"></div>
         </div>
-
       </div>
 
     </div><!-- /layout -->
+  </div>
+
+  <!-- MODAL QR CODE -->
+  <div class="modal-qr" id="modalQR">
+    <div class="modal-qr-conteudo">
+      <button class="modal-qr-fechar" onclick="fecharModalQR()">✖</button>
+      <div class="modal-qr-titulo" id="qrTurmaTitle"></div>
+      <div class="modal-qr-sub">Aponte a câmera para se cadastrar</div>
+      <div id="qrContainer"></div>
+      <div class="link-box" id="qrLinkBox"></div>
+      <button class="btn-baixar-qr" onclick="baixarQR()">⬇ Baixar QR Code</button>
+      <button class="btn-copiar-modal" onclick="copiarLinkModal()">📋 Copiar link</button>
+    </div>
   </div>
 
   <script type="module">
@@ -558,45 +548,45 @@
       updateDoc, deleteDoc, query, where, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    /* ============================================================
-       ESTADO GLOBAL
-       ============================================================ */
-    let turmaSelecionadaId   = null;
+    /* ── ESTADO ── */
+    let turmaSelecionadaId    = null;
     let turmaSelecionadaDados = null;
-    let todosAlunos          = [];   // todos os alunos do Firestore
-    let todasTurmas          = [];   // todas as turmas do Firestore
-    let selecionados         = new Set(); // ids selecionados no painel "Adicionar"
-    let selecionadosRemover  = new Set(); // ids selecionados no painel "Na turma"
-    let tabAtiva             = "naTurma";
+    let todosAlunos           = [];
+    let todasTurmas           = [];
+    let selecionados          = new Set();
+    let selecionadosRemover   = new Set();
+    let tabAtiva              = "naTurma";
+    let linkQRAtual           = "";
 
-    /* ============================================================
-       INICIALIZAÇÃO
-       ============================================================ */
+    /* ── INIT ── */
     document.addEventListener("DOMContentLoaded", async () => {
       await Promise.all([carregarTurmas(), carregarAlunos()]);
       document.getElementById("btnCriarTurma").addEventListener("click", criarTurma);
       document.getElementById("btnAdicionarATurma").addEventListener("click", adicionarAlunosATurma);
       document.getElementById("btnRemoverDaTurma").addEventListener("click", removerAlunosDaTurma);
-
-      // Mostrar/ocultar campo Fase ao mudar tipo
       document.getElementById("turmaTipo").addEventListener("change", e => {
-        document.getElementById("grupoFase").style.display =
-          e.target.value === "inicial" ? "flex" : "none";
+        document.getElementById("grupoFase").style.display = e.target.value === "inicial" ? "flex" : "none";
+      });
+      // Fechar modal QR ao clicar fora
+      document.getElementById("modalQR").addEventListener("click", e => {
+        if (e.target === document.getElementById("modalQR")) fecharModalQR();
       });
     });
 
-    /* ============================================================
-       CARREGAR TURMAS
-       ============================================================ */
+    /* ── CARREGAR TURMAS ── */
     async function carregarTurmas() {
-      const lista = document.getElementById("listaTurmas");
       try {
         const snap = await getDocs(collection(db, "turmas"));
         todasTurmas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderizarListaTurmas();
       } catch (e) {
-        lista.innerHTML = `<p style="color:#f87171;font-size:0.85rem;">Erro ao carregar turmas.</p>`;
+        document.getElementById("listaTurmas").innerHTML = `<p style="color:#f87171;font-size:0.85rem;">Erro ao carregar turmas.</p>`;
       }
+    }
+
+    function gerarLink(turmaId) {
+      const base = window.location.href.replace(/\/[^/]*$/, "");
+      return `${base}/cadastro.html?turma=${turmaId}`;
     }
 
     function renderizarListaTurmas() {
@@ -605,346 +595,293 @@
         lista.innerHTML = `<div class="empty-state">Nenhuma turma cadastrada ainda.</div>`;
         return;
       }
-
       lista.innerHTML = todasTurmas.map(t => {
-        const isOrq   = t.tipo === "orquestra";
-        const ativa   = t.id === turmaSelecionadaId;
-        const qtdAlunos = (t.alunos || []).length;
+        const isOrq     = t.tipo === "orquestra";
+        const ativa     = t.id === turmaSelecionadaId;
+        const qtd       = (t.alunos || []).length;
         const faseLabel = isOrq ? "" : `Fase ${t.fase}`;
-
         return `
-          <div class="turma-card ${ativa ? 'ativa' : ''}" onclick="window.selecionarTurma('${t.id}')">
-            ${ativa ? '<span class="turma-selecionada-label">✓ selecionada</span>' : ''}
-            <div class="turma-card-header">
+          <div class="turma-card ${ativa ? 'ativa' : ''}">
+            <div class="turma-card-top" onclick="window.selecionarTurma('${t.id}')">
               <div class="turma-nome">${t.nome}</div>
+              ${ativa ? '<span class="turma-selecionada-label">✓ selecionada</span>' : ''}
             </div>
             <div class="turma-badges">
               <span class="badge ${isOrq ? 'badge-orquestra' : 'badge-inicial'}">${isOrq ? '🎻 Orquestra' : '📚 Inicial'}</span>
               ${faseLabel ? `<span class="badge badge-fase">${faseLabel}</span>` : ''}
-              <span class="badge badge-alunos">👥 ${qtdAlunos} aluno${qtdAlunos !== 1 ? 's' : ''}</span>
+              <span class="badge badge-alunos">👥 ${qtd} aluno${qtd !== 1 ? 's' : ''}</span>
               ${t.instrumento ? `<span class="badge" style="background:rgba(255,255,255,0.06);color:#9ca3af;border:1px solid rgba(255,255,255,0.1);">🎵 ${t.instrumento}</span>` : ''}
+            </div>
+            <div class="turma-acoes">
+              <button class="btn-acao btn-copiar" id="btnCopiar-${t.id}" onclick="window.copiarLink('${t.id}', this)">📋 Copiar link</button>
+              <button class="btn-acao btn-qr" onclick="window.abrirQR('${t.id}', '${t.nome.replace(/'/g, "&apos;")}')">⬛ QR Code</button>
+              <button class="btn-acao btn-gerenciar" onclick="window.selecionarTurma('${t.id}')">👥 Gerenciar</button>
             </div>
           </div>
         `;
       }).join("");
     }
 
-    /* ============================================================
-       SELECIONAR TURMA
-       ============================================================ */
+    /* ── COPIAR LINK ── */
+    window.copiarLink = async function(turmaId, btn) {
+      const link = gerarLink(turmaId);
+      try {
+        await navigator.clipboard.writeText(link);
+        btn.textContent = "✓ Copiado!";
+        btn.classList.add("copiado");
+        setTimeout(() => { btn.textContent = "📋 Copiar link"; btn.classList.remove("copiado"); }, 2500);
+      } catch {
+        prompt("Copie o link abaixo:", link);
+      }
+    };
+
+    /* ── ABRIR QR ── */
+    window.abrirQR = function(turmaId, turmaNome) {
+      const link = gerarLink(turmaId);
+      linkQRAtual = link;
+
+      document.getElementById("qrTurmaTitle").textContent = turmaNome;
+      document.getElementById("qrLinkBox").textContent    = link;
+
+      // Limpar e gerar novo QR
+      const container = document.getElementById("qrContainer");
+      container.innerHTML = "";
+      new QRCode(container, {
+        text: link,
+        width: 200,
+        height: 200,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      document.getElementById("modalQR").classList.add("ativo");
+    };
+
+    window.fecharModalQR = function() {
+      document.getElementById("modalQR").classList.remove("ativo");
+    };
+
+    /* ── BAIXAR QR ── */
+    window.baixarQR = function() {
+      const img = document.querySelector("#qrContainer img");
+      if (!img) return;
+      const a = document.createElement("a");
+      a.href = img.src;
+      a.download = `qrcode-turma.png`;
+      a.click();
+    };
+
+    /* ── COPIAR LINK NO MODAL ── */
+    window.copiarLinkModal = async function() {
+      const btn = document.querySelector(".btn-copiar-modal");
+      try {
+        await navigator.clipboard.writeText(linkQRAtual);
+        btn.textContent = "✓ Copiado!";
+        setTimeout(() => { btn.textContent = "📋 Copiar link"; }, 2000);
+      } catch {
+        prompt("Copie o link:", linkQRAtual);
+      }
+    };
+
+    /* ── SELECIONAR TURMA ── */
     window.selecionarTurma = function(id) {
       turmaSelecionadaId    = id;
       turmaSelecionadaDados = todasTurmas.find(t => t.id === id);
       selecionados.clear();
       selecionadosRemover.clear();
       tabAtiva = "naTurma";
-
       renderizarListaTurmas();
       atualizarInfoBar();
       document.getElementById("tabsAlunos").style.display = "flex";
       mudarTab("naTurma");
+      // Scroll suave para a coluna de alunos no mobile
+      document.querySelector(".card:last-child")?.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
     function atualizarInfoBar() {
-      const t   = turmaSelecionadaDados;
+      const t = turmaSelecionadaDados;
       const bar = document.getElementById("turmaInfoBar");
       if (!t) { bar.classList.remove("visivel"); return; }
       bar.classList.add("visivel");
       document.getElementById("turmaInfoNome").textContent = t.nome;
-      const isOrq = t.tipo === "orquestra";
-      document.getElementById("turmaInfoSub").textContent =
-        isOrq ? "🎻 Orquestra" : `📚 Turma Inicial — Fase ${t.fase}`;
+      document.getElementById("turmaInfoSub").textContent  =
+        t.tipo === "orquestra" ? "🎻 Orquestra" : `📚 Turma Inicial — Fase ${t.fase}`;
     }
 
-    /* ============================================================
-       TABS
-       ============================================================ */
+    /* ── TABS ── */
     window.mudarTab = function(tab) {
       tabAtiva = tab;
       document.getElementById("tabNaTurma").classList.toggle("ativa", tab === "naTurma");
       document.getElementById("tabDisponiveis").classList.toggle("ativa", tab === "disponiveis");
-      document.getElementById("painelNaTurma").style.display   = tab === "naTurma"    ? "block" : "none";
+      document.getElementById("painelNaTurma").style.display    = tab === "naTurma"     ? "block" : "none";
       document.getElementById("painelDisponiveis").style.display = tab === "disponiveis" ? "block" : "none";
-
-      if (tab === "naTurma")    renderizarAlunosDaTurma();
+      if (tab === "naTurma")     renderizarAlunosDaTurma();
       if (tab === "disponiveis") renderizarAlunosDisponiveis();
     };
 
-    /* ============================================================
-       CARREGAR ALUNOS
-       ============================================================ */
+    /* ── CARREGAR ALUNOS ── */
     async function carregarAlunos() {
       const snap = await getDocs(collection(db, "alunos"));
       todosAlunos = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
     }
 
-    /* ============================================================
-       PAINEL: ALUNOS NA TURMA
-       ============================================================ */
+    /* ── ALUNOS NA TURMA ── */
     function renderizarAlunosDaTurma() {
       const t       = turmaSelecionadaDados;
       const empty   = document.getElementById("emptyTurma");
       const grid    = document.getElementById("gridNaTurma");
       const contador = document.getElementById("contadorNaTurma");
       const acoes   = document.getElementById("acoesNaTurma");
-
-      if (!t) {
-        empty.style.display  = "block";
-        grid.style.display   = "none";
-        acoes.style.display  = "none";
-        return;
-      }
-
-      const alunosNaTurma = todosAlunos.filter(a => (t.alunos || []).includes(a.id));
-      empty.style.display  = "none";
-      grid.style.display   = "grid";
-      acoes.style.display  = "flex";
-
-      if (alunosNaTurma.length === 0) {
+      if (!t) { empty.style.display="block"; grid.style.display="none"; acoes.style.display="none"; return; }
+      const lista = todosAlunos.filter(a => (t.alunos || []).includes(a.id));
+      empty.style.display = "none"; grid.style.display = "grid"; acoes.style.display = "flex";
+      if (lista.length === 0) {
         grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Nenhum aluno nesta turma ainda.</div>`;
-        contador.style.display = "none";
-        return;
+        contador.style.display = "none"; return;
       }
-
-      grid.innerHTML = alunosNaTurma.map(a => {
+      grid.innerHTML = lista.map(a => {
         const sel = selecionadosRemover.has(a.id);
-        const fotoHtml = a.foto
-          ? `<div class="aluno-foto-mini"><img src="${a.foto}" /></div>`
-          : `<div class="aluno-foto-mini">🎵</div>`;
-        return `
-          <div class="aluno-item ${sel ? 'selecionado' : ''}" onclick="window.toggleRemover('${a.id}')">
-            <div class="aluno-check">${sel ? '✓' : ''}</div>
-            ${fotoHtml}
-            <div class="aluno-info">
-              <div class="aluno-nome-mini">${a.nome}</div>
-              <div class="aluno-turma-atual">${a.instrumento || 'Sem instrumento'}</div>
-            </div>
-          </div>
-        `;
+        const foto = a.foto ? `<div class="aluno-foto-mini"><img src="${a.foto}" /></div>` : `<div class="aluno-foto-mini">🎵</div>`;
+        return `<div class="aluno-item ${sel?'selecionado':''}" onclick="window.toggleRemover('${a.id}')">
+          <div class="aluno-check">${sel?'✓':''}</div>${foto}
+          <div class="aluno-info"><div class="aluno-nome-mini">${a.nome}</div><div class="aluno-turma-atual">${a.instrumento||'Sem instrumento'}</div></div>
+        </div>`;
       }).join("");
-
       contador.style.display = "block";
       atualizarContadorRemover();
     }
 
     window.toggleRemover = function(id) {
-      if (selecionadosRemover.has(id)) selecionadosRemover.delete(id);
-      else selecionadosRemover.add(id);
+      if (selecionadosRemover.has(id)) selecionadosRemover.delete(id); else selecionadosRemover.add(id);
       renderizarAlunosDaTurma();
     };
-
     function atualizarContadorRemover() {
-      const contador = document.getElementById("contadorNaTurma");
       const n = selecionadosRemover.size;
-      contador.innerHTML = n > 0
-        ? `<span>${n}</span> aluno${n !== 1 ? 's' : ''} selecionado${n !== 1 ? 's' : ''} para remover`
+      document.getElementById("contadorNaTurma").innerHTML = n > 0
+        ? `<span>${n}</span> aluno${n!==1?'s':''} selecionado${n!==1?'s':''} para remover`
         : "Clique em um aluno para selecioná-lo";
     }
 
-    /* ============================================================
-       PAINEL: ALUNOS DISPONÍVEIS (SEM TURMA OU DE OUTRA TURMA)
-       ============================================================ */
-    function renderizarAlunosDisponiveis(filtro = "") {
+    /* ── ALUNOS DISPONÍVEIS ── */
+    function renderizarAlunosDisponiveis(filtro="") {
       const grid = document.getElementById("gridAlunos");
       const t    = turmaSelecionadaDados;
       if (!t) return;
-
-      const alunosDaTurma = t.alunos || [];
-      const disponiveis   = todosAlunos.filter(a =>
-        !alunosDaTurma.includes(a.id) &&
-        (filtro === "" || a.nome.toLowerCase().includes(filtro.toLowerCase()))
+      const naTurma    = t.alunos || [];
+      const disponiveis = todosAlunos.filter(a =>
+        !naTurma.includes(a.id) &&
+        (filtro==="" || a.nome.toLowerCase().includes(filtro.toLowerCase()))
       );
-
       if (disponiveis.length === 0) {
         grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Nenhum aluno disponível.</div>`;
-        atualizarContadorSelecionados();
-        return;
+        atualizarContadorSelecionados(); return;
       }
-
       grid.innerHTML = disponiveis.map(a => {
         const sel = selecionados.has(a.id);
-        const outraTurma = todasTurmas.find(t2 => t2.id !== turmaSelecionadaId && (t2.alunos || []).includes(a.id));
-        const fotoHtml = a.foto
-          ? `<div class="aluno-foto-mini"><img src="${a.foto}" /></div>`
-          : `<div class="aluno-foto-mini">🎵</div>`;
-        return `
-          <div class="aluno-item ${sel ? 'selecionado' : ''}" onclick="window.toggleSelecionado('${a.id}')">
-            <div class="aluno-check">${sel ? '✓' : ''}</div>
-            ${fotoHtml}
-            <div class="aluno-info">
-              <div class="aluno-nome-mini">${a.nome}</div>
-              <div class="aluno-turma-atual">${outraTurma ? '📌 ' + outraTurma.nome : (a.instrumento || 'Sem turma')}</div>
-            </div>
-          </div>
-        `;
+        const outra = todasTurmas.find(t2 => t2.id !== turmaSelecionadaId && (t2.alunos||[]).includes(a.id));
+        const foto  = a.foto ? `<div class="aluno-foto-mini"><img src="${a.foto}" /></div>` : `<div class="aluno-foto-mini">🎵</div>`;
+        return `<div class="aluno-item ${sel?'selecionado':''}" onclick="window.toggleSelecionado('${a.id}')">
+          <div class="aluno-check">${sel?'✓':''}</div>${foto}
+          <div class="aluno-info"><div class="aluno-nome-mini">${a.nome}</div><div class="aluno-turma-atual">${outra?'📌 '+outra.nome:(a.instrumento||'Sem turma')}</div></div>
+        </div>`;
       }).join("");
-
       atualizarContadorSelecionados();
     }
 
     window.toggleSelecionado = function(id) {
-      if (selecionados.has(id)) selecionados.delete(id);
-      else selecionados.add(id);
+      if (selecionados.has(id)) selecionados.delete(id); else selecionados.add(id);
       renderizarAlunosDisponiveis(document.getElementById("buscaAluno").value);
     };
-
     window.filtrarAlunos = function() {
       renderizarAlunosDisponiveis(document.getElementById("buscaAluno").value);
     };
-
     window.selecionarTodos = function() {
-      const t = turmaSelecionadaDados;
-      if (!t) return;
-      const alunosDaTurma = t.alunos || [];
-      const disponiveis   = todosAlunos.filter(a => !alunosDaTurma.includes(a.id));
-      if (selecionados.size === disponiveis.length) selecionados.clear();
-      else disponiveis.forEach(a => selecionados.add(a.id));
+      const naTurma = turmaSelecionadaDados?.alunos || [];
+      const disp    = todosAlunos.filter(a => !naTurma.includes(a.id));
+      if (selecionados.size === disp.length) selecionados.clear();
+      else disp.forEach(a => selecionados.add(a.id));
       renderizarAlunosDisponiveis(document.getElementById("buscaAluno").value);
     };
-
     function atualizarContadorSelecionados() {
-      const n   = selecionados.size;
-      const btn = document.getElementById("btnAdicionarATurma");
+      const n = selecionados.size;
       document.getElementById("contadorSelecionados").innerHTML = n > 0
-        ? `<span>${n}</span> aluno${n !== 1 ? 's' : ''} selecionado${n !== 1 ? 's' : ''}`
+        ? `<span>${n}</span> aluno${n!==1?'s':''} selecionado${n!==1?'s':''}`
         : "Clique nos alunos para selecioná-los";
-      btn.disabled = n === 0;
+      document.getElementById("btnAdicionarATurma").disabled = n === 0;
     }
 
-    /* ============================================================
-       CRIAR TURMA
-       ============================================================ */
+    /* ── CRIAR TURMA ── */
     async function criarTurma() {
-      const nome        = document.getElementById("turmaNome").value.trim();
-      const tipo        = document.getElementById("turmaTipo").value;
-      const fase        = parseInt(document.getElementById("turmaFase").value);
-      const instrumento = document.getElementById("turmaInstrumento").value.trim();
-      const msg         = document.getElementById("msgCriar");
-      const btn         = document.getElementById("btnCriarTurma");
-
+      const nome = document.getElementById("turmaNome").value.trim();
+      const tipo = document.getElementById("turmaTipo").value;
+      const fase = parseInt(document.getElementById("turmaFase").value);
+      const inst = document.getElementById("turmaInstrumento").value.trim();
+      const msg  = document.getElementById("msgCriar");
+      const btn  = document.getElementById("btnCriarTurma");
       msg.className = "msg";
-      if (!nome)  { msg.textContent = "Informe o nome da turma.";  msg.className = "msg err"; return; }
-      if (!tipo)  { msg.textContent = "Selecione o tipo da turma."; msg.className = "msg err"; return; }
-
-      btn.disabled = true;
-      btn.textContent = "Criando...";
-
+      if (!nome) { msg.textContent="Informe o nome da turma."; msg.className="msg err"; return; }
+      if (!tipo) { msg.textContent="Selecione o tipo da turma."; msg.className="msg err"; return; }
+      btn.disabled=true; btn.textContent="Criando...";
       try {
-        const dados = {
-          nome,
-          tipo,
-          fase: tipo === "inicial" ? fase : 3,
-          instrumento: instrumento || "",
-          alunos: [],
-          professorId: "",
-          ativa: true,
-          criadaEm: new Date().toISOString()
-        };
-        const ref = await addDoc(collection(db, "turmas"), dados);
-        todasTurmas.push({ id: ref.id, ...dados });
+        const dados = { nome, tipo, fase: tipo==="inicial"?fase:3, instrumento:inst||"" , alunos:[], professorId:"", ativa:true, criadaEm:new Date().toISOString() };
+        const ref   = await addDoc(collection(db,"turmas"), dados);
+        todasTurmas.push({ id:ref.id, ...dados });
         renderizarListaTurmas();
-
-        // Limpar form
-        document.getElementById("turmaNome").value = "";
-        document.getElementById("turmaTipo").value = "";
-        document.getElementById("turmaInstrumento").value = "";
-        document.getElementById("grupoFase").style.display = "none";
-
-        msg.textContent = `✅ Turma "${nome}" criada com sucesso!`;
-        msg.className = "msg ok";
-        setTimeout(() => { msg.className = "msg"; }, 3000);
-      } catch(e) {
-        msg.textContent = "❌ Erro ao criar turma. Tente novamente.";
-        msg.className = "msg err";
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Criar Turma";
-      }
+        document.getElementById("turmaNome").value="";
+        document.getElementById("turmaTipo").value="";
+        document.getElementById("turmaInstrumento").value="";
+        document.getElementById("grupoFase").style.display="none";
+        msg.textContent=`✅ Turma "${nome}" criada!`; msg.className="msg ok";
+        setTimeout(()=>{msg.className="msg";},3000);
+      } catch { msg.textContent="❌ Erro ao criar turma."; msg.className="msg err"; }
+      finally { btn.disabled=false; btn.textContent="Criar Turma"; }
     }
 
-    /* ============================================================
-       ADICIONAR ALUNOS À TURMA
-       ============================================================ */
+    /* ── ADICIONAR ALUNOS ── */
     async function adicionarAlunosATurma() {
-      if (!turmaSelecionadaId || selecionados.size === 0) return;
-      const btn = document.getElementById("btnAdicionarATurma");
-      const msg = document.getElementById("msgAlunos");
-      btn.disabled = true;
-      btn.textContent = "Salvando...";
-      msg.className = "msg";
-
+      if (!turmaSelecionadaId || selecionados.size===0) return;
+      const btn=document.getElementById("btnAdicionarATurma");
+      const msg=document.getElementById("msgAlunos");
+      btn.disabled=true; btn.textContent="Salvando..."; msg.className="msg";
       try {
-        const t        = turmaSelecionadaDados;
-        const isOrq    = t.tipo === "orquestra";
-        const fase     = isOrq ? 3 : (t.fase || 1);
-        const ids      = [...selecionados];
-        const novosAlunos = [...(t.alunos || []), ...ids.filter(id => !(t.alunos || []).includes(id))];
-
-        // Atualizar turma
-        await updateDoc(doc(db, "turmas", turmaSelecionadaId), { alunos: novosAlunos });
-
-        // Atualizar cada aluno
-        for (const id of ids) {
-          await updateDoc(doc(db, "alunos", id), {
-            turmaId: turmaSelecionadaId,
-            turmaNome: t.nome,
-            fase
-          });
-        }
-
-        // Atualizar estado local
-        turmaSelecionadaDados.alunos = novosAlunos;
-        const idx = todasTurmas.findIndex(x => x.id === turmaSelecionadaId);
-        if (idx >= 0) todasTurmas[idx].alunos = novosAlunos;
-        todosAlunos.forEach(a => {
-          if (ids.includes(a.id)) { a.turmaId = turmaSelecionadaId; a.turmaNome = t.nome; a.fase = fase; }
-        });
-
+        const t    = turmaSelecionadaDados;
+        const fase = t.tipo==="orquestra" ? 3 : (t.fase||1);
+        const ids  = [...selecionados];
+        const novos= [...(t.alunos||[]), ...ids.filter(id=>!(t.alunos||[]).includes(id))];
+        await updateDoc(doc(db,"turmas",turmaSelecionadaId),{alunos:novos});
+        for (const id of ids) await updateDoc(doc(db,"alunos",id),{turmaId:turmaSelecionadaId,turmaNome:t.nome,fase});
+        turmaSelecionadaDados.alunos=novos;
+        const idx=todasTurmas.findIndex(x=>x.id===turmaSelecionadaId);
+        if(idx>=0) todasTurmas[idx].alunos=novos;
+        todosAlunos.forEach(a=>{if(ids.includes(a.id)){a.turmaId=turmaSelecionadaId;a.turmaNome=t.nome;a.fase=fase;}});
         selecionados.clear();
         renderizarListaTurmas();
         renderizarAlunosDisponiveis();
-
-        msg.textContent = `✅ ${ids.length} aluno${ids.length !== 1 ? 's' : ''} adicionado${ids.length !== 1 ? 's' : ''} à turma!`;
-        msg.className = "msg ok";
-        setTimeout(() => { msg.className = "msg"; }, 3000);
-      } catch(e) {
-        msg.textContent = "❌ Erro ao salvar. Tente novamente.";
-        msg.className = "msg err";
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Adicionar à turma ✓";
-      }
+        msg.textContent=`✅ ${ids.length} aluno${ids.length!==1?'s':''} adicionado${ids.length!==1?'s':''}!`; msg.className="msg ok";
+        setTimeout(()=>{msg.className="msg";},3000);
+      } catch { msg.textContent="❌ Erro ao salvar."; msg.className="msg err"; }
+      finally { btn.disabled=false; btn.textContent="Adicionar à turma ✓"; }
     }
 
-    /* ============================================================
-       REMOVER ALUNOS DA TURMA
-       ============================================================ */
+    /* ── REMOVER ALUNOS ── */
     async function removerAlunosDaTurma() {
-      if (!turmaSelecionadaId || selecionadosRemover.size === 0) return;
-      const ids = [...selecionadosRemover];
-      if (!confirm(`Remover ${ids.length} aluno${ids.length !== 1 ? 's' : ''} desta turma?`)) return;
-
+      if (!turmaSelecionadaId || selecionadosRemover.size===0) return;
+      const ids=[...selecionadosRemover];
+      if (!confirm(`Remover ${ids.length} aluno${ids.length!==1?'s':''} desta turma?`)) return;
       try {
-        const t           = turmaSelecionadaDados;
-        const novosAlunos = (t.alunos || []).filter(id => !ids.includes(id));
-
-        await updateDoc(doc(db, "turmas", turmaSelecionadaId), { alunos: novosAlunos });
-
-        for (const id of ids) {
-          await updateDoc(doc(db, "alunos", id), { turmaId: "", turmaNome: "" });
-        }
-
-        turmaSelecionadaDados.alunos = novosAlunos;
-        const idx = todasTurmas.findIndex(x => x.id === turmaSelecionadaId);
-        if (idx >= 0) todasTurmas[idx].alunos = novosAlunos;
-        todosAlunos.forEach(a => { if (ids.includes(a.id)) { a.turmaId = ""; a.turmaNome = ""; } });
-
+        const t    = turmaSelecionadaDados;
+        const novos= (t.alunos||[]).filter(id=>!ids.includes(id));
+        await updateDoc(doc(db,"turmas",turmaSelecionadaId),{alunos:novos});
+        for (const id of ids) await updateDoc(doc(db,"alunos",id),{turmaId:"",turmaNome:""});
+        turmaSelecionadaDados.alunos=novos;
+        const idx=todasTurmas.findIndex(x=>x.id===turmaSelecionadaId);
+        if(idx>=0) todasTurmas[idx].alunos=novos;
+        todosAlunos.forEach(a=>{if(ids.includes(a.id)){a.turmaId="";a.turmaNome="";}});
         selecionadosRemover.clear();
         renderizarListaTurmas();
         renderizarAlunosDaTurma();
-      } catch(e) {
-        alert("Erro ao remover alunos. Tente novamente.");
-      }
+      } catch { alert("Erro ao remover alunos."); }
     }
 
   </script>
