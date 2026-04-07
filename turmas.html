@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciar Turmas</title>
+  <link rel="stylesheet" href="professor.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #12121f;
+      color: #f5f5f5;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 {
+      font-size: 1.5rem;
+      color: #00ffcc;
+      text-shadow: 0 0 10px rgba(0,255,204,0.5);
+    }
+    .btn-voltar {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(0,255,204,0.3);
+      color: #00ffcc;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-voltar:hover { background: rgba(0,255,204,0.12); }
+
+    /* ── LAYOUT DUAS COLUNAS ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── CARD / PAINEL ── */
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,255,204,0.2);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 0 20px rgba(0,255,204,0.07);
+    }
+    .card h2 {
+      color: #00ffcc;
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0,255,204,0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── FORM CRIAR TURMA ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      font-size: 0.82rem;
+      color: #00ffcc;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .form-group input,
+    .form-group select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(0,255,204,0.25);
+      border-radius: 8px;
+      color: #f5f5f5;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-family: 'Nunito', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #00ffcc;
+      box-shadow: 0 0 8px rgba(0,255,204,0.2);
+    }
+    .form-group select option { background: #1b1b2f; }
+
+    /* fase oculta por padrão, aparece só para turma inicial */
+    #grupoFase { display: none; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #00ffcc, #00bfff);
+      border: none;
+      border-radius: 10px;
+      color: #12121f;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-top: 4px;
+    }
+    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── LISTA DE TURMAS ── */
+    .turma-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0,255,204,0.15);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .turma-card:hover {
+      border-color: rgba(0,255,204,0.45);
+      background: rgba(0,255,204,0.06);
+    }
+    .turma-card.ativa {
+      border-color: #00ffcc;
+      background: rgba(0,255,204,0.1);
+      box-shadow: 0 0 14px rgba(0,255,204,0.2);
+    }
+    .turma-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .turma-nome {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f5f5f5;
+    }
+    .turma-card.ativa .turma-nome { color: #00ffcc; }
+    .turma-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .badge-orquestra { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    .badge-inicial   { background: rgba(14,165,233,0.2); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
+    .badge-fase      { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
+    .badge-alunos    { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .badge-ativa-tag { background: rgba(0,255,204,0.15); color: #00ffcc; border: 1px solid rgba(0,255,204,0.4); }
+
+    .turma-selecionada-label {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 0.72rem;
+      color: #00ffcc;
+      font-weight: 700;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #4b5563;
+      font-size: 0.9rem;
+      padding: 30px 0;
+    }
+
+    /* ── PAINEL ALUNOS DA TURMA ── */
+    .painel-alunos {
+      grid-column: 1 / -1;
+    }
+
+    .alunos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .busca-aluno {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(0,255,204,0.2);
+      border-radius: 8px;
+      color: #f5f5f5;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      font-family: 'Nunito', sans-serif;
+      outline: none;
+      width: 220px;
+      transition: border-color 0.2s;
+    }
+    .busca-aluno:focus { border-color: #00ffcc; }
+    .busca-aluno::placeholder { color: #4b5563; }
+
+    .alunos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .alunos-grid::-webkit-scrollbar { width: 5px; }
+    .alunos-grid::-webkit-scrollbar-thumb { background: rgba(0,255,204,0.3); border-radius: 4px; }
+
+    .aluno-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .aluno-item:hover {
+      border-color: rgba(0,255,204,0.3);
+      background: rgba(0,255,204,0.05);
+    }
+    .aluno-item.selecionado {
+      border-color: #00ffcc;
+      background: rgba(0,255,204,0.12);
+    }
+    .aluno-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid rgba(0,255,204,0.35);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: #00ffcc;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .aluno-item.selecionado .aluno-check {
+      background: #00ffcc;
+      border-color: #00ffcc;
+      color: #12121f;
+    }
+    .aluno-foto-mini {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: rgba(0,255,204,0.15);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: #00ffcc;
+      overflow: hidden;
+    }
+    .aluno-foto-mini img { width: 100%; height: 100%; object-fit: cover; }
+    .aluno-info { flex: 1; min-width: 0; }
+    .aluno-nome-mini {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #e5e7eb;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .aluno-turma-atual {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    .aluno-item.selecionado .aluno-turma-atual { color: #00ffcc99; }
+
+    .acoes-alunos {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-salvar-alunos {
+      flex: 1;
+      padding: 11px;
+      background: linear-gradient(135deg, #00ffcc, #00bfff);
+      border: none;
+      border-radius: 10px;
+      color: #12121f;
+      font-weight: 800;
+      font-size: 0.95rem;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-salvar-alunos:hover { filter: brightness(1.1); }
+    .btn-salvar-alunos:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-selecionar-todos {
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #9ca3af;
+      border-radius: 9px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-selecionar-todos:hover { color: #f5f5f5; border-color: rgba(255,255,255,0.25); }
+
+    /* ── CONTADORES ── */
+    .contador-selecionados {
+      font-size: 0.82rem;
+      color: #6b7280;
+      margin-top: 10px;
+    }
+    .contador-selecionados span { color: #00ffcc; font-weight: 700; }
+
+    /* ── MENSAGENS ── */
+    .msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 12px;
+      display: none;
+    }
+    .msg.ok  { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); display: block; }
+    .msg.err { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); display: block; }
+
+    /* ── TURMA SELECIONADA INFO ── */
+    .turma-info-bar {
+      background: rgba(0,255,204,0.07);
+      border: 1px solid rgba(0,255,204,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .turma-info-bar.visivel { display: flex; }
+    .turma-info-bar .ti-nome {
+      font-weight: 800;
+      color: #00ffcc;
+      font-size: 1rem;
+    }
+    .turma-info-bar .ti-sub {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: #6b7280;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.ativa {
+      background: rgba(0,255,204,0.12);
+      border-color: rgba(0,255,204,0.4);
+      color: #00ffcc;
+    }
+    .tab:hover:not(.ativa) { color: #d1d5db; border-color: rgba(255,255,255,0.2); }
+
+    /* ── DELETAR TURMA ── */
+    .btn-deletar-turma {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      color: #f87171;
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-deletar-turma:hover { background: rgba(239,68,68,0.2); }
+
+    /* ── LOADER ── */
+    .loader-inline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #00ffcc;
+      font-size: 0.85rem;
+      padding: 20px 0;
+      justify-content: center;
+    }
+    .spinner-sm {
+      width: 20px; height: 20px;
+      border: 3px solid rgba(0,255,204,0.2);
+      border-top-color: #00ffcc;
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+    }
+    @keyframes girar { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div style="max-width:1100px;margin:0 auto;">
+
+    <!-- HEADER -->
+    <div class="header">
+      <h1>🎼 Gerenciar Turmas</h1>
+      <a href="professor.html" class="btn-voltar">← Voltar ao Painel</a>
+    </div>
+
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="layout">
+
+      <!-- COLUNA ESQUERDA: Criar + Listar -->
+      <div style="display:flex;flex-direction:column;gap:24px;">
+
+        <!-- CRIAR TURMA -->
+        <div class="card">
+          <h2>➕ Nova Turma</h2>
+
+          <div class="form-group">
+            <label>Nome da turma</label>
+            <input type="text" id="turmaNome" placeholder="Ex: Orquestra, Fase 1 - Manhã..." />
+          </div>
+
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="turmaTipo">
+              <option value="">Selecione o tipo...</option>
+              <option value="orquestra">🎻 Orquestra</option>
+              <option value="inicial">📚 Turma Inicial</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="grupoFase">
+            <label>Fase da turma inicial</label>
+            <select id="turmaFase">
+              <option value="1">Fase 1 — Teoria e Iniciação</option>
+              <option value="2">Fase 2 — Método BONA (Leitura)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Instrumento principal <span style="color:#4b5563;font-weight:400;">(opcional)</span></label>
+            <input type="text" id="turmaInstrumento" placeholder="Ex: Violino, Flauta, Misto..." />
+          </div>
+
+          <button class="btn-primary" id="btnCriarTurma">Criar Turma</button>
+          <div class="msg" id="msgCriar"></div>
+        </div>
+
+        <!-- LISTA DE TURMAS -->
+        <div class="card">
+          <h2>📋 Turmas Cadastradas</h2>
+          <div id="listaTurmas">
+            <div class="loader-inline"><div class="spinner-sm"></div> Carregando turmas...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLUNA DIREITA: Gerenciar alunos da turma -->
+      <div class="card">
+        <h2>👥 Alunos da Turma</h2>
+
+        <div class="turma-info-bar" id="turmaInfoBar">
+          <div>
+            <div class="ti-nome" id="turmaInfoNome">—</div>
+            <div class="ti-sub" id="turmaInfoSub"></div>
+          </div>
+        </div>
+
+        <!-- Tabs: Na turma / Disponíveis -->
+        <div class="tabs" id="tabsAlunos" style="display:none;">
+          <button class="tab ativa" id="tabNaTurma" onclick="mudarTab('naTurma')">Na turma</button>
+          <button class="tab" id="tabDisponiveis" onclick="mudarTab('disponiveis')">Adicionar alunos</button>
+        </div>
+
+        <div id="painelNaTurma">
+          <div class="empty-state" id="emptyTurma">← Selecione uma turma para ver os alunos</div>
+          <div class="alunos-grid" id="gridNaTurma" style="display:none;"></div>
+          <div class="contador-selecionados" id="contadorNaTurma" style="display:none;"></div>
+          <div class="acoes-alunos" id="acoesNaTurma" style="display:none;">
+            <button class="btn-deletar-turma" id="btnRemoverDaTurma">Remover selecionados</button>
+          </div>
+        </div>
+
+        <div id="painelDisponiveis" style="display:none;">
+          <div style="margin-bottom:12px;">
+            <input type="text" class="busca-aluno" id="buscaAluno" placeholder="🔍 Buscar aluno..." oninput="filtrarAlunos()" />
+          </div>
+          <div class="alunos-grid" id="gridAlunos"></div>
+          <div class="contador-selecionados" id="contadorSelecionados"></div>
+          <div class="acoes-alunos">
+            <button class="btn-selecionar-todos" onclick="selecionarTodos()">Selecionar todos</button>
+            <button class="btn-salvar-alunos" id="btnAdicionarATurma" disabled>Adicionar à turma ✓</button>
+          </div>
+          <div class="msg" id="msgAlunos"></div>
+        </div>
+
+      </div>
+
+    </div><!-- /layout -->
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import {
+      collection, addDoc, getDocs, getDoc, doc,
+      updateDoc, deleteDoc, query, where, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    /* ============================================================
+       ESTADO GLOBAL
+       ============================================================ */
+    let turmaSelecionadaId   = null;
+    let turmaSelecionadaDados = null;
+    let todosAlunos          = [];   // todos os alunos do Firestore
+    let todasTurmas          = [];   // todas as turmas do Firestore
+    let selecionados         = new Set(); // ids selecionados no painel "Adicionar"
+    let selecionadosRemover  = new Set(); // ids selecionados no painel "Na turma"
+    let tabAtiva             = "naTurma";
+
+    /* ============================================================
+       INICIALIZAÇÃO
+       ============================================================ */
+    document.addEventListener("DOMContentLoaded", async () => {
+      await Promise.all([carregarTurmas(), carregarAlunos()]);
+      document.getElementById("btnCriarTurma").addEventListener("click", criarTurma);
+      document.getElementById("btnAdicionarATurma").addEventListener("click", adicionarAlunosATurma);
+      document.getElementById("btnRemoverDaTurma").addEventListener("click", removerAlunosDaTurma);
+
+      // Mostrar/ocultar campo Fase ao mudar tipo
+      document.getElementById("turmaTipo").addEventListener("change", e => {
+        document.getElementById("grupoFase").style.display =
+          e.target.value === "inicial" ? "flex" : "none";
+      });
+    });
+
+    /* ============================================================
+       CARREGAR TURMAS
+       ============================================================ */
+    async function carregarTurmas() {
+      const lista = document.getElementById("listaTurmas");
+      try {
+        const snap = await getDocs(collection(db, "turmas"));
+        todasTurmas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderizarListaTurmas();
+      } catch (e) {
+        lista.innerHTML = `<p style="color:#f87171;font-size:0.85rem;">Erro ao carregar turmas.</p>`;
+      }
+    }
+
+    function renderizarListaTurmas() {
+      const lista = document.getElementById("listaTurmas");
+      if (todasTurmas.length === 0) {
+        lista.innerHTML = `<div class="empty-state">Nenhuma turma cadastrada ainda.</div>`;
+        return;
+      }
+
+      lista.innerHTML = todasTurmas.map(t => {
+        const isOrq   = t.tipo === "orquestra";
+        const ativa   = t.id === turmaSelecionadaId;
+        const qtdAlunos = (t.alunos || []).length;
+        const faseLabel = isOrq ? "" : `Fase ${t.fase}`;
+
+        return `
+          <div class="turma-card ${ativa ? 'ativa' : ''}" onclick="window.selecionarTurma('${t.id}')">
+            ${ativa ? '<span class="turma-selecionada-label">✓ selecionada</span>' : ''}
+            <div class="turma-card-header">
+              <div class="turma-nome">${t.nome}</div>
+            </div>
+            <div class="turma-badges">
+              <span class="badge ${isOrq ? 'badge-orquestra' : 'badge-inicial'}">${isOrq ? '🎻 Orquestra' : '📚 Inicial'}</span>
+              ${faseLabel ? `<span class="badge badge-fase">${faseLabel}</span>` : ''}
+              <span class="badge badge-alunos">👥 ${qtdAlunos} aluno${qtdAlunos !== 1 ? 's' : ''}</span>
+              ${t.instrumento ? `<span class="badge" style="background:rgba(255,255,255,0.06);color:#9ca3af;border:1px solid rgba(255,255,255,0.1);">🎵 ${t.instrumento}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* ============================================================
+       SELECIONAR TURMA
+       ============================================================ */
+    window.selecionarTurma = function(id) {
+      turmaSelecionadaId    = id;
+      turmaSelecionadaDados = todasTurmas.find(t => t.id === id);
+      selecionados.clear();
+      selecionadosRemover.clear();
+      tabAtiva = "naTurma";
+
+      renderizarListaTurmas();
+      atualizarInfoBar();
+      document.getElementById("tabsAlunos").style.display = "flex";
+      mudarTab("naTurma");
+    };
+
+    function atualizarInfoBar() {
+      const t   = turmaSelecionadaDados;
+      const bar = document.getElementById("turmaInfoBar");
+      if (!t) { bar.classList.remove("visivel"); return; }
+      bar.classList.add("visivel");
+      document.getElementById("turmaInfoNome").textContent = t.nome;
+      const isOrq = t.tipo === "orquestra";
+      document.getElementById("turmaInfoSub").textContent =
+        isOrq ? "🎻 Orquestra" : `📚 Turma Inicial — Fase ${t.fase}`;
+    }
+
+    /* ============================================================
+       TABS
+       ============================================================ */
+    window.mudarTab = function(tab) {
+      tabAtiva = tab;
+      document.getElementById("tabNaTurma").classList.toggle("ativa", tab === "naTurma");
+      document.getElementById("tabDisponiveis").classList.toggle("ativa", tab === "disponiveis");
+      document.getElementById("painelNaTurma").style.display   = tab === "naTurma"    ? "block" : "none";
+      document.getElementById("painelDisponiveis").style.display = tab === "disponiveis" ? "block" : "none";
+
+      if (tab === "naTurma")    renderizarAlunosDaTurma();
+      if (tab === "disponiveis") renderizarAlunosDisponiveis();
+    };
+
+    /* ============================================================
+       CARREGAR ALUNOS
+       ============================================================ */
+    async function carregarAlunos() {
+      const snap = await getDocs(collection(db, "alunos"));
+      todosAlunos = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+
+    /* ============================================================
+       PAINEL: ALUNOS NA TURMA
+       ============================================================ */
+    function renderizarAlunosDaTurma() {
+      const t       = turmaSelecionadaDados;
+      const empty   = document.getElementById("emptyTurma");
+      const grid    = document.getElementById("gridNaTurma");
+      const contador = document.getElementById("contadorNaTurma");
+      const acoes   = document.getElementById("acoesNaTurma");
+
+      if (!t) {
+        empty.style.display  = "block";
+        grid.style.display   = "none";
+        acoes.style.display  = "none";
+        return;
+      }
+
+      const alunosNaTurma = todosAlunos.filter(a => (t.alunos || []).includes(a.id));
+      empty.style.display  = "none";
+      grid.style.display   = "grid";
+      acoes.style.display  = "flex";
+
+      if (alunosNaTurma.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Nenhum aluno nesta turma ainda.</div>`;
+        contador.style.display = "none";
+        return;
+      }
+
+      grid.innerHTML = alunosNaTurma.map(a => {
+        const sel = selecionadosRemover.has(a.id);
+        const fotoHtml = a.foto
+          ? `<div class="aluno-foto-mini"><img src="${a.foto}" /></div>`
+          : `<div class="aluno-foto-mini">🎵</div>`;
+        return `
+          <div class="aluno-item ${sel ? 'selecionado' : ''}" onclick="window.toggleRemover('${a.id}')">
+            <div class="aluno-check">${sel ? '✓' : ''}</div>
+            ${fotoHtml}
+            <div class="aluno-info">
+              <div class="aluno-nome-mini">${a.nome}</div>
+              <div class="aluno-turma-atual">${a.instrumento || 'Sem instrumento'}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      contador.style.display = "block";
+      atualizarContadorRemover();
+    }
+
+    window.toggleRemover = function(id) {
+      if (selecionadosRemover.has(id)) selecionadosRemover.delete(id);
+      else selecionadosRemover.add(id);
+      renderizarAlunosDaTurma();
+    };
+
+    function atualizarContadorRemover() {
+      const contador = document.getElementById("contadorNaTurma");
+      const n = selecionadosRemover.size;
+      contador.innerHTML = n > 0
+        ? `<span>${n}</span> aluno${n !== 1 ? 's' : ''} selecionado${n !== 1 ? 's' : ''} para remover`
+        : "Clique em um aluno para selecioná-lo";
+    }
+
+    /* ============================================================
+       PAINEL: ALUNOS DISPONÍVEIS (SEM TURMA OU DE OUTRA TURMA)
+       ============================================================ */
+    function renderizarAlunosDisponiveis(filtro = "") {
+      const grid = document.getElementById("gridAlunos");
+      const t    = turmaSelecionadaDados;
+      if (!t) return;
+
+      const alunosDaTurma = t.alunos || [];
+      const disponiveis   = todosAlunos.filter(a =>
+        !alunosDaTurma.includes(a.id) &&
+        (filtro === "" || a.nome.toLowerCase().includes(filtro.toLowerCase()))
+      );
+
+      if (disponiveis.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Nenhum aluno disponível.</div>`;
+        atualizarContadorSelecionados();
+        return;
+      }
+
+      grid.innerHTML = disponiveis.map(a => {
+        const sel = selecionados.has(a.id);
+        const outraTurma = todasTurmas.find(t2 => t2.id !== turmaSelecionadaId && (t2.alunos || []).includes(a.id));
+        const fotoHtml = a.foto
+          ? `<div class="aluno-foto-mini"><img src="${a.foto}" /></div>`
+          : `<div class="aluno-foto-mini">🎵</div>`;
+        return `
+          <div class="aluno-item ${sel ? 'selecionado' : ''}" onclick="window.toggleSelecionado('${a.id}')">
+            <div class="aluno-check">${sel ? '✓' : ''}</div>
+            ${fotoHtml}
+            <div class="aluno-info">
+              <div class="aluno-nome-mini">${a.nome}</div>
+              <div class="aluno-turma-atual">${outraTurma ? '📌 ' + outraTurma.nome : (a.instrumento || 'Sem turma')}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      atualizarContadorSelecionados();
+    }
+
+    window.toggleSelecionado = function(id) {
+      if (selecionados.has(id)) selecionados.delete(id);
+      else selecionados.add(id);
+      renderizarAlunosDisponiveis(document.getElementById("buscaAluno").value);
+    };
+
+    window.filtrarAlunos = function() {
+      renderizarAlunosDisponiveis(document.getElementById("buscaAluno").value);
+    };
+
+    window.selecionarTodos = function() {
+      const t = turmaSelecionadaDados;
+      if (!t) return;
+      const alunosDaTurma = t.alunos || [];
+      const disponiveis   = todosAlunos.filter(a => !alunosDaTurma.includes(a.id));
+      if (selecionados.size === disponiveis.length) selecionados.clear();
+      else disponiveis.forEach(a => selecionados.add(a.id));
+      renderizarAlunosDisponiveis(document.getElementById("buscaAluno").value);
+    };
+
+    function atualizarContadorSelecionados() {
+      const n   = selecionados.size;
+      const btn = document.getElementById("btnAdicionarATurma");
+      document.getElementById("contadorSelecionados").innerHTML = n > 0
+        ? `<span>${n}</span> aluno${n !== 1 ? 's' : ''} selecionado${n !== 1 ? 's' : ''}`
+        : "Clique nos alunos para selecioná-los";
+      btn.disabled = n === 0;
+    }
+
+    /* ============================================================
+       CRIAR TURMA
+       ============================================================ */
+    async function criarTurma() {
+      const nome        = document.getElementById("turmaNome").value.trim();
+      const tipo        = document.getElementById("turmaTipo").value;
+      const fase        = parseInt(document.getElementById("turmaFase").value);
+      const instrumento = document.getElementById("turmaInstrumento").value.trim();
+      const msg         = document.getElementById("msgCriar");
+      const btn         = document.getElementById("btnCriarTurma");
+
+      msg.className = "msg";
+      if (!nome)  { msg.textContent = "Informe o nome da turma.";  msg.className = "msg err"; return; }
+      if (!tipo)  { msg.textContent = "Selecione o tipo da turma."; msg.className = "msg err"; return; }
+
+      btn.disabled = true;
+      btn.textContent = "Criando...";
+
+      try {
+        const dados = {
+          nome,
+          tipo,
+          fase: tipo === "inicial" ? fase : 3,
+          instrumento: instrumento || "",
+          alunos: [],
+          professorId: "",
+          ativa: true,
+          criadaEm: new Date().toISOString()
+        };
+        const ref = await addDoc(collection(db, "turmas"), dados);
+        todasTurmas.push({ id: ref.id, ...dados });
+        renderizarListaTurmas();
+
+        // Limpar form
+        document.getElementById("turmaNome").value = "";
+        document.getElementById("turmaTipo").value = "";
+        document.getElementById("turmaInstrumento").value = "";
+        document.getElementById("grupoFase").style.display = "none";
+
+        msg.textContent = `✅ Turma "${nome}" criada com sucesso!`;
+        msg.className = "msg ok";
+        setTimeout(() => { msg.className = "msg"; }, 3000);
+      } catch(e) {
+        msg.textContent = "❌ Erro ao criar turma. Tente novamente.";
+        msg.className = "msg err";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Criar Turma";
+      }
+    }
+
+    /* ============================================================
+       ADICIONAR ALUNOS À TURMA
+       ============================================================ */
+    async function adicionarAlunosATurma() {
+      if (!turmaSelecionadaId || selecionados.size === 0) return;
+      const btn = document.getElementById("btnAdicionarATurma");
+      const msg = document.getElementById("msgAlunos");
+      btn.disabled = true;
+      btn.textContent = "Salvando...";
+      msg.className = "msg";
+
+      try {
+        const t        = turmaSelecionadaDados;
+        const isOrq    = t.tipo === "orquestra";
+        const fase     = isOrq ? 3 : (t.fase || 1);
+        const ids      = [...selecionados];
+        const novosAlunos = [...(t.alunos || []), ...ids.filter(id => !(t.alunos || []).includes(id))];
+
+        // Atualizar turma
+        await updateDoc(doc(db, "turmas", turmaSelecionadaId), { alunos: novosAlunos });
+
+        // Atualizar cada aluno
+        for (const id of ids) {
+          await updateDoc(doc(db, "alunos", id), {
+            turmaId: turmaSelecionadaId,
+            turmaNome: t.nome,
+            fase
+          });
+        }
+
+        // Atualizar estado local
+        turmaSelecionadaDados.alunos = novosAlunos;
+        const idx = todasTurmas.findIndex(x => x.id === turmaSelecionadaId);
+        if (idx >= 0) todasTurmas[idx].alunos = novosAlunos;
+        todosAlunos.forEach(a => {
+          if (ids.includes(a.id)) { a.turmaId = turmaSelecionadaId; a.turmaNome = t.nome; a.fase = fase; }
+        });
+
+        selecionados.clear();
+        renderizarListaTurmas();
+        renderizarAlunosDisponiveis();
+
+        msg.textContent = `✅ ${ids.length} aluno${ids.length !== 1 ? 's' : ''} adicionado${ids.length !== 1 ? 's' : ''} à turma!`;
+        msg.className = "msg ok";
+        setTimeout(() => { msg.className = "msg"; }, 3000);
+      } catch(e) {
+        msg.textContent = "❌ Erro ao salvar. Tente novamente.";
+        msg.className = "msg err";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Adicionar à turma ✓";
+      }
+    }
+
+    /* ============================================================
+       REMOVER ALUNOS DA TURMA
+       ============================================================ */
+    async function removerAlunosDaTurma() {
+      if (!turmaSelecionadaId || selecionadosRemover.size === 0) return;
+      const ids = [...selecionadosRemover];
+      if (!confirm(`Remover ${ids.length} aluno${ids.length !== 1 ? 's' : ''} desta turma?`)) return;
+
+      try {
+        const t           = turmaSelecionadaDados;
+        const novosAlunos = (t.alunos || []).filter(id => !ids.includes(id));
+
+        await updateDoc(doc(db, "turmas", turmaSelecionadaId), { alunos: novosAlunos });
+
+        for (const id of ids) {
+          await updateDoc(doc(db, "alunos", id), { turmaId: "", turmaNome: "" });
+        }
+
+        turmaSelecionadaDados.alunos = novosAlunos;
+        const idx = todasTurmas.findIndex(x => x.id === turmaSelecionadaId);
+        if (idx >= 0) todasTurmas[idx].alunos = novosAlunos;
+        todosAlunos.forEach(a => { if (ids.includes(a.id)) { a.turmaId = ""; a.turmaNome = ""; } });
+
+        selecionadosRemover.clear();
+        renderizarListaTurmas();
+        renderizarAlunosDaTurma();
+      } catch(e) {
+        alert("Erro ao remover alunos. Tente novamente.");
+      }
+    }
+
+  </script>
+</body>
+</html>
