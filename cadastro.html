@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Aluno</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0d0d1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ── CARD PRINCIPAL ── */
+    .card {
+      background: linear-gradient(160deg, #0f172a, #12121f);
+      border: 1px solid rgba(0,255,204,0.25);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 0 40px rgba(0,255,204,0.1);
+      overflow: hidden;
+    }
+
+    /* ── HEADER DO CARD ── */
+    .card-header {
+      background: linear-gradient(135deg, rgba(0,255,204,0.1), rgba(0,191,255,0.08));
+      border-bottom: 1px solid rgba(0,255,204,0.15);
+      padding: 28px 28px 22px;
+      text-align: center;
+    }
+    .logo-icon {
+      font-size: 2.8rem;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .card-header h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #00ffcc;
+      text-shadow: 0 0 12px rgba(0,255,204,0.4);
+      margin-bottom: 6px;
+    }
+    .card-header p {
+      font-size: 0.82rem;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    /* ── BADGE DA TURMA ── */
+    .turma-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(0,255,204,0.1);
+      border: 1px solid rgba(0,255,204,0.3);
+      color: #00ffcc;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+    .turma-badge.carregando { color: #4b5563; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); }
+    .turma-badge.erro-turma { color: #f87171; border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); }
+
+    /* ── FORMULARIO ── */
+    .form-body {
+      padding: 24px 28px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #00ffcc;
+      letter-spacing: 0.3px;
+    }
+    .form-group .opcional {
+      font-weight: 400;
+      color: #4b5563;
+      font-size: 0.75rem;
+    }
+    .form-group input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #f5f5f5;
+      padding: 11px 14px;
+      font-size: 0.95rem;
+      font-family: 'Nunito', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    .form-group input:focus {
+      border-color: #00ffcc;
+      box-shadow: 0 0 0 3px rgba(0,255,204,0.12);
+    }
+    .form-group input::placeholder { color: #374151; }
+    .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.5);
+    }
+
+    /* ── UPLOAD DE FOTO ── */
+    .foto-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .foto-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,255,204,0.3);
+      background: rgba(0,255,204,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .foto-preview:hover { border-color: #00ffcc; }
+    .foto-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .foto-info { flex: 1; }
+    .foto-info p { font-size: 0.78rem; color: #6b7280; line-height: 1.5; }
+    .btn-foto {
+      margin-top: 6px;
+      padding: 6px 14px;
+      background: rgba(0,255,204,0.08);
+      border: 1px solid rgba(0,255,204,0.25);
+      border-radius: 7px;
+      color: #00ffcc;
+      font-size: 0.8rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-foto:hover { background: rgba(0,255,204,0.15); }
+    #inputFoto { display: none; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 2px 0;
+    }
+
+    /* ── AVISO SENHA ── */
+    .aviso-senha {
+      background: rgba(250,204,21,0.07);
+      border: 1px solid rgba(250,204,21,0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .aviso-senha span { font-size: 1rem; flex-shrink: 0; }
+    .aviso-senha p { font-size: 0.78rem; color: #fbbf24; line-height: 1.5; }
+
+    /* ── BTN SUBMIT ── */
+    .btn-cadastrar {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #00ffcc, #00bfff);
+      border: none;
+      border-radius: 12px;
+      color: #0d0d1a;
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-top: 4px;
+      letter-spacing: 0.3px;
+    }
+    .btn-cadastrar:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-cadastrar:active { transform: scale(0.98); }
+    .btn-cadastrar:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    /* ── MENSAGEM ── */
+    .msg {
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+    .msg.ok  { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); display: block; }
+    .msg.err { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.25); display: block; }
+
+    /* ── SUCESSO ── */
+    .tela-sucesso {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px 28px;
+      gap: 14px;
+    }
+    .tela-sucesso.visivel { display: flex; }
+    .sucesso-icone { font-size: 3.5rem; }
+    .tela-sucesso h2 { color: #00ffcc; font-size: 1.3rem; }
+    .tela-sucesso p { color: #9ca3af; font-size: 0.88rem; line-height: 1.6; }
+    .btn-entrar-agora {
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #00ffcc, #00bfff);
+      border: none;
+      border-radius: 12px;
+      color: #0d0d1a;
+      font-weight: 800;
+      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      transition: filter 0.2s;
+      margin-top: 6px;
+    }
+    .btn-entrar-agora:hover { filter: brightness(1.1); }
+
+    /* ── ERRO DE TURMA ── */
+    .tela-erro-turma {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px 28px;
+      gap: 12px;
+    }
+    .tela-erro-turma.visivel { display: flex; }
+    .tela-erro-turma .icone { font-size: 3rem; }
+    .tela-erro-turma h2 { color: #f87171; font-size: 1.1rem; }
+    .tela-erro-turma p { color: #6b7280; font-size: 0.85rem; line-height: 1.6; }
+
+    /* ── LINK LOGIN ── */
+    .link-login {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #4b5563;
+      padding: 0 28px 22px;
+    }
+    .link-login a { color: #00ffcc; text-decoration: none; font-weight: 700; }
+    .link-login a:hover { text-decoration: underline; }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 3px solid rgba(13,13,26,0.3);
+      border-top-color: #0d0d1a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="card-header">
+    <span class="logo-icon">🎼</span>
+    <h1>Cadastro de Aluno</h1>
+    <p>Preencha seus dados para entrar na turma</p>
+    <div class="turma-badge carregando" id="turmaBadge">⏳ Carregando turma...</div>
+  </div>
+
+  <!-- ERRO DE TURMA (oculto por padrão) -->
+  <div class="tela-erro-turma" id="telaErroTurma">
+    <div class="icone">🚫</div>
+    <h2>Link inválido</h2>
+    <p>Este link de cadastro não corresponde a nenhuma turma ativa.<br/>Peça um novo link ao seu professor.</p>
+  </div>
+
+  <!-- FORMULARIO (oculto até turma carregar) -->
+  <div id="formWrapper" style="display:none;">
+    <div class="form-body">
+
+      <!-- FOTO -->
+      <div class="form-group">
+        <label>Foto <span class="opcional">(opcional)</span></label>
+        <div class="foto-area">
+          <div class="foto-preview" id="fotoPreview" onclick="document.getElementById('inputFoto').click()">🎵</div>
+          <div class="foto-info">
+            <p>Uma foto ajuda o professor a te identificar.</p>
+            <button type="button" class="btn-foto" onclick="document.getElementById('inputFoto').click()">Escolher foto</button>
+          </div>
+        </div>
+        <input type="file" id="inputFoto" accept="image/*" />
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- NOME -->
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="inputNome" placeholder="Seu nome completo" autocomplete="name" />
+      </div>
+
+      <!-- DATA DE NASCIMENTO -->
+      <div class="form-group">
+        <label>Data de nascimento <span class="opcional">(opcional)</span></label>
+        <input type="date" id="inputNascimento" />
+      </div>
+
+      <!-- RESPONSAVEL -->
+      <div class="form-group">
+        <label>Nome do responsável <span class="opcional">(opcional, para menores)</span></label>
+        <input type="text" id="inputResponsavel" placeholder="Nome do pai, mãe ou responsável" />
+      </div>
+
+      <!-- CONTATO -->
+      <div class="form-group">
+        <label>WhatsApp / Telefone <span class="opcional">(opcional)</span></label>
+        <input type="tel" id="inputContato" placeholder="(00) 00000-0000" />
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- AVISO SENHA -->
+      <div class="aviso-senha">
+        <span>🔑</span>
+        <p>Sua senha inicial será <strong>asafe</strong>. Você pode alterá-la depois nas configurações do seu perfil.</p>
+      </div>
+
+      <!-- MSG -->
+      <div class="msg" id="msgCadastro"></div>
+
+      <!-- BTN -->
+      <button class="btn-cadastrar" id="btnCadastrar">Criar minha conta ✓</button>
+
+    </div>
+
+    <div class="link-login">
+      Já tem cadastro? <a href="index.html">Entrar aqui</a>
+    </div>
+  </div>
+
+  <!-- TELA DE SUCESSO (oculta até cadastrar) -->
+  <div class="tela-sucesso" id="telaSucesso">
+    <div class="sucesso-icone">🎉</div>
+    <h2>Cadastro realizado!</h2>
+    <p id="textoSucesso">Bem-vindo(a)! Seu cadastro foi criado com sucesso.<br/>Clique abaixo para entrar.</p>
+    <button class="btn-entrar-agora" id="btnEntrarAgora">Entrar agora →</button>
+  </div>
+
+</div><!-- /card -->
+
+<script type="module">
+  import { db } from "./firebase-config.js";
+  import {
+    collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where
+  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+  /* ============================================================
+     LER turmaId DA URL
+     ============================================================ */
+  const params    = new URLSearchParams(window.location.search);
+  const turmaId   = params.get("turma");
+
+  let turmaDados  = null;
+  let fotoBase64  = "";
+  let nomeAlunoCadastrado = "";
+
+  /* ============================================================
+     CARREGAR TURMA
+     ============================================================ */
+  async function carregarTurma() {
+    const badge      = document.getElementById("turmaBadge");
+    const formWrapper = document.getElementById("formWrapper");
+    const telaErro   = document.getElementById("telaErroTurma");
+
+    if (!turmaId) {
+      badge.className = "turma-badge erro-turma";
+      badge.textContent = "⚠️ Link sem turma";
+      telaErro.classList.add("visivel");
+      return;
+    }
+
+    try {
+      const snap = await getDoc(doc(db, "turmas", turmaId));
+      if (!snap.exists() || snap.data().ativa === false) {
+        badge.className = "turma-badge erro-turma";
+        badge.textContent = "⚠️ Turma não encontrada";
+        telaErro.classList.add("visivel");
+        return;
+      }
+
+      turmaDados = { id: snap.id, ...snap.data() };
+      const isOrq = turmaDados.tipo === "orquestra";
+      const icone = isOrq ? "🎻" : "📚";
+      const faseLabel = isOrq ? "" : ` — Fase ${turmaDados.fase}`;
+
+      badge.className = "turma-badge";
+      badge.textContent = `${icone} ${turmaDados.nome}${faseLabel}`;
+      formWrapper.style.display = "block";
+    } catch(e) {
+      badge.className = "turma-badge erro-turma";
+      badge.textContent = "❌ Erro ao carregar turma";
+      telaErro.classList.add("visivel");
+    }
+  }
+
+  /* ============================================================
+     PREVIEW DA FOTO
+     ============================================================ */
+  document.getElementById("inputFoto").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith("image/")) return;
+    if (file.size > 3 * 1024 * 1024) {
+      mostrarMsg("Foto muito grande. Use uma imagem menor que 3MB.", "err");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      fotoBase64 = ev.target.result;
+      const preview = document.getElementById("fotoPreview");
+      preview.innerHTML = `<img src="${fotoBase64}" />`;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ============================================================
+     CADASTRAR
+     ============================================================ */
+  document.getElementById("btnCadastrar").addEventListener("click", async () => {
+    const nome       = document.getElementById("inputNome").value.trim();
+    const nascimento = document.getElementById("inputNascimento").value;
+    const responsavel= document.getElementById("inputResponsavel").value.trim();
+    const contato    = document.getElementById("inputContato").value.trim();
+    const btn        = document.getElementById("btnCadastrar");
+
+    // Validações
+    if (!nome) { mostrarMsg("Por favor, informe seu nome completo.", "err"); return; }
+    if (nome.length < 3) { mostrarMsg("Nome muito curto.", "err"); return; }
+    if (!turmaDados) { mostrarMsg("Turma não carregada. Recarregue a página.", "err"); return; }
+
+    // Verificar se já existe aluno com mesmo nome
+    const q = query(collection(db, "alunos"), where("nome", "==", nome));
+    const snapExiste = await getDocs(q);
+    if (!snapExiste.empty) {
+      mostrarMsg("⚠️ Já existe um aluno com este nome. Use um nome diferente ou faça login.", "err");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span> Criando conta...`;
+
+    try {
+      const isOrq = turmaDados.tipo === "orquestra";
+      const fase  = isOrq ? 3 : (turmaDados.fase || 1);
+
+      // Criar aluno
+      const novoAluno = {
+        nome,
+        foto: fotoBase64 || "",
+        dataNascimento: nascimento || "",
+        responsavel: responsavel || "",
+        contato: contato || "",
+        instrumento: "",
+        fase,
+        turmaId: turmaDados.id,
+        turmaNome: turmaDados.nome,
+        leituraNome: "Bona",
+        metodoNome: "Método",
+        leitura: 1,
+        metodo: 1,
+        energia: 100,
+        frequenciaMensal: { porcentagem: 0 },
+        frequenciaAnual: {},
+        conquistas: [],
+        classificado: false,
+        ativo: true,
+        senha: "asafe",
+        criadoEm: new Date().toISOString()
+      };
+
+      const ref = await addDoc(collection(db, "alunos"), novoAluno);
+
+      // Adicionar aluno à turma
+      const novosAlunos = [...(turmaDados.alunos || []), ref.id];
+      await updateDoc(doc(db, "turmas", turmaDados.id), { alunos: novosAlunos });
+
+      nomeAlunoCadastrado = nome;
+
+      // Salvar sessão e mostrar sucesso
+      localStorage.setItem("usuarioAtual", JSON.stringify({
+        nome,
+        tipo: "aluno",
+        classificado: false
+      }));
+
+      mostrarSucesso(nome, turmaDados.nome);
+
+    } catch(e) {
+      console.error(e);
+      mostrarMsg("❌ Erro ao criar conta. Verifique sua conexão e tente novamente.", "err");
+      btn.disabled = false;
+      btn.textContent = "Criar minha conta ✓";
+    }
+  });
+
+  /* ============================================================
+     ENTRAR APÓS CADASTRO
+     ============================================================ */
+  document.getElementById("btnEntrarAgora").addEventListener("click", () => {
+    window.location.href = `aluno.html?nome=${encodeURIComponent(nomeAlunoCadastrado)}`;
+  });
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function mostrarMsg(texto, tipo) {
+    const msg = document.getElementById("msgCadastro");
+    msg.textContent = texto;
+    msg.className = `msg ${tipo}`;
+    setTimeout(() => { msg.className = "msg"; }, 4000);
+  }
+
+  function mostrarSucesso(nome, turmaNome) {
+    document.getElementById("formWrapper").style.display = "none";
+    document.getElementById("card-header");
+    document.getElementById("textoSucesso").innerHTML =
+      `Bem-vindo(a), <strong style="color:#00ffcc">${nome}</strong>!<br/>
+       Você foi adicionado(a) à turma <strong>${turmaNome}</strong>.<br/>
+       Sua senha inicial é <strong>asafe</strong>.`;
+    document.getElementById("telaSucesso").classList.add("visivel");
+  }
+
+  /* ============================================================
+     INIT
+     ============================================================ */
+  carregarTurma();
+</script>
+</body>
+</html>
