@@ -21,9 +21,7 @@
       --chip-bg: #0f172a;
       --chip-ink: #e5e7eb;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
@@ -33,89 +31,61 @@
       display: flex;
       flex-direction: column;
     }
-
     h1 { text-align: center; margin: 16px 12px 4px; font-size: 1.4rem; }
-
     .subtitulo {
-      text-align: center;
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-      padding: 0 12px;
+      text-align: center; font-size: 0.9rem; color: var(--muted);
+      margin-bottom: 8px; padding: 0 12px;
     }
-
-    /* ── Data editável ── */
+    /* Badge de turma */
+    .turma-badge-chamada {
+      text-align: center; font-size: 0.82rem; font-weight: 700;
+      color: #22d3ee; margin-bottom: 6px;
+      background: rgba(34,211,238,0.08);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 999px; padding: 4px 18px;
+      display: inline-block; margin-left: auto; margin-right: auto;
+    }
+    .turma-badge-wrapper { text-align: center; margin-bottom: 8px; }
+    .aviso-sem-turma {
+      text-align: center; background: rgba(251,191,36,0.12);
+      border: 1px solid rgba(251,191,36,0.4);
+      border-radius: 10px; color: #fbbf24;
+      padding: 10px 16px; font-size: 0.85rem;
+      margin: 8px 16px;
+    }
+    /* Data editável */
     .data-evento { text-align: center; margin-bottom: 10px; font-size: 0.9rem; }
     .data-evento label { color: #e2e8f0; font-weight: 500; margin-right: 6px; }
     #inputData {
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      color: #38bdf8;
-      font-size: 0.9rem;
-      font-weight: 600;
-      padding: 4px 10px;
-      cursor: pointer;
-      outline: none;
-      transition: border-color 0.15s;
+      background: #0f172a; border: 1px solid #334155; border-radius: 8px;
+      color: #38bdf8; font-size: 0.9rem; font-weight: 600;
+      padding: 4px 10px; cursor: pointer; outline: none; transition: border-color 0.15s;
     }
     #inputData:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
     #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
-
     .wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 6px 10px 72px;
-      max-width: 720px;
-      width: 100%;
-      margin: 0 auto;
+      flex: 1; display: flex; flex-direction: column;
+      padding: 6px 10px 72px; max-width: 720px; width: 100%; margin: 0 auto;
     }
-
     .info { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0 10px; }
-
-    .lista-alunos {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding-bottom: 4px;
-      overscroll-behavior: contain;
-    }
-
-    /* ── Botão flutuante de scroll ── */
+    .lista-alunos { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; overscroll-behavior: contain; }
     #btnScroll {
-      position: fixed;
-      right: 16px;
-      bottom: 80px;
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      border: none;
+      position: fixed; right: 16px; bottom: 80px;
+      width: 46px; height: 46px; border-radius: 50%; border: none;
       background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      color: #fff;
-      font-size: 1.3rem;
-      cursor: pointer;
-      z-index: 100;
+      color: #fff; font-size: 1.3rem; cursor: pointer; z-index: 100;
       box-shadow: 0 4px 16px rgba(14,165,233,0.55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0; pointer-events: none;
     }
     #btnScroll.visivel { opacity: 1; pointer-events: auto; }
     #btnScroll:active { transform: scale(0.92); }
     #btnScroll:hover  { box-shadow: 0 6px 22px rgba(14,165,233,0.75); }
-
     .container-aluno {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      padding: 8px 10px;
-      border-radius: 12px;
-      background: var(--card);
-      border: 1px solid var(--border);
+      display: flex; gap: 10px; align-items: center;
+      padding: 8px 10px; border-radius: 12px;
+      background: var(--card); border: 1px solid var(--border);
       box-shadow: 0 8px 20px rgba(15,23,42,0.65);
       cursor: pointer;
       transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
@@ -125,7 +95,6 @@
     .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.35), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.4); }
     .container-aluno:active { transform: scale(0.98); }
     .container-aluno.focado { outline: 2px solid #38bdf8; outline-offset: 1px; }
-
     .foto-aluno {
       width: 52px; height: 52px; border-radius: 999px; overflow: hidden;
       flex-shrink: 0; border: 2px solid #1e293b; background: #020617;
@@ -133,12 +102,10 @@
     }
     .foto-aluno img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .foto-placeholder { font-size: 1.3rem; color: #64748b; }
-
     .dados-aluno { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .nome { font-weight: 600; font-size: 1.5rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .instrumento { font-size: 1rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .status-linha { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
-
     .chip-status {
       padding: 2px 8px; border-radius: 999px; font-size: 0.7rem;
       text-transform: uppercase; letter-spacing: 0.05em;
@@ -146,24 +113,14 @@
     }
     .chip-status.presente { background: var(--accent-soft); color: #bbf7d0; border-color: #22c55e; }
     .chip-status.ausente  { background: var(--danger-soft); color: #fecaca; border-color: #f97373; }
-
-    /* ── Ícone de ação ── */
-    .icone-acao {
-      font-size: 0.85rem;
-      color: var(--muted);
-      opacity: 0.5;
-      transition: opacity 0.15s;
-      user-select: none;
-    }
+    .icone-acao { font-size: 0.85rem; color: var(--muted); opacity: 0.5; transition: opacity 0.15s; user-select: none; }
     .container-aluno:hover .icone-acao,
     .container-aluno.focado .icone-acao { opacity: 0.9; }
-
     .observacoes-area { margin-top: 10px; background: rgba(15,23,42,0.9); border-radius: 12px; border: 1px solid #1f2937; padding: 10px; }
     .label-observacoes { font-size: 0.8rem; color: #e5e7eb; margin-bottom: 4px; display: block; }
     textarea { width: 100%; min-height: 70px; border-radius: 10px; border: 1px solid #1f2937; padding: 8px 10px; font-family: inherit; font-size: 0.85rem; resize: vertical; background: #020617; color: var(--ink); }
     textarea::placeholder { color: #64748b; }
     textarea:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 1px rgba(56,189,248,0.25); }
-
     .footer-acoes {
       position: fixed; left: 0; right: 0; bottom: 0;
       padding: 8px 10px 10px;
@@ -181,13 +138,20 @@
     .btn-salvar[disabled] { opacity: 0.6; cursor: default; }
     .btn-cancelar { background: #1f2937; color: #e5e7eb; box-shadow: 0 8px 20px rgba(15,23,42,0.9); }
     .btn-exportar { background: #0ea5e9; color: white; box-shadow: 0 8px 22px rgba(14,165,233,0.4); }
-
     .loader { text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.85rem; }
   </style>
 </head>
 <body>
-  <h1>📋 Chamada </h1>
+  <h1>📋 Chamada</h1>
   <div class="subtitulo">Toque no aluno para marcar Presente / Ausente. A lista avança sozinha. 😊</div>
+
+  <!-- Badge de turma ativa -->
+  <div class="turma-badge-wrapper">
+    <span class="turma-badge-chamada" id="turmaBadgeChamada" style="display:none;"></span>
+    <div class="aviso-sem-turma" id="avisoSemTurma" style="display:none;">
+      ⚠️ Nenhuma turma selecionada. Volte ao painel e selecione uma turma antes de fazer a chamada.
+    </div>
+  </div>
 
   <div class="data-evento">
     <label for="inputData">📅 Data da chamada:</label>
@@ -206,7 +170,6 @@
     <div class="loader" id="loader" style="display:none;">Salvando chamada e atualizando frequências...</div>
   </div>
 
-  <!-- Botão flutuante de scroll -->
   <button id="btnScroll" title="Ir para o fim / topo">↓</button>
 
   <div class="footer-acoes">
@@ -218,7 +181,7 @@
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
-      collection, getDocs, getDoc, addDoc, updateDoc, doc
+      collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
@@ -238,36 +201,42 @@
 
     btnExportar.addEventListener("click", exportarChamada3Colunas);
 
-    /* ── Botão de scroll: alterna topo ↔ fim ── */
-    let scrollDirecao = "baixo";
+    // ── Turma ativa ───────────────────────────────────────────────
+    function getTurmaAtiva() {
+      try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
+    }
 
+    const turmaAtiva = getTurmaAtiva();
+    const badgeEl    = document.getElementById("turmaBadgeChamada");
+    const avisoEl   = document.getElementById("avisoSemTurma");
+
+    if (turmaAtiva?.nome) {
+      badgeEl.textContent = `🏫 ${turmaAtiva.nome}`;
+      badgeEl.style.display = "inline-block";
+    } else if (!eventoId) {
+      // Só avisa se não está abrindo um evento já existente
+      avisoEl.style.display = "block";
+      btnSalvar.disabled = true;
+    }
+
+    // ── Scroll ────────────────────────────────────────────────────
+    let scrollDirecao = "baixo";
     window.addEventListener("scroll", () => {
       const scrollY   = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-
       if (maxScroll > 100) btnScroll.classList.add("visivel");
       else                  btnScroll.classList.remove("visivel");
-
       if (scrollY < maxScroll * 0.5) {
-        btnScroll.textContent = "↓";
-        btnScroll.title = "Ir para o fim da lista";
-        scrollDirecao = "baixo";
+        btnScroll.textContent = "↓"; btnScroll.title = "Ir para o fim da lista"; scrollDirecao = "baixo";
       } else {
-        btnScroll.textContent = "↑";
-        btnScroll.title = "Voltar ao topo";
-        scrollDirecao = "cima";
+        btnScroll.textContent = "↑"; btnScroll.title = "Voltar ao topo"; scrollDirecao = "cima";
       }
     });
-
     btnScroll.addEventListener("click", () => {
-      if (scrollDirecao === "baixo") {
-        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+      window.scrollTo({ top: scrollDirecao === "baixo" ? document.documentElement.scrollHeight : 0, behavior: "smooth" });
     });
 
-    /* ── Helpers ── */
+    // ── Helpers ──────────────────────────────────────────────────
     function hojeISO() {
       const br = new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit'
@@ -282,8 +251,33 @@
       return "";
     }
 
-    /* ── Carregamento ── */
+    // ── Carregamento ──────────────────────────────────────────────
+
+    /**
+     * Carrega alunos:
+     * - Se houver evento já salvo (eventoId): usa a lista do evento
+     * - Se turma ativa: filtra WHERE turmaId == turmaAtiva.id
+     * - Sem turma e sem evento: carrega todos (modo legado)
+     */
     async function carregarAlunos() {
+      // Caso 1: evento existente — a lista já vem do evento (carregarEvento trata isso)
+      if (eventoId) return;
+
+      // Caso 2: nova chamada com turma ativa
+      if (turmaAtiva?.id) {
+        const snap = await getDocs(
+          query(collection(db, "alunos"),
+            where("turmaId", "==", turmaAtiva.id),
+            where("ativo",   "!=",  false)
+          )
+        );
+        alunos = snap.docs
+          .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+          .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+        return;
+      }
+
+      // Caso 3: sem turma — carrega todos (comportamento legado)
       const snap = await getDocs(collection(db, "alunos"));
       alunos = snap.docs
         .filter(d => d.data().ativo !== false)
@@ -294,18 +288,63 @@
     async function carregarEvento() {
       if (!eventoId) { inputData.value = hojeISO(); return; }
       const snap = await getDoc(doc(db, "eventos", eventoId));
-      if (snap.exists()) {
-        const dados = snap.data();
-        inputData.value = dados.data || hojeISO();
-        observacoesEl.value = dados.observacoes || "";
-        (dados.presencas || []).forEach(p => {
-          const a = alunos.find(al => al.nome === p.nome);
-          if (a) a.presenca = p.presenca;
-        });
-      } else { inputData.value = hojeISO(); }
+      if (!snap.exists()) { inputData.value = hojeISO(); return; }
+
+      const dados = snap.data();
+      inputData.value = dados.data || hojeISO();
+      observacoesEl.value = dados.observacoes || "";
+
+      // Mostrar turma do evento no badge
+      if (dados.turmaNome) {
+        badgeEl.textContent = `🏫 ${dados.turmaNome}`;
+        badgeEl.style.display = "inline-block";
+        avisoEl.style.display = "none";
+        btnSalvar.disabled = false;
+      }
+
+      // Popular alunos a partir da lista salva no evento
+      const presencasSalvas = dados.presencas || [];
+      if (presencasSalvas.length) {
+        alunos = presencasSalvas.map(p => ({
+          id:          p.alunoId || "",
+          nome:        p.nome,
+          instrumento: p.instrumento || "",
+          foto:        p.foto || "",
+          presenca:    p.presenca || ""
+        }));
+        // Buscar fotos atualizadas (podem ter mudado desde a criação)
+        try {
+          const fotoSnap = await getDocs(collection(db, "alunos"));
+          const fotoMap  = {};
+          fotoSnap.forEach(d => { fotoMap[d.id] = d.data().foto || ""; });
+          alunos.forEach(a => { if (a.id && fotoMap[a.id]) a.foto = fotoMap[a.id]; });
+        } catch (_) {}
+      } else {
+        // Evento antigo sem lista no evento: carrega por turmaId ou todos
+        if (dados.turmaId) {
+          const s = await getDocs(
+            query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
+          );
+          alunos = s.docs
+            .filter(d => d.data().ativo !== false)
+            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+        } else {
+          const s = await getDocs(collection(db, "alunos"));
+          alunos = s.docs
+            .filter(d => d.data().ativo !== false)
+            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+          // Aplicar presenças salvas por nome (formato legado)
+          presencasSalvas.forEach(p => {
+            const a = alunos.find(al => al.nome === p.nome);
+            if (a) a.presenca = p.presenca;
+          });
+        }
+      }
     }
 
-    /* ── Render ── */
+    // ── Render ───────────────────────────────────────────────────
     function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const chip  = card.querySelector(".chip-status");
@@ -336,6 +375,14 @@
 
     function renderizar() {
       painel.innerHTML = "";
+
+      if (!alunos.length) {
+        painel.innerHTML = `<p style="text-align:center;color:#6b7280;padding:30px;">
+          ${ turmaAtiva ? `Nenhum aluno na turma <strong>${turmaAtiva.nome}</strong>.` : "Nenhum aluno encontrado." }
+        </p>`;
+        return;
+      }
+
       alunos.forEach((aluno, idx) => {
         const card = document.createElement("div");
         card.className = "container-aluno"; card.dataset.index = idx;
@@ -344,11 +391,11 @@
         if (aluno.foto) { const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img); }
         else            { const sp  = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp); }
 
-        const dd   = document.createElement("div");  dd.className  = "dados-aluno";
-        const dn   = document.createElement("div");  dn.className  = "nome";        dn.textContent = aluno.nome;
-        const di   = document.createElement("div");  di.className  = "instrumento"; di.textContent = aluno.instrumento;
-        const sl   = document.createElement("div");  sl.className  = "status-linha";
-        const chip = document.createElement("span"); chip.className = "chip-status"; chip.textContent = "Pendente";
+        const dd    = document.createElement("div");  dd.className   = "dados-aluno";
+        const dn    = document.createElement("div");  dn.className   = "nome";        dn.textContent = aluno.nome;
+        const di    = document.createElement("div");  di.className   = "instrumento"; di.textContent = aluno.instrumento;
+        const sl    = document.createElement("div");  sl.className   = "status-linha";
+        const chip  = document.createElement("span"); chip.className = "chip-status"; chip.textContent = "Pendente";
         const icone = document.createElement("span"); icone.className = "icone-acao"; icone.textContent = "○";
 
         sl.appendChild(chip); sl.appendChild(icone);
@@ -377,16 +424,32 @@
       renderizar();
     }
 
-    /* ── Salvar ── */
+    // ── Salvar ───────────────────────────────────────────────────
     async function salvar() {
       try {
         btnSalvar.disabled = true; loader.style.display = "block";
         const data      = inputData.value || hojeISO();
         const obs       = observacoesEl.value.trim();
-        const presencas = alunos.map(a => ({ nome: a.nome, instrumento: a.instrumento || "", presenca: a.presenca || "ausente" }));
+        const presencas = alunos.map(a => ({
+          alunoId:     a.id || "",
+          nome:        a.nome,
+          instrumento: a.instrumento || "",
+          presenca:    a.presenca || "ausente"
+        }));
 
-        if (eventoId) await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
-        else { const nv = await addDoc(collection(db, "eventos"), { data, observacoes: obs, presencas }); eventoId = nv.id; }
+        if (eventoId) {
+          await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
+        } else {
+          const nv = await addDoc(collection(db, "eventos"), {
+            data,
+            observacoes: obs,
+            presencas,
+            turmaId:   turmaAtiva?.id   || "",
+            turmaNome: turmaAtiva?.nome || "",
+            tipo: "aula"
+          });
+          eventoId = nv.id;
+        }
 
         await recalcular(data);
         alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
@@ -395,38 +458,57 @@
       finally     { btnSalvar.disabled = false; loader.style.display = "none"; }
     }
 
+    // ── Recalcular frequência ─────────────────────────────────────
     async function recalcular(dataISO) {
       const [ano, mes] = dataISO.split("-");
       const chaveMes   = `${ano}-${mes}`;
-      const evSnap     = await getDocs(collection(db, "eventos"));
+
+      // Filtrar eventos do mês da mesma turma (se houver)
+      const turmaIdAtual = turmaAtiva?.id || null;
+      const evSnap  = await getDocs(collection(db, "eventos"));
       const eventosMes = [];
-      evSnap.forEach(d => { const dd = d.data(); if (dd.data?.startsWith(chaveMes)) eventosMes.push(dd); });
+      evSnap.forEach(d => {
+        const dd = d.data();
+        if (!dd.data?.startsWith(chaveMes)) return;
+        // Se tivermos turmaId, filtramos; senão pegamos todos (legado)
+        if (turmaIdAtual && dd.turmaId && dd.turmaId !== turmaIdAtual) return;
+        eventosMes.push(dd);
+      });
+
       const total = eventosMes.length; if (!total) return;
 
-      const cont = {};
+      // Contar por alunoId (novo) ou nome (legado)
+      const contId   = {};
+      const contNome = {};
       eventosMes.forEach(ev => (ev.presencas||[]).forEach(p => {
-        if (!p?.nome) return;
-        cont[p.nome] = (cont[p.nome] || 0) + (p.presenca === "presente" ? 1 : 0);
+        if (!p) return;
+        const presente = p.presenca === "presente";
+        if (p.alunoId) contId[p.alunoId]     = (contId[p.alunoId]   || 0) + (presente ? 1 : 0);
+        if (p.nome)    contNome[p.nome]       = (contNome[p.nome]    || 0) + (presente ? 1 : 0);
       }));
 
-      const siglas  = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-      const sigla   = siglas[parseInt(mes,10)-1] || mes;
-      const alSnap  = await getDocs(collection(db,"alunos"));
+      const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+      const sigla  = siglas[parseInt(mes,10)-1] || mes;
+      const alSnap = await getDocs(collection(db, "alunos"));
 
       for (const ds of alSnap.docs) {
-        const d = ds.data(); if (d.ativo===false) continue;
-        const pres = cont[d.nome]||0;
-        const pct  = Math.round((pres/total)*100);
+        const d = ds.data();
+        if (d.ativo === false) continue;
+        // Pular alunos de outras turmas quando turmaId está definido
+        if (turmaIdAtual && d.turmaId && d.turmaId !== turmaIdAtual) continue;
+
+        const pres = contId[ds.id] ?? contNome[d.nome] ?? 0;
+        const pct  = Math.round((pres / total) * 100);
         const hist = Array.isArray(d.presencas) ? [...d.presencas] : [];
-        let reg    = hist.find(r => r.mes===chaveMes);
-        if (!reg) { reg = { mes:chaveMes, totalEnsaios:total, presencasAluno:pres, percentual:pct }; hist.push(reg); }
-        else      { reg.totalEnsaios=total; reg.presencasAluno=pres; reg.percentual=pct; }
-        const freqAno = d.frequenciaAnual||{};
-        freqAno[sigla] = { percentual:pct, totalEnsaios:total, presencasAluno:pres };
-        await updateDoc(doc(db,"alunos",ds.id), {
-          presencas: hist,
-          frequenciaMensal: { porcentagem:pct, totalEventos:total, presencas:pres },
-          frequenciaAnual: freqAno
+        let reg    = hist.find(r => r.mes === chaveMes);
+        if (!reg) { reg = { mes: chaveMes, totalEnsaios: total, presencasAluno: pres, percentual: pct }; hist.push(reg); }
+        else      { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
+        const freqAno = d.frequenciaAnual || {};
+        freqAno[sigla] = { percentual: pct, totalEnsaios: total, presencasAluno: pres };
+        await updateDoc(doc(db, "alunos", ds.id), {
+          presencas:        hist,
+          frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
+          frequenciaAnual:  freqAno
         });
       }
     }
