@@ -1,17 +1,15 @@
+// ========== login.js ==========
 import { db } from "./firebase-config.js";
 import { salvarUsuarioAtual, garantirFormato } from "./auth.js";
 import {
-  collection,
-  query,
-  where,
-  getDocs
+  collection, query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-const nomeInput    = document.getElementById("nome");
-const senhaInput   = document.getElementById("senha");
-const btnEntrar    = document.getElementById("btnEntrar");
-const switchLogin  = document.getElementById("switchLogin");
-const erro         = document.getElementById("erro");
+const nomeInput   = document.getElementById("nome");
+const senhaInput  = document.getElementById("senha");
+const btnEntrar   = document.getElementById("btnEntrar");
+const switchLogin = document.getElementById("switchLogin");
+const erro        = document.getElementById("erro");
 
 let modo = "aluno";
 
@@ -28,15 +26,61 @@ switchLogin.addEventListener("click", () => {
   }
 });
 
+// ── Helpers ───────────────────────────────────────────────────
+function primeiroNome(nomeCompleto = "") {
+  return nomeCompleto.trim().split(/\s+/)[0] || "";
+}
+
+/**
+ * Tenta encontrar o documento do aluno no Firestore.
+ *
+ * Estratégia (em ordem):
+ * 1. WHERE login == input           → campo login definido pelo professor
+ * 2. WHERE nome  == input           → compatibilidade com alunos sem campo login
+ * 3. WHERE nome  >= input (fallback) → para casos onde só o primeiro nome bate
+ *
+ * Em cada etapa verifica se a senha bate.
+ */
+async function buscarAluno(input, senha) {
+  // 1. Busca por campo "login" (novo padrão)
+  const q1   = query(collection(db, "alunos"), where("login", "==", input));
+  const snap1 = await getDocs(q1);
+  for (const d of snap1.docs) {
+    if (d.data().senha === senha) return d;
+  }
+
+  // 2. Busca por "nome" exato (legado — alunos cadastrados antes do campo login)
+  const q2   = query(collection(db, "alunos"), where("nome", "==", input));
+  const snap2 = await getDocs(q2);
+  for (const d of snap2.docs) {
+    if (d.data().senha === senha) return d;
+  }
+
+  // 3. Fallback: aluno digitou apenas o primeiro nome, mas o banco tem nome completo
+  //    Carrega todos e filtra por primeiroNome (seguro pois a senha ainda é validada)
+  const snapTodos = await getDocs(collection(db, "alunos"));
+  for (const d of snapTodos.docs) {
+    const dados = d.data();
+    if (
+      primeiroNome(dados.nome).toLowerCase() === input.toLowerCase() &&
+      dados.senha === senha
+    ) {
+      return d;
+    }
+  }
+
+  return null;
+}
+
 // ── Login ────────────────────────────────────────────────────
 btnEntrar.addEventListener("click", async () => {
-  const nome  = nomeInput.value.trim();
+  const input = nomeInput.value.trim();
   const senha = senhaInput.value.trim();
 
   erro.textContent = "";
 
-  if (!nome || !senha) {
-    erro.textContent = "Preencha nome e senha.";
+  if (!input || !senha) {
+    erro.textContent = "Preencha o login e a senha.";
     return;
   }
 
@@ -46,44 +90,33 @@ btnEntrar.addEventListener("click", async () => {
   try {
     // ── ALUNO ────────────────────────────────────────────────
     if (modo === "aluno") {
-      const q    = query(collection(db, "alunos"), where("nome", "==", nome));
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
-        erro.textContent = "Aluno não encontrado.";
-        return;
-      }
-
-      // Percorre TODOS os documentos com este nome (trata homônimos)
-      // e usa o primeiro cuja senha bate
-      let docEncontrado = null;
-      for (const d of snap.docs) {
-        if (d.data().senha === senha) {
-          docEncontrado = d;
-          break;
-        }
-      }
+      const docEncontrado = await buscarAluno(input, senha);
 
       if (!docEncontrado) {
-        erro.textContent = "Senha incorreta.";
+        // Distinguir "não encontrado" de "senha errada"
+        const snapVerifica = await getDocs(
+          query(collection(db, "alunos"), where("login", "==", input))
+        );
+        const snapVerifica2 = await getDocs(
+          query(collection(db, "alunos"), where("nome",  "==", input))
+        );
+        if (snapVerifica.empty && snapVerifica2.empty) {
+          erro.textContent = "Aluno não encontrado. Verifique o login.";
+        } else {
+          erro.textContent = "Senha incorreta.";
+        }
         return;
       }
 
       const aluno = docEncontrado.data();
-      const docId = docEncontrado.id; // ← ID único do Firestore
+      const docId = docEncontrado.id;
 
-      salvarUsuarioAtual(
-        aluno.nome,
-        "aluno",
-        aluno.classificado === true,
-        docId
-      );
-
+      salvarUsuarioAtual(aluno.nome, "aluno", aluno.classificado === true, docId);
       window.location.href = `aluno.html?nome=${encodeURIComponent(aluno.nome)}`;
 
     // ── PROFESSOR ────────────────────────────────────────────
     } else {
-      const q    = query(collection(db, "usuarios"), where("nome", "==", nome));
+      const q    = query(collection(db, "usuarios"), where("nome", "==", input));
       const snap = await getDocs(q);
 
       if (snap.empty) {
@@ -93,10 +126,7 @@ btnEntrar.addEventListener("click", async () => {
 
       let docEncontrado = null;
       for (const d of snap.docs) {
-        if (d.data().senha === senha) {
-          docEncontrado = d;
-          break;
-        }
+        if (d.data().senha === senha) { docEncontrado = d; break; }
       }
 
       if (!docEncontrado) {
@@ -108,7 +138,6 @@ btnEntrar.addEventListener("click", async () => {
       const docId = docEncontrado.id;
 
       salvarUsuarioAtual(prof.nome, "professor", false, docId);
-
       window.location.href = "professor.html";
     }
 
