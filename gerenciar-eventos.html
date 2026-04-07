@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,182 +7,109 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
   <style>
     :root {
-      --bg: #020617;
-      --card: #0b1220;
-      --card-alt: #0f172a;
-      --border: rgba(56, 189, 248, 0.25);
-      --ink: #e2e8f0;
-      --muted: #94a3b8;
-      --azul: #0ea5e9;
-      --azul-escuro: #1e293b;
-      --azul-suave: rgba(56, 189, 248, 0.2);
-      --verde: #22c55e;
-      --vermelho: #ef4444;
+      --bg: #020617; --card: #0b1220; --card-alt: #0f172a;
+      --border: rgba(56,189,248,0.25); --ink: #e2e8f0; --muted: #94a3b8;
+      --azul: #0ea5e9; --azul-escuro: #1e293b; --azul-suave: rgba(56,189,248,0.2);
+      --verde: #22c55e; --vermelho: #ef4444;
     }
-
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', system-ui, sans-serif;
-    }
-
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
     body {
       margin: 0;
       background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #000 100%);
-      color: var(--ink);
-      min-height: 100vh;
-      padding: 20px;
+      color: var(--ink); min-height: 100vh; padding: 20px;
     }
-
     h1 {
-      text-align: center;
-      color: var(--azul);
-      margin-bottom: 16px;
-      font-size: 1.8rem;
-      text-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+      text-align: center; color: var(--azul); margin-bottom: 16px;
+      font-size: 1.8rem; text-shadow: 0 0 15px rgba(14,165,233,0.3);
     }
-
     .voltar {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      background: var(--azul-escuro);
-      color: var(--azul);
-      padding: 10px 20px;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
+      display: inline-flex; align-items: center; gap: 8px;
+      text-decoration: none; background: var(--azul-escuro); color: var(--azul);
+      padding: 10px 20px; border-radius: 12px; margin-bottom: 25px;
+      font-size: 0.9rem; font-weight: 600; transition: all 0.3s ease;
       border: 1px solid var(--border);
     }
-
-    .voltar:hover {
-      transform: translateX(-5px);
-      background: var(--azul-suave);
-      border-color: var(--azul);
+    .voltar:hover { transform: translateX(-5px); background: var(--azul-suave); border-color: var(--azul); }
+    .info {
+      text-align: center; font-size: 0.95rem; color: var(--muted);
+      margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto;
     }
 
-    .info {
-      text-align: center;
-      font-size: 0.95rem;
-      color: var(--muted);
-      margin-bottom: 30px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+    /* Barra de filtro */
+    .filtro-bar {
+      max-width: 850px; margin: 0 auto 22px;
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .filtro-bar label { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+    .filtro-bar select {
+      flex: 1; min-width: 200px;
+      background: var(--card-alt); border: 1px solid var(--border);
+      color: var(--ink); border-radius: 10px; padding: 8px 12px;
+      font-size: 0.9rem; outline: none; cursor: pointer;
+    }
+    .filtro-bar select:focus { border-color: var(--azul); }
+    .contador {
+      font-size: 0.8rem; color: var(--muted);
+      max-width: 850px; margin: 0 auto 14px; text-align: right;
     }
 
     .lista {
-      max-width: 850px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 20px;
+      max-width: 850px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;
     }
-
     .evento {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid var(--border);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      background: var(--card); border-radius: 16px; padding: 20px;
+      border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex; flex-direction: column; gap: 10px;
+      transition: all 0.3s ease; position: relative; overflow: hidden;
     }
-
     .evento::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: var(--azul);
-      opacity: 0.6;
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 4px; height: 100%; background: var(--azul); opacity: 0.6;
     }
+    .evento:hover { transform: translateY(-4px); border-color: var(--azul); box-shadow: 0 15px 35px rgba(14,165,233,0.15); }
+    .evento h3 { margin: 0; font-size: 1.1rem; color: var(--azul); }
+    .evento p  { margin: 0; font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
 
-    .evento:hover {
-      transform: translateY(-5px);
-      border-color: var(--azul);
-      box-shadow: 0 15px 35px rgba(14, 165, 233, 0.15);
+    /* Badge de turma no card */
+    .turma-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.75rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 999px;
+      background: rgba(34,211,238,0.1); color: #22d3ee;
+      border: 1px solid rgba(34,211,238,0.3);
+      width: fit-content;
     }
-
-    .evento h3 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: var(--azul);
+    .turma-badge.sem-turma {
+      background: rgba(148,163,184,0.1); color: #94a3b8;
+      border-color: rgba(148,163,184,0.2);
     }
-
-    .evento p {
-      margin: 0;
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.5;
+    .presenca-resumo {
+      font-size: 0.8rem; color: var(--muted);
+      display: flex; gap: 12px;
     }
+    .presenca-resumo span { display: flex; align-items: center; gap: 4px; }
+    .dot-verde  { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+    .dot-vermelho { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
 
-    .acoes {
-      margin-top: 10px;
-      display: flex;
-      gap: 12px;
-    }
-
+    .acoes { margin-top: 4px; display: flex; gap: 10px; }
     .acoes button {
-      flex: 1;
-      padding: 10px 15px;
-      border-radius: 10px;
-      border: none;
-      font-size: 0.85rem;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      flex: 1; padding: 9px 12px; border-radius: 10px; border: none;
+      font-size: 0.83rem; cursor: pointer; font-weight: 600;
+      transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-
-    .btn-abrir {
-      background: var(--azul);
-      color: white;
-    }
-
-    .btn-abrir:hover {
-      background: #0284c7;
-      transform: scale(1.02);
-    }
-
-    .btn-excluir {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--vermelho);
-      border: 1px solid var(--vermelho) !important;
-    }
-
-    .btn-excluir:hover {
-      background: var(--vermelho);
-      color: white;
-      transform: scale(1.02);
-    }
+    .btn-abrir   { background: var(--azul); color: white; }
+    .btn-abrir:hover { background: #0284c7; transform: scale(1.02); }
+    .btn-excluir { background: rgba(239,68,68,0.1); color: var(--vermelho); border: 1px solid var(--vermelho) !important; }
+    .btn-excluir:hover { background: var(--vermelho); color: white; transform: scale(1.02); }
 
     .vazio {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 50px;
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px dashed var(--border);
-      color: var(--muted);
-      font-style: italic;
+      grid-column: 1/-1; text-align: center; padding: 50px;
+      background: var(--card); border-radius: 16px;
+      border: 1px dashed var(--border); color: var(--muted); font-style: italic;
     }
-
     @media (max-width: 600px) {
-      .lista {
-        grid-template-columns: 1fr;
-      }
+      .lista { grid-template-columns: 1fr; }
       h1 { font-size: 1.5rem; }
     }
   </style>
@@ -193,29 +119,34 @@
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
     Voltar ao Painel
   </a>
-  
-  <h1>🎵 Gerenciar Chamadas</h1>
-  <div class="info">Visualize e gerencie o histórico de presenças da orquestra.</div>
 
-  <div class="lista" id="listaEventos">
-    <!-- Injetado via JS -->
+  <h1>🎵 Gerenciar Chamadas</h1>
+  <div class="info">Visualize e gerencie o histórico de presenças por turma.</div>
+
+  <!-- Filtro de turma -->
+  <div class="filtro-bar">
+    <label for="filtroTurma">🏫 Filtrar por turma:</label>
+    <select id="filtroTurma">
+      <option value="">Todas as turmas</option>
+    </select>
   </div>
-  
-  <div id="msgVazio" style="display:none;" class="vazio">
-    Nenhuma chamada registrada até o momento.
-  </div>
+  <div class="contador" id="contador"></div>
+
+  <div class="lista" id="listaEventos"></div>
+  <div id="msgVazio" style="display:none;" class="vazio">Nenhuma chamada registrada até o momento.</div>
 
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
-      collection,
-      getDocs,
-      deleteDoc,
-      doc
+      collection, getDocs, deleteDoc, doc
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const lista = document.getElementById("listaEventos");
-    const msgVazio = document.getElementById("msgVazio");
+    const lista        = document.getElementById("listaEventos");
+    const msgVazio     = document.getElementById("msgVazio");
+    const filtroSelect = document.getElementById("filtroTurma");
+    const contadorEl   = document.getElementById("contador");
+
+    let todosEventos = [];
 
     function formatarData(iso) {
       if (!iso) return "--/--/----";
@@ -223,54 +154,124 @@
       return `${dia}/${mes}/${ano}`;
     }
 
+    function contarPresencas(presencas = []) {
+      let presentes = 0, ausentes = 0, pendentes = 0;
+      presencas.forEach(p => {
+        if (p.presenca === "presente") presentes++;
+        else if (p.presenca === "ausente") ausentes++;
+        else pendentes++;
+      });
+      return { presentes, ausentes, pendentes, total: presencas.length };
+    }
+
+    function renderizar(eventos) {
+      lista.innerHTML = "";
+      msgVazio.style.display = "none";
+      contadorEl.textContent = `${eventos.length} chamada${eventos.length !== 1 ? 's' : ''} encontrada${eventos.length !== 1 ? 's' : ''}`;
+
+      if (!eventos.length) {
+        msgVazio.style.display = "block";
+        return;
+      }
+
+      lista.innerHTML = eventos.map(e => {
+        const titulo  = e.data ? `📅 ${formatarData(e.data)}` : "Chamada sem data";
+        const { presentes, ausentes, pendentes, total } = contarPresencas(e.presencas);
+
+        const turmaBadge = e.turmaNome
+          ? `<span class="turma-badge">🏫 ${e.turmaNome}</span>`
+          : `<span class="turma-badge sem-turma">• Sem turma</span>`;
+
+        const resumo = total > 0
+          ? `<div class="presenca-resumo">
+               <span><span class="dot-verde"></span>${presentes} presentes</span>
+               <span><span class="dot-vermelho"></span>${ausentes} ausentes</span>
+               ${pendentes ? `<span style="color:#f59e0b;">● ${pendentes} pendentes</span>` : ''}
+             </div>`
+          : '';
+
+        const obs = e.observacoes
+          ? `<p><strong>Obs.:</strong> ${e.observacoes}</p>`
+          : `<p style="font-style:italic;opacity:0.45;">Sem observações.</p>`;
+
+        return `
+          <div class="evento">
+            <h3>${titulo}</h3>
+            ${turmaBadge}
+            ${resumo}
+            ${obs}
+            <div class="acoes">
+              <button class="btn-abrir" onclick="abrirEvento('${e.id}')">
+                📄 Abrir chamada
+              </button>
+              <button class="btn-excluir" onclick="excluirEvento('${e.id}')">
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
     async function carregarEventos() {
       lista.innerHTML = "";
       msgVazio.style.display = "none";
+      contadorEl.textContent = "Carregando...";
 
       try {
         const snap = await getDocs(collection(db, "eventos"));
-        const eventos = [];
+        todosEventos = [];
         snap.forEach(d => {
           const dados = d.data();
-          eventos.push({
-            id: d.id,
-            data: dados.data || "",
-            observacoes: dados.observacoes || ""
+          todosEventos.push({
+            id:          d.id,
+            data:        dados.data        || "",
+            observacoes: dados.observacoes || "",
+            turmaId:     dados.turmaId     || "",
+            turmaNome:   dados.turmaNome   || "",
+            presencas:   dados.presencas   || []
           });
         });
 
-        eventos.sort((a, b) => new Date(b.data || "1970-01-01") - new Date(a.data || "1970-01-01"));
+        // Ordenar do mais recente ao mais antigo
+        todosEventos.sort((a, b) => new Date(b.data || "1970-01-01") - new Date(a.data || "1970-01-01"));
 
-        if (!eventos.length) {
-          msgVazio.style.display = "block";
-          return;
-        }
+        // Popular seletor de turmas (unique)
+        const turmasUnicas = [...new Map(
+          todosEventos
+            .filter(e => e.turmaNome)
+            .map(e => [e.turmaId, e.turmaNome])
+        ).entries()];
 
-        lista.innerHTML = eventos.map(e => {
-          const titulo = e.data ? `Chamada - ${formatarData(e.data)}` : "Chamada sem data";
-          const obs = e.observacoes ? e.observacoes : "";
-          return `
-            <div class="evento">
-              <h3>${titulo}</h3>
-              ${obs ? `<p><strong>Obs.:</strong> ${obs}</p>` : `<p style="font-style: italic; opacity: 0.5;">Sem observações registradas.</p>`}
-              <div class="acoes">
-                <button class="btn-abrir" onclick="abrirEvento('${e.id}')">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                  Abrir chamada
-                </button>
-                <button class="btn-excluir" onclick="excluirEvento('${e.id}')">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                  Excluir
-                </button>
-              </div>
-            </div>
-          `;
-        }).join("");
+        filtroSelect.innerHTML = '<option value="">Todas as turmas</option>';
+        turmasUnicas.forEach(([id, nome]) => {
+          const opt = document.createElement("option");
+          opt.value = id;
+          opt.textContent = nome;
+          filtroSelect.appendChild(opt);
+        });
+
+        // Pré-selecionar a turma ativa do professor se existir
+        try {
+          const turmaAtiva = JSON.parse(localStorage.getItem("turmaAtiva"));
+          if (turmaAtiva?.id) filtroSelect.value = turmaAtiva.id;
+        } catch (_) {}
+
+        aplicarFiltro();
       } catch (error) {
         console.error("Erro ao carregar eventos:", error);
-        lista.innerHTML = `<div class="vazio">Erro ao carregar chamadas. Verifique sua conexão.</div>`;
+        lista.innerHTML = `<div class="vazio">❌ Erro ao carregar chamadas. Verifique sua conexão.</div>`;
       }
     }
+
+    function aplicarFiltro() {
+      const turmaSel = filtroSelect.value;
+      const filtrados = turmaSel
+        ? todosEventos.filter(e => e.turmaId === turmaSel)
+        : todosEventos;
+      renderizar(filtrados);
+    }
+
+    filtroSelect.addEventListener("change", aplicarFiltro);
 
     window.abrirEvento = function(id) {
       window.location.href = `ensaio.html?id=${id}`;
@@ -280,8 +281,8 @@
       if (!confirm("Deseja realmente excluir esta chamada?")) return;
       try {
         await deleteDoc(doc(db, "eventos", id));
-        alert("Chamada excluída com sucesso!");
-        carregarEventos();
+        todosEventos = todosEventos.filter(e => e.id !== id);
+        aplicarFiltro();
       } catch (error) {
         alert("Erro ao excluir chamada.");
       }
