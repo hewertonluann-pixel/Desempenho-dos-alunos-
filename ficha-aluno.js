@@ -5,7 +5,7 @@ import {
   collection, getDocs, query, orderBy
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// ── Parâmetros de URL ──────────────────────────────────────────
+// ── Parâmetros de URL ─────────────────────────────────────────────────────────────────
 const params  = new URLSearchParams(window.location.search);
 const alunoId = params.get("id");
 
@@ -18,7 +18,7 @@ if (!alunoId) {
   throw new Error("alunoId ausente na URL");
 }
 
-// ── Refs DOM ───────────────────────────────────────────────────
+// ── Refs DOM ───────────────────────────────────────────────────────────────────
 const loader         = document.getElementById("loaderFicha");
 const fichaWrap      = document.getElementById("fichaWrap");
 const tituloPagina   = document.getElementById("tituloPagina");
@@ -40,13 +40,21 @@ const campoTurma     = document.getElementById("campoTurma");
 const campoAtivo     = document.getElementById("campoAtivo");
 const campoClassificado = document.getElementById("campoClassificado");
 const btnSalvarDados = document.getElementById("btnSalvarDados");
+
+// Endereço
+const campoRua       = document.getElementById("campoRua");
+const campoNumero    = document.getElementById("campoNumero");
+const campoBairro    = document.getElementById("campoBairro");
+const campoCidade    = document.getElementById("campoCidade");
+const btnSalvarEndereco = document.getElementById("btnSalvarEndereco");
+
 const toastEl        = document.getElementById("toast");
 
 const SENHA_PADRAO = "asafe";
 let dadosAluno = null;
 let timerToast = null;
 
-// ── Toast ───────────────────────────────────────────────────────
+// ── Toast ────────────────────────────────────────────────────────────────────────
 function toast(msg, tipo = "ok") {
   clearTimeout(timerToast);
   toastEl.textContent = msg;
@@ -54,14 +62,15 @@ function toast(msg, tipo = "ok") {
   timerToast = setTimeout(() => { toastEl.className = ""; }, 3000);
 }
 
-// ── Mostrar/ocultar senha ───────────────────────────────────────
-btnVerSenha.addEventListener("click", () => {
+// ── Mostrar/ocultar senha ────────────────────────────────────────────────────
+function toggleSenha() {
   const vis = campoSenha.type === "text";
   campoSenha.type = vis ? "password" : "text";
   btnVerSenha.textContent = vis ? "👁️" : "🙈";
-});
+}
+btnVerSenha.addEventListener("click", toggleSenha);
 
-// ── Carregar turmas no select ───────────────────────────────────
+// ── Carregar turmas no select ──────────────────────────────────────────────────
 async function carregarTurmas(turmaIdAtual) {
   try {
     const snap = await getDocs(query(collection(db, "turmas"), orderBy("nome")));
@@ -78,7 +87,7 @@ async function carregarTurmas(turmaIdAtual) {
   }
 }
 
-// ── Carregar ficha ──────────────────────────────────────────────
+// ── Carregar ficha ──────────────────────────────────────────────────────────────────
 async function carregarFicha() {
   try {
     const snap = await getDoc(doc(db, "alunos", alunoId));
@@ -105,7 +114,6 @@ async function carregarFicha() {
     }
 
     // ── Acesso
-    // Se não tiver login definido, sugerir primeiro nome
     const loginSugerido = d.login || primeiroNome(d.nome);
     campoLogin.value = loginSugerido;
     campoSenha.value = d.senha || SENHA_PADRAO;
@@ -118,6 +126,12 @@ async function carregarFicha() {
 
     await carregarTurmas(d.turmaId || "");
 
+    // ── Endereço
+    campoRua.value    = d.rua    || "";
+    campoNumero.value = d.numero || "";
+    campoBairro.value = d.bairro || "";
+    campoCidade.value = d.cidade || "";
+
     loader.style.display = "none";
     fichaWrap.style.display = "flex";
   } catch (e) {
@@ -126,12 +140,12 @@ async function carregarFicha() {
   }
 }
 
-// ── Helper: primeiro nome ───────────────────────────────────────
+// ── Helper: primeiro nome ───────────────────────────────────────────────────────────────
 function primeiroNome(nomeCompleto = "") {
   return nomeCompleto.trim().split(/\s+/)[0] || "";
 }
 
-// ── Salvar acesso ───────────────────────────────────────────────
+// ── Salvar acesso ───────────────────────────────────────────────────────────────────
 btnSalvarAcesso.addEventListener("click", async () => {
   const login = campoLogin.value.trim();
   const senha = campoSenha.value.trim();
@@ -153,7 +167,7 @@ btnSalvarAcesso.addEventListener("click", async () => {
   }
 });
 
-// ── Redefinir senha para padrão ─────────────────────────────────
+// ── Redefinir senha para padrão ──────────────────────────────────────────────────────
 btnRedefinir.addEventListener("click", async () => {
   if (!confirm(`Redefinir senha de "${dadosAluno?.nome}" para a senha padrão (${SENHA_PADRAO})?`)) return;
   btnRedefinir.disabled = true;
@@ -169,7 +183,7 @@ btnRedefinir.addEventListener("click", async () => {
   }
 });
 
-// ── Copiar credenciais ──────────────────────────────────────────
+// ── Copiar credenciais ────────────────────────────────────────────────────────────────
 btnCopiar.addEventListener("click", () => {
   const login = campoLogin.value.trim();
   const senha = campoSenha.value.trim();
@@ -179,7 +193,7 @@ btnCopiar.addEventListener("click", () => {
     .catch(() => toast("❌ Não foi possível copiar.", "err"));
 });
 
-// ── Salvar dados gerais ─────────────────────────────────────────
+// ── Salvar dados gerais ───────────────────────────────────────────────────────────────
 btnSalvarDados.addEventListener("click", async () => {
   const nome        = campoNome.value.trim();
   const instrumento = campoInstrumento.value.trim();
@@ -191,7 +205,6 @@ btnSalvarDados.addEventListener("click", async () => {
 
   btnSalvarDados.disabled = true;
   try {
-    // Buscar nome da turma selecionada
     let turmaNome = "";
     if (turmaId) {
       const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
@@ -202,7 +215,6 @@ btnSalvarDados.addEventListener("click", async () => {
       nome, instrumento, turmaId, turmaNome, ativo, classificado
     });
 
-    // Atualizar exibição do topo
     nomeExibido.textContent = nome;
     instrumentoExibido.textContent = instrumento || "Instrumento não informado";
     tituloPagina.textContent = `Ficha — ${nome}`;
@@ -223,5 +235,25 @@ btnSalvarDados.addEventListener("click", async () => {
   }
 });
 
-// ── Inicializar ─────────────────────────────────────────────────
+// ── Salvar endereço ────────────────────────────────────────────────────────────────────
+btnSalvarEndereco.addEventListener("click", async () => {
+  const rua    = campoRua.value.trim();
+  const numero = campoNumero.value.trim();
+  const bairro = campoBairro.value.trim();
+  const cidade = campoCidade.value.trim();
+
+  btnSalvarEndereco.disabled = true;
+  try {
+    await updateDoc(doc(db, "alunos", alunoId), { rua, numero, bairro, cidade });
+    dadosAluno = { ...dadosAluno, rua, numero, bairro, cidade };
+    toast("✅ Endereço salvo com sucesso!");
+  } catch (e) {
+    console.error(e);
+    toast("❌ Erro ao salvar endereço.", "err");
+  } finally {
+    btnSalvarEndereco.disabled = false;
+  }
+});
+
+// ── Inicializar ─────────────────────────────────────────────────────────────────────────
 carregarFicha();
