@@ -54,6 +54,25 @@
     }
     @media (max-width: 520px) { .dados-grid { grid-template-columns: 1fr; } }
     .dados-grid .full { grid-column: 1 / -1; }
+
+    /* ── ENDEREÇO ── */
+    .section-divider {
+      margin: 22px 0 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(0,255,204,0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(0,255,204,0.15);
+    }
   </style>
 </head>
 <body>
@@ -85,7 +104,7 @@
             <input type="file" id="inputFotoPerfil" accept="image/*" />
           </div>
 
-          <!-- CAMPOS -->
+          <!-- CAMPOS PESSOAIS -->
           <div class="dados-grid">
             <div class="input-group">
               <label for="dpNascimento">Data de Nascimento</label>
@@ -100,6 +119,30 @@
             <div class="input-group full">
               <label for="dpResponsavel">Nome do Responsável <span style="color:#4b5563;font-weight:400;font-size:0.78rem;">(para menores)</span></label>
               <input type="text" id="dpResponsavel" placeholder="Nome do pai, mãe ou responsável" />
+            </div>
+          </div>
+
+          <!-- ENDEREÇO -->
+          <div class="section-divider">📍 Endereço</div>
+          <div class="dados-grid">
+            <div class="input-group full">
+              <label for="dpRua">Rua</label>
+              <input type="text" id="dpRua" placeholder="Nome da rua ou avenida" />
+            </div>
+
+            <div class="input-group">
+              <label for="dpNumero">Número</label>
+              <input type="text" id="dpNumero" placeholder="Ex: 123" />
+            </div>
+
+            <div class="input-group">
+              <label for="dpBairro">Bairro</label>
+              <input type="text" id="dpBairro" placeholder="Nome do bairro" />
+            </div>
+
+            <div class="input-group full">
+              <label for="dpCidade">Cidade</label>
+              <input type="text" id="dpCidade" placeholder="Nome da cidade" />
             </div>
           </div>
 
@@ -245,10 +288,16 @@
           prev.innerHTML = `<img src="${dados.foto}" />`;
         }
 
-        // Campos
+        // Campos pessoais
         if (dados.dataNascimento) document.getElementById("dpNascimento").value  = dados.dataNascimento;
         if (dados.responsavel)    document.getElementById("dpResponsavel").value = dados.responsavel;
         if (dados.contato)        document.getElementById("dpContato").value     = dados.contato;
+
+        // Campos de endereço
+        if (dados.rua)    document.getElementById("dpRua").value    = dados.rua;
+        if (dados.numero) document.getElementById("dpNumero").value = dados.numero;
+        if (dados.bairro) document.getElementById("dpBairro").value = dados.bairro;
+        if (dados.cidade) document.getElementById("dpCidade").value = dados.cidade;
 
       } catch(e) { console.error("Erro ao carregar dados pessoais:", e); }
     }
@@ -283,6 +332,10 @@
       const nascimento = document.getElementById("dpNascimento").value;
       const responsavel= document.getElementById("dpResponsavel").value.trim();
       const contato    = document.getElementById("dpContato").value.trim();
+      const rua        = document.getElementById("dpRua").value.trim();
+      const numero     = document.getElementById("dpNumero").value.trim();
+      const bairro     = document.getElementById("dpBairro").value.trim();
+      const cidade     = document.getElementById("dpCidade").value.trim();
       const btn        = document.getElementById("btnSalvarDados");
 
       btn.disabled = true;
@@ -301,7 +354,11 @@
         const update = {
           dataNascimento: nascimento || "",
           responsavel:    responsavel || "",
-          contato:        contato || ""
+          contato:        contato || "",
+          rua:            rua || "",
+          numero:         numero || "",
+          bairro:         bairro || "",
+          cidade:         cidade || ""
         };
 
         // Só atualiza foto se uma nova foi selecionada
