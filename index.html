@@ -307,16 +307,20 @@
           return;
         }
 
-        const qAluno    = query(collection(db, "alunos"), where("nome", "==", nome));
-        const snapAluno = await getDocs(qAluno);
+// Busca primeiro pelo campo login (apelido), depois pelo nome completo
+        let snapAluno = await getDocs(query(collection(db, "alunos"), where("login", "==", nome)));
+        if (snapAluno.empty) {
+          snapAluno = await getDocs(query(collection(db, "alunos"), where("nome", "==", nome)));
+        }
 
         if (!snapAluno.empty) {
           const aluno = snapAluno.docs[0].data();
+          const docId = snapAluno.docs[0].id;
           if (aluno.senha !== senha) {
             erro.textContent = "Senha incorreta.";
             return;
           }
-          salvarUsuarioAtual(aluno.nome, "aluno", aluno.classificado === true);
+          salvarUsuarioAtual(aluno.nome, "aluno", aluno.classificado === true, docId);
           window.location.href = `aluno.html?nome=${encodeURIComponent(aluno.nome)}`;
           return;
         }
