@@ -318,6 +318,10 @@
           const fotoMap  = {};
           fotoSnap.forEach(d => { fotoMap[d.id] = d.data().foto || ""; });
           alunos.forEach(a => { if (a.id && fotoMap[a.id]) a.foto = fotoMap[a.id]; });
+              // Fallback por nome para alunos sem alunoId salvo
+              const nomeMap = {};
+              fotoSnap.forEach(d => { nomeMap[d.data().nome] = d.data().foto || ""; });
+              alunos.forEach(a => { if (!a.foto && a.nome && nomeMap[a.nome]) a.foto = nomeMap[a.nome]; });
         } catch (_) {}
       } else {
         // Evento antigo sem lista no evento: carrega por turmaId ou todos
