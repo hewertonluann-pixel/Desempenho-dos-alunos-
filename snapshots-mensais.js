@@ -32,6 +32,10 @@ function getAnoMesAtual() {
   return { ano: agora.getFullYear(), mes: agora.getMonth() + 1 };
 }
 
+function getTurmaAtiva() {
+  try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
+}
+
 // ── Snapshot automático do mês atual ──────────────────────────────────────
 // Usa setDoc com ID determinístico para evitar duplicatas
 export async function garantirSnapshotDoMes(aluno) {
@@ -131,12 +135,6 @@ export async function carregarTodosSnapshots() {
 
 // ============================================================
 // PREENCHIMENTO AUTOMÁTICO INTELIGENTE DE PEGADAS
-// Lógica:
-//   1. Nível inicial padrão: leitura=60, metodo=1
-//   2. Busca notificações de alteração de nível do aluno
-//   3. Reconstrói a linha do tempo mês a mês desde Jan/ano
-//      até o mês atual, aplicando alterações quando ocorreram
-//   4. Pula meses que já possuem snapshot salvo
 // ============================================================
 export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress) {
   const LEITURA_INICIAL = 60;
@@ -154,7 +152,6 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
     )
   );
 
-  // Mapear alterações por chave "YYYY-MM"
   const alteracoesPorMes = {};
 
   snapNotif.forEach(d => {
@@ -225,7 +222,6 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
       continue;
     }
 
-    // Criar snapshot com ID determinístico (não duplica)
     const docId = `${aluno.id}_${chave}`;
     await setDoc(doc(db, COLECAO, docId), {
       alunoId:                aluno.id,
@@ -252,11 +248,24 @@ export async function preenchimentoAutomaticoPegadas(aluno, anoAlvo, onProgress)
 }
 
 // ============================================================
-// PREENCHIMENTO EM LOTE — TODOS OS ALUNOS
-// Chama preenchimentoAutomaticoPegadas para cada aluno
+// PREENCHIMENTO EM LOTE — respeita turma ativa
+// Se houver turma ativa no localStorage, processa apenas os
+// alunos dessa turma. Sem turma ativa, processa todos.
 // ============================================================
 export async function preenchimentoAutomaticoTodosAlunos(ano, onProgress) {
-  const snapAlunos = await getDocs(collection(db, "alunos"));
+  const turmaAtiva = getTurmaAtiva();
+
+  let snapAlunos;
+  if (turmaAtiva?.id) {
+    snapAlunos = await getDocs(
+      query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id))
+    );
+    console.log(`📚 Preenchimento em lote — Turma: ${turmaAtiva.nome}`);
+  } else {
+    snapAlunos = await getDocs(collection(db, "alunos"));
+    console.log("📚 Preenchimento em lote — Todos os alunos");
+  }
+
   const alunos = snapAlunos.docs.map(d => ({ id: d.id, ...d.data() }));
 
   let totalCriados = 0;
