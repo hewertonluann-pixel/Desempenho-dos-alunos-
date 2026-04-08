@@ -6,6 +6,7 @@
   <title>Ficha do Aluno - Orquestra Filhos de Asafe</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
   <style>
+    /* ── Variáveis ── */
     :root {
       --bg: #020617; --card: #0b1220; --border: rgba(56,189,248,0.25);
       --ink: #e2e8f0; --muted: #94a3b8; --azul: #0ea5e9;
@@ -18,7 +19,7 @@
     }
     .topo {
       display: flex; align-items: center; gap: 12px;
-      max-width: 680px; margin: 0 auto 28px;
+      max-width: 680px; margin: 0 auto 28px; flex-wrap: wrap;
     }
     .btn-voltar {
       display: inline-flex; align-items: center; gap: 6px;
@@ -28,7 +29,17 @@
       transition: all .2s;
     }
     .btn-voltar:hover { background: rgba(14,165,233,0.12); border-color: var(--azul); }
-    .titulo-pagina { font-size: 1.4rem; font-weight: 700; color: var(--azul); }
+    .titulo-pagina { font-size: 1.4rem; font-weight: 700; color: var(--azul); flex: 1; }
+
+    /* Botão imprimir */
+    .btn-imprimir {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #1e293b; color: #a78bfa;
+      border: 1px solid rgba(167,139,250,0.35);
+      border-radius: 10px; padding: 8px 16px; font-size: 0.88rem;
+      font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-imprimir:hover { background: rgba(167,139,250,0.12); border-color: #a78bfa; }
 
     #loaderFicha { text-align: center; padding: 60px; color: var(--muted); font-size: 1rem; }
     .spinner {
@@ -88,7 +99,6 @@
     .campo input:focus, .campo select:focus { border-color: var(--azul); box-shadow: 0 0 0 2px rgba(14,165,233,0.15); }
     .campo input[readonly] { color: var(--muted); cursor: default; }
 
-    /* Badge de idade */
     .idade-badge {
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(14,165,233,0.12); border: 1px solid rgba(14,165,233,0.3);
@@ -136,15 +146,211 @@
     #toast.show { opacity: 1; }
     #toast.ok   { border-color: var(--verde);    color: #86efac; }
     #toast.err  { border-color: var(--vermelho); color: #fca5a5; }
+
+    /* ══════════════════════════════════════════════════
+       ESTILOS DE IMPRESSÃO / PDF
+       ══════════════════════════════════════════════════ */
+    /* Elementos que NÃO aparecem no PDF */
+    .no-print { }
+
+    @media print {
+      /* Reset geral */
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      body {
+        background: #fff !important;
+        color: #111 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 11pt;
+      }
+
+      /* Oculta elementos de UI */
+      .no-print,
+      .topo,
+      .acoes-ficha,
+      #toast,
+      .btn-ver-senha,
+      .dica-login,
+      .spinner,
+      #loaderFicha { display: none !important; }
+
+      /* Cabeçalho do PDF */
+      .ficha-wrap::before {
+        content: '';
+        display: block;
+        width: 100%;
+        padding: 14pt 0 10pt;
+        border-bottom: 2pt solid #0ea5e9;
+        margin-bottom: 18pt;
+      }
+      .pdf-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14pt 0 10pt;
+        border-bottom: 2pt solid #0ea5e9;
+        margin-bottom: 18pt;
+      }
+      .pdf-header-titulo {
+        font-size: 15pt;
+        font-weight: 800;
+        color: #0ea5e9;
+        letter-spacing: -.3px;
+      }
+      .pdf-header-org {
+        font-size: 9pt;
+        color: #64748b;
+        text-align: right;
+        line-height: 1.5;
+      }
+
+      /* Rodapé do PDF */
+      .pdf-footer {
+        display: block !important;
+        margin-top: 24pt;
+        padding-top: 8pt;
+        border-top: 1pt solid #cbd5e1;
+        font-size: 8pt;
+        color: #94a3b8;
+        text-align: center;
+      }
+
+      /* Ficha wrap sem flex gap */
+      .ficha-wrap {
+        max-width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 16pt 20pt !important;
+      }
+
+      /* Card perfil */
+      .card-perfil {
+        background: #f8fafc !important;
+        border: 1pt solid #cbd5e1 !important;
+        border-radius: 8pt !important;
+        padding: 12pt !important;
+        margin-bottom: 14pt;
+        display: flex !important;
+        gap: 14pt;
+        align-items: center;
+        page-break-inside: avoid;
+      }
+      .foto-perfil {
+        width: 64pt; height: 64pt;
+        border: 1.5pt solid #0ea5e9 !important;
+        border-radius: 50% !important;
+        background: #e2e8f0 !important;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .foto-perfil img { width: 100%; height: 100%; object-fit: cover; }
+      .info-perfil h2 { font-size: 14pt; color: #0ea5e9 !important; margin-bottom: 3pt; }
+      .info-perfil p  { font-size: 9pt; color: #475569 !important; }
+      .turma-chip {
+        background: #e0f2fe !important;
+        border: 1pt solid #7dd3fc !important;
+        color: #0369a1 !important;
+        border-radius: 999pt;
+        font-size: 8pt; font-weight: 700;
+        padding: 2pt 8pt; margin-top: 4pt;
+        display: inline-flex !important;
+      }
+
+      /* Seções */
+      .secao {
+        background: #fff !important;
+        border: 1pt solid #e2e8f0 !important;
+        border-radius: 6pt !important;
+        padding: 10pt 14pt !important;
+        margin-bottom: 12pt;
+        page-break-inside: avoid;
+      }
+      .secao-titulo {
+        font-size: 7.5pt !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        color: #0ea5e9 !important;
+        margin-bottom: 10pt !important;
+        display: flex !important;
+        gap: 6pt;
+        align-items: center;
+      }
+      .secao-titulo::after {
+        content: '';
+        flex: 1;
+        height: .75pt;
+        background: #bae6fd;
+      }
+
+      /* Campos: substitui inputs por linhas de texto */
+      .campos-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8pt 14pt !important;
+      }
+      .campo label {
+        font-size: 7pt !important;
+        color: #64748b !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        display: block;
+        margin-bottom: 2pt;
+      }
+      .campo input,
+      .campo select {
+        background: transparent !important;
+        border: none !important;
+        border-bottom: 1pt solid #cbd5e1 !important;
+        border-radius: 0 !important;
+        color: #1e293b !important;
+        padding: 3pt 0 !important;
+        font-size: 10pt !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      /* Esconde a seta do select */
+      .campo select { background-image: none !important; }
+
+      .idade-badge {
+        background: #e0f2fe !important;
+        border: 1pt solid #7dd3fc !important;
+        color: #0369a1 !important;
+        font-size: 8pt !important;
+      }
+      .idade-badge.oculto { display: none !important; }
+
+      /* Seção de Acesso: oculta no PDF por segurança */
+      .secao-acesso { display: none !important; }
+
+      @page {
+        size: A4;
+        margin: 15mm 18mm;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="topo">
-    <a href="professor.html" class="btn-voltar">
+    <a href="professor.html" class="btn-voltar no-print">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       Voltar
     </a>
     <span class="titulo-pagina" id="tituloPagina">Ficha do Aluno</span>
+
+    <!-- Botão Imprimir -->
+    <button class="btn-imprimir no-print" onclick="window.print()" title="Gerar PDF da ficha">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9V2h12v7"/>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8" rx="1"/>
+      </svg>
+      Imprimir / PDF
+    </button>
   </div>
 
   <div id="loaderFicha">
@@ -153,6 +359,17 @@
   </div>
 
   <div class="ficha-wrap" id="fichaWrap" style="display:none;">
+
+    <!-- Cabeçalho visível apenas no PDF -->
+    <div class="pdf-header" style="display:none;">
+      <div>
+        <div class="pdf-header-titulo" id="pdfTitulo">Ficha do Aluno</div>
+      </div>
+      <div class="pdf-header-org">
+        Orquestra Filhos de Asafe<br>
+        <span id="pdfData"></span>
+      </div>
+    </div>
 
     <!-- Perfil -->
     <div class="card-perfil">
@@ -164,8 +381,8 @@
       </div>
     </div>
 
-    <!-- Seção: Acesso -->
-    <div class="secao">
+    <!-- Seção: Acesso (oculta no PDF) -->
+    <div class="secao secao-acesso">
       <div class="secao-titulo">🔐 Acesso do Aluno</div>
       <div class="campos-grid">
         <div class="campo">
@@ -273,10 +490,21 @@
       </div>
     </div>
 
+    <!-- Rodapé visível apenas no PDF -->
+    <div class="pdf-footer" style="display:none;">
+      Documento gerado em <span id="pdfDataRodape"></span> · Orquestra Filhos de Asafe
+    </div>
+
   </div>
 
   <div id="toast"></div>
 
+  <script>
+    // Preenche data no cabeçalho/rodapé do PDF
+    const dataAtual = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+    document.getElementById('pdfData').textContent    = dataAtual;
+    document.getElementById('pdfDataRodape').textContent = dataAtual;
+  </script>
   <script type="module" src="ficha-aluno.js"></script>
   <script type="module" src="navegacao.js"></script>
 </body>
