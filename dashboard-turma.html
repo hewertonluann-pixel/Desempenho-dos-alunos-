@@ -365,13 +365,18 @@ tr:hover td{background:rgba(255,255,255,.03)}
 
 <script type="module">
 import { db } from "./firebase-config.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { obterEventosDoAno, agruparEventosPorMes, calcularFrequenciaMensalParaAluno } from "./frequencia.js";
 import { carregarTodosSnapshots } from "./snapshots-mensais.js";
 
 const ANO = new Date().getFullYear();
 const MES_ATUAL = new Date().getMonth() + 1;
 const NOMES_MES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// ── Lê turma ativa do localStorage ──────────────────────────────────────────
+function getTurmaAtiva() {
+  try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
+}
 
 let G_alunos = [];
 let G_freqAnual = {};
@@ -386,8 +391,17 @@ const colorPct = (v) => v >= 80 ? 'var(--green)' : v >= 50 ? 'var(--yellow)' : '
 const classFreq = (v) => v >= 80 ? 'high' : v >= 50 ? 'mid' : 'low';
 
 async function carregar() {
+  const turmaAtiva = getTurmaAtiva();
+  const turmaId = turmaAtiva?.id || null;
+
   msg('Buscando alunos…');
-  const snapAlunos = await getDocs(collection(db, 'alunos'));
+  // ── Filtra alunos pela turma ativa (se houver) ───────────────────────────
+  let snapAlunos;
+  if (turmaId) {
+    snapAlunos = await getDocs(query(collection(db, 'alunos'), where('turmaId', '==', turmaId)));
+  } else {
+    snapAlunos = await getDocs(collection(db, 'alunos'));
+  }
   G_alunos = snapAlunos.docs.map(d => ({ id: d.id, ...d.data() }));
 
   msg('Carregando configuração do grupo…');
@@ -396,13 +410,17 @@ async function carregar() {
     snapCfg.forEach(d => {
       if (d.id === 'grupo') {
         const cfg = d.data();
-        document.getElementById('dash-title').textContent = `📊 ${cfg.nome || 'Dashboard Gerencial'}`;
+        const titulo = turmaAtiva?.nome
+          ? `📊 Dashboard — ${turmaAtiva.nome}`
+          : `📊 ${cfg.nome || 'Dashboard Gerencial'}`;
+        document.getElementById('dash-title').textContent = titulo;
       }
     });
   } catch {}
 
   msg('Calculando frequências…');
-  const eventos = await obterEventosDoAno(ANO);
+  // ── Passa turmaId para filtrar eventos no Firestore ──────────────────────
+  const eventos = await obterEventosDoAno(ANO, turmaId);
   const agrupado = agruparEventosPorMes(eventos);
 
   G_alunos.forEach(a => {
@@ -427,7 +445,15 @@ async function carregar() {
   }
 
   msg('Carregando evolução de nível…');
-  G_snapshots = await carregarTodosSnapshots();
+  // ── Filtra snapshots pela turma ativa (se houver) ─────────────────────────
+  // carregarTodosSnapshots() traz tudo; filtramos em memória pelos alunoIds da turma
+  const todosSnaps = await carregarTodosSnapshots();
+  if (turmaId) {
+    const idsAlunos = new Set(G_alunos.map(a => a.id));
+    G_snapshots = todosSnaps.filter(s => idsAlunos.has(s.alunoId));
+  } else {
+    G_snapshots = todosSnaps;
+  }
 
   const snapPorMes = {};
   G_snapshots.forEach(s => {
@@ -557,11 +583,6 @@ function renderCharts() {
     }
   });
 
-  // 🎓 Distribuição Nível Geral — baseado em leitura (Bona) + método (pts)
-  // Baixo:  total ≤ 60pts
-  // Médio:  total 61–70pts
-  // Alto:   total ≥ 85pts
-  // (71–84 fica numa faixa intermediária incluída no médio)
   const nAlto  = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) >= 85).length;
   const nMedio = ativos.filter(a => { const v=(Number(a.leitura)||0)+(Number(a.metodo)||0); return v>=61&&v<=84; }).length;
   const nBaixo = ativos.filter(a => ((Number(a.leitura)||0)+(Number(a.metodo)||0)) <= 60).length;
