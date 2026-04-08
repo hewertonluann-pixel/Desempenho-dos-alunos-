@@ -36,12 +36,12 @@ const btnRedefinir    = document.getElementById("btnRedefinir");
 const btnCopiar       = document.getElementById("btnCopiar");
 
 // Dados Pessoais
-const campoDataNasc      = document.getElementById("campoDataNasc");
-const idadeBadge         = document.getElementById("idadeBadge");
-const idadeTexto         = document.getElementById("idadeTexto");
-const campoTelefone      = document.getElementById("campoTelefone");
-const campoResponsavel   = document.getElementById("campoResponsavel");
-const btnSalvarPessoais  = document.getElementById("btnSalvarPessoais");
+const campoDataNasc     = document.getElementById("campoDataNasc");
+const idadeBadge        = document.getElementById("idadeBadge");
+const idadeTexto        = document.getElementById("idadeTexto");
+const campoTelefone     = document.getElementById("campoTelefone");   // campo visual
+const campoResponsavel  = document.getElementById("campoResponsavel");
+const btnSalvarPessoais = document.getElementById("btnSalvarPessoais");
 
 // Dados Gerais
 const campoNome         = document.getElementById("campoNome");
@@ -148,8 +148,9 @@ async function carregarFicha() {
     campoSenha.value = d.senha || SENHA_PADRAO;
 
     // Dados Pessoais
+    // NOTA: o campo telefone é salvo como "contato" no Firestore (padrão de configuracoes.html)
     campoDataNasc.value    = d.dataNascimento || "";
-    campoTelefone.value    = d.telefone       || "";
+    campoTelefone.value    = d.contato        || "";   // ← chave correta: "contato"
     campoResponsavel.value = d.responsavel    || "";
     atualizarIdadeBadge(d.dataNascimento || "");
 
@@ -166,7 +167,7 @@ async function carregarFicha() {
     campoBairro.value = d.bairro || "";
     campoCidade.value = d.cidade || "";
 
-    loader.style.display  = "none";
+    loader.style.display    = "none";
     fichaWrap.style.display = "flex";
   } catch (e) {
     console.error("Erro ao carregar ficha:", e);
@@ -217,15 +218,16 @@ btnCopiar.addEventListener("click", () => {
 });
 
 // ── Salvar dados pessoais ─────────────────────────────────────────────────────
+// Salva usando a mesma chave "contato" que configuracoes.html usa
 btnSalvarPessoais.addEventListener("click", async () => {
   const dataNascimento = campoDataNasc.value    || "";
-  const telefone       = campoTelefone.value.trim();
+  const contato        = campoTelefone.value.trim();   // ← chave correta: "contato"
   const responsavel    = campoResponsavel.value.trim();
 
   btnSalvarPessoais.disabled = true;
   try {
-    await updateDoc(doc(db, "alunos", alunoId), { dataNascimento, telefone, responsavel });
-    dadosAluno = { ...dadosAluno, dataNascimento, telefone, responsavel };
+    await updateDoc(doc(db, "alunos", alunoId), { dataNascimento, contato, responsavel });
+    dadosAluno = { ...dadosAluno, dataNascimento, contato, responsavel };
     atualizarIdadeBadge(dataNascimento);
     toast("✅ Dados pessoais salvos!");
   } catch (e) {
