@@ -30,11 +30,7 @@
     .btn-voltar:hover { background: rgba(14,165,233,0.12); border-color: var(--azul); }
     .titulo-pagina { font-size: 1.4rem; font-weight: 700; color: var(--azul); }
 
-    /* ── Loader ── */
-    #loaderFicha {
-      text-align: center; padding: 60px;
-      color: var(--muted); font-size: 1rem;
-    }
+    #loaderFicha { text-align: center; padding: 60px; color: var(--muted); font-size: 1rem; }
     .spinner {
       width: 40px; height: 40px; border-radius: 50%;
       border: 3px solid rgba(34,211,238,0.2); border-top-color: #22d3ee;
@@ -42,7 +38,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Card do aluno ── */
     .ficha-wrap { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
     .card-perfil {
@@ -66,7 +61,6 @@
       font-size: 0.75rem; font-weight: 700; padding: 3px 10px; margin-top: 6px;
     }
 
-    /* ── Seções ── */
     .secao {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 16px; padding: 20px;
@@ -76,15 +70,9 @@
       letter-spacing: .06em; color: var(--muted); margin-bottom: 16px;
       display: flex; align-items: center; gap: 8px;
     }
-    .secao-titulo::after {
-      content: ''; flex: 1; height: 1px;
-      background: rgba(56,189,248,0.18);
-    }
+    .secao-titulo::after { content: ''; flex: 1; height: 1px; background: rgba(56,189,248,0.18); }
 
-    /* ── Grid de campos ── */
-    .campos-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-    }
+    .campos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 520px) { .campos-grid { grid-template-columns: 1fr; } }
     .campo-full { grid-column: 1 / -1; }
 
@@ -95,33 +83,34 @@
     .campo input, .campo select {
       width: 100%; background: #0f172a; border: 1px solid #334155;
       border-radius: 9px; color: var(--ink); padding: 9px 12px;
-      font-size: 0.9rem; outline: none; transition: border-color .2s;
-      font-family: inherit;
+      font-size: 0.9rem; outline: none; transition: border-color .2s; font-family: inherit;
     }
     .campo input:focus, .campo select:focus { border-color: var(--azul); box-shadow: 0 0 0 2px rgba(14,165,233,0.15); }
     .campo input[readonly] { color: var(--muted); cursor: default; }
 
-    /* ── Senha ── */
+    /* Badge de idade */
+    .idade-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(14,165,233,0.12); border: 1px solid rgba(14,165,233,0.3);
+      color: var(--azul); border-radius: 999px;
+      font-size: 0.8rem; font-weight: 700; padding: 4px 12px;
+      margin-top: 8px;
+    }
+    .idade-badge.oculto { display: none; }
+
     .senha-wrapper { position: relative; }
     .senha-wrapper input { padding-right: 42px; }
     .btn-ver-senha {
       position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
       background: none; border: none; cursor: pointer;
-      color: var(--muted); font-size: 1rem; padding: 4px;
-      transition: color .2s;
+      color: var(--muted); font-size: 1rem; padding: 4px; transition: color .2s;
     }
     .btn-ver-senha:hover { color: var(--azul); }
 
-    /* ── Dica de login ── */
-    .dica-login {
-      font-size: 0.75rem; color: #64748b; margin-top: 5px;
-    }
+    .dica-login { font-size: 0.75rem; color: #64748b; margin-top: 5px; }
     .dica-login strong { color: #38bdf8; }
 
-    /* ── Botões de ação ── */
-    .acoes-ficha {
-      display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;
-    }
+    .acoes-ficha { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
     .btn-acao {
       flex: 1; min-width: 140px;
       padding: 11px 16px; border-radius: 10px; border: none;
@@ -129,28 +118,24 @@
       display: flex; align-items: center; justify-content: center; gap: 7px;
       transition: all .2s;
     }
-    .btn-salvar  { background: var(--verde);  color: #022c22; box-shadow: 0 4px 14px rgba(34,197,94,0.35); }
-    .btn-salvar:hover  { background: #16a34a; }
+    .btn-salvar    { background: var(--verde);  color: #022c22; box-shadow: 0 4px 14px rgba(34,197,94,0.35); }
+    .btn-salvar:hover    { background: #16a34a; }
     .btn-redefinir { background: #1e293b; color: var(--amarelo); border: 1px solid rgba(245,158,11,0.4); }
     .btn-redefinir:hover { background: rgba(245,158,11,0.1); }
-    .btn-copiar { background: #1e293b; color: var(--azul); border: 1px solid var(--border); }
-    .btn-copiar:hover { background: rgba(14,165,233,0.1); }
-    .btn-desativar { background: #1e293b; color: var(--vermelho); border: 1px solid rgba(239,68,68,0.3); }
-    .btn-desativar:hover { background: rgba(239,68,68,0.1); }
-    .btn-acao:disabled { opacity: .55; cursor: not-allowed; transform: none !important; }
+    .btn-copiar    { background: #1e293b; color: var(--azul); border: 1px solid var(--border); }
+    .btn-copiar:hover    { background: rgba(14,165,233,0.1); }
+    .btn-acao:disabled   { opacity: .55; cursor: not-allowed; }
 
-    /* ── Toast ── */
     #toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       background: #1e293b; border: 1px solid var(--border);
       color: var(--ink); border-radius: 10px; padding: 10px 20px;
       font-size: 0.88rem; font-weight: 600; z-index: 999;
-      opacity: 0; transition: opacity .3s; pointer-events: none;
-      white-space: nowrap;
+      opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap;
     }
     #toast.show { opacity: 1; }
-    #toast.ok  { border-color: var(--verde); color: #86efac; }
-    #toast.err { border-color: var(--vermelho); color: #fca5a5; }
+    #toast.ok   { border-color: var(--verde);    color: #86efac; }
+    #toast.err  { border-color: var(--vermelho); color: #fca5a5; }
   </style>
 </head>
 <body>
@@ -200,6 +185,29 @@
         <button class="btn-acao btn-salvar" id="btnSalvarAcesso">💾 Salvar acesso</button>
         <button class="btn-acao btn-redefinir" id="btnRedefinir">🔄 Redefinir senha para padrão</button>
         <button class="btn-acao btn-copiar" id="btnCopiar">📋 Copiar credenciais</button>
+      </div>
+    </div>
+
+    <!-- Seção: Dados Pessoais -->
+    <div class="secao">
+      <div class="secao-titulo">👤 Dados Pessoais</div>
+      <div class="campos-grid">
+        <div class="campo">
+          <label>Data de Nascimento</label>
+          <input type="date" id="campoDataNasc" />
+          <span class="idade-badge oculto" id="idadeBadge">🎂 <span id="idadeTexto"></span></span>
+        </div>
+        <div class="campo">
+          <label>WhatsApp / Telefone</label>
+          <input type="tel" id="campoTelefone" placeholder="(00) 00000-0000" />
+        </div>
+        <div class="campo campo-full">
+          <label>Nome do Responsável <span style="font-weight:400;text-transform:none;font-size:0.7rem;">(para menores)</span></label>
+          <input type="text" id="campoResponsavel" placeholder="Nome completo do responsável" />
+        </div>
+      </div>
+      <div class="acoes-ficha" style="margin-top:16px;">
+        <button class="btn-acao btn-salvar" id="btnSalvarPessoais">💾 Salvar dados pessoais</button>
       </div>
     </div>
 
