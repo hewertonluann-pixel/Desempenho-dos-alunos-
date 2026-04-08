@@ -9,89 +9,325 @@
   <script src="js/html2pdf.bundle.min.js"></script>
 
   <style>
-    /* ── SELETOR DE TURMA ── */
-    .turma-seletor-wrapper {
-      margin-bottom: 18px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(56,189,248,0.2);
+    /* ══════════════════════════════════════════
+       TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      --cyan: #22d3ee;
+      --cyan-dim: rgba(34,211,238,0.15);
+      --surface-dark: rgba(15,23,42,0.97);
+      --surface-card: rgba(30,41,59,0.9);
+      --border-cyan: rgba(56,189,248,0.35);
+      --radius-sheet: 20px;
+      --transition: 0.35s cubic-bezier(0.32,0.72,0,1);
     }
-    .turma-seletor-label {
-      font-size: 0.72rem;
+
+    /* ══════════════════════════════════════════
+       BASE
+    ══════════════════════════════════════════ */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: #e2e8f0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      color: var(--cyan);
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
       font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-bottom: 6px;
-      display: block;
     }
-    .turma-seletor-select {
-      width: 100%;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(56,189,248,0.35);
+    .usuario-logado { text-align: center; margin-bottom: 30px; opacity: 0.85; font-size: 1.1em; }
+
+    /* ══════════════════════════════════════════
+       HEADER MOBILE COMPACTO
+    ══════════════════════════════════════════ */
+    .mobile-header {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface-dark);
+      border: 1px solid var(--border-cyan);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+    .mobile-header-title {
+      flex: 1;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--cyan);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mobile-turma-select {
+      flex: 1;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid var(--border-cyan);
       border-radius: 8px;
       color: #e2e8f0;
-      padding: 8px 10px;
-      font-size: 0.82rem;
+      padding: 6px 8px;
+      font-size: 0.78rem;
       font-family: inherit;
       outline: none;
       cursor: pointer;
-      transition: border-color .2s;
+      max-width: 160px;
     }
-    .turma-seletor-select:focus { border-color: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,0.15); }
-    .turma-badge {
-      margin-top: 6px;
-      font-size: 0.72rem;
-      color: #22d3ee;
-      min-height: 16px;
-      text-align: center;
-      font-style: italic;
+    @media (max-width: 767px) {
+      .mobile-header { display: flex; }
+      h1:first-of-type { font-size: 1.6em; margin-bottom: 4px; }
+      .usuario-logado { font-size: 0.9em; margin-bottom: 12px; }
+      .intro-section { display: none; }
     }
 
-    /* restante do CSS existente ── */
-    .btn-toggle-sidebar {
-      display: none; position: fixed; left: 20px; top: 90%;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      color: #fff; border: none; border-radius: 50%;
-      width: 50px; height: 50px; font-size: 24px;
-      cursor: pointer; transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1010;
+    /* ══════════════════════════════════════════
+       INTRO SECTION (desktop)
+    ══════════════════════════════════════════ */
+    .intro-section {
+      text-align: center; margin-bottom: 30px; padding: 20px;
+      background: rgba(30,41,59,0.8); border-radius: 16px;
+      border: 2px solid rgba(56,189,248,0.4); color: #e2e8f0;
     }
-    .btn-toggle-sidebar:hover { background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 6px 20px rgba(0,0,0,0.5); transform: translateY(-50%) scale(1.1); }
-    @media (max-width: 767px) { .btn-toggle-sidebar { display: block; } }
-    .intro-section { text-align: center; margin-bottom: 30px; padding: 20px; background: rgba(30,41,59,0.8); border-radius: 16px; border: 2px solid rgba(56,189,248,0.4); color: #e2e8f0; }
     .intro-section p { font-size: 1.2em; margin: 10px 0; line-height: 1.6; }
-    .intro-motivational { font-style: italic; color: #22d3ee; margin-top: 15px; }
-    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; transition: opacity 0.3s ease; }
-    .sidebar-overlay.visible { opacity: 1; display: block; }
-    .coluna-botoes-prof { flex: 0 0 180px; position: sticky; top: 20px; background: rgba(15,23,42,0.95); border-radius: 16px; padding: 20px; border: 2px solid rgba(56,189,248,0.4); box-shadow: 0 10px 40px rgba(0,0,0,0.3); margin-right: 20px; z-index: 100; transition: transform 0.3s ease; }
-    @media (max-width: 767px) {
-      .coluna-botoes-prof { position: fixed; left: 0; top: 0; height: 100vh; width: 250px; background: rgba(15,23,42,0.95); border-radius: 0 16px 16px 0; padding: 60px 20px 20px; border: 2px solid rgba(56,189,248,0.4); box-shadow: 4px 0 20px rgba(0,0,0,0.3); z-index: 1000; transform: translateX(-100%); }
-      .coluna-botoes-prof.open { transform: translateX(0); }
-    }
-    .titulo-card-prof { color: #22d3ee; font-size: 1.4em; margin-bottom: 20px; text-align: center; font-weight: bold; }
-    .coluna-botoes-prof button { display: block; width: 100%; margin-bottom: 15px; background: linear-gradient(135deg, #0ea5e9, #0284c7); border: none; border-radius: 12px; padding: 12px 18px; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-    .coluna-botoes-prof button:hover { transform: translateY(-3px) scale(1.02); }
+    .intro-motivational { font-style: italic; color: var(--cyan); margin-top: 15px; }
+
+    /* ══════════════════════════════════════════
+       LAYOUT DESKTOP
+    ══════════════════════════════════════════ */
     .layout-professor { display: flex; flex-direction: row; max-width: 1400px; margin: 0 auto; }
     .painel-alunos { flex: 1; }
+
+    /* ══════════════════════════════════════════
+       SIDEBAR DESKTOP
+    ══════════════════════════════════════════ */
+    .turma-seletor-wrapper {
+      margin-bottom: 18px; padding-bottom: 16px;
+      border-bottom: 1px solid rgba(56,189,248,0.2);
+    }
+    .turma-seletor-label {
+      font-size: 0.72rem; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 6px; display: block;
+    }
+    .turma-seletor-select {
+      width: 100%; background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(56,189,248,0.35); border-radius: 8px;
+      color: #e2e8f0; padding: 8px 10px; font-size: 0.82rem;
+      font-family: inherit; outline: none; cursor: pointer; transition: border-color .2s;
+    }
+    .turma-seletor-select:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(34,211,238,0.15); }
+    .turma-badge {
+      margin-top: 6px; font-size: 0.72rem; color: var(--cyan);
+      min-height: 16px; text-align: center; font-style: italic;
+    }
+
+    .coluna-botoes-prof {
+      flex: 0 0 180px; position: sticky; top: 20px;
+      background: rgba(15,23,42,0.95); border-radius: 16px;
+      padding: 20px; border: 2px solid rgba(56,189,248,0.4);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3); margin-right: 20px;
+      z-index: 100; transition: transform 0.3s ease;
+    }
+    .titulo-card-prof { color: var(--cyan); font-size: 1.4em; margin-bottom: 20px; text-align: center; font-weight: bold; }
+    .coluna-botoes-prof button {
+      display: block; width: 100%; margin-bottom: 15px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border: none; border-radius: 12px; padding: 12px 18px;
+      color: #fff; font-weight: 600; cursor: pointer;
+      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .coluna-botoes-prof button:hover { transform: translateY(-3px) scale(1.02); }
+
+    /* ══════════════════════════════════════════
+       FAB — MOBILE ONLY
+    ══════════════════════════════════════════ */
+    .fab-menu {
+      display: none;
+      position: fixed;
+      right: 20px;
+      bottom: 28px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border: none;
+      color: #fff;
+      font-size: 26px;
+      cursor: pointer;
+      z-index: 1100;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fab-menu:active { transform: scale(0.92); }
+    @media (max-width: 767px) {
+      .fab-menu { display: flex; }
+      .coluna-botoes-prof { display: none; } /* sidebar oculta em mobile */
+      .layout-professor { flex-direction: column; }
+      .painel.active { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════════════════════════════════
+       BOTTOM SHEET
+    ══════════════════════════════════════════ */
+    .sheet-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1200;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sheet-overlay.visible { opacity: 1; display: block; }
+
+    .bottom-sheet {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 1300;
+      background: var(--surface-dark);
+      border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+      border-top: 2px solid var(--border-cyan);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+      transform: translateY(100%);
+      transition: transform var(--transition);
+      /* max-height deixa scroll funcionar em telas pequenas */
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .bottom-sheet.open { transform: translateY(0); }
+
+    /* Handle de arraste */
+    .sheet-handle-area {
+      padding: 12px 0 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      cursor: grab;
+    }
+    .sheet-handle {
+      width: 40px; height: 4px;
+      background: rgba(148,163,184,0.4);
+      border-radius: 99px;
+    }
+    .sheet-title {
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--cyan); text-align: center;
+      padding-bottom: 4px;
+    }
+
+    /* Conteúdo rolável */
+    .sheet-body {
+      overflow-y: auto;
+      padding: 8px 16px 32px;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Seletor de turma dentro do sheet */
+    .sheet-turma-wrapper {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(56,189,248,0.2);
+    }
+    .sheet-turma-label {
+      font-size: 0.7rem; font-weight: 700; color: #94a3b8;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 6px; display: block;
+    }
+    .sheet-turma-select {
+      width: 100%; background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(56,189,248,0.35); border-radius: 8px;
+      color: #e2e8f0; padding: 9px 10px; font-size: 0.85rem;
+      font-family: inherit; outline: none; cursor: pointer;
+    }
+    .sheet-turma-badge {
+      margin-top: 5px; font-size: 0.72rem;
+      color: var(--cyan); font-style: italic; text-align: center; min-height: 14px;
+    }
+
+    /* Botões dentro do sheet */
+    .sheet-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(2,132,199,0.1));
+      border: 1px solid rgba(56,189,248,0.25);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #e2e8f0;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sheet-btn:active,
+    .sheet-btn:hover {
+      background: linear-gradient(135deg, rgba(14,165,233,0.28), rgba(2,132,199,0.22));
+      border-color: rgba(56,189,248,0.5);
+    }
+    .sheet-btn .btn-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .sheet-btn .btn-label { flex: 1; }
+
+    /* Botão especial dashboard */
+    .sheet-btn.btn-dashboard {
+      background: linear-gradient(135deg, rgba(8,145,178,0.2), rgba(14,116,144,0.15));
+      border-color: rgba(8,145,178,0.35);
+    }
+    .sheet-btn.btn-dashboard:active,
+    .sheet-btn.btn-dashboard:hover {
+      background: linear-gradient(135deg, rgba(8,145,178,0.35), rgba(14,116,144,0.28));
+      border-color: rgba(8,145,178,0.6);
+    }
+
+    /* ══════════════════════════════════════════
+       PAINÉIS
+    ══════════════════════════════════════════ */
     .painel { display: none; }
-    .painel.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 25px; margin-top: 30px; animation: fadeIn 0.5s ease-out; }
-    .ficha { background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(51,65,85,0.9)); border: 2px solid rgba(56,189,248,0.4); border-radius: 16px; padding: 12px; width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .painel.active {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      gap: 25px; margin-top: 30px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* fichas */
+    .ficha {
+      background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(51,65,85,0.9));
+      border: 2px solid rgba(56,189,248,0.4); border-radius: 16px;
+      padding: 12px; width: 300px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transition: all 0.3s ease; display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+    }
     .ficha:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 10px 36px rgba(0,0,0,0.5); border-color: rgba(34,211,238,0.6); }
     .foto-wrapper { position: relative; margin-bottom: 6px; }
     .foto { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid rgba(56,189,248,0.6); }
     .foto img { width: 100%; height: 100%; object-fit: cover; }
-    .avatar-placeholder { width: 100%; height: 100%; background: rgba(56,189,248,0.2); display: flex; align-items: center; justify-content: center; color: #22d3ee; font-size: 35px; }
+    .avatar-placeholder { width: 100%; height: 100%; background: rgba(56,189,248,0.2); display: flex; align-items: center; justify-content: center; color: var(--cyan); font-size: 35px; }
     .btn-camera { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.8); color: white; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.3s ease; z-index: 20; }
     .btn-camera:hover { background: rgba(0,0,0,0.9); transform: scale(1.1); }
     .nome-section { text-align: center; margin-bottom: 4px; }
-    .nome { font-size: 1.3em; font-weight: bold; color: #22d3ee; }
+    .nome { font-size: 1.3em; font-weight: bold; color: var(--cyan); }
     .divider { height: 1px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent); margin: 4px 0; width: 80%; }
     .notas-section { width: 100%; gap: 0; }
     .nota-line.extended { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .nota-line.extended:last-child { margin-bottom: 0; }
     .label-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .label-group label { font-weight: bold; color: #22d3ee; font-size: 0.85em; }
+    .label-group label { font-weight: bold; color: var(--cyan); font-size: 0.85em; }
     .metodo-text { font-size: 0.8em; color: #38bdf8; font-style: italic; text-align: center; }
     .nota-controls { display: flex; align-items: center; gap: 6px; }
     .btn-decrease, .btn-increase { width: 32px; height: 32px; border-radius: 6px; border: none; cursor: pointer; color: white; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
@@ -100,50 +336,48 @@
     .nota-input { width: 40px; height: 32px; text-align: center; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 1em; font-weight: bold; }
     .edit-section { width: 100%; }
     .edit-section input { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.9em; text-align: center; }
-    .edit-section input::placeholder { color: #22d3ee; font-style: italic; }
+    .edit-section input::placeholder { color: var(--cyan); font-style: italic; }
     .actions { display: flex; gap: 8px; justify-content: center; width: 100%; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; margin-top: 8px; }
     .btn-classificar, .btn-remover { flex: 1; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: #fff; transition: all 0.3s ease; font-size: 0.85em; }
     .btn-classificar { background: #16a34a; } .btn-classificar:hover { background: #15803d; transform: translateY(-1px); }
     .btn-remover { background: #dc2626; } .btn-remover:hover { background: #b91c1c; transform: translateY(-1px); }
-    .loader { text-align: center; margin: 20px; color: #22d3ee; font-size: 1.2em; }
-    .spinner { width: 50px; height: 50px; border: 4px solid rgba(34,211,238,0.2); border-top-color: #22d3ee; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+
+    /* ══════════════════════════════════════════
+       LOADER / MENSAGENS
+    ══════════════════════════════════════════ */
+    .loader { text-align: center; margin: 20px; color: var(--cyan); font-size: 1.2em; }
+    .spinner { width: 50px; height: 50px; border: 4px solid rgba(34,211,238,0.2); border-top-color: var(--cyan); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
     .mensagem-sucesso, .mensagem-info { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.25); opacity: 0; transition: opacity 0.4s ease; z-index: 9999; }
     .mensagem-sucesso { background: #16a34a; color: #fff; } .mensagem-info { background: #2563eb; color: #fff; }
     .mensagem-sucesso.visivel, .mensagem-info.visivel { opacity: 1; }
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.3s ease; }
+
+    /* ══════════════════════════════════════════
+       MODAIS
+    ══════════════════════════════════════════ */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 2000; animation: fadeIn 0.3s ease; }
     .modal.ativo { display: flex; }
     .botoes-modal { display: flex; justify-content: space-between; margin-top: 18px; gap: 10px; }
     .botoes-modal button { flex: 1; padding: 10px 0; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; transition: transform 0.2s ease, background 0.3s; }
     .btn-adicionar { background: #16a34a; } .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
     .btn-cancelar { background: #dc2626; } .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
-    @media (max-width: 768px) { .layout-professor { flex-direction: column; } .coluna-botoes-prof { width: 100%; margin-bottom: 20px; } .painel.active { grid-template-columns: 1fr; } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); color: #e2e8f0; padding: 20px; min-height: 100vh; }
-    h1 { text-align: center; color: #22d3ee; font-size: 2.5em; margin-bottom: 20px; text-shadow: 0 2px 5px rgba(0,0,0,0.3); font-weight: 700; }
-    .usuario-logado { text-align: center; margin-bottom: 30px; opacity: 0.85; font-size: 1.1em; }
 
-    /* ===== PAINEL SNAPSHOTS ===== */
+    /* ══════════════════════════════════════════
+       PAINEL SNAPSHOTS
+    ══════════════════════════════════════════ */
     #painelSnapshots {
       display: none; background: rgba(15,23,42,0.95);
       border: 2px solid rgba(34,211,238,0.35); border-radius: 16px;
       padding: 28px; margin-top: 24px; max-width: 720px;
     }
-    #painelSnapshots h2 { color: #22d3ee; margin-bottom: 20px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+    #painelSnapshots h2 { color: var(--cyan); margin-bottom: 20px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
     .snap-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
     @media (max-width: 500px) { .snap-form-grid { grid-template-columns: 1fr; } }
     .snap-field { display: flex; flex-direction: column; gap: 5px; }
     .snap-field label { font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
     .snap-field select, .snap-field input { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 8px 10px; font-size: 0.9rem; outline: none; width: 100%; }
-    .snap-field select:focus, .snap-field input:focus { border-color: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,0.15); }
+    .snap-field select:focus, .snap-field input:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(34,211,238,0.15); }
     .snap-full { grid-column: 1 / -1; }
-    #btnSalvarSnapshot {
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      color: #fff; border: none; border-radius: 10px;
-      padding: 11px 28px; font-weight: 700; font-size: 0.95rem;
-      cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
+    #btnSalvarSnapshot { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; border: none; border-radius: 10px; padding: 11px 28px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
     #btnSalvarSnapshot:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
     #btnSalvarSnapshot:disabled { opacity: .5; cursor: not-allowed; transform: none; }
     .snap-divider { border: none; border-top: 1px solid rgba(56,189,248,0.2); margin: 22px 0; }
@@ -151,30 +385,13 @@
     .snap-auto-desc { color: #94a3b8; font-size: 0.78rem; margin-bottom: 14px; line-height: 1.5; }
     .snap-auto-grid { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 14px; }
     .snap-auto-grid .snap-field { flex: 1; min-width: 100px; }
-    #btnAutoTodos {
-      background: linear-gradient(135deg, #d97706, #b45309);
-      color: #fff; border: none; border-radius: 10px;
-      padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
-      cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      white-space: nowrap;
-    }
+    #btnAutoTodos { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; border: none; border-radius: 10px; padding: 11px 22px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25); white-space: nowrap; }
     #btnAutoTodos:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
     #btnAutoTodos:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    #btnAutoUm {
-      background: linear-gradient(135deg, #7c3aed, #6d28d9);
-      color: #fff; border: none; border-radius: 10px;
-      padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
-      cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-      white-space: nowrap;
-    }
+    #btnAutoUm { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: none; border-radius: 10px; padding: 11px 22px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.25); white-space: nowrap; }
     #btnAutoUm:hover { transform: translateY(-2px); }
     #btnAutoUm:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    #logAuto {
-      margin-top: 14px; max-height: 200px; overflow-y: auto;
-      font-size: 0.75rem; font-family: monospace; color: #86efac;
-      background: rgba(0,0,0,0.3); border-radius: 8px;
-      padding: 10px 12px; display: none;
-    }
+    #logAuto { margin-top: 14px; max-height: 200px; overflow-y: auto; font-size: 0.75rem; font-family: monospace; color: #86efac; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px 12px; display: none; }
     .log-linha-criado  { color: #86efac; }
     .log-linha-pulado  { color: #6b7280; }
     .log-linha-aluno   { color: #38bdf8; font-weight: bold; margin-top: 6px; }
@@ -182,31 +399,28 @@
     #msgSnapshot { margin-top: 12px; font-size: 0.88rem; font-weight: 600; min-height: 20px; }
     .msg-ok  { color: #22c55e; } .msg-err { color: #f87171; }
     #listaSnapshots { margin-top: 22px; max-height: 320px; overflow-y: auto; }
-    .snap-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
-      background: rgba(30,41,59,0.8); border: 1px solid rgba(56,189,248,0.15);
-      font-size: 0.82rem; color: #cbd5e1; gap: 8px; flex-wrap: wrap;
-    }
+    .snap-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; border-radius: 8px; margin-bottom: 6px; background: rgba(30,41,59,0.8); border: 1px solid rgba(56,189,248,0.15); font-size: 0.82rem; color: #cbd5e1; gap: 8px; flex-wrap: wrap; }
     .snap-item .snap-chave  { font-weight: 700; color: #38bdf8; min-width: 60px; }
     .snap-item .snap-nome   { flex: 1; }
     .snap-item .snap-vals   { color: #86efac; white-space: nowrap; }
     .snap-item .snap-origem { font-size: 0.72rem; color: #6b7280; }
     .snap-item.retroativo  { border-color: rgba(251,191,36,0.3); }
     .snap-item.automatico-inteligente { border-color: rgba(167,139,250,0.3); }
-    .btn-excluir-snap {
-      background: transparent; border: 1px solid rgba(239,68,68,0.5);
-      color: #f87171; border-radius: 6px; padding: 3px 8px;
-      font-size: 0.72rem; cursor: pointer; transition: all 0.2s ease;
-      white-space: nowrap; flex-shrink: 0;
-    }
+    .btn-excluir-snap { background: transparent; border: 1px solid rgba(239,68,68,0.5); color: #f87171; border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; flex-shrink: 0; }
     .btn-excluir-snap:hover { background: rgba(239,68,68,0.15); border-color: #f87171; color: #fca5a5; transform: scale(1.05); }
     .snap-item.indefinido { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.06); }
     .snap-aviso-indefinido { font-size: 0.68rem; color: #f87171; font-weight: 600; }
+
+    /* ══════════════════════════════════════════
+       ANIMAÇÕES
+    ══════════════════════════════════════════ */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 
 <body>
+  <!-- Loader global -->
   <div id="global-loader">
     <div class="spinner-container">
       <div class="spinner"></div>
@@ -218,9 +432,15 @@
     </div>
   </div>
 
-  <button class="btn-toggle-sidebar" id="btnToggleSidebar">&lt;</button>
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <script type="module" src="navegacao.js"></script>
+
+  <!-- ── HEADER MOBILE COMPACTO ── -->
+  <div class="mobile-header">
+    <span class="mobile-header-title">🎵 Painel Professor</span>
+    <select class="mobile-turma-select" id="seletorTurmaMobile">
+      <option value="">Carregando...</option>
+    </select>
+  </div>
 
   <h1>Painel Gerencial</h1>
 
@@ -234,10 +454,11 @@
   <div id="mensagemInfo" class="mensagem-info"></div>
 
   <div class="layout-professor">
+
+    <!-- ── SIDEBAR DESKTOP ── -->
     <div class="coluna-botoes-prof" id="sidebar">
       <h2 class="titulo-card-prof">Menu Professor</h2>
 
-      <!-- ── SELETOR DE TURMA ATIVA (NOVO) ── -->
       <div class="turma-seletor-wrapper">
         <span class="turma-seletor-label">🏫 Turma ativa</span>
         <select class="turma-seletor-select" id="seletorTurma">
@@ -255,7 +476,7 @@
       <button id="btnAtualizarComprometimento">⚡ Atualizar Comprometimento</button>
       <button onclick="carregarModulo('relatorio')">📊 Relatório Mensal</button>
       <button onclick="mostrarPainelSnapshots()">📸 Evolução Mensal</button>
-      <button onclick="window.location.href='dashboard-turma.html'" style="background: linear-gradient(135deg, #0891b2, #0e7490);">🖥️ Dashboard Turma</button>
+      <button onclick="window.location.href='dashboard-turma.html'" style="background:linear-gradient(135deg,#0891b2,#0e7490);">🖥️ Dashboard Turma</button>
     </div>
 
     <div class="painel-alunos">
@@ -267,7 +488,7 @@
         <p>Carregando alunos...</p>
       </div>
 
-      <!-- ===== PAINEL SNAPSHOTS ===== -->
+      <!-- PAINEL SNAPSHOTS -->
       <div id="painelSnapshots">
         <h2>📸 Evolução Mensal — Lançamento</h2>
         <div class="snap-form-grid">
@@ -332,7 +553,68 @@
     </div>
   </div>
 
-  <!-- Modais -->
+  <!-- ══════════════════════════════════════════
+       BOTTOM SHEET (mobile)
+  ══════════════════════════════════════════ -->
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+
+  <div class="bottom-sheet" id="bottomSheet" role="dialog" aria-modal="true" aria-label="Menu Professor">
+    <div class="sheet-handle-area" id="sheetHandleArea">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Menu Professor</div>
+    </div>
+
+    <div class="sheet-body">
+      <!-- Seletor de turma mobile (espelhado) -->
+      <div class="sheet-turma-wrapper">
+        <span class="sheet-turma-label">🏫 Turma ativa</span>
+        <select class="sheet-turma-select" id="seletorTurmaSheet">
+          <option value="">Carregando turmas...</option>
+        </select>
+        <div class="sheet-turma-badge" id="turmaBadgeSheet"></div>
+      </div>
+
+      <button class="sheet-btn" data-action="btnAdicionarAluno">
+        <span class="btn-icon">➕</span><span class="btn-label">Adicionar Aluno</span>
+      </button>
+      <button class="sheet-btn" data-action="btnMostrarAlunos">
+        <span class="btn-icon">👥</span><span class="btn-label">Gerenciar Alunos</span>
+      </button>
+      <button class="sheet-btn" data-fn="mostrarPainelLicoes">
+        <span class="btn-icon">🎤</span><span class="btn-label">Avaliar Lições</span>
+      </button>
+      <button class="sheet-btn" data-href="configuracoes-grupo.html">
+        <span class="btn-icon">🏢</span><span class="btn-label">Editar Grupo</span>
+      </button>
+      <button class="sheet-btn" data-action="btnCriarChamada">
+        <span class="btn-icon">📋</span><span class="btn-label">Fazer Chamada</span>
+      </button>
+      <button class="sheet-btn" data-href="gerenciar-eventos.html">
+        <span class="btn-icon">🗂️</span><span class="btn-label">Gerenciar Chamadas</span>
+      </button>
+      <button class="sheet-btn" data-action="btnAtualizarComprometimento">
+        <span class="btn-icon">⚡</span><span class="btn-label">Atualizar Comprometimento</span>
+      </button>
+      <button class="sheet-btn" data-fn="carregarRelatorio">
+        <span class="btn-icon">📊</span><span class="btn-label">Relatório Mensal</span>
+      </button>
+      <button class="sheet-btn" data-fn="mostrarPainelSnapshots">
+        <span class="btn-icon">📸</span><span class="btn-label">Evolução Mensal</span>
+      </button>
+      <button class="sheet-btn btn-dashboard" data-href="dashboard-turma.html">
+        <span class="btn-icon">🖥️</span><span class="btn-label">Dashboard Turma</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab-menu" id="fabMenu" aria-label="Abrir menu" aria-expanded="false" aria-controls="bottomSheet">
+    ☰
+  </button>
+
+  <!-- ══════════════════════════════════════════
+       MODAIS
+  ══════════════════════════════════════════ -->
   <div id="modalAdicionar" class="modal">
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
@@ -364,10 +646,13 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════ -->
   <script>
+    /* ── helpers de painel ── */
     function ocultarTodosPaineis() {
-      const ids = ['conteudo','painelLicoesProf','painel','painelSnapshots'];
-      ids.forEach(id => {
+      ['conteudo','painelLicoesProf','painel','painelSnapshots'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
         if (id === 'painel') el.classList.remove('active');
@@ -375,30 +660,79 @@
         else el.style.display = 'none';
       });
     }
+    function mostrarPainelSnapshots() {
+      ocultarTodosPaineis();
+      const p = document.getElementById('painelSnapshots');
+      p.style.display = 'block';
+    }
+    function carregarRelatorio() {
+      if (typeof carregarModulo === 'function') carregarModulo('relatorio');
+    }
 
+    /* ══════════════════════════════════════════
+       BOTTOM SHEET — lógica
+    ══════════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', () => {
-      const btnToggle = document.getElementById('btnToggleSidebar');
-      const sidebar   = document.getElementById('sidebar');
-      const overlay   = document.getElementById('sidebarOverlay');
-      if (btnToggle && sidebar) {
-        btnToggle.addEventListener('click', () => {
-          sidebar.classList.toggle('open');
-          overlay.classList.toggle('visible');
-          btnToggle.textContent = sidebar.classList.contains('open') ? '>' : '<';
-        });
-        if (overlay) overlay.addEventListener('click', () => {
-          sidebar.classList.remove('open');
-          overlay.classList.remove('visible');
-          btnToggle.textContent = '<';
-        });
-        document.addEventListener('keydown', e => {
-          if (e.key === 'Escape' && sidebar.classList.contains('open')) {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('visible');
-            btnToggle.textContent = '<';
-          }
-        });
+      const fab     = document.getElementById('fabMenu');
+      const sheet   = document.getElementById('bottomSheet');
+      const overlay = document.getElementById('sheetOverlay');
+
+      function abrirSheet() {
+        sheet.classList.add('open');
+        overlay.classList.add('visible');
+        fab.setAttribute('aria-expanded', 'true');
+        fab.textContent = '✕';
+        document.body.style.overflow = 'hidden';
       }
+      function fecharSheet() {
+        sheet.classList.remove('open');
+        overlay.classList.remove('visible');
+        fab.setAttribute('aria-expanded', 'false');
+        fab.textContent = '☰';
+        document.body.style.overflow = '';
+      }
+
+      fab.addEventListener('click', () =>
+        sheet.classList.contains('open') ? fecharSheet() : abrirSheet()
+      );
+      overlay.addEventListener('click', fecharSheet);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && sheet.classList.contains('open')) fecharSheet();
+      });
+
+      /* ── swipe para baixo fecha o sheet ── */
+      let startY = 0;
+      const handleArea = document.getElementById('sheetHandleArea');
+      handleArea.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
+      handleArea.addEventListener('touchend',   e => {
+        if (e.changedTouches[0].clientY - startY > 60) fecharSheet();
+      });
+
+      /* ── botões do sheet ── */
+      sheet.querySelectorAll('.sheet-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const fn     = btn.dataset.fn;
+          const href   = btn.dataset.href;
+
+          fecharSheet();
+
+          setTimeout(() => {
+            if (href)   { window.location.href = href; return; }
+            if (action) {
+              const target = document.getElementById(action);
+              if (target) { target.click(); return; }
+            }
+            if (fn) {
+              if (fn === 'mostrarPainelLicoes'  && typeof mostrarPainelLicoes  === 'function') mostrarPainelLicoes();
+              if (fn === 'mostrarPainelSnapshots') mostrarPainelSnapshots();
+              if (fn === 'carregarRelatorio')       carregarRelatorio();
+            }
+          }, 280); /* aguarda animação fechar */
+        });
+      });
+
+      /* ── ocultar intro ao clicar em qualquer botão da sidebar desktop ── */
       document.querySelectorAll('.coluna-botoes-prof button').forEach(btn => {
         btn.addEventListener('click', () => {
           const intro = document.querySelector('.intro-section');
@@ -406,88 +740,84 @@
         });
       });
     });
-
-    function mostrarPainelSnapshots() {
-      ocultarTodosPaineis();
-      const p = document.getElementById('painelSnapshots');
-      p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
-    }
   </script>
 
-  <!-- ── SELETOR DE TURMA: lógica ── -->
+  <!-- ── SELETOR DE TURMA: lógica (sincroniza desktop + sheet + mobile header) ── -->
   <script type="module">
     import { db } from "./firebase-config.js";
-    import {
-      collection, getDocs, query, orderBy
-    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { collection, getDocs, query, orderBy }
+      from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const sel   = document.getElementById("seletorTurma");
-    const badge = document.getElementById("turmaBadge");
-
-    // ── Chave no localStorage
     const CHAVE_TURMA = "turmaAtiva";
 
     function getTurmaAtiva() {
       try { return JSON.parse(localStorage.getItem(CHAVE_TURMA)); } catch { return null; }
     }
-
     function setTurmaAtiva(turma) {
       localStorage.setItem(CHAVE_TURMA, JSON.stringify(turma));
-      // Notifica professor.js e outros módulos
       window.dispatchEvent(new CustomEvent("turmaAtualChanged", { detail: turma }));
     }
-
-    function atualizarBadge(turma) {
-      badge.textContent = turma
-        ? `Fase ${turma.fase ?? "?"} · ${turma.tipo ?? ""}`
-        : "";
+    function atualizarBadges(turma) {
+      const txt = turma ? `Fase ${turma.fase ?? "?"} · ${turma.tipo ?? ""}` : "";
+      ['turmaBadge','turmaBadgeSheet'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = txt;
+      });
     }
 
     async function carregarTurmas() {
       try {
-        const snap = await getDocs(
-          query(collection(db, "turmas"), orderBy("nome"))
-        );
+        const snap = await getDocs(query(collection(db, "turmas"), orderBy("nome")));
+        const selDesktop = document.getElementById("seletorTurma");
+        const selSheet   = document.getElementById("seletorTurmaSheet");
+        const selMobile  = document.getElementById("seletorTurmaMobile");
 
-        sel.innerHTML = '<option value="">— Todas as turmas —</option>';
+        const buildOptions = (sel) => {
+          sel.innerHTML = '<option value="">— Todas as turmas —</option>';
+          if (snap.empty) { sel.innerHTML = '<option value="">Nenhuma turma cadastrada</option>'; return; }
+          snap.forEach(d => {
+            const t  = { id: d.id, ...d.data() };
+            const op = document.createElement("option");
+            op.value       = JSON.stringify(t);
+            op.textContent = t.nome;
+            sel.appendChild(op);
+          });
+        };
 
-        if (snap.empty) {
-          sel.innerHTML = '<option value="">Nenhuma turma cadastrada</option>';
-          return;
-        }
+        [selDesktop, selSheet, selMobile].forEach(s => { if (s) buildOptions(s); });
 
-        snap.forEach(d => {
-          const t  = { id: d.id, ...d.data() };
-          const op = document.createElement("option");
-          op.value       = JSON.stringify(t);
-          op.textContent = t.nome;
-          sel.appendChild(op);
-        });
-
-        // Restaurar turma salva
         const salva = getTurmaAtiva();
         if (salva) {
-          for (const op of sel.options) {
-            if (!op.value) continue;
-            if (JSON.parse(op.value).id === salva.id) {
-              sel.value = op.value;
-              break;
+          [selDesktop, selSheet, selMobile].forEach(sel => {
+            if (!sel) return;
+            for (const op of sel.options) {
+              if (op.value && JSON.parse(op.value).id === salva.id) {
+                sel.value = op.value; break;
+              }
             }
-          }
-          atualizarBadge(salva);
-          setTurmaAtiva(salva); // re-dispara o evento ao carregar a página
+          });
+          atualizarBadges(salva);
+          setTurmaAtiva(salva);
         }
-
       } catch (e) {
         console.error("Erro ao carregar turmas:", e);
-        sel.innerHTML = '<option value="">Erro ao carregar</option>';
       }
     }
 
-    sel.addEventListener("change", () => {
-      const turma = sel.value ? JSON.parse(sel.value) : null;
+    /* sincronizar mudança entre os 3 selects */
+    function onChangeTurma(e) {
+      const turma = e.target.value ? JSON.parse(e.target.value) : null;
       setTurmaAtiva(turma);
-      atualizarBadge(turma);
+      atualizarBadges(turma);
+      /* espelhar valor nos outros selects */
+      ['seletorTurma','seletorTurmaSheet','seletorTurmaMobile'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el !== e.target) el.value = e.target.value;
+      });
+    }
+    ['seletorTurma','seletorTurmaSheet','seletorTurmaMobile'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("change", onChangeTurma);
     });
 
     carregarTurmas();
@@ -555,7 +885,7 @@
         }).join('')}`;
       div.querySelectorAll(".btn-excluir-snap").forEach(btn => {
         btn.addEventListener("click", async (e) => {
-          const item = e.target.closest(".snap-item");
+          const item   = e.target.closest(".snap-item");
           const snapId = item?.dataset.snapId;
           const chave  = item?.querySelector(".snap-chave")?.textContent || "essa pegada";
           const nome   = item?.querySelector(".snap-nome")?.textContent?.trim() || "aluno";
@@ -579,7 +909,7 @@
     }
 
     document.getElementById("btnSalvarSnapshot")?.addEventListener("click", async () => {
-      const msg = document.getElementById("msgSnapshot");
+      const msg  = document.getElementById("msgSnapshot");
       const selA = document.getElementById("snapAluno").value;
       if (!selA) { msg.textContent = "Selecione um aluno."; msg.className = "msg-err"; return; }
       const aluno = JSON.parse(selA); alunoAtual = aluno;
