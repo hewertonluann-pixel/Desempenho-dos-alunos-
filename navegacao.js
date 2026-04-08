@@ -102,6 +102,11 @@ function inserirNavbar() {
           display: block;
         }
       }
+
+      /* Oculta a navbar em qualquer impressão ou exportação PDF */
+      @media print {
+        .navbar { display: none !important; }
+      }
     </style>
 
     <div class="navbar">
