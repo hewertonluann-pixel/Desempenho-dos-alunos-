@@ -4,6 +4,7 @@ import {
   collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
+import { obterEventosDoAno, agruparEventosPorMes, calcularFrequenciaMensalParaAluno } from "./frequencia.js";
 
 if (!db) console.error("❌ Firebase DB não carregado.");
 
@@ -502,33 +503,44 @@ async function atualizarComprometimentoGeral() {
   const btn = document.getElementById("btnAtualizarComprometimento");
   if (btn) { btn.disabled = true; btn.textContent = "⏳ Atualizando..."; }
   try {
+    const turmaAtiva = getTurmaAtiva();
     const anoAtual = new Date().getFullYear();
     const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
     const chaveMes = `${anoAtual}-${mesAtual}`;
-    const snapEventos = await getDocs(collection(db, "eventos"));
-    const eventosMes = snapEventos.docs.map(d => d.data()).filter(d => d.data?.startsWith(chaveMes));
-    const snapAlunos = await getDocs(collection(db, "alunos"));
+
+    // Usar obterEventosDoAno com filtro por turmaId
+    const todosEventosAno = await obterEventosDoAno(anoAtual, turmaAtiva?.id || null);
+    const agrupado = agruparEventosPorMes(todosEventosAno);
+    const eventosMes = agrupado[chaveMes] || [];
+
+    // Carregar apenas alunos da turma ativa
+    let alunosSnap;
+    if (turmaAtiva?.id) {
+      alunosSnap = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)));
+    } else {
+      alunosSnap = await getDocs(collection(db, "alunos"));
+    }
+
     let atualizados = 0;
-    for (const alunoDoc of snapAlunos.docs) {
+    for (const alunoDoc of alunosSnap.docs) {
       const dados = alunoDoc.data();
       if (dados.ativo === false) continue;
-      let presencas = 0;
-      eventosMes.forEach(ev => {
-        const p = ev.presencas?.find(p => p.alunoId === alunoDoc.id || p.nome === dados.nome);
-        if (p?.presenca === "presente") presencas++;
-      });
-      const total = eventosMes.length;
+
+      const freq = calcularFrequenciaMensalParaAluno(eventosMes, dados.nome);
+
       await updateDoc(doc(db, "alunos", alunoDoc.id), {
-        "frequenciaMensal.porcentagem": total > 0 ? Math.round((presencas / total) * 100) : 0,
-        "frequenciaMensal.totalEventos": total,
-        "frequenciaMensal.presencas": presencas,
+        "frequenciaMensal.porcentagem": freq.percentual,
+        "frequenciaMensal.totalEventos": freq.totalEventos,
+        "frequenciaMensal.presencas": freq.presencasAluno,
         ultimaAtualizacaoComprometimento: serverTimestamp()
       });
       atualizados++;
     }
     mostrarMensagem("mensagemSucesso", `⚡ Comprometimento de ${atualizados} alunos atualizado!`);
-  } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
-  finally {
+  } catch (error) {
+    console.error(error);
+    mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
+  } finally {
     if (btn) { btn.disabled = false; btn.textContent = "⚡ Atualizar Comprometimento"; }
   }
 }

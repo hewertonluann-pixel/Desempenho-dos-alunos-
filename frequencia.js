@@ -8,22 +8,36 @@
 import { db } from "./firebase-config.js";
 import {
   collection,
-  getDocs
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 /* ======================================================
    1. OBTER TODOS OS EVENTOS DO ANO
+   Aceita turmaId opcional — se informado, filtra no Firestore.
    ====================================================== */
-export async function obterEventosDoAno(ano) {
-  const snap = await getDocs(collection(db, "eventos"));
+export async function obterEventosDoAno(ano, turmaId = null) {
+  let snap;
+
+  if (turmaId) {
+    snap = await getDocs(
+      query(
+        collection(db, "eventos"),
+        where("turmaId", "==", turmaId)
+      )
+    );
+  } else {
+    snap = await getDocs(collection(db, "eventos"));
+  }
 
   const eventos = [];
   snap.forEach(doc => {
     const dados = doc.data();
     if (!dados.data) return;
-
     if (dados.data.startsWith(`${ano}-`)) {
       eventos.push({
+        id: doc.id,
         data: dados.data,
         presencas: dados.presencas || []
       });
@@ -86,12 +100,12 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
     "09": "SET", "10": "OUT", "11": "NOV", "12": "DEZ"
   };
 
-  export async function gerarPainelFrequencia(aluno, ano, elementoDestino, abrirPopupCallback) {
+  export async function gerarPainelFrequencia(aluno, ano, elementoDestino, abrirPopupCallback, turmaId = null) {
   if (!elementoDestino) return;
 
   elementoDestino.innerHTML = "";
 
-  const eventosAno = await obterEventosDoAno(ano);
+  const eventosAno = await obterEventosDoAno(ano, turmaId);
   const agrupado = agruparEventosPorMes(eventosAno);
 
   const meses = [
@@ -128,5 +142,3 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
     elementoDestino.appendChild(mesCard);
   });
 }
-
-
