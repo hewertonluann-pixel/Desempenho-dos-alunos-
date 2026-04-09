@@ -36,7 +36,6 @@
       text-align: center; font-size: 0.9rem; color: var(--muted);
       margin-bottom: 8px; padding: 0 12px;
     }
-    /* Badge de turma */
     .turma-badge-chamada {
       text-align: center; font-size: 0.82rem; font-weight: 700;
       color: #22d3ee; margin-bottom: 6px;
@@ -53,7 +52,6 @@
       padding: 10px 16px; font-size: 0.85rem;
       margin: 8px 16px;
     }
-    /* Data editável */
     .data-evento { text-align: center; margin-bottom: 10px; font-size: 0.9rem; }
     .data-evento label { color: #e2e8f0; font-weight: 500; margin-right: 6px; }
     #inputData {
@@ -145,7 +143,6 @@
   <h1>📋 Chamada</h1>
   <div class="subtitulo">Toque no aluno para marcar Presente / Ausente. A lista avança sozinha. 😊</div>
 
-  <!-- Badge de turma ativa -->
   <div class="turma-badge-wrapper">
     <span class="turma-badge-chamada" id="turmaBadgeChamada" style="display:none;"></span>
     <div class="aviso-sem-turma" id="avisoSemTurma" style="display:none;">
@@ -208,13 +205,12 @@
 
     const turmaAtiva = getTurmaAtiva();
     const badgeEl    = document.getElementById("turmaBadgeChamada");
-    const avisoEl   = document.getElementById("avisoSemTurma");
+    const avisoEl    = document.getElementById("avisoSemTurma");
 
     if (turmaAtiva?.nome) {
       badgeEl.textContent = `🏫 ${turmaAtiva.nome}`;
       badgeEl.style.display = "inline-block";
     } else if (!eventoId) {
-      // Só avisa se não está abrindo um evento já existente
       avisoEl.style.display = "block";
       btnSalvar.disabled = true;
     }
@@ -236,7 +232,7 @@
       window.scrollTo({ top: scrollDirecao === "baixo" ? document.documentElement.scrollHeight : 0, behavior: "smooth" });
     });
 
-    // ── Helpers ──────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────
     function hojeISO() {
       const br = new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit'
@@ -252,19 +248,9 @@
     }
 
     // ── Carregamento ──────────────────────────────────────────────
-
-    /**
-     * Carrega alunos:
-     * - Se houver evento já salvo (eventoId): usa a lista do evento
-     * - Se turma ativa: filtra WHERE turmaId == turmaAtiva.id
-     * - Sem turma e sem evento: carrega todos (modo legado)
-     * Em todos os casos, alunos com ativo === false são excluídos.
-     */
     async function carregarAlunos() {
-      // Caso 1: evento existente — a lista já vem do evento (carregarEvento trata isso)
       if (eventoId) return;
 
-      // Caso 2: nova chamada com turma ativa
       if (turmaAtiva?.id) {
         const snap = await getDocs(
           query(collection(db, "alunos"),
@@ -278,7 +264,6 @@
         return;
       }
 
-      // Caso 3: sem turma — carrega todos (comportamento legado)
       const snap = await getDocs(collection(db, "alunos"));
       alunos = snap.docs
         .filter(d => d.data().ativo !== false)
@@ -295,7 +280,6 @@
       inputData.value = dados.data || hojeISO();
       observacoesEl.value = dados.observacoes || "";
 
-      // Mostrar turma do evento no badge
       if (dados.turmaNome) {
         badgeEl.textContent = `🏫 ${dados.turmaNome}`;
         badgeEl.style.display = "inline-block";
@@ -303,42 +287,35 @@
         btnSalvar.disabled = false;
       }
 
-      // Buscar mapa de status ativo dos alunos para filtrar inativos
+      // Mapa de status ativo + fotos dos alunos
       let ativoMap = {};
+      const fotoMap = {};
+      const nomeMap = {};
       try {
         const alunosSnap = await getDocs(collection(db, "alunos"));
-        alunosSnap.forEach(d => { ativoMap[d.id] = d.data().ativo !== false; });
+        alunosSnap.forEach(d => {
+          ativoMap[d.id] = d.data().ativo !== false;
+          fotoMap[d.id]  = d.data().foto || "";
+          nomeMap[d.data().nome] = d.data().foto || "";
+        });
       } catch (_) {}
 
-      // Popular alunos a partir da lista salva no evento
       const presencasSalvas = dados.presencas || [];
       if (presencasSalvas.length) {
-        // Buscar fotos atualizadas (podem ter mudado desde a criação)
-        const fotoMap  = {};
-        const nomeMap  = {};
-        try {
-          const fotoSnap = await getDocs(collection(db, "alunos"));
-          fotoSnap.forEach(d => {
-            fotoMap[d.id] = d.data().foto || "";
-            nomeMap[d.data().nome] = d.data().foto || "";
-          });
-        } catch (_) {}
-
         alunos = presencasSalvas
-          // Filtrar alunos inativos: excluir se ativoMap tem o id e está false
           .filter(p => {
-            if (!p.alunoId) return true; // sem id: manter por compatibilidade
+            if (!p.alunoId) return true;
             return ativoMap[p.alunoId] !== false;
           })
           .map(p => ({
             id:          p.alunoId || "",
             nome:        p.nome,
             instrumento: p.instrumento || "",
-            foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || p.foto || "",
+            // foto buscada dinamicamente do documento do aluno (não salva no evento)
+            foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
             presenca:    p.presenca || ""
           }));
       } else {
-        // Evento antigo sem lista no evento: carrega por turmaId ou todos
         if (dados.turmaId) {
           const s = await getDocs(
             query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
@@ -353,7 +330,6 @@
             .filter(d => d.data().ativo !== false)
             .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
             .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-          // Aplicar presenças salvas por nome (formato legado)
           presencasSalvas.forEach(p => {
             const a = alunos.find(al => al.nome === p.nome);
             if (a) a.presenca = p.presenca;
@@ -362,7 +338,7 @@
       }
     }
 
-    // ── Render ───────────────────────────────────────────────────
+    // ── Render ────────────────────────────────────────────────────
     function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const chip  = card.querySelector(".chip-status");
@@ -386,8 +362,12 @@
       const cards = document.querySelectorAll(".container-aluno");
       cards[idx].classList.remove("focado");
       if (idx + 1 < cards.length) {
-        cards[idx + 1].classList.add("focado");
-        cards[idx + 1].scrollIntoView({ behavior: "smooth", block: "center" });
+        const proximo = cards[idx + 1];
+        proximo.classList.add("focado");
+        // requestAnimationFrame garante que o scroll ocorre após o clique ser processado
+        requestAnimationFrame(() => {
+          proximo.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
       }
     }
 
@@ -430,8 +410,9 @@
         atualizarCard(card, aluno);
       });
 
+      // Foca o primeiro card sem rolar a página automaticamente
       const primeiro = painel.querySelector('[data-index="0"]');
-      if (primeiro) { primeiro.classList.add("focado"); primeiro.scrollIntoView({ behavior: "smooth", block: "center" }); }
+      if (primeiro) primeiro.classList.add("focado");
     }
 
     async function inicializar() {
@@ -442,18 +423,20 @@
       renderizar();
     }
 
-    // ── Salvar ───────────────────────────────────────────────────
+    // ── Salvar ────────────────────────────────────────────────────
     async function salvar() {
       try {
         btnSalvar.disabled = true; loader.style.display = "block";
-        const data      = inputData.value || hojeISO();
-        const obs       = observacoesEl.value.trim();
+        const data = inputData.value || hojeISO();
+        const obs  = observacoesEl.value.trim();
+
+        // ✅ foto NÃO é salva no evento — já existe no documento do aluno
+        // Isso evita documentos gigantes (fotos base64 × nº de alunos)
         const presencas = alunos.map(a => ({
           alunoId:     a.id || "",
           nome:        a.nome,
           instrumento: a.instrumento || "",
-          presenca:    a.presenca || "ausente",
-          foto: a.foto || ""
+          presenca:    a.presenca || "ausente"
         }));
 
         if (eventoId) {
@@ -482,28 +465,25 @@
       const [ano, mes] = dataISO.split("-");
       const chaveMes   = `${ano}-${mes}`;
 
-      // Filtrar eventos do mês da mesma turma (se houver)
       const turmaIdAtual = turmaAtiva?.id || null;
       const evSnap  = await getDocs(collection(db, "eventos"));
       const eventosMes = [];
       evSnap.forEach(d => {
         const dd = d.data();
         if (!dd.data?.startsWith(chaveMes)) return;
-        // Se tivermos turmaId, filtramos; senão pegamos todos (legado)
         if (turmaIdAtual && dd.turmaId && dd.turmaId !== turmaIdAtual) return;
         eventosMes.push(dd);
       });
 
       const total = eventosMes.length; if (!total) return;
 
-      // Contar por alunoId (novo) ou nome (legado)
       const contId   = {};
       const contNome = {};
       eventosMes.forEach(ev => (ev.presencas||[]).forEach(p => {
         if (!p) return;
         const presente = p.presenca === "presente";
-        if (p.alunoId) contId[p.alunoId]     = (contId[p.alunoId]   || 0) + (presente ? 1 : 0);
-        if (p.nome)    contNome[p.nome]       = (contNome[p.nome]    || 0) + (presente ? 1 : 0);
+        if (p.alunoId) contId[p.alunoId]  = (contId[p.alunoId]  || 0) + (presente ? 1 : 0);
+        if (p.nome)    contNome[p.nome]    = (contNome[p.nome]   || 0) + (presente ? 1 : 0);
       }));
 
       const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
@@ -513,7 +493,6 @@
       for (const ds of alSnap.docs) {
         const d = ds.data();
         if (d.ativo === false) continue;
-        // Pular alunos de outras turmas quando turmaId está definido
         if (turmaIdAtual && d.turmaId && d.turmaId !== turmaIdAtual) continue;
 
         const pres = contId[ds.id] ?? contNome[d.nome] ?? 0;
