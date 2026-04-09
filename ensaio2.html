@@ -23,7 +23,6 @@
       --radius-sm: 12px;
     }
 
-    /* Oculta a navbar de navegação globalmente nesta página */
     .navbar { display: none !important; }
 
     html, body {
@@ -86,11 +85,11 @@
     .prog-fill { height: 100%; background: var(--verde); border-radius: 3px; width: 0%; transition: width .4s ease; }
     .prog-pct  { font-size: .72rem; color: var(--verde); font-weight: 700; min-width: 34px; text-align: right; }
 
-    /* ── Arena (área central) ── */
+    /* ── Arena ── */
     #arena {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      padding: 12px 0 8px;
+      padding: 12px 16px 8px;
       position: relative; overflow: hidden;
     }
     #contador {
@@ -99,41 +98,56 @@
       margin-bottom: 10px; text-align: center;
     }
 
-    /* ── Wrapper do card com botões laterais ── */
+    /* ── Linha do card (sem padding lateral — card ocupa tudo) ── */
     .fc-row {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0;
-      position: relative;
-      padding: 0 48px; /* espaço para os botões laterais */
     }
 
-    /* Botões de navegação lateral */
+    /* ── Wrapper do card: position relative para ancorar as setas ── */
+    .fc-wrap {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+    }
+
+    /* ── Setas sobrepostas — discretas, semitransparentes ── */
     .btn-nav {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      width: 40px; height: 56px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--muted);
+      /* altura da foto ~75% do card; centralizamos verticalmente no card inteiro */
+      width: 32px;
+      height: 52px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(13,18,33,.55);   /* surface semitransparente */
+      backdrop-filter: blur(6px);
+      color: rgba(228,232,240,.45);     /* ink muito suavizado */
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; font-weight: 300;
+      font-size: 1.1rem; font-weight: 300; line-height: 1;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      transition: background .15s, color .15s, opacity .15s;
+      transition: background .18s, color .18s, opacity .18s;
       z-index: 10;
       outline: none;
+      /* sutil: sem borda, sem sombra */
     }
-    .btn-nav:active   { background: var(--border); color: var(--ink); }
-    .btn-nav:disabled { opacity: .2; cursor: default; pointer-events: none; }
-    #btnAnterior { left: 4px; }
-    #btnProximo  { right: 4px; }
+    .btn-nav:active {
+      background: rgba(34,211,238,.18);
+      color: rgba(228,232,240,.9);
+    }
+    .btn-nav:disabled {
+      opacity: 0;            /* some completamente quando não há card */
+      pointer-events: none;
+    }
+    /* posicionamento: 8px de recuo da borda do card */
+    #btnAnterior { left: 8px; }
+    #btnProximo  { right: 8px; }
 
-    .fc-wrap { width: 100%; max-width: 340px; position: relative; }
+    /* ── Card ── */
     .flashcard {
       width: 100%; background: var(--surface);
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -168,7 +182,7 @@
     .fc-overlay.ausente  { background: rgba(248,113,113,.55); }
     .fc-overlay span { font-size: .9rem; font-weight: 800; letter-spacing: .08em; color: #fff; }
 
-    .fc-info { padding: 12px 14px 12px; }
+    .fc-info { padding: 12px 14px 10px; }
     .fc-nome { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; line-height: 1.2; }
     .fc-inst { font-size: .78rem; color: var(--muted); }
 
@@ -213,7 +227,7 @@
     .btn-desfazer.show { display: inline-flex; align-items: center; gap: 5px; }
     .btn-desfazer:active { color: var(--ink); border-color: var(--muted); }
 
-    /* Dots abaixo do card */
+    /* Dots */
     .dots-row {
       display: flex; align-items: center; justify-content: center;
       margin-top: 12px; gap: 5px; min-height: 18px;
@@ -250,8 +264,6 @@
     .stat-lab { font-size: .7rem; color: var(--muted); margin-top: 3px; }
     .stat-box.pres .stat-num { color: var(--verde); }
     .stat-box.ause .stat-num { color: var(--vermelho); }
-
-    /* Botões da tela final */
     .fim-acoes {
       display: flex; flex-direction: column; gap: 10px;
       width: 100%; max-width: 280px; margin-top: 4px;
@@ -265,9 +277,8 @@
       -webkit-tap-highlight-color: transparent;
       transition: opacity .15s, transform .1s; outline: none;
     }
-    .btn-salvar-fim:active  { transform: scale(.97); }
+    .btn-salvar-fim:active   { transform: scale(.97); }
     .btn-salvar-fim:disabled { opacity: .4; cursor: default; }
-
     .btn-ver-ensaio {
       width: 100%; padding: 13px 8px; border-radius: 999px;
       border: 1px solid var(--border);
@@ -278,13 +289,11 @@
       transition: background .15s, transform .1s; outline: none;
     }
     .btn-ver-ensaio:active { transform: scale(.97); background: var(--border); }
-
     .btn-revisar {
       background: none; border: 1px solid var(--border);
       color: var(--muted); border-radius: 999px;
       font-size: .78rem; font-weight: 600; padding: 7px 20px;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-      outline: none;
+      cursor: pointer; -webkit-tap-highlight-color: transparent; outline: none;
     }
     .btn-revisar:active { background: var(--border); }
 
@@ -362,7 +371,6 @@
 </div>
 
 <div id="app">
-  <!-- Cabeçalho -->
   <div id="cab">
     <div class="cab-top">
       <h1>📋 Chamada</h1>
@@ -382,10 +390,9 @@
     </div>
   </div>
 
-  <!-- Arena -->
   <div id="arena">
 
-    <!-- Tela de fim (última página da chamada) -->
+    <!-- Tela final -->
     <div id="tela-fim">
       <div class="fim-icone">🎉</div>
       <div class="fim-titulo">Chamada concluída!</div>
@@ -410,11 +417,16 @@
     <!-- Contador -->
     <div id="contador"></div>
 
-    <!-- Card com botões laterais -->
+    <!--
+      fc-row: apenas centraliza o fc-wrap, sem padding lateral.
+      fc-wrap: position:relative para ancorar as setas sobre o card.
+    -->
     <div class="fc-row" id="fcRow" style="display:none">
-      <button class="btn-nav" id="btnAnterior">‹</button>
-
       <div class="fc-wrap">
+
+        <!-- Seta anterior — sobreposta à esquerda do card -->
+        <button class="btn-nav" id="btnAnterior" aria-label="Aluno anterior">‹</button>
+
         <div class="flashcard" id="flashcard">
           <div class="fc-foto" id="fcFoto">
             <div class="fc-overlay" id="fcOverlay">
@@ -434,16 +446,17 @@
             <button class="btn-desfazer" id="btnDesfazer">↺ Desfazer marcação</button>
           </div>
         </div>
-      </div>
 
-      <button class="btn-nav" id="btnProximo">›</button>
+        <!-- Seta próxima — sobreposta à direita do card -->
+        <button class="btn-nav" id="btnProximo" aria-label="Próximo aluno">›</button>
+
+      </div>
     </div>
 
-    <!-- Dots de progresso -->
+    <!-- Dots -->
     <div class="dots-row" id="dots"></div>
 
   </div>
-  <!-- sem rodapé -->
 </div>
 
 <script type="module">
@@ -485,13 +498,12 @@
   const btnFecharObs  = document.getElementById("btnFecharObs");
   const obsEl         = document.getElementById("obs");
 
-  const params    = new URLSearchParams(location.search);
-  let eventoId    = params.get("id") || null;
-  let alunos      = [];
-  let idx         = 0;
-  let transicao   = false;
+  const params  = new URLSearchParams(location.search);
+  let eventoId  = params.get("id") || null;
+  let alunos    = [];
+  let idx       = 0;
+  let transicao = false;
 
-  // Toast
   let toastTimer;
   function toast(msg, ms = 2200) {
     toastEl.textContent = msg;
@@ -500,7 +512,6 @@
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), ms);
   }
 
-  // Turma
   function getTurma() {
     try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
   }
@@ -512,7 +523,6 @@
     btnSalvar.disabled = true;
   }
 
-  // Data
   function hojeISO() {
     const br = new Intl.DateTimeFormat("pt-BR", {
       timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit"
@@ -520,7 +530,6 @@
     const [d,m,a] = br.split("/"); return `${a}-${m}-${d}`;
   }
 
-  // Progresso
   function atualizarProgresso() {
     const total   = alunos.length;
     const marcado = alunos.filter(a => a.presenca !== "").length;
@@ -530,7 +539,6 @@
     progPct.textContent  = pct + "%";
   }
 
-  // Dots
   function renderDots() {
     const MAX = 9;
     dotsEl.innerHTML = "";
@@ -551,14 +559,9 @@
     });
   }
 
-  // Renderizar card
   function renderCard(allowFim = false) {
     if (!alunos.length) return;
-
-    if (allowFim) {
-      const todosFeitos = alunos.every(a => a.presenca !== "");
-      if (todosFeitos) { mostrarFim(); return; }
-    }
+    if (allowFim && alunos.every(a => a.presenca !== "")) { mostrarFim(); return; }
 
     telaFim.classList.remove("show");
     fcRow.style.display    = "flex";
@@ -566,7 +569,6 @@
 
     const aluno = alunos[idx];
 
-    // foto
     fcFoto.innerHTML = "";
     if (aluno.foto) {
       const img = document.createElement("img");
@@ -576,17 +578,14 @@
       fcFoto.textContent = "👤";
     }
 
-    // overlay
     const ov = fcOverlay;
     ov.className = "fc-overlay";
     if (aluno.presenca === "presente") {
       ov.classList.add("show", "presente");
-      fcOverlayIcon.textContent = "✔";
-      fcOverlayTxt.textContent  = "PRESENTE";
+      fcOverlayIcon.textContent = "✔"; fcOverlayTxt.textContent = "PRESENTE";
     } else if (aluno.presenca === "ausente") {
       ov.classList.add("show", "ausente");
-      fcOverlayIcon.textContent = "✘";
-      fcOverlayTxt.textContent  = "AUSENTE";
+      fcOverlayIcon.textContent = "✘"; fcOverlayTxt.textContent = "AUSENTE";
     }
     fcFoto.appendChild(ov);
 
@@ -601,7 +600,6 @@
     btnAnterior.disabled = (idx === 0);
     btnProximo.disabled  = (idx === alunos.length - 1);
 
-    // re-anima
     flashcard.style.animation = "none";
     requestAnimationFrame(() => {
       flashcard.style.animation = "";
@@ -625,11 +623,9 @@
 
   function goTo(novoIdx) {
     if (novoIdx < 0 || novoIdx >= alunos.length) return;
-    idx = novoIdx;
-    renderCard(false);
+    idx = novoIdx; renderCard(false);
   }
 
-  // Avanço automático após marcar
   function proximo() {
     const proxPend = alunos.findIndex((a, i) => i > idx && a.presenca === "");
     if (proxPend !== -1) { idx = proxPend; renderCard(false); return; }
@@ -637,7 +633,6 @@
     renderCard(true);
   }
 
-  // Marcar
   function vibrar(ms = 28) { try { navigator.vibrate?.(ms); } catch {} }
 
   function marcar(estado) {
@@ -654,21 +649,16 @@
     btnAusente.className  = "btn-acao btn-ausente"  + (estado === "ausente"  ? " ativo" : "");
     btnDesfazer.className = "btn-desfazer show";
 
-    const dir = estado === "presente" ? "sair-presente" : "sair-ausente";
-    flashcard.classList.add(dir);
+    flashcard.classList.add(estado === "presente" ? "sair-presente" : "sair-ausente");
     setTimeout(() => {
-      flashcard.classList.remove(dir);
+      flashcard.classList.remove("sair-presente", "sair-ausente");
       transicao = false;
       proximo();
     }, 240);
   }
 
-  function desfazer() {
-    alunos[idx].presenca = "";
-    renderCard(false);
-  }
+  function desfazer() { alunos[idx].presenca = ""; renderCard(false); }
 
-  // Eventos
   btnPresente.addEventListener("click",  () => marcar("presente"));
   btnAusente.addEventListener("click",   () => marcar("ausente"));
   btnDesfazer.addEventListener("click",  desfazer);
@@ -676,15 +666,13 @@
   btnProximo.addEventListener("click",   () => goTo(idx + 1));
   btnRevisar.addEventListener("click",   () => {
     const prim = alunos.findIndex(a => a.presenca === "");
-    idx = prim !== -1 ? prim : 0;
-    renderCard(false);
+    idx = prim !== -1 ? prim : 0; renderCard(false);
   });
   btnVerEnsaio.addEventListener("click", () => { location.href = "ensaio.html"; });
   btnObs.addEventListener("click",       () => modalObs.classList.add("show"));
   btnFecharObs.addEventListener("click", () => modalObs.classList.remove("show"));
   modalObs.addEventListener("click",     e => { if (e.target === modalObs) modalObs.classList.remove("show"); });
 
-  // Firebase
   async function carregarAlunos() {
     if (eventoId) return;
     if (turma?.id) {
@@ -717,20 +705,17 @@
     try {
       const s = await getDocs(collection(db, "alunos"));
       s.forEach(d => {
-        ativoMap[d.id]         = d.data().ativo !== false;
-        fotoMap[d.id]          = d.data().foto  || "";
-        nomeMap[d.data().nome] = d.data().foto  || "";
+        ativoMap[d.id] = d.data().ativo !== false;
+        fotoMap[d.id]  = d.data().foto  || "";
+        nomeMap[d.data().nome] = d.data().foto || "";
       });
     } catch {}
     const salvas = dados.presencas || [];
     if (salvas.length) {
       alunos = salvas
         .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
-        .map(p => ({
-          id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
-          foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-          presenca: ""
-        }));
+        .map(p => ({ id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
+          foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "", presenca: "" }));
     } else {
       const q2 = dados.turmaId
         ? query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
@@ -746,11 +731,9 @@
     await carregarAlunos();
     await carregarEvento();
     overlayLoad.style.display = "none";
-    idx = 0;
-    renderCard(false);
+    idx = 0; renderCard(false);
   }
 
-  // Salvar
   async function salvar() {
     try {
       btnSalvar.disabled = true;
@@ -772,7 +755,6 @@
       await recalcular(data);
       toast("✔ Chamada salva com sucesso!");
       btnSalvar.textContent = "✔ Salvo!";
-      btnSalvar.disabled = true;
     } catch (e) {
       console.error(e);
       toast("❌ Erro ao salvar. Tente novamente.");
@@ -824,7 +806,6 @@
   }
 
   btnSalvar.addEventListener("click", salvar);
-
   inicializar();
 </script>
 <script type="module" src="navegacao.js"></script>
