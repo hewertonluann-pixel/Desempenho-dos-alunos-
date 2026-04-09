@@ -18,19 +18,19 @@
       --accent-soft: rgba(34, 197, 94, 0.18);
       --danger: #f97373;
       --danger-soft: rgba(248, 113, 113, 0.18);
-      --chip-bg: #0f172a;
-      --chip-ink: #e5e7eb;
     }
     * { box-sizing: border-box; }
+
+    /* SEM display:flex no body — scroll acontece no window normalmente */
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
       background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000 100%);
+      background-attachment: fixed;
       color: var(--ink);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
+
     h1 { text-align: center; margin: 16px 12px 4px; font-size: 1.4rem; }
     .subtitulo {
       text-align: center; font-size: 0.9rem; color: var(--muted);
@@ -58,11 +58,11 @@
     #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
 
     .wrap {
-      flex: 1; display: flex; flex-direction: column;
-      padding: 6px 10px 72px; max-width: 720px; width: 100%; margin: 0 auto;
+      padding: 6px 10px 90px;
+      max-width: 720px; width: 100%; margin: 0 auto;
     }
     .info { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0 10px; }
-    .lista-alunos { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; }
+    .lista-alunos { display: flex; flex-direction: column; gap: 8px; }
 
     /* ── Botão scroll fixo ─── */
     #btnScroll {
@@ -109,7 +109,7 @@
     .nome        { font-weight: 600; font-size: 1rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .instrumento { font-size: 0.82rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 
-    /* ── Toggles: lado a lado, largura igual ─── */
+    /* ── Toggles: lado a lado ─── */
     .toggles {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -281,13 +281,14 @@
     }
 
     // ── Scroll automático para o próximo card pendente ────────────────
-    // Usa getBoundingClientRect + window.scrollY (funciona com body flex)
+    // Sem display:flex no body, window.scrollY funciona corretamente
     function avancarParaProximo(idxAtual) {
       const proximoIdx = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
       if (proximoIdx === -1) return;
-      const cards = painel.querySelectorAll(".container-aluno");
+      const cards  = painel.querySelectorAll(".container-aluno");
       const cardEl = cards[proximoIdx];
       if (!cardEl) return;
+      // posição absoluta no documento + centralizar na tela
       const rect     = cardEl.getBoundingClientRect();
       const absolute = rect.top + window.scrollY;
       const centro   = absolute - (window.innerHeight / 2) + (rect.height / 2);
@@ -326,26 +327,24 @@
         card.className = "container-aluno vazio";
         card.dataset.index = idx;
 
-        // — linha do topo: foto + dados —
+        // linha superior: foto + dados
         const topo = document.createElement("div"); topo.className = "card-topo";
-
-        const fw = document.createElement("div"); fw.className = "foto-aluno";
+        const fw   = document.createElement("div"); fw.className   = "foto-aluno";
         if (aluno.foto) {
           const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img);
         } else {
-          const sp = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp);
+          const sp  = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp);
         }
-
         const dd = document.createElement("div"); dd.className = "dados-aluno";
-        const dn = document.createElement("div"); dn.className = "nome"; dn.textContent = aluno.nome;
+        const dn = document.createElement("div"); dn.className = "nome";        dn.textContent = aluno.nome;
         const di = document.createElement("div"); di.className = "instrumento"; di.textContent = aluno.instrumento;
         dd.appendChild(dn); dd.appendChild(di);
         topo.appendChild(fw); topo.appendChild(dd);
 
-        // — botões toggle —
-        const tg   = document.createElement("div"); tg.className = "toggles";
+        // botões toggle
+        const tg   = document.createElement("div");    tg.className   = "toggles";
         const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.innerHTML = "✔ Presente";
-        const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente"; btnA.innerHTML = "✘ Ausente";
+        const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente";  btnA.innerHTML = "✘ Ausente";
 
         btnP.addEventListener("click", () => {
           aluno.presenca = aluno.presenca === "presente" ? "" : "presente";
