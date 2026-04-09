@@ -86,9 +86,11 @@
       background: var(--card); border: 1px solid var(--border);
       box-shadow: 0 8px 20px rgba(15,23,42,0.65);
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
       transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
     }
-    .container-aluno.vazio   { background: var(--card-alt); border-color: #111827; box-shadow: 0 4px 10px rgba(15,23,42,0.55); }
+    .container-aluno.vazio    { background: var(--card-alt); border-color: #111827; box-shadow: 0 4px 10px rgba(15,23,42,0.55); }
     .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.35), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.45); }
     .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.35), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.4); }
     .container-aluno:active { transform: scale(0.98); }
@@ -185,6 +187,9 @@
     const params  = new URLSearchParams(window.location.search);
     let eventoId  = params.get("id") || null;
     let alunos    = [];
+
+    // Flag global anti-double-tap: bloqueia novo clique por 350ms após cada interação
+    let bloqueando = false;
 
     const painel         = document.getElementById("painelAlunos");
     const inputData      = document.getElementById("inputData");
@@ -287,7 +292,6 @@
         btnSalvar.disabled = false;
       }
 
-      // Mapa de status ativo + fotos dos alunos
       let ativoMap = {};
       const fotoMap = {};
       const nomeMap = {};
@@ -311,7 +315,6 @@
             id:          p.alunoId || "",
             nome:        p.nome,
             instrumento: p.instrumento || "",
-            // foto buscada dinamicamente do documento do aluno (não salva no evento)
             foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
             presenca:    p.presenca || ""
           }));
@@ -364,10 +367,9 @@
       if (idx + 1 < cards.length) {
         const proximo = cards[idx + 1];
         proximo.classList.add("focado");
-        // requestAnimationFrame garante que o scroll ocorre após o clique ser processado
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           proximo.scrollIntoView({ behavior: "smooth", block: "center" });
-        });
+        }, 50);
       }
     }
 
@@ -400,7 +402,33 @@
         dd.appendChild(dn); dd.appendChild(di); dd.appendChild(sl);
         card.appendChild(fw); card.appendChild(dd);
 
-        card.addEventListener("click", () => {
+        // Usar touchstart para mobile: responde ao toque imediato sem delay de 300ms
+        // e sem risco de ghost click do scroll
+        let touchAtivo = false;
+
+        card.addEventListener("touchstart", (e) => {
+          if (bloqueando) return;
+          touchAtivo = true;
+        }, { passive: true });
+
+        card.addEventListener("touchend", (e) => {
+          if (!touchAtivo || bloqueando) return;
+          touchAtivo = false;
+          e.preventDefault(); // impede o ghost click que viria depois
+          bloqueando = true;
+          setTimeout(() => { bloqueando = false; }, 350);
+
+          aluno.presenca = proximoEstado(aluno.presenca);
+          atualizarCard(card, aluno);
+          focarProximo(idx);
+        });
+
+        // Fallback para desktop (mouse click)
+        card.addEventListener("click", (e) => {
+          if (bloqueando) return;
+          bloqueando = true;
+          setTimeout(() => { bloqueando = false; }, 350);
+
           aluno.presenca = proximoEstado(aluno.presenca);
           atualizarCard(card, aluno);
           focarProximo(idx);
@@ -410,7 +438,6 @@
         atualizarCard(card, aluno);
       });
 
-      // Foca o primeiro card sem rolar a página automaticamente
       const primeiro = painel.querySelector('[data-index="0"]');
       if (primeiro) primeiro.classList.add("focado");
     }
@@ -430,8 +457,6 @@
         const data = inputData.value || hojeISO();
         const obs  = observacoesEl.value.trim();
 
-        // ✅ foto NÃO é salva no evento — já existe no documento do aluno
-        // Isso evita documentos gigantes (fotos base64 × nº de alunos)
         const presencas = alunos.map(a => ({
           alunoId:     a.id || "",
           nome:        a.nome,
