@@ -67,6 +67,8 @@
     }
     .info { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0 10px; }
     .lista-alunos { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; overscroll-behavior: contain; }
+
+    /* ── Botão scroll fixo ─────────────────────────────────────── */
     #btnScroll {
       position: fixed; right: 16px; bottom: 80px;
       width: 46px; height: 46px; border-radius: 50%; border: none;
@@ -78,45 +80,96 @@
       opacity: 0; pointer-events: none;
     }
     #btnScroll.visivel { opacity: 1; pointer-events: auto; }
-    #btnScroll:active { transform: scale(0.92); }
-    #btnScroll:hover  { box-shadow: 0 6px 22px rgba(14,165,233,0.75); }
+    #btnScroll:active  { transform: scale(0.92); }
+    #btnScroll:hover   { box-shadow: 0 6px 22px rgba(14,165,233,0.75); }
+
+    /* ── Card aluno ────────────────────────────────────────────── */
     .container-aluno {
       display: flex; gap: 10px; align-items: center;
       padding: 8px 10px; border-radius: 12px;
       background: var(--card); border: 1px solid var(--border);
       box-shadow: 0 8px 20px rgba(15,23,42,0.65);
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
       user-select: none;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      transition: box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
     }
     .container-aluno:focus,
     .container-aluno:focus-visible { outline: none; }
     .container-aluno.vazio    { background: var(--card-alt); border-color: #111827; box-shadow: 0 4px 10px rgba(15,23,42,0.55); }
-    .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.35), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.45); }
-    .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.35), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.4); }
-    .container-aluno:active { transform: scale(0.98); }
+    .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.22), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.35); }
+    .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.22), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.3); }
+
     .foto-aluno {
-      width: 52px; height: 52px; border-radius: 999px; overflow: hidden;
+      width: 48px; height: 48px; border-radius: 999px; overflow: hidden;
       flex-shrink: 0; border: 2px solid #1e293b; background: #020617;
       display: flex; align-items: center; justify-content: center;
     }
     .foto-aluno img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .foto-placeholder { font-size: 1.3rem; color: #64748b; }
-    .dados-aluno { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .nome { font-weight: 600; font-size: 1.5rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .instrumento { font-size: 1rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .status-linha { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
-    .chip-status {
-      padding: 2px 8px; border-radius: 999px; font-size: 0.7rem;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      background: var(--chip-bg); color: var(--chip-ink); border: 1px solid #1f2937;
+    .foto-placeholder { font-size: 1.2rem; color: #64748b; }
+
+    .dados-aluno { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .nome        { font-weight: 600; font-size: 1rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .instrumento { font-size: 0.82rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+
+    /* ── Toggles Presente / Ausente ────────────────────────────── */
+    .toggles {
+      display: flex; flex-direction: column; gap: 5px; flex-shrink: 0;
     }
-    .chip-status.presente { background: var(--accent-soft); color: #bbf7d0; border-color: #22c55e; }
-    .chip-status.ausente  { background: var(--danger-soft); color: #fecaca; border-color: #f97373; }
-    .icone-acao { font-size: 0.85rem; color: var(--muted); opacity: 0.5; transition: opacity 0.15s; user-select: none; }
-    .container-aluno:hover .icone-acao { opacity: 0.9; }
+    .toggle-btn {
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      padding: 5px 12px; border-radius: 999px; border: 1.5px solid transparent;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+    .toggle-btn:focus, .toggle-btn:focus-visible { outline: none; }
+    .toggle-btn:active { transform: scale(0.93); }
+
+    /* Estado inativo — translúcido */
+    .toggle-presente {
+      background: rgba(34, 197, 94, 0.08);
+      border-color: rgba(34, 197, 94, 0.25);
+      color: rgba(34, 197, 94, 0.55);
+    }
+    .toggle-ausente {
+      background: rgba(248, 113, 113, 0.08);
+      border-color: rgba(248, 113, 113, 0.25);
+      color: rgba(248, 113, 113, 0.55);
+    }
+
+    /* Estado ativo — sólido */
+    .toggle-presente.ativo {
+      background: rgba(34, 197, 94, 0.22);
+      border-color: #22c55e;
+      color: #86efac;
+      box-shadow: 0 0 10px rgba(34,197,94,0.35);
+    }
+    .toggle-ausente.ativo {
+      background: rgba(248, 113, 113, 0.22);
+      border-color: #f97373;
+      color: #fca5a5;
+      box-shadow: 0 0 10px rgba(248,113,113,0.35);
+    }
+
+    .toggle-btn:hover.toggle-presente:not(.ativo) { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); color: rgba(34,197,94,0.8); }
+    .toggle-btn:hover.toggle-ausente:not(.ativo)  { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.8); }
+
+    /* ── Impressão: ocultar toggles ────────────────────────────── */
+    @media print {
+      .toggles        { display: none !important; }
+      #btnScroll      { display: none !important; }
+      .footer-acoes   { display: none !important; }
+      .data-evento    { display: block; }
+      body            { background: white; color: #111; }
+      .container-aluno { box-shadow: none; border-color: #ccc; background: white !important; page-break-inside: avoid; }
+      .container-aluno.presente { border-left: 4px solid #22c55e; }
+      .container-aluno.ausente  { border-left: 4px solid #f97373; }
+      .nome        { color: #111; }
+      .instrumento { color: #555; }
+    }
+
     .observacoes-area { margin-top: 10px; background: rgba(15,23,42,0.9); border-radius: 12px; border: 1px solid #1f2937; padding: 10px; }
     .label-observacoes { font-size: 0.8rem; color: #e5e7eb; margin-bottom: 4px; display: block; }
     textarea { width: 100%; min-height: 70px; border-radius: 10px; border: 1px solid #1f2937; padding: 8px 10px; font-family: inherit; font-size: 0.85rem; resize: vertical; background: #020617; color: var(--ink); }
@@ -146,7 +199,7 @@
 </head>
 <body>
   <h1>📋 Chamada</h1>
-  <div class="subtitulo">Toque no aluno para marcar Presente / Ausente. 😊</div>
+  <div class="subtitulo">Marque Presente ou Ausente para cada aluno. 😊</div>
 
   <div class="turma-badge-wrapper">
     <span class="turma-badge-chamada" id="turmaBadgeChamada" style="display:none;"></span>
@@ -246,12 +299,6 @@
       return `${a}-${m}-${d}`;
     }
 
-    function proximoEstado(atual) {
-      if (!atual || atual === "") return "presente";
-      if (atual === "presente")   return "ausente";
-      return "";
-    }
-
     // ── Carregamento ──────────────────────────────────────────────
     async function carregarAlunos() {
       if (eventoId) return;
@@ -344,20 +391,31 @@
     // ── Render ───────────────────────────────────────────────────
     function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
-      const chip  = card.querySelector(".chip-status");
-      const icone = card.querySelector(".icone-acao");
+      const btnP = card.querySelector(".toggle-presente");
+      const btnA = card.querySelector(".toggle-ausente");
+
       if (aluno.presenca === "presente") {
         card.classList.add("presente");
-        chip.textContent = "Presente"; chip.className = "chip-status presente";
-        if (icone) icone.textContent = "✓";
+        btnP.classList.add("ativo");
+        btnA.classList.remove("ativo");
       } else if (aluno.presenca === "ausente") {
         card.classList.add("ausente");
-        chip.textContent = "Ausente"; chip.className = "chip-status ausente";
-        if (icone) icone.textContent = "✕";
+        btnA.classList.add("ativo");
+        btnP.classList.remove("ativo");
       } else {
         card.classList.add("vazio");
-        chip.textContent = "Pendente"; chip.className = "chip-status";
-        if (icone) icone.textContent = "○";
+        btnP.classList.remove("ativo");
+        btnA.classList.remove("ativo");
+      }
+    }
+
+    // ── Scroll automático para o próximo pendente ─────────────────
+    function scrollParaProximoPendente(idxAtual) {
+      const proximo = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
+      if (proximo === -1) return;
+      const cards = painel.querySelectorAll(".container-aluno");
+      if (cards[proximo]) {
+        cards[proximo].scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
 
@@ -373,30 +431,39 @@
 
       alunos.forEach((aluno, idx) => {
         const card = document.createElement("div");
-        card.className = "container-aluno"; card.dataset.index = idx;
+        card.className = "container-aluno vazio";
+        card.dataset.index = idx;
 
+        // Foto
         const fw = document.createElement("div"); fw.className = "foto-aluno";
         if (aluno.foto) { const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img); }
         else            { const sp  = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp); }
 
-        const dd    = document.createElement("div");  dd.className   = "dados-aluno";
-        const dn    = document.createElement("div");  dn.className   = "nome";        dn.textContent = aluno.nome;
-        const di    = document.createElement("div");  di.className   = "instrumento"; di.textContent = aluno.instrumento;
-        const sl    = document.createElement("div");  sl.className   = "status-linha";
-        const chip  = document.createElement("span"); chip.className = "chip-status"; chip.textContent = "Pendente";
-        const icone = document.createElement("span"); icone.className = "icone-acao"; icone.textContent = "○";
+        // Dados
+        const dd = document.createElement("div"); dd.className = "dados-aluno";
+        const dn = document.createElement("div"); dn.className = "nome";        dn.textContent = aluno.nome;
+        const di = document.createElement("div"); di.className = "instrumento"; di.textContent = aluno.instrumento;
+        dd.appendChild(dn); dd.appendChild(di);
 
-        sl.appendChild(chip); sl.appendChild(icone);
-        dd.appendChild(dn); dd.appendChild(di); dd.appendChild(sl);
-        card.appendChild(fw); card.appendChild(dd);
+        // Toggles
+        const tg  = document.createElement("div"); tg.className = "toggles";
+        const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.textContent = "✔ Presente";
+        const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente"; btnA.textContent = "✘ Ausente";
 
-        // Usa click simples — confiável no Chrome desktop e mobile.
-        // O click só dispara após pointerdown + pointerup no mesmo alvo,
-        // o que já descarta arrastos/scroll naturalmente.
-        card.addEventListener("click", () => {
-          aluno.presenca = proximoEstado(aluno.presenca);
+        btnP.addEventListener("click", () => {
+          aluno.presenca = aluno.presenca === "presente" ? "" : "presente";
           atualizarCard(card, aluno);
+          if (aluno.presenca === "presente") scrollParaProximoPendente(idx);
         });
+
+        btnA.addEventListener("click", () => {
+          aluno.presenca = aluno.presenca === "ausente" ? "" : "ausente";
+          atualizarCard(card, aluno);
+          if (aluno.presenca === "ausente") scrollParaProximoPendente(idx);
+        });
+
+        tg.appendChild(btnP); tg.appendChild(btnA);
+        card.appendChild(fw); card.appendChild(dd); card.appendChild(tg);
 
         painel.appendChild(card);
         atualizarCard(card, aluno);
@@ -429,9 +496,7 @@
           await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
         } else {
           const nv = await addDoc(collection(db, "eventos"), {
-            data,
-            observacoes: obs,
-            presencas,
+            data, observacoes: obs, presencas,
             turmaId:   turmaAtiva?.id   || "",
             turmaNome: turmaAtiva?.nome || "",
             tipo: "aula"
