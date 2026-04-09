@@ -258,6 +258,7 @@
      * - Se houver evento já salvo (eventoId): usa a lista do evento
      * - Se turma ativa: filtra WHERE turmaId == turmaAtiva.id
      * - Sem turma e sem evento: carrega todos (modo legado)
+     * Em todos os casos, alunos com ativo === false são excluídos.
      */
     async function carregarAlunos() {
       // Caso 1: evento existente — a lista já vem do evento (carregarEvento trata isso)
@@ -302,27 +303,40 @@
         btnSalvar.disabled = false;
       }
 
+      // Buscar mapa de status ativo dos alunos para filtrar inativos
+      let ativoMap = {};
+      try {
+        const alunosSnap = await getDocs(collection(db, "alunos"));
+        alunosSnap.forEach(d => { ativoMap[d.id] = d.data().ativo !== false; });
+      } catch (_) {}
+
       // Popular alunos a partir da lista salva no evento
       const presencasSalvas = dados.presencas || [];
       if (presencasSalvas.length) {
-        alunos = presencasSalvas.map(p => ({
-          id:          p.alunoId || "",
-          nome:        p.nome,
-          instrumento: p.instrumento || "",
-          foto:        p.foto || "",
-          presenca:    p.presenca || ""
-        }));
         // Buscar fotos atualizadas (podem ter mudado desde a criação)
+        const fotoMap  = {};
+        const nomeMap  = {};
         try {
           const fotoSnap = await getDocs(collection(db, "alunos"));
-          const fotoMap  = {};
-          fotoSnap.forEach(d => { fotoMap[d.id] = d.data().foto || ""; });
-          alunos.forEach(a => { if (a.id && fotoMap[a.id]) a.foto = fotoMap[a.id]; });
-              // Fallback por nome para alunos sem alunoId salvo
-              const nomeMap = {};
-              fotoSnap.forEach(d => { nomeMap[d.data().nome] = d.data().foto || ""; });
-              alunos.forEach(a => { if (!a.foto && a.nome && nomeMap[a.nome]) a.foto = nomeMap[a.nome]; });
+          fotoSnap.forEach(d => {
+            fotoMap[d.id] = d.data().foto || "";
+            nomeMap[d.data().nome] = d.data().foto || "";
+          });
         } catch (_) {}
+
+        alunos = presencasSalvas
+          // Filtrar alunos inativos: excluir se ativoMap tem o id e está false
+          .filter(p => {
+            if (!p.alunoId) return true; // sem id: manter por compatibilidade
+            return ativoMap[p.alunoId] !== false;
+          })
+          .map(p => ({
+            id:          p.alunoId || "",
+            nome:        p.nome,
+            instrumento: p.instrumento || "",
+            foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || p.foto || "",
+            presenca:    p.presenca || ""
+          }));
       } else {
         // Evento antigo sem lista no evento: carrega por turmaId ou todos
         if (dados.turmaId) {
