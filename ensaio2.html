@@ -3,249 +3,294 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chamada do dia - Orquestra Filhos de Asafe</title>
+  <title>Chamada — Filhos de Asafe</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
-      --accent:  #22c55e;
-      --danger:  #f97373;
-      --card:    #0b1220;
+      --verde:   #22c55e;
+      --vermelho:#f97373;
+      --bg:      #020617;
+      --card:    #0c1322;
       --border:  #1e293b;
       --ink:     #e5e7eb;
       --muted:   #9ca3af;
-      --header-h: 0px; /* preenchido pelo JS depois que a navbar for inserida */
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body {
-      height: 100%;
-      background: #020617;
-      color: var(--ink);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-    }
+    html, body { height: 100%; background: var(--bg); color: var(--ink);
+      font-family: system-ui, -apple-system, 'Inter', sans-serif; }
 
-    /* ── Layout principal: coluna fixa na viewport ── */
+    /* ── Layout principal ── */
     #app {
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;          /* ocupa exatamente a tela */
-      max-width: 720px;
-      margin: 0 auto;
-      background: radial-gradient(circle at top, #0f172a 0, #020617 60%, #000 100%);
+      display: flex; flex-direction: column; height: 100dvh;
+      max-width: 680px; margin: 0 auto;
+      background: radial-gradient(ellipse at top, #0f1e3a 0%, #020617 55%, #000 100%);
     }
 
-    /* ── Cabeçalho fixo dentro do app ── */
-    #cabecalho {
-      flex-shrink: 0;
-      padding: 10px 12px 6px;
-      border-bottom: 1px solid #1e293b;
-      background: rgba(11,18,32,0.95);
-      backdrop-filter: blur(8px);
+    /* ── Cabeçalho ── */
+    #cab {
+      flex-shrink: 0; padding: 10px 14px 8px;
+      background: rgba(10,16,32,0.96); backdrop-filter: blur(10px);
+      border-bottom: 1px solid #1a2540;
     }
-    #cabecalho h1   { text-align: center; font-size: 1.25rem; margin-bottom: 2px; }
-    #cabecalho .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
+    #cab h1 { text-align:center; font-size:1.15rem; font-weight:700; letter-spacing:.02em; }
+    #cab .sub { text-align:center; font-size:.78rem; color:var(--muted); margin:2px 0 6px; }
 
+    .badge-wrap { text-align:center; margin-bottom:5px; }
     .turma-badge {
-      display: inline-block; font-size: 0.8rem; font-weight: 700; color: #22d3ee;
-      background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
-      border-radius: 999px; padding: 3px 14px;
+      display:inline-block; font-size:.78rem; font-weight:700; color:#22d3ee;
+      background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.25);
+      border-radius:999px; padding:2px 14px;
     }
-    .badge-wrapper { text-align: center; margin-bottom: 6px; }
-    .aviso-sem-turma {
-      text-align: center; background: rgba(251,191,36,0.12);
-      border: 1px solid rgba(251,191,36,0.4); border-radius: 8px;
-      color: #fbbf24; padding: 8px 12px; font-size: 0.82rem; margin: 0 0 6px;
+    .aviso-turma {
+      background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.35);
+      border-radius:8px; color:#fbbf24; padding:6px 10px;
+      font-size:.78rem; text-align:center; margin-bottom:5px;
     }
     .linha-data {
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; font-size: 0.88rem; margin-bottom: 4px;
+      display:flex; align-items:center; justify-content:center;
+      gap:8px; font-size:.82rem; margin-bottom:5px;
     }
-    .linha-data label { color: #e2e8f0; font-weight: 500; }
     #inputData {
-      background: #0f172a; border: 1px solid #334155; border-radius: 8px;
-      color: #38bdf8; font-size: 0.88rem; font-weight: 600;
-      padding: 3px 8px; cursor: pointer; outline: none;
+      background:#0f172a; border:1px solid #334155; border-radius:7px;
+      color:#38bdf8; font-size:.82rem; font-weight:600;
+      padding:3px 8px; outline:none; cursor:pointer;
     }
-    #inputData:focus { border-color: #38bdf8; }
-    #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
+    #inputData::-webkit-calendar-picker-indicator { filter:invert(.8); cursor:pointer; }
 
-    /* contador de progresso */
-    #progresso {
-      text-align: center; font-size: 0.78rem; color: var(--muted); padding-bottom: 2px;
+    /* barra de progresso */
+    #statLine {
+      display:flex; align-items:center; gap:8px; margin-top:4px;
     }
-    #barraProgresso {
-      height: 3px; background: #1e293b; border-radius: 2px; margin: 4px 0 0;
+    #statTxt { font-size:.75rem; color:var(--muted); white-space:nowrap; min-width:90px; }
+    #barWrap  { flex:1; height:4px; background:#1e293b; border-radius:2px; }
+    #barFill  { height:100%; background:var(--verde); border-radius:2px; width:0%; transition:width .35s ease; }
+    #statPct  { font-size:.75rem; color:var(--verde); font-weight:700; min-width:34px; text-align:right; }
+
+    /* ── Área scrollável ── */
+    #scroll {
+      flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      padding:10px 10px 16px;
     }
-    #barraFill {
-      height: 100%; background: var(--accent); border-radius: 2px;
-      transition: width 0.3s ease;
+    #scroll::-webkit-scrollbar { width:3px; }
+    #scroll::-webkit-scrollbar-thumb { background:#263045; border-radius:2px; }
+
+    /* ── Separadores de grupo ── */
+    .grupo-label {
+      font-size:.7rem; font-weight:700; letter-spacing:.08em;
+      text-transform:uppercase; color:#475569;
+      padding:4px 2px 6px; margin-top:4px;
     }
 
-    /* ── Área scrollável da lista ── */
-    #scrollArea {
-      flex: 1;               /* ocupa todo espaço restante */
-      overflow-y: auto;      /* SCROLL AQUI — sem ambiguidade */
-      -webkit-overflow-scrolling: touch;
-      padding: 8px 10px 10px;
-      scroll-behavior: smooth;
+    /* ── Card compacto ── */
+    .card {
+      display:flex; align-items:center; gap:10px;
+      padding:9px 10px; border-radius:12px;
+      background:var(--card); border:1px solid #111827;
+      box-shadow:0 3px 10px rgba(0,0,0,.45);
+      cursor:pointer; user-select:none;
+      transition:background .2s, border-color .2s, box-shadow .2s, transform .12s;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:pan-y;           /* permite swipe horizontal para marcar ausente */
+      position:relative; overflow:hidden;
+      margin-bottom:7px;
+      /* entrada animada */
+      opacity:0; transform:translateY(10px);
     }
-    #scrollArea::-webkit-scrollbar { width: 4px; }
-    #scrollArea::-webkit-scrollbar-track { background: transparent; }
-    #scrollArea::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+    .card.visivel { opacity:1; transform:translateY(0); }
 
-    .lista-alunos { display: flex; flex-direction: column; gap: 8px; }
+    /* estados */
+    .card.presente {
+      background:linear-gradient(110deg, rgba(34,197,94,.28) 0%, var(--card) 60%);
+      border-color:var(--verde); box-shadow:0 4px 18px rgba(34,197,94,.35);
+    }
+    .card.ausente {
+      background:linear-gradient(110deg, rgba(248,113,113,.28) 0%, var(--card) 60%);
+      border-color:var(--vermelho); box-shadow:0 4px 18px rgba(248,113,113,.3);
+    }
+    .card:active { transform:scale(.98); }
 
-    /* ── Observações (dentro do scroll) ── */
+    /* Foto */
+    .foto {
+      width:44px; height:44px; border-radius:50%; flex-shrink:0;
+      border:2px solid #1e293b; background:#020617; overflow:hidden;
+      display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#475569;
+    }
+    .foto img { width:100%; height:100%; object-fit:cover; display:block; }
+
+    /* Ícone de estado à esquerda (substitui a foto quando marcado) */
+    .icone-estado {
+      width:44px; height:44px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.3rem; transition:transform .2s;
+    }
+    .card.presente .icone-estado { transform:scale(1.1); }
+
+    /* Dados */
+    .dados { flex:1; min-width:0; }
+    .nome  { font-size:.92rem; font-weight:600; color:#e2e8f0;
+             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .inst  { font-size:.74rem; color:#64748b;
+             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .card.presente .nome { color:#bbf7d0; }
+    .card.ausente  .nome { color:#fca5a5; }
+
+    /* Badge de estado (direita) */
+    .badge-estado {
+      font-size:.68rem; font-weight:800; letter-spacing:.06em;
+      text-transform:uppercase; padding:2px 8px; border-radius:999px;
+      opacity:0; transition:opacity .2s;
+    }
+    .card.presente .badge-estado { opacity:1; background:rgba(34,197,94,.2); color:#86efac; border:1px solid rgba(34,197,94,.4); }
+    .card.ausente  .badge-estado { opacity:1; background:rgba(248,113,113,.2); color:#fca5a5; border:1px solid rgba(248,113,113,.35); }
+
+    /* Botão ✘ ausente — canto direito, visível apenas quando pendente */
+    .btn-ausente {
+      width:34px; height:34px; border-radius:50%; border:none;
+      background:rgba(248,113,113,.12); color:rgba(248,113,113,.5);
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem; cursor:pointer; flex-shrink:0;
+      transition:background .15s, color .15s, transform .1s;
+      outline:none; -webkit-tap-highlight-color:transparent;
+    }
+    .btn-ausente:active { transform:scale(.88); }
+    .card.presente .btn-ausente,
+    .card.ausente  .btn-ausente { display:none; }
+
+    /* Botão desfazer — aparece quando marcado */
+    .btn-desfazer {
+      width:28px; height:28px; border-radius:50%; border:none;
+      background:rgba(255,255,255,.06); color:#64748b;
+      display:none; align-items:center; justify-content:center;
+      font-size:.8rem; cursor:pointer; flex-shrink:0;
+      transition:background .15s, color .15s;
+      outline:none; -webkit-tap-highlight-color:transparent;
+    }
+    .card.presente .btn-desfazer,
+    .card.ausente  .btn-desfazer { display:flex; }
+    .btn-desfazer:hover { background:rgba(255,255,255,.12); color:#94a3b8; }
+
+    /* Dica de swipe (aparece 1x) */
+    #dica-swipe {
+      text-align:center; font-size:.72rem; color:#475569;
+      padding:6px 0 2px; margin-bottom:2px;
+    }
+
+    /* ── Observações ── */
     .obs-area {
-      margin-top: 10px; background: rgba(15,23,42,0.9);
-      border-radius: 12px; border: 1px solid #1f2937; padding: 10px;
+      margin-top:8px; background:rgba(12,19,34,.85);
+      border-radius:12px; border:1px solid #1f2937; padding:10px;
     }
-    .obs-label { font-size: 0.8rem; color: #e5e7eb; margin-bottom: 4px; display: block; }
+    .obs-label { font-size:.76rem; color:#94a3b8; margin-bottom:4px; display:block; }
     textarea {
-      width: 100%; min-height: 64px; border-radius: 10px;
-      border: 1px solid #1f2937; padding: 8px 10px;
-      font-family: inherit; font-size: 0.85rem; resize: vertical;
-      background: #020617; color: var(--ink);
+      width:100%; min-height:60px; border-radius:8px; border:1px solid #1f2937;
+      padding:7px 9px; font-family:inherit; font-size:.82rem; resize:vertical;
+      background:#010c1a; color:var(--ink);
     }
-    textarea::placeholder { color: #64748b; }
-    textarea:focus { outline: none; border-color: #38bdf8; }
+    textarea::placeholder { color:#334155; }
+    textarea:focus { outline:none; border-color:#38bdf8; }
 
-    .loader { text-align: center; padding: 10px 0; color: var(--muted); font-size: 0.85rem; }
-
-    /* ── Card ── */
-    .card-aluno {
-      display: flex; flex-direction: column; gap: 8px;
-      padding: 10px 12px; border-radius: 14px;
-      background: #020617; border: 1px solid #111827;
-      box-shadow: 0 4px 10px rgba(15,23,42,0.55);
-      transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
-    }
-    .card-aluno.presente {
-      background: radial-gradient(circle at top left, rgba(34,197,94,0.32), #0b1220);
-      border-color: var(--accent); box-shadow: 0 6px 20px rgba(34,197,94,0.4);
-    }
-    .card-aluno.ausente {
-      background: radial-gradient(circle at top left, rgba(248,113,113,0.32), #0b1220);
-      border-color: var(--danger); box-shadow: 0 6px 20px rgba(248,113,113,0.35);
-    }
-    .card-topo { display: flex; align-items: center; gap: 10px; }
-    .foto-aluno {
-      width: 50px; height: 50px; border-radius: 50%; overflow: hidden;
-      flex-shrink: 0; border: 2px solid #1e293b; background: #020617;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .foto-aluno img { width: 100%; height: 100%; object-fit: cover; }
-    .foto-placeholder { font-size: 1.3rem; color: #64748b; }
-    .dados-aluno { flex: 1; min-width: 0; }
-    .nome        { font-weight: 600; font-size: 0.97rem; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .instrumento { font-size: 0.8rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* ── Toggles ── */
-    .toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .toggle-btn {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 10px 8px; border-radius: 10px; border: 1.5px solid transparent;
-      font-size: 0.86rem; font-weight: 700; cursor: pointer; min-height: 44px;
-      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-      -webkit-tap-highlight-color: transparent; outline: none;
-      user-select: none;
-    }
-    .toggle-btn:active { transform: scale(0.96); }
-    .toggle-presente { background: rgba(34,197,94,0.07);   border-color: rgba(34,197,94,0.22);   color: rgba(34,197,94,0.55); }
-    .toggle-ausente  { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.22); color: rgba(248,113,113,0.55); }
-    .toggle-presente.ativo { background: rgba(34,197,94,0.22);   border-color: #22c55e; color: #86efac; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
-    .toggle-ausente.ativo  { background: rgba(248,113,113,0.22); border-color: #f97373; color: #fca5a5; box-shadow: 0 0 12px rgba(248,113,113,0.4); }
+    .loader { text-align:center; padding:8px 0; color:var(--muted); font-size:.82rem; }
 
     /* ── Rodapé fixo ── */
     #rodape {
-      flex-shrink: 0;
-      display: flex; gap: 8px; justify-content: center;
-      padding: 8px 10px 12px;
-      background: rgba(11,18,32,0.97);
-      border-top: 1px solid #1e293b;
+      flex-shrink:0; display:flex; gap:7px; justify-content:center;
+      padding:8px 10px 12px;
+      background:rgba(8,14,28,.97); border-top:1px solid #131f35;
     }
     #rodape button {
-      flex: 1; max-width: 240px; padding: 10px 12px; border-radius: 999px; border: none;
-      cursor: pointer; font-weight: 700; font-size: 0.92rem;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      transition: opacity 0.15s, transform 0.1s;
-      outline: none;
+      flex:1; max-width:220px; padding:10px 8px; border-radius:999px; border:none;
+      cursor:pointer; font-weight:700; font-size:.88rem;
+      display:inline-flex; align-items:center; justify-content:center; gap:5px;
+      transition:opacity .15s, transform .1s; outline:none;
+      -webkit-tap-highlight-color:transparent;
     }
-    #rodape button:active { transform: scale(0.97); }
-    .btn-salvar   { background: #22c55e; color: #022c22; box-shadow: 0 6px 18px rgba(34,197,94,0.5); }
-    .btn-salvar:disabled { opacity: 0.5; cursor: default; }
-    .btn-cancelar { background: #1f2937; color: #e5e7eb; }
-    .btn-exportar { background: #0ea5e9; color: #fff;   box-shadow: 0 6px 18px rgba(14,165,233,0.4); }
+    #rodape button:active { transform:scale(.96); }
+    .btn-salvar   { background:#22c55e; color:#012614; box-shadow:0 5px 16px rgba(34,197,94,.45); }
+    .btn-salvar:disabled { opacity:.45; cursor:default; }
+    .btn-cancelar { background:#1a2540; color:#94a3b8; }
+    .btn-exportar { background:#0ea5e9; color:#fff; box-shadow:0 5px 16px rgba(14,165,233,.35); }
 
-    /* ── Botão flutuante de scroll total ── */
+    /* ── Botão flutuante scroll ── */
     #btnScroll {
-      position: fixed; right: 14px; bottom: 76px;
-      width: 44px; height: 44px; border-radius: 50%; border: none;
-      background: linear-gradient(135deg,#0ea5e9,#0284c7);
-      color: #fff; font-size: 1.2rem; cursor: pointer; z-index: 200;
-      box-shadow: 0 4px 14px rgba(14,165,233,0.5);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.25s, transform 0.15s;
+      position:fixed; right:13px; bottom:72px;
+      width:42px; height:42px; border-radius:50%; border:none;
+      background:linear-gradient(135deg,#0ea5e9,#0369a1);
+      color:#fff; font-size:1.1rem; cursor:pointer; z-index:200;
+      box-shadow:0 4px 14px rgba(14,165,233,.5);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none;
+      transition:opacity .25s, transform .12s;
+      outline:none;
     }
-    #btnScroll.vis { opacity: 1; pointer-events: auto; }
-    #btnScroll:active { transform: scale(0.91); }
+    #btnScroll.vis { opacity:1; pointer-events:auto; }
+    #btnScroll:active { transform:scale(.9); }
+
+    /* ── Animação de fade entrada ── */
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(10px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
 
     /* ── Impressão ── */
     @media print {
-      #app       { height: auto !important; }
-      #scrollArea { overflow: visible !important; height: auto !important; }
-      #rodape, #btnScroll, .toggles { display: none !important; }
-      body { background: white; color: #111; }
-      .card-aluno { box-shadow: none; border-color: #ccc; background: white !important; page-break-inside: avoid; }
-      .card-aluno.presente { border-left: 4px solid #22c55e; }
-      .card-aluno.ausente  { border-left: 4px solid #f97373; }
-      .nome { color: #111; } .instrumento { color: #555; }
+      #app    { height:auto !important; }
+      #scroll { overflow:visible !important; height:auto !important; }
+      #rodape, #btnScroll, .btn-ausente, .btn-desfazer { display:none !important; }
+      body    { background:#fff; color:#111; }
+      .card   { box-shadow:none; border-color:#ccc; background:#fff !important;
+                page-break-inside:avoid; opacity:1 !important; transform:none !important; }
+      .card.presente { border-left:4px solid #22c55e; }
+      .card.ausente  { border-left:4px solid #f97373; }
+      .nome { color:#111 !important; } .inst { color:#555 !important; }
     }
   </style>
 </head>
 <body>
-
 <div id="app">
+
   <!-- Cabeçalho -->
-  <div id="cabecalho">
+  <div id="cab">
     <h1>📋 Chamada</h1>
-    <p class="sub">Marque Presente ou Ausente. A lista avança sozinha 😊</p>
-    <div class="badge-wrapper">
-      <span class="turma-badge" id="turmaBadge" style="display:none"></span>
-      <div class="aviso-sem-turma" id="avisoSemTurma" style="display:none">
-        ⚠️ Nenhuma turma selecionada. Volte ao painel e selecione uma turma.
+    <p class="sub">Toque no nome para marcar <strong style="color:#86efac">presente</strong> · ✘ para <strong style="color:#fca5a5">ausente</strong></p>
+    <div class="badge-wrap">
+      <span id="turmaBadge" class="turma-badge" style="display:none"></span>
+      <div  id="avisoTurma" class="aviso-turma"  style="display:none">
+        ⚠️ Nenhuma turma selecionada. Volte ao painel.
       </div>
     </div>
     <div class="linha-data">
-      <label for="inputData">📅 Data:</label>
+      <label for="inputData">📅</label>
       <input type="date" id="inputData">
     </div>
-    <div id="progresso">—</div>
-    <div id="barraProgresso"><div id="barraFill" style="width:0%"></div></div>
+    <div id="statLine">
+      <span id="statTxt">0 de 0 marcados</span>
+      <div id="barWrap"><div id="barFill"></div></div>
+      <span id="statPct">0%</span>
+    </div>
   </div>
 
   <!-- Lista scrollável -->
-  <div id="scrollArea">
-    <div class="lista-alunos" id="painelAlunos">
-      <p style="text-align:center;color:#6b7280;padding:30px">Carregando alunos...</p>
+  <div id="scroll">
+    <div id="dicaSwipe" class="" style="display:none">
+      👆 Toque para <b>Presente</b> &nbsp;·&nbsp; Arraste ← para <b>Ausente</b>
     </div>
+    <div id="painel"><p style="text-align:center;color:#475569;padding:30px">Carregando...</p></div>
     <div class="obs-area">
-      <label class="obs-label" for="observacoes">Observações (tipo de encontro, local...)</label>
-      <textarea id="observacoes" placeholder="Ex.: Ensaio geral, preparação para apresentação na praça."></textarea>
+      <label class="obs-label" for="obs">Observações</label>
+      <textarea id="obs" placeholder="Ex.: Ensaio geral, preparação para apresentação."></textarea>
     </div>
-    <div class="loader" id="loader" style="display:none">Salvando chamada e atualizando frequências...</div>
+    <div class="loader" id="loader" style="display:none">Salvando...</div>
   </div>
 
   <!-- Rodapé -->
   <div id="rodape">
     <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
-    <button id="btnSalvar"   class="btn-salvar">💾 Salvar chamada</button>
+    <button id="btnSalvar"   class="btn-salvar">💾 Salvar</button>
     <button id="btnExportar" class="btn-exportar">🖼️ Exportar</button>
   </div>
 </div>
 
-<!-- Botão flutuante topo/fim -->
 <button id="btnScroll" title="Rolar">↓</button>
 
 <script type="module">
@@ -255,212 +300,284 @@
   } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
   import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
-  // ── Elementos ────────────────────────────────────────────
-  const scrollArea    = document.getElementById("scrollArea");
-  const painel        = document.getElementById("painelAlunos");
-  const inputData     = document.getElementById("inputData");
-  const observacoesEl = document.getElementById("observacoes");
-  const btnSalvar     = document.getElementById("btnSalvar");
-  const btnCancelar   = document.getElementById("btnCancelar");
-  const btnExportar   = document.getElementById("btnExportar");
-  const loader        = document.getElementById("loader");
-  const btnScroll     = document.getElementById("btnScroll");
-  const badgeEl       = document.getElementById("turmaBadge");
-  const avisoEl       = document.getElementById("avisoSemTurma");
-  const progressoEl   = document.getElementById("progresso");
-  const barraFill     = document.getElementById("barraFill");
+  // ── Elementos ────────────────────────────────────────────────
+  const scroll     = document.getElementById("scroll");
+  const painel     = document.getElementById("painel");
+  const inputData  = document.getElementById("inputData");
+  const obsEl      = document.getElementById("obs");
+  const btnSalvar  = document.getElementById("btnSalvar");
+  const btnCancel  = document.getElementById("btnCancelar");
+  const btnExport  = document.getElementById("btnExportar");
+  const loader     = document.getElementById("loader");
+  const btnScroll  = document.getElementById("btnScroll");
+  const badgeEl    = document.getElementById("turmaBadge");
+  const avisoEl    = document.getElementById("avisoTurma");
+  const statTxt    = document.getElementById("statTxt");
+  const barFill    = document.getElementById("barFill");
+  const statPct    = document.getElementById("statPct");
+  const dicaSwipe  = document.getElementById("dicaSwipe");
 
-  const params   = new URLSearchParams(window.location.search);
+  const params   = new URLSearchParams(location.search);
   let eventoId   = params.get("id") || null;
   let alunos     = [];
+  let dicaMostrada = false;
 
-  btnExportar.addEventListener("click", exportarChamada3Colunas);
+  btnExport.addEventListener("click", exportarChamada3Colunas);
 
-  // ── Turma ativa ───────────────────────────────────────────
-  function getTurmaAtiva() {
+  // ── Turma ativa ──────────────────────────────────────────────
+  function getTurma() {
     try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
   }
-  const turmaAtiva = getTurmaAtiva();
-  if (turmaAtiva?.nome) {
-    badgeEl.textContent  = `🏫 ${turmaAtiva.nome}`;
+  const turma = getTurma();
+  if (turma?.nome) {
+    badgeEl.textContent  = `🏫 ${turma.nome}`;
     badgeEl.style.display = "inline-block";
   } else if (!eventoId) {
     avisoEl.style.display = "block";
     btnSalvar.disabled    = true;
   }
 
-  // ── Botão flutuante usa scrollArea ────────────────────────
+  // ── Scroll flutuante ─────────────────────────────────────────
   let scrollDir = "baixo";
-  scrollArea.addEventListener("scroll", () => {
-    const st  = scrollArea.scrollTop;
-    const max = scrollArea.scrollHeight - scrollArea.clientHeight;
+  scroll.addEventListener("scroll", () => {
+    const max = scroll.scrollHeight - scroll.clientHeight;
     btnScroll.classList.toggle("vis", max > 80);
-    scrollDir = st < max * 0.5 ? "baixo" : "cima";
+    scrollDir = scroll.scrollTop < max * 0.5 ? "baixo" : "cima";
     btnScroll.textContent = scrollDir === "baixo" ? "↓" : "↑";
   });
-  btnScroll.addEventListener("click", () => {
-    scrollArea.scrollTo({ top: scrollDir === "baixo" ? scrollArea.scrollHeight : 0, behavior: "smooth" });
-  });
+  btnScroll.addEventListener("click", () =>
+    scroll.scrollTo({ top: scrollDir === "baixo" ? scroll.scrollHeight : 0, behavior:"smooth" }));
 
-  // ── Helper data ───────────────────────────────────────────
+  // ── Helper data ───────────────────────────────────────────────
   function hojeISO() {
     const br = new Intl.DateTimeFormat("pt-BR", {
-      timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit"
+      timeZone:"America/Sao_Paulo", year:"numeric", month:"2-digit", day:"2-digit"
     }).format(new Date());
-    const [d, m, a] = br.split("/");
-    return `${a}-${m}-${d}`;
+    const [d,m,a] = br.split("/"); return `${a}-${m}-${d}`;
   }
 
-  // ── Atualiza progresso ────────────────────────────────────
+  // ── Progresso ─────────────────────────────────────────────────
   function atualizarProgresso() {
-    const total     = alunos.length;
-    const marcados  = alunos.filter(a => a.presenca !== "").length;
-    progressoEl.textContent = `${marcados} de ${total} marcados`;
-    barraFill.style.width   = total ? `${(marcados / total) * 100}%` : "0%";
+    const total   = alunos.length;
+    const marcado = alunos.filter(a => a.presenca !== "").length;
+    const pct     = total ? Math.round((marcado/total)*100) : 0;
+    statTxt.textContent  = `${marcado} de ${total} marcados`;
+    barFill.style.width  = pct + "%";
+    statPct.textContent  = pct + "%";
   }
 
-  // ── Scroll automático: scrollBy no scrollArea ─────────────
-  // Lê a altura REAL do card + gap e desloca o container de scroll.
-  function avancarParaProximo(cardAtual) {
-    const cards    = Array.from(painel.querySelectorAll(".card-aluno"));
-    const idxAtual = cards.indexOf(cardAtual);
-    const temProximo = alunos.some((a, i) => i > idxAtual && a.presenca === "");
-    if (!temProximo) return;
-    const altura = cardAtual.offsetHeight;  // altura real sem depender de transform
-    const gap    = 8;
-    scrollArea.scrollBy({ top: altura + gap, behavior: "smooth" });
+  // ── Avançar scroll após marcação ─────────────────────────────
+  function avancar(cardEl) {
+    const cards = Array.from(painel.querySelectorAll(".card"));
+    const idx   = cards.indexOf(cardEl);
+    const temProx = alunos.some((a,i) => i > idx && a.presenca === "");
+    if (!temProx) return;
+    scroll.scrollBy({ top: cardEl.offsetHeight + 7, behavior:"smooth" });
   }
 
-  // ── Atualizar visual do card ──────────────────────────────
-  function atualizarCard(card, aluno) {
-    card.classList.remove("presente", "ausente");
-    const btnP = card.querySelector(".toggle-presente");
-    const btnA = card.querySelector(".toggle-ausente");
-    btnP.classList.remove("ativo");
-    btnA.classList.remove("ativo");
-    if (aluno.presenca === "presente") {
-      card.classList.add("presente"); btnP.classList.add("ativo");
-    } else if (aluno.presenca === "ausente") {
-      card.classList.add("ausente");  btnA.classList.add("ativo");
-    }
+  // ── Feedback háptico ──────────────────────────────────────────
+  function vibrar(ms = 28) {
+    try { navigator.vibrate?.(ms); } catch {}
+  }
+
+  // ── Marcar aluno ─────────────────────────────────────────────
+  function marcar(aluno, estado, cardEl) {
+    aluno.presenca = estado;
+    aplicarEstado(cardEl, aluno);
     atualizarProgresso();
+    vibrar(estado === "presente" ? 28 : 18);
+    if (estado !== "") avancar(cardEl);
   }
 
-  // ── Renderizar lista ──────────────────────────────────────
+  // ── Aplicar visual ao card ────────────────────────────────────
+  function aplicarEstado(card, aluno) {
+    card.classList.remove("presente","ausente");
+    const icone  = card.querySelector(".icone-estado");
+    const badge  = card.querySelector(".badge-estado");
+    const foto   = card.querySelector(".foto");
+    if (aluno.presenca === "presente") {
+      card.classList.add("presente");
+      if (icone) { icone.textContent = "✔"; icone.style.color = "#86efac"; icone.style.display = "flex"; }
+      if (foto)  foto.style.display = "none";
+      if (badge) badge.textContent = "Presente";
+    } else if (aluno.presenca === "ausente") {
+      card.classList.add("ausente");
+      if (icone) { icone.textContent = "✘"; icone.style.color = "#fca5a5"; icone.style.display = "flex"; }
+      if (foto)  foto.style.display = "none";
+      if (badge) badge.textContent = "Ausente";
+    } else {
+      if (icone) icone.style.display = "none";
+      if (foto)  foto.style.display = "flex";
+      if (badge) badge.textContent = "";
+    }
+  }
+
+  // ── Criar card DOM ────────────────────────────────────────────
+  function criarCard(aluno, idx, delay) {
+    const card = document.createElement("div");
+    card.className     = "card";
+    card.dataset.index = idx;
+
+    // foto
+    const foto = document.createElement("div"); foto.className = "foto";
+    if (aluno.foto) {
+      const img = document.createElement("img"); img.src = aluno.foto; img.alt = aluno.nome;
+      foto.appendChild(img);
+    } else { foto.textContent = "👤"; }
+
+    // ícone de estado (sobrepõe foto ao marcar)
+    const icone = document.createElement("div"); icone.className = "icone-estado"; icone.style.display = "none";
+
+    // dados
+    const dados = document.createElement("div"); dados.className = "dados";
+    const nome  = document.createElement("div"); nome.className  = "nome"; nome.textContent = aluno.nome;
+    const inst  = document.createElement("div"); inst.className  = "inst"; inst.textContent = aluno.instrumento;
+    dados.appendChild(nome); dados.appendChild(inst);
+
+    // badge estado
+    const badge = document.createElement("span"); badge.className = "badge-estado";
+
+    // botão ✘ (ausente rápido)
+    const btnAus = document.createElement("button"); btnAus.className = "btn-ausente";
+    btnAus.innerHTML = "✘"; btnAus.title = "Marcar ausente";
+    btnAus.addEventListener("click", e => {
+      e.stopPropagation();
+      marcar(aluno, "ausente", card);
+    });
+
+    // botão desfazer
+    const btnDes = document.createElement("button"); btnDes.className = "btn-desfazer";
+    btnDes.innerHTML = "↺"; btnDes.title = "Desfazer";
+    btnDes.addEventListener("click", e => {
+      e.stopPropagation();
+      marcar(aluno, "", card);
+    });
+
+    card.appendChild(foto);
+    card.appendChild(icone);
+    card.appendChild(dados);
+    card.appendChild(badge);
+    card.appendChild(btnAus);
+    card.appendChild(btnDes);
+
+    // ── Tap no card = presente ────────────────────────────────
+    card.addEventListener("click", () => {
+      if (aluno.presenca === "") {
+        marcar(aluno, "presente", card);
+        // mostra dica de swipe uma única vez
+        if (!dicaMostrada) {
+          dicaMostrada = true;
+          dicaSwipe.style.display = "block";
+          setTimeout(() => dicaSwipe.style.opacity = "0", 3200);
+          setTimeout(() => dicaSwipe.style.display = "none", 3700);
+        }
+      }
+      // se já marcado: nada (use o botão ↺ para desfazer)
+    });
+
+    // ── Swipe esquerda = ausente ──────────────────────────────
+    let swipeX0 = null;
+    card.addEventListener("touchstart", e => { swipeX0 = e.touches[0].clientX; }, { passive:true });
+    card.addEventListener("touchend", e => {
+      if (swipeX0 === null) return;
+      const dx = e.changedTouches[0].clientX - swipeX0;
+      swipeX0 = null;
+      if (dx < -52 && aluno.presenca === "") marcar(aluno, "ausente", card);
+    }, { passive:true });
+
+    // animação de entrada escalonada
+    setTimeout(() => { card.style.transition = `opacity .25s ease ${delay}ms, transform .25s ease ${delay}ms`;
+                       card.classList.add("visivel"); }, 10);
+
+    aplicarEstado(card, aluno);
+    return card;
+  }
+
+  // ── Renderizar ────────────────────────────────────────────────
   function renderizar() {
     painel.innerHTML = "";
     if (!alunos.length) {
-      painel.innerHTML = `<p style="text-align:center;color:#6b7280;padding:30px">
-        ${turmaAtiva ? `Nenhum aluno na turma <strong>${turmaAtiva.nome}</strong>.` : "Nenhum aluno encontrado."}
-      </p>`;
-      atualizarProgresso();
-      return;
+      painel.innerHTML = `<p style="text-align:center;color:#475569;padding:30px">
+        ${turma ? `Nenhum aluno na turma <strong>${turma.nome}</strong>.` : "Nenhum aluno encontrado."}</p>`;
+      atualizarProgresso(); return;
     }
-    alunos.forEach((aluno, idx) => {
-      const card = document.createElement("div");
-      card.className     = "card-aluno";
-      card.dataset.index = idx;
 
-      // Topo: foto + dados
-      const topo = document.createElement("div"); topo.className = "card-topo";
-      const fw   = document.createElement("div"); fw.className   = "foto-aluno";
-      if (aluno.foto) {
-        const img = document.createElement("img"); img.src = aluno.foto; img.alt = aluno.nome;
-        fw.appendChild(img);
-      } else {
-        const sp = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤";
-        fw.appendChild(sp);
-      }
-      const dd = document.createElement("div"); dd.className = "dados-aluno";
-      const dn = document.createElement("div"); dn.className = "nome";        dn.textContent = aluno.nome;
-      const di = document.createElement("div"); di.className = "instrumento"; di.textContent = aluno.instrumento;
-      dd.appendChild(dn); dd.appendChild(di);
-      topo.appendChild(fw); topo.appendChild(dd);
+    const pendentes = alunos.filter(a => a.presenca === "");
+    const marcados  = alunos.filter(a => a.presenca !== "");
 
-      // Toggles
-      const tg   = document.createElement("div");    tg.className   = "toggles";
-      const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.innerHTML = "✔ Presente";
-      const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente";  btnA.innerHTML = "✘ Ausente";
+    // label pendentes
+    if (pendentes.length) {
+      const lbl = document.createElement("div"); lbl.className = "grupo-label";
+      lbl.textContent = `⏳ Pendentes (${pendentes.length})`;
+      painel.appendChild(lbl);
+    }
+    pendentes.forEach((a, i) => painel.appendChild(criarCard(a, alunos.indexOf(a), i * 30)));
 
-      btnP.addEventListener("click", () => {
-        aluno.presenca = aluno.presenca === "presente" ? "" : "presente";
-        atualizarCard(card, aluno);
-        if (aluno.presenca !== "") avancarParaProximo(card);
-      });
-      btnA.addEventListener("click", () => {
-        aluno.presenca = aluno.presenca === "ausente" ? "" : "ausente";
-        atualizarCard(card, aluno);
-        if (aluno.presenca !== "") avancarParaProximo(card);
-      });
+    // label marcados
+    if (marcados.length) {
+      const lbl = document.createElement("div"); lbl.className = "grupo-label";
+      lbl.textContent = `✔ Marcados (${marcados.length})`;
+      painel.appendChild(lbl);
+    }
+    marcados.forEach((a, i) => painel.appendChild(criarCard(a, alunos.indexOf(a), pendentes.length * 30 + i * 20)));
 
-      tg.appendChild(btnP); tg.appendChild(btnA);
-      card.appendChild(topo); card.appendChild(tg);
-      painel.appendChild(card);
-      atualizarCard(card, aluno);
-    });
     atualizarProgresso();
   }
 
-  // ── Carregamento ──────────────────────────────────────────
+  // Ao marcar, o card não muda de grupo em tempo real (UX mais estável).
+  // A separação só ocorre no carregamento inicial e ao salvar/reabrir.
+
+  // ── Firebase: carregamento ────────────────────────────────────
   async function carregarAlunos() {
     if (eventoId) return;
-    if (turmaAtiva?.id) {
+    if (turma?.id) {
       const snap = await getDocs(
-        query(collection(db, "alunos"),
-          where("turmaId", "==", turmaAtiva.id),
-          where("ativo", "!=", false))
-      );
+        query(collection(db,"alunos"), where("turmaId","==",turma.id), where("ativo","!=",false)));
       alunos = snap.docs
-        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
-        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+        .map(d => ({ id:d.id, nome:d.data().nome, instrumento:d.data().instrumento||"", foto:d.data().foto||"", presenca:"" }))
+        .sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR"));
       return;
     }
-    const snap = await getDocs(collection(db, "alunos"));
+    const snap = await getDocs(collection(db,"alunos"));
     alunos = snap.docs
       .filter(d => d.data().ativo !== false)
-      .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
-      .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      .map(d => ({ id:d.id, nome:d.data().nome, instrumento:d.data().instrumento||"", foto:d.data().foto||"", presenca:"" }))
+      .sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR"));
   }
 
   async function carregarEvento() {
     if (!eventoId) { inputData.value = hojeISO(); return; }
-    const snap = await getDoc(doc(db, "eventos", eventoId));
+    const snap = await getDoc(doc(db,"eventos",eventoId));
     if (!snap.exists()) { inputData.value = hojeISO(); return; }
     const dados = snap.data();
-    inputData.value     = dados.data || hojeISO();
-    observacoesEl.value = dados.observacoes || "";
+    inputData.value = dados.data || hojeISO();
+    obsEl.value     = dados.observacoes || "";
     if (dados.turmaNome) {
-      badgeEl.textContent   = `🏫 ${dados.turmaNome}`;
+      badgeEl.textContent = `🏫 ${dados.turmaNome}`;
       badgeEl.style.display = "inline-block";
       avisoEl.style.display = "none";
       btnSalvar.disabled    = false;
     }
-    const ativoMap = {}, fotoMap = {}, nomeMap = {};
+    const ativoMap={}, fotoMap={}, nomeMap={};
     try {
-      const alunosSnap = await getDocs(collection(db, "alunos"));
-      alunosSnap.forEach(d => {
-        ativoMap[d.id]          = d.data().ativo !== false;
-        fotoMap[d.id]           = d.data().foto || "";
-        nomeMap[d.data().nome]  = d.data().foto || "";
-      });
-    } catch (_) {}
-    const salvas = dados.presencas || [];
+      const s = await getDocs(collection(db,"alunos"));
+      s.forEach(d => { ativoMap[d.id]=d.data().ativo!==false; fotoMap[d.id]=d.data().foto||""; nomeMap[d.data().nome]=d.data().foto||""; });
+    } catch(_){}
+    const salvas = dados.presencas||[];
     if (salvas.length) {
       alunos = salvas
-        .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
-        .map(p => ({ id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
-          foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-          presenca: p.presenca || "" }));
+        .filter(p => !p.alunoId || ativoMap[p.alunoId]!==false)
+        .map(p => ({ id:p.alunoId||"", nome:p.nome, instrumento:p.instrumento||"",
+          foto:(p.alunoId&&fotoMap[p.alunoId])||nomeMap[p.nome]||"", presenca:p.presenca||"" }));
     } else {
       const q2 = dados.turmaId
-        ? query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
-        : collection(db, "alunos");
+        ? query(collection(db,"alunos"),where("turmaId","==",dados.turmaId))
+        : collection(db,"alunos");
       const s = await getDocs(q2);
-      alunos = s.docs
-        .filter(d => d.data().ativo !== false)
-        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
-        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-      salvas.forEach(p => { const a = alunos.find(al => al.nome === p.nome); if (a) a.presenca = p.presenca; });
+      alunos = s.docs.filter(d=>d.data().ativo!==false)
+        .map(d=>({id:d.id,nome:d.data().nome,instrumento:d.data().instrumento||"",foto:d.data().foto||"",presenca:""}))
+        .sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+      salvas.forEach(p=>{const a=alunos.find(al=>al.nome===p.nome);if(a)a.presenca=p.presenca;});
     }
   }
 
@@ -470,80 +587,77 @@
     renderizar();
   }
 
-  // ── Salvar ────────────────────────────────────────────────
+  // ── Salvar ────────────────────────────────────────────────────
   async function salvar() {
     try {
-      btnSalvar.disabled = true; loader.style.display = "block";
+      btnSalvar.disabled=true; loader.style.display="block";
       const data      = inputData.value || hojeISO();
-      const obs       = observacoesEl.value.trim();
+      const obs       = obsEl.value.trim();
       const presencas = alunos.map(a => ({
-        alunoId: a.id || "", nome: a.nome, instrumento: a.instrumento || "",
-        presenca: a.presenca || "ausente"
+        alunoId:a.id||"", nome:a.nome, instrumento:a.instrumento||"", presenca:a.presenca||"ausente"
       }));
       if (eventoId) {
-        await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
+        await updateDoc(doc(db,"eventos",eventoId),{data,observacoes:obs,presencas});
       } else {
-        const nv = await addDoc(collection(db, "eventos"), {
-          data, observacoes: obs, presencas,
-          turmaId: turmaAtiva?.id || "", turmaNome: turmaAtiva?.nome || "", tipo: "aula"
+        const nv = await addDoc(collection(db,"eventos"),{
+          data,observacoes:obs,presencas, turmaId:turma?.id||"",turmaNome:turma?.nome||"",tipo:"aula"
         });
         eventoId = nv.id;
       }
       await recalcular(data);
-      alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
-      window.location.href = "professor.html";
-    } catch (e) { console.error(e); alert("Ocorreu um erro ao salvar a chamada."); }
-    finally { btnSalvar.disabled = false; loader.style.display = "none"; }
+      alert("✔️ Chamada salva!");
+      location.href = "professor.html";
+    } catch(e) { console.error(e); alert("Erro ao salvar."); }
+    finally { btnSalvar.disabled=false; loader.style.display="none"; }
   }
 
-  // ── Recalcular frequência ─────────────────────────────────
+  // ── Recalcular frequência ─────────────────────────────────────
   async function recalcular(dataISO) {
-    const [ano, mes]   = dataISO.split("-");
-    const chaveMes     = `${ano}-${mes}`;
-    const turmaIdAtual = turmaAtiva?.id || null;
-    const evSnap       = await getDocs(collection(db, "eventos"));
-    const eventosMes   = [];
+    const [ano,mes] = dataISO.split("-");
+    const chave     = `${ano}-${mes}`;
+    const tId       = turma?.id||null;
+    const evSnap    = await getDocs(collection(db,"eventos"));
+    const evMes     = [];
     evSnap.forEach(d => {
-      const dd = d.data();
-      if (!dd.data?.startsWith(chaveMes)) return;
-      if (turmaIdAtual && dd.turmaId && dd.turmaId !== turmaIdAtual) return;
-      eventosMes.push(dd);
+      const dd=d.data();
+      if (!dd.data?.startsWith(chave)) return;
+      if (tId && dd.turmaId && dd.turmaId!==tId) return;
+      evMes.push(dd);
     });
-    const total = eventosMes.length; if (!total) return;
-    const contId = {}, contNome = {};
-    eventosMes.forEach(ev => (ev.presencas || []).forEach(p => {
-      if (!p) return;
-      const pres = p.presenca === "presente";
-      if (p.alunoId) contId[p.alunoId]  = (contId[p.alunoId]  || 0) + (pres ? 1 : 0);
-      if (p.nome)    contNome[p.nome]    = (contNome[p.nome]   || 0) + (pres ? 1 : 0);
+    const total=evMes.length; if(!total)return;
+    const cId={},cNome={};
+    evMes.forEach(ev=>(ev.presencas||[]).forEach(p=>{
+      if(!p)return;
+      const ok=p.presenca==="presente";
+      if(p.alunoId) cId[p.alunoId]=(cId[p.alunoId]||0)+(ok?1:0);
+      if(p.nome)    cNome[p.nome]  =(cNome[p.nome]  ||0)+(ok?1:0);
     }));
-    const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-    const sigla  = siglas[parseInt(mes, 10) - 1] || mes;
-    const alSnap = await getDocs(collection(db, "alunos"));
-    for (const ds of alSnap.docs) {
-      const d = ds.data();
-      if (d.ativo === false) continue;
-      if (turmaIdAtual && d.turmaId && d.turmaId !== turmaIdAtual) continue;
-      const pres  = contId[ds.id] ?? contNome[d.nome] ?? 0;
-      const pct   = Math.round((pres / total) * 100);
-      const hist  = Array.isArray(d.presencas) ? [...d.presencas] : [];
-      let reg     = hist.find(r => r.mes === chaveMes);
-      if (!reg) { reg = { mes: chaveMes, totalEnsaios: total, presencasAluno: pres, percentual: pct }; hist.push(reg); }
-      else { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
-      const freqAno = d.frequenciaAnual || {};
-      freqAno[sigla] = { percentual: pct, totalEnsaios: total, presencasAluno: pres };
-      await updateDoc(doc(db, "alunos", ds.id), {
-        presencas: hist,
-        frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
-        frequenciaAnual: freqAno
+    const siglas=["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+    const sigla=siglas[parseInt(mes,10)-1]||mes;
+    const alSnap=await getDocs(collection(db,"alunos"));
+    for(const ds of alSnap.docs){
+      const d=ds.data();
+      if(d.ativo===false)continue;
+      if(tId&&d.turmaId&&d.turmaId!==tId)continue;
+      const pres=cId[ds.id]??cNome[d.nome]??0;
+      const pct=Math.round((pres/total)*100);
+      const hist=Array.isArray(d.presencas)?[...d.presencas]:[];
+      let reg=hist.find(r=>r.mes===chave);
+      if(!reg){reg={mes:chave,totalEnsaios:total,presencasAluno:pres,percentual:pct};hist.push(reg);}
+      else{reg.totalEnsaios=total;reg.presencasAluno=pres;reg.percentual=pct;}
+      const fa=d.frequenciaAnual||{};
+      fa[sigla]={percentual:pct,totalEnsaios:total,presencasAluno:pres};
+      await updateDoc(doc(db,"alunos",ds.id),{
+        presencas:hist,
+        frequenciaMensal:{porcentagem:pct,totalEventos:total,presencas:pres},
+        frequenciaAnual:fa
       });
     }
   }
 
   btnSalvar.addEventListener("click", salvar);
-  btnCancelar.addEventListener("click", () => {
-    if (confirm("Cancelar alterações e voltar ao painel do professor?"))
-      window.location.href = "professor.html";
+  btnCancel.addEventListener("click", () => {
+    if(confirm("Cancelar e voltar ao painel?")) location.href="professor.html";
   });
 
   inicializar();
