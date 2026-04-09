@@ -91,7 +91,7 @@
       cursor:pointer; user-select:none;
       transition:background .2s, border-color .2s, box-shadow .2s, transform .12s;
       -webkit-tap-highlight-color:transparent;
-      touch-action:pan-y;           /* permite swipe horizontal para marcar ausente */
+      touch-action:pan-y;
       position:relative; overflow:hidden;
       margin-bottom:7px;
       /* entrada animada */
@@ -211,32 +211,11 @@
     .btn-cancelar { background:#1a2540; color:#94a3b8; }
     .btn-exportar { background:#0ea5e9; color:#fff; box-shadow:0 5px 16px rgba(14,165,233,.35); }
 
-    /* ── Botão flutuante scroll ── */
-    #btnScroll {
-      position:fixed; right:13px; bottom:72px;
-      width:42px; height:42px; border-radius:50%; border:none;
-      background:linear-gradient(135deg,#0ea5e9,#0369a1);
-      color:#fff; font-size:1.1rem; cursor:pointer; z-index:200;
-      box-shadow:0 4px 14px rgba(14,165,233,.5);
-      display:flex; align-items:center; justify-content:center;
-      opacity:0; pointer-events:none;
-      transition:opacity .25s, transform .12s;
-      outline:none;
-    }
-    #btnScroll.vis { opacity:1; pointer-events:auto; }
-    #btnScroll:active { transform:scale(.9); }
-
-    /* ── Animação de fade entrada ── */
-    @keyframes cardIn {
-      from { opacity:0; transform:translateY(10px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-
     /* ── Impressão ── */
     @media print {
       #app    { height:auto !important; }
       #scroll { overflow:visible !important; height:auto !important; }
-      #rodape, #btnScroll, .btn-ausente, .btn-desfazer { display:none !important; }
+      #rodape, .btn-ausente, .btn-desfazer { display:none !important; }
       body    { background:#fff; color:#111; }
       .card   { box-shadow:none; border-color:#ccc; background:#fff !important;
                 page-break-inside:avoid; opacity:1 !important; transform:none !important; }
@@ -291,8 +270,6 @@
   </div>
 </div>
 
-<button id="btnScroll" title="Rolar">↓</button>
-
 <script type="module">
   import { db } from "./firebase-config.js";
   import {
@@ -309,7 +286,6 @@
   const btnCancel  = document.getElementById("btnCancelar");
   const btnExport  = document.getElementById("btnExportar");
   const loader     = document.getElementById("loader");
-  const btnScroll  = document.getElementById("btnScroll");
   const badgeEl    = document.getElementById("turmaBadge");
   const avisoEl    = document.getElementById("avisoTurma");
   const statTxt    = document.getElementById("statTxt");
@@ -336,17 +312,6 @@
     avisoEl.style.display = "block";
     btnSalvar.disabled    = true;
   }
-
-  // ── Scroll flutuante ─────────────────────────────────────────
-  let scrollDir = "baixo";
-  scroll.addEventListener("scroll", () => {
-    const max = scroll.scrollHeight - scroll.clientHeight;
-    btnScroll.classList.toggle("vis", max > 80);
-    scrollDir = scroll.scrollTop < max * 0.5 ? "baixo" : "cima";
-    btnScroll.textContent = scrollDir === "baixo" ? "↓" : "↑";
-  });
-  btnScroll.addEventListener("click", () =>
-    scroll.scrollTo({ top: scrollDir === "baixo" ? scroll.scrollHeight : 0, behavior:"smooth" }));
 
   // ── Helper data ───────────────────────────────────────────────
   function hojeISO() {
@@ -460,34 +425,55 @@
     card.appendChild(btnAus);
     card.appendChild(btnDes);
 
-    // ── Tap no card = presente ────────────────────────────────
-    card.addEventListener("click", () => {
-      if (aluno.presenca === "") {
+    // ── Touch: detecta tap vs scroll vertical ────────────────
+    // Guarda posição inicial do toque
+    let tX0 = 0, tY0 = 0, touchMovido = false;
+
+    card.addEventListener("touchstart", e => {
+      tX0 = e.touches[0].clientX;
+      tY0 = e.touches[0].clientY;
+      touchMovido = false;
+    }, { passive: true });
+
+    card.addEventListener("touchmove", e => {
+      // considera como scroll se moveu mais de 8px verticalmente
+      if (Math.abs(e.touches[0].clientY - tY0) > 8) touchMovido = true;
+    }, { passive: true });
+
+    card.addEventListener("touchend", e => {
+      const dx = e.changedTouches[0].clientX - tX0;
+      // Swipe esquerda > 52px = ausente
+      if (dx < -52 && aluno.presenca === "") {
+        marcar(aluno, "ausente", card);
+        return;
+      }
+      // Tap (sem scroll vertical) = presente
+      if (!touchMovido && aluno.presenca === "") {
         marcar(aluno, "presente", card);
-        // mostra dica de swipe uma única vez
         if (!dicaMostrada) {
           dicaMostrada = true;
           dicaSwipe.style.display = "block";
-          setTimeout(() => dicaSwipe.style.opacity = "0", 3200);
-          setTimeout(() => dicaSwipe.style.display = "none", 3700);
+          setTimeout(() => { dicaSwipe.style.opacity = "0"; }, 3200);
+          setTimeout(() => { dicaSwipe.style.display = "none"; }, 3700);
         }
       }
-      // se já marcado: nada (use o botão ↺ para desfazer)
+    }, { passive: true });
+
+    // Click para desktop (mouse)
+    card.addEventListener("click", e => {
+      // Ignora se veio de um toque (touchend já tratou)
+      if (e.sourceCapabilities && !e.sourceCapabilities.firesTouchEvents) {
+        if (aluno.presenca === "") {
+          marcar(aluno, "presente", card);
+        }
+      }
     });
 
-    // ── Swipe esquerda = ausente ──────────────────────────────
-    let swipeX0 = null;
-    card.addEventListener("touchstart", e => { swipeX0 = e.touches[0].clientX; }, { passive:true });
-    card.addEventListener("touchend", e => {
-      if (swipeX0 === null) return;
-      const dx = e.changedTouches[0].clientX - swipeX0;
-      swipeX0 = null;
-      if (dx < -52 && aluno.presenca === "") marcar(aluno, "ausente", card);
-    }, { passive:true });
-
     // animação de entrada escalonada
-    setTimeout(() => { card.style.transition = `opacity .25s ease ${delay}ms, transform .25s ease ${delay}ms`;
-                       card.classList.add("visivel"); }, 10);
+    setTimeout(() => {
+      card.style.transition = `opacity .25s ease ${delay}ms, transform .25s ease ${delay}ms`;
+      card.classList.add("visivel");
+    }, 10);
 
     aplicarEstado(card, aluno);
     return card;
@@ -523,9 +509,6 @@
 
     atualizarProgresso();
   }
-
-  // Ao marcar, o card não muda de grupo em tempo real (UX mais estável).
-  // A separação só ocorre no carregamento inicial e ao salvar/reabrir.
 
   // ── Firebase: carregamento ────────────────────────────────────
   async function carregarAlunos() {
