@@ -198,14 +198,12 @@
       box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
       transform: translateY(100%);
       transition: transform var(--transition);
-      /* max-height deixa scroll funcionar em telas pequenas */
       max-height: 85vh;
       display: flex;
       flex-direction: column;
     }
     .bottom-sheet.open { transform: translateY(0); }
 
-    /* Handle de arraste */
     .sheet-handle-area {
       padding: 12px 0 4px;
       display: flex;
@@ -226,7 +224,6 @@
       padding-bottom: 4px;
     }
 
-    /* Conteúdo rolável */
     .sheet-body {
       overflow-y: auto;
       padding: 8px 16px 32px;
@@ -234,7 +231,6 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Seletor de turma dentro do sheet */
     .sheet-turma-wrapper {
       margin-bottom: 14px;
       padding-bottom: 14px;
@@ -256,7 +252,6 @@
       color: var(--cyan); font-style: italic; text-align: center; min-height: 14px;
     }
 
-    /* Botões dentro do sheet */
     .sheet-btn {
       display: flex;
       align-items: center;
@@ -283,7 +278,6 @@
     .sheet-btn .btn-icon { font-size: 1.3rem; flex-shrink: 0; }
     .sheet-btn .btn-label { flex: 1; }
 
-    /* Botão especial dashboard */
     .sheet-btn.btn-dashboard {
       background: linear-gradient(135deg, rgba(8,145,178,0.2), rgba(14,116,144,0.15));
       border-color: rgba(8,145,178,0.35);
@@ -305,7 +299,6 @@
       animation: fadeIn 0.5s ease-out;
     }
 
-    /* fichas */
     .ficha {
       background: linear-gradient(145deg, rgba(30,41,59,0.95), rgba(51,65,85,0.9));
       border: 2px solid rgba(56,189,248,0.4); border-radius: 16px;
@@ -471,7 +464,8 @@
       <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
       <button onclick="mostrarPainelLicoes()">🎤 Avaliar Lições</button>
       <button onclick="window.location.href='configuracoes-grupo.html'">🏢 Editar Grupo</button>
-      <button id="btnCriarChamada">📋 Fazer Chamada</button>
+      <!-- ALTERADO: Fazer Chamada agora navega direto para ensaio2.html -->
+      <button onclick="window.location.href='ensaio2.html'">📋 Fazer Chamada</button>
       <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
       <button id="btnAtualizarComprometimento">⚡ Atualizar Comprometimento</button>
       <button onclick="carregarModulo('relatorio')">📊 Relatório Mensal</button>
@@ -586,7 +580,8 @@
       <button class="sheet-btn" data-href="configuracoes-grupo.html">
         <span class="btn-icon">🏢</span><span class="btn-label">Editar Grupo</span>
       </button>
-      <button class="sheet-btn" data-action="btnCriarChamada">
+      <!-- ALTERADO: Fazer Chamada navega para ensaio2.html -->
+      <button class="sheet-btn" data-href="ensaio2.html">
         <span class="btn-icon">📋</span><span class="btn-label">Fazer Chamada</span>
       </button>
       <button class="sheet-btn" data-href="gerenciar-eventos.html">
@@ -728,7 +723,7 @@
               if (fn === 'mostrarPainelSnapshots') mostrarPainelSnapshots();
               if (fn === 'carregarRelatorio')       carregarRelatorio();
             }
-          }, 280); /* aguarda animação fechar */
+          }, 280);
         });
       });
 
@@ -804,12 +799,10 @@
       }
     }
 
-    /* sincronizar mudança entre os 3 selects */
     function onChangeTurma(e) {
       const turma = e.target.value ? JSON.parse(e.target.value) : null;
       setTurmaAtiva(turma);
       atualizarBadges(turma);
-      /* espelhar valor nos outros selects */
       ['seletorTurma','seletorTurmaSheet','seletorTurmaMobile'].forEach(id => {
         const el = document.getElementById(id);
         if (el && el !== e.target) el.value = e.target.value;
