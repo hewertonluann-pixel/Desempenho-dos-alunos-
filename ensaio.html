@@ -390,10 +390,25 @@
         dd.appendChild(dn); dd.appendChild(di); dd.appendChild(sl);
         card.appendChild(fw); card.appendChild(dd);
 
-        card.addEventListener("click", (e) => {
-          if (e.button !== undefined && e.button !== 0) return;
-          aluno.presenca = proximoEstado(aluno.presenca);
-          atualizarCard(card, aluno);
+        // pointerdown: dispara imediatamente no primeiro toque/clique,
+        // sem o atraso de 300ms do 'click' em dispositivos touch.
+        card.addEventListener("pointerdown", (e) => {
+          // ignora botões secundários do mouse
+          if (e.pointerType === "mouse" && e.button !== 0) return;
+          // ignora se o toque está sendo arrastado (scroll)
+          let moved = false;
+          const onMove = (mv) => { if (Math.abs(mv.clientY - e.clientY) > 8) moved = true; };
+          const onUp   = () => {
+            card.removeEventListener("pointermove", onMove);
+            card.removeEventListener("pointerup",   onUp);
+            card.removeEventListener("pointercancel", onUp);
+            if (moved) return;
+            aluno.presenca = proximoEstado(aluno.presenca);
+            atualizarCard(card, aluno);
+          };
+          card.addEventListener("pointermove",   onMove,  { passive: true });
+          card.addEventListener("pointerup",     onUp,    { once: true });
+          card.addEventListener("pointercancel", onUp,    { once: true });
         });
 
         painel.appendChild(card);
