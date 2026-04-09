@@ -370,7 +370,7 @@
         cards[idx].classList.add("focado");
         idxFocado = idx;
         // só rola após um pequeno delay para não coincidir com o evento de toque
-        setTimeout(() => cards[idx].scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+        requestAnimationFrame(() => cards[idx].scrollIntoView({ behavior: "smooth", block: "nearest" }));
       }
     }
 
@@ -406,7 +406,7 @@
 
         // pointerdown: dispara imediatamente no primeiro toque/clique,
         // sem ghost click, sem delay de 300ms, funciona igual em mobile e desktop.
-        card.addEventListener("pointerdown", (e) => {
+        card.addEventListener("click", (e) => {
           // ignora botões secundários do mouse
           if (e.button !== undefined && e.button !== 0) return;
 
