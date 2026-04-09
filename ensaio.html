@@ -18,14 +18,13 @@
       --danger: #f97373;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
       background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000 100%);
       color: var(--ink);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
     h1 { text-align: center; margin: 16px 12px 4px; font-size: 1.4rem; }
     .subtitulo { text-align: center; font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; padding: 0 12px; }
@@ -49,12 +48,13 @@
     }
     #inputData:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.2); }
     #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
+
     .wrap {
-      flex: 1; display: flex; flex-direction: column;
-      padding: 6px 10px 80px; max-width: 720px; width: 100%; margin: 0 auto;
+      padding: 6px 10px 100px;
+      max-width: 720px; width: 100%; margin: 0 auto;
     }
     .info { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0 10px; }
-    .lista-alunos { display: flex; flex-direction: column; gap: 8px; overscroll-behavior: contain; }
+    .lista-alunos { display: flex; flex-direction: column; gap: 8px; }
 
     /* ── Botão scroll fixo ─── */
     #btnScroll {
@@ -79,15 +79,11 @@
       box-shadow: 0 8px 20px rgba(15,23,42,0.65);
       user-select: none;
       transition: box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-      scroll-margin-top: 80px;
     }
     .container-aluno:focus,
     .container-aluno:focus-visible { outline: none; }
-
-    /* linha superior: foto + dados */
     .card-topo { display: flex; align-items: center; gap: 10px; }
 
-    /* estados do card */
     .container-aluno.vazio    { background: var(--card-alt); border-color: #111827; box-shadow: 0 4px 10px rgba(15,23,42,0.55); }
     .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.22), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.35); }
     .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.22), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.3); }
@@ -104,7 +100,7 @@
     .nome        { font-weight: 600; font-size: 1rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .instrumento { font-size: 0.82rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 
-    /* ── Toggles: lado a lado, largura igual, maiores ─── */
+    /* ── Toggles lado a lado ─── */
     .toggles {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -119,41 +115,17 @@
       -webkit-tap-highlight-color: transparent;
       outline: none;
     }
-    .toggle-btn:focus,
-    .toggle-btn:focus-visible { outline: none; }
+    .toggle-btn:focus, .toggle-btn:focus-visible { outline: none; }
     .toggle-btn:active { transform: scale(0.96); }
 
-    /* inativo — translúcido */
-    .toggle-presente {
-      background: rgba(34, 197, 94, 0.07);
-      border-color: rgba(34, 197, 94, 0.22);
-      color: rgba(34, 197, 94, 0.5);
-    }
-    .toggle-ausente {
-      background: rgba(248, 113, 113, 0.07);
-      border-color: rgba(248, 113, 113, 0.22);
-      color: rgba(248, 113, 113, 0.5);
-    }
-    .toggle-btn:hover.toggle-presente:not(.ativo) {
-      background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); color: rgba(34,197,94,0.85);
-    }
-    .toggle-btn:hover.toggle-ausente:not(.ativo) {
-      background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.85);
-    }
+    .toggle-presente { background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.22); color: rgba(34,197,94,0.5); }
+    .toggle-ausente  { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.22); color: rgba(248,113,113,0.5); }
 
-    /* ativo — sólido + brilho */
-    .toggle-presente.ativo {
-      background: rgba(34, 197, 94, 0.22);
-      border-color: #22c55e;
-      color: #86efac;
-      box-shadow: 0 0 12px rgba(34,197,94,0.4);
-    }
-    .toggle-ausente.ativo {
-      background: rgba(248, 113, 113, 0.22);
-      border-color: #f97373;
-      color: #fca5a5;
-      box-shadow: 0 0 12px rgba(248,113,113,0.4);
-    }
+    .toggle-btn:hover.toggle-presente:not(.ativo) { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); color: rgba(34,197,94,0.85); }
+    .toggle-btn:hover.toggle-ausente:not(.ativo)  { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.85); }
+
+    .toggle-presente.ativo { background: rgba(34,197,94,0.22); border-color: #22c55e; color: #86efac; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
+    .toggle-ausente.ativo  { background: rgba(248,113,113,0.22); border-color: #f97373; color: #fca5a5; box-shadow: 0 0 12px rgba(248,113,113,0.4); }
 
     /* ── Impressão ─── */
     @media print {
@@ -255,7 +227,7 @@
 
     btnExportar.addEventListener("click", exportarChamada3Colunas);
 
-    // ── Turma ativa ───────────────────────────────────────────────
+    // ── Turma ativa ──────────────────────────────────────────
     function getTurmaAtiva() {
       try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
     }
@@ -271,7 +243,7 @@
       btnSalvar.disabled = true;
     }
 
-    // ── Botão scroll flutuante ────────────────────────────────────
+    // ── Botão scroll flutuante ────────────────────────────────
     let scrollDirecao = "baixo";
     window.addEventListener("scroll", () => {
       const scrollY   = window.scrollY;
@@ -287,7 +259,7 @@
       window.scrollTo({ top: scrollDirecao === "baixo" ? document.documentElement.scrollHeight : 0, behavior: "smooth" });
     });
 
-    // ── Helper data ───────────────────────────────────────────────
+    // ── Helper data ──────────────────────────────────────────
     function hojeISO() {
       const br = new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit'
@@ -296,21 +268,26 @@
       return `${a}-${m}-${d}`;
     }
 
-    // ── Avançar para o próximo card pendente ──────────────────────
+    // ── Scroll para o próximo card pendente ──────────────────────
+    // Usa getBoundingClientRect + window.scrollY para garantir que
+    // o scroll sempre acontece no window, independente de flex/display
     function avancarParaProximo(idxAtual) {
+      const proximoIdx = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
+      if (proximoIdx === -1) return;
       const cards = painel.querySelectorAll(".container-aluno");
-      const proximo = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
-      if (proximo === -1) return;
-      const cardEl = cards[proximo];
+      const cardEl = cards[proximoIdx];
       if (!cardEl) return;
-      // scroll suave centralizado
-      cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
-      // foco visual com leve destaque transitório
-      cardEl.setAttribute("tabindex", "-1");
-      setTimeout(() => { cardEl.focus({ preventScroll: true }); }, 350);
+
+      // posição absoluta do card em relação ao topo do documento
+      const rect    = cardEl.getBoundingClientRect();
+      const absolute = rect.top + window.scrollY;
+      // centralizar na tela, descontando metade da altura da viewport
+      const centro  = absolute - (window.innerHeight / 2) + (rect.height / 2);
+
+      window.scrollTo({ top: Math.max(0, centro), behavior: "smooth" });
     }
 
-    // ── Atualizar visual do card ──────────────────────────────────
+    // ── Atualizar visual do card ────────────────────────────────
     function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const btnP = card.querySelector(".toggle-presente");
@@ -327,7 +304,7 @@
       }
     }
 
-    // ── Renderizar lista ──────────────────────────────────────────
+    // ── Renderizar lista ────────────────────────────────────────
     function renderizar() {
       painel.innerHTML = "";
       if (!alunos.length) {
@@ -342,7 +319,6 @@
         card.className = "container-aluno vazio";
         card.dataset.index = idx;
 
-        // — topo: foto + dados —
         const topo = document.createElement("div"); topo.className = "card-topo";
 
         const fw = document.createElement("div"); fw.className = "foto-aluno";
@@ -356,10 +332,8 @@
         const dn = document.createElement("div"); dn.className = "nome"; dn.textContent = aluno.nome;
         const di = document.createElement("div"); di.className = "instrumento"; di.textContent = aluno.instrumento;
         dd.appendChild(dn); dd.appendChild(di);
-
         topo.appendChild(fw); topo.appendChild(dd);
 
-        // — toggles lado a lado —
         const tg   = document.createElement("div"); tg.className = "toggles";
         const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.innerHTML = "✔ Presente";
         const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente"; btnA.innerHTML = "✘ Ausente";
@@ -382,7 +356,7 @@
       });
     }
 
-    // ── Carregamento ──────────────────────────────────────────────
+    // ── Carregamento ──────────────────────────────────────────
     async function carregarAlunos() {
       if (eventoId) return;
       if (turmaAtiva?.id) {
@@ -461,7 +435,7 @@
       renderizar();
     }
 
-    // ── Salvar ────────────────────────────────────────────────────
+    // ── Salvar ──────────────────────────────────────────────
     async function salvar() {
       try {
         btnSalvar.disabled = true; loader.style.display = "block";
@@ -487,7 +461,7 @@
       finally { btnSalvar.disabled = false; loader.style.display = "none"; }
     }
 
-    // ── Recalcular frequência ─────────────────────────────────────
+    // ── Recalcular frequência ──────────────────────────────────
     async function recalcular(dataISO) {
       const [ano, mes] = dataISO.split("-");
       const chaveMes   = `${ano}-${mes}`;
