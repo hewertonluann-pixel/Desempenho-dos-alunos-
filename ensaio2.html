@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chamada do dia - Orquestra Filhos de Asafe</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --accent:  #22c55e;
+      --danger:  #f97373;
+      --card:    #0b1220;
+      --border:  #1e293b;
+      --ink:     #e5e7eb;
+      --muted:   #9ca3af;
+      --header-h: 0px; /* preenchido pelo JS depois que a navbar for inserida */
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #020617;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    }
+
+    /* ── Layout principal: coluna fixa na viewport ── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;          /* ocupa exatamente a tela */
+      max-width: 720px;
+      margin: 0 auto;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 60%, #000 100%);
+    }
+
+    /* ── Cabeçalho fixo dentro do app ── */
+    #cabecalho {
+      flex-shrink: 0;
+      padding: 10px 12px 6px;
+      border-bottom: 1px solid #1e293b;
+      background: rgba(11,18,32,0.95);
+      backdrop-filter: blur(8px);
+    }
+    #cabecalho h1   { text-align: center; font-size: 1.25rem; margin-bottom: 2px; }
+    #cabecalho .sub { text-align: center; font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
+
+    .turma-badge {
+      display: inline-block; font-size: 0.8rem; font-weight: 700; color: #22d3ee;
+      background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 999px; padding: 3px 14px;
+    }
+    .badge-wrapper { text-align: center; margin-bottom: 6px; }
+    .aviso-sem-turma {
+      text-align: center; background: rgba(251,191,36,0.12);
+      border: 1px solid rgba(251,191,36,0.4); border-radius: 8px;
+      color: #fbbf24; padding: 8px 12px; font-size: 0.82rem; margin: 0 0 6px;
+    }
+    .linha-data {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; font-size: 0.88rem; margin-bottom: 4px;
+    }
+    .linha-data label { color: #e2e8f0; font-weight: 500; }
+    #inputData {
+      background: #0f172a; border: 1px solid #334155; border-radius: 8px;
+      color: #38bdf8; font-size: 0.88rem; font-weight: 600;
+      padding: 3px 8px; cursor: pointer; outline: none;
+    }
+    #inputData:focus { border-color: #38bdf8; }
+    #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
+
+    /* contador de progresso */
+    #progresso {
+      text-align: center; font-size: 0.78rem; color: var(--muted); padding-bottom: 2px;
+    }
+    #barraProgresso {
+      height: 3px; background: #1e293b; border-radius: 2px; margin: 4px 0 0;
+    }
+    #barraFill {
+      height: 100%; background: var(--accent); border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    /* ── Área scrollável da lista ── */
+    #scrollArea {
+      flex: 1;               /* ocupa todo espaço restante */
+      overflow-y: auto;      /* SCROLL AQUI — sem ambiguidade */
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 10px 10px;
+      scroll-behavior: smooth;
+    }
+    #scrollArea::-webkit-scrollbar { width: 4px; }
+    #scrollArea::-webkit-scrollbar-track { background: transparent; }
+    #scrollArea::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
+    .lista-alunos { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── Observações (dentro do scroll) ── */
+    .obs-area {
+      margin-top: 10px; background: rgba(15,23,42,0.9);
+      border-radius: 12px; border: 1px solid #1f2937; padding: 10px;
+    }
+    .obs-label { font-size: 0.8rem; color: #e5e7eb; margin-bottom: 4px; display: block; }
+    textarea {
+      width: 100%; min-height: 64px; border-radius: 10px;
+      border: 1px solid #1f2937; padding: 8px 10px;
+      font-family: inherit; font-size: 0.85rem; resize: vertical;
+      background: #020617; color: var(--ink);
+    }
+    textarea::placeholder { color: #64748b; }
+    textarea:focus { outline: none; border-color: #38bdf8; }
+
+    .loader { text-align: center; padding: 10px 0; color: var(--muted); font-size: 0.85rem; }
+
+    /* ── Card ── */
+    .card-aluno {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 10px 12px; border-radius: 14px;
+      background: #020617; border: 1px solid #111827;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.55);
+      transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+    }
+    .card-aluno.presente {
+      background: radial-gradient(circle at top left, rgba(34,197,94,0.32), #0b1220);
+      border-color: var(--accent); box-shadow: 0 6px 20px rgba(34,197,94,0.4);
+    }
+    .card-aluno.ausente {
+      background: radial-gradient(circle at top left, rgba(248,113,113,0.32), #0b1220);
+      border-color: var(--danger); box-shadow: 0 6px 20px rgba(248,113,113,0.35);
+    }
+    .card-topo { display: flex; align-items: center; gap: 10px; }
+    .foto-aluno {
+      width: 50px; height: 50px; border-radius: 50%; overflow: hidden;
+      flex-shrink: 0; border: 2px solid #1e293b; background: #020617;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .foto-aluno img { width: 100%; height: 100%; object-fit: cover; }
+    .foto-placeholder { font-size: 1.3rem; color: #64748b; }
+    .dados-aluno { flex: 1; min-width: 0; }
+    .nome        { font-weight: 600; font-size: 0.97rem; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .instrumento { font-size: 0.8rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Toggles ── */
+    .toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .toggle-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 8px; border-radius: 10px; border: 1.5px solid transparent;
+      font-size: 0.86rem; font-weight: 700; cursor: pointer; min-height: 44px;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent; outline: none;
+      user-select: none;
+    }
+    .toggle-btn:active { transform: scale(0.96); }
+    .toggle-presente { background: rgba(34,197,94,0.07);   border-color: rgba(34,197,94,0.22);   color: rgba(34,197,94,0.55); }
+    .toggle-ausente  { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.22); color: rgba(248,113,113,0.55); }
+    .toggle-presente.ativo { background: rgba(34,197,94,0.22);   border-color: #22c55e; color: #86efac; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
+    .toggle-ausente.ativo  { background: rgba(248,113,113,0.22); border-color: #f97373; color: #fca5a5; box-shadow: 0 0 12px rgba(248,113,113,0.4); }
+
+    /* ── Rodapé fixo ── */
+    #rodape {
+      flex-shrink: 0;
+      display: flex; gap: 8px; justify-content: center;
+      padding: 8px 10px 12px;
+      background: rgba(11,18,32,0.97);
+      border-top: 1px solid #1e293b;
+    }
+    #rodape button {
+      flex: 1; max-width: 240px; padding: 10px 12px; border-radius: 999px; border: none;
+      cursor: pointer; font-weight: 700; font-size: 0.92rem;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: opacity 0.15s, transform 0.1s;
+      outline: none;
+    }
+    #rodape button:active { transform: scale(0.97); }
+    .btn-salvar   { background: #22c55e; color: #022c22; box-shadow: 0 6px 18px rgba(34,197,94,0.5); }
+    .btn-salvar:disabled { opacity: 0.5; cursor: default; }
+    .btn-cancelar { background: #1f2937; color: #e5e7eb; }
+    .btn-exportar { background: #0ea5e9; color: #fff;   box-shadow: 0 6px 18px rgba(14,165,233,0.4); }
+
+    /* ── Botão flutuante de scroll total ── */
+    #btnScroll {
+      position: fixed; right: 14px; bottom: 76px;
+      width: 44px; height: 44px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg,#0ea5e9,#0284c7);
+      color: #fff; font-size: 1.2rem; cursor: pointer; z-index: 200;
+      box-shadow: 0 4px 14px rgba(14,165,233,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.15s;
+    }
+    #btnScroll.vis { opacity: 1; pointer-events: auto; }
+    #btnScroll:active { transform: scale(0.91); }
+
+    /* ── Impressão ── */
+    @media print {
+      #app       { height: auto !important; }
+      #scrollArea { overflow: visible !important; height: auto !important; }
+      #rodape, #btnScroll, .toggles { display: none !important; }
+      body { background: white; color: #111; }
+      .card-aluno { box-shadow: none; border-color: #ccc; background: white !important; page-break-inside: avoid; }
+      .card-aluno.presente { border-left: 4px solid #22c55e; }
+      .card-aluno.ausente  { border-left: 4px solid #f97373; }
+      .nome { color: #111; } .instrumento { color: #555; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Cabeçalho -->
+  <div id="cabecalho">
+    <h1>📋 Chamada</h1>
+    <p class="sub">Marque Presente ou Ausente. A lista avança sozinha 😊</p>
+    <div class="badge-wrapper">
+      <span class="turma-badge" id="turmaBadge" style="display:none"></span>
+      <div class="aviso-sem-turma" id="avisoSemTurma" style="display:none">
+        ⚠️ Nenhuma turma selecionada. Volte ao painel e selecione uma turma.
+      </div>
+    </div>
+    <div class="linha-data">
+      <label for="inputData">📅 Data:</label>
+      <input type="date" id="inputData">
+    </div>
+    <div id="progresso">—</div>
+    <div id="barraProgresso"><div id="barraFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Lista scrollável -->
+  <div id="scrollArea">
+    <div class="lista-alunos" id="painelAlunos">
+      <p style="text-align:center;color:#6b7280;padding:30px">Carregando alunos...</p>
+    </div>
+    <div class="obs-area">
+      <label class="obs-label" for="observacoes">Observações (tipo de encontro, local...)</label>
+      <textarea id="observacoes" placeholder="Ex.: Ensaio geral, preparação para apresentação na praça."></textarea>
+    </div>
+    <div class="loader" id="loader" style="display:none">Salvando chamada e atualizando frequências...</div>
+  </div>
+
+  <!-- Rodapé -->
+  <div id="rodape">
+    <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
+    <button id="btnSalvar"   class="btn-salvar">💾 Salvar chamada</button>
+    <button id="btnExportar" class="btn-exportar">🖼️ Exportar</button>
+  </div>
+</div>
+
+<!-- Botão flutuante topo/fim -->
+<button id="btnScroll" title="Rolar">↓</button>
+
+<script type="module">
+  import { db } from "./firebase-config.js";
+  import {
+    collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where
+  } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+  import { exportarChamada3Colunas } from "./exportar-chamada.js";
+
+  // ── Elementos ────────────────────────────────────────────
+  const scrollArea    = document.getElementById("scrollArea");
+  const painel        = document.getElementById("painelAlunos");
+  const inputData     = document.getElementById("inputData");
+  const observacoesEl = document.getElementById("observacoes");
+  const btnSalvar     = document.getElementById("btnSalvar");
+  const btnCancelar   = document.getElementById("btnCancelar");
+  const btnExportar   = document.getElementById("btnExportar");
+  const loader        = document.getElementById("loader");
+  const btnScroll     = document.getElementById("btnScroll");
+  const badgeEl       = document.getElementById("turmaBadge");
+  const avisoEl       = document.getElementById("avisoSemTurma");
+  const progressoEl   = document.getElementById("progresso");
+  const barraFill     = document.getElementById("barraFill");
+
+  const params   = new URLSearchParams(window.location.search);
+  let eventoId   = params.get("id") || null;
+  let alunos     = [];
+
+  btnExportar.addEventListener("click", exportarChamada3Colunas);
+
+  // ── Turma ativa ───────────────────────────────────────────
+  function getTurmaAtiva() {
+    try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
+  }
+  const turmaAtiva = getTurmaAtiva();
+  if (turmaAtiva?.nome) {
+    badgeEl.textContent  = `🏫 ${turmaAtiva.nome}`;
+    badgeEl.style.display = "inline-block";
+  } else if (!eventoId) {
+    avisoEl.style.display = "block";
+    btnSalvar.disabled    = true;
+  }
+
+  // ── Botão flutuante usa scrollArea ────────────────────────
+  let scrollDir = "baixo";
+  scrollArea.addEventListener("scroll", () => {
+    const st  = scrollArea.scrollTop;
+    const max = scrollArea.scrollHeight - scrollArea.clientHeight;
+    btnScroll.classList.toggle("vis", max > 80);
+    scrollDir = st < max * 0.5 ? "baixo" : "cima";
+    btnScroll.textContent = scrollDir === "baixo" ? "↓" : "↑";
+  });
+  btnScroll.addEventListener("click", () => {
+    scrollArea.scrollTo({ top: scrollDir === "baixo" ? scrollArea.scrollHeight : 0, behavior: "smooth" });
+  });
+
+  // ── Helper data ───────────────────────────────────────────
+  function hojeISO() {
+    const br = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit"
+    }).format(new Date());
+    const [d, m, a] = br.split("/");
+    return `${a}-${m}-${d}`;
+  }
+
+  // ── Atualiza progresso ────────────────────────────────────
+  function atualizarProgresso() {
+    const total     = alunos.length;
+    const marcados  = alunos.filter(a => a.presenca !== "").length;
+    progressoEl.textContent = `${marcados} de ${total} marcados`;
+    barraFill.style.width   = total ? `${(marcados / total) * 100}%` : "0%";
+  }
+
+  // ── Scroll automático: scrollBy no scrollArea ─────────────
+  // Lê a altura REAL do card + gap e desloca o container de scroll.
+  function avancarParaProximo(cardAtual) {
+    const cards    = Array.from(painel.querySelectorAll(".card-aluno"));
+    const idxAtual = cards.indexOf(cardAtual);
+    const temProximo = alunos.some((a, i) => i > idxAtual && a.presenca === "");
+    if (!temProximo) return;
+    const altura = cardAtual.offsetHeight;  // altura real sem depender de transform
+    const gap    = 8;
+    scrollArea.scrollBy({ top: altura + gap, behavior: "smooth" });
+  }
+
+  // ── Atualizar visual do card ──────────────────────────────
+  function atualizarCard(card, aluno) {
+    card.classList.remove("presente", "ausente");
+    const btnP = card.querySelector(".toggle-presente");
+    const btnA = card.querySelector(".toggle-ausente");
+    btnP.classList.remove("ativo");
+    btnA.classList.remove("ativo");
+    if (aluno.presenca === "presente") {
+      card.classList.add("presente"); btnP.classList.add("ativo");
+    } else if (aluno.presenca === "ausente") {
+      card.classList.add("ausente");  btnA.classList.add("ativo");
+    }
+    atualizarProgresso();
+  }
+
+  // ── Renderizar lista ──────────────────────────────────────
+  function renderizar() {
+    painel.innerHTML = "";
+    if (!alunos.length) {
+      painel.innerHTML = `<p style="text-align:center;color:#6b7280;padding:30px">
+        ${turmaAtiva ? `Nenhum aluno na turma <strong>${turmaAtiva.nome}</strong>.` : "Nenhum aluno encontrado."}
+      </p>`;
+      atualizarProgresso();
+      return;
+    }
+    alunos.forEach((aluno, idx) => {
+      const card = document.createElement("div");
+      card.className     = "card-aluno";
+      card.dataset.index = idx;
+
+      // Topo: foto + dados
+      const topo = document.createElement("div"); topo.className = "card-topo";
+      const fw   = document.createElement("div"); fw.className   = "foto-aluno";
+      if (aluno.foto) {
+        const img = document.createElement("img"); img.src = aluno.foto; img.alt = aluno.nome;
+        fw.appendChild(img);
+      } else {
+        const sp = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤";
+        fw.appendChild(sp);
+      }
+      const dd = document.createElement("div"); dd.className = "dados-aluno";
+      const dn = document.createElement("div"); dn.className = "nome";        dn.textContent = aluno.nome;
+      const di = document.createElement("div"); di.className = "instrumento"; di.textContent = aluno.instrumento;
+      dd.appendChild(dn); dd.appendChild(di);
+      topo.appendChild(fw); topo.appendChild(dd);
+
+      // Toggles
+      const tg   = document.createElement("div");    tg.className   = "toggles";
+      const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.innerHTML = "✔ Presente";
+      const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente";  btnA.innerHTML = "✘ Ausente";
+
+      btnP.addEventListener("click", () => {
+        aluno.presenca = aluno.presenca === "presente" ? "" : "presente";
+        atualizarCard(card, aluno);
+        if (aluno.presenca !== "") avancarParaProximo(card);
+      });
+      btnA.addEventListener("click", () => {
+        aluno.presenca = aluno.presenca === "ausente" ? "" : "ausente";
+        atualizarCard(card, aluno);
+        if (aluno.presenca !== "") avancarParaProximo(card);
+      });
+
+      tg.appendChild(btnP); tg.appendChild(btnA);
+      card.appendChild(topo); card.appendChild(tg);
+      painel.appendChild(card);
+      atualizarCard(card, aluno);
+    });
+    atualizarProgresso();
+  }
+
+  // ── Carregamento ──────────────────────────────────────────
+  async function carregarAlunos() {
+    if (eventoId) return;
+    if (turmaAtiva?.id) {
+      const snap = await getDocs(
+        query(collection(db, "alunos"),
+          where("turmaId", "==", turmaAtiva.id),
+          where("ativo", "!=", false))
+      );
+      alunos = snap.docs
+        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      return;
+    }
+    const snap = await getDocs(collection(db, "alunos"));
+    alunos = snap.docs
+      .filter(d => d.data().ativo !== false)
+      .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+      .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  }
+
+  async function carregarEvento() {
+    if (!eventoId) { inputData.value = hojeISO(); return; }
+    const snap = await getDoc(doc(db, "eventos", eventoId));
+    if (!snap.exists()) { inputData.value = hojeISO(); return; }
+    const dados = snap.data();
+    inputData.value     = dados.data || hojeISO();
+    observacoesEl.value = dados.observacoes || "";
+    if (dados.turmaNome) {
+      badgeEl.textContent   = `🏫 ${dados.turmaNome}`;
+      badgeEl.style.display = "inline-block";
+      avisoEl.style.display = "none";
+      btnSalvar.disabled    = false;
+    }
+    const ativoMap = {}, fotoMap = {}, nomeMap = {};
+    try {
+      const alunosSnap = await getDocs(collection(db, "alunos"));
+      alunosSnap.forEach(d => {
+        ativoMap[d.id]          = d.data().ativo !== false;
+        fotoMap[d.id]           = d.data().foto || "";
+        nomeMap[d.data().nome]  = d.data().foto || "";
+      });
+    } catch (_) {}
+    const salvas = dados.presencas || [];
+    if (salvas.length) {
+      alunos = salvas
+        .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
+        .map(p => ({ id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
+          foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
+          presenca: p.presenca || "" }));
+    } else {
+      const q2 = dados.turmaId
+        ? query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
+        : collection(db, "alunos");
+      const s = await getDocs(q2);
+      alunos = s.docs
+        .filter(d => d.data().ativo !== false)
+        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      salvas.forEach(p => { const a = alunos.find(al => al.nome === p.nome); if (a) a.presenca = p.presenca; });
+    }
+  }
+
+  async function inicializar() {
+    await carregarAlunos();
+    await carregarEvento();
+    renderizar();
+  }
+
+  // ── Salvar ────────────────────────────────────────────────
+  async function salvar() {
+    try {
+      btnSalvar.disabled = true; loader.style.display = "block";
+      const data      = inputData.value || hojeISO();
+      const obs       = observacoesEl.value.trim();
+      const presencas = alunos.map(a => ({
+        alunoId: a.id || "", nome: a.nome, instrumento: a.instrumento || "",
+        presenca: a.presenca || "ausente"
+      }));
+      if (eventoId) {
+        await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
+      } else {
+        const nv = await addDoc(collection(db, "eventos"), {
+          data, observacoes: obs, presencas,
+          turmaId: turmaAtiva?.id || "", turmaNome: turmaAtiva?.nome || "", tipo: "aula"
+        });
+        eventoId = nv.id;
+      }
+      await recalcular(data);
+      alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
+      window.location.href = "professor.html";
+    } catch (e) { console.error(e); alert("Ocorreu um erro ao salvar a chamada."); }
+    finally { btnSalvar.disabled = false; loader.style.display = "none"; }
+  }
+
+  // ── Recalcular frequência ─────────────────────────────────
+  async function recalcular(dataISO) {
+    const [ano, mes]   = dataISO.split("-");
+    const chaveMes     = `${ano}-${mes}`;
+    const turmaIdAtual = turmaAtiva?.id || null;
+    const evSnap       = await getDocs(collection(db, "eventos"));
+    const eventosMes   = [];
+    evSnap.forEach(d => {
+      const dd = d.data();
+      if (!dd.data?.startsWith(chaveMes)) return;
+      if (turmaIdAtual && dd.turmaId && dd.turmaId !== turmaIdAtual) return;
+      eventosMes.push(dd);
+    });
+    const total = eventosMes.length; if (!total) return;
+    const contId = {}, contNome = {};
+    eventosMes.forEach(ev => (ev.presencas || []).forEach(p => {
+      if (!p) return;
+      const pres = p.presenca === "presente";
+      if (p.alunoId) contId[p.alunoId]  = (contId[p.alunoId]  || 0) + (pres ? 1 : 0);
+      if (p.nome)    contNome[p.nome]    = (contNome[p.nome]   || 0) + (pres ? 1 : 0);
+    }));
+    const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+    const sigla  = siglas[parseInt(mes, 10) - 1] || mes;
+    const alSnap = await getDocs(collection(db, "alunos"));
+    for (const ds of alSnap.docs) {
+      const d = ds.data();
+      if (d.ativo === false) continue;
+      if (turmaIdAtual && d.turmaId && d.turmaId !== turmaIdAtual) continue;
+      const pres  = contId[ds.id] ?? contNome[d.nome] ?? 0;
+      const pct   = Math.round((pres / total) * 100);
+      const hist  = Array.isArray(d.presencas) ? [...d.presencas] : [];
+      let reg     = hist.find(r => r.mes === chaveMes);
+      if (!reg) { reg = { mes: chaveMes, totalEnsaios: total, presencasAluno: pres, percentual: pct }; hist.push(reg); }
+      else { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
+      const freqAno = d.frequenciaAnual || {};
+      freqAno[sigla] = { percentual: pct, totalEnsaios: total, presencasAluno: pres };
+      await updateDoc(doc(db, "alunos", ds.id), {
+        presencas: hist,
+        frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
+        frequenciaAnual: freqAno
+      });
+    }
+  }
+
+  btnSalvar.addEventListener("click", salvar);
+  btnCancelar.addEventListener("click", () => {
+    if (confirm("Cancelar alterações e voltar ao painel do professor?"))
+      window.location.href = "professor.html";
+  });
+
+  inicializar();
+</script>
+<script type="module" src="navegacao.js"></script>
+</body>
+</html>
