@@ -23,6 +23,9 @@
       --radius-sm: 12px;
     }
 
+    /* Oculta a navbar de navegação globalmente nesta página */
+    .navbar { display: none !important; }
+
     html, body {
       height: 100%; background: var(--bg); color: var(--ink);
       font-family: system-ui, -apple-system, 'Inter', sans-serif;
@@ -245,7 +248,6 @@
     .btn-salvar   { background: #22c55e; color: #012614; box-shadow: 0 4px 14px rgba(34,197,94,.4); }
     .btn-salvar:disabled { opacity: .4; cursor: default; }
     .btn-cancelar { background: var(--surface2); color: var(--muted); }
-    .btn-exportar { background: #0ea5e9; color: #fff; box-shadow: 0 4px 14px rgba(14,165,233,.35); }
 
     /* Modal obs */
     #modal-obs {
@@ -391,7 +393,6 @@
   <div id="rodape">
     <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
     <button id="btnSalvar"   class="btn-salvar">💾 Salvar</button>
-    <button id="btnExportar" class="btn-exportar">🖼 Exportar</button>
   </div>
 </div>
 
@@ -400,7 +401,6 @@
   import {
     collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where
   } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-  import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
   const overlayLoad   = document.getElementById("overlay-load");
   const toastEl       = document.getElementById("toast");
@@ -430,7 +430,6 @@
   const btnRevisar    = document.getElementById("btnRevisar");
   const btnSalvar     = document.getElementById("btnSalvar");
   const btnCancel     = document.getElementById("btnCancelar");
-  const btnExport     = document.getElementById("btnExportar");
   const btnObs        = document.getElementById("btnObs");
   const modalObs      = document.getElementById("modal-obs");
   const btnFecharObs  = document.getElementById("btnFecharObs");
@@ -503,7 +502,6 @@
   }
 
   // Renderizar card
-  // allowFim = true: só disparado pelo proximo() após última marcação
   function renderCard(allowFim = false) {
     if (!alunos.length) return;
 
@@ -528,7 +526,7 @@
       fcFoto.textContent = "👤";
     }
 
-    // overlay — só mostra se já foi marcado nesta sessão
+    // overlay
     const ov = fcOverlay;
     ov.className = "fc-overlay";
     if (aluno.presenca === "presente") {
@@ -586,7 +584,6 @@
     const proxPend = alunos.findIndex((a, i) => i > idx && a.presenca === "");
     if (proxPend !== -1) { idx = proxPend; renderCard(false); return; }
     if (idx < alunos.length - 1) { idx++; renderCard(false); return; }
-    // chegou ao fim — único momento que dispara tela de conclusão
     renderCard(true);
   }
 
@@ -635,7 +632,6 @@
   btnObs.addEventListener("click",       () => modalObs.classList.add("show"));
   btnFecharObs.addEventListener("click", () => modalObs.classList.remove("show"));
   modalObs.addEventListener("click",     e => { if (e.target === modalObs) modalObs.classList.remove("show"); });
-  btnExport.addEventListener("click",    exportarChamada3Colunas);
 
   // Firebase
   async function carregarAlunos() {
@@ -677,14 +673,12 @@
     } catch {}
     const salvas = dados.presencas || [];
     if (salvas.length) {
-      // ⭐ Carrega lista de alunos do evento salvo, mas ZERA todas as presenças
-      //    para que a chamada sempre comece do zero nesta sessão
       alunos = salvas
         .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
         .map(p => ({
           id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
           foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-          presenca: ""   // ← sempre vazio ao abrir
+          presenca: ""   // sempre vazio ao abrir
         }));
     } else {
       const q2 = dados.turmaId
