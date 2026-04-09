@@ -2,271 +2,472 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chamada — Filhos de Asafe</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    :root {
-      --verde:   #22c55e;
-      --vermelho:#f97373;
-      --bg:      #020617;
-      --card:    #0c1322;
-      --border:  #1e293b;
-      --ink:     #e5e7eb;
-      --muted:   #9ca3af;
-    }
+    /* ── Reset & tokens ─────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body { height: 100%; background: var(--bg); color: var(--ink);
-      font-family: system-ui, -apple-system, 'Inter', sans-serif; }
+    :root {
+      --bg:        #07090f;
+      --surface:   #0d1221;
+      --surface2:  #131929;
+      --border:    #1c2540;
+      --ink:       #e4e8f0;
+      --muted:     #8490a8;
+      --faint:     #3a4460;
+      --verde:     #22c55e;
+      --vermelho:  #f87171;
+      --amarelo:   #fbbf24;
+      --cyan:      #22d3ee;
+      --radius:    20px;
+      --radius-sm: 12px;
+    }
 
-    /* ── Layout principal ── */
+    html, body {
+      height: 100%; background: var(--bg); color: var(--ink);
+      font-family: system-ui, -apple-system, 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Layout geral ───────────────────────────────────── */
     #app {
       display: flex; flex-direction: column; height: 100dvh;
-      max-width: 680px; margin: 0 auto;
-      background: radial-gradient(ellipse at top, #0f1e3a 0%, #020617 55%, #000 100%);
+      max-width: 480px; margin: 0 auto;
     }
 
-    /* ── Cabeçalho ── */
+    /* ── Cabeçalho ──────────────────────────────────────── */
     #cab {
-      flex-shrink: 0; padding: 10px 14px 8px;
-      background: rgba(10,16,32,0.96); backdrop-filter: blur(10px);
-      border-bottom: 1px solid #1a2540;
+      flex-shrink: 0;
+      padding: 12px 16px 10px;
+      background: rgba(10,14,26,.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
     }
-    #cab h1 { text-align:center; font-size:1.15rem; font-weight:700; letter-spacing:.02em; }
-    #cab .sub { text-align:center; font-size:.78rem; color:var(--muted); margin:2px 0 6px; }
 
-    .badge-wrap { text-align:center; margin-bottom:5px; }
+    .cab-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .cab-top h1 { font-size: .95rem; font-weight: 700; letter-spacing: .02em; }
+
+    .btn-icon {
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: var(--surface2); color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .15s, color .15s;
+    }
+    .btn-icon:active { background: var(--border); }
+
+    /* badge turma */
     .turma-badge {
-      display:inline-block; font-size:.78rem; font-weight:700; color:#22d3ee;
-      background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.25);
-      border-radius:999px; padding:2px 14px;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .72rem; font-weight: 700; color: var(--cyan);
+      background: rgba(34,211,238,.08); border: 1px solid rgba(34,211,238,.22);
+      border-radius: 999px; padding: 2px 10px; margin-bottom: 6px;
     }
     .aviso-turma {
-      background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.35);
-      border-radius:8px; color:#fbbf24; padding:6px 10px;
-      font-size:.78rem; text-align:center; margin-bottom:5px;
+      font-size: .72rem; color: var(--amarelo);
+      background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.25);
+      border-radius: 8px; padding: 5px 10px; margin-bottom: 6px; text-align: center;
     }
+
+    /* linha data */
     .linha-data {
-      display:flex; align-items:center; justify-content:center;
-      gap:8px; font-size:.82rem; margin-bottom:5px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: .8rem; margin-bottom: 8px;
     }
     #inputData {
-      background:#0f172a; border:1px solid #334155; border-radius:7px;
-      color:#38bdf8; font-size:.82rem; font-weight:600;
-      padding:3px 8px; outline:none; cursor:pointer;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--cyan); font-size: .8rem; font-weight: 600;
+      padding: 3px 8px; outline: none; cursor: pointer;
     }
-    #inputData::-webkit-calendar-picker-indicator { filter:invert(.8); cursor:pointer; }
+    #inputData::-webkit-calendar-picker-indicator { filter: invert(.7); cursor: pointer; }
 
     /* barra de progresso */
-    #statLine {
-      display:flex; align-items:center; gap:8px; margin-top:4px;
+    .progresso-wrap {
+      display: flex; align-items: center; gap: 8px;
     }
-    #statTxt { font-size:.75rem; color:var(--muted); white-space:nowrap; min-width:90px; }
-    #barWrap  { flex:1; height:4px; background:#1e293b; border-radius:2px; }
-    #barFill  { height:100%; background:var(--verde); border-radius:2px; width:0%; transition:width .35s ease; }
-    #statPct  { font-size:.75rem; color:var(--verde); font-weight:700; min-width:34px; text-align:right; }
+    .prog-txt { font-size: .72rem; color: var(--muted); white-space: nowrap; min-width: 80px; }
+    .prog-bar { flex: 1; height: 5px; background: var(--faint); border-radius: 3px; overflow: hidden; }
+    .prog-fill { height: 100%; background: var(--verde); border-radius: 3px; width: 0%; transition: width .4s ease; }
+    .prog-pct  { font-size: .72rem; color: var(--verde); font-weight: 700; min-width: 34px; text-align: right; }
 
-    /* ── Área scrollável ── */
-    #scroll {
-      flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
-      padding:10px 10px 16px;
-    }
-    #scroll::-webkit-scrollbar { width:3px; }
-    #scroll::-webkit-scrollbar-thumb { background:#263045; border-radius:2px; }
-
-    /* ── Separadores de grupo ── */
-    .grupo-label {
-      font-size:.7rem; font-weight:700; letter-spacing:.08em;
-      text-transform:uppercase; color:#475569;
-      padding:4px 2px 6px; margin-top:4px;
+    /* ── Área central — flashcard ───────────────────────── */
+    #arena {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 16px 16px 8px;
+      position: relative; overflow: hidden;
     }
 
-    /* ── Card compacto ── */
-    .card {
-      display:flex; align-items:center; gap:10px;
-      padding:9px 10px; border-radius:12px;
-      background:var(--card); border:1px solid #111827;
-      box-shadow:0 3px 10px rgba(0,0,0,.45);
-      cursor:pointer; user-select:none;
-      transition:background .2s, border-color .2s, box-shadow .2s, transform .12s;
-      -webkit-tap-highlight-color:transparent;
-      touch-action:pan-y;
-      position:relative; overflow:hidden;
-      margin-bottom:7px;
-      /* entrada animada */
-      opacity:0; transform:translateY(10px);
+    /* contador posição */
+    #contador {
+      font-size: .72rem; color: var(--muted); font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 12px; text-align: center;
     }
-    .card.visivel { opacity:1; transform:translateY(0); }
 
-    /* estados */
-    .card.presente {
-      background:linear-gradient(110deg, rgba(34,197,94,.28) 0%, var(--card) 60%);
-      border-color:var(--verde); box-shadow:0 4px 18px rgba(34,197,94,.35);
+    /* ── Flashcard ──────────────────────────────────────── */
+    .fc-wrap {
+      width: 100%; max-width: 360px;
+      position: relative;
     }
-    .card.ausente {
-      background:linear-gradient(110deg, rgba(248,113,113,.28) 0%, var(--card) 60%);
-      border-color:var(--vermelho); box-shadow:0 4px 18px rgba(248,113,113,.3);
+
+    .flashcard {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+      overflow: hidden;
+      /* animação de entrada */
+      animation: fcIn .28s cubic-bezier(.22,1,.36,1) both;
     }
-    .card:active { transform:scale(.98); }
 
-    /* Foto */
-    .foto {
-      width:44px; height:44px; border-radius:50%; flex-shrink:0;
-      border:2px solid #1e293b; background:#020617; overflow:hidden;
-      display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#475569;
+    @keyframes fcIn {
+      from { opacity: 0; transform: translateY(24px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .foto img { width:100%; height:100%; object-fit:cover; display:block; }
-
-    /* Ícone de estado à esquerda (substitui a foto quando marcado) */
-    .icone-estado {
-      width:44px; height:44px; border-radius:50%; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      font-size:1.3rem; transition:transform .2s;
+    @keyframes fcOut {
+      to { opacity: 0; transform: translateY(-20px) scale(.96); }
     }
-    .card.presente .icone-estado { transform:scale(1.1); }
-
-    /* Dados */
-    .dados { flex:1; min-width:0; }
-    .nome  { font-size:.92rem; font-weight:600; color:#e2e8f0;
-             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .inst  { font-size:.74rem; color:#64748b;
-             white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .card.presente .nome { color:#bbf7d0; }
-    .card.ausente  .nome { color:#fca5a5; }
-
-    /* Badge de estado (direita) */
-    .badge-estado {
-      font-size:.68rem; font-weight:800; letter-spacing:.06em;
-      text-transform:uppercase; padding:2px 8px; border-radius:999px;
-      opacity:0; transition:opacity .2s;
+    @keyframes fcSlideLeft {
+      to { opacity: 0; transform: translateX(-60px) scale(.95); }
     }
-    .card.presente .badge-estado { opacity:1; background:rgba(34,197,94,.2); color:#86efac; border:1px solid rgba(34,197,94,.4); }
-    .card.ausente  .badge-estado { opacity:1; background:rgba(248,113,113,.2); color:#fca5a5; border:1px solid rgba(248,113,113,.35); }
+    @keyframes fcSlideRight {
+      to { opacity: 0; transform: translateX(60px) scale(.95); }
+    }
 
-    /* Botão ✘ ausente — canto direito, visível apenas quando pendente */
+    .flashcard.sair-ausente { animation: fcSlideLeft .22s ease forwards; }
+    .flashcard.sair-presente { animation: fcSlideRight .22s ease forwards; }
+
+    /* foto grande */
+    .fc-foto {
+      width: 100%; aspect-ratio: 4/3; background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem; color: var(--faint);
+      position: relative; overflow: hidden;
+    }
+    .fc-foto img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+
+    /* overlay de estado (aparece quando marcado) */
+    .fc-overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-size: 4rem; gap: 8px;
+      opacity: 0; transition: opacity .2s;
+      pointer-events: none;
+    }
+    .fc-overlay.show { opacity: 1; }
+    .fc-overlay.presente { background: rgba(34,197,94,.55); }
+    .fc-overlay.ausente  { background: rgba(248,113,113,.55); }
+    .fc-overlay span { font-size: .9rem; font-weight: 800; letter-spacing: .08em; color: #fff; }
+
+    /* info */
+    .fc-info {
+      padding: 14px 16px 16px;
+    }
+    .fc-nome {
+      font-size: 1.2rem; font-weight: 700; color: var(--ink);
+      margin-bottom: 3px; line-height: 1.2;
+    }
+    .fc-inst {
+      font-size: .8rem; color: var(--muted);
+    }
+
+    /* ── Botões de ação ──────────────────────────────────── */
+    .fc-acoes {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      padding: 0 16px 14px;
+    }
+
+    .btn-acao {
+      padding: 14px 8px; border-radius: var(--radius-sm); border: none;
+      font-size: .95rem; font-weight: 800; letter-spacing: .04em;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 7px; -webkit-tap-highlight-color: transparent;
+      transition: transform .1s, box-shadow .15s, opacity .15s;
+      outline: none;
+    }
+    .btn-acao:active { transform: scale(.95); }
+
+    .btn-presente {
+      background: rgba(34,197,94,.15); color: #86efac;
+      border: 2px solid rgba(34,197,94,.4);
+    }
+    .btn-presente:hover { background: rgba(34,197,94,.25); }
+    .btn-presente.ativo {
+      background: var(--verde); color: #012614;
+      border-color: var(--verde); box-shadow: 0 6px 20px rgba(34,197,94,.45);
+    }
+
     .btn-ausente {
-      width:34px; height:34px; border-radius:50%; border:none;
-      background:rgba(248,113,113,.12); color:rgba(248,113,113,.5);
-      display:flex; align-items:center; justify-content:center;
-      font-size:1rem; cursor:pointer; flex-shrink:0;
-      transition:background .15s, color .15s, transform .1s;
-      outline:none; -webkit-tap-highlight-color:transparent;
+      background: rgba(248,113,113,.15); color: #fca5a5;
+      border: 2px solid rgba(248,113,113,.35);
     }
-    .btn-ausente:active { transform:scale(.88); }
-    .card.presente .btn-ausente,
-    .card.ausente  .btn-ausente { display:none; }
+    .btn-ausente:hover { background: rgba(248,113,113,.25); }
+    .btn-ausente.ativo {
+      background: var(--vermelho); color: #2c0000;
+      border-color: var(--vermelho); box-shadow: 0 6px 20px rgba(248,113,113,.4);
+    }
 
-    /* Botão desfazer — aparece quando marcado */
+    /* botão desfazer */
+    .btn-desfazer-wrap { text-align: center; padding: 0 16px 14px; }
     .btn-desfazer {
-      width:28px; height:28px; border-radius:50%; border:none;
-      background:rgba(255,255,255,.06); color:#64748b;
-      display:none; align-items:center; justify-content:center;
-      font-size:.8rem; cursor:pointer; flex-shrink:0;
-      transition:background .15s, color .15s;
-      outline:none; -webkit-tap-highlight-color:transparent;
+      background: none; border: 1px solid var(--border); border-radius: 999px;
+      color: var(--muted); font-size: .78rem; padding: 5px 18px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: color .15s, border-color .15s;
+      display: none;
     }
-    .card.presente .btn-desfazer,
-    .card.ausente  .btn-desfazer { display:flex; }
-    .btn-desfazer:hover { background:rgba(255,255,255,.12); color:#94a3b8; }
+    .btn-desfazer.show { display: inline-flex; align-items: center; gap: 5px; }
+    .btn-desfazer:active { color: var(--ink); border-color: var(--muted); }
 
-    /* Dica de swipe (aparece 1x) */
-    #dica-swipe {
-      text-align:center; font-size:.72rem; color:#475569;
-      padding:6px 0 2px; margin-bottom:2px;
+    /* ── Navegação entre cards ───────────────────────────── */
+    .fc-nav {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; padding: 0 16px 12px;
     }
 
-    /* ── Observações ── */
-    .obs-area {
-      margin-top:8px; background:rgba(12,19,34,.85);
-      border-radius:12px; border:1px solid #1f2937; padding:10px;
+    .btn-nav {
+      width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .15s, color .15s, border-color .15s;
     }
-    .obs-label { font-size:.76rem; color:#94a3b8; margin-bottom:4px; display:block; }
-    textarea {
-      width:100%; min-height:60px; border-radius:8px; border:1px solid #1f2937;
-      padding:7px 9px; font-family:inherit; font-size:.82rem; resize:vertical;
-      background:#010c1a; color:var(--ink);
+    .btn-nav:active { background: var(--border); }
+    .btn-nav:disabled { opacity: .3; cursor: default; }
+
+    .dots {
+      display: flex; gap: 5px; align-items: center;
     }
-    textarea::placeholder { color:#334155; }
-    textarea:focus { outline:none; border-color:#38bdf8; }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--faint); transition: background .2s, transform .2s;
+    }
+    .dot.ativo { background: var(--cyan); transform: scale(1.4); }
+    .dot.presente { background: var(--verde); }
+    .dot.ausente  { background: var(--vermelho); }
 
-    .loader { text-align:center; padding:8px 0; color:var(--muted); font-size:.82rem; }
+    /* ── Tela de conclusão ───────────────────────────────── */
+    #tela-fim {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 32px 24px;
+      gap: 12px;
+    }
+    #tela-fim.show { display: flex; }
+    .fim-icone { font-size: 3.5rem; }
+    .fim-titulo { font-size: 1.3rem; font-weight: 800; color: var(--ink); }
+    .fim-sub    { font-size: .85rem; color: var(--muted); max-width: 28ch; }
+    .fim-stats  {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; width: 100%; max-width: 280px; margin: 8px 0;
+    }
+    .stat-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 8px; text-align: center;
+    }
+    .stat-num  { font-size: 1.8rem; font-weight: 800; line-height: 1; }
+    .stat-lab  { font-size: .7rem; color: var(--muted); margin-top: 3px; }
+    .stat-box.pres .stat-num { color: var(--verde); }
+    .stat-box.ause .stat-num { color: var(--vermelho); }
+    .btn-revisar {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 999px;
+      font-size: .82rem; font-weight: 600; padding: 8px 20px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .btn-revisar:active { background: var(--border); }
 
-    /* ── Rodapé fixo ── */
+    /* ── Rodapé ─────────────────────────────────────────── */
     #rodape {
-      flex-shrink:0; display:flex; gap:7px; justify-content:center;
-      padding:8px 10px 12px;
-      background:rgba(8,14,28,.97); border-top:1px solid #131f35;
+      flex-shrink: 0; display: flex; gap: 8px;
+      padding: 8px 12px 14px;
+      background: rgba(8,11,22,.97); border-top: 1px solid var(--border);
     }
     #rodape button {
-      flex:1; max-width:220px; padding:10px 8px; border-radius:999px; border:none;
-      cursor:pointer; font-weight:700; font-size:.88rem;
-      display:inline-flex; align-items:center; justify-content:center; gap:5px;
-      transition:opacity .15s, transform .1s; outline:none;
-      -webkit-tap-highlight-color:transparent;
+      flex: 1; padding: 12px 8px; border-radius: 999px; border: none;
+      font-weight: 700; font-size: .88rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .15s, transform .1s; outline: none;
     }
-    #rodape button:active { transform:scale(.96); }
-    .btn-salvar   { background:#22c55e; color:#012614; box-shadow:0 5px 16px rgba(34,197,94,.45); }
-    .btn-salvar:disabled { opacity:.45; cursor:default; }
-    .btn-cancelar { background:#1a2540; color:#94a3b8; }
-    .btn-exportar { background:#0ea5e9; color:#fff; box-shadow:0 5px 16px rgba(14,165,233,.35); }
+    #rodape button:active { transform: scale(.96); }
+    .btn-salvar   { background: #22c55e; color: #012614; box-shadow: 0 4px 14px rgba(34,197,94,.4); }
+    .btn-salvar:disabled { opacity: .4; cursor: default; }
+    .btn-cancelar { background: var(--surface2); color: var(--muted); }
+    .btn-exportar { background: #0ea5e9; color: #fff; box-shadow: 0 4px 14px rgba(14,165,233,.35); }
 
-    /* ── Impressão ── */
-    @media print {
-      #app    { height:auto !important; }
-      #scroll { overflow:visible !important; height:auto !important; }
-      #rodape, .btn-ausente, .btn-desfazer { display:none !important; }
-      body    { background:#fff; color:#111; }
-      .card   { box-shadow:none; border-color:#ccc; background:#fff !important;
-                page-break-inside:avoid; opacity:1 !important; transform:none !important; }
-      .card.presente { border-left:4px solid #22c55e; }
-      .card.ausente  { border-left:4px solid #f97373; }
-      .nome { color:#111 !important; } .inst { color:#555 !important; }
+    /* ── Obs modal ───────────────────────────────────────── */
+    #modal-obs {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,.75); align-items: flex-end; justify-content: center;
     }
+    #modal-obs.show { display: flex; }
+    .obs-sheet {
+      width: 100%; max-width: 480px;
+      background: var(--surface); border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0; padding: 20px 18px 32px;
+      animation: sheetUp .22s ease;
+    }
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+    .obs-handle {
+      width: 36px; height: 4px; background: var(--faint);
+      border-radius: 2px; margin: 0 auto 16px;
+    }
+    .obs-label { font-size: .8rem; color: var(--muted); margin-bottom: 8px; display: block; }
+    textarea {
+      width: 100%; min-height: 90px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg);
+      color: var(--ink); font-family: inherit; font-size: .88rem;
+      padding: 10px 12px; resize: none; outline: none;
+    }
+    textarea:focus { border-color: var(--cyan); }
+    .obs-fechar {
+      margin-top: 10px; width: 100%; padding: 11px;
+      border-radius: 999px; border: none;
+      background: var(--cyan); color: #001a1f; font-weight: 700; font-size: .9rem;
+      cursor: pointer;
+    }
+
+    /* ── Loader ─────────────────────────────────────────── */
+    #overlay-load {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 14px;
+      background: var(--bg);
+    }
+    #overlay-load .spin {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid var(--faint); border-top-color: var(--cyan);
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #overlay-load p { font-size: .85rem; color: var(--muted); }
+
+    /* ── Toast ──────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--ink); font-size: .82rem; font-weight: 600;
+      padding: 9px 18px; border-radius: 999px; z-index: 600;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s, transform .2s;
+      white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
+
+<div id="overlay-load">
+  <div class="spin"></div>
+  <p>Carregando chamada…</p>
+</div>
+
+<div id="toast"></div>
+
+<!-- Modal Observações -->
+<div id="modal-obs">
+  <div class="obs-sheet">
+    <div class="obs-handle"></div>
+    <label class="obs-label" for="obs">📝 Observações do ensaio</label>
+    <textarea id="obs" placeholder="Ex.: Ensaio geral, faltou luz, apresentação especial…"></textarea>
+    <button class="obs-fechar" id="btnFecharObs">Fechar</button>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- Cabeçalho -->
   <div id="cab">
-    <h1>📋 Chamada</h1>
-    <p class="sub">Toque no nome para marcar <strong style="color:#86efac">presente</strong> · ✘ para <strong style="color:#fca5a5">ausente</strong></p>
-    <div class="badge-wrap">
-      <span id="turmaBadge" class="turma-badge" style="display:none"></span>
-      <div  id="avisoTurma" class="aviso-turma"  style="display:none">
-        ⚠️ Nenhuma turma selecionada. Volte ao painel.
+    <div class="cab-top">
+      <h1>📋 Chamada</h1>
+      <div style="display:flex;gap:6px">
+        <button class="btn-icon" id="btnObs" title="Observações">📝</button>
       </div>
     </div>
+    <div id="badgeWrap"></div>
     <div class="linha-data">
       <label for="inputData">📅</label>
       <input type="date" id="inputData">
     </div>
-    <div id="statLine">
-      <span id="statTxt">0 de 0 marcados</span>
-      <div id="barWrap"><div id="barFill"></div></div>
-      <span id="statPct">0%</span>
+    <div class="progresso-wrap">
+      <span class="prog-txt" id="progTxt">0 de 0</span>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+      <span class="prog-pct" id="progPct">0%</span>
     </div>
   </div>
 
-  <!-- Lista scrollável -->
-  <div id="scroll">
-    <div id="dicaSwipe" class="" style="display:none">
-      👆 Toque para <b>Presente</b> &nbsp;·&nbsp; Arraste ← para <b>Ausente</b>
+  <!-- Arena do flashcard -->
+  <div id="arena">
+    <!-- Tela de conclusão (oculta no início) -->
+    <div id="tela-fim">
+      <div class="fim-icone">🎉</div>
+      <div class="fim-titulo">Chamada concluída!</div>
+      <div class="fim-sub">Todos os alunos foram registrados.</div>
+      <div class="fim-stats">
+        <div class="stat-box pres">
+          <div class="stat-num" id="numPresentes">0</div>
+          <div class="stat-lab">Presentes</div>
+        </div>
+        <div class="stat-box ause">
+          <div class="stat-num" id="numAusentes">0</div>
+          <div class="stat-lab">Ausentes</div>
+        </div>
+      </div>
+      <button class="btn-revisar" id="btnRevisar">↩ Revisar</button>
     </div>
-    <div id="painel"><p style="text-align:center;color:#475569;padding:30px">Carregando...</p></div>
-    <div class="obs-area">
-      <label class="obs-label" for="obs">Observações</label>
-      <textarea id="obs" placeholder="Ex.: Ensaio geral, preparação para apresentação."></textarea>
+
+    <!-- Card atual -->
+    <div id="contador"></div>
+    <div class="fc-wrap" id="fcWrap" style="display:none">
+      <div class="flashcard" id="flashcard">
+        <div class="fc-foto" id="fcFoto">
+          <div class="fc-overlay" id="fcOverlay">
+            <div id="fcOverlayIcon"></div>
+            <span id="fcOverlayTxt"></span>
+          </div>
+        </div>
+        <div class="fc-info">
+          <div class="fc-nome" id="fcNome">—</div>
+          <div class="fc-inst" id="fcInst">—</div>
+        </div>
+        <div class="fc-acoes">
+          <button class="btn-acao btn-ausente" id="btnAusente">✘ Ausente</button>
+          <button class="btn-acao btn-presente" id="btnPresente">✔ Presente</button>
+        </div>
+        <div class="btn-desfazer-wrap">
+          <button class="btn-desfazer" id="btnDesfazer">↺ Desfazer marcação</button>
+        </div>
+      </div>
     </div>
-    <div class="loader" id="loader" style="display:none">Salvando...</div>
+
+    <!-- Dots de navegação -->
+    <div class="fc-nav" style="margin-top:14px">
+      <button class="btn-nav" id="btnAnterior" title="Anterior">‹</button>
+      <div class="dots" id="dots"></div>
+      <button class="btn-nav" id="btnProximo" title="Próximo">›</button>
+    </div>
   </div>
 
   <!-- Rodapé -->
   <div id="rodape">
     <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
     <button id="btnSalvar"   class="btn-salvar">💾 Salvar</button>
-    <button id="btnExportar" class="btn-exportar">🖼️ Exportar</button>
+    <button id="btnExportar" class="btn-exportar">🖼 Exportar</button>
   </div>
 </div>
 
@@ -278,369 +479,406 @@
   import { exportarChamada3Colunas } from "./exportar-chamada.js";
 
   // ── Elementos ────────────────────────────────────────────────
-  const scroll     = document.getElementById("scroll");
-  const painel     = document.getElementById("painel");
-  const inputData  = document.getElementById("inputData");
-  const obsEl      = document.getElementById("obs");
-  const btnSalvar  = document.getElementById("btnSalvar");
-  const btnCancel  = document.getElementById("btnCancelar");
-  const btnExport  = document.getElementById("btnExportar");
-  const loader     = document.getElementById("loader");
-  const badgeEl    = document.getElementById("turmaBadge");
-  const avisoEl    = document.getElementById("avisoTurma");
-  const statTxt    = document.getElementById("statTxt");
-  const barFill    = document.getElementById("barFill");
-  const statPct    = document.getElementById("statPct");
-  const dicaSwipe  = document.getElementById("dicaSwipe");
+  const overlayLoad  = document.getElementById("overlay-load");
+  const toastEl      = document.getElementById("toast");
+  const badgeWrap    = document.getElementById("badgeWrap");
+  const inputData    = document.getElementById("inputData");
+  const progTxt      = document.getElementById("progTxt");
+  const progFill     = document.getElementById("progFill");
+  const progPct      = document.getElementById("progPct");
+  const contador     = document.getElementById("contador");
+  const fcWrap       = document.getElementById("fcWrap");
+  const flashcard    = document.getElementById("flashcard");
+  const fcFoto       = document.getElementById("fcFoto");
+  const fcOverlay    = document.getElementById("fcOverlay");
+  const fcOverlayIcon= document.getElementById("fcOverlayIcon");
+  const fcOverlayTxt = document.getElementById("fcOverlayTxt");
+  const fcNome       = document.getElementById("fcNome");
+  const fcInst       = document.getElementById("fcInst");
+  const btnPresente  = document.getElementById("btnPresente");
+  const btnAusente   = document.getElementById("btnAusente");
+  const btnDesfazer  = document.getElementById("btnDesfazer");
+  const btnAnterior  = document.getElementById("btnAnterior");
+  const btnProximo   = document.getElementById("btnProximo");
+  const dotsEl       = document.getElementById("dots");
+  const telaFim      = document.getElementById("tela-fim");
+  const numPresentes = document.getElementById("numPresentes");
+  const numAusentes  = document.getElementById("numAusentes");
+  const btnRevisar   = document.getElementById("btnRevisar");
+  const btnSalvar    = document.getElementById("btnSalvar");
+  const btnCancel    = document.getElementById("btnCancelar");
+  const btnExport    = document.getElementById("btnExportar");
+  const btnObs       = document.getElementById("btnObs");
+  const modalObs     = document.getElementById("modal-obs");
+  const btnFecharObs = document.getElementById("btnFecharObs");
+  const obsEl        = document.getElementById("obs");
 
+  // ── Estado ───────────────────────────────────────────────────
   const params   = new URLSearchParams(location.search);
   let eventoId   = params.get("id") || null;
   let alunos     = [];
-  let dicaMostrada = false;
+  let idx        = 0;    // índice atual
+  let transicao  = false;
 
-  btnExport.addEventListener("click", exportarChamada3Colunas);
+  // ── Toast ────────────────────────────────────────────────────
+  let toastTimer;
+  function toast(msg, ms = 2200) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), ms);
+  }
 
-  // ── Turma ativa ──────────────────────────────────────────────
+  // ── Turma ─────────────────────────────────────────────────────
   function getTurma() {
     try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
   }
   const turma = getTurma();
   if (turma?.nome) {
-    badgeEl.textContent  = `🏫 ${turma.nome}`;
-    badgeEl.style.display = "inline-block";
+    badgeWrap.innerHTML = `<div class="turma-badge">🏫 ${turma.nome}</div>`;
   } else if (!eventoId) {
-    avisoEl.style.display = "block";
-    btnSalvar.disabled    = true;
+    badgeWrap.innerHTML = `<div class="aviso-turma">⚠️ Nenhuma turma selecionada. Volte ao painel.</div>`;
+    btnSalvar.disabled = true;
   }
 
-  // ── Helper data ───────────────────────────────────────────────
+  // ── Data ────────────────────────────────────────────────────
   function hojeISO() {
     const br = new Intl.DateTimeFormat("pt-BR", {
-      timeZone:"America/Sao_Paulo", year:"numeric", month:"2-digit", day:"2-digit"
+      timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit"
     }).format(new Date());
     const [d,m,a] = br.split("/"); return `${a}-${m}-${d}`;
   }
 
-  // ── Progresso ─────────────────────────────────────────────────
+  // ── Progresso ───────────────────────────────────────────────
   function atualizarProgresso() {
     const total   = alunos.length;
     const marcado = alunos.filter(a => a.presenca !== "").length;
-    const pct     = total ? Math.round((marcado/total)*100) : 0;
-    statTxt.textContent  = `${marcado} de ${total} marcados`;
-    barFill.style.width  = pct + "%";
-    statPct.textContent  = pct + "%";
+    const pct     = total ? Math.round((marcado / total) * 100) : 0;
+    progTxt.textContent  = `${marcado} de ${total}`;
+    progFill.style.width = pct + "%";
+    progPct.textContent  = pct + "%";
   }
 
-  // ── Avançar scroll após marcação ─────────────────────────────
-  function avancar(cardEl) {
-    const cards = Array.from(painel.querySelectorAll(".card"));
-    const idx   = cards.indexOf(cardEl);
-    const temProx = alunos.some((a,i) => i > idx && a.presenca === "");
-    if (!temProx) return;
-    scroll.scrollBy({ top: cardEl.offsetHeight + 7, behavior:"smooth" });
-  }
-
-  // ── Feedback háptico ──────────────────────────────────────────
-  function vibrar(ms = 28) {
-    try { navigator.vibrate?.(ms); } catch {}
-  }
-
-  // ── Marcar aluno ─────────────────────────────────────────────
-  function marcar(aluno, estado, cardEl) {
-    aluno.presenca = estado;
-    aplicarEstado(cardEl, aluno);
-    atualizarProgresso();
-    vibrar(estado === "presente" ? 28 : 18);
-    if (estado !== "") avancar(cardEl);
-  }
-
-  // ── Aplicar visual ao card ────────────────────────────────────
-  function aplicarEstado(card, aluno) {
-    card.classList.remove("presente","ausente");
-    const icone  = card.querySelector(".icone-estado");
-    const badge  = card.querySelector(".badge-estado");
-    const foto   = card.querySelector(".foto");
-    if (aluno.presenca === "presente") {
-      card.classList.add("presente");
-      if (icone) { icone.textContent = "✔"; icone.style.color = "#86efac"; icone.style.display = "flex"; }
-      if (foto)  foto.style.display = "none";
-      if (badge) badge.textContent = "Presente";
-    } else if (aluno.presenca === "ausente") {
-      card.classList.add("ausente");
-      if (icone) { icone.textContent = "✘"; icone.style.color = "#fca5a5"; icone.style.display = "flex"; }
-      if (foto)  foto.style.display = "none";
-      if (badge) badge.textContent = "Ausente";
-    } else {
-      if (icone) icone.style.display = "none";
-      if (foto)  foto.style.display = "flex";
-      if (badge) badge.textContent = "";
+  // ── Dots ────────────────────────────────────────────────────
+  function renderDots() {
+    const MAX = 9;
+    dotsEl.innerHTML = "";
+    if (alunos.length > MAX) {
+      // apenas indicador numérico
+      dotsEl.textContent = `${idx + 1} / ${alunos.length}`;
+      dotsEl.style.cssText = "font-size:.75rem;color:var(--muted);font-weight:600;";
+      return;
     }
+    alunos.forEach((a, i) => {
+      const d = document.createElement("div");
+      d.className = "dot";
+      if (i === idx)           d.classList.add("ativo");
+      else if (a.presenca === "presente") d.classList.add("presente");
+      else if (a.presenca === "ausente")  d.classList.add("ausente");
+      d.addEventListener("click", () => goTo(i));
+      dotsEl.appendChild(d);
+    });
   }
 
-  // ── Criar card DOM ────────────────────────────────────────────
-  function criarCard(aluno, idx, delay) {
-    const card = document.createElement("div");
-    card.className     = "card";
-    card.dataset.index = idx;
+  // ── Renderizar card ─────────────────────────────────────────
+  function renderCard(animDir) {
+    if (!alunos.length) return;
+
+    // verifica se todos marcados → tela fim
+    const todosFeitos = alunos.every(a => a.presenca !== "");
+    if (todosFeitos && animDir !== "revisar") {
+      mostrarFim(); return;
+    }
+
+    telaFim.classList.remove("show");
+    fcWrap.style.display = "block";
+    contador.style.display = "block";
+
+    const aluno = alunos[idx];
 
     // foto
-    const foto = document.createElement("div"); foto.className = "foto";
+    fcFoto.innerHTML = "";
     if (aluno.foto) {
-      const img = document.createElement("img"); img.src = aluno.foto; img.alt = aluno.nome;
-      foto.appendChild(img);
-    } else { foto.textContent = "👤"; }
-
-    // ícone de estado (sobrepõe foto ao marcar)
-    const icone = document.createElement("div"); icone.className = "icone-estado"; icone.style.display = "none";
-
-    // dados
-    const dados = document.createElement("div"); dados.className = "dados";
-    const nome  = document.createElement("div"); nome.className  = "nome"; nome.textContent = aluno.nome;
-    const inst  = document.createElement("div"); inst.className  = "inst"; inst.textContent = aluno.instrumento;
-    dados.appendChild(nome); dados.appendChild(inst);
-
-    // badge estado
-    const badge = document.createElement("span"); badge.className = "badge-estado";
-
-    // botão ✘ (ausente rápido)
-    const btnAus = document.createElement("button"); btnAus.className = "btn-ausente";
-    btnAus.innerHTML = "✘"; btnAus.title = "Marcar ausente";
-    btnAus.addEventListener("click", e => {
-      e.stopPropagation();
-      marcar(aluno, "ausente", card);
-    });
-
-    // botão desfazer
-    const btnDes = document.createElement("button"); btnDes.className = "btn-desfazer";
-    btnDes.innerHTML = "↺"; btnDes.title = "Desfazer";
-    btnDes.addEventListener("click", e => {
-      e.stopPropagation();
-      marcar(aluno, "", card);
-    });
-
-    card.appendChild(foto);
-    card.appendChild(icone);
-    card.appendChild(dados);
-    card.appendChild(badge);
-    card.appendChild(btnAus);
-    card.appendChild(btnDes);
-
-    // ── Touch: detecta tap vs scroll vertical ────────────────
-    // Guarda posição inicial do toque
-    let tX0 = 0, tY0 = 0, touchMovido = false;
-
-    card.addEventListener("touchstart", e => {
-      tX0 = e.touches[0].clientX;
-      tY0 = e.touches[0].clientY;
-      touchMovido = false;
-    }, { passive: true });
-
-    card.addEventListener("touchmove", e => {
-      // considera como scroll se moveu mais de 8px verticalmente
-      if (Math.abs(e.touches[0].clientY - tY0) > 8) touchMovido = true;
-    }, { passive: true });
-
-    card.addEventListener("touchend", e => {
-      const dx = e.changedTouches[0].clientX - tX0;
-      // Swipe esquerda > 52px = ausente
-      if (dx < -52 && aluno.presenca === "") {
-        marcar(aluno, "ausente", card);
-        return;
-      }
-      // Tap (sem scroll vertical) = presente
-      if (!touchMovido && aluno.presenca === "") {
-        marcar(aluno, "presente", card);
-        if (!dicaMostrada) {
-          dicaMostrada = true;
-          dicaSwipe.style.display = "block";
-          setTimeout(() => { dicaSwipe.style.opacity = "0"; }, 3200);
-          setTimeout(() => { dicaSwipe.style.display = "none"; }, 3700);
-        }
-      }
-    }, { passive: true });
-
-    // Click para desktop (mouse)
-    card.addEventListener("click", e => {
-      // Ignora se veio de um toque (touchend já tratou)
-      if (e.sourceCapabilities && !e.sourceCapabilities.firesTouchEvents) {
-        if (aluno.presenca === "") {
-          marcar(aluno, "presente", card);
-        }
-      }
-    });
-
-    // animação de entrada escalonada
-    setTimeout(() => {
-      card.style.transition = `opacity .25s ease ${delay}ms, transform .25s ease ${delay}ms`;
-      card.classList.add("visivel");
-    }, 10);
-
-    aplicarEstado(card, aluno);
-    return card;
-  }
-
-  // ── Renderizar ────────────────────────────────────────────────
-  function renderizar() {
-    painel.innerHTML = "";
-    if (!alunos.length) {
-      painel.innerHTML = `<p style="text-align:center;color:#475569;padding:30px">
-        ${turma ? `Nenhum aluno na turma <strong>${turma.nome}</strong>.` : "Nenhum aluno encontrado."}</p>`;
-      atualizarProgresso(); return;
+      const img = document.createElement("img");
+      img.src = aluno.foto; img.alt = aluno.nome;
+      img.loading = "lazy";
+      fcFoto.appendChild(img);
+    } else {
+      fcFoto.textContent = "👤";
     }
 
-    const pendentes = alunos.filter(a => a.presenca === "");
-    const marcados  = alunos.filter(a => a.presenca !== "");
-
-    // label pendentes
-    if (pendentes.length) {
-      const lbl = document.createElement("div"); lbl.className = "grupo-label";
-      lbl.textContent = `⏳ Pendentes (${pendentes.length})`;
-      painel.appendChild(lbl);
+    // overlay e ícone
+    const ov = fcOverlay;
+    ov.className = "fc-overlay";
+    if (aluno.presenca === "presente") {
+      ov.classList.add("show","presente");
+      fcOverlayIcon.textContent = "✔";
+      fcOverlayTxt.textContent  = "PRESENTE";
+    } else if (aluno.presenca === "ausente") {
+      ov.classList.add("show","ausente");
+      fcOverlayIcon.textContent = "✘";
+      fcOverlayTxt.textContent  = "AUSENTE";
     }
-    pendentes.forEach((a, i) => painel.appendChild(criarCard(a, alunos.indexOf(a), i * 30)));
 
-    // label marcados
-    if (marcados.length) {
-      const lbl = document.createElement("div"); lbl.className = "grupo-label";
-      lbl.textContent = `✔ Marcados (${marcados.length})`;
-      painel.appendChild(lbl);
-    }
-    marcados.forEach((a, i) => painel.appendChild(criarCard(a, alunos.indexOf(a), pendentes.length * 30 + i * 20)));
+    fcFoto.appendChild(ov);
 
+    fcNome.textContent = aluno.nome;
+    fcInst.textContent = aluno.instrumento || "—";
+
+    // botões
+    btnPresente.className = "btn-acao btn-presente" + (aluno.presenca === "presente" ? " ativo" : "");
+    btnAusente.className  = "btn-acao btn-ausente"  + (aluno.presenca === "ausente"  ? " ativo" : "");
+    btnDesfazer.className = "btn-desfazer" + (aluno.presenca !== "" ? " show" : "");
+
+    // contador
+    contador.textContent = `Aluno ${idx + 1} de ${alunos.length}`;
+
+    // nav
+    btnAnterior.disabled = (idx === 0);
+    btnProximo.disabled  = (idx === alunos.length - 1);
+
+    // re-anima o card
+    flashcard.style.animation = "none";
+    requestAnimationFrame(() => {
+      flashcard.style.animation = "";
+      flashcard.style.animationName = "fcIn";
+      flashcard.style.animationDuration = ".28s";
+    });
+
+    renderDots();
     atualizarProgresso();
   }
 
-  // ── Firebase: carregamento ────────────────────────────────────
+  // ── Tela de conclusão ────────────────────────────────────────
+  function mostrarFim() {
+    fcWrap.style.display = "none";
+    contador.style.display = "none";
+    telaFim.classList.add("show");
+    const pres = alunos.filter(a => a.presenca === "presente").length;
+    const ause = alunos.filter(a => a.presenca === "ausente").length;
+    numPresentes.textContent = pres;
+    numAusentes.textContent  = ause;
+    renderDots();
+    atualizarProgresso();
+  }
+
+  // ── Navegar ──────────────────────────────────────────────────
+  function goTo(novoIdx) {
+    if (novoIdx < 0 || novoIdx >= alunos.length) return;
+    idx = novoIdx;
+    renderCard();
+  }
+
+  function proximo() {
+    // vai para o próximo pendente ou o próximo em ordem
+    const proxPend = alunos.findIndex((a, i) => i > idx && a.presenca === "");
+    if (proxPend !== -1) { goTo(proxPend); return; }
+    if (idx < alunos.length - 1) { goTo(idx + 1); return; }
+    // todos marcados
+    mostrarFim();
+  }
+
+  // ── Marcar ──────────────────────────────────────────────────
+  function vibrar(ms = 28) { try { navigator.vibrate?.(ms); } catch {} }
+
+  function marcar(estado) {
+    if (transicao) return;
+    transicao = true;
+    const aluno = alunos[idx];
+    aluno.presenca = estado;
+    atualizarProgresso();
+    vibrar(estado === "presente" ? 30 : 18);
+
+    // atualiza overlay imediatamente
+    fcOverlay.className = `fc-overlay show ${estado}`;
+    fcOverlayIcon.textContent = estado === "presente" ? "✔" : "✘";
+    fcOverlayTxt.textContent  = estado === "presente" ? "PRESENTE" : "AUSENTE";
+
+    btnPresente.className = "btn-acao btn-presente" + (estado === "presente" ? " ativo" : "");
+    btnAusente.className  = "btn-acao btn-ausente"  + (estado === "ausente"  ? " ativo" : "");
+    btnDesfazer.className = "btn-desfazer show";
+
+    // animação de saída e avanço automático
+    const dir = estado === "presente" ? "sair-presente" : "sair-ausente";
+    flashcard.classList.add(dir);
+    setTimeout(() => {
+      flashcard.classList.remove(dir);
+      transicao = false;
+      proximo();
+    }, 240);
+  }
+
+  function desfazer() {
+    alunos[idx].presenca = "";
+    renderCard();
+  }
+
+  // ── Eventos de botão ────────────────────────────────────────
+  btnPresente.addEventListener("click", () => marcar("presente"));
+  btnAusente.addEventListener("click",  () => marcar("ausente"));
+  btnDesfazer.addEventListener("click", desfazer);
+  btnAnterior.addEventListener("click", () => goTo(idx - 1));
+  btnProximo.addEventListener("click",  () => goTo(idx + 1));
+  btnRevisar.addEventListener("click",  () => {
+    // volta ao primeiro pendente, ou ao início
+    const prim = alunos.findIndex(a => a.presenca === "");
+    idx = prim !== -1 ? prim : 0;
+    renderCard("revisar");
+  });
+
+  // Observações
+  btnObs.addEventListener("click", () => modalObs.classList.add("show"));
+  btnFecharObs.addEventListener("click", () => modalObs.classList.remove("show"));
+  modalObs.addEventListener("click", e => { if (e.target === modalObs) modalObs.classList.remove("show"); });
+
+  // Exportar
+  btnExport.addEventListener("click", exportarChamada3Colunas);
+
+  // ── Firebase: carregar ───────────────────────────────────────
   async function carregarAlunos() {
     if (eventoId) return;
     if (turma?.id) {
       const snap = await getDocs(
-        query(collection(db,"alunos"), where("turmaId","==",turma.id), where("ativo","!=",false)));
+        query(collection(db, "alunos"), where("turmaId", "==", turma.id), where("ativo", "!=", false)));
       alunos = snap.docs
-        .map(d => ({ id:d.id, nome:d.data().nome, instrumento:d.data().instrumento||"", foto:d.data().foto||"", presenca:"" }))
-        .sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR"));
+        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
       return;
     }
-    const snap = await getDocs(collection(db,"alunos"));
+    const snap = await getDocs(collection(db, "alunos"));
     alunos = snap.docs
       .filter(d => d.data().ativo !== false)
-      .map(d => ({ id:d.id, nome:d.data().nome, instrumento:d.data().instrumento||"", foto:d.data().foto||"", presenca:"" }))
-      .sort((a,b) => a.nome.localeCompare(b.nome,"pt-BR"));
+      .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+      .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
   }
 
   async function carregarEvento() {
     if (!eventoId) { inputData.value = hojeISO(); return; }
-    const snap = await getDoc(doc(db,"eventos",eventoId));
+    const snap = await getDoc(doc(db, "eventos", eventoId));
     if (!snap.exists()) { inputData.value = hojeISO(); return; }
     const dados = snap.data();
     inputData.value = dados.data || hojeISO();
     obsEl.value     = dados.observacoes || "";
     if (dados.turmaNome) {
-      badgeEl.textContent = `🏫 ${dados.turmaNome}`;
-      badgeEl.style.display = "inline-block";
-      avisoEl.style.display = "none";
-      btnSalvar.disabled    = false;
+      badgeWrap.innerHTML = `<div class="turma-badge">🏫 ${dados.turmaNome}</div>`;
+      btnSalvar.disabled  = false;
     }
-    const ativoMap={}, fotoMap={}, nomeMap={};
+    const ativoMap = {}, fotoMap = {}, nomeMap = {};
     try {
-      const s = await getDocs(collection(db,"alunos"));
-      s.forEach(d => { ativoMap[d.id]=d.data().ativo!==false; fotoMap[d.id]=d.data().foto||""; nomeMap[d.data().nome]=d.data().foto||""; });
-    } catch(_){}
-    const salvas = dados.presencas||[];
+      const s = await getDocs(collection(db, "alunos"));
+      s.forEach(d => {
+        ativoMap[d.id] = d.data().ativo !== false;
+        fotoMap[d.id]  = d.data().foto || "";
+        nomeMap[d.data().nome] = d.data().foto || "";
+      });
+    } catch {}
+    const salvas = dados.presencas || [];
     if (salvas.length) {
       alunos = salvas
-        .filter(p => !p.alunoId || ativoMap[p.alunoId]!==false)
-        .map(p => ({ id:p.alunoId||"", nome:p.nome, instrumento:p.instrumento||"",
-          foto:(p.alunoId&&fotoMap[p.alunoId])||nomeMap[p.nome]||"", presenca:p.presenca||"" }));
+        .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
+        .map(p => ({
+          id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
+          foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
+          presenca: p.presenca || ""
+        }));
     } else {
       const q2 = dados.turmaId
-        ? query(collection(db,"alunos"),where("turmaId","==",dados.turmaId))
-        : collection(db,"alunos");
+        ? query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
+        : collection(db, "alunos");
       const s = await getDocs(q2);
-      alunos = s.docs.filter(d=>d.data().ativo!==false)
-        .map(d=>({id:d.id,nome:d.data().nome,instrumento:d.data().instrumento||"",foto:d.data().foto||"",presenca:""}))
-        .sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
-      salvas.forEach(p=>{const a=alunos.find(al=>al.nome===p.nome);if(a)a.presenca=p.presenca;});
+      alunos = s.docs.filter(d => d.data().ativo !== false)
+        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      salvas.forEach(p => { const a = alunos.find(al => al.nome === p.nome); if (a) a.presenca = p.presenca; });
     }
   }
 
   async function inicializar() {
     await carregarAlunos();
     await carregarEvento();
-    renderizar();
+    overlayLoad.style.display = "none";
+    // começa no primeiro pendente
+    const prim = alunos.findIndex(a => a.presenca === "");
+    idx = prim !== -1 ? prim : 0;
+    renderCard();
   }
 
-  // ── Salvar ────────────────────────────────────────────────────
+  // ── Salvar ───────────────────────────────────────────────────
   async function salvar() {
     try {
-      btnSalvar.disabled=true; loader.style.display="block";
+      btnSalvar.disabled = true;
       const data      = inputData.value || hojeISO();
       const obs       = obsEl.value.trim();
       const presencas = alunos.map(a => ({
-        alunoId:a.id||"", nome:a.nome, instrumento:a.instrumento||"", presenca:a.presenca||"ausente"
+        alunoId: a.id || "", nome: a.nome, instrumento: a.instrumento || "",
+        presenca: a.presenca || "ausente"
       }));
       if (eventoId) {
-        await updateDoc(doc(db,"eventos",eventoId),{data,observacoes:obs,presencas});
+        await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
       } else {
-        const nv = await addDoc(collection(db,"eventos"),{
-          data,observacoes:obs,presencas, turmaId:turma?.id||"",turmaNome:turma?.nome||"",tipo:"aula"
+        const nv = await addDoc(collection(db, "eventos"), {
+          data, observacoes: obs, presencas,
+          turmaId: turma?.id || "", turmaNome: turma?.nome || "", tipo: "aula"
         });
         eventoId = nv.id;
       }
       await recalcular(data);
-      alert("✔️ Chamada salva!");
-      location.href = "professor.html";
-    } catch(e) { console.error(e); alert("Erro ao salvar."); }
-    finally { btnSalvar.disabled=false; loader.style.display="none"; }
+      toast("✔ Chamada salva com sucesso!");
+      setTimeout(() => location.href = "professor.html", 1400);
+    } catch (e) {
+      console.error(e);
+      toast("❌ Erro ao salvar. Tente novamente.");
+      btnSalvar.disabled = false;
+    }
   }
 
-  // ── Recalcular frequência ─────────────────────────────────────
+  // ── Recalcular frequência ────────────────────────────────────
   async function recalcular(dataISO) {
-    const [ano,mes] = dataISO.split("-");
-    const chave     = `${ano}-${mes}`;
-    const tId       = turma?.id||null;
-    const evSnap    = await getDocs(collection(db,"eventos"));
-    const evMes     = [];
+    const [ano, mes] = dataISO.split("-");
+    const chave = `${ano}-${mes}`;
+    const tId   = turma?.id || null;
+    const evSnap = await getDocs(collection(db, "eventos"));
+    const evMes  = [];
     evSnap.forEach(d => {
-      const dd=d.data();
+      const dd = d.data();
       if (!dd.data?.startsWith(chave)) return;
-      if (tId && dd.turmaId && dd.turmaId!==tId) return;
+      if (tId && dd.turmaId && dd.turmaId !== tId) return;
       evMes.push(dd);
     });
-    const total=evMes.length; if(!total)return;
-    const cId={},cNome={};
-    evMes.forEach(ev=>(ev.presencas||[]).forEach(p=>{
-      if(!p)return;
-      const ok=p.presenca==="presente";
-      if(p.alunoId) cId[p.alunoId]=(cId[p.alunoId]||0)+(ok?1:0);
-      if(p.nome)    cNome[p.nome]  =(cNome[p.nome]  ||0)+(ok?1:0);
+    const total = evMes.length; if (!total) return;
+    const cId = {}, cNome = {};
+    evMes.forEach(ev => (ev.presencas || []).forEach(p => {
+      if (!p) return;
+      const ok = p.presenca === "presente";
+      if (p.alunoId) cId[p.alunoId]  = (cId[p.alunoId]  || 0) + (ok ? 1 : 0);
+      if (p.nome)    cNome[p.nome]    = (cNome[p.nome]    || 0) + (ok ? 1 : 0);
     }));
-    const siglas=["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-    const sigla=siglas[parseInt(mes,10)-1]||mes;
-    const alSnap=await getDocs(collection(db,"alunos"));
-    for(const ds of alSnap.docs){
-      const d=ds.data();
-      if(d.ativo===false)continue;
-      if(tId&&d.turmaId&&d.turmaId!==tId)continue;
-      const pres=cId[ds.id]??cNome[d.nome]??0;
-      const pct=Math.round((pres/total)*100);
-      const hist=Array.isArray(d.presencas)?[...d.presencas]:[];
-      let reg=hist.find(r=>r.mes===chave);
-      if(!reg){reg={mes:chave,totalEnsaios:total,presencasAluno:pres,percentual:pct};hist.push(reg);}
-      else{reg.totalEnsaios=total;reg.presencasAluno=pres;reg.percentual=pct;}
-      const fa=d.frequenciaAnual||{};
-      fa[sigla]={percentual:pct,totalEnsaios:total,presencasAluno:pres};
-      await updateDoc(doc(db,"alunos",ds.id),{
-        presencas:hist,
-        frequenciaMensal:{porcentagem:pct,totalEventos:total,presencas:pres},
-        frequenciaAnual:fa
+    const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
+    const sigla  = siglas[parseInt(mes, 10) - 1] || mes;
+    const alSnap = await getDocs(collection(db, "alunos"));
+    for (const ds of alSnap.docs) {
+      const d = ds.data();
+      if (d.ativo === false) continue;
+      if (tId && d.turmaId && d.turmaId !== tId) continue;
+      const pres = cId[ds.id] ?? cNome[d.nome] ?? 0;
+      const pct  = Math.round((pres / total) * 100);
+      const hist = Array.isArray(d.presencas) ? [...d.presencas] : [];
+      let reg = hist.find(r => r.mes === chave);
+      if (!reg) { reg = { mes: chave, totalEnsaios: total, presencasAluno: pres, percentual: pct }; hist.push(reg); }
+      else { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
+      const fa = d.frequenciaAnual || {};
+      fa[sigla] = { percentual: pct, totalEnsaios: total, presencasAluno: pres };
+      await updateDoc(doc(db, "alunos", ds.id), {
+        presencas: hist,
+        frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
+        frequenciaAnual: fa
       });
     }
   }
 
   btnSalvar.addEventListener("click", salvar);
   btnCancel.addEventListener("click", () => {
-    if(confirm("Cancelar e voltar ao painel?")) location.href="professor.html";
+    if (confirm("Cancelar e voltar ao painel?")) location.href = "professor.html";
   });
 
   inicializar();
