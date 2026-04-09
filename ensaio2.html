@@ -98,34 +98,30 @@
       margin-bottom: 10px; text-align: center;
     }
 
-    /* ── Linha do card (sem padding lateral — card ocupa tudo) ── */
+    /* ── Card (ocupa toda a largura) ── */
     .fc-row {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-
-    /* ── Wrapper do card: position relative para ancorar as setas ── */
     .fc-wrap {
       width: 100%;
       max-width: 420px;
       position: relative;
     }
 
-    /* ── Setas sobrepostas — discretas, semitransparentes ── */
+    /* ── Setas sobrepostas — discretas ── */
     .btn-nav {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      /* altura da foto ~75% do card; centralizamos verticalmente no card inteiro */
-      width: 32px;
-      height: 52px;
+      width: 32px; height: 52px;
       border-radius: 8px;
       border: none;
-      background: rgba(13,18,33,.55);   /* surface semitransparente */
+      background: rgba(13,18,33,.55);
       backdrop-filter: blur(6px);
-      color: rgba(228,232,240,.45);     /* ink muito suavizado */
+      color: rgba(228,232,240,.45);
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem; font-weight: 300; line-height: 1;
       cursor: pointer;
@@ -133,21 +129,16 @@
       transition: background .18s, color .18s, opacity .18s;
       z-index: 10;
       outline: none;
-      /* sutil: sem borda, sem sombra */
     }
     .btn-nav:active {
       background: rgba(34,211,238,.18);
       color: rgba(228,232,240,.9);
     }
-    .btn-nav:disabled {
-      opacity: 0;            /* some completamente quando não há card */
-      pointer-events: none;
-    }
-    /* posicionamento: 8px de recuo da borda do card */
+    .btn-nav:disabled { opacity: 0; pointer-events: none; }
     #btnAnterior { left: 8px; }
     #btnProximo  { right: 8px; }
 
-    /* ── Card ── */
+    /* ── Flashcard ── */
     .flashcard {
       width: 100%; background: var(--surface);
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -279,16 +270,23 @@
     }
     .btn-salvar-fim:active   { transform: scale(.97); }
     .btn-salvar-fim:disabled { opacity: .4; cursor: default; }
+
+    /* Oculto até salvar com sucesso */
     .btn-ver-ensaio {
+      display: none;                    /* <─ começa escondido */
       width: 100%; padding: 13px 8px; border-radius: 999px;
       border: 1px solid var(--border);
       background: var(--surface2); color: var(--cyan);
       font-weight: 700; font-size: .88rem; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 7px;
+      align-items: center; justify-content: center; gap: 7px;
       -webkit-tap-highlight-color: transparent;
       transition: background .15s, transform .1s; outline: none;
     }
+    .btn-ver-ensaio.show {
+      display: flex;                    /* <─ aparece após salvar */
+    }
     .btn-ver-ensaio:active { transform: scale(.97); background: var(--border); }
+
     .btn-revisar {
       background: none; border: 1px solid var(--border);
       color: var(--muted); border-radius: 999px;
@@ -409,6 +407,7 @@
       </div>
       <div class="fim-acoes">
         <button class="btn-salvar-fim" id="btnSalvar">💾 Salvar chamada</button>
+        <!-- Aparece somente após salvar com sucesso -->
         <button class="btn-ver-ensaio" id="btnVerEnsaio">📋 Ver ensaio</button>
         <button class="btn-revisar"   id="btnRevisar">↩ Revisar chamada</button>
       </div>
@@ -417,14 +416,8 @@
     <!-- Contador -->
     <div id="contador"></div>
 
-    <!--
-      fc-row: apenas centraliza o fc-wrap, sem padding lateral.
-      fc-wrap: position:relative para ancorar as setas sobre o card.
-    -->
     <div class="fc-row" id="fcRow" style="display:none">
       <div class="fc-wrap">
-
-        <!-- Seta anterior — sobreposta à esquerda do card -->
         <button class="btn-nav" id="btnAnterior" aria-label="Aluno anterior">‹</button>
 
         <div class="flashcard" id="flashcard">
@@ -447,9 +440,7 @@
           </div>
         </div>
 
-        <!-- Seta próxima — sobreposta à direita do card -->
         <button class="btn-nav" id="btnProximo" aria-label="Próximo aluno">›</button>
-
       </div>
     </div>
 
@@ -503,6 +494,9 @@
   let alunos    = [];
   let idx       = 0;
   let transicao = false;
+
+  // Se já tem eventoId (chamada aberta para edição), revela o botão imediatamente
+  if (eventoId) btnVerEnsaio.classList.add("show");
 
   let toastTimer;
   function toast(msg, ms = 2200) {
@@ -668,7 +662,9 @@
     const prim = alunos.findIndex(a => a.presenca === "");
     idx = prim !== -1 ? prim : 0; renderCard(false);
   });
-  btnVerEnsaio.addEventListener("click", () => { location.href = "ensaio.html"; });
+  btnVerEnsaio.addEventListener("click", () => {
+    location.href = eventoId ? `ensaio.html?id=${eventoId}` : "ensaio.html";
+  });
   btnObs.addEventListener("click",       () => modalObs.classList.add("show"));
   btnFecharObs.addEventListener("click", () => modalObs.classList.remove("show"));
   modalObs.addEventListener("click",     e => { if (e.target === modalObs) modalObs.classList.remove("show"); });
@@ -754,7 +750,9 @@
       }
       await recalcular(data);
       toast("✔ Chamada salva com sucesso!");
-      btnSalvar.textContent = "✔ Salvo!";
+      btnSalvar.innerHTML = "✔ Salvo!";
+      // Revela o botão e aponta para a chamada recém-salva
+      btnVerEnsaio.classList.add("show");
     } catch (e) {
       console.error(e);
       toast("❌ Erro ao salvar. Tente novamente.");
