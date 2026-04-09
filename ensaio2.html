@@ -441,8 +441,6 @@
   let alunos      = [];
   let idx         = 0;
   let transicao   = false;
-  // ⭐ Flag: impede tela de conclusão na carga inicial
-  let inicializando = true;
 
   // Toast
   let toastTimer;
@@ -505,12 +503,10 @@
   }
 
   // Renderizar card
-  // ⭐ allowFim = true: permite mostrar tela de conclusão
-  //    allowFim = false (padrão na inicialização): sempre mostra o card
+  // allowFim = true: só disparado pelo proximo() após última marcação
   function renderCard(allowFim = false) {
     if (!alunos.length) return;
 
-    // Só mostra tela de fim se allowFim for explicitamente true
     if (allowFim) {
       const todosFeitos = alunos.every(a => a.presenca !== "");
       if (todosFeitos) { mostrarFim(); return; }
@@ -532,7 +528,7 @@
       fcFoto.textContent = "👤";
     }
 
-    // overlay
+    // overlay — só mostra se já foi marcado nesta sessão
     const ov = fcOverlay;
     ov.className = "fc-overlay";
     if (aluno.presenca === "presente") {
@@ -582,11 +578,10 @@
   function goTo(novoIdx) {
     if (novoIdx < 0 || novoIdx >= alunos.length) return;
     idx = novoIdx;
-    // Na navegação manual também não dispara tela fim
     renderCard(false);
   }
 
-  // Avanço automático após marcar — SEMPRE permite fim aqui
+  // Avanço automático após marcar
   function proximo() {
     const proxPend = alunos.findIndex((a, i) => i > idx && a.presenca === "");
     if (proxPend !== -1) { idx = proxPend; renderCard(false); return; }
@@ -682,12 +677,14 @@
     } catch {}
     const salvas = dados.presencas || [];
     if (salvas.length) {
+      // ⭐ Carrega lista de alunos do evento salvo, mas ZERA todas as presenças
+      //    para que a chamada sempre comece do zero nesta sessão
       alunos = salvas
         .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
         .map(p => ({
           id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
           foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-          presenca: p.presenca || ""
+          presenca: ""   // ← sempre vazio ao abrir
         }));
     } else {
       const q2 = dados.turmaId
@@ -697,7 +694,6 @@
       alunos = s.docs.filter(d => d.data().ativo !== false)
         .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-      salvas.forEach(p => { const a = alunos.find(al => al.nome === p.nome); if (a) a.presenca = p.presenca; });
     }
   }
 
@@ -705,11 +701,7 @@
     await carregarAlunos();
     await carregarEvento();
     overlayLoad.style.display = "none";
-    inicializando = false;
-    // Primeiro pendente; se todos já marcados, começa no índice 0 mesmo assim
-    const prim = alunos.findIndex(a => a.presenca === "");
-    idx = prim !== -1 ? prim : 0;
-    // ⭐ allowFim = false — NUNCA abre na tela de conclusão
+    idx = 0;
     renderCard(false);
   }
 
