@@ -37,6 +37,7 @@
       max-width: 480px; margin: 0 auto;
     }
 
+    /* ── Cabeçalho ── */
     #cab {
       flex-shrink: 0;
       padding: 12px 16px 10px;
@@ -85,19 +86,54 @@
     .prog-fill { height: 100%; background: var(--verde); border-radius: 3px; width: 0%; transition: width .4s ease; }
     .prog-pct  { font-size: .72rem; color: var(--verde); font-weight: 700; min-width: 34px; text-align: right; }
 
+    /* ── Arena (área central) ── */
     #arena {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      padding: 16px 16px 8px;
+      padding: 12px 0 8px;
       position: relative; overflow: hidden;
     }
     #contador {
       font-size: .72rem; color: var(--muted); font-weight: 600;
       letter-spacing: .06em; text-transform: uppercase;
-      margin-bottom: 12px; text-align: center;
+      margin-bottom: 10px; text-align: center;
     }
 
-    .fc-wrap { width: 100%; max-width: 360px; position: relative; }
+    /* ── Wrapper do card com botões laterais ── */
+    .fc-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+      padding: 0 48px; /* espaço para os botões laterais */
+    }
+
+    /* Botões de navegação lateral */
+    .btn-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px; height: 56px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 300;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .15s, color .15s, opacity .15s;
+      z-index: 10;
+      outline: none;
+    }
+    .btn-nav:active   { background: var(--border); color: var(--ink); }
+    .btn-nav:disabled { opacity: .2; cursor: default; pointer-events: none; }
+    #btnAnterior { left: 4px; }
+    #btnProximo  { right: 4px; }
+
+    .fc-wrap { width: 100%; max-width: 340px; position: relative; }
     .flashcard {
       width: 100%; background: var(--surface);
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -105,7 +141,7 @@
       animation: fcIn .28s cubic-bezier(.22,1,.36,1) both;
     }
     @keyframes fcIn {
-      from { opacity: 0; transform: translateY(24px) scale(.97); }
+      from { opacity: 0; transform: translateY(20px) scale(.97); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
     .flashcard.sair-ausente  { animation: fcSlideLeft  .22s ease forwards; }
@@ -132,19 +168,19 @@
     .fc-overlay.ausente  { background: rgba(248,113,113,.55); }
     .fc-overlay span { font-size: .9rem; font-weight: 800; letter-spacing: .08em; color: #fff; }
 
-    .fc-info { padding: 14px 16px 16px; }
-    .fc-nome { font-size: 1.2rem; font-weight: 700; color: var(--ink); margin-bottom: 3px; line-height: 1.2; }
-    .fc-inst { font-size: .8rem; color: var(--muted); }
+    .fc-info { padding: 12px 14px 12px; }
+    .fc-nome { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; line-height: 1.2; }
+    .fc-inst { font-size: .78rem; color: var(--muted); }
 
     .fc-acoes {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-      padding: 0 16px 14px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      padding: 0 14px 12px;
     }
     .btn-acao {
-      padding: 14px 8px; border-radius: var(--radius-sm); border: none;
-      font-size: .95rem; font-weight: 800; letter-spacing: .04em;
+      padding: 12px 6px; border-radius: var(--radius-sm); border: none;
+      font-size: .9rem; font-weight: 800; letter-spacing: .04em;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
-      gap: 7px; -webkit-tap-highlight-color: transparent;
+      gap: 6px; -webkit-tap-highlight-color: transparent;
       transition: transform .1s, box-shadow .15s; outline: none;
     }
     .btn-acao:active { transform: scale(.95); }
@@ -167,31 +203,21 @@
       border-color: var(--vermelho); box-shadow: 0 6px 20px rgba(248,113,113,.4);
     }
 
-    .btn-desfazer-wrap { text-align: center; padding: 0 16px 14px; }
+    .btn-desfazer-wrap { text-align: center; padding: 0 14px 12px; }
     .btn-desfazer {
       background: none; border: 1px solid var(--border); border-radius: 999px;
-      color: var(--muted); font-size: .78rem; padding: 5px 18px;
+      color: var(--muted); font-size: .75rem; padding: 5px 16px;
       cursor: pointer; -webkit-tap-highlight-color: transparent;
-      transition: color .15s, border-color .15s; display: none;
+      transition: color .15s, border-color .15s; display: none; outline: none;
     }
     .btn-desfazer.show { display: inline-flex; align-items: center; gap: 5px; }
     .btn-desfazer:active { color: var(--ink); border-color: var(--muted); }
 
-    .fc-nav {
+    /* Dots abaixo do card */
+    .dots-row {
       display: flex; align-items: center; justify-content: center;
-      gap: 12px; padding: 0 16px 12px;
+      margin-top: 12px; gap: 5px; min-height: 18px;
     }
-    .btn-nav {
-      width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border);
-      background: var(--surface2); color: var(--muted);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: background .15s, color .15s;
-    }
-    .btn-nav:active   { background: var(--border); }
-    .btn-nav:disabled { opacity: .3; cursor: default; }
-    .dots { display: flex; gap: 5px; align-items: center; }
     .dot {
       width: 6px; height: 6px; border-radius: 50%;
       background: var(--faint); transition: background .2s, transform .2s;
@@ -201,19 +227,20 @@
     .dot.presente { background: var(--verde); }
     .dot.ausente  { background: var(--vermelho); }
 
-    /* Tela fim */
+    /* ── Tela fim ── */
     #tela-fim {
       display: none; flex-direction: column;
       align-items: center; justify-content: center;
-      text-align: center; padding: 32px 24px; gap: 12px;
+      text-align: center; padding: 28px 24px; gap: 12px;
+      width: 100%;
     }
     #tela-fim.show { display: flex; }
-    .fim-icone { font-size: 3.5rem; }
-    .fim-titulo { font-size: 1.3rem; font-weight: 800; color: var(--ink); }
-    .fim-sub    { font-size: .85rem; color: var(--muted); max-width: 28ch; }
+    .fim-icone { font-size: 3.2rem; }
+    .fim-titulo { font-size: 1.25rem; font-weight: 800; color: var(--ink); }
+    .fim-sub    { font-size: .83rem; color: var(--muted); max-width: 28ch; }
     .fim-stats  {
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; width: 100%; max-width: 280px; margin: 8px 0;
+      gap: 10px; width: 100%; max-width: 280px; margin: 6px 0;
     }
     .stat-box {
       background: var(--surface); border: 1px solid var(--border);
@@ -223,33 +250,45 @@
     .stat-lab { font-size: .7rem; color: var(--muted); margin-top: 3px; }
     .stat-box.pres .stat-num { color: var(--verde); }
     .stat-box.ause .stat-num { color: var(--vermelho); }
-    .btn-revisar {
-      background: var(--surface2); border: 1px solid var(--border);
-      color: var(--muted); border-radius: 999px;
-      font-size: .82rem; font-weight: 600; padding: 8px 20px;
-      cursor: pointer; -webkit-tap-highlight-color: transparent;
-    }
-    .btn-revisar:active { background: var(--border); }
 
-    /* Rodapé */
-    #rodape {
-      flex-shrink: 0; display: flex; gap: 8px;
-      padding: 8px 12px 14px;
-      background: rgba(8,11,22,.97); border-top: 1px solid var(--border);
+    /* Botões da tela final */
+    .fim-acoes {
+      display: flex; flex-direction: column; gap: 10px;
+      width: 100%; max-width: 280px; margin-top: 4px;
     }
-    #rodape button {
-      flex: 1; padding: 12px 8px; border-radius: 999px; border: none;
-      font-weight: 700; font-size: .88rem; cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    .btn-salvar-fim {
+      width: 100%; padding: 14px 8px; border-radius: 999px; border: none;
+      background: #22c55e; color: #012614;
+      font-weight: 800; font-size: .95rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      box-shadow: 0 4px 18px rgba(34,197,94,.4);
       -webkit-tap-highlight-color: transparent;
       transition: opacity .15s, transform .1s; outline: none;
     }
-    #rodape button:active { transform: scale(.96); }
-    .btn-salvar   { background: #22c55e; color: #012614; box-shadow: 0 4px 14px rgba(34,197,94,.4); }
-    .btn-salvar:disabled { opacity: .4; cursor: default; }
-    .btn-cancelar { background: var(--surface2); color: var(--muted); }
+    .btn-salvar-fim:active  { transform: scale(.97); }
+    .btn-salvar-fim:disabled { opacity: .4; cursor: default; }
 
-    /* Modal obs */
+    .btn-ver-ensaio {
+      width: 100%; padding: 13px 8px; border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface2); color: var(--cyan);
+      font-weight: 700; font-size: .88rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .15s, transform .1s; outline: none;
+    }
+    .btn-ver-ensaio:active { transform: scale(.97); background: var(--border); }
+
+    .btn-revisar {
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); border-radius: 999px;
+      font-size: .78rem; font-weight: 600; padding: 7px 20px;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+    .btn-revisar:active { background: var(--border); }
+
+    /* ── Modal obs ── */
     #modal-obs {
       display: none; position: fixed; inset: 0; z-index: 300;
       background: rgba(0,0,0,.75); align-items: flex-end; justify-content: center;
@@ -277,7 +316,7 @@
       background: var(--cyan); color: #001a1f; font-weight: 700; font-size: .9rem; cursor: pointer;
     }
 
-    /* Loader */
+    /* ── Loader ── */
     #overlay-load {
       position: fixed; inset: 0; z-index: 500;
       display: flex; flex-direction: column;
@@ -292,9 +331,9 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     #overlay-load p { font-size: .85rem; color: var(--muted); }
 
-    /* Toast */
+    /* ── Toast ── */
     #toast {
-      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
       background: var(--surface2); border: 1px solid var(--border);
       color: var(--ink); font-size: .82rem; font-weight: 600;
       padding: 9px 18px; border-radius: 999px; z-index: 600;
@@ -323,6 +362,7 @@
 </div>
 
 <div id="app">
+  <!-- Cabeçalho -->
   <div id="cab">
     <div class="cab-top">
       <h1>📋 Chamada</h1>
@@ -342,7 +382,10 @@
     </div>
   </div>
 
+  <!-- Arena -->
   <div id="arena">
+
+    <!-- Tela de fim (última página da chamada) -->
     <div id="tela-fim">
       <div class="fim-icone">🎉</div>
       <div class="fim-titulo">Chamada concluída!</div>
@@ -357,43 +400,50 @@
           <div class="stat-lab">Ausentes</div>
         </div>
       </div>
-      <button class="btn-revisar" id="btnRevisar">↩ Revisar</button>
-    </div>
-
-    <div id="contador"></div>
-    <div class="fc-wrap" id="fcWrap" style="display:none">
-      <div class="flashcard" id="flashcard">
-        <div class="fc-foto" id="fcFoto">
-          <div class="fc-overlay" id="fcOverlay">
-            <div id="fcOverlayIcon"></div>
-            <span id="fcOverlayTxt"></span>
-          </div>
-        </div>
-        <div class="fc-info">
-          <div class="fc-nome" id="fcNome">—</div>
-          <div class="fc-inst" id="fcInst">—</div>
-        </div>
-        <div class="fc-acoes">
-          <button class="btn-acao btn-ausente"  id="btnAusente">✘ Ausente</button>
-          <button class="btn-acao btn-presente" id="btnPresente">✔ Presente</button>
-        </div>
-        <div class="btn-desfazer-wrap">
-          <button class="btn-desfazer" id="btnDesfazer">↺ Desfazer marcação</button>
-        </div>
+      <div class="fim-acoes">
+        <button class="btn-salvar-fim" id="btnSalvar">💾 Salvar chamada</button>
+        <button class="btn-ver-ensaio" id="btnVerEnsaio">📋 Ver ensaio</button>
+        <button class="btn-revisar"   id="btnRevisar">↩ Revisar chamada</button>
       </div>
     </div>
 
-    <div class="fc-nav" style="margin-top:14px">
+    <!-- Contador -->
+    <div id="contador"></div>
+
+    <!-- Card com botões laterais -->
+    <div class="fc-row" id="fcRow" style="display:none">
       <button class="btn-nav" id="btnAnterior">‹</button>
-      <div class="dots" id="dots"></div>
+
+      <div class="fc-wrap">
+        <div class="flashcard" id="flashcard">
+          <div class="fc-foto" id="fcFoto">
+            <div class="fc-overlay" id="fcOverlay">
+              <div id="fcOverlayIcon"></div>
+              <span id="fcOverlayTxt"></span>
+            </div>
+          </div>
+          <div class="fc-info">
+            <div class="fc-nome" id="fcNome">—</div>
+            <div class="fc-inst" id="fcInst">—</div>
+          </div>
+          <div class="fc-acoes">
+            <button class="btn-acao btn-ausente"  id="btnAusente">✘ Ausente</button>
+            <button class="btn-acao btn-presente" id="btnPresente">✔ Presente</button>
+          </div>
+          <div class="btn-desfazer-wrap">
+            <button class="btn-desfazer" id="btnDesfazer">↺ Desfazer marcação</button>
+          </div>
+        </div>
+      </div>
+
       <button class="btn-nav" id="btnProximo">›</button>
     </div>
-  </div>
 
-  <div id="rodape">
-    <button id="btnCancelar" class="btn-cancelar">❌ Cancelar</button>
-    <button id="btnSalvar"   class="btn-salvar">💾 Salvar</button>
+    <!-- Dots de progresso -->
+    <div class="dots-row" id="dots"></div>
+
   </div>
+  <!-- sem rodapé -->
 </div>
 
 <script type="module">
@@ -410,7 +460,7 @@
   const progFill      = document.getElementById("progFill");
   const progPct       = document.getElementById("progPct");
   const contador      = document.getElementById("contador");
-  const fcWrap        = document.getElementById("fcWrap");
+  const fcRow         = document.getElementById("fcRow");
   const flashcard     = document.getElementById("flashcard");
   const fcFoto        = document.getElementById("fcFoto");
   const fcOverlay     = document.getElementById("fcOverlay");
@@ -429,7 +479,7 @@
   const numAusentes   = document.getElementById("numAusentes");
   const btnRevisar    = document.getElementById("btnRevisar");
   const btnSalvar     = document.getElementById("btnSalvar");
-  const btnCancel     = document.getElementById("btnCancelar");
+  const btnVerEnsaio  = document.getElementById("btnVerEnsaio");
   const btnObs        = document.getElementById("btnObs");
   const modalObs      = document.getElementById("modal-obs");
   const btnFecharObs  = document.getElementById("btnFecharObs");
@@ -511,7 +561,7 @@
     }
 
     telaFim.classList.remove("show");
-    fcWrap.style.display   = "block";
+    fcRow.style.display    = "flex";
     contador.style.display = "block";
 
     const aluno = alunos[idx];
@@ -564,12 +614,12 @@
   }
 
   function mostrarFim() {
-    fcWrap.style.display   = "none";
+    fcRow.style.display    = "none";
     contador.style.display = "none";
     telaFim.classList.add("show");
     numPresentes.textContent = alunos.filter(a => a.presenca === "presente").length;
     numAusentes.textContent  = alunos.filter(a => a.presenca === "ausente").length;
-    renderDots();
+    dotsEl.innerHTML = "";
     atualizarProgresso();
   }
 
@@ -629,6 +679,7 @@
     idx = prim !== -1 ? prim : 0;
     renderCard(false);
   });
+  btnVerEnsaio.addEventListener("click", () => { location.href = "ensaio.html"; });
   btnObs.addEventListener("click",       () => modalObs.classList.add("show"));
   btnFecharObs.addEventListener("click", () => modalObs.classList.remove("show"));
   modalObs.addEventListener("click",     e => { if (e.target === modalObs) modalObs.classList.remove("show"); });
@@ -678,7 +729,7 @@
         .map(p => ({
           id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
           foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-          presenca: ""   // sempre vazio ao abrir
+          presenca: ""
         }));
     } else {
       const q2 = dados.turmaId
@@ -720,7 +771,8 @@
       }
       await recalcular(data);
       toast("✔ Chamada salva com sucesso!");
-      setTimeout(() => location.href = "professor.html", 1400);
+      btnSalvar.textContent = "✔ Salvo!";
+      btnSalvar.disabled = true;
     } catch (e) {
       console.error(e);
       toast("❌ Erro ao salvar. Tente novamente.");
@@ -772,9 +824,6 @@
   }
 
   btnSalvar.addEventListener("click", salvar);
-  btnCancel.addEventListener("click", () => {
-    if (confirm("Cancelar e voltar ao painel?")) location.href = "professor.html";
-  });
 
   inicializar();
 </script>
