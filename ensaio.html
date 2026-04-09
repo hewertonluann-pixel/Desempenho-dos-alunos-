@@ -15,11 +15,7 @@
       --ink: #e5e7eb;
       --muted: #9ca3af;
       --accent: #22c55e;
-      --accent-soft: rgba(34, 197, 94, 0.18);
       --danger: #f97373;
-      --danger-soft: rgba(248, 113, 113, 0.18);
-      --chip-bg: #0f172a;
-      --chip-ink: #e5e7eb;
     }
     * { box-sizing: border-box; }
     body {
@@ -32,25 +28,17 @@
       flex-direction: column;
     }
     h1 { text-align: center; margin: 16px 12px 4px; font-size: 1.4rem; }
-    .subtitulo {
-      text-align: center; font-size: 0.9rem; color: var(--muted);
-      margin-bottom: 8px; padding: 0 12px;
-    }
+    .subtitulo { text-align: center; font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; padding: 0 12px; }
     .turma-badge-chamada {
-      text-align: center; font-size: 0.82rem; font-weight: 700;
-      color: #22d3ee; margin-bottom: 6px;
-      background: rgba(34,211,238,0.08);
-      border: 1px solid rgba(34,211,238,0.25);
-      border-radius: 999px; padding: 4px 18px;
-      display: inline-block; margin-left: auto; margin-right: auto;
+      font-size: 0.82rem; font-weight: 700; color: #22d3ee;
+      background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 999px; padding: 4px 18px; display: inline-block;
     }
     .turma-badge-wrapper { text-align: center; margin-bottom: 8px; }
     .aviso-sem-turma {
       text-align: center; background: rgba(251,191,36,0.12);
-      border: 1px solid rgba(251,191,36,0.4);
-      border-radius: 10px; color: #fbbf24;
-      padding: 10px 16px; font-size: 0.85rem;
-      margin: 8px 16px;
+      border: 1px solid rgba(251,191,36,0.4); border-radius: 10px;
+      color: #fbbf24; padding: 10px 16px; font-size: 0.85rem; margin: 8px 16px;
     }
     .data-evento { text-align: center; margin-bottom: 10px; font-size: 0.9rem; }
     .data-evento label { color: #e2e8f0; font-weight: 500; margin-right: 6px; }
@@ -63,12 +51,12 @@
     #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
     .wrap {
       flex: 1; display: flex; flex-direction: column;
-      padding: 6px 10px 72px; max-width: 720px; width: 100%; margin: 0 auto;
+      padding: 6px 10px 80px; max-width: 720px; width: 100%; margin: 0 auto;
     }
     .info { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0 10px; }
-    .lista-alunos { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; overscroll-behavior: contain; }
+    .lista-alunos { display: flex; flex-direction: column; gap: 8px; overscroll-behavior: contain; }
 
-    /* ── Botão scroll fixo ─────────────────────────────────────── */
+    /* ── Botão scroll fixo ─── */
     #btnScroll {
       position: fixed; right: 16px; bottom: 80px;
       width: 46px; height: 46px; border-radius: 50%; border: none;
@@ -83,85 +71,95 @@
     #btnScroll:active  { transform: scale(0.92); }
     #btnScroll:hover   { box-shadow: 0 6px 22px rgba(14,165,233,0.75); }
 
-    /* ── Card aluno ────────────────────────────────────────────── */
+    /* ── Card ─── */
     .container-aluno {
-      display: flex; gap: 10px; align-items: center;
-      padding: 8px 10px; border-radius: 12px;
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 10px 12px; border-radius: 14px;
       background: var(--card); border: 1px solid var(--border);
       box-shadow: 0 8px 20px rgba(15,23,42,0.65);
       user-select: none;
       transition: box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      scroll-margin-top: 80px;
     }
     .container-aluno:focus,
     .container-aluno:focus-visible { outline: none; }
+
+    /* linha superior: foto + dados */
+    .card-topo { display: flex; align-items: center; gap: 10px; }
+
+    /* estados do card */
     .container-aluno.vazio    { background: var(--card-alt); border-color: #111827; box-shadow: 0 4px 10px rgba(15,23,42,0.55); }
     .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.22), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.35); }
     .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.22), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.3); }
 
     .foto-aluno {
-      width: 48px; height: 48px; border-radius: 999px; overflow: hidden;
+      width: 46px; height: 46px; border-radius: 999px; overflow: hidden;
       flex-shrink: 0; border: 2px solid #1e293b; background: #020617;
       display: flex; align-items: center; justify-content: center;
     }
     .foto-aluno img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .foto-placeholder { font-size: 1.2rem; color: #64748b; }
+    .foto-placeholder { font-size: 1.15rem; color: #64748b; }
 
-    .dados-aluno { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .dados-aluno { flex: 1; min-width: 0; }
     .nome        { font-weight: 600; font-size: 1rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .instrumento { font-size: 0.82rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 
-    /* ── Toggles Presente / Ausente ────────────────────────────── */
+    /* ── Toggles: lado a lado, largura igual, maiores ─── */
     .toggles {
-      display: flex; flex-direction: column; gap: 5px; flex-shrink: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
     .toggle-btn {
-      display: flex; align-items: center; justify-content: center; gap: 4px;
-      padding: 5px 12px; border-radius: 999px; border: 1.5px solid transparent;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
-      text-transform: uppercase; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 11px 8px; border-radius: 10px; border: 1.5px solid transparent;
+      font-size: 0.88rem; font-weight: 700; letter-spacing: 0.02em;
+      cursor: pointer; min-height: 44px;
       transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
-      white-space: nowrap;
       -webkit-tap-highlight-color: transparent;
       outline: none;
     }
-    .toggle-btn:focus, .toggle-btn:focus-visible { outline: none; }
-    .toggle-btn:active { transform: scale(0.93); }
+    .toggle-btn:focus,
+    .toggle-btn:focus-visible { outline: none; }
+    .toggle-btn:active { transform: scale(0.96); }
 
-    /* Estado inativo — translúcido */
+    /* inativo — translúcido */
     .toggle-presente {
-      background: rgba(34, 197, 94, 0.08);
-      border-color: rgba(34, 197, 94, 0.25);
-      color: rgba(34, 197, 94, 0.55);
+      background: rgba(34, 197, 94, 0.07);
+      border-color: rgba(34, 197, 94, 0.22);
+      color: rgba(34, 197, 94, 0.5);
     }
     .toggle-ausente {
-      background: rgba(248, 113, 113, 0.08);
-      border-color: rgba(248, 113, 113, 0.25);
-      color: rgba(248, 113, 113, 0.55);
+      background: rgba(248, 113, 113, 0.07);
+      border-color: rgba(248, 113, 113, 0.22);
+      color: rgba(248, 113, 113, 0.5);
+    }
+    .toggle-btn:hover.toggle-presente:not(.ativo) {
+      background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); color: rgba(34,197,94,0.85);
+    }
+    .toggle-btn:hover.toggle-ausente:not(.ativo) {
+      background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.85);
     }
 
-    /* Estado ativo — sólido */
+    /* ativo — sólido + brilho */
     .toggle-presente.ativo {
       background: rgba(34, 197, 94, 0.22);
       border-color: #22c55e;
       color: #86efac;
-      box-shadow: 0 0 10px rgba(34,197,94,0.35);
+      box-shadow: 0 0 12px rgba(34,197,94,0.4);
     }
     .toggle-ausente.ativo {
       background: rgba(248, 113, 113, 0.22);
       border-color: #f97373;
       color: #fca5a5;
-      box-shadow: 0 0 10px rgba(248,113,113,0.35);
+      box-shadow: 0 0 12px rgba(248,113,113,0.4);
     }
 
-    .toggle-btn:hover.toggle-presente:not(.ativo) { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); color: rgba(34,197,94,0.8); }
-    .toggle-btn:hover.toggle-ausente:not(.ativo)  { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.8); }
-
-    /* ── Impressão: ocultar toggles ────────────────────────────── */
+    /* ── Impressão ─── */
     @media print {
       .toggles        { display: none !important; }
       #btnScroll      { display: none !important; }
       .footer-acoes   { display: none !important; }
-      .data-evento    { display: block; }
       body            { background: white; color: #111; }
       .container-aluno { box-shadow: none; border-color: #ccc; background: white !important; page-break-inside: avoid; }
       .container-aluno.presente { border-left: 4px solid #22c55e; }
@@ -175,6 +173,7 @@
     textarea { width: 100%; min-height: 70px; border-radius: 10px; border: 1px solid #1f2937; padding: 8px 10px; font-family: inherit; font-size: 0.85rem; resize: vertical; background: #020617; color: var(--ink); }
     textarea::placeholder { color: #64748b; }
     textarea:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 1px rgba(56,189,248,0.25); }
+
     .footer-acoes {
       position: fixed; left: 0; right: 0; bottom: 0;
       padding: 8px 10px 10px;
@@ -260,7 +259,6 @@
     function getTurmaAtiva() {
       try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
     }
-
     const turmaAtiva = getTurmaAtiva();
     const badgeEl    = document.getElementById("turmaBadgeChamada");
     const avisoEl    = document.getElementById("avisoSemTurma");
@@ -273,13 +271,12 @@
       btnSalvar.disabled = true;
     }
 
-    // ── Scroll manual (botão fixo) ─────────────────────────────────
+    // ── Botão scroll flutuante ────────────────────────────────────
     let scrollDirecao = "baixo";
     window.addEventListener("scroll", () => {
       const scrollY   = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (maxScroll > 100) btnScroll.classList.add("visivel");
-      else                  btnScroll.classList.remove("visivel");
+      btnScroll.classList.toggle("visivel", maxScroll > 100);
       if (scrollY < maxScroll * 0.5) {
         btnScroll.textContent = "↓"; btnScroll.title = "Ir para o fim da lista"; scrollDirecao = "baixo";
       } else {
@@ -290,7 +287,7 @@
       window.scrollTo({ top: scrollDirecao === "baixo" ? document.documentElement.scrollHeight : 0, behavior: "smooth" });
     });
 
-    // ── Helpers ───────────────────────────────────────────────────
+    // ── Helper data ───────────────────────────────────────────────
     function hojeISO() {
       const br = new Intl.DateTimeFormat('pt-BR', {
         timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit'
@@ -299,129 +296,40 @@
       return `${a}-${m}-${d}`;
     }
 
-    // ── Carregamento ──────────────────────────────────────────────
-    async function carregarAlunos() {
-      if (eventoId) return;
-
-      if (turmaAtiva?.id) {
-        const snap = await getDocs(
-          query(collection(db, "alunos"),
-            where("turmaId", "==", turmaAtiva.id),
-            where("ativo",   "!=",  false)
-          )
-        );
-        alunos = snap.docs
-          .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
-          .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-        return;
-      }
-
-      const snap = await getDocs(collection(db, "alunos"));
-      alunos = snap.docs
-        .filter(d => d.data().ativo !== false)
-        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
-        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    // ── Avançar para o próximo card pendente ──────────────────────
+    function avancarParaProximo(idxAtual) {
+      const cards = painel.querySelectorAll(".container-aluno");
+      const proximo = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
+      if (proximo === -1) return;
+      const cardEl = cards[proximo];
+      if (!cardEl) return;
+      // scroll suave centralizado
+      cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      // foco visual com leve destaque transitório
+      cardEl.setAttribute("tabindex", "-1");
+      setTimeout(() => { cardEl.focus({ preventScroll: true }); }, 350);
     }
 
-    async function carregarEvento() {
-      if (!eventoId) { inputData.value = hojeISO(); return; }
-      const snap = await getDoc(doc(db, "eventos", eventoId));
-      if (!snap.exists()) { inputData.value = hojeISO(); return; }
-
-      const dados = snap.data();
-      inputData.value = dados.data || hojeISO();
-      observacoesEl.value = dados.observacoes || "";
-
-      if (dados.turmaNome) {
-        badgeEl.textContent = `🏫 ${dados.turmaNome}`;
-        badgeEl.style.display = "inline-block";
-        avisoEl.style.display = "none";
-        btnSalvar.disabled = false;
-      }
-
-      let ativoMap = {};
-      const fotoMap = {};
-      const nomeMap = {};
-      try {
-        const alunosSnap = await getDocs(collection(db, "alunos"));
-        alunosSnap.forEach(d => {
-          ativoMap[d.id] = d.data().ativo !== false;
-          fotoMap[d.id]  = d.data().foto || "";
-          nomeMap[d.data().nome] = d.data().foto || "";
-        });
-      } catch (_) {}
-
-      const presencasSalvas = dados.presencas || [];
-      if (presencasSalvas.length) {
-        alunos = presencasSalvas
-          .filter(p => {
-            if (!p.alunoId) return true;
-            return ativoMap[p.alunoId] !== false;
-          })
-          .map(p => ({
-            id:          p.alunoId || "",
-            nome:        p.nome,
-            instrumento: p.instrumento || "",
-            foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-            presenca:    p.presenca || ""
-          }));
-      } else {
-        if (dados.turmaId) {
-          const s = await getDocs(
-            query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
-          );
-          alunos = s.docs
-            .filter(d => d.data().ativo !== false)
-            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
-            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-        } else {
-          const s = await getDocs(collection(db, "alunos"));
-          alunos = s.docs
-            .filter(d => d.data().ativo !== false)
-            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
-            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-          presencasSalvas.forEach(p => {
-            const a = alunos.find(al => al.nome === p.nome);
-            if (a) a.presenca = p.presenca;
-          });
-        }
-      }
-    }
-
-    // ── Render ───────────────────────────────────────────────────
+    // ── Atualizar visual do card ──────────────────────────────────
     function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const btnP = card.querySelector(".toggle-presente");
       const btnA = card.querySelector(".toggle-ausente");
-
       if (aluno.presenca === "presente") {
         card.classList.add("presente");
-        btnP.classList.add("ativo");
-        btnA.classList.remove("ativo");
+        btnP.classList.add("ativo"); btnA.classList.remove("ativo");
       } else if (aluno.presenca === "ausente") {
         card.classList.add("ausente");
-        btnA.classList.add("ativo");
-        btnP.classList.remove("ativo");
+        btnA.classList.add("ativo"); btnP.classList.remove("ativo");
       } else {
         card.classList.add("vazio");
-        btnP.classList.remove("ativo");
-        btnA.classList.remove("ativo");
+        btnP.classList.remove("ativo"); btnA.classList.remove("ativo");
       }
     }
 
-    // ── Scroll automático para o próximo pendente ─────────────────
-    function scrollParaProximoPendente(idxAtual) {
-      const proximo = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
-      if (proximo === -1) return;
-      const cards = painel.querySelectorAll(".container-aluno");
-      if (cards[proximo]) {
-        cards[proximo].scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }
-
+    // ── Renderizar lista ──────────────────────────────────────────
     function renderizar() {
       painel.innerHTML = "";
-
       if (!alunos.length) {
         painel.innerHTML = `<p style="text-align:center;color:#6b7280;padding:30px;">
           ${ turmaAtiva ? `Nenhum aluno na turma <strong>${turmaAtiva.nome}</strong>.` : "Nenhum aluno encontrado." }
@@ -434,40 +342,115 @@
         card.className = "container-aluno vazio";
         card.dataset.index = idx;
 
-        // Foto
-        const fw = document.createElement("div"); fw.className = "foto-aluno";
-        if (aluno.foto) { const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img); }
-        else            { const sp  = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp); }
+        // — topo: foto + dados —
+        const topo = document.createElement("div"); topo.className = "card-topo";
 
-        // Dados
+        const fw = document.createElement("div"); fw.className = "foto-aluno";
+        if (aluno.foto) {
+          const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img);
+        } else {
+          const sp = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp);
+        }
+
         const dd = document.createElement("div"); dd.className = "dados-aluno";
-        const dn = document.createElement("div"); dn.className = "nome";        dn.textContent = aluno.nome;
+        const dn = document.createElement("div"); dn.className = "nome"; dn.textContent = aluno.nome;
         const di = document.createElement("div"); di.className = "instrumento"; di.textContent = aluno.instrumento;
         dd.appendChild(dn); dd.appendChild(di);
 
-        // Toggles
-        const tg  = document.createElement("div"); tg.className = "toggles";
-        const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.textContent = "✔ Presente";
-        const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente"; btnA.textContent = "✘ Ausente";
+        topo.appendChild(fw); topo.appendChild(dd);
+
+        // — toggles lado a lado —
+        const tg   = document.createElement("div"); tg.className = "toggles";
+        const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.innerHTML = "✔ Presente";
+        const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente"; btnA.innerHTML = "✘ Ausente";
 
         btnP.addEventListener("click", () => {
           aluno.presenca = aluno.presenca === "presente" ? "" : "presente";
           atualizarCard(card, aluno);
-          if (aluno.presenca === "presente") scrollParaProximoPendente(idx);
+          if (aluno.presenca !== "") avancarParaProximo(idx);
         });
-
         btnA.addEventListener("click", () => {
           aluno.presenca = aluno.presenca === "ausente" ? "" : "ausente";
           atualizarCard(card, aluno);
-          if (aluno.presenca === "ausente") scrollParaProximoPendente(idx);
+          if (aluno.presenca !== "") avancarParaProximo(idx);
         });
 
         tg.appendChild(btnP); tg.appendChild(btnA);
-        card.appendChild(fw); card.appendChild(dd); card.appendChild(tg);
-
+        card.appendChild(topo); card.appendChild(tg);
         painel.appendChild(card);
         atualizarCard(card, aluno);
       });
+    }
+
+    // ── Carregamento ──────────────────────────────────────────────
+    async function carregarAlunos() {
+      if (eventoId) return;
+      if (turmaAtiva?.id) {
+        const snap = await getDocs(
+          query(collection(db, "alunos"),
+            where("turmaId", "==", turmaAtiva.id),
+            where("ativo", "!=", false)
+          )
+        );
+        alunos = snap.docs
+          .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+          .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+        return;
+      }
+      const snap = await getDocs(collection(db, "alunos"));
+      alunos = snap.docs
+        .filter(d => d.data().ativo !== false)
+        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+        .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+    }
+
+    async function carregarEvento() {
+      if (!eventoId) { inputData.value = hojeISO(); return; }
+      const snap = await getDoc(doc(db, "eventos", eventoId));
+      if (!snap.exists()) { inputData.value = hojeISO(); return; }
+      const dados = snap.data();
+      inputData.value = dados.data || hojeISO();
+      observacoesEl.value = dados.observacoes || "";
+      if (dados.turmaNome) {
+        badgeEl.textContent = `🏫 ${dados.turmaNome}`;
+        badgeEl.style.display = "inline-block";
+        avisoEl.style.display = "none";
+        btnSalvar.disabled = false;
+      }
+      const ativoMap = {}; const fotoMap = {}; const nomeMap = {};
+      try {
+        const alunosSnap = await getDocs(collection(db, "alunos"));
+        alunosSnap.forEach(d => {
+          ativoMap[d.id] = d.data().ativo !== false;
+          fotoMap[d.id]  = d.data().foto || "";
+          nomeMap[d.data().nome] = d.data().foto || "";
+        });
+      } catch (_) {}
+      const presencasSalvas = dados.presencas || [];
+      if (presencasSalvas.length) {
+        alunos = presencasSalvas
+          .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
+          .map(p => ({
+            id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
+            foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
+            presenca: p.presenca || ""
+          }));
+      } else {
+        if (dados.turmaId) {
+          const s = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId)));
+          alunos = s.docs
+            .filter(d => d.data().ativo !== false)
+            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+        } else {
+          const s = await getDocs(collection(db, "alunos"));
+          alunos = s.docs
+            .filter(d => d.data().ativo !== false)
+            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+          presencasSalvas.forEach(p => { const a = alunos.find(al => al.nome === p.nome); if (a) a.presenca = p.presenca; });
+        }
+      }
     }
 
     async function inicializar() {
@@ -478,44 +461,36 @@
       renderizar();
     }
 
-    // ── Salvar ───────────────────────────────────────────────────
+    // ── Salvar ────────────────────────────────────────────────────
     async function salvar() {
       try {
         btnSalvar.disabled = true; loader.style.display = "block";
         const data = inputData.value || hojeISO();
         const obs  = observacoesEl.value.trim();
-
         const presencas = alunos.map(a => ({
-          alunoId:     a.id || "",
-          nome:        a.nome,
-          instrumento: a.instrumento || "",
-          presenca:    a.presenca || "ausente"
+          alunoId: a.id || "", nome: a.nome, instrumento: a.instrumento || "",
+          presenca: a.presenca || "ausente"
         }));
-
         if (eventoId) {
           await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
         } else {
           const nv = await addDoc(collection(db, "eventos"), {
             data, observacoes: obs, presencas,
-            turmaId:   turmaAtiva?.id   || "",
-            turmaNome: turmaAtiva?.nome || "",
-            tipo: "aula"
+            turmaId: turmaAtiva?.id || "", turmaNome: turmaAtiva?.nome || "", tipo: "aula"
           });
           eventoId = nv.id;
         }
-
         await recalcular(data);
         alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
         window.location.href = "professor.html";
       } catch (e) { console.error(e); alert("Ocorreu um erro ao salvar a chamada."); }
-      finally     { btnSalvar.disabled = false; loader.style.display = "none"; }
+      finally { btnSalvar.disabled = false; loader.style.display = "none"; }
     }
 
     // ── Recalcular frequência ─────────────────────────────────────
     async function recalcular(dataISO) {
       const [ano, mes] = dataISO.split("-");
       const chaveMes   = `${ano}-${mes}`;
-
       const turmaIdAtual = turmaAtiva?.id || null;
       const evSnap  = await getDocs(collection(db, "eventos"));
       const eventosMes = [];
@@ -525,39 +500,33 @@
         if (turmaIdAtual && dd.turmaId && dd.turmaId !== turmaIdAtual) return;
         eventosMes.push(dd);
       });
-
       const total = eventosMes.length; if (!total) return;
-
-      const contId   = {};
-      const contNome = {};
+      const contId = {}; const contNome = {};
       eventosMes.forEach(ev => (ev.presencas||[]).forEach(p => {
         if (!p) return;
         const presente = p.presenca === "presente";
         if (p.alunoId) contId[p.alunoId]  = (contId[p.alunoId]  || 0) + (presente ? 1 : 0);
         if (p.nome)    contNome[p.nome]    = (contNome[p.nome]   || 0) + (presente ? 1 : 0);
       }));
-
       const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
       const sigla  = siglas[parseInt(mes,10)-1] || mes;
       const alSnap = await getDocs(collection(db, "alunos"));
-
       for (const ds of alSnap.docs) {
         const d = ds.data();
         if (d.ativo === false) continue;
         if (turmaIdAtual && d.turmaId && d.turmaId !== turmaIdAtual) continue;
-
         const pres = contId[ds.id] ?? contNome[d.nome] ?? 0;
         const pct  = Math.round((pres / total) * 100);
         const hist = Array.isArray(d.presencas) ? [...d.presencas] : [];
-        let reg    = hist.find(r => r.mes === chaveMes);
+        let reg = hist.find(r => r.mes === chaveMes);
         if (!reg) { reg = { mes: chaveMes, totalEnsaios: total, presencasAluno: pres, percentual: pct }; hist.push(reg); }
-        else      { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
+        else { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
         const freqAno = d.frequenciaAnual || {};
         freqAno[sigla] = { percentual: pct, totalEnsaios: total, presencasAluno: pres };
         await updateDoc(doc(db, "alunos", ds.id), {
-          presencas:        hist,
+          presencas: hist,
           frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
-          frequenciaAnual:  freqAno
+          frequenciaAnual: freqAno
         });
       }
     }
