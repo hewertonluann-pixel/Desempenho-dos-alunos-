@@ -15,19 +15,27 @@
       --ink: #e5e7eb;
       --muted: #9ca3af;
       --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
       --danger: #f97373;
+      --danger-soft: rgba(248, 113, 113, 0.18);
+      --chip-bg: #0f172a;
+      --chip-ink: #e5e7eb;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
       background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #000 100%);
       color: var(--ink);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
     h1 { text-align: center; margin: 16px 12px 4px; font-size: 1.4rem; }
-    .subtitulo { text-align: center; font-size: 0.9rem; color: var(--muted); margin-bottom: 8px; padding: 0 12px; }
+    .subtitulo {
+      text-align: center; font-size: 0.9rem; color: var(--muted);
+      margin-bottom: 8px; padding: 0 12px;
+    }
     .turma-badge-chamada {
       font-size: 0.82rem; font-weight: 700; color: #22d3ee;
       background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
@@ -50,11 +58,11 @@
     #inputData::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
 
     .wrap {
-      padding: 6px 10px 100px;
-      max-width: 720px; width: 100%; margin: 0 auto;
+      flex: 1; display: flex; flex-direction: column;
+      padding: 6px 10px 72px; max-width: 720px; width: 100%; margin: 0 auto;
     }
     .info { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 4px 0 10px; }
-    .lista-alunos { display: flex; flex-direction: column; gap: 8px; }
+    .lista-alunos { display: flex; flex-direction: column; gap: 8px; padding-bottom: 4px; }
 
     /* ── Botão scroll fixo ─── */
     #btnScroll {
@@ -84,23 +92,24 @@
     .container-aluno:focus-visible { outline: none; }
     .card-topo { display: flex; align-items: center; gap: 10px; }
 
+    /* estados */
     .container-aluno.vazio    { background: var(--card-alt); border-color: #111827; box-shadow: 0 4px 10px rgba(15,23,42,0.55); }
-    .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.22), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.35); }
-    .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.22), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.3); }
+    .container-aluno.presente { background: radial-gradient(circle at top left, rgba(34,197,94,0.35), var(--card)); border-color: var(--accent); box-shadow: 0 8px 22px rgba(34,197,94,0.45); }
+    .container-aluno.ausente  { background: radial-gradient(circle at top left, rgba(248,113,113,0.35), var(--card)); border-color: var(--danger); box-shadow: 0 8px 22px rgba(248,113,113,0.4); }
 
     .foto-aluno {
-      width: 46px; height: 46px; border-radius: 999px; overflow: hidden;
+      width: 52px; height: 52px; border-radius: 999px; overflow: hidden;
       flex-shrink: 0; border: 2px solid #1e293b; background: #020617;
       display: flex; align-items: center; justify-content: center;
     }
     .foto-aluno img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .foto-placeholder { font-size: 1.15rem; color: #64748b; }
+    .foto-placeholder { font-size: 1.3rem; color: #64748b; }
 
     .dados-aluno { flex: 1; min-width: 0; }
     .nome        { font-weight: 600; font-size: 1rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .instrumento { font-size: 0.82rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 
-    /* ── Toggles lado a lado ─── */
+    /* ── Toggles: lado a lado, largura igual ─── */
     .toggles {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -118,21 +127,23 @@
     .toggle-btn:focus, .toggle-btn:focus-visible { outline: none; }
     .toggle-btn:active { transform: scale(0.96); }
 
+    /* inativo */
     .toggle-presente { background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.22); color: rgba(34,197,94,0.5); }
     .toggle-ausente  { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.22); color: rgba(248,113,113,0.5); }
 
     .toggle-btn:hover.toggle-presente:not(.ativo) { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); color: rgba(34,197,94,0.85); }
     .toggle-btn:hover.toggle-ausente:not(.ativo)  { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.85); }
 
+    /* ativo */
     .toggle-presente.ativo { background: rgba(34,197,94,0.22); border-color: #22c55e; color: #86efac; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
     .toggle-ausente.ativo  { background: rgba(248,113,113,0.22); border-color: #f97373; color: #fca5a5; box-shadow: 0 0 12px rgba(248,113,113,0.4); }
 
     /* ── Impressão ─── */
     @media print {
-      .toggles        { display: none !important; }
-      #btnScroll      { display: none !important; }
-      .footer-acoes   { display: none !important; }
-      body            { background: white; color: #111; }
+      .toggles      { display: none !important; }
+      #btnScroll    { display: none !important; }
+      .footer-acoes { display: none !important; }
+      body          { background: white; color: #111; }
       .container-aluno { box-shadow: none; border-color: #ccc; background: white !important; page-break-inside: avoid; }
       .container-aluno.presente { border-left: 4px solid #22c55e; }
       .container-aluno.ausente  { border-left: 4px solid #f97373; }
@@ -170,7 +181,7 @@
 </head>
 <body>
   <h1>📋 Chamada</h1>
-  <div class="subtitulo">Marque Presente ou Ausente para cada aluno. 😊</div>
+  <div class="subtitulo">Marque Presente ou Ausente para cada aluno. A lista avança sozinha. 😊</div>
 
   <div class="turma-badge-wrapper">
     <span class="turma-badge-chamada" id="turmaBadgeChamada" style="display:none;"></span>
@@ -248,7 +259,8 @@
     window.addEventListener("scroll", () => {
       const scrollY   = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      btnScroll.classList.toggle("visivel", maxScroll > 100);
+      if (maxScroll > 100) btnScroll.classList.add("visivel");
+      else                  btnScroll.classList.remove("visivel");
       if (scrollY < maxScroll * 0.5) {
         btnScroll.textContent = "↓"; btnScroll.title = "Ir para o fim da lista"; scrollDirecao = "baixo";
       } else {
@@ -268,26 +280,21 @@
       return `${a}-${m}-${d}`;
     }
 
-    // ── Scroll para o próximo card pendente ──────────────────────
-    // Usa getBoundingClientRect + window.scrollY para garantir que
-    // o scroll sempre acontece no window, independente de flex/display
+    // ── Scroll automático para o próximo card pendente ────────────────
+    // Usa getBoundingClientRect + window.scrollY (funciona com body flex)
     function avancarParaProximo(idxAtual) {
       const proximoIdx = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
       if (proximoIdx === -1) return;
       const cards = painel.querySelectorAll(".container-aluno");
       const cardEl = cards[proximoIdx];
       if (!cardEl) return;
-
-      // posição absoluta do card em relação ao topo do documento
-      const rect    = cardEl.getBoundingClientRect();
+      const rect     = cardEl.getBoundingClientRect();
       const absolute = rect.top + window.scrollY;
-      // centralizar na tela, descontando metade da altura da viewport
-      const centro  = absolute - (window.innerHeight / 2) + (rect.height / 2);
-
+      const centro   = absolute - (window.innerHeight / 2) + (rect.height / 2);
       window.scrollTo({ top: Math.max(0, centro), behavior: "smooth" });
     }
 
-    // ── Atualizar visual do card ────────────────────────────────
+    // ── Atualizar visual do card ───────────────────────────────
     function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const btnP = card.querySelector(".toggle-presente");
@@ -319,6 +326,7 @@
         card.className = "container-aluno vazio";
         card.dataset.index = idx;
 
+        // — linha do topo: foto + dados —
         const topo = document.createElement("div"); topo.className = "card-topo";
 
         const fw = document.createElement("div"); fw.className = "foto-aluno";
@@ -334,6 +342,7 @@
         dd.appendChild(dn); dd.appendChild(di);
         topo.appendChild(fw); topo.appendChild(dd);
 
+        // — botões toggle —
         const tg   = document.createElement("div"); tg.className = "toggles";
         const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.innerHTML = "✔ Presente";
         const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente"; btnA.innerHTML = "✘ Ausente";
@@ -356,7 +365,7 @@
       });
     }
 
-    // ── Carregamento ──────────────────────────────────────────
+    // ── Carregamento ─────────────────────────────────────────
     async function carregarAlunos() {
       if (eventoId) return;
       if (turmaAtiva?.id) {
@@ -435,7 +444,7 @@
       renderizar();
     }
 
-    // ── Salvar ──────────────────────────────────────────────
+    // ── Salvar ─────────────────────────────────────────────
     async function salvar() {
       try {
         btnSalvar.disabled = true; loader.style.display = "block";
@@ -461,7 +470,7 @@
       finally { btnSalvar.disabled = false; loader.style.display = "none"; }
     }
 
-    // ── Recalcular frequência ──────────────────────────────────
+    // ── Recalcular frequência ─────────────────────────────────
     async function recalcular(dataISO) {
       const [ano, mes] = dataISO.split("-");
       const chaveMes   = `${ano}-${mes}`;
