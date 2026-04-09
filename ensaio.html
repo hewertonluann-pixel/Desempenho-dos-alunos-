@@ -21,7 +21,6 @@
     }
     * { box-sizing: border-box; }
 
-    /* SEM display:flex no body — scroll acontece no window normalmente */
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
@@ -109,7 +108,7 @@
     .nome        { font-weight: 600; font-size: 1rem; color: #e5e7eb; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
     .instrumento { font-size: 0.82rem; color: #9ca3af; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 
-    /* ── Toggles: lado a lado ─── */
+    /* ── Toggles ─── */
     .toggles {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -127,14 +126,12 @@
     .toggle-btn:focus, .toggle-btn:focus-visible { outline: none; }
     .toggle-btn:active { transform: scale(0.96); }
 
-    /* inativo */
     .toggle-presente { background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.22); color: rgba(34,197,94,0.5); }
     .toggle-ausente  { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.22); color: rgba(248,113,113,0.5); }
 
     .toggle-btn:hover.toggle-presente:not(.ativo) { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.4); color: rgba(34,197,94,0.85); }
     .toggle-btn:hover.toggle-ausente:not(.ativo)  { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.4); color: rgba(248,113,113,0.85); }
 
-    /* ativo */
     .toggle-presente.ativo { background: rgba(34,197,94,0.22); border-color: #22c55e; color: #86efac; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
     .toggle-ausente.ativo  { background: rgba(248,113,113,0.22); border-color: #f97373; color: #fca5a5; box-shadow: 0 0 12px rgba(248,113,113,0.4); }
 
@@ -261,11 +258,9 @@
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       if (maxScroll > 100) btnScroll.classList.add("visivel");
       else                  btnScroll.classList.remove("visivel");
-      if (scrollY < maxScroll * 0.5) {
-        btnScroll.textContent = "↓"; btnScroll.title = "Ir para o fim da lista"; scrollDirecao = "baixo";
-      } else {
-        btnScroll.textContent = "↑"; btnScroll.title = "Voltar ao topo"; scrollDirecao = "cima";
-      }
+      scrollDirecao = scrollY < maxScroll * 0.5 ? "baixo" : "cima";
+      btnScroll.textContent = scrollDirecao === "baixo" ? "↓" : "↑";
+      btnScroll.title = scrollDirecao === "baixo" ? "Ir para o fim da lista" : "Voltar ao topo";
     });
     btnScroll.addEventListener("click", () => {
       window.scrollTo({ top: scrollDirecao === "baixo" ? document.documentElement.scrollHeight : 0, behavior: "smooth" });
@@ -280,22 +275,21 @@
       return `${a}-${m}-${d}`;
     }
 
-    // ── Scroll automático para o próximo card pendente ────────────────
-    // Sem display:flex no body, window.scrollY funciona corretamente
-    function avancarParaProximo(idxAtual) {
-      const proximoIdx = alunos.findIndex((a, i) => i > idxAtual && a.presenca === "");
-      if (proximoIdx === -1) return;
-      const cards  = painel.querySelectorAll(".container-aluno");
-      const cardEl = cards[proximoIdx];
-      if (!cardEl) return;
-      // posição absoluta no documento + centralizar na tela
-      const rect     = cardEl.getBoundingClientRect();
-      const absolute = rect.top + window.scrollY;
-      const centro   = absolute - (window.innerHeight / 2) + (rect.height / 2);
-      window.scrollTo({ top: Math.max(0, centro), behavior: "smooth" });
+    // ── Scroll automático: avança a altura do card atual + gap (8px) ──
+    // Usa scrollBy — funciona independente de qual elemento tem overflow.
+    function avancarParaProximo(cardAtual) {
+      // só rola se ainda houver próximo pendente
+      const cards = Array.from(painel.querySelectorAll(".container-aluno"));
+      const idxAtual = cards.indexOf(cardAtual);
+      const temProximo = alunos.some((a, i) => i > idxAtual && a.presenca === "");
+      if (!temProximo) return;
+
+      const altura = cardAtual.getBoundingClientRect().height;
+      const gap    = 8; // mesmo valor do gap do .lista-alunos
+      window.scrollBy({ top: altura + gap, behavior: "smooth" });
     }
 
-    // ── Atualizar visual do card ───────────────────────────────
+    // ── Atualizar visual do card ──────────────────────────────
     function atualizarCard(card, aluno) {
       card.classList.remove("presente", "ausente", "vazio");
       const btnP = card.querySelector(".toggle-presente");
@@ -312,7 +306,7 @@
       }
     }
 
-    // ── Renderizar lista ────────────────────────────────────────
+    // ── Renderizar lista ─────────────────────────────────────
     function renderizar() {
       painel.innerHTML = "";
       if (!alunos.length) {
@@ -327,13 +321,12 @@
         card.className = "container-aluno vazio";
         card.dataset.index = idx;
 
-        // linha superior: foto + dados
         const topo = document.createElement("div"); topo.className = "card-topo";
         const fw   = document.createElement("div"); fw.className   = "foto-aluno";
         if (aluno.foto) {
           const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img);
         } else {
-          const sp  = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp);
+          const sp = document.createElement("span"); sp.className = "foto-placeholder"; sp.textContent = "👤"; fw.appendChild(sp);
         }
         const dd = document.createElement("div"); dd.className = "dados-aluno";
         const dn = document.createElement("div"); dn.className = "nome";        dn.textContent = aluno.nome;
@@ -341,7 +334,6 @@
         dd.appendChild(dn); dd.appendChild(di);
         topo.appendChild(fw); topo.appendChild(dd);
 
-        // botões toggle
         const tg   = document.createElement("div");    tg.className   = "toggles";
         const btnP = document.createElement("button"); btnP.className = "toggle-btn toggle-presente"; btnP.innerHTML = "✔ Presente";
         const btnA = document.createElement("button"); btnA.className = "toggle-btn toggle-ausente";  btnA.innerHTML = "✘ Ausente";
@@ -349,12 +341,12 @@
         btnP.addEventListener("click", () => {
           aluno.presenca = aluno.presenca === "presente" ? "" : "presente";
           atualizarCard(card, aluno);
-          if (aluno.presenca !== "") avancarParaProximo(idx);
+          if (aluno.presenca !== "") avancarParaProximo(card);
         });
         btnA.addEventListener("click", () => {
           aluno.presenca = aluno.presenca === "ausente" ? "" : "ausente";
           atualizarCard(card, aluno);
-          if (aluno.presenca !== "") avancarParaProximo(idx);
+          if (aluno.presenca !== "") avancarParaProximo(card);
         });
 
         tg.appendChild(btnP); tg.appendChild(btnA);
@@ -443,7 +435,7 @@
       renderizar();
     }
 
-    // ── Salvar ─────────────────────────────────────────────
+    // ── Salvar ────────────────────────────────────────────────
     async function salvar() {
       try {
         btnSalvar.disabled = true; loader.style.display = "block";
