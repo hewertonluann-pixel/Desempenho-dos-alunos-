@@ -188,9 +188,6 @@
     let eventoId  = params.get("id") || null;
     let alunos    = [];
 
-    // Flag global anti-double-tap: bloqueia novo clique por 350ms após cada interação
-    let bloqueando = false;
-
     const painel         = document.getElementById("painelAlunos");
     const inputData      = document.getElementById("inputData");
     const infoCarregando = document.getElementById("infoCarregando");
@@ -402,33 +399,27 @@
         dd.appendChild(dn); dd.appendChild(di); dd.appendChild(sl);
         card.appendChild(fw); card.appendChild(dd);
 
-        // Usar touchstart para mobile: responde ao toque imediato sem delay de 300ms
-        // e sem risco de ghost click do scroll
-        let touchAtivo = false;
+        let tocando = false;
 
+        // touchstart NÃO-passivo: obrigatório para que o preventDefault do touchend seja respeitado
         card.addEventListener("touchstart", (e) => {
-          if (bloqueando) return;
-          touchAtivo = true;
-        }, { passive: true });
+          tocando = true;
+        }, { passive: false });
 
         card.addEventListener("touchend", (e) => {
-          if (!touchAtivo || bloqueando) return;
-          touchAtivo = false;
-          e.preventDefault(); // impede o ghost click que viria depois
-          bloqueando = true;
-          setTimeout(() => { bloqueando = false; }, 350);
+          if (!tocando) return;
+          tocando = false;
+          e.preventDefault(); // bloqueia o ghost click (~300ms depois) gerado pelo browser
 
           aluno.presenca = proximoEstado(aluno.presenca);
           atualizarCard(card, aluno);
           focarProximo(idx);
         });
 
-        // Fallback para desktop (mouse click)
-        card.addEventListener("click", (e) => {
-          if (bloqueando) return;
-          bloqueando = true;
-          setTimeout(() => { bloqueando = false; }, 350);
+        card.addEventListener("touchcancel", () => { tocando = false; });
 
+        // Fallback mouse (desktop)
+        card.addEventListener("click", () => {
           aluno.presenca = proximoEstado(aluno.presenca);
           atualizarCard(card, aluno);
           focarProximo(idx);
