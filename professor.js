@@ -502,30 +502,48 @@ document.addEventListener("DOMContentLoaded", () => {
 async function atualizarComprometimentoGeral() {
   const btn = document.getElementById("btnAtualizarComprometimento");
   if (btn) { btn.disabled = true; btn.textContent = "⏳ Atualizando..."; }
+
   try {
-    const turmaAtiva = getTurmaAtiva();
     const anoAtual = new Date().getFullYear();
     const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
     const chaveMes = `${anoAtual}-${mesAtual}`;
 
-    // Usar obterEventosDoAno com filtro por turmaId
-    const todosEventosAno = await obterEventosDoAno(anoAtual, turmaAtiva?.id || null);
-    const agrupado = agruparEventosPorMes(todosEventosAno);
-    const eventosMes = agrupado[chaveMes] || [];
+    // Carregar todos os alunos (sem filtro de turma ativa)
+    // para garantir que TODOS sejam atualizados corretamente,
+    // cada um usando somente os eventos da sua própria turma.
+    const alunosSnap = await getDocs(collection(db, "alunos"));
 
-    // Carregar apenas alunos da turma ativa
-    let alunosSnap;
-    if (turmaAtiva?.id) {
-      alunosSnap = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)));
-    } else {
-      alunosSnap = await getDocs(collection(db, "alunos"));
-    }
+    // Agrupar alunos por turmaId para minimizar leituras no Firestore:
+    // em vez de buscar eventos N vezes (1 por aluno), buscamos 1 vez por turma.
+    const turmasMap = {}; // { turmaId: { eventos, agrupado } }
 
-    let atualizados = 0;
     for (const alunoDoc of alunosSnap.docs) {
       const dados = alunoDoc.data();
       if (dados.ativo === false) continue;
 
+      const turmaId = dados.turmaId || null;
+
+      // Se ainda não buscamos os eventos desta turma, buscar agora
+      if (turmaId && !turmasMap[turmaId]) {
+        const eventosDoAno = await obterEventosDoAno(anoAtual, turmaId);
+        turmasMap[turmaId] = {
+          agrupado: agruparEventosPorMes(eventosDoAno)
+        };
+      }
+
+      // Aluno sem turmaId: freq = 0, não é possível calcular denominável correto
+      if (!turmaId) {
+        await updateDoc(doc(db, "alunos", alunoDoc.id), {
+          "frequenciaMensal.porcentagem": 0,
+          "frequenciaMensal.totalEventos": 0,
+          "frequenciaMensal.presencas": 0,
+          ultimaAtualizacaoComprometimento: serverTimestamp()
+        });
+        continue;
+      }
+
+      // Calcular frequência do aluno usando somente os eventos da sua turma
+      const eventosMes = turmasMap[turmaId].agrupado[chaveMes] || [];
       const freq = calcularFrequenciaMensalParaAluno(eventosMes, dados.nome);
 
       await updateDoc(doc(db, "alunos", alunoDoc.id), {
@@ -534,9 +552,10 @@ async function atualizarComprometimentoGeral() {
         "frequenciaMensal.presencas": freq.presencasAluno,
         ultimaAtualizacaoComprometimento: serverTimestamp()
       });
-      atualizados++;
     }
-    mostrarMensagem("mensagemSucesso", `⚡ Comprometimento de ${atualizados} alunos atualizado!`);
+
+    const total = alunosSnap.docs.filter(d => d.data().ativo !== false).length;
+    mostrarMensagem("mensagemSucesso", `⚡ Comprometimento de ${total} alunos atualizado por turma!`);
   } catch (error) {
     console.error(error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
