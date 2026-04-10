@@ -138,9 +138,14 @@ export async function montarGraficoFrequencia(aluno, ano) {
   const anoTexto    = document.getElementById("anoAtualTexto");
   if (!destino || !anoTexto) return;
   anoTexto.textContent = ano;
+
+  // Passa o turmaId do aluno para filtrar apenas os eventos da sua turma
+  const turmaId = aluno.turmaId || null;
+
   await gerarPainelFrequencia(
     aluno, ano, destino,
-    dadosPopup => abrirPopupFrequencia(dadosPopup, destinoPopup)
+    dadosPopup => abrirPopupFrequencia(dadosPopup, destinoPopup),
+    turmaId
   );
   atualizarLegendasComprometimento();
 }
@@ -221,18 +226,22 @@ window.fecharPopupConquista = function() {
 };
 
 /* ========================================================
-    6. CALCULAR ENERGIA
+    6. CALCULAR ENERGIA (filtrada por turma do aluno)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
-  const snap        = await getDocs(collection(db, "eventos"));
-  const todosEventos= snap.docs.map(d => d.data());
-  const agora       = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-  const anoAtual    = agora.getFullYear();
-  const mesAtual    = String(agora.getMonth() + 1).padStart(2, "0");
-  const grupos      = agruparEventosPorMes(todosEventos);
-  const chaveMes    = `${anoAtual}-${mesAtual}`;
-  const eventosMes  = grupos[chaveMes] || [];
-  const freqMensal  = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
+  const turmaId = aluno.turmaId || null;
+
+  const agora     = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const anoAtual  = agora.getFullYear();
+  const mesAtual  = String(agora.getMonth() + 1).padStart(2, "0");
+
+  // Busca apenas os eventos da turma do aluno
+  const todosEventos = await obterEventosDoAno(anoAtual, turmaId);
+
+  const grupos     = agruparEventosPorMes(todosEventos);
+  const chaveMes   = `${anoAtual}-${mesAtual}`;
+  const eventosMes = grupos[chaveMes] || [];
+  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
   const energiaMensal = freqMensal.percentual;
 
   let totalPresencasAno = 0, totalEventosAno = 0;
