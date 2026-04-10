@@ -29,161 +29,6 @@
 
     @media (min-width: 1400px) { .grid-principal { grid-template-columns: repeat(5, 1fr); } }
 
-    /* ===== CARDS DE TURMA ===== */
-    .turmas-section {
-      margin-bottom: 32px;
-    }
-    .turmas-section-titulo {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .turmas-section-titulo::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(34,211,238,0.25), transparent);
-    }
-    .turmas-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    @media (max-width: 768px) {
-      .turmas-grid {
-        display: flex;
-        overflow-x: auto;
-        gap: 12px;
-        padding-bottom: 8px;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        scroll-snap-type: x mandatory;
-      }
-      .turmas-grid::-webkit-scrollbar { display: none; }
-      .card-turma {
-        min-width: 230px;
-        scroll-snap-align: start;
-        flex-shrink: 0;
-      }
-    }
-    .card-turma {
-      background: linear-gradient(145deg, #0d1526, #020617);
-      border: 1px solid rgba(34,211,238,0.2);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.45);
-      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-      cursor: default;
-    }
-    .card-turma:hover {
-      transform: translateY(-3px);
-      border-color: rgba(34,211,238,0.5);
-      box-shadow: 0 12px 30px rgba(8,47,73,0.7);
-    }
-    .card-turma-topo {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .card-turma-icone {
-      font-size: 1.8rem;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .card-turma-badge {
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 3px 9px;
-      border-radius: 999px;
-      white-space: nowrap;
-      letter-spacing: 0.3px;
-    }
-    .badge-fase1   { background: rgba(34,211,238,0.12); color: #67e8f9; border: 1px solid rgba(34,211,238,0.25); }
-    .badge-fase2   { background: rgba(129,140,248,0.12); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.25); }
-    .badge-orq     { background: rgba(250,204,21,0.12);  color: #fde68a; border: 1px solid rgba(250,204,21,0.25); }
-    .card-turma-nome {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: #f9fafb;
-      line-height: 1.2;
-    }
-    .card-turma-desc {
-      font-size: 0.78rem;
-      color: #6b7280;
-      line-height: 1.6;
-      flex: 1;
-    }
-    .card-turma-rodape {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 10px;
-      border-top: 1px solid rgba(34,211,238,0.12);
-      gap: 8px;
-    }
-    .card-turma-alunos {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.78rem;
-      color: #9ca3af;
-    }
-    .card-turma-alunos strong {
-      color: #22d3ee;
-      font-size: 1rem;
-      font-weight: 900;
-    }
-    .card-turma-alunos-skeleton {
-      width: 28px;
-      height: 14px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 4px;
-      display: inline-block;
-    }
-    .btn-ver-alunos {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #22d3ee;
-      background: rgba(34,211,238,0.1);
-      border: 1px solid rgba(34,211,238,0.25);
-      border-radius: 999px;
-      padding: 4px 12px;
-      cursor: pointer;
-      transition: background 0.18s, border-color 0.18s, transform 0.15s;
-      white-space: nowrap;
-    }
-    .btn-ver-alunos:hover {
-      background: rgba(34,211,238,0.2);
-      border-color: rgba(34,211,238,0.5);
-      transform: scale(1.04);
-    }
-    /* Linha de instrumentos (só Orquestra) */
-    .card-turma-instrumentos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-    .chip-instrumento {
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: #fde68a;
-      background: rgba(250,204,21,0.08);
-      border: 1px solid rgba(250,204,21,0.2);
-      border-radius: 999px;
-      padding: 2px 8px;
-      white-space: nowrap;
-    }
-
     /* ===== BARRA DE CONTROLE DE VISUALIZAÇÃO ===== */
     .barra-visualizacao {
       grid-column: 1 / -1;
@@ -434,17 +279,6 @@
   <h1>🎶 Comunidade Asafe</h1>
   <p class="subtitulo">Veja seus colegas, suas energias, níveis e conquistas. Toque em um card para abrir o painel completo.</p>
 
-  <!-- ===== SEÇÃO DE CARDS DE TURMAS ===== -->
-  <section class="turmas-section">
-    <div class="turmas-section-titulo">🎓 Turmas</div>
-    <div class="turmas-grid" id="turmasGrid">
-      <!-- preenchido pelo JS -->
-      <div class="card-turma"><div class="loader-texto" style="padding:20px;font-size:0.8rem;">⌛</div></div>
-      <div class="card-turma"><div class="loader-texto" style="padding:20px;font-size:0.8rem;">⌛</div></div>
-      <div class="card-turma"><div class="loader-texto" style="padding:20px;font-size:0.8rem;">⌛</div></div>
-    </div>
-  </section>
-
   <div class="grid-principal" id="gridCompleto">
     <div class="loader-texto">⌛ Carregando alunos...</div>
   </div>
@@ -454,7 +288,7 @@
     <a href="painel-social.html" class="nav-item active" data-page="comunidade"><i class="fas fa-users nav-icon"></i>            <span class="nav-label">Comunidade</span></a>
     <a href="biblioteca.html"   class="nav-item"        data-page="biblioteca"><i class="fas fa-book nav-icon"></i>              <span class="nav-label">Biblioteca</span></a>
     <a href="atividades.html"   class="nav-item"        data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i>    <span class="nav-label">Atividades</span></a>
-    <a href="professor.html"    class="nav-item"        data-page="professor"  id="navProfessor" style="display:none;"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></div></a>
+    <a href="professor.html"    class="nav-item"        data-page="professor"  id="navProfessor" style="display:none;"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></a>
   </nav>
 
   <script type="module">
@@ -476,167 +310,6 @@
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
     const mesesChaves = ["01","02","03","04","05","06","07","08","09","10","11","12"];
-
-    // ================================================================
-    // CONFIGURAÇÃO ESTÁTICA DAS TURMAS
-    // ================================================================
-    const CONFIG_TURMAS = [
-      {
-        chave: "fase1",
-        icone: "🌱",
-        nome: "Fase 1",
-        badgeClasse: "badge-fase1",
-        badgeTexto: "Fase 1 — Inicial",
-        descricao: "Teoria musical e iniciação. Os alunos aprendem leitura básica, ritmo e primeiras notas.",
-        mostrarInstrumentos: false,
-        corDestaque: "rgba(34,211,238,0.15)"
-      },
-      {
-        chave: "fase2",
-        icone: "📖",
-        nome: "Fase 2",
-        badgeClasse: "badge-fase2",
-        badgeTexto: "Fase 2 — Prática",
-        descricao: "Prática de leitura com o Método BONA. Desenvolvimento progressivo da leitura musical.",
-        mostrarInstrumentos: false,
-        corDestaque: "rgba(129,140,248,0.15)"
-      },
-      {
-        chave: "orquestra",
-        icone: "🎼",
-        nome: "Orquestra",
-        badgeClasse: "badge-orq",
-        badgeTexto: "Orquestra — Músicos",
-        descricao: "Músicos em formação de conjunto. Repertório orquestral, afinação e performance.",
-        mostrarInstrumentos: true,
-        corDestaque: "rgba(250,204,21,0.12)"
-      }
-    ];
-
-    // Detecta a qual turma config pertence um aluno baseado no nome da turma
-    function detectarChaveTurma(nomeTurma) {
-      if (!nomeTurma) return null;
-      const n = nomeTurma.toLowerCase();
-      if (n.includes("fase 1") || n === "fase1") return "fase1";
-      if (n.includes("fase 2") || n === "fase2") return "fase2";
-      if (n.includes("orquestra")) return "orquestra";
-      return null;
-    }
-
-    // ================================================================
-    // CARDS DE TURMAS — renderiza com contagem de alunos do Firestore
-    // ================================================================
-    async function renderizarCardsTurmas(turmasFirestore, alunosTodos) {
-      const grid = document.getElementById("turmasGrid");
-
-      // Monta mapa: chave -> { turmaDoc, alunos[] }
-      const mapaChave = {};
-      CONFIG_TURMAS.forEach(c => { mapaChave[c.chave] = { config: c, turmaDoc: null, alunos: [] }; });
-
-      // Associa documentos de turma
-      turmasFirestore.forEach(t => {
-        const chave = detectarChaveTurma(t.nome);
-        if (chave && mapaChave[chave]) mapaChave[chave].turmaDoc = t;
-      });
-
-      // Conta alunos ativos por turma (via turmaId ou campo turma)
-      alunosTodos.filter(a => a.ativo !== false).forEach(a => {
-        // tenta por turmaId primeiro
-        let chaveEncontrada = null;
-        turmasFirestore.forEach(t => {
-          if (t.id === a.turmaId) {
-            chaveEncontrada = detectarChaveTurma(t.nome);
-          }
-        });
-        // fallback pelo campo "turma" (string)
-        if (!chaveEncontrada && a.turma) {
-          chaveEncontrada = detectarChaveTurma(a.turma);
-        }
-        if (chaveEncontrada && mapaChave[chaveEncontrada]) {
-          mapaChave[chaveEncontrada].alunos.push(a);
-        }
-      });
-
-      // Renderiza os cards
-      const htmlCards = CONFIG_TURMAS.map(cfg => {
-        const info      = mapaChave[cfg.chave];
-        const qtdAlunos = info.alunos.length;
-
-        // Chips de instrumentos (só Orquestra)
-        let instrumentosHtml = "";
-        if (cfg.mostrarInstrumentos && qtdAlunos > 0) {
-          const instrumentosUnicos = [...new Set(
-            info.alunos.map(a => a.instrumento).filter(Boolean)
-          )].sort();
-          if (instrumentosUnicos.length > 0) {
-            const chips = instrumentosUnicos
-              .slice(0, 6) // máximo 6 chips
-              .map(i => `<span class="chip-instrumento">${i}</span>`)
-              .join("");
-            instrumentosHtml = `<div class="card-turma-instrumentos">${chips}</div>`;
-          }
-        }
-
-        return `
-          <div class="card-turma">
-            <div class="card-turma-topo">
-              <span class="card-turma-icone">${cfg.icone}</span>
-              <span class="card-turma-badge ${cfg.badgeClasse}">${cfg.badgeTexto}</span>
-            </div>
-            <div class="card-turma-nome">${cfg.nome}</div>
-            <div class="card-turma-desc">${cfg.descricao}</div>
-            ${instrumentosHtml}
-            <div class="card-turma-rodape">
-              <div class="card-turma-alunos">
-                👥 <strong>${qtdAlunos}</strong> aluno${qtdAlunos !== 1 ? "s" : ""}
-              </div>
-              <button class="btn-ver-alunos" onclick="filtrarPorTurma('${cfg.chave}')">
-                Ver alunos ↓
-              </button>
-            </div>
-          </div>`;
-      }).join("");
-
-      grid.innerHTML = htmlCards;
-    }
-
-    // Filtra o grid principal pela chave da turma e rola até ele
-    window.filtrarPorTurma = function(chave) {
-      const mapa = { fase1: "Fase 1", fase2: "Fase 2", orquestra: "Orquestra" };
-      const nomeBusca = mapa[chave] || "";
-
-      // Altera modo para Geral e rola suavemente
-      modoBancada = false;
-      ordenacaoGeral = "nivel";
-      localStorage.setItem("ps_modoBancada", "false");
-
-      // Filtra temporariamente pelo nome da turma
-      const filtrados = todosAtivos.filter(a => {
-        const t = (a.turma || "").toLowerCase();
-        return t.includes(nomeBusca.toLowerCase());
-      });
-
-      const container = document.getElementById("gridCompleto");
-      const grupoMap  = agruparPorGrupo(filtrados);
-      const subgrupoMap = agruparPorSubgrupo(filtrados);
-
-      let html = `
-        ${htmlBarraVisualizacao()}
-        ${htmlPainelBanda()}
-        ${htmlPainelSobre()}
-        ${htmlPainelGeral(filtrados)}
-        ${htmlBadges(subgrupoMap)}
-        ${htmlRanking(grupoMap, abaAtual, mesAtual)}
-      `;
-      const ordenados = ordenarAlunosGeral(filtrados.filter(a => {
-        const { grupo } = classificarInstrumento(a.instrumento);
-        return grupo !== "Maestro";
-      }), "nivel");
-      html += ordenados.map(htmlCard).join("");
-      container.innerHTML = html;
-
-      document.getElementById("gridCompleto").scrollIntoView({ behavior: "smooth", block: "start" });
-    };
 
     function classificarInstrumento(instrumento) {
       if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", label: "Outros", ordem: 999 };
@@ -895,6 +568,7 @@
       `;
 
       if (modoBancada) {
+        // Modo por bancada — comportamento original
         [...grupoMap.keys()].filter(k => k !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(grupo => {
           const alunosOrdenados = grupoMap.get(grupo).slice()
             .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
@@ -903,6 +577,7 @@
           html += alunosOrdenados.map(htmlCard).join("");
         });
       } else {
+        // Modo geral — sem separadores, ordenado pelo critério selecionado
         const semMaestro = todosAtivos.filter(a => {
           const { grupo } = classificarInstrumento(a.instrumento);
           return grupo !== "Maestro";
@@ -932,25 +607,16 @@
     };
 
     async function carregarAlunos() {
-      const [snapAlunos, snapTurmas, eventosAno, grupoSnap] = await Promise.all([
+      const [snap, eventosAno, grupoSnap] = await Promise.all([
         getDocs(collection(db, "alunos")),
-        getDocs(collection(db, "turmas")),
         obterEventosDoAno(2026),
         getDoc(doc(db, "config", "grupo"))
       ]);
-
       gruposEventos = agruparEventosPorMes(eventosAno);
-
-      const alunos = snapAlunos.docs.map(d => ({ id: d.id, ...d.data() }));
+      const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       alunos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
       todosAtivos = alunos.filter(a => a.ativo !== false);
-
-      const turmasFirestore = snapTurmas.docs.map(d => ({ id: d.id, ...d.data() }));
-
       if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
-
-      // Renderiza cards de turmas e grid principal em paralelo
-      await renderizarCardsTurmas(turmasFirestore, alunos);
       renderizarTudo();
     }
 
