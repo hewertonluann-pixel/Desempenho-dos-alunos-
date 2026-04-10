@@ -92,7 +92,44 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
 }
 
 /* ======================================================
-   4. GERAR GRADE DE FREQUÊNCIA MENSAL (bolinhas)
+   4. CONTAR CHAMADAS REALIZADAS POR TURMA NO ANO
+   Retorna o total de eventos (chamadas) de uma turma
+   específica no ano informado.
+   Sempre exige turmaId — nunca mistura turmas.
+   ====================================================== */
+export async function contarChamadasPorTurma(ano, turmaId) {
+  if (!turmaId) {
+    console.warn("contarChamadasPorTurma: turmaId não informado.");
+    return 0;
+  }
+  const eventos = await obterEventosDoAno(ano, turmaId);
+  return eventos.length;
+}
+
+/* ======================================================
+   5. CALCULAR FREQUÊNCIA DO ALUNO NO ANO (por turma)
+   Retorna presencas e percentual anuais do aluno,
+   usando somente os eventos da sua turma como denominador.
+   ====================================================== */
+export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) {
+  if (!turmaId) return { totalEventos: 0, presencasAluno: 0, percentual: 0 };
+
+  const eventos = await obterEventosDoAno(ano, turmaId);
+  const totalEventos = eventos.length;
+  if (totalEventos === 0) return { totalEventos: 0, presencasAluno: 0, percentual: 0 };
+
+  let presencasAluno = 0;
+  eventos.forEach(ev => {
+    const hit = ev.presencas.find(p => p.nome === nomeAluno);
+    if (hit && hit.presenca === "presente") presencasAluno++;
+  });
+
+  const percentual = Math.round((presencasAluno / totalEventos) * 100);
+  return { totalEventos, presencasAluno, percentual };
+}
+
+/* ======================================================
+   6. GERAR GRADE DE FREQUÊNCIA MENSAL (bolinhas)
    ====================================================== */
   const mesesAbreviados = {
     "01": "JAN", "02": "FEV", "03": "MAR", "04": "ABR",
