@@ -236,7 +236,7 @@
     .separador-texto { font-size: 0.85rem; font-weight: 700; color: #22d3ee; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     .separador-count { font-size: 0.7rem; color: #6b7280; font-weight: 500; }
 
-    /* ===== CARDS ===== */
+    /* ===== CARDS BASE ===== */
     .card-social {
       background: radial-gradient(circle at top left, #1f2937, #020617);
       border-radius: 16px; padding: 14px 14px 12px;
@@ -265,6 +265,53 @@
     .conquistas-social { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(34,211,238,0.15); display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: #9ca3af; }
     .conquistas-social .icones { font-size: 1.3rem; display: flex; gap: 4px; flex-wrap: wrap; }
     .loader-texto { text-align: center; color: #6b7280; padding: 40px; font-size: 0.95rem; }
+
+    /* ===== BADGES DE FASE ===== */
+    .badge-fase {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.4px;
+      margin-top: 2px;
+    }
+    .badge-fase.fase1 {
+      background: rgba(251,191,36,0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251,191,36,0.4);
+    }
+    .badge-fase.fase2 {
+      background: rgba(167,139,250,0.15);
+      color: #a78bfa;
+      border: 1px solid rgba(167,139,250,0.4);
+    }
+
+    /* ===== VARIAÇÕES DE CARD POR FASE ===== */
+    /* Fase 1 — acento âmbar */
+    .card-fase1 {
+      border-color: rgba(251,191,36,0.25);
+      background: radial-gradient(circle at top left, #1f1a0e, #020617);
+    }
+    .card-fase1:hover {
+      border-color: rgba(251,191,36,0.7);
+      box-shadow: 0 16px 35px rgba(120,80,0,0.4);
+    }
+    .card-fase1 .foto-social { border-color: rgba(251,191,36,0.5); }
+
+    /* Fase 2 — acento lilás */
+    .card-fase2 {
+      border-color: rgba(167,139,250,0.25);
+      background: radial-gradient(circle at top left, #150d1f, #020617);
+    }
+    .card-fase2:hover {
+      border-color: rgba(167,139,250,0.7);
+      box-shadow: 0 16px 35px rgba(80,40,120,0.4);
+    }
+    .card-fase2 .foto-social { border-color: rgba(167,139,250,0.5); }
+    .card-fase2 .nivel-geral-destaque {
+      background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(139,92,246,0.08));
+      border-color: rgba(167,139,250,0.3);
+    }
+    .card-fase2 .label-nivel { color: #a78bfa; }
 
     @media (max-width: 768px) {
       .grid-principal  { grid-template-columns: 1fr; }
@@ -310,6 +357,16 @@
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
     const mesesChaves = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+
+    // ================================================================
+    // DETECÇÃO DE FASE
+    // ================================================================
+    function getFaseAluno(aluno) {
+      const fase = (aluno.fase ?? "").toString().toLowerCase().replace(/\s/g, "");
+      if (fase === "1" || fase === "fase1") return "fase1";
+      if (fase === "2" || fase === "fase2") return "fase2";
+      return "orquestra";
+    }
 
     function classificarInstrumento(instrumento) {
       if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", label: "Outros", ordem: 999 };
@@ -496,6 +553,72 @@
         </div>`;
     }
 
+    // ================================================================
+    // CARD — FASE 1 (só presença, sem instrumento, sem nível)
+    // ================================================================
+    function htmlCardFase1(aluno) {
+      const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaGeral  = aluno.energiaAnual ?? 0;
+      const conquistas    = calcularConquistas(aluno);
+      const bgMensal      = corBarra(energiaMensal);
+      return `
+        <div class="card-social card-fase1" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+          <div class="topo-card">
+            <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
+            <div class="info-principal">
+              <div class="nome-aluno">${aluno.nome}</div>
+              <span class="badge-fase fase1">Fase 1</span>
+            </div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📊 Presença Anual</span><span>${energiaGeral}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaGeral}%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📅 Presença Mensal</span><span>${energiaMensal}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaMensal}%;background:${bgMensal};"></div></div>
+          </div>
+          <div class="conquistas-social"><span>🏆 Conquistas</span><span class="icones">${conquistas}</span></div>
+        </div>`;
+    }
+
+    // ================================================================
+    // CARD — FASE 2 (presença + índice de leitura, sem instrumento)
+    // ================================================================
+    function htmlCardFase2(aluno) {
+      const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaGeral  = aluno.energiaAnual ?? 0;
+      const leitura       = aluno.leitura ?? 0;
+      const conquistas    = calcularConquistas(aluno);
+      const bgMensal      = corBarra(energiaMensal);
+      return `
+        <div class="card-social card-fase2" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+          <div class="topo-card">
+            <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
+            <div class="info-principal">
+              <div class="nome-aluno">${aluno.nome}</div>
+              <span class="badge-fase fase2">Fase 2</span>
+            </div>
+          </div>
+          <div class="nivel-geral-destaque">
+            <span class="label-nivel">📘 Índice de Leitura</span>
+            <span class="valor-nivel">${leitura}</span>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📊 Presença Anual</span><span>${energiaGeral}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaGeral}%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📅 Presença Mensal</span><span>${energiaMensal}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaMensal}%;background:${bgMensal};"></div></div>
+          </div>
+          <div class="conquistas-social"><span>🏆 Conquistas</span><span class="icones">${conquistas}</span></div>
+        </div>`;
+    }
+
+    // ================================================================
+    // CARD — ORQUESTRA / FASE 3 (com instrumento, nível geral, leitura e método)
+    // ================================================================
     function htmlCard(aluno) {
       const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
@@ -528,6 +651,16 @@
         </div>`;
     }
 
+    // ================================================================
+    // ROTEADOR DE CARD — escolhe o template pela fase do aluno
+    // ================================================================
+    function htmlCardPorFase(aluno) {
+      const fase = getFaseAluno(aluno);
+      if (fase === "fase1") return htmlCardFase1(aluno);
+      if (fase === "fase2") return htmlCardFase2(aluno);
+      return htmlCard(aluno);
+    }
+
     function htmlSeparadorGrupo(nome, qtd) {
       const id = `grupo-${nome.toLowerCase().replace(/[\s\/]+/g, "-")}`;
       return `<div class="separador-grupo" id="${id}"><div class="separador-linha"></div><div class="separador-texto">🎼 ${nome} <span class="separador-count">${qtd} aluno${qtd > 1 ? 's' : ''}</span></div><div class="separador-linha"></div></div>`;
@@ -555,7 +688,7 @@
       const grupoMap    = agruparPorGrupo(todosAtivos);
       const subgrupoMap = agruparPorSubgrupo(todosAtivos);
       const maestros    = grupoMap.get("Maestro") || [];
-      const maestroHTML = maestros.map(htmlCard).join("");
+      const maestroHTML = maestros.map(htmlCardPorFase).join("");
 
       let html = `
         ${htmlBarraVisualizacao()}
@@ -568,22 +701,20 @@
       `;
 
       if (modoBancada) {
-        // Modo por bancada — comportamento original
         [...grupoMap.keys()].filter(k => k !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(grupo => {
           const alunosOrdenados = grupoMap.get(grupo).slice()
             .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
             .sort((a, b) => { if (a._c.ordem !== b._c.ordem) return a._c.ordem - b._c.ordem; return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0); });
           html += htmlSeparadorGrupo(grupo, alunosOrdenados.length);
-          html += alunosOrdenados.map(htmlCard).join("");
+          html += alunosOrdenados.map(htmlCardPorFase).join("");
         });
       } else {
-        // Modo geral — sem separadores, ordenado pelo critério selecionado
         const semMaestro = todosAtivos.filter(a => {
           const { grupo } = classificarInstrumento(a.instrumento);
           return grupo !== "Maestro";
         });
         const ordenados = ordenarAlunosGeral(semMaestro, ordenacaoGeral);
-        html += ordenados.map(htmlCard).join("");
+        html += ordenados.map(htmlCardPorFase).join("");
       }
 
       container.innerHTML = html;
