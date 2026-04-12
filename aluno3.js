@@ -96,8 +96,17 @@ export async function carregarAlunoAtual() {
     2. EXIBIR DADOS DO ALUNO
    ======================================================== */
 export function montarPainelAluno(aluno) {
-  document.getElementById("nomeAluno").textContent       = aluno.nome;
-  document.getElementById("instrumentoAluno").textContent = aluno.instrumento || "Não definido";
+  document.getElementById("nomeAluno").textContent = aluno.nome;
+
+  // ✅ Se a turma do aluno começa com "Fase" (ex: "Fase 1", "Fase 2"),
+  // exibe o nome da turma no lugar do instrumento.
+  const ehFase = /^fase\s*\d/i.test(aluno.turmaNome || "");
+  const labelInstrumento = document.getElementById("instrumentoAluno");
+  if (labelInstrumento) {
+    labelInstrumento.textContent = ehFase
+      ? `📚 ${aluno.turmaNome}`
+      : (aluno.instrumento || "Não definido");
+  }
 
   const fotoImg = document.getElementById("fotoAluno");
   if (fotoImg) fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
