@@ -256,6 +256,11 @@ export async function calcularEnergiaDoAluno(aluno) {
   const energiaAnual = totalEventosAno > 0
     ? Math.round((totalPresencasAno / totalEventosAno) * 100) : 0;
 
+  // ✅ FIX: gravar frequenciaMensal e frequenciaTotal no objeto aluno
+  // para que gerarPainelConquistas possa avaliar as condições corretamente
+  aluno.frequenciaMensal = freqMensal; // { totalEventos, presencasAluno, percentual }
+  aluno.frequenciaTotal  = totalPresencasAno;
+
   atualizarEnergiaVisual(energiaMensal, energiaAnual);
   return energiaMensal;
 }
@@ -328,7 +333,7 @@ export async function iniciarPainelAluno() {
   montarPainelAluno(aluno);
   carregarNotificacoes();
   await montarGraficoFrequencia(aluno, anoVisualizacao);
-  const energia = await calcularEnergiaDoAluno(aluno);
+  const energia = await calcularEnergiaDoAluno(aluno); // ✅ agora popula aluno.frequenciaMensal
 
   // 📸 Garantir snapshot do mês atual (cria automaticamente se não existir)
   await garantirSnapshotDoMes(aluno);
@@ -341,7 +346,7 @@ export async function iniciarPainelAluno() {
     gerarGraficoEvolucao(aluno, energia, destinoGrafico, snapshots);
   }
 
-  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
+  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas")); // ✅ aluno já tem frequenciaMensal
 
   if (ehDonoDaPagina) await carregarLicoesAluno(aluno.nome);
 

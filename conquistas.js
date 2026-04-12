@@ -20,7 +20,7 @@ export const regrasDeConquistas = [
     descricao: "Compareceu a todos os ensaios do mês.",
     regraLogica: "Frequência mensal >= 100%",
     raridade: "ouro",
-    condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 100
+    condicao: (aluno) => aluno.frequenciaMensal?.percentual >= 100
   },
   {
     id: "leitor_dedicado",
@@ -38,7 +38,7 @@ export const regrasDeConquistas = [
     descricao: "Manteve presença consistente nos ensaios.",
     regraLogica: "Frequência mensal >= 80%",
     raridade: "prata",
-    condicao: (aluno) => aluno.frequenciaMensal?.porcentagem >= 80
+    condicao: (aluno) => aluno.frequenciaMensal?.percentual >= 80
   },
   {
     id: "evolucao_constante",
