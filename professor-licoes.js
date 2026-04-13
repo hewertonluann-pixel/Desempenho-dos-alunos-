@@ -1,4 +1,4 @@
-// professor-licoes.js – Versão Refinada: Navegação Mobile + Devolução + Player
+// professor-licoes.js – Versão Final: Navegação + Devolução + Edição + Firebase
 import { db } from "./firebase-config.js";
 import {
   collection,
@@ -14,7 +14,6 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-// Estado local para controlar qual lição está sendo visualizada em cada grupo de aluno
 const estadoNavegacao = {};
 
 function inserirPainel() {
@@ -23,158 +22,113 @@ function inserirPainel() {
 
   const estilo = document.createElement("style");
   estilo.textContent = `
-    :root {
-        --color-accent: #0ea5e9;
-        --color-success: #22c55e;
-        --color-error: #ef4444;
-        --bg-dark: #0f172a;
-        --bg-card: #1e293b;
-    }
-
     .grupo-aluno {
-      background: var(--bg-dark);
+      background: rgba(15,23,42,0.8);
       border: 1px solid rgba(56,189,248,0.2);
       border-radius: 16px;
       margin-bottom: 24px;
       overflow: hidden;
       box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
     }
-
     .grupo-aluno-header {
       padding: 16px;
-      background: rgba(30,41,59,0.8);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: rgba(30,41,59,0.9);
+      display: flex; justify-content: space-between; align-items: center;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-
     .info-aluno h3 { color: #22d3ee; font-size: 1.1rem; margin: 0; }
     .info-aluno span { color: #94a3b8; font-size: 0.8rem; }
 
-    /* ── Navegador de Lições (Setas Grandes) ── */
+    /* ── Navegação Mobile Grandes ── */
     .nav-licoes {
-      display: flex;
-      align-items: stretch;
+      display: flex; align-items: stretch;
       background: rgba(255,255,255,0.02);
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .btn-nav-grande {
-      flex: 0 0 60px;
-      background: rgba(56,189,248,0.1);
-      border: none;
-      color: #38bdf8;
-      font-size: 1.5rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.2s;
+      flex: 0 0 65px; background: rgba(56,189,248,0.1); border: none;
+      color: #38bdf8; font-size: 1.8rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
-    .btn-nav-grande:hover:not(:disabled) { background: rgba(56,189,248,0.2); }
-    .btn-nav-grande:disabled { opacity: 0.1; cursor: default; }
-
+    .btn-nav-grande:disabled { opacity: 0.1; }
     .indicador-posicao {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      flex: 1; padding: 12px; text-align: center;
+      display: flex; flex-direction: column; justify-content: center;
     }
-    .status-mini { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: #fb923c; margin-bottom: 2px; }
-    .titulo-licao-nav { font-weight: 700; color: #f1f5f9; font-size: 0.9rem; }
+    .status-mini { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: #fb923c; }
 
-    /* ── Conteúdo da Lição ── */
-    .conteudo-licao-corpo { padding: 20px; }
-
-    .box-audio {
-      background: #020617;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(56,189,248,0.1);
+    /* ── Painel de Correção de Dados ── */
+    .painel-edicao {
+      background: rgba(251,146,60,0.1);
+      border: 1px solid rgba(251,146,60,0.3);
+      border-radius: 12px; padding: 12px; margin-bottom: 16px;
     }
+    .edicao-titulo { font-size: 0.75rem; font-weight: 800; color: #fb923c; text-transform: uppercase; margin-bottom: 10px; }
+    .edicao-campos { display: flex; gap: 10px; }
+    .edicao-grupo { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .edicao-grupo label { font-size: 0.7rem; color: #94a3b8; }
+    .edicao-grupo select, .edicao-grupo input {
+      background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+      color: #fff; padding: 8px; font-size: 0.85rem; outline: none;
+    }
+
+    /* ── Player e Comentário ── */
+    .box-audio { background: #020617; border-radius: 12px; padding: 10px; margin-bottom: 16px; }
     .box-audio audio { width: 100%; height: 35px; }
-
-    .comentario-aluno-box {
-      background: rgba(14,165,233,0.1);
-      border-left: 4px solid var(--color-accent);
-      padding: 12px;
-      border-radius: 4px 12px 12px 4px;
-      margin-bottom: 16px;
-      font-size: 0.9rem;
-      color: #cbd5e1;
-      font-style: italic;
-    }
-    .label-msg { font-size: 0.7rem; font-weight: 900; color: var(--color-accent); text-transform: uppercase; display: block; margin-bottom: 4px; }
-
-    .area-feedback-prof textarea {
-      width: 100%;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 12px;
-      color: #fff;
-      font-family: inherit;
-      margin-bottom: 12px;
-      resize: vertical;
+    .comentario-aluno {
+      background: rgba(14,165,233,0.1); border-left: 4px solid #0ea5e9;
+      padding: 12px; border-radius: 4px 12px 12px 4px; margin-bottom: 16px;
+      font-size: 0.9rem; color: #cbd5e1; font-style: italic;
     }
 
+    /* ── Ações ── */
+    .area-feedback textarea {
+      width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #334155;
+      border-radius: 12px; padding: 12px; color: #fff; margin-bottom: 12px; resize: none;
+    }
     .acoes-botoes { display: flex; gap: 10px; }
     .btn-acao {
-      flex: 1;
-      padding: 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      cursor: pointer;
-      border: none;
-      transition: 0.3s;
+      flex: 1; padding: 14px; border-radius: 10px; font-weight: 700;
+      text-transform: uppercase; font-size: 0.75rem; cursor: pointer; border: none;
     }
-    .btn-devolver { background: transparent; border: 2px solid var(--color-error); color: var(--color-error); }
-    .btn-aprovar { background: var(--color-success); color: #fff; }
-    .btn-acao:active { transform: scale(0.96); }
-
+    .btn-devolver { background: transparent; border: 2px solid #ef4444; color: #ef4444; }
+    .btn-aprovar { background: #22c55e; color: #fff; }
     .processada { opacity: 0.3; pointer-events: none; }
   `;
   document.head.appendChild(estilo);
 
   const container = document.createElement("div");
   container.innerHTML = `
-    <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
-        <h2 style="color:#22d3ee; font-size:1.2rem; margin:0;">🔔 Lições para Avaliar</h2>
-        <button id="btnRefresh" style="background:#0ea5e9; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:bold;">Atualizar</button>
-    </div>
+    <h2 style="color:#22d3ee; font-size:1.2rem; margin-bottom:15px;">🔔 Avaliação de Lições</h2>
     <div id="listaGeralLicoes"></div>
   `;
   destino.appendChild(container);
-
-  document.getElementById("btnRefresh").onclick = carregarSolicitacoes;
   carregarSolicitacoes();
 }
 
 async function carregarSolicitacoes() {
   const lista = document.getElementById("listaGeralLicoes");
-  lista.innerHTML = "<p style='color:#94a3b8;'>Buscando lições...</p>";
+  lista.innerHTML = "<p style='color:#94a3b8;'>Carregando...</p>";
 
   const q = query(collection(db, "licoes"), where("status", "==", "pendente"));
   const snap = await getDocs(q);
 
   if (snap.empty) {
-    lista.innerHTML = "<p style='color:#64748b;'>Nenhuma lição pendente no momento.</p>";
+    lista.innerHTML = "<p style='color:#64748b;'>Nenhuma lição pendente.</p>";
     return;
   }
 
-  // Agrupamento
   const licoes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   const porAluno = {};
   
-  licoes.forEach(l => {
-    if (!porAluno[l.alunoNome]) porAluno[l.alunoNome] = [];
-    porAluno[l.alunoNome].push(l);
-  });
+  for (const l of licoes) {
+    if (!porAluno[l.alunoNome]) {
+        const aSnap = await getDocs(query(collection(db, "alunos"), where("nome", "==", l.alunoNome)));
+        const aData = aSnap.empty ? {} : aSnap.docs[0].data();
+        porAluno[l.alunoNome] = { licoes: [], info: aData };
+    }
+    porAluno[l.alunoNome].licoes.push(l);
+  }
 
   renderizarGrupos(porAluno);
 }
@@ -183,99 +137,106 @@ function renderizarGrupos(porAluno) {
   const lista = document.getElementById("listaGeralLicoes");
   lista.innerHTML = "";
 
-  Object.entries(porAluno).forEach(([nome, licoesAluno]) => {
-    // Inicializa o índice de navegação se não existir
+  Object.entries(porAluno).forEach(([nome, dados]) => {
     if (estadoNavegacao[nome] === undefined) estadoNavegacao[nome] = 0;
-    
     const idx = estadoNavegacao[nome];
-    const item = licoesAluno[idx];
-    const total = licoesAluno.length;
+    const item = dados.licoes[idx];
+    const total = dados.licoes.length;
 
-    const divGrupo = document.createElement("div");
-    divGrupo.className = "grupo-aluno";
-    divGrupo.id = `grupo-${nome.replace(/\s/g, '')}`;
-
-    divGrupo.innerHTML = `
+    const div = document.createElement("div");
+    div.className = "grupo-aluno";
+    div.innerHTML = `
       <div class="grupo-aluno-header">
-        <div class="info-aluno">
-            <h3>${nome}</h3>
-            <span>Lições pendentes: ${total}</span>
-        </div>
+        <div class="info-aluno"><h3>${nome}</h3><span>${dados.info.instrumento || ''}</span></div>
+        <div style="background:#fbbf24; color:#000; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:800">${total} PENDENTES</div>
       </div>
 
       <div class="nav-licoes">
         <button class="btn-nav-grande" ${idx === 0 ? 'disabled' : ''} onclick="mudarLicao('${nome}', -1)">‹</button>
         <div class="indicador-posicao">
-            <span class="status-mini">Analisando ${idx + 1} de ${total}</span>
-            <span class="titulo-licao-nav">${item.tipo === 'leitura' ? 'Leitura' : 'Método'} #${item.numero}</span>
+            <span class="status-mini">Lição ${idx + 1} de ${total}</span>
+            <span style="font-weight:700; color:#fff">${item.tipo === 'leitura' ? (dados.info.leituraNome || 'Bona') : (dados.info.metodoNome || 'Método')} #${item.numero}</span>
         </div>
         <button class="btn-nav-grande" ${idx === total - 1 ? 'disabled' : ''} onclick="mudarLicao('${nome}', 1)">›</button>
       </div>
 
-      <div class="conteudo-licao-corpo" id="card-${item.id}">
-        <div class="box-audio">
-            <audio controls src="${item.audioURL}"></audio>
+      <div class="conteudo-licao-corpo" id="content-${item.id}">
+        <div class="painel-edicao">
+            <div class="edicao-titulo">✏️ Validar Dados do Aluno</div>
+            <div class="edicao-campos">
+                <div class="edicao-grupo">
+                    abel>Tipo</label>
+                    <select id="edit-tipo-${item.id}">
+                        <option value="leitura" ${item.tipo === 'leitura' ? 'selected' : ''}>Leitura</option>
+                        <option value="metodo" ${item.tipo === 'metodo' ? 'selected' : ''}>Método</option>
+                    </select>
+                </div>
+                <div class="edicao-grupo">
+                    abel>Número</label>
+                    <input type="number" id="edit-num-${item.id}" value="${item.numero}">
+                </div>
+            </div>
         </div>
 
-        ${item.texto ? `
-            <div class="comentario-aluno-box">
-                <span class="label-msg">Mensagem do Aluno</span>
-                "${item.texto}"
-            </div>
-        ` : ''}
+        <div class="box-audio"><audio controls src="${item.audioURL}"></audio></div>
 
-        <div class="area-feedback-prof">
-            <textarea id="feedback-${item.id}" rows="3" placeholder="Escreva um feedback ou orientação..."></textarea>
+        ${item.texto ? `<div class="comentario-aluno"><small style="display:block; color:#0ea5e9; font-weight:800; font-style:normal; margin-bottom:4px">ALUNO DISSE:</small>"${item.texto}"</div>` : ''}
+
+        <div class="area-feedback">
+            <textarea id="fb-${item.id}" rows="3" placeholder="Sua orientação ou parabéns..."></textarea>
             <div class="acoes-botoes">
-                <button class="btn-acao btn-devolver" onclick="decisaoLicao('${item.id}', false, '${item.alunoId}', '${nome}')">Devolver lição</button>
-                <button class="btn-acao btn-aprovar" onclick="decisaoLicao('${item.id}', true, '${item.alunoId}', '${nome}')">Aprovar Lição</button>
+                <button class="btn-acao btn-devolver" onclick="processar('${item.id}', false, '${item.alunoId}', '${nome}')">Devolver para nova tentativa</button>
+                <button class="btn-acao btn-aprovar" onclick="processar('${item.id}', true, '${item.alunoId}', '${nome}')">Aprovar Lição</button>
             </div>
         </div>
       </div>
     `;
-    lista.appendChild(divGrupo);
+    lista.appendChild(div);
   });
 }
 
-// Expõe para o escopo global para os onclicks funcionarem
-window.mudarLicao = (nome, direcao) => {
-    estadoNavegacao[nome] += direcao;
-    carregarSolicitacoes(); // Re-renderiza com o novo índice
-};
+window.mudarLicao = (nome, dir) => { estadoNavegacao[nome] += dir; carregarSolicitacoes(); };
 
-async function decisaoLicao(id, aprovado, alunoId, alunoNome) {
-    const feedback = document.getElementById(`feedback-${id}`).value;
-    const card = document.getElementById(`card-${id}`);
+async function processar(id, aprovado, alunoId, alunoNome) {
+    const card = document.getElementById(`content-${id}`);
+    const tipoFinal = document.getElementById(`edit-tipo-${id}`).value;
+    const numFinal = parseInt(document.getElementById(`edit-num-${id}`).value);
+    const feedback = document.getElementById(`fb-${id}`).value;
+
     card.classList.add("processada");
 
     try {
-        const ref = doc(db, "licoes", id);
-        const statusFinal = aprovado ? "aprovado" : "reprovado";
-        
-        await updateDoc(ref, {
-            status: statusFinal,
+        const agora = new Date();
+        const licaoRef = doc(db, "licoes", id);
+
+        await updateDoc(licaoRef, {
+            status: aprovado ? "aprovado" : "reprovado",
+            tipo: tipoFinal,
+            numero: numFinal,
             observacaoProfessor: feedback,
-            avaliadoEm: serverTimestamp()
+            avaliadoEm: Timestamp.fromDate(agora)
         });
 
         if (aprovado) {
-            // Atualiza o nível do aluno no cadastro dele
-            const licaoDoc = await getDoc(ref);
-            const dados = licaoDoc.data();
-            await updateDoc(doc(db, "alunos", alunoId), { [dados.tipo]: dados.numero });
-            
-            // Notificação Global
+            // Atualiza nível do aluno
+            await updateDoc(doc(db, "alunos", alunoId), { [tipoFinal]: numFinal });
+
+            // Snapshot Mensal
+            const chave = `${alunoId}_${agora.getFullYear()}_${String(agora.getMonth()+1).padStart(2,"0")}`;
+            await setDoc(doc(db, "snapshotsMensais", chave), {
+                alunoId, [tipoFinal]: numFinal, atualizadoEm: serverTimestamp()
+            }, { merge: true });
+
+            // Notificação
             await addDoc(collection(db, "notificacoes"), {
-                tipo: "nivel",
-                texto: `<strong>${alunoNome}</strong> avançou para a lição ${dados.numero}!`,
+                tipo: "nivel", icone: "🚀",
+                texto: `<strong>${alunoNome}</strong> avançou para o Nível ${numFinal}!`,
                 data: serverTimestamp()
             });
         }
 
-        // Remove a lição do array local e atualiza a tela
-        alert(aprovado ? "Lição aprovada com sucesso!" : "Lição devolvida para o aluno.");
+        alert(aprovado ? "✅ Aprovada!" : "↺ Devolvida!");
         carregarSolicitacoes();
-
     } catch (e) {
         console.error(e);
         card.classList.remove("processada");
@@ -283,11 +244,8 @@ async function decisaoLicao(id, aprovado, alunoId, alunoNome) {
 }
 
 export function mostrarPainelLicoes() {
-  const destino = document.getElementById("painelLicoesProf");
-  if (!destino) return;
-
-  if (!document.getElementById("listaGeralLicoes")) {
-    inserirPainel();
-  }
-  destino.style.display = destino.style.display === "none" ? "block" : "none";
+  const d = document.getElementById("painelLicoesProf");
+  if (!d) return;
+  if (!document.getElementById("listaGeralLicoes")) inserirPainel();
+  d.style.display = d.style.display === "none" ? "block" : "none";
 }
