@@ -16,7 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 // ─── Cache global para permitir re-render sem novo fetch ───────────────────────
-let _gruposCache = new Map(); // Map<alunoNome, { alunoId, instrumento, solfejoNome, metodoNome, leitura:[], metodo:[] }>
+let _gruposCache = new Map(); // Map<alunoNome, { alunoId, instrumento, solfejoNome, metodoNome, foto, leitura:[], metodo:[] }>
 
 // ─── ESTILOS ───────────────────────────────────────────────────────────────────
 function injetarEstilos() {
@@ -59,6 +59,11 @@ function injetarEstilos() {
       font-size: 1rem; font-weight: 900; color: #fff; flex-shrink: 0;
       border: 2px solid rgba(34,211,238,0.4);
       text-transform: uppercase;
+    }
+    .alc-avatar-img {
+      width: 42px; height: 42px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0;
+      border: 2px solid rgba(34,211,238,0.4);
     }
     .alc-info { flex: 1; min-width: 0; }
     .alc-nome { font-size: 0.95rem; font-weight: 700; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -231,6 +236,26 @@ function inicialAvatar(nome) {
   return (nome || "?").trim().charAt(0).toUpperCase();
 }
 
+/**
+ * Retorna o HTML do avatar:
+ * - Se o aluno tiver foto cadastrada no Firestore (campo "foto"),
+ *   exibe <img> com fallback automático para a inicial caso a URL esteja quebrada.
+ * - Caso contrário exibe div colorido com a inicial do nome.
+ */
+function htmlAvatar(nome, fotoURL) {
+  if (fotoURL) {
+    return `
+      <img
+        class="alc-avatar-img"
+        src="${fotoURL}"
+        alt="${nome}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="alc-avatar" style="display:none">${inicialAvatar(nome)}</div>
+    `;
+  }
+  return `<div class="alc-avatar">${inicialAvatar(nome)}</div>`;
+}
+
 // ─── RENDER DO CORPO DE UMA LIÇÃO ─────────────────────────────────────────────
 function htmlCorpoLicao(licao, idx, total, tipo, solfejoNome, metodoNome) {
   const nomeRef   = tipo === "leitura" ? (solfejoNome || "Bona") : (metodoNome || "N/A");
@@ -290,7 +315,7 @@ function htmlCorpoLicao(licao, idx, total, tipo, solfejoNome, metodoNome) {
 
 // ─── RENDER DO CARD DE UM ALUNO ───────────────────────────────────────────────
 function criarCardAluno(nomeAluno, grupo) {
-  const { alunoId, instrumento, solfejoNome, metodoNome, leitura, metodo } = grupo;
+  const { alunoId, instrumento, solfejoNome, metodoNome, foto, leitura, metodo } = grupo;
 
   // Ordena por data mais antiga primeiro
   leitura.sort((a, b) => new Date(a.criadoEm) - new Date(b.criadoEm));
@@ -298,14 +323,13 @@ function criarCardAluno(nomeAluno, grupo) {
 
   const temL = leitura.length > 0;
   const temM = metodo.length  > 0;
-  const tabInicialL = temL; // ativa leitura se tiver, senão método
+  const tabInicialL = temL;
 
   const card = document.createElement("div");
   card.className = "aluno-licao-card";
   card.dataset.alunoNome = nomeAluno;
 
-  // Estado interno
-  card._tabAtiva  = tabInicialL ? "leitura" : "metodo";
+  card._tabAtiva   = tabInicialL ? "leitura" : "metodo";
   card._idxLeitura = 0;
   card._idxMetodo  = 0;
 
@@ -313,7 +337,7 @@ function criarCardAluno(nomeAluno, grupo) {
   const header = document.createElement("div");
   header.className = "alc-header";
   header.innerHTML = `
-    <div class="alc-avatar">${inicialAvatar(nomeAluno)}</div>
+    ${htmlAvatar(nomeAluno, foto)}
     <div class="alc-info">
       <div class="alc-nome">${nomeAluno}</div>
       <div class="alc-instr">${instrumento || "N/A"}</div>
@@ -343,9 +367,8 @@ function criarCardAluno(nomeAluno, grupo) {
   body.className = "alc-body";
   card.appendChild(body);
 
-  // ── Função de render do corpo ──
   function renderCorpo() {
-    const tipo = card._tabAtiva;
+    const tipo  = card._tabAtiva;
     const lista = tipo === "leitura" ? leitura : metodo;
     const idx   = tipo === "leitura" ? card._idxLeitura : card._idxMetodo;
 
@@ -358,7 +381,6 @@ function criarCardAluno(nomeAluno, grupo) {
     vincularEventosCorpo(body, card, lista, tipo);
   }
 
-  // ── Eventos das tabs ──
   tabs.querySelectorAll(".alc-tab").forEach(btn => {
     btn.onclick = () => {
       if (btn.disabled) return;
@@ -373,18 +395,16 @@ function criarCardAluno(nomeAluno, grupo) {
   return card;
 }
 
-// ─── VINCULAR EVENTOS DO CORPO (setas + aprovar/reprovar) ────────────────────
+// ─── VINCULAR EVENTOS DO CORPO ────────────────────────────────────────────────
 function vincularEventosCorpo(body, card, lista, tipo) {
   const idxKey = tipo === "leitura" ? "_idxLeitura" : "_idxMetodo";
 
-  // Setas
   const btnPrev = body.querySelector(".btn-prev");
   const btnNext = body.querySelector(".btn-next");
 
   if (btnPrev) btnPrev.onclick = () => { card[idxKey]--; reRenderCorpo(body, card, lista, tipo); };
   if (btnNext) btnNext.onclick = () => { card[idxKey]++; reRenderCorpo(body, card, lista, tipo); };
 
-  // Aprovar / Reprovar
   const btnAprovar  = body.querySelector(".btn-aprovar-lic");
   const btnReprovar = body.querySelector(".btn-reprovar-lic");
 
@@ -405,7 +425,6 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
   const idx     = card[idxKey];
   const licao   = lista[idx];
 
-  const corrDiv  = body.querySelector(".alc-correcao");
   const selTipo  = body.querySelector(".sel-tipo-corr");
   const inpNum   = body.querySelector(".inp-num-corr");
   const txtFeed  = body.querySelector(".txt-feedback");
@@ -420,7 +439,6 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
   const alunoNome = card.dataset.alunoNome;
   const agora     = new Date();
 
-  // Desabilita botões imediatamente
   body.querySelectorAll(".alc-btn").forEach(b => b.disabled = true);
 
   const dadosCorrigidos = {
@@ -440,7 +458,6 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
       avaliadoEm:   Timestamp.fromDate(agora)
     });
 
-    // Snapshot mensal
     const ano   = agora.getFullYear();
     const mes   = agora.getMonth() + 1;
     const chave = `${alunoId}_${ano}_${String(mes).padStart(2, "0")}`;
@@ -489,10 +506,8 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
     });
   }
 
-  // Remove lição da lista local e avança o índice
   lista.splice(idx, 1);
 
-  // Atualiza badge da tab
   const tabBtn = card.querySelector(`.alc-tab[data-tipo="${tipo}"]`);
   const badge  = tabBtn?.querySelector(".tab-badge");
   if (badge) {
@@ -505,7 +520,6 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
     }
   }
 
-  // Atualiza chip no header
   const chipSel = tipo === "leitura" ? ".chip-l" : ".chip-m";
   const chip = card.querySelector(chipSel);
   if (chip) {
@@ -513,11 +527,12 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
     else chip.textContent = (tipo === "leitura" ? "📘 " : "🎵 ") + lista.length;
   }
 
-  // Navega para próxima lição ou exibe mensagem de concluído
   if (lista.length === 0) {
-    // Tenta trocar para a outra aba
     const outroTipo  = tipo === "leitura" ? "metodo" : "leitura";
-    const outraLista = outroTipo === "leitura" ? _gruposCache.get(card.dataset.alunoNome).leitura : _gruposCache.get(card.dataset.alunoNome).metodo;
+    const outraLista = outroTipo === "leitura"
+      ? _gruposCache.get(card.dataset.alunoNome).leitura
+      : _gruposCache.get(card.dataset.alunoNome).metodo;
+
     if (outraLista.length > 0) {
       card._tabAtiva = outroTipo;
       const outroTab = card.querySelector(`.alc-tab[data-tipo="${outroTipo}"]`);
@@ -574,7 +589,6 @@ async function carregarSolicitacoes() {
     return;
   }
 
-  // Busca dados dos alunos em paralelo
   const itens = await Promise.all(
     snap.docs.map(async (docSnap) => {
       const d = { id: docSnap.id, ...docSnap.data() };
@@ -584,19 +598,20 @@ async function carregarSolicitacoes() {
         d.instrumento = a.instrumento || "N/A";
         d.solfejoNome = a.leituraNome || a.solfejoNome || "Bona";
         d.metodoNome  = a.metodoNome  || "N/A";
+        d.foto        = a.foto        || "";   // ← campo de foto do aluno
       }
       return d;
     })
   );
 
-  // Agrupa por aluno, separa leitura e método
   itens.forEach(item => {
     if (!_gruposCache.has(item.alunoNome)) {
       _gruposCache.set(item.alunoNome, {
-        alunoId:    item.alunoId,
+        alunoId:     item.alunoId,
         instrumento: item.instrumento || "N/A",
         solfejoNome: item.solfejoNome || "Bona",
         metodoNome:  item.metodoNome  || "N/A",
+        foto:        item.foto        || "",   // ← armazenado no cache
         leitura: [],
         metodo:  []
       });
@@ -606,7 +621,6 @@ async function carregarSolicitacoes() {
     else                         g.metodo.push(item);
   });
 
-  // Ordena alunos por nome e renderiza
   const nomesOrdenados = [..._gruposCache.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
 
   lista.innerHTML = "";
