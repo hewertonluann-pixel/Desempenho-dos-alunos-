@@ -1,509 +1,698 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jogo de Compassos</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0f0f14;
-      --surface: #1a1a24;
-      --card: #22223a;
-      --accent: #7c6af7;
-      --accent2: #f7c26a;
-      --accent3: #6af7b8;
-      --text: #e8e8f0;
-      --muted: #9090b0;
-      --radius: 14px;
-      --sharp: #f76a6a;
-      --ok: #6af7b8;
-      --err: #f76a6a;
-    }
-    body {
-      background: var(--bg); color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      font-size: 16px; line-height: 1.5; min-height: 100vh;
-      display: flex; flex-direction: column;
-    }
-    header {
-      background: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-      padding: 1.25rem 1rem 1rem; text-align: center;
-      border-bottom: 2px solid var(--accent);
-    }
-    header h1 {
-      font-size: 1.5rem; font-weight: 800;
-      background: linear-gradient(90deg,var(--accent),var(--accent3));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    header p { color: var(--muted); font-size: 0.82rem; margin-top: 0.25rem; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compassos — Jogo de Teoria Musical</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    main {
-      flex: 1; padding: 1rem;
-      max-width: 480px; width: 100%; margin: 0 auto;
-      display: flex; flex-direction: column; gap: 0.9rem;
-    }
+  :root {
+    --bg: #1a1a2e;
+    --card: #16213e;
+    --btn: #0f3460;
+    --btn-hover: #1a4a8a;
+    --accent: #e94560;
+    --green: #2ecc71;
+    --text: #eaeaea;
+    --subtext: #a0a0c0;
+    --radius: 14px;
+    --heart: #e94560;
+  }
 
-    /* ── HUD ── */
-    .hud {
-      display: flex; justify-content: space-between; align-items: center;
-      background: var(--surface); border-radius: 12px; padding: 0.55rem 0.9rem;
-      border: 1px solid #2a2a40;
-    }
-    .hud-item { text-align: center; }
-    .hud-val { font-size: 1.3rem; font-weight: 800; color: var(--accent2); }
-    .hud-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
-    .hud-sep { width: 1px; height: 2rem; background: #2a2a40; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px;
+  }
 
-    /* ── PROGRESSO ── */
-    .progress-bar {
-      height: 6px; background: #2a2a40; border-radius: 4px; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3));
-      border-radius: 4px; transition: width .4s ease;
-    }
+  /* ── TELA INICIAL ── */
+  #tela-inicio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+    min-height: 90vh;
+    animation: fadeIn .5s ease;
+  }
+  #tela-inicio h1 { font-size: clamp(1.6rem, 5vw, 2.6rem); color: var(--accent); }
+  #tela-inicio p  { color: var(--subtext); font-size: clamp(.9rem, 2.5vw, 1.1rem); max-width: 500px; line-height: 1.6; }
+  .btn-primario {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, opacity .15s;
+    margin-top: 10px;
+  }
+  .btn-primario:hover { transform: scale(1.05); opacity: .9; }
 
-    /* ── CARD DA QUESTÃO ── */
-    .question-card {
-      background: var(--card); border-radius: var(--radius);
-      border: 1px solid #2e2e48; padding: 1.25rem 1rem;
-      text-align: center;
-    }
-    .q-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+  .back-link {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: #e2e8f0;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.18s;
+    z-index: 100;
+  }
+  .back-link:hover { background: rgba(255,255,255,0.16); }
 
-    /* ── FÓRMULA DO COMPASSO ── */
-    .time-sig {
-      display: inline-flex; flex-direction: column; align-items: center;
-      line-height: 1; margin: 0.5rem auto 0.9rem;
-      border-left: 3px solid var(--accent); padding-left: 0.5rem;
-    }
-    .ts-num, .ts-den {
-      font-size: 3.2rem; font-weight: 900; font-family: 'Georgia', serif;
-      color: var(--text); line-height: 1;
-    }
-    .ts-div { width: 2.2rem; height: 3px; background: var(--text); margin: 0.1rem 0; }
+  /* ── TELA JOGO ── */
+  #tela-jogo {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 680px;
+    gap: 18px;
+    animation: fadeIn .4s ease;
+  }
 
-    /* ── FIGURAS (SVG) ── */
-    .figures-row {
-      display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;
-      margin-bottom: 0.5rem;
-    }
-    .fig-block { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
-    .fig-name { font-size: 0.62rem; color: var(--muted); }
+  /* Header */
+  .hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 10px 18px;
+  }
+  .corações { display: flex; gap: 6px; font-size: clamp(1.2rem, 4vw, 1.6rem); }
+  .coração { transition: transform .2s; }
+  .coração.perdido { opacity: .2; }
+  .fase-badge {
+    background: var(--accent);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: .8rem;
+    font-weight: 700;
+  }
+  .pontuacao { font-size: .95rem; color: var(--subtext); }
 
-    /* ── PERGUNTAS ── */
-    .questions { display: flex; flex-direction: column; gap: 0.65rem; }
-    .q-block { background: var(--surface); border-radius: 10px; padding: 0.75rem; border: 1px solid #2a2a40; }
-    .q-title { font-size: 0.75rem; font-weight: 700; color: var(--accent3); margin-bottom: 0.5rem; }
-    .opts { display: flex; gap: 0.45rem; flex-wrap: wrap; }
-    .opt-btn {
-      flex: 1 1 auto; min-width: 60px;
-      padding: 0.5rem 0.5rem; border-radius: 8px; border: 1.5px solid #3a3a58;
-      background: var(--card); color: var(--text); font-size: 0.82rem; font-weight: 600;
-      cursor: pointer; transition: all .18s; white-space: nowrap;
-    }
-    .opt-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-    .opt-btn.selected { border-color: var(--accent); background: rgba(124,106,247,0.18); color: var(--accent); }
-    .opt-btn.correct { border-color: var(--ok) !important; background: rgba(106,247,184,0.15) !important; color: var(--ok) !important; }
-    .opt-btn.wrong   { border-color: var(--err) !important; background: rgba(247,106,106,0.15) !important; color: var(--err) !important; }
-    .opt-btn:disabled { cursor: default; opacity: 0.85; }
+  /* Fórmula de Compasso */
+  .formula-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px 40px;
+    text-align: center;
+    width: 100%;
+  }
+  .formula-card .label {
+    font-size: .8rem;
+    color: var(--subtext);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .formula-display {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: clamp(2.5rem, 10vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1;
+    gap: 4px;
+  }
+  .formula-sep {
+    width: 100%;
+    height: 3px;
+    background: var(--text);
+    border-radius: 2px;
+  }
 
-    /* ── BOTÃO CONFIRMAR / PRÓXIMO ── */
-    .action-btn {
-      width: 100%; padding: 0.85rem; border-radius: var(--radius); border: none;
-      font-size: 1rem; font-weight: 800; cursor: pointer; transition: all .2s;
-    }
-    .action-btn.confirm {
-      background: linear-gradient(135deg,var(--accent),#5a4fd4);
-      color: #fff; box-shadow: 0 4px 18px rgba(124,106,247,.35);
-    }
-    .action-btn.confirm:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
-    .action-btn.next {
-      background: linear-gradient(135deg,var(--accent3),#3ab87a);
-      color: #111;
-    }
+  /* Pergunta */
+  .pergunta-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    width: 100%;
+    text-align: center;
+  }
+  .pergunta-card h2 {
+    font-size: clamp(1rem, 3.5vw, 1.25rem);
+    font-weight: 600;
+    color: var(--text);
+  }
+  .pergunta-card p {
+    font-size: .85rem;
+    color: var(--subtext);
+    margin-top: 4px;
+  }
+  .etapa-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .etapa-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--btn);
+    transition: background .3s;
+  }
+  .etapa-dot.ativa { background: var(--accent); }
+  .etapa-dot.feita { background: var(--green); }
 
-    /* ── FEEDBACK ── */
-    .feedback {
-      border-radius: 10px; padding: 0.85rem 1rem;
-      font-size: 0.88rem; line-height: 1.6; display: none;
-    }
-    .feedback.ok  { background: rgba(106,247,184,0.1); border: 1px solid rgba(106,247,184,0.3); color: var(--ok); }
-    .feedback.err { background: rgba(247,106,106,0.1); border: 1px solid rgba(247,106,106,0.3); color: var(--err); }
-    .feedback strong { color: var(--text); }
+  /* Grid de Botões */
+  .grid-figuras {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+  }
+  @media (max-width: 400px) {
+    .grid-figuras { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  }
 
-    /* ── TELA FINAL ── */
-    #end-screen {
-      display: none; text-align: center;
-      background: var(--card); border-radius: var(--radius);
-      border: 1px solid #2e2e48; padding: 2rem 1rem;
-    }
-    .end-score { font-size: 3rem; font-weight: 900; color: var(--accent2); }
-    .end-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; margin-bottom: 1.5rem; }
-    .stars { font-size: 2rem; margin-bottom: 0.5rem; }
-    .restart-btn {
-      display: inline-block; padding: 0.85rem 2rem; border-radius: var(--radius);
-      background: linear-gradient(135deg,var(--accent),#5a4fd4);
-      color: #fff; font-size: 1rem; font-weight: 800; border: none; cursor: pointer;
-      box-shadow: 0 4px 18px rgba(124,106,247,.35);
-    }
-    .back-link {
-      display: inline-block; margin-top: 0.75rem;
-      color: var(--muted); font-size: 0.82rem; text-decoration: none;
-    }
-    .back-link:hover { color: var(--accent); }
+  .figura-btn {
+    background: var(--btn);
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    padding: 14px 8px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform .15s, border-color .2s, background .2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .figura-btn:hover  { transform: scale(1.04); border-color: var(--subtext); }
+  .figura-btn:active { transform: scale(.97); }
+  .figura-btn svg    { width: clamp(28px, 7vw, 44px); height: clamp(36px, 9vw, 54px); }
+  .figura-btn span   { font-size: clamp(.65rem, 2vw, .8rem); color: var(--subtext); text-align: center; }
 
-    /* hidden */
-    .hidden { display: none !important; }
+  .figura-btn.certo  {
+    border-color: var(--green);
+    background: rgba(46,204,113,.15);
+    animation: pop .3s ease;
+  }
+  .figura-btn.errado {
+    border-color: var(--accent);
+    background: rgba(233,69,96,.15);
+    animation: shake .35s ease;
+  }
 
-    footer {
-      text-align: center; color: var(--muted); font-size: 0.72rem;
-      padding: 1rem; border-top: 1px solid #2a2a3a;
-    }
-  </style>
+  /* Feedback flutuante */
+  .feedback {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 4rem;
+    pointer-events: none;
+    z-index: 99;
+    transition: transform .2s, opacity .2s;
+  }
+  .feedback.show { transform: translate(-50%, -50%) scale(1); }
+  .feedback.hide { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+
+  /* ── TELA TRANSIÇÃO ── */
+  #tela-transicao {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+    min-height: 90vh;
+    animation: fadeIn .5s ease;
+  }
+  #tela-transicao h2 { font-size: clamp(1.4rem, 5vw, 2rem); color: var(--green); }
+  #tela-transicao p  { color: var(--subtext); max-width: 440px; line-height: 1.7; font-size: clamp(.9rem, 2.5vw, 1rem); }
+  .destaque { color: var(--accent); font-weight: 700; }
+
+  /* ── TELA FIM ── */
+  #tela-fim {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+    min-height: 90vh;
+    animation: fadeIn .5s ease;
+  }
+  #tela-fim .emoji-fim { font-size: 4rem; }
+  #tela-fim h2 { font-size: clamp(1.5rem, 5vw, 2.2rem); }
+  #tela-fim .score-final { font-size: 1.1rem; color: var(--subtext); }
+
+  /* ── ANIMAÇÕES ── */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+  }
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes heartbeat {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.3); }
+  }
+</style>
 </head>
 <body>
 
-<header>
-  <h1>🎼 Jogo de Compassos</h1>
-  <p>Identifique o tipo, a U.T. e a U.C. de cada fórmula</p>
-</header>
+<a href="atividades.html" class="back-link">← Atividades</a>
 
-<main>
-  <!-- HUD -->
+<!-- ══ TELA INICIAL ══ -->
+<div id="tela-inicio">
+  <div style="font-size:3.5rem">🎵</div>
+  <h1>Compassos</h1>
+  <p>Aprenda fórmulas de compasso de forma interativa. Identifique a <strong>unidade de tempo</strong> e a <strong>unidade de compasso</strong> para cada fórmula apresentada.</p>
+  <p style="font-size:.85rem; color:var(--subtext)">❤️ ❤️ ❤️ &nbsp;·&nbsp; 3 tentativas por compasso &nbsp;·&nbsp; 2 fases</p>
+  <button class="btn-primario" onclick="iniciarJogo()">Começar →</button>
+</div>
+
+<!-- ══ TELA JOGO ══ -->
+<div id="tela-jogo">
   <div class="hud">
-    <div class="hud-item">
-      <div class="hud-val" id="score">0</div>
-      <div class="hud-label">Pontos</div>
+    <div class="corações" id="corações">
+      <span class="coração">❤️</span>
+      <span class="coração">❤️</span>
+      <span class="coração">❤️</span>
     </div>
-    <div class="hud-sep"></div>
-    <div class="hud-item">
-      <div class="hud-val" id="q-num">1</div>
-      <div class="hud-label">Questão</div>
-    </div>
-    <div class="hud-sep"></div>
-    <div class="hud-item">
-      <div class="hud-val" id="streak">0🔥</div>
-      <div class="hud-label">Sequência</div>
+    <span class="fase-badge" id="fase-badge">Fase 1</span>
+    <span class="pontuacao">⭐ <span id="pontuacao">0</span></span>
+  </div>
+
+  <div class="formula-card">
+    <div class="label">Fórmula de Compasso</div>
+    <div class="formula-display">
+      <span id="numerador">4</span>
+      <div class="formula-sep"></div>
+      <span id="denominador">4</span>
     </div>
   </div>
 
-  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
-
-  <!-- QUESTÃO -->
-  <div id="game-area">
-    <div class="question-card">
-      <div class="q-label">Fórmula de compasso</div>
-      <div class="time-sig" id="ts-display">
-        <span class="ts-num" id="ts-top">4</span>
-        <div class="ts-div"></div>
-        <span class="ts-den" id="ts-bot">4</span>
-      </div>
-      <div class="figures-row" id="fig-row"></div>
-      <div class="q-label" id="q-hint" style="margin-top:0;"></div>
+  <div class="pergunta-card">
+    <h2 id="titulo-pergunta">Qual é a unidade de TEMPO?</h2>
+    <p id="subtitulo-pergunta">Escolha a figura musical que corresponde ao denominador</p>
+    <div class="etapa-indicator">
+      <div class="etapa-dot ativa" id="dot-0"></div>
+      <div class="etapa-dot"      id="dot-1"></div>
     </div>
-
-    <div class="questions">
-      <!-- Q1: tipo -->
-      <div class="q-block">
-        <div class="q-title">1. Tipo de compasso</div>
-        <div class="opts" id="opts-tipo">
-          <button class="opt-btn" data-q="tipo" data-v="binário">Binário</button>
-          <button class="opt-btn" data-q="tipo" data-v="ternário">Ternário</button>
-          <button class="opt-btn" data-q="tipo" data-v="quaternário">Quaternário</button>
-        </div>
-      </div>
-      <!-- Q2: U.T. -->
-      <div class="q-block">
-        <div class="q-title">2. Unidade de Tempo (U.T.)</div>
-        <div class="opts" id="opts-ut"></div>
-      </div>
-      <!-- Q3: U.C. -->
-      <div class="q-block">
-        <div class="q-title">3. Unidade de Compasso (U.C.)</div>
-        <div class="opts" id="opts-uc"></div>
-      </div>
-    </div>
-
-    <div class="feedback" id="feedback"></div>
-    <button class="action-btn confirm" id="confirm-btn" disabled>Confirmar</button>
-    <button class="action-btn next hidden" id="next-btn">Próxima →</button>
   </div>
 
-  <!-- TELA FINAL -->
-  <div id="end-screen">
-    <div class="stars" id="stars"></div>
-    <div class="end-score" id="final-score">0</div>
-    <div class="end-label" id="final-label">pontos</div>
-    <button class="restart-btn" onclick="startGame()">🔄 Jogar novamente</button><br>
-    <a class="back-link" href="tetracordes.html">← Voltar ao conteúdo</a>
-  </div>
-</main>
+  <div class="grid-figuras" id="grid-figuras"></div>
+</div>
 
-<footer>🎵 Teoria Musical — Fórmulas de Compasso</footer>
+<!-- ══ TELA TRANSIÇÃO (fase 2) ══ -->
+<div id="tela-transicao">
+  <div style="font-size:3rem">🎉</div>
+  <h2>Fase 1 Concluída!</h2>
+  <p>
+    Agora vêm os <span class="destaque">compassos ternários</span> — aqueles com numerador <span class="destaque">3</span>.<br><br>
+    Nesses compassos, a <strong>unidade de compasso</strong> é sempre uma <span class="destaque">figura pontuada</span> (equivale a 1,5× a unidade de tempo), pois 3 tempos não cabem em uma figura simples.
+  </p>
+  <button class="btn-primario" onclick="tocarTransicao(); iniciarFase2()">Continuar →</button>
+</div>
 
+<!-- ══ TELA FIM ══ -->
+<div id="tela-fim">
+  <div class="emoji-fim" id="emoji-fim">🏆</div>
+  <h2 id="titulo-fim">Parabéns!</h2>
+  <p class="score-final" id="score-final">Você completou todos os compassos!</p>
+  <p id="pontuacao-final" style="font-size:1.4rem; font-weight:700; color:var(--accent)"></p>
+  <button class="btn-primario" onclick="reiniciar()">Jogar Novamente</button>
+  <a href="atividades.html" style="color:var(--subtext); font-size:.9rem; text-decoration:none; margin-top:4px;">← Voltar às Atividades</a>
+</div>
+
+<!-- Feedback flutuante -->
+<div class="feedback" id="feedback"></div>
+
+<!-- ══ AUDIO ENGINE (Web Audio API) ══ -->
 <script>
-// ── FIGURAS ─────────────────────────────────────────────────────────────────
-// SVG minimalista de cada figura musical (branca = den 2, negra = den 4, colcheia = den 8, semínima com ponto = den 4.)
-const FIGURES = {
-  // redonda
-  '1':  { name: 'Redonda',   svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="14" cy="36" rx="11" ry="7" fill="none" stroke="#e8e8f0" stroke-width="2.5"/></svg>` },
-  // branca
-  '2':  { name: 'Branca',    svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="14" cy="36" rx="9" ry="6" fill="none" stroke="#e8e8f0" stroke-width="2.2"/><line x1="23" y1="36" x2="23" y2="6" stroke="#e8e8f0" stroke-width="2.2"/></svg>` },
-  // negra
-  '4':  { name: 'Negra',     svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="14" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 14 37)"/><line x1="22" y1="34" x2="22" y2="6" stroke="#e8e8f0" stroke-width="2.2"/></svg>` },
-  // colcheia
-  '8':  { name: 'Colcheia',  svg: `<svg width="28" height="48" viewBox="0 0 28 48"><ellipse cx="13" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 13 37)"/><line x1="21" y1="34" x2="21" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><path d="M21 6 Q34 12 24 22" fill="none" stroke="#e8e8f0" stroke-width="2.2"/></svg>` },
-  // semínima pontuada (negra pontuada) = 4.
-  '4.': { name: 'Negra pont.',svg: `<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="13" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 13 37)"/><line x1="21" y1="34" x2="21" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><circle cx="28" cy="37" r="2.5" fill="#e8e8f0"/></svg>` },
-  // branca pontuada = 2.
-  '2.': { name: 'Branca pont.',svg:`<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="13" cy="36" rx="9" ry="6" fill="none" stroke="#e8e8f0" stroke-width="2.2"/><line x1="22" y1="36" x2="22" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><circle cx="29" cy="36" r="2.5" fill="#e8e8f0"/></svg>` },
-  // semibreve pontuada = 1.
-  '1.': { name: 'Redonda pont.',svg:`<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="13" cy="36" rx="11" ry="7" fill="none" stroke="#e8e8f0" stroke-width="2.5"/><circle cx="29" cy="36" r="2.5" fill="#e8e8f0"/></svg>` },
-  // colcheia pontuada = 8.
-  '8.': { name: 'Colcheia pont.',svg:`<svg width="34" height="48" viewBox="0 0 34 48"><ellipse cx="12" cy="37" rx="9" ry="6" fill="#e8e8f0" transform="rotate(-15 12 37)"/><line x1="20" y1="34" x2="20" y2="6" stroke="#e8e8f0" stroke-width="2.2"/><path d="M20 6 Q33 12 23 22" fill="none" stroke="#e8e8f0" stroke-width="2.2"/><circle cx="28" cy="37" r="2.5" fill="#e8e8f0"/></svg>` },
-};
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
 
-// Todas as figuras possíveis como opções de resposta
-const ALL_FIGS = ['1.','1','2.','2','4.','4','8.','8'];
-const FIG_LABEL = { '1':'Redonda','2':'Branca','4':'Negra','8':'Colcheia',
-                    '1.':'Redonda pont.','2.':'Branca pont.','4.':'Negra pont.','8.':'Colcheia pont.' };
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  return audioCtx;
+}
 
-// ── BANCO DE QUESTÕES ─────────────────────────────────────────────────────
-// ut = figura da unidade de tempo, uc = figura da unidade de compasso
-// tipo baseado no numerador: 2=bin, 3=ter, 4=qua, 6/9/12=compostos→ternário/quaternário subdivido
-const ALL_QUESTIONS = [
-  // Simples binários (2 pulsos)
-  { top:2, bot:4, tipo:'binário',     ut:'4',  uc:'2',  hint:'2 tempos, cada tempo = negra' },
-  { top:2, bot:2, tipo:'binário',     ut:'2',  uc:'1',  hint:'2 tempos, cada tempo = branca (alla breve)' },
-  { top:2, bot:8, tipo:'binário',     ut:'8',  uc:'4',  hint:'2 tempos, cada tempo = colcheia' },
-  // Simples ternários (3 pulsos)
-  { top:3, bot:4, tipo:'ternário',    ut:'4',  uc:'2.', hint:'3 tempos, cada tempo = negra' },
-  { top:3, bot:2, tipo:'ternário',    ut:'2',  uc:'1.', hint:'3 tempos, cada tempo = branca' },
-  { top:3, bot:8, tipo:'ternário',    ut:'8',  uc:'4.', hint:'3 tempos, cada tempo = colcheia' },
-  // Simples quaternários (4 pulsos)
-  { top:4, bot:4, tipo:'quaternário', ut:'4',  uc:'1',  hint:'4 tempos, cada tempo = negra (C)' },
-  { top:4, bot:2, tipo:'quaternário', ut:'2',  uc:'1.', hint:'4 tempos, cada tempo = branca' },
-  { top:4, bot:8, tipo:'quaternário', ut:'8',  uc:'2.', hint:'4 tempos, cada tempo = colcheia' },
-  // Compostos (numerador 6, 9, 12)
-  { top:6, bot:8, tipo:'binário',     ut:'4.', uc:'2.', hint:'Composto binário: 2 pulsos pontuados, cada um vale 3 colcheias' },
-  { top:6, bot:4, tipo:'binário',     ut:'2.', uc:'1.', hint:'Composto binário: 2 pulsos de branca pontuada' },
-  { top:9, bot:8, tipo:'ternário',    ut:'4.', uc:'2.', hint:'Composto ternário: 3 pulsos pontuados de colcheia' },
-  { top:9, bot:4, tipo:'ternário',    ut:'2.', uc:'1.', hint:'Composto ternário: 3 pulsos de branca pontuada' },
-  { top:12,bot:8, tipo:'quaternário', ut:'4.', uc:'1.', hint:'Composto quaternário: 4 pulsos pontuados' },
-  { top:12,bot:4, tipo:'quaternário', ut:'2.', uc:'2.', hint:'Composto quaternário: 4 pulsos de branca pontuada' },
+function tocarAcerto() {
+  const ctx = getAudioCtx();
+  [392, 523].forEach((freq, i) => {
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+    gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+    gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + i * 0.12 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.25);
+    osc.start(ctx.currentTime + i * 0.12);
+    osc.stop(ctx.currentTime + i * 0.12 + 0.28);
+  });
+}
+
+function tocarErro() {
+  const ctx = getAudioCtx();
+  const osc  = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(300, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.3);
+  gain.gain.setValueAtTime(0.25, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.38);
+}
+
+function tocarVitoria() {
+  const ctx = getAudioCtx();
+  [{freq:261,t:0.00},{freq:329,t:0.15},{freq:392,t:0.30},{freq:523,t:0.50}]
+    .forEach(({freq, t}) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + t);
+      gain.gain.setValueAtTime(0, ctx.currentTime + t);
+      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.35);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.38);
+    });
+}
+
+function tocarTransicao() {
+  const ctx = getAudioCtx();
+  [261, 329, 392].forEach((freq, i) => {
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.18);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.3);
+    osc.start(ctx.currentTime + i * 0.18);
+    osc.stop(ctx.currentTime + i * 0.18 + 0.35);
+  });
+}
+</script>
+
+<!-- ══ JOGO ══ -->
+<script>
+const FIGURAS = [
+  {
+    id: 'semibreve', nome: 'Semibreve',
+    svg: `<svg viewBox="0 0 40 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="20" cy="28" rx="14" ry="9" stroke="#eaeaea" stroke-width="3" fill="none"/>
+      <ellipse cx="20" cy="28" rx="7"  ry="4"  fill="#1a1a2e" stroke="none"/>
+    </svg>`
+  },
+  {
+    id: 'minima', nome: 'Mínima',
+    svg: `<svg viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="40" rx="12" ry="8" stroke="#eaeaea" stroke-width="2.5" fill="none" transform="rotate(-15 18 40)"/>
+      <line x1="30" y1="38" x2="30" y2="6" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
+    id: 'seminima', nome: 'Semínima',
+    svg: `<svg viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="40" rx="12" ry="8" fill="#eaeaea" transform="rotate(-15 18 40)"/>
+      <line x1="30" y1="38" x2="30" y2="6" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
+    id: 'colcheia', nome: 'Colcheia',
+    svg: `<svg viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="16" cy="42" rx="11" ry="7" fill="#eaeaea" transform="rotate(-15 16 42)"/>
+      <line x1="27" y1="40" x2="27" y2="6" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M27 6 Q42 14 34 26" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    </svg>`
+  },
+  {
+    id: 'semicolcheia', nome: 'Semicolcheia',
+    svg: `<svg viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="16" cy="42" rx="11" ry="7" fill="#eaeaea" transform="rotate(-15 16 42)"/>
+      <line x1="27" y1="40" x2="27" y2="6" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M27 6  Q42 14 34 24" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M27 14 Q42 22 34 32" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    </svg>`
+  },
+  {
+    id: 'fusa', nome: 'Fusa',
+    svg: `<svg viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="16" cy="42" rx="11" ry="7" fill="#eaeaea" transform="rotate(-15 16 42)"/>
+      <line x1="27" y1="40" x2="27" y2="4" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M27 4  Q42 12 34 22" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M27 12 Q42 20 34 30" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path d="M27 20 Q42 28 34 38" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    </svg>`
+  },
+  {
+    id: 'minima_pont', nome: 'Mínima Pont.',
+    svg: `<svg viewBox="0 0 44 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="40" rx="12" ry="8" stroke="#eaeaea" stroke-width="2.5" fill="none" transform="rotate(-15 18 40)"/>
+      <line x1="30" y1="38" x2="30" y2="6" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="38" cy="36" r="3" fill="#eaeaea"/>
+    </svg>`
+  },
+  {
+    id: 'seminima_pont', nome: 'Semínima Pont.',
+    svg: `<svg viewBox="0 0 44 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="40" rx="12" ry="8" fill="#eaeaea" transform="rotate(-15 18 40)"/>
+      <line x1="30" y1="38" x2="30" y2="6" stroke="#eaeaea" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="38" cy="36" r="3" fill="#eaeaea"/>
+    </svg>`
+  },
+  {
+    id: 'semibreve_pont', nome: 'Semibreve Pont.',
+    svg: `<svg viewBox="0 0 48 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="20" cy="28" rx="14" ry="9" stroke="#eaeaea" stroke-width="3" fill="none"/>
+      <ellipse cx="20" cy="28" rx="7"  ry="4"  fill="#1a1a2e" stroke="none"/>
+      <circle cx="40" cy="26" r="3.5" fill="#eaeaea"/>
+    </svg>`
+  },
 ];
 
-// ── ESTADO DO JOGO ───────────────────────────────────────────────────────
-const TOTAL = 10;
-let questions, current, score, streak, answers;
+const COMPASSOS_FASE1 = [
+  { num:2, den:4, formula:'2/4', unidadeTempo:'seminima',    unidadeCompasso:'minima' },
+  { num:4, den:4, formula:'4/4', unidadeTempo:'seminima',    unidadeCompasso:'semibreve' },
+  { num:2, den:2, formula:'2/2', unidadeTempo:'minima',      unidadeCompasso:'semibreve' },
+  { num:4, den:8, formula:'4/8', unidadeTempo:'colcheia',    unidadeCompasso:'minima' },
+  { num:2, den:8, formula:'2/8', unidadeTempo:'colcheia',    unidadeCompasso:'seminima' },
+];
+
+const COMPASSOS_FASE2 = [
+  { num:3, den:4, formula:'3/4', unidadeTempo:'seminima', unidadeCompasso:'minima_pont' },
+  { num:3, den:8, formula:'3/8', unidadeTempo:'colcheia', unidadeCompasso:'seminima_pont' },
+  { num:3, den:2, formula:'3/2', unidadeTempo:'minima',   unidadeCompasso:'semibreve_pont' },
+];
+
+const FIGURAS_TEMPO         = ['semibreve','minima','seminima','colcheia','semicolcheia','fusa'];
+const FIGURAS_COMPASSO_F1   = ['semibreve','minima','seminima','colcheia','semicolcheia'];
+const FIGURAS_COMPASSO_F2   = ['semibreve_pont','minima_pont','seminima_pont','colcheia','seminima'];
+
+let compassos = [], idx = 0, etapa = 'tempo', vidas = 3, pontuacao = 0, bloqueado = false;
+
+function iniciarJogo() {
+  compassos = shuffle([...COMPASSOS_FASE1]);
+  idx = 0; etapa = 'tempo'; vidas = 3; pontuacao = 0;
+  mostrarTela('tela-jogo');
+  document.getElementById('fase-badge').textContent = 'Fase 1';
+  atualizarHUD();
+  renderCompassoAtual();
+}
+
+function iniciarFase2() {
+  compassos = shuffle([...COMPASSOS_FASE2]);
+  idx = 0; etapa = 'tempo'; vidas = 3;
+  mostrarTela('tela-jogo');
+  document.getElementById('fase-badge').textContent = 'Fase 2';
+  atualizarHUD();
+  renderCompassoAtual();
+}
+
+function renderCompassoAtual() {
+  const c = compassos[idx];
+  document.getElementById('numerador').textContent   = c.num;
+  document.getElementById('denominador').textContent = c.den;
+  renderEtapa();
+}
+
+function renderEtapa() {
+  const isPerguntaTempo = etapa === 'tempo';
+  document.getElementById('titulo-pergunta').textContent =
+    isPerguntaTempo ? 'Qual é a unidade de TEMPO?' : 'Qual é a unidade de COMPASSO?';
+  document.getElementById('subtitulo-pergunta').textContent =
+    isPerguntaTempo
+      ? 'Escolha a figura que representa o denominador'
+      : 'Quantas unidades de tempo cabem no compasso?';
+
+  document.getElementById('dot-0').className = 'etapa-dot ' + (isPerguntaTempo ? 'ativa' : 'feita');
+  document.getElementById('dot-1').className = 'etapa-dot ' + (!isPerguntaTempo ? 'ativa' : '');
+
+  const fase = document.getElementById('fase-badge').textContent;
+  let pool;
+  if (isPerguntaTempo) {
+    pool = FIGURAS_TEMPO;
+  } else {
+    pool = fase === 'Fase 2' ? FIGURAS_COMPASSO_F2 : FIGURAS_COMPASSO_F1;
+  }
+
+  const grid = document.getElementById('grid-figuras');
+  grid.innerHTML = '';
+  pool.forEach(fid => {
+    const f = FIGURAS.find(x => x.id === fid);
+    const btn = document.createElement('button');
+    btn.className = 'figura-btn';
+    btn.innerHTML = `${f.svg}<span>${f.nome}</span>`;
+    btn.onclick = () => checarResposta(fid, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function checarResposta(fid, btn) {
+  if (bloqueado) return;
+  const c = compassos[idx];
+  const correto = etapa === 'tempo' ? c.unidadeTempo : c.unidadeCompasso;
+
+  if (fid === correto) {
+    tocarAcerto();
+    btn.classList.add('certo');
+    mostrarFeedback('✅');
+    pontuacao += etapa === 'tempo' ? 10 : 15;
+    bloqueado = true;
+    setTimeout(() => {
+      bloqueado = false;
+      if (etapa === 'tempo') {
+        etapa = 'compasso';
+        renderEtapa();
+      } else {
+        proximoCompasso();
+      }
+    }, 700);
+  } else {
+    tocarErro();
+    btn.classList.add('errado');
+    mostrarFeedback('❌');
+    vidas--;
+    atualizarHUD();
+    bloqueado = true;
+    setTimeout(() => {
+      btn.classList.remove('errado');
+      bloqueado = false;
+      if (vidas <= 0) fimDeJogo();
+    }, 600);
+  }
+}
+
+function proximoCompasso() {
+  idx++;
+  etapa = 'tempo';
+  vidas = 3;
+  atualizarHUD();
+  const fase = document.getElementById('fase-badge').textContent;
+  if (idx >= compassos.length) {
+    if (fase === 'Fase 1') {
+      mostrarTela('tela-transicao');
+    } else {
+      vitoria();
+    }
+  } else {
+    renderCompassoAtual();
+  }
+}
+
+function atualizarHUD() {
+  document.getElementById('pontuacao').textContent = pontuacao;
+  const corações = document.querySelectorAll('.coração');
+  corações.forEach((el, i) => {
+    el.classList.toggle('perdido', i >= vidas);
+    if (i === vidas && vidas < 3) {
+      el.style.animation = 'heartbeat .3s ease';
+      setTimeout(() => el.style.animation = '', 300);
+    }
+  });
+}
+
+function mostrarFeedback(emoji) {
+  const el = document.getElementById('feedback');
+  el.textContent = emoji;
+  el.className = 'feedback show';
+  setTimeout(() => { el.className = 'feedback hide'; }, 500);
+}
+
+function vitoria() {
+  tocarVitoria();
+  document.getElementById('emoji-fim').textContent = '🏆';
+  document.getElementById('titulo-fim').textContent = 'Parabéns! Você dominou!';
+  document.getElementById('score-final').textContent = 'Completou todas as fases com sucesso!';
+  document.getElementById('pontuacao-final').textContent = `⭐ ${pontuacao} pontos`;
+  mostrarTela('tela-fim');
+}
+
+function fimDeJogo() {
+  document.getElementById('emoji-fim').textContent = '💔';
+  document.getElementById('titulo-fim').textContent = 'Não foi dessa vez...';
+  document.getElementById('score-final').textContent = 'Você ficou sem tentativas. Tente novamente!';
+  document.getElementById('pontuacao-final').textContent = `⭐ ${pontuacao} pontos`;
+  mostrarTela('tela-fim');
+}
+
+function reiniciar() { iniciarJogo(); }
+
+function mostrarTela(id) {
+  ['tela-inicio','tela-jogo','tela-transicao','tela-fim'].forEach(t => {
+    const el = document.getElementById(t);
+    el.style.display = 'none';
+    el.style.flexDirection = '';
+  });
+  const alvo = document.getElementById(id);
+  alvo.style.display = 'flex';
+  alvo.style.flexDirection = 'column';
+}
 
 function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return a;
+  return arr;
 }
-
-function startGame() {
-  questions = shuffle(ALL_QUESTIONS).slice(0, TOTAL);
-  current = 0; score = 0; streak = 0;
-  document.getElementById('end-screen').style.display = 'none';
-  document.getElementById('game-area').style.display = 'flex';
-  document.getElementById('game-area').style.flexDirection = 'column';
-  document.getElementById('game-area').style.gap = '0.9rem';
-  updateHUD();
-  loadQuestion();
-}
-
-function updateHUD() {
-  document.getElementById('score').textContent = score;
-  document.getElementById('q-num').textContent = current + 1 > TOTAL ? TOTAL : current + 1;
-  document.getElementById('streak').textContent = streak + (streak >= 3 ? '🔥' : '');
-  const pct = (current / TOTAL) * 100;
-  document.getElementById('progress').style.width = pct + '%';
-}
-
-function loadQuestion() {
-  if (current >= TOTAL) { showEnd(); return; }
-  const q = questions[current];
-  answers = { tipo: null, ut: null, uc: null };
-
-  // fórmula
-  document.getElementById('ts-top').textContent = q.top;
-  document.getElementById('ts-bot').textContent = q.bot;
-  document.getElementById('q-hint').textContent = '';
-
-  // figuras: mostrar UT (silhueta) repetida de acordo com numerador
-  renderFigures(q);
-
-  // opções tipo
-  resetOpts('opts-tipo', ['binário','ternário','quaternário']);
-
-  // opções U.T. — a correta + 3 distrações aleatórias
-  const utOpts = makeOpts(q.ut, ALL_FIGS, 4);
-  renderOpts('opts-ut', utOpts, 'ut');
-
-  // opções U.C.
-  const ucOpts = makeOpts(q.uc, ALL_FIGS, 4);
-  renderOpts('opts-uc', ucOpts, 'uc');
-
-  // feedback
-  const fb = document.getElementById('feedback');
-  fb.style.display = 'none'; fb.className = 'feedback';
-
-  // botões
-  const conf = document.getElementById('confirm-btn');
-  conf.classList.remove('hidden'); conf.disabled = true;
-  document.getElementById('next-btn').classList.add('hidden');
-
-  updateHUD();
-}
-
-function renderFigures(q) {
-  const row = document.getElementById('fig-row');
-  row.innerHTML = '';
-  // mostrar a figura da UT repetida pelo numerador
-  const fig = FIGURES[q.ut] || FIGURES['4'];
-  const count = Math.min(q.top, 4); // máx 4 ícones pra não estourar
-  for (let i = 0; i < count; i++) {
-    const b = document.createElement('div');
-    b.className = 'fig-block';
-    b.innerHTML = fig.svg + `<span class="fig-name">${i === 0 ? fig.name : ''}</span>`;
-    row.appendChild(b);
-  }
-  if (q.top > 4) {
-    const more = document.createElement('span');
-    more.style.cssText = 'color:var(--muted);font-size:1.2rem;align-self:center;';
-    more.textContent = '…';
-    row.appendChild(more);
-  }
-}
-
-function makeOpts(correct, pool, n) {
-  const others = shuffle(pool.filter(x => x !== correct));
-  const distractors = others.slice(0, n - 1);
-  return shuffle([correct, ...distractors]);
-}
-
-function resetOpts(id, vals) {
-  const cont = document.getElementById(id);
-  cont.innerHTML = '';
-  vals.forEach(v => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.dataset.q = id === 'opts-tipo' ? 'tipo' : id === 'opts-ut' ? 'ut' : 'uc';
-    btn.dataset.v = v;
-    btn.textContent = v.charAt(0).toUpperCase() + v.slice(1);
-    btn.addEventListener('click', selectOpt);
-    cont.appendChild(btn);
-  });
-}
-
-function renderOpts(id, vals, qkey) {
-  const cont = document.getElementById(id);
-  cont.innerHTML = '';
-  vals.forEach(v => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.dataset.q = qkey;
-    btn.dataset.v = v;
-    btn.innerHTML = `${FIG_LABEL[v]} <span style="opacity:.55;font-size:.7em;">(1/${v.replace('.','')}</span>`;
-    if (v.includes('.')) btn.innerHTML = `${FIG_LABEL[v]} <span style="opacity:.55;font-size:.7em;">(pontuada)</span>`;
-    else btn.innerHTML = `${FIG_LABEL[v]}`;
-    btn.addEventListener('click', selectOpt);
-    cont.appendChild(btn);
-  });
-}
-
-function selectOpt(e) {
-  const btn = e.currentTarget;
-  const qkey = btn.dataset.q;
-  const val  = btn.dataset.v;
-  // desseleciona os outros do mesmo grupo
-  document.querySelectorAll(`.opt-btn[data-q="${qkey}"]`).forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  answers[qkey] = val;
-  // habilita confirmar se todas respondidas
-  document.getElementById('confirm-btn').disabled = !(answers.tipo && answers.ut && answers.uc);
-}
-
-function confirm() {
-  const q = questions[current];
-  const tipoOk = answers.tipo === q.tipo;
-  const utOk   = answers.ut   === q.ut;
-  const ucOk   = answers.uc   === q.uc;
-  const allOk  = tipoOk && utOk && ucOk;
-
-  // colorir botões
-  ['tipo','ut','uc'].forEach(key => {
-    const correct = key === 'tipo' ? q.tipo : key === 'ut' ? q.ut : q.uc;
-    const prefix = key === 'tipo' ? 'opts-tipo' : key === 'ut' ? 'opts-ut' : 'opts-uc';
-    document.querySelectorAll(`#${prefix} .opt-btn`).forEach(b => {
-      b.disabled = true;
-      if (b.dataset.v === correct) b.classList.add('correct');
-      else if (b.classList.contains('selected')) b.classList.add('wrong');
-    });
-  });
-
-  // pontuação
-  let pts = 0;
-  if (tipoOk) pts += 10;
-  if (utOk)   pts += 15;
-  if (ucOk)   pts += 15;
-  if (allOk) { pts += 10; streak++; } else streak = 0;
-  if (streak >= 3) pts += 5; // bônus sequência
-  score += pts;
-
-  // feedback
-  const fb = document.getElementById('feedback');
-  fb.style.display = 'block';
-  if (allOk) {
-    fb.className = 'feedback ok';
-    fb.innerHTML = `✅ <strong>Perfeito! +${pts} pts</strong><br>${q.hint}`;
-  } else {
-    fb.className = 'feedback err';
-    let erros = [];
-    if (!tipoOk) erros.push(`Tipo: <strong>${q.tipo}</strong>`);
-    if (!utOk)   erros.push(`U.T.: <strong>${FIG_LABEL[q.ut]}</strong>`);
-    if (!ucOk)   erros.push(`U.C.: <strong>${FIG_LABEL[q.uc]}</strong>`);
-    fb.innerHTML = `❌ <strong>+${pts} pts</strong> — Correto: ${erros.join(' · ')}<br><span style="font-size:.82rem;color:var(--muted)">${q.hint}</span>`;
-  }
-
-  document.getElementById('confirm-btn').classList.add('hidden');
-  document.getElementById('next-btn').classList.remove('hidden');
-  updateHUD();
-}
-
-function nextQuestion() {
-  current++;
-  if (current >= TOTAL) showEnd();
-  else loadQuestion();
-}
-
-function showEnd() {
-  document.getElementById('game-area').style.display = 'none';
-  document.getElementById('end-screen').style.display = 'block';
-  document.getElementById('progress').style.width = '100%';
-  const max = TOTAL * (10 + 15 + 15 + 10); // máx teórico
-  const pct = score / max;
-  let stars = '⭐';
-  if (pct >= 0.5) stars = '⭐⭐';
-  if (pct >= 0.75) stars = '⭐⭐⭐';
-  document.getElementById('stars').textContent = stars;
-  document.getElementById('final-score').textContent = score;
-  document.getElementById('final-label').textContent = `pontos de ${max} possíveis`;
-}
-
-// eventos
-document.getElementById('confirm-btn').addEventListener('click', confirm);
-document.getElementById('next-btn').addEventListener('click', nextQuestion);
-
-// start
-startGame();
 </script>
 </body>
 </html>
