@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partes - Biblioteca</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="loader.css">
+    <link rel="stylesheet" href="bottom-nav.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #020617;
+            --card: #0b1220;
+            --card-alt: #0f172a;
+            --border: rgba(56,189,248,0.25);
+            --ink: #e2e8f0;
+            --muted: #94a3b8;
+            --azul: #0ea5e9;
+            --azul-escuro: #1e293b;
+            --azul-suave: rgba(56,189,248,0.2);
+            --verde: #22c55e;
+            --vermelho: #ef4444;
+        }
+        * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #000 100%);
+            color: var(--ink);
+            min-height: 100vh;
+            padding-bottom: 90px;
+        }
+
+        /* HEADER */
+        .partes-header {
+            background: rgba(11,18,32,0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .btn-voltar {
+            background: var(--azul-escuro);
+            color: var(--azul);
+            border: 1px solid var(--border);
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-voltar:hover { border-color: var(--azul); }
+        .partes-header h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--azul);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+        /* PLAYER DE ÁUDIO */
+        .audio-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .audio-section i { font-size: 1.6rem; color: var(--verde); flex-shrink: 0; }
+        .audio-section audio { flex: 1; height: 38px; border-radius: 6px; outline: none; }
+
+        /* DOWNLOAD COMPLETO */
+        .download-completo {
+            background: var(--azul-suave);
+            border: 1px solid var(--azul);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .download-completo span { color: var(--ink); font-size: 0.9rem; }
+        .btn-dl-completo {
+            background: var(--azul);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* TÍTULO SEÇÃO */
+        .section-title {
+            font-size: 1rem;
+            color: var(--muted);
+            margin: 0 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title span { color: var(--azul); font-weight: 700; }
+
+        /* LOADING GLOBAL */
+        .loading-partes {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .loading-partes i { font-size: 2.5rem; color: var(--azul); animation: spin 1s linear infinite; }
+        .loading-partes p { margin: 0; font-size: 0.95rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* GRID DE PARTES */
+        .partes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .parte-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .parte-card:hover {
+            border-color: var(--azul);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        /* Miniatura */
+        .parte-thumb {
+            width: 100%;
+            background: #fff;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .parte-thumb canvas { width: 100% !important; height: auto !important; display: block; }
+        .thumb-loading {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 8px; background: #0f172a;
+            color: var(--muted); font-size: 0.75rem;
+        }
+        .thumb-loading i { font-size: 1.8rem; color: var(--azul); animation: spin 1s linear infinite; }
+        .thumb-error {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            width: 100%; min-height: 200px;
+            gap: 8px; color: var(--muted); font-size: 0.75rem;
+            background: #0f172a;
+        }
+        .thumb-error i { font-size: 2.5rem; color: var(--azul); }
+
+        /* Info do card */
+        .parte-info {
+            padding: 12px 14px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+        .parte-num {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .parte-nome-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .parte-nome {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--ink);
+            flex: 1;
+            word-break: break-word;
+        }
+        .btn-editar-rotulo {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: none;
+            transition: color 0.2s;
+        }
+        .btn-editar-rotulo:hover { color: var(--azul); }
+
+        /* Input inline de edição */
+        .rotulo-input {
+            background: var(--bg);
+            border: 1px solid var(--azul);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: var(--ink);
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+            display: none;
+        }
+        .rotulo-actions {
+            display: none;
+            gap: 6px;
+        }
+        .btn-salvar-rotulo {
+            background: var(--verde);
+            color: var(--bg);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .btn-cancelar-rotulo {
+            background: var(--card-alt);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.78rem;
+        }
+
+        /* Botão baixar */
+        .btn-baixar-parte {
+            background: var(--azul-escuro);
+            color: var(--azul);
+            border: 1px solid var(--border);
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            margin-top: auto;
+        }
+        .btn-baixar-parte:hover {
+            background: var(--azul);
+            color: white;
+            border-color: var(--azul);
+        }
+        .btn-baixar-parte:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-baixar-parte.baixando {
+            opacity: 0.7;
+        }
+
+        /* Erro de carregamento */
+        .erro-doc {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--vermelho);
+        }
+        .erro-doc i { font-size: 3rem; display: block; margin-bottom: 12px; }
+
+        @media (max-width: 480px) {
+            .partes-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+            .parte-thumb { min-height: 160px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="global-loader">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <div id="emoji-container">🎵</div>
+            <div id="verse-container">
+                <div id="verse-text"></div>
+                <div id="verse-reference"></div>
+            </div>
+        </div>
+    </div>
+
+    <header class="partes-header">
+        <a class="btn-voltar" id="btn-voltar" href="biblioteca.html">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+        <h1 id="doc-titulo">Carregando...</h1>
+    </header>
+
+    <div class="container">
+        <!-- Áudio (se existir) -->
+        <div class="audio-section" id="audio-section" style="display:none;">
+            <i class="fas fa-music"></i>
+            <audio id="audio-player" controls>
+                <source id="audio-source" src="" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <!-- Download completo -->
+        <div class="download-completo" id="download-completo" style="display:none;">
+            <span>📄 Baixar o documento completo (todas as partes)</span>
+            <a class="btn-dl-completo" id="btn-dl-completo" href="#" target="_blank">
+                <i class="fas fa-download"></i> PDF Completo
+            </a>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div id="partes-content">
+            <div class="loading-partes" id="loading-inicial">
+                <i class="fas fa-spinner"></i>
+                <p>Carregando documento...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="aluno.html" class="nav-item" data-page="home">
+            <i class="fas fa-home nav-icon"></i>
+            <span class="nav-label">Home</span>
+        </a>
+        <a href="painel-social.html" class="nav-item" data-page="comunidade">
+            <i class="fas fa-users nav-icon"></i>
+            <span class="nav-label">Comunidade</span>
+        </a>
+        <a href="biblioteca.html" class="nav-item active" data-page="biblioteca">
+            <i class="fas fa-book nav-icon"></i>
+            <span class="nav-label">Biblioteca</span>
+        </a>
+        <a href="atividades.html" class="nav-item" data-page="atividades">
+            <i class="fas fa-clipboard-list nav-icon"></i>
+            <span class="nav-label">Atividades</span>
+        </a>
+        <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none;">
+            <i class="fas fa-chalkboard-teacher nav-icon"></i>
+            <span class="nav-label">Professor</span>
+        </a>
+    </nav>
+
+    <script src="loader.js"></script>
+    <script type="module" src="script_partes.js"></script>
+    <script type="module" src="navegacao.js"></script>
+    <script type="module" src="bottom-nav.js"></script>
+</body>
+</html>

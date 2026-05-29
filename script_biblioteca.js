@@ -19,8 +19,8 @@ import {
   deleteObject
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
 
-// PDF.js via CDN
-const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+// PDF.js via CDN (usado apenas na grade)
+const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let pdfjsLib = null;
@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyViewToggleUI();
 });
 
-// Aplicar estado visual dos botões de toggle ao carregar
 function applyViewToggleUI() {
   const btnList = document.getElementById('btn-view-list');
   const btnGrid = document.getElementById('btn-view-grid');
@@ -78,7 +77,6 @@ function applyViewToggleUI() {
   btnGrid.classList.toggle('active', currentView === 'grid');
 }
 
-// Mudar modo de visualização
 function setView(mode) {
   currentView = mode;
   localStorage.setItem('bibliotecaView', mode);
@@ -86,7 +84,6 @@ function setView(mode) {
   renderDocuments();
 }
 
-// Gerar miniatura de PDF via PDF.js
 async function gerarMiniaturaPDF(url, wrapEl) {
   try {
     const pdfjs = await loadPdfJs();
@@ -95,13 +92,11 @@ async function gerarMiniaturaPDF(url, wrapEl) {
     const page = await pdf.getPage(1);
     const scale = 1.2;
     const viewport = page.getViewport({ scale });
-
     const canvas = document.createElement('canvas');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     const ctx = canvas.getContext('2d');
     await page.render({ canvasContext: ctx, viewport }).promise;
-
     wrapEl.innerHTML = '';
     wrapEl.appendChild(canvas);
   } catch (err) {
@@ -114,7 +109,6 @@ async function gerarMiniaturaPDF(url, wrapEl) {
   }
 }
 
-// Registrar download
 async function registrarDownload(nomeArquivo) {
   try {
     const usuario = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
@@ -136,7 +130,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Auth
 function checkUserAuth() {
   const usuarioLogado = localStorage.getItem("usuarioAtual");
   const roleSelector = document.getElementById('user-role');
@@ -300,12 +293,15 @@ function filterAndSortDocuments() {
 
 function renderDocuments() { filterAndSortDocuments(); }
 
+// Navegar para a página de partes
+function abrirPartes(colId, docId) {
+  window.location.href = `partes.html?col=${colId}&doc=${docId}`;
+}
+
 function renderDocumentsFiltered(docsToRender) {
   const container = document.getElementById('documents-container');
   if (!container) return;
   container.innerHTML = '';
-
-  // Aplicar classe de visualização
   container.className = currentView === 'grid' ? 'documents-grid' : 'documents-list';
 
   const docs = Array.isArray(docsToRender) ? docsToRender : [];
@@ -320,10 +316,9 @@ function renderDocumentsFiltered(docsToRender) {
     item.className = 'document-item';
 
     if (currentView === 'grid') {
-      // ---- GRADE: miniatura PDF.js ----
       const safeNome = d.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
       item.innerHTML = `
-        <div class="pdf-thumbnail-wrap" id="thumb-${d.id}">
+        <div class="pdf-thumbnail-wrap" id="thumb-${d.id}" style="cursor:pointer;" title="Ver partes">
           <div class="pdf-thumb-loading">
             <i class="fas fa-spinner"></i>
             <span>Carregando...</span>
@@ -332,6 +327,10 @@ function renderDocumentsFiltered(docsToRender) {
         <div class="doc-grid-info">
           <div class="doc-name" title="${safeNome}">${d.nome}</div>
           <div class="doc-buttons">
+            <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.72rem;font-weight:700;width:100%;"
+              onclick="abrirPartes('${currentCollectionId}', '${d.id}')">
+              🎼 Ver Partes
+            </button>
             <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 Baixar</a>
             <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
             <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
@@ -341,28 +340,26 @@ function renderDocumentsFiltered(docsToRender) {
         </div>
       `;
       container.appendChild(item);
-
-      // Gerar miniatura de forma assíncrona sem bloquear a UI
       const wrapEl = item.querySelector(`#thumb-${d.id}`);
+      wrapEl.onclick = () => abrirPartes(currentCollectionId, d.id);
       gerarMiniaturaPDF(d.url, wrapEl);
 
     } else {
-      // ---- LISTA: layout original ----
+      // LISTA — clicar no nome abre partes; botão download separado
       let audioHTML = '';
       if (d.audioUrl) {
-        audioHTML = `
-          <div class="audio-player">
-            <audio controls>
-              <source src="${d.audioUrl}" type="audio/mpeg">
-            </audio>
-          </div>`;
+        audioHTML = `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>`;
       }
       const safeNome = d.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
       item.innerHTML = `
-        <div class="doc-name">${d.nome}</div>
+        <div class="doc-name" style="cursor:pointer;" onclick="abrirPartes('${currentCollectionId}', '${d.id}')" title="Ver partes">
+          ${d.nome} <span style="font-size:0.75rem;color:var(--azul);font-weight:400;">→ ver partes</span>
+        </div>
         ${audioHTML}
         <div class="doc-buttons">
-          <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
+          <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:0.85rem;font-weight:700;"
+            onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
+          <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
           <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
           <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
@@ -523,7 +520,6 @@ function setupSearchSortListeners() {
   sortSelect.addEventListener('change', (e) => { sortCriterion = e.target.value; filterAndSortDocuments(); });
 }
 
-// 🔍 BUSCA GLOBAL
 function setupGlobalSearch() {
   const globalInput = document.getElementById('global-search-input');
   const clearBtn = document.getElementById('clear-global-search');
@@ -573,13 +569,13 @@ function renderGlobalResults(results) {
     let audioHTML = d.audioUrl ? `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>` : '';
     const safeNome = d.nome.replace(/"/g, '&quot;');
     item.innerHTML = `
-      <div class="doc-info" style="flex: 1;">
-        <span class="search-result-collection">${d.collectionName}</span>
-        <div class="doc-name" style="text-align: left; font-size: 1rem;">${d.nome}</div>
+      <div class="doc-info" style="flex:1; cursor:pointer;" onclick="window.location.href='partes.html?col=${d.collectionId}&doc=${d.id}'">
+        <span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:2px;">${d.collectionName}</span>
+        <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome} <span style="font-size:0.75rem;color:var(--azul);">→ ver partes</span></div>
       </div>
       ${audioHTML}
       <div class="doc-buttons">
-        <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
+        <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
       </div>
     `;
     container.appendChild(item);
@@ -595,7 +591,7 @@ function clearGlobalSearch() {
   if (resultsView) resultsView.style.display = 'none';
 }
 
-// Expor funções globalmente
+// Expor globalmente
 window.updateFileName = updateFileName;
 window.updateAudioFileName = updateAudioFileName;
 window.uploadDocument = uploadDocument;
@@ -610,3 +606,4 @@ window.removeAudio = removeAudio;
 window.filterAndSortDocuments = filterAndSortDocuments;
 window.clearGlobalSearch = clearGlobalSearch;
 window.setView = setView;
+window.abrirPartes = abrirPartes;
