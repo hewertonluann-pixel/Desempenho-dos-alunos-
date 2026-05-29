@@ -32,12 +32,14 @@ let pdfDoc    = null;
 let pdfUrl    = null;
 let docId     = null;
 let colId     = null;
-let userRole  = 'student';
+let userRole  = 'student'; // padrão seguro: aluno
 let rotulosFirestore = {};
 
+// ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   lerParams();
   checkAuth();
+  renderRoleBadge();
   await carregarDocumento();
 });
 
@@ -48,13 +50,72 @@ function lerParams() {
   if (!colId || !docId) mostrarErro('Parâmetros inválidos. Volte à biblioteca.');
 }
 
+// ── Verificação de role robusta ───────────────────────────────────────────────
+// Aceita qualquer variação salva no localStorage: classificado, role, tipo, isTeacher
 function checkAuth() {
   try {
-    const user = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
-    userRole = user.classificado === true ? 'teacher' : 'student';
-  } catch { userRole = 'student'; }
+    const raw  = localStorage.getItem('usuarioAtual') || '{}';
+    const user = JSON.parse(raw);
+
+    const isTeacher =
+      user.classificado === true ||
+      user.classificado === 'true' ||
+      user.role === 'teacher' ||
+      user.tipo === 'professor' ||
+      user.isTeacher === true;
+
+    userRole = isTeacher ? 'teacher' : 'student';
+  } catch {
+    userRole = 'student';
+  }
 }
 
+// ── Badge visual no header ────────────────────────────────────────────────────
+function renderRoleBadge() {
+  const header = document.querySelector('.partes-header');
+  if (!header) return;
+
+  // Remove badge anterior se existir
+  const old = header.querySelector('.role-badge');
+  if (old) old.remove();
+
+  const badge = document.createElement('span');
+  badge.className = 'role-badge';
+
+  if (userRole === 'teacher') {
+    badge.style.cssText = `
+      margin-left: auto;
+      background: rgba(250,204,21,0.15);
+      color: #facc15;
+      border: 1px solid rgba(250,204,21,0.4);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    `;
+    badge.innerHTML = '👨‍🏫 Modo Professor';
+  } else {
+    badge.style.cssText = `
+      margin-left: auto;
+      background: rgba(14,165,233,0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56,189,248,0.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    `;
+    badge.innerHTML = '🎓 Modo Aluno';
+  }
+
+  header.appendChild(badge);
+}
+
+// ── Carregar documento ────────────────────────────────────────────────────────
 async function carregarDocumento() {
   try {
     const docRef = doc(db, 'biblioteca_colecoes', colId, 'documentos', docId);
@@ -82,6 +143,7 @@ async function carregarDocumento() {
   }
 }
 
+// ── Rótulos Firestore ─────────────────────────────────────────────────────────
 async function carregarRotulos() {
   try {
     const rotuloRef = doc(db, 'biblioteca_rotulos', `${colId}_${docId}`);
@@ -93,11 +155,13 @@ async function carregarRotulos() {
 }
 
 async function salvarRotulo(numeroPagina, novoNome) {
+  if (userRole !== 'teacher') return; // proteção extra
   rotulosFirestore[String(numeroPagina)] = novoNome;
   const rotuloRef = doc(db, 'biblioteca_rotulos', `${colId}_${docId}`);
   await setDoc(rotuloRef, { paginas: rotulosFirestore }, { merge: true });
 }
 
+// ── Loaders externos ──────────────────────────────────────────────────────────
 async function loadPdfJs() {
   if (pdfJsLib) return pdfJsLib;
   return new Promise((resolve, reject) => {
@@ -126,6 +190,7 @@ async function loadPdfLib() {
   });
 }
 
+// ── Detecção de instrumento ───────────────────────────────────────────────────
 async function detectarInstrumento(page, numeroPagina) {
   if (rotulosFirestore[String(numeroPagina)]) return rotulosFirestore[String(numeroPagina)];
   try {
@@ -142,6 +207,7 @@ async function detectarInstrumento(page, numeroPagina) {
   return `Página ${numeroPagina}`;
 }
 
+// ── Renderizar grid ───────────────────────────────────────────────────────────
 async function renderizarPartes() {
   const content = document.getElementById('partes-content');
   try {
@@ -157,7 +223,7 @@ async function renderizarPartes() {
       <p class="section-title">
         <i class="fas fa-layer-group"></i>
         <span>${totalPaginas}</span> ${totalPaginas === 1 ? 'parte encontrada' : 'partes encontradas'}
-        ${userRole === 'teacher' ? '<span style="margin-left:10px;font-size:0.8rem;color:var(--muted);">✏️ Clique no lápis para renomear</span>' : ''}
+        ${userRole === 'teacher' ? '<span style="margin-left:10px;font-size:0.8rem;color:var(--muted);">✏️ Clique no lápis para renomear as partes</span>' : ''}
       </p>
       <div class="partes-grid" id="partes-grid"></div>
     `;
@@ -175,15 +241,52 @@ async function renderizarPartes() {
   }
 }
 
+// ── Card individual ───────────────────────────────────────────────────────────
 async function renderizarCard(grid, numeroPagina, total) {
   const page = await pdfDoc.getPage(numeroPagina);
   const nomeInstrumento = await detectarInstrumento(page, numeroPagina);
+  const isTeacher = userRole === 'teacher';
 
   const card = document.createElement('div');
   card.className = 'parte-card';
   card.id = `card-${numeroPagina}`;
 
-  // O edit-wrap começa oculto via style inline; o input NÃO tem display:none extra
+  // Bloco de edição só é injetado no DOM para o professor
+  const editBlock = isTeacher ? `
+    <div id="edit-wrap-${numeroPagina}" style="display:none; flex-direction:column; gap:8px; margin-top:4px;">
+      <input
+        id="input-${numeroPagina}"
+        type="text"
+        value="${nomeInstrumento}"
+        placeholder="Nome do instrumento"
+        style="
+          background:#020617; border:1px solid var(--azul);
+          border-radius:8px; padding:7px 10px; color:#e2e8f0;
+          font-size:0.9rem; width:100%; box-sizing:border-box;
+          outline:none; display:block;
+        "
+      >
+      <div style="display:flex; gap:6px;">
+        <button onclick="salvarEdicaoRotulo(${numeroPagina})"
+          style="background:#22c55e;color:#020617;border:none;padding:6px 12px;
+                 border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;flex:1;">
+          ✅ Salvar</button>
+        <button onclick="cancelarEdicaoRotulo(${numeroPagina})"
+          style="background:#1e293b;color:#94a3b8;border:1px solid rgba(56,189,248,0.25);
+                 padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;flex:1;">
+          Cancelar</button>
+      </div>
+    </div>` : '';
+
+  // Botão ✏️ só aparece para professor
+  const editBtn = isTeacher ? `
+    <button id="btn-edit-${numeroPagina}"
+      onclick="iniciarEdicaoRotulo(${numeroPagina})" title="Renomear"
+      style="background:none;border:none;color:var(--muted);cursor:pointer;
+             padding:2px 6px;border-radius:4px;font-size:0.85rem;flex-shrink:0;">
+      <i class="fas fa-pen"></i>
+    </button>` : '';
+
   card.innerHTML = `
     <div class="parte-thumb" id="thumb-${numeroPagina}">
       <div class="thumb-loading">
@@ -194,54 +297,13 @@ async function renderizarCard(grid, numeroPagina, total) {
     <div class="parte-info">
       <span class="parte-num">Parte ${numeroPagina} de ${total}</span>
 
-      <!-- Modo visualização -->
-      <div class="parte-nome-wrap" id="nome-wrap-${numeroPagina}" style="display:flex; align-items:center; gap:6px;">
+      <div class="parte-nome-wrap" id="nome-wrap-${numeroPagina}"
+           style="display:flex; align-items:center; gap:6px;">
         <span class="parte-nome" id="nome-${numeroPagina}">${nomeInstrumento}</span>
-        <button class="btn-editar-rotulo" id="btn-edit-${numeroPagina}"
-          onclick="iniciarEdicaoRotulo(${numeroPagina})" title="Renomear"
-          style="display:none; background:none; border:none; color:var(--muted); cursor:pointer; padding:2px 6px; border-radius:4px; font-size:0.85rem;">
-          <i class="fas fa-pen"></i>
-        </button>
+        ${editBtn}
       </div>
 
-      <!-- Modo edição (oculto por padrão) -->
-      <div id="edit-wrap-${numeroPagina}" style="display:none; flex-direction:column; gap:8px; margin-top:4px;">
-        <input
-          id="input-${numeroPagina}"
-          type="text"
-          value="${nomeInstrumento}"
-          placeholder="Nome do instrumento"
-          style="
-            background: #020617;
-            border: 1px solid var(--azul);
-            border-radius: 8px;
-            padding: 7px 10px;
-            color: #e2e8f0;
-            font-size: 0.9rem;
-            width: 100%;
-            box-sizing: border-box;
-            outline: none;
-            display: block;
-          "
-        >
-        <div style="display:flex; gap:6px;">
-          <button
-            onclick="salvarEdicaoRotulo(${numeroPagina})"
-            style="
-              background: #22c55e; color: #020617; border: none;
-              padding: 6px 12px; border-radius: 6px; cursor: pointer;
-              font-size: 0.82rem; font-weight: 700; flex:1;
-            ">✅ Salvar</button>
-          <button
-            onclick="cancelarEdicaoRotulo(${numeroPagina})"
-            style="
-              background: #1e293b; color: #94a3b8;
-              border: 1px solid rgba(56,189,248,0.25);
-              padding: 6px 12px; border-radius: 6px; cursor: pointer;
-              font-size: 0.82rem; flex:1;
-            ">Cancelar</button>
-        </div>
-      </div>
+      ${editBlock}
 
       <button class="btn-baixar-parte" id="btn-baixar-${numeroPagina}"
         onclick="baixarParte(${numeroPagina})">
@@ -251,15 +313,10 @@ async function renderizarCard(grid, numeroPagina, total) {
   `;
 
   grid.appendChild(card);
-
-  if (userRole === 'teacher') {
-    const btnEdit = card.querySelector(`#btn-edit-${numeroPagina}`);
-    if (btnEdit) btnEdit.style.display = 'inline-block';
-  }
-
   await gerarMiniatura(page, card.querySelector(`#thumb-${numeroPagina}`), numeroPagina);
 }
 
+// ── Miniatura ─────────────────────────────────────────────────────────────────
 async function gerarMiniatura(page, wrapEl, numeroPagina) {
   try {
     const scale    = 1.0;
@@ -282,6 +339,7 @@ async function gerarMiniatura(page, wrapEl, numeroPagina) {
   }
 }
 
+// ── Download de parte (pdf-lib) ───────────────────────────────────────────────
 async function baixarParte(numeroPagina) {
   const btn = document.getElementById(`btn-baixar-${numeroPagina}`);
   const nomeEl = document.getElementById(`nome-${numeroPagina}`);
@@ -322,20 +380,18 @@ async function baixarParte(numeroPagina) {
   }
 }
 
-// ── Edição de rótulo ──────────────────────────────────────────────────────────
+// ── Edição de rótulo (somente professor) ──────────────────────────────────────
 function iniciarEdicaoRotulo(numeroPagina) {
-  // Oculta nome
+  if (userRole !== 'teacher') return; // guarda extra
+
   document.getElementById(`nome-wrap-${numeroPagina}`).style.display = 'none';
-
-  // Mostra campo de edição usando flex
   const wrap = document.getElementById(`edit-wrap-${numeroPagina}`);
-  wrap.style.display    = 'flex';
+  wrap.style.display       = 'flex';
   wrap.style.flexDirection = 'column';
-  wrap.style.gap        = '8px';
+  wrap.style.gap           = '8px';
 
-  // Foca e seleciona o input
   const input = document.getElementById(`input-${numeroPagina}`);
-  input.style.display = 'block'; // garante visibilidade
+  input.style.display = 'block';
   setTimeout(() => { input.focus(); input.select(); }, 50);
 
   input.onkeydown = (e) => {
@@ -345,6 +401,8 @@ function iniciarEdicaoRotulo(numeroPagina) {
 }
 
 async function salvarEdicaoRotulo(numeroPagina) {
+  if (userRole !== 'teacher') return; // guarda extra
+
   const input = document.getElementById(`input-${numeroPagina}`);
   const novoNome = input.value.trim();
   if (!novoNome) { alert('❌ Digite um nome válido'); return; }
@@ -359,10 +417,13 @@ async function salvarEdicaoRotulo(numeroPagina) {
 }
 
 function cancelarEdicaoRotulo(numeroPagina) {
-  document.getElementById(`edit-wrap-${numeroPagina}`).style.display = 'none';
-  document.getElementById(`nome-wrap-${numeroPagina}`).style.display = 'flex';
+  const wrap = document.getElementById(`edit-wrap-${numeroPagina}`);
+  if (wrap) wrap.style.display = 'none';
+  const nomeWrap = document.getElementById(`nome-wrap-${numeroPagina}`);
+  if (nomeWrap) nomeWrap.style.display = 'flex';
 }
 
+// ── Registro de download ──────────────────────────────────────────────────────
 async function registrarDownload(nomeArquivo) {
   try {
     const usuario   = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
@@ -377,6 +438,7 @@ async function registrarDownload(nomeArquivo) {
   }
 }
 
+// ── Erro fatal ────────────────────────────────────────────────────────────────
 function mostrarErro(msg) {
   const loadInicial = document.getElementById('loading-inicial');
   if (loadInicial) loadInicial.style.display = 'none';
@@ -388,6 +450,7 @@ function mostrarErro(msg) {
     </div>`;
 }
 
+// Expor para onclick inline
 window.baixarParte          = baixarParte;
 window.iniciarEdicaoRotulo  = iniciarEdicaoRotulo;
 window.salvarEdicaoRotulo   = salvarEdicaoRotulo;
