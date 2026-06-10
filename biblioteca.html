@@ -22,6 +22,7 @@
             --azul-suave: rgba(56, 189, 248, 0.2);
             --verde: #22c55e;
             --vermelho: #ef4444;
+            --dourado: #f59e0b;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
@@ -106,6 +107,67 @@
         .collection-card .tap-hint { font-style: italic; opacity: 0.8; }
         .icon-folder { font-size: 3rem; display: block; margin-bottom: 10px; }
 
+        /* Toggle modo partes no card da coleção */
+        .modo-partes-toggle {
+            display: none; /* visível só para professor via JS */
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 8px 0 4px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .modo-partes-label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .modo-partes-btn {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
+        }
+        .modo-partes-btn.on {
+            background: var(--azul);
+            color: #fff;
+        }
+        .modo-partes-btn.on:hover { background: #0284c7; }
+        .modo-partes-btn.off {
+            background: rgba(148,163,184,0.2);
+            color: var(--muted);
+            border: 1px solid rgba(148,163,184,0.3);
+        }
+        .modo-partes-btn.off:hover { background: rgba(148,163,184,0.35); }
+
+        /* Badge de status dentro da coleção */
+        .modo-partes-badge {
+            display: none; /* controlado por JS */
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        .modo-partes-badge.ativo {
+            background: rgba(14,165,233,0.15);
+            color: var(--azul);
+            border: 1px solid rgba(14,165,233,0.3);
+        }
+        .modo-partes-badge.inativo {
+            background: rgba(148,163,184,0.1);
+            color: var(--muted);
+            border: 1px solid rgba(148,163,184,0.2);
+        }
+
         .btn-delete-collection {
             position: absolute; top: 10px; right: 10px;
             background: rgba(239,68,68,0.2); color: var(--vermelho);
@@ -129,7 +191,7 @@
             background: var(--card); border: 1px solid var(--border);
             border-radius: 16px; padding: 20px; margin-bottom: 20px;
         }
-        .collection-header h2 { margin: 0 0 15px; color: var(--azul); font-size: 1.5rem; }
+        .collection-header h2 { margin: 0 0 8px; color: var(--azul); font-size: 1.5rem; }
 
         .search-sort-controls {
             display: flex; flex-wrap: wrap; gap: 10px;
@@ -149,7 +211,6 @@
             font-size: 0.9rem; outline: none;
         }
 
-        /* ===== TOGGLE LISTA / GRADE ===== */
         .view-toggle { display: flex; gap: 4px; flex-shrink: 0; }
         .btn-view {
             background: var(--card-alt); border: 1px solid var(--border);
@@ -165,7 +226,6 @@
             box-shadow: 0 0 8px rgba(14,165,233,0.3);
         }
 
-        /* ===== VISUALIZAÇÃO LISTA ===== */
         .documents-list { display: flex; flex-direction: column; gap: 12px; }
 
         .document-item {
@@ -207,7 +267,6 @@
             border-radius: 6px; cursor: pointer; display: none;
         }
 
-        /* ===== VISUALIZAÇÃO GRADE ===== */
         .documents-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -221,7 +280,6 @@
             overflow: hidden;
             border-radius: 12px;
         }
-        /* Área da miniatura */
         .pdf-thumbnail-wrap {
             width: 100%;
             background: #fff;
@@ -260,7 +318,6 @@
         }
         .pdf-thumb-error i { font-size: 2.5rem; color: var(--azul); }
 
-        /* Info e botões na grade */
         .doc-grid-info {
             width: 100%; padding: 10px 10px 6px;
             border-top: 1px solid var(--border);
@@ -289,7 +346,6 @@
         }
         .documents-grid .audio-player { display: none; }
 
-        /* Modal */
         .modal {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;
@@ -412,6 +468,8 @@
 
             <div class="collection-header">
                 <h2 id="collection-title">Nome da Coleção</h2>
+                <!-- Badge de status do modo partes (professor) -->
+                <span id="modo-partes-badge" class="modo-partes-badge" style="display:none;"></span>
 
                 <!-- Busca, Ordenação e Toggle de Visualização -->
                 <div class="search-sort-controls">

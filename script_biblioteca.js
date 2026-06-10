@@ -19,7 +19,6 @@ import {
   deleteObject
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
 
-// PDF.js via CDN (usado apenas na grade)
 const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -43,20 +42,20 @@ async function loadPdfJs() {
 
 const storage = getStorage();
 
-// Estado
 let userRole = 'student';
 let currentCollectionId = null;
 let currentDocumentId = null;
 let collections = [];
 let documents = [];
 let currentView = localStorage.getItem('bibliotecaView') || 'list';
+// modoPartes da coleção aberta (true = abre partes.html, false = só download)
+let currentColModoPartes = true;
 
 const INITIAL_COLLECTIONS = ['Métodos', 'Hinos da Harpa', 'Músicas'];
 
 let searchTerm = '';
 let sortCriterion = 'name-asc';
 
-// INIT
 document.addEventListener('DOMContentLoaded', async () => {
   checkUserAuth();
   setupEventListeners();
@@ -138,11 +137,10 @@ function checkUserAuth() {
       const user = JSON.parse(usuarioLogado);
       if (user.classificado === true) {
         userRole = 'teacher';
-        roleSelector.style.display = 'block';
-        roleSelector.value = 'teacher';
+        if (roleSelector) { roleSelector.style.display = 'block'; roleSelector.value = 'teacher'; }
       } else {
         userRole = 'student';
-        roleSelector.style.display = 'none';
+        if (roleSelector) roleSelector.style.display = 'none';
       }
     } catch (e) {
       userRole = 'student';
@@ -160,7 +158,9 @@ async function ensureInitialCollections() {
     const existingNames = snap.docs.map(d => d.data().nome);
     for (const colName of INITIAL_COLLECTIONS) {
       if (!existingNames.includes(colName)) {
-        await addDoc(collection(db, 'biblioteca_colecoes'), { nome: colName, criadoEm: serverTimestamp() });
+        // Métodos começa com modoPartes=false; demais com true
+        const modoPartes = colName !== 'Métodos';
+        await addDoc(collection(db, 'biblioteca_colecoes'), { nome: colName, modoPartes, criadoEm: serverTimestamp() });
       }
     }
   } catch (error) {
@@ -172,6 +172,8 @@ function setupEventListeners() {
   document.getElementById('user-role').addEventListener('change', e => {
     userRole = e.target.value;
     updateUIBasedOnRole();
+    // Re-renderiza cards para mostrar/ocultar toggles
+    renderCollections();
   });
   document.getElementById('search-input').addEventListener('input', filterAndSortDocuments);
   document.getElementById('sort-select').addEventListener('change', filterAndSortDocuments);
@@ -182,6 +184,10 @@ function updateUIBasedOnRole() {
   document.querySelectorAll('.btn-delete').forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
   document.querySelectorAll('.btn-edit').forEach(el => el.style.display = userRole === 'teacher' ? 'inline-block' : 'none');
   document.querySelectorAll('.btn-delete-collection').forEach(el => el.style.display = userRole === 'teacher' ? 'flex' : 'none');
+  document.querySelectorAll('.modo-partes-toggle').forEach(el => el.style.display = userRole === 'teacher' ? 'flex' : 'none');
+  // Badge de status interno (quando dentro de uma coleção)
+  const badge = document.getElementById('modo-partes-badge');
+  if (badge) badge.style.display = userRole === 'teacher' ? 'inline-flex' : 'none';
 }
 
 async function loadCollections() {
@@ -191,7 +197,12 @@ async function loadCollections() {
     const colData = docSnap.data();
     const colId = docSnap.id;
     const docsSnap = await getDocs(collection(db, 'biblioteca_colecoes', colId, 'documentos'));
-    return { id: colId, ...colData, fileCount: docsSnap.size };
+    return {
+      id: colId,
+      ...colData,
+      modoPartes: colData.modoPartes !== false, // undefined → true (retrocompatível)
+      fileCount: docsSnap.size
+    };
   }));
   collections = collectionsWithCount;
 }
@@ -207,11 +218,13 @@ function renderCollections() {
   const grid = document.getElementById('collections-grid');
   grid.innerHTML = '';
   collections.forEach(col => {
+    const modoAtivo = col.modoPartes !== false;
     const card = document.createElement('div');
     card.className = 'collection-card';
     card.onclick = (e) => {
       if (e.target.closest('.btn-delete-collection')) return;
-      openCollection(col.id, col.nome);
+      if (e.target.closest('.modo-partes-toggle')) return;
+      openCollection(col.id, col.nome, modoAtivo);
     };
     card.innerHTML = `
       <button class="btn-delete-collection" onclick="deleteCollection('${col.id}', '${col.nome}')">
@@ -220,11 +233,30 @@ function renderCollections() {
       <span class="icon-folder">${getCollectionIcon(col.nome)}</span>
       <h3>${col.nome}</h3>
       <p class="file-count">${col.fileCount || 0} ${col.fileCount === 1 ? 'arquivo' : 'arquivos'}</p>
+      <div class="modo-partes-toggle" style="display:none;" title="${modoAtivo ? 'Modo partes ativo — clique para desativar' : 'Modo partes inativo — clique para ativar'}">
+        <span class="modo-partes-label">${modoAtivo ? '🎼 Partes' : '📄 PDF direto'}</span>
+        <button class="modo-partes-btn ${modoAtivo ? 'on' : 'off'}" onclick="toggleModoPartes('${col.id}', ${modoAtivo})">
+          ${modoAtivo ? 'ON' : 'OFF'}
+        </button>
+      </div>
       <p class="tap-hint">Toque para abrir</p>
     `;
     grid.appendChild(card);
   });
   updateUIBasedOnRole();
+}
+
+async function toggleModoPartes(colId, estadoAtual) {
+  const novoEstado = !estadoAtual;
+  try {
+    await updateDoc(doc(db, 'biblioteca_colecoes', colId), { modoPartes: novoEstado });
+    const col = collections.find(c => c.id === colId);
+    if (col) col.modoPartes = novoEstado;
+    renderCollections();
+  } catch (err) {
+    console.error('Erro ao alternar modo partes:', err);
+    alert('❌ Erro ao salvar configuração.');
+  }
 }
 
 async function deleteCollection(id, name) {
@@ -248,11 +280,21 @@ async function deleteCollection(id, name) {
   }
 }
 
-async function openCollection(id, name) {
+async function openCollection(id, name, modoPartes) {
   currentCollectionId = id;
+  currentColModoPartes = modoPartes !== false;
   document.getElementById('collections-view').style.display = 'none';
   document.getElementById('collection-view').classList.add('active');
   document.getElementById('collection-title').textContent = name;
+
+  // Badge de status para professor
+  const badge = document.getElementById('modo-partes-badge');
+  if (badge) {
+    badge.textContent = currentColModoPartes ? '🎼 Modo partes ativo' : '📄 Modo PDF direto';
+    badge.className = 'modo-partes-badge ' + (currentColModoPartes ? 'ativo' : 'inativo');
+    badge.style.display = userRole === 'teacher' ? 'inline-flex' : 'none';
+  }
+
   document.getElementById('search-input').value = '';
   document.getElementById('sort-select').value = 'name-asc';
   await loadDocuments();
@@ -262,6 +304,7 @@ async function openCollection(id, name) {
 function backToCollections() {
   currentCollectionId = null;
   currentDocumentId = null;
+  currentColModoPartes = true;
   document.getElementById('collections-view').style.display = 'block';
   document.getElementById('collection-view').classList.remove('active');
   document.getElementById('pdf-file').value = '';
@@ -293,7 +336,6 @@ function filterAndSortDocuments() {
 
 function renderDocuments() { filterAndSortDocuments(); }
 
-// Navegar para a página de partes
 function abrirPartes(colId, docId) {
   window.location.href = `partes.html?col=${colId}&doc=${docId}`;
 }
@@ -314,58 +356,98 @@ function renderDocumentsFiltered(docsToRender) {
   docs.forEach(d => {
     const item = document.createElement('div');
     item.className = 'document-item';
+    const safeNome = d.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
     if (currentView === 'grid') {
-      const safeNome = d.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-      item.innerHTML = `
-        <div class="pdf-thumbnail-wrap" id="thumb-${d.id}" style="cursor:pointer;" title="Ver partes">
-          <div class="pdf-thumb-loading">
-            <i class="fas fa-spinner"></i>
-            <span>Carregando...</span>
+
+      if (currentColModoPartes) {
+        // ── Grade · modo partes ──────────────────────────────────────────
+        item.innerHTML = `
+          <div class="pdf-thumbnail-wrap" id="thumb-${d.id}" style="cursor:pointer;" title="Ver partes">
+            <div class="pdf-thumb-loading">
+              <i class="fas fa-spinner"></i>
+              <span>Carregando...</span>
+            </div>
           </div>
-        </div>
-        <div class="doc-grid-info">
-          <div class="doc-name" title="${safeNome}">${d.nome}</div>
-          <div class="doc-buttons">
-            <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.72rem;font-weight:700;width:100%;"
-              onclick="abrirPartes('${currentCollectionId}', '${d.id}')">
-              🎼 Ver Partes
-            </button>
-            <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 Baixar</a>
-            <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
-            <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-            </button>
+          <div class="doc-grid-info">
+            <div class="doc-name" title="${safeNome}">${d.nome}</div>
+            <div class="doc-buttons">
+              <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.72rem;font-weight:700;width:100%;"
+                onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
+              <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 Baixar</a>
+              <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
+              <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>`;
+        container.appendChild(item);
+        const wrapEl = item.querySelector(`#thumb-${d.id}`);
+        wrapEl.onclick = () => abrirPartes(currentCollectionId, d.id);
+        gerarMiniaturaPDF(d.url, wrapEl);
+
+      } else {
+        // ── Grade · PDF direto ────────────────────────────────────────────
+        item.innerHTML = `
+          <div class="pdf-thumbnail-wrap" id="thumb-${d.id}" style="cursor:pointer;" title="Baixar PDF">
+            <div class="pdf-thumb-loading">
+              <i class="fas fa-spinner"></i>
+              <span>Carregando...</span>
+            </div>
           </div>
-        </div>
-      `;
-      container.appendChild(item);
-      const wrapEl = item.querySelector(`#thumb-${d.id}`);
-      wrapEl.onclick = () => abrirPartes(currentCollectionId, d.id);
-      gerarMiniaturaPDF(d.url, wrapEl);
+          <div class="doc-grid-info">
+            <div class="doc-name" title="${safeNome}">${d.nome}</div>
+            <div class="doc-buttons">
+              <a class="btn-download" href="${d.url}" target="_blank"
+                style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;display:block;text-align:center;font-size:0.72rem;font-weight:700;width:100%;"
+                data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
+              <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
+              <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>`;
+        container.appendChild(item);
+        const wrapEl = item.querySelector(`#thumb-${d.id}`);
+        wrapEl.onclick = () => window.open(d.url, '_blank');
+        gerarMiniaturaPDF(d.url, wrapEl);
+      }
 
     } else {
-      // LISTA — clicar no nome abre partes; botão download separado
-      let audioHTML = '';
-      if (d.audioUrl) {
-        audioHTML = `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>`;
+      // ── Lista ──────────────────────────────────────────────────────────
+      let audioHTML = d.audioUrl
+        ? `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>`
+        : '';
+
+      if (currentColModoPartes) {
+        item.innerHTML = `
+          <div class="doc-name" style="cursor:pointer;" onclick="abrirPartes('${currentCollectionId}', '${d.id}')" title="Ver partes">
+            ${d.nome} <span style="font-size:0.75rem;color:var(--azul);font-weight:400;">→ ver partes</span>
+          </div>
+          ${audioHTML}
+          <div class="doc-buttons">
+            <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:0.85rem;font-weight:700;"
+              onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
+            <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
+            <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
+            <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            </button>
+          </div>`;
+      } else {
+        item.innerHTML = `
+          <div class="doc-name">${d.nome}</div>
+          ${audioHTML}
+          <div class="doc-buttons">
+            <a class="btn-download" href="${d.url}" target="_blank"
+              style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:0.85rem;font-weight:700;text-align:center;"
+              data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
+            <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
+            <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+            </button>
+          </div>`;
       }
-      const safeNome = d.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-      item.innerHTML = `
-        <div class="doc-name" style="cursor:pointer;" onclick="abrirPartes('${currentCollectionId}', '${d.id}')" title="Ver partes">
-          ${d.nome} <span style="font-size:0.75rem;color:var(--azul);font-weight:400;">→ ver partes</span>
-        </div>
-        ${audioHTML}
-        <div class="doc-buttons">
-          <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:0.85rem;font-weight:700;"
-            onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
-          <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
-          <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
-          <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-          </button>
-        </div>
-      `;
       container.appendChild(item);
     }
   });
@@ -502,7 +584,11 @@ async function createNewCollection() {
   const input = document.getElementById('new-collection-name');
   if (!input.value.trim()) { alert('❌ Digite um nome para a coleção'); return; }
   try {
-    await addDoc(collection(db, 'biblioteca_colecoes'), { nome: input.value.trim(), criadoEm: serverTimestamp() });
+    await addDoc(collection(db, 'biblioteca_colecoes'), {
+      nome: input.value.trim(),
+      modoPartes: true, // novas coleções começam com modo partes ativo
+      criadoEm: serverTimestamp()
+    });
     alert('✅ Coleção criada com sucesso!');
     input.value = '';
     await loadCollections();
@@ -545,7 +631,13 @@ async function performGlobalSearch(term) {
       snap.forEach(docSnap => {
         const data = docSnap.data();
         if (data.nome.toLowerCase().includes(term)) {
-          allResults.push({ id: docSnap.id, collectionId: col.id, collectionName: col.nome, ...data });
+          allResults.push({
+            id: docSnap.id,
+            collectionId: col.id,
+            collectionName: col.nome,
+            modoPartes: col.modoPartes !== false,
+            ...data
+          });
         }
       });
     }
@@ -566,18 +658,33 @@ function renderGlobalResults(results) {
   results.forEach(d => {
     const item = document.createElement('div');
     item.className = 'document-item';
-    let audioHTML = d.audioUrl ? `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>` : '';
+    let audioHTML = d.audioUrl
+      ? `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>` : '';
     const safeNome = d.nome.replace(/"/g, '&quot;');
-    item.innerHTML = `
-      <div class="doc-info" style="flex:1; cursor:pointer;" onclick="window.location.href='partes.html?col=${d.collectionId}&doc=${d.id}'">
-        <span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:2px;">${d.collectionName}</span>
-        <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome} <span style="font-size:0.75rem;color:var(--azul);">→ ver partes</span></div>
-      </div>
-      ${audioHTML}
-      <div class="doc-buttons">
-        <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
-      </div>
-    `;
+
+    if (d.modoPartes) {
+      item.innerHTML = `
+        <div class="doc-info" style="flex:1; cursor:pointer;" onclick="window.location.href='partes.html?col=${d.collectionId}&doc=${d.id}'">
+          <span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:2px;">${d.collectionName}</span>
+          <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome} <span style="font-size:0.75rem;color:var(--azul);">→ ver partes</span></div>
+        </div>
+        ${audioHTML}
+        <div class="doc-buttons">
+          <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
+        </div>`;
+    } else {
+      item.innerHTML = `
+        <div class="doc-info" style="flex:1;">
+          <span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:2px;">${d.collectionName}</span>
+          <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome}</div>
+        </div>
+        ${audioHTML}
+        <div class="doc-buttons">
+          <a class="btn-download" href="${d.url}" target="_blank"
+            style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:0.85rem;font-weight:700;text-align:center;"
+            data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
+        </div>`;
+    }
     container.appendChild(item);
   });
 }
@@ -607,3 +714,4 @@ window.filterAndSortDocuments = filterAndSortDocuments;
 window.clearGlobalSearch = clearGlobalSearch;
 window.setView = setView;
 window.abrirPartes = abrirPartes;
+window.toggleModoPartes = toggleModoPartes;
