@@ -72,7 +72,7 @@
             flex: 1;
         }
 
-        /* ── SELETOR DE MODO (igual à biblioteca) ────────────────────────────── */
+        /* ── SELETOR DE MODO ─────────────────────────────────────────────────── */
         .user-role-selector {
             background: var(--card-alt);
             border: 1px solid var(--border);
@@ -87,6 +87,33 @@
         }
         .user-role-selector:hover  { border-color: var(--azul); }
         .user-role-selector:focus  { border-color: var(--azul); box-shadow: 0 0 0 2px rgba(14,165,233,0.2); }
+
+        /* ── TOGGLE LISTA / GRADE ────────────────────────────────────────────── */
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3px;
+            flex-shrink: 0;
+        }
+        .view-toggle button {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            line-height: 1;
+            transition: all 0.18s;
+        }
+        .view-toggle button.active {
+            background: var(--azul-escuro);
+            color: var(--azul);
+        }
+        .view-toggle button:hover:not(.active) { color: var(--ink); }
 
         .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
 
@@ -158,11 +185,52 @@
         .loading-partes p { margin: 0; font-size: 0.95rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── GRID DE GRUPOS ──────────────────────────────────────────────────── */
+        /* ── GRADE (padrão) ──────────────────────────────────────────────────── */
         .partes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 20px;
+            transition: all 0.2s;
+        }
+
+        /* ── MODO LISTA ──────────────────────────────────────────────────────── */
+        .partes-grid.view-list {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        /* Card em modo lista: horizontal */
+        .partes-grid.view-list .grupo-card:not(.professor-mode) {
+            flex-direction: row;
+            align-items: stretch;
+        }
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-thumb {
+            width: 90px;
+            min-width: 90px;
+            min-height: 110px;
+            flex-shrink: 0;
+            border-radius: 0;
+        }
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info {
+            border-top: none;
+            border-left: 1px solid var(--border);
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 14px;
+        }
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-nome-wrap {
+            flex: 1;
+            min-width: 120px;
+        }
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-paginas-label {
+            white-space: nowrap;
+        }
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo {
+            width: auto;
+            padding: 7px 16px;
+            margin-top: 0;
+            flex-shrink: 0;
         }
 
         /* ── CARD DE GRUPO — MODO ALUNO ──────────────────────────────────────── */
@@ -179,6 +247,9 @@
             border-color: var(--azul);
             transform: translateY(-3px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .partes-grid.view-list .grupo-card:not(.professor-mode):hover {
+            transform: translateX(3px);
         }
         .grupo-thumb {
             width: 100%;
@@ -448,10 +519,12 @@
         /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
         @media (max-width: 600px) {
             .partes-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+            .partes-grid.view-list { grid-template-columns: 1fr; }
             .grupo-card.professor-mode { grid-column: 1 / -1; }
             #barra-professor { gap: 8px; padding: 8px 12px; }
             #btn-novo-grupo, #btn-salvar-grupos { padding: 7px 14px; font-size: 0.8rem; }
             .partes-header h1 { font-size: 0.9rem; }
+            .view-toggle button { padding: 5px 7px; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -473,6 +546,16 @@
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
         <h1 id="doc-titulo">Carregando...</h1>
+
+        <!-- Toggle Lista / Grade -->
+        <div class="view-toggle" id="view-toggle" title="Alternar visualização">
+            <button id="btn-view-list" class="active" title="Visualização em lista">
+                <i class="fas fa-list"></i>
+            </button>
+            <button id="btn-view-grid" title="Visualização em grade">
+                <i class="fas fa-th-large"></i>
+            </button>
+        </div>
 
         <!-- Seletor de modo (igual à biblioteca) -->
         <select id="user-role" class="user-role-selector">
@@ -556,6 +639,52 @@
     </nav>
 
     <script src="loader.js"></script>
+
+    <!-- ── TOGGLE LISTA / GRADE ───────────────────────────────────────────────── -->
+    <script>
+    (function () {
+        const STORAGE_KEY = 'partes_view_mode';
+        const btnList = document.getElementById('btn-view-list');
+        const btnGrid = document.getElementById('btn-view-grid');
+
+        function getGrid() {
+            return document.querySelector('.partes-grid');
+        }
+
+        function applyMode(mode) {
+            const grid = getGrid();
+            if (mode === 'list') {
+                if (grid) grid.classList.add('view-list');
+                btnList.classList.add('active');
+                btnGrid.classList.remove('active');
+            } else {
+                if (grid) grid.classList.remove('view-list');
+                btnGrid.classList.add('active');
+                btnList.classList.remove('active');
+            }
+            localStorage.setItem(STORAGE_KEY, mode);
+        }
+
+        // Aplica modo salvo (padrão: lista)
+        const saved = localStorage.getItem(STORAGE_KEY) || 'list';
+        // Aguarda o grid ser renderizado pelo script_partes.js antes de aplicar
+        document.addEventListener('DOMContentLoaded', () => applyMode(saved));
+        // Observer para quando o grid for injetado dinamicamente
+        const observer = new MutationObserver(() => {
+            const grid = getGrid();
+            if (grid) {
+                const current = localStorage.getItem(STORAGE_KEY) || 'list';
+                if (current === 'list') grid.classList.add('view-list');
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.getElementById('partes-content'), { childList: true, subtree: true });
+
+        btnList.addEventListener('click', () => applyMode('list'));
+        btnGrid.addEventListener('click', () => applyMode('grid'));
+    })();
+    </script>
+
     <script type="module" src="script_partes.js"></script>
     <script type="module" src="navegacao.js"></script>
     <script type="module" src="bottom-nav.js"></script>
