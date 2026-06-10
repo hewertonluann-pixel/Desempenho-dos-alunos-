@@ -21,7 +21,7 @@ const INSTRUMENTOS = [
   'soprano','contralto','tenor','baixo'
 ];
 
-// ── Estado global ───────────────────────────────────────────────────────────
+// ── Estado global ─────────────────────────────────────────────────────────────
 let pdfJsLib  = null;
 let pdfLibLib = null;
 let pdfDoc    = null;
@@ -31,23 +31,23 @@ let colId     = null;
 let userRole  = 'student';
 let nomePdf   = '';
 
-// grupos: [{ nome: string, paginas: number[] }]
 let grupos = [];
 let totalPaginas = 0;
 let gruposModificados = false;
 let documentoCarregado = false;
 
-// Cache de páginas renderizadas
+// Cache separado por chave "pagina_dpr" para não misturar resoluções
 const pageCache = {};
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   lerParams();
   checkAuth();
-  configurarSeletor();   // ← conecta o select ao script
+  configurarSeletor();
   renderRoleBadge();
   configurarBarraProfessor();
   configurarModal();
+  configurarVisualizador();
   await carregarDocumento();
 });
 
@@ -61,8 +61,6 @@ function lerParams() {
 // ── Auth + Seletor ────────────────────────────────────────────────────────────
 function checkAuth() {
   const seletor = document.getElementById('user-role');
-
-  // 1. Tenta ler do localStorage (usuário real)
   try {
     const user = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
     const isTeacher =
@@ -73,31 +71,21 @@ function checkAuth() {
       user.isTeacher === true;
     userRole = isTeacher ? 'teacher' : 'student';
   } catch { userRole = 'student'; }
-
-  // 2. Sincroniza o select com o papel detectado
-  if (seletor) {
-    seletor.value = userRole;
-    seletor.style.display = 'block';
-  }
+  if (seletor) { seletor.value = userRole; seletor.style.display = 'block'; }
 }
 
 function configurarSeletor() {
   const seletor = document.getElementById('user-role');
   if (!seletor) return;
-
   seletor.addEventListener('change', () => {
-    userRole = seletor.value;           // atualiza papel
-    renderRoleBadge();                  // atualiza badge no header
-    atualizarBarraProfessor();          // mostra/oculta barra professor
-    if (documentoCarregado) {
-      renderizarGrupos();               // re-renderiza sem recarregar PDF
-    }
+    userRole = seletor.value;
+    renderRoleBadge();
+    atualizarBarraProfessor();
+    if (documentoCarregado) renderizarGrupos();
   });
 }
 
-// ── Badge de papel ────────────────────────────────────────────────────────────
 function renderRoleBadge() {
-  // remove badge anterior se existir
   const old = document.getElementById('role-badge-partes');
   if (old) old.remove();
 }
@@ -122,7 +110,7 @@ function marcarModificado() {
   if (ind) ind.style.display = 'inline';
 }
 
-// ── Modal seletor ─────────────────────────────────────────────────────────────
+// ── Modal seletor de páginas ──────────────────────────────────────────────────
 let modalTargetIdx = null;
 
 function configurarModal() {
@@ -140,7 +128,7 @@ function abrirSeletorPaginas(idxGrupo) {
   grid.innerHTML = '';
 
   if (disponiveis.length === 0) {
-    grid.innerHTML = '<div id="modal-seletor-vazio">Todas as páginas já estão atribuídas a algum instrumento.</div>';
+    grid.innerHTML = '<div id="modal-seletor-vazio">Todas as páginas já estão atribuídas.</div>';
   } else {
     disponiveis.forEach(numPag => {
       const item = document.createElement('div');
@@ -151,21 +139,132 @@ function abrirSeletorPaginas(idxGrupo) {
         </div>
         <div class="seletor-label">Página ${numPag}</div>
       `;
-      item.addEventListener('click', () => {
-        adicionarPaginaAoGrupo(idxGrupo, numPag);
-        fecharModal();
-      });
+      item.addEventListener('click', () => { adicionarPaginaAoGrupo(idxGrupo, numPag); fecharModal(); });
       grid.appendChild(item);
       renderMiniatura(numPag, item.querySelector(`#seletor-thumb-${numPag}`), 80);
     });
   }
-
   document.getElementById('modal-seletor').classList.add('aberto');
 }
 
 function fecharModal() {
   document.getElementById('modal-seletor').classList.remove('aberto');
   modalTargetIdx = null;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VISUALIZADOR FULLSCREEN
+// ══════════════════════════════════════════════════════════════════════════════
+let vizGrupoIdx   = null;   // índice do grupo aberto
+let vizPagIdx     = 0;      // índice da página dentro do grupo
+let vizRendering  = false;
+
+// touch/swipe
+let swipeStartX = 0;
+
+function configurarVisualizador() {
+  const overlay = document.getElementById('viz-overlay');
+  const fechar  = document.getElementById('viz-fechar');
+  const prev    = document.getElementById('viz-prev');
+  const next    = document.getElementById('viz-next');
+  const dlBtn   = document.getElementById('viz-baixar');
+  const canvas  = document.getElementById('viz-canvas');
+
+  fechar.addEventListener('click', fecharVisualizador);
+  overlay.addEventListener('click', fecharVisualizador);
+  prev.addEventListener('click', () => navegarViz(-1));
+  next.addEventListener('click', () => navegarViz(1));
+  dlBtn.addEventListener('click', () => baixarGrupo(vizGrupoIdx));
+
+  // Teclado
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('viz-modal').classList.contains('aberto')) return;
+    if (e.key === 'Escape')      fecharVisualizador();
+    if (e.key === 'ArrowLeft')   navegarViz(-1);
+    if (e.key === 'ArrowRight')  navegarViz(1);
+  });
+
+  // Swipe mobile
+  canvas.addEventListener('touchstart', e => { swipeStartX = e.touches[0].clientX; }, { passive: true });
+  canvas.addEventListener('touchend',   e => {
+    const diff = swipeStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) navegarViz(diff > 0 ? 1 : -1);
+  }, { passive: true });
+}
+
+function abrirVisualizador(idxGrupo, idxPagina = 0) {
+  vizGrupoIdx = idxGrupo;
+  vizPagIdx   = idxPagina;
+  document.getElementById('viz-modal').classList.add('aberto');
+  document.body.style.overflow = 'hidden';
+  renderVizPagina();
+}
+
+function fecharVisualizador() {
+  document.getElementById('viz-modal').classList.remove('aberto');
+  document.body.style.overflow = '';
+  vizGrupoIdx = null;
+  vizPagIdx   = 0;
+  // Limpa canvas para liberar memória
+  const canvas = document.getElementById('viz-canvas');
+  const ctx    = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function navegarViz(delta) {
+  if (vizGrupoIdx === null) return;
+  const grupo = grupos[vizGrupoIdx];
+  const novoIdx = vizPagIdx + delta;
+  if (novoIdx < 0 || novoIdx >= grupo.paginas.length) return;
+  vizPagIdx = novoIdx;
+  renderVizPagina();
+}
+
+async function renderVizPagina() {
+  if (vizRendering) return;
+  vizRendering = true;
+
+  const grupo   = grupos[vizGrupoIdx];
+  const numPag  = grupo.paginas[vizPagIdx];
+  const total   = grupo.paginas.length;
+
+  // Atualiza UI de navegação
+  document.getElementById('viz-nome').textContent    = grupo.nome;
+  document.getElementById('viz-contador').textContent =
+    total > 1 ? `Página ${vizPagIdx + 1} de ${total}` : '';
+  document.getElementById('viz-prev').style.visibility = vizPagIdx > 0       ? 'visible' : 'hidden';
+  document.getElementById('viz-next').style.visibility = vizPagIdx < total-1 ? 'visible' : 'hidden';
+
+  const loading = document.getElementById('viz-loading');
+  const canvas  = document.getElementById('viz-canvas');
+  loading.style.display = 'flex';
+  canvas.style.display  = 'none';
+
+  try {
+    const page    = await pdfDoc.getPage(numPag);
+    const dpr     = window.devicePixelRatio || 1;
+    // Renderiza na largura real do container menos padding
+    const maxW    = Math.min(window.innerWidth - 32, 900);
+    const baseVP  = page.getViewport({ scale: 1 });
+    const scale   = (maxW / baseVP.width) * dpr;
+    const viewport = page.getViewport({ scale });
+
+    canvas.width  = viewport.width;
+    canvas.height = viewport.height;
+    // CSS exibe no tamanho lógico (sem DPR)
+    canvas.style.width  = (viewport.width  / dpr) + 'px';
+    canvas.style.height = (viewport.height / dpr) + 'px';
+
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+    loading.style.display = 'none';
+    canvas.style.display  = 'block';
+  } catch (err) {
+    console.error('Erro no visualizador:', err);
+    loading.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--vermelho);font-size:2rem;"></i><span>Erro ao carregar</span>';
+  } finally {
+    vizRendering = false;
+  }
 }
 
 // ── Carregar documento ────────────────────────────────────────────────────────
@@ -209,30 +308,20 @@ async function inicializarPdf() {
   totalPaginas = pdfDoc.numPages;
 }
 
-// ── Carregar grupos do Firestore (com migração automática) ────────────────────
+// ── Grupos ────────────────────────────────────────────────────────────────────
 async function carregarGrupos() {
   try {
     const rotuloRef = doc(db, 'biblioteca_rotulos', `${colId}_${docId}`);
     const snap = await getDoc(rotuloRef);
-
     if (snap.exists()) {
       const data = snap.data();
-
-      // Novo formato: grupos
       if (data.grupos && Array.isArray(data.grupos) && data.grupos.length > 0) {
-        grupos = data.grupos;
-        return;
+        grupos = data.grupos; return;
       }
-
-      // Formato antigo → migrar
       if (data.paginas && typeof data.paginas === 'object') {
-        grupos = migrarFormatoAntigo(data.paginas);
-        marcarModificado();
-        return;
+        grupos = migrarFormatoAntigo(data.paginas); marcarModificado(); return;
       }
     }
-
-    // Nada salvo → detecção automática por varredura
     grupos = await algoritmoVarredura();
   } catch (e) {
     console.warn('Erro ao carregar grupos, usando varredura:', e);
@@ -251,15 +340,12 @@ function migrarFormatoAntigo(paginas) {
     .sort((a, b) => Math.min(...a.paginas) - Math.min(...b.paginas));
 }
 
-// ── Algoritmo de varredura sequencial ─────────────────────────────────────────
 async function algoritmoVarredura() {
   const resultado = [];
   let grupoAtual  = null;
-
   for (let i = 1; i <= totalPaginas; i++) {
     const page = await pdfDoc.getPage(i);
     const instrumento = await detectarInstrumentoNaPagina(page);
-
     if (instrumento) {
       grupoAtual = { nome: instrumento, paginas: [i] };
       resultado.push(grupoAtual);
@@ -270,7 +356,6 @@ async function algoritmoVarredura() {
       resultado.push(grupoAtual);
     }
   }
-
   return resultado;
 }
 
@@ -283,18 +368,15 @@ async function detectarInstrumentoNaPagina(page) {
         return inst.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       }
     }
-  } catch (e) {
-    console.warn('Erro ao extrair texto:', e);
-  }
+  } catch (e) { console.warn('Erro ao extrair texto:', e); }
   return null;
 }
 
-// ── Salvar grupos no Firestore ────────────────────────────────────────────────
 async function salvarGrupos() {
   if (userRole !== 'teacher') return;
   const grupoVazio = grupos.find(g => g.paginas.length === 0);
   if (grupoVazio) {
-    alert(`❌ O instrumento "${grupoVazio.nome}" não tem páginas. Adicione páginas ou exclua o instrumento.`);
+    alert(`❌ O instrumento "${grupoVazio.nome}" não tem páginas.`);
     return;
   }
   const btn = document.getElementById('btn-salvar-grupos');
@@ -307,10 +389,7 @@ async function salvarGrupos() {
     gruposModificados = false;
     if (ind) ind.style.display = 'none';
     btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
-    setTimeout(() => {
-      btn.innerHTML = '<i class="fas fa-save"></i> Salvar Tudo';
-      btn.disabled = true;
-    }, 2000);
+    setTimeout(() => { btn.innerHTML = '<i class="fas fa-save"></i> Salvar Tudo'; btn.disabled = true; }, 2000);
   } catch (err) {
     console.error('Erro ao salvar grupos:', err);
     alert('❌ Erro ao salvar. Tente novamente.');
@@ -319,11 +398,9 @@ async function salvarGrupos() {
   }
 }
 
-// ── Helpers de estado ─────────────────────────────────────────────────────────
 function getPaginasAtribuidas() {
   return new Set(grupos.flatMap(g => g.paginas));
 }
-
 function getPaginasDisponiveis() {
   const atribuidas = getPaginasAtribuidas();
   const disponiveis = [];
@@ -333,14 +410,13 @@ function getPaginasDisponiveis() {
   return disponiveis;
 }
 
-// ── Operações de edição de grupos (somente professor) ─────────────────────────
+// ── Edição de grupos (professor) ──────────────────────────────────────────────
 function criarNovoGrupo() {
   if (userRole !== 'teacher') return;
   grupos.push({ nome: 'Novo Instrumento', paginas: [] });
   marcarModificado();
   renderizarGrupos();
-  const idx = grupos.length - 1;
-  setTimeout(() => iniciarRenomear(idx), 100);
+  setTimeout(() => iniciarRenomear(grupos.length - 1), 100);
 }
 
 function adicionarPaginaAoGrupo(idxGrupo, numPagina) {
@@ -362,7 +438,7 @@ function removerPaginaDoGrupo(idxGrupo, numPagina) {
 function excluirGrupo(idxGrupo) {
   if (userRole !== 'teacher') return;
   const nome = grupos[idxGrupo].nome;
-  if (!confirm(`Excluir o instrumento "${nome}"?\nAs páginas ficarão disponíveis para outros instrumentos.`)) return;
+  if (!confirm(`Excluir o instrumento "${nome}"?`)) return;
   grupos.splice(idxGrupo, 1);
   marcarModificado();
   renderizarGrupos();
@@ -399,7 +475,7 @@ function cancelarRenomear(idxGrupo) {
   if (renameWrap) renameWrap.style.display = 'none';
 }
 
-// ── Renderizar grid de grupos ─────────────────────────────────────────────────
+// ── Renderizar grid ───────────────────────────────────────────────────────────
 function renderizarGrupos() {
   const content = document.getElementById('partes-content');
   const totalInstrumentos = grupos.filter(g => g.paginas.length > 0).length;
@@ -417,7 +493,11 @@ function renderizarGrupos() {
     <div class="partes-grid" id="partes-grid"></div>
   `;
 
+  // Re-aplica o modo de visualização salvo
+  const currentMode = localStorage.getItem('partes_view_mode') || 'list';
   const grid = document.getElementById('partes-grid');
+  if (currentMode === 'list') grid.classList.add('view-list');
+
   grupos.forEach((grupo, idx) => {
     grid.appendChild(
       userRole === 'teacher'
@@ -426,7 +506,7 @@ function renderizarGrupos() {
     );
   });
 
-  // Renderiza miniaturas
+  // Renderiza miniaturas apenas no modo grade (evita trabalho desnecessário)
   grupos.forEach((grupo, idx) => {
     if (userRole === 'teacher') {
       grupo.paginas.forEach(numPag => {
@@ -434,24 +514,51 @@ function renderizarGrupos() {
         if (wrapEl) renderMiniatura(numPag, wrapEl, 80);
       });
     } else {
-      if (grupo.paginas.length > 0) {
+      if (grupo.paginas.length > 0 && currentMode !== 'list') {
         const wrapEl = document.getElementById(`grupo-thumb-${idx}`);
-        if (wrapEl) renderMiniatura(grupo.paginas[0], wrapEl, 200);
+        if (wrapEl) renderMiniatura(grupo.paginas[0], wrapEl, 400);
       }
     }
   });
+
+  // Observer: quando o toggle mudar para grade, renderiza as miniaturas pendentes
+  observarModoGrade();
 }
 
-// ── Card — Modo Aluno ─────────────────────────────────────────────────────────
+// Re-renderiza miniaturas ao alternar para grade
+let gradeObserverAtivo = false;
+function observarModoGrade() {
+  if (gradeObserverAtivo) return;
+  gradeObserverAtivo = true;
+  const obs = new MutationObserver(() => {
+    const grid = document.getElementById('partes-grid');
+    if (!grid) return;
+    const isGrid = !grid.classList.contains('view-list');
+    if (isGrid && userRole !== 'teacher') {
+      grupos.forEach((grupo, idx) => {
+        if (grupo.paginas.length > 0) {
+          const wrapEl = document.getElementById(`grupo-thumb-${idx}`);
+          if (wrapEl && !wrapEl.querySelector('canvas')) {
+            renderMiniatura(grupo.paginas[0], wrapEl, 400);
+          }
+        }
+      });
+    }
+  });
+  const grid = document.getElementById('partes-grid');
+  if (grid) obs.observe(grid, { attributes: true, attributeFilter: ['class'] });
+}
+
+// ── Card Aluno ────────────────────────────────────────────────────────────────
 function criarCardAluno(grupo, idx) {
   const card = document.createElement('div');
   card.className = 'grupo-card';
   card.id = `grupo-card-${idx}`;
 
-  const numPags  = grupo.paginas.length;
+  const numPags   = grupo.paginas.length;
   const labelPags = numPags === 1
     ? 'Página ' + grupo.paginas[0]
-    : `Páginas ${grupo.paginas[0]} a ${grupo.paginas[grupo.paginas.length - 1]} · ${numPags} folhas`;
+    : `Páginas ${grupo.paginas[0]}–${grupo.paginas[grupo.paginas.length - 1]} · ${numPags} folhas`;
 
   card.innerHTML = `
     <div class="grupo-thumb" id="grupo-thumb-${idx}">
@@ -465,18 +572,25 @@ function criarCardAluno(grupo, idx) {
       <div class="grupo-nome-wrap">
         <span class="grupo-nome">${grupo.nome}</span>
       </div>
-      <button class="btn-baixar-grupo" id="btn-baixar-${idx}"
-        onclick="baixarGrupo(${idx})">
-        <i class="fas fa-download"></i> Baixar
-      </button>
+      <div class="grupo-btns">
+        <button class="btn-visualizar-grupo" id="btn-ver-${idx}"
+          onclick="abrirVisualizador(${idx}, 0)" title="Visualizar em tela cheia">
+          <i class="fas fa-expand"></i> Visualizar
+        </button>
+        <button class="btn-baixar-grupo" id="btn-baixar-${idx}"
+          onclick="baixarGrupo(${idx})">
+          <i class="fas fa-download"></i> Baixar
+        </button>
+      </div>
     </div>
   `;
 
-  card.querySelector('.grupo-thumb').addEventListener('click', () => baixarGrupo(idx));
+  // Clique na miniatura também abre o visualizador
+  card.querySelector('.grupo-thumb').addEventListener('click', () => abrirVisualizador(idx, 0));
   return card;
 }
 
-// ── Card — Modo Professor ─────────────────────────────────────────────────────
+// ── Card Professor ────────────────────────────────────────────────────────────
 function criarCardProfessor(grupo, idx) {
   const card = document.createElement('div');
   card.className = 'grupo-card professor-mode';
@@ -485,9 +599,7 @@ function criarCardProfessor(grupo, idx) {
   const thumbsHTML = grupo.paginas.map(numPag => `
     <div class="grupo-mini-wrap">
       <div class="grupo-mini-thumb" id="mini-thumb-${idx}-${numPag}">
-        <div class="thumb-loading" style="min-height:110px;">
-          <i class="fas fa-spinner"></i>
-        </div>
+        <div class="thumb-loading" style="min-height:110px;"><i class="fas fa-spinner"></i></div>
       </div>
       <div class="grupo-mini-label">Pág. ${numPag}</div>
       <button class="btn-remover-pag" title="Remover página ${numPag}"
@@ -504,24 +616,21 @@ function criarCardProfessor(grupo, idx) {
     <div class="grupo-prof-header">
       <div id="grupo-nome-wrap-${idx}" style="display:flex;align-items:center;gap:6px;flex:1;">
         <span class="grupo-prof-nome" id="grupo-prof-nome-${idx}">${grupo.nome}</span>
-        <button class="btn-renomear-grupo" title="Renomear"
-          onclick="iniciarRenomear(${idx})">
+        <button class="btn-renomear-grupo" title="Renomear" onclick="iniciarRenomear(${idx})">
           <i class="fas fa-pen"></i>
         </button>
       </div>
       <div id="grupo-rename-wrap-${idx}" class="grupo-rename-wrap">
-        <input id="grupo-rename-input-${idx}" class="grupo-rename-input"
-          type="text" placeholder="Nome do instrumento"
+        <input id="grupo-rename-input-${idx}" class="grupo-rename-input" type="text"
+          placeholder="Nome do instrumento"
           onkeydown="if(event.key==='Enter') confirmarRenomear(${idx}); if(event.key==='Escape') cancelarRenomear(${idx});">
         <button class="btn-confirm-rename" onclick="confirmarRenomear(${idx})">OK</button>
         <button class="btn-cancel-rename" onclick="cancelarRenomear(${idx})">Cancelar</button>
       </div>
-      <button class="btn-excluir-grupo" title="Excluir instrumento"
-        onclick="excluirGrupo(${idx})">
+      <button class="btn-excluir-grupo" title="Excluir" onclick="excluirGrupo(${idx})">
         <i class="fas fa-trash"></i>
       </button>
     </div>
-
     <div class="grupo-thumbs-row">
       ${thumbsHTML}
       <button class="btn-adicionar-pag" onclick="abrirSeletorPaginas(${idx})">
@@ -529,41 +638,54 @@ function criarCardProfessor(grupo, idx) {
         <span>Adicionar<br>página</span>
       </button>
     </div>
-
     <div class="grupo-prof-footer">
       ${aviso}
       <button class="btn-baixar-grupo" style="width:auto;padding:6px 16px;"
-        id="btn-baixar-${idx}" onclick="baixarGrupo(${idx})"
-        ${numPags === 0 ? 'disabled' : ''}>
+        id="btn-baixar-${idx}" onclick="baixarGrupo(${idx})" ${numPags === 0 ? 'disabled' : ''}>
         <i class="fas fa-download"></i> Baixar
       </button>
     </div>
   `;
-
   return card;
 }
 
-// ── Renderizar miniatura (usa cache) ──────────────────────────────────────────
-async function renderMiniatura(numPagina, wrapEl, alturaAlvo = 200) {
+// ── Renderizar miniatura (alta resolução com DPR) ─────────────────────────────
+async function renderMiniatura(numPagina, wrapEl, alturaAlvo = 400) {
   if (!wrapEl) return;
+  const dpr      = window.devicePixelRatio || 1;
+  const cacheKey = `${numPagina}_${dpr}_${alturaAlvo}`;
+
   try {
-    if (pageCache[numPagina]) {
+    // Usa cache se disponível
+    if (pageCache[cacheKey]) {
       const clone = document.createElement('canvas');
-      clone.width  = pageCache[numPagina].width;
-      clone.height = pageCache[numPagina].height;
-      clone.getContext('2d').drawImage(pageCache[numPagina], 0, 0);
+      clone.width  = pageCache[cacheKey].width;
+      clone.height = pageCache[cacheKey].height;
+      const ctx = clone.getContext('2d');
+      ctx.drawImage(pageCache[cacheKey], 0, 0);
+      // CSS exibe no tamanho lógico
+      clone.style.width  = (clone.width  / dpr) + 'px';
+      clone.style.height = (clone.height / dpr) + 'px';
       wrapEl.innerHTML = '';
       wrapEl.appendChild(clone);
       return;
     }
+
     const page     = await pdfDoc.getPage(numPagina);
-    const scale    = alturaAlvo / page.getViewport({ scale: 1 }).height;
+    const baseVP   = page.getViewport({ scale: 1 });
+    // scale × dpr = canvas físico maior → nítido em Retina
+    const scale    = (alturaAlvo / baseVP.height) * dpr;
     const viewport = page.getViewport({ scale });
+
     const canvas   = document.createElement('canvas');
     canvas.width   = viewport.width;
     canvas.height  = viewport.height;
+    canvas.style.width  = (viewport.width  / dpr) + 'px';
+    canvas.style.height = (viewport.height / dpr) + 'px';
+
     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-    pageCache[numPagina] = canvas;
+
+    pageCache[cacheKey] = canvas;
     wrapEl.innerHTML = '';
     wrapEl.appendChild(canvas);
   } catch (err) {
@@ -576,16 +698,17 @@ async function renderMiniatura(numPagina, wrapEl, alturaAlvo = 200) {
   }
 }
 
-// ── Download do grupo (pdf-lib, multi-página) ─────────────────────────────────
+// ── Download ──────────────────────────────────────────────────────────────────
 async function baixarGrupo(idxGrupo) {
   const grupo = grupos[idxGrupo];
   if (!grupo || grupo.paginas.length === 0) {
-    alert('❌ Este instrumento não tem páginas atribuídas.');
-    return;
+    alert('❌ Este instrumento não tem páginas atribuídas.'); return;
   }
   const btn = document.getElementById(`btn-baixar-${idxGrupo}`);
+  const vizBtn = document.getElementById('viz-baixar');
   try {
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...'; }
+    if (vizBtn) { vizBtn.disabled = true; vizBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
     const PDFLib = await loadPdfLib();
     const { PDFDocument } = PDFLib;
     const response  = await fetch(pdfUrl);
@@ -599,11 +722,8 @@ async function baixarGrupo(idxGrupo) {
     const blob      = new Blob([novoBytes], { type: 'application/pdf' });
     const url       = URL.createObjectURL(blob);
     const link      = document.createElement('a');
-    link.href       = url;
-    link.download   = `${nomePdf} - ${grupo.nome}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    link.href = url; link.download = `${nomePdf} - ${grupo.nome}.pdf`;
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), 5000);
     await registrarDownload(`${nomePdf} - ${grupo.nome}`);
   } catch (err) {
@@ -611,17 +731,16 @@ async function baixarGrupo(idxGrupo) {
     alert('❌ Erro ao gerar o PDF. Tente novamente.');
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-download"></i> Baixar'; }
+    if (vizBtn) { vizBtn.disabled = false; vizBtn.innerHTML = '<i class="fas fa-download"></i>'; }
   }
 }
 
-// ── Registro de download ──────────────────────────────────────────────────────
 async function registrarDownload(nomeArquivo) {
   try {
     const usuario   = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
     const nomeAluno = usuario.nome || 'Visitante';
     await addDoc(collection(db, 'downloads'), {
-      nomeAluno, nomeArquivo,
-      data: Timestamp.fromDate(new Date())
+      nomeAluno, nomeArquivo, data: Timestamp.fromDate(new Date())
     });
   } catch (e) { console.warn('Erro ao registrar download:', e); }
 }
@@ -654,7 +773,6 @@ async function loadPdfLib() {
   });
 }
 
-// ── Erro fatal ────────────────────────────────────────────────────────────────
 function mostrarErro(msg) {
   const loadInicial = document.getElementById('loading-inicial');
   if (loadInicial) loadInicial.style.display = 'none';
@@ -668,6 +786,7 @@ function mostrarErro(msg) {
 
 // ── Expor para onclick inline ─────────────────────────────────────────────────
 window.baixarGrupo          = baixarGrupo;
+window.abrirVisualizador    = abrirVisualizador;
 window.abrirSeletorPaginas  = abrirSeletorPaginas;
 window.removerPaginaDoGrupo = removerPaginaDoGrupo;
 window.excluirGrupo         = excluirGrupo;
