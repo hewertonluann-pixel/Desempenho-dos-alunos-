@@ -21,7 +21,7 @@ const INSTRUMENTOS = [
   'soprano','contralto','tenor','baixo'
 ];
 
-// ── Estado global ──────────────────────────────────────────────────────────
+// ── Estado global ───────────────────────────────────────────────────────────
 let pdfJsLib  = null;
 let pdfLibLib = null;
 let pdfDoc    = null;
@@ -35,14 +35,16 @@ let nomePdf   = '';
 let grupos = [];
 let totalPaginas = 0;
 let gruposModificados = false;
+let documentoCarregado = false;
 
-// Cache de páginas renderizadas para o modal e miniaturas
-const pageCache = {}; // { numPagina: HTMLCanvasElement }
+// Cache de páginas renderizadas
+const pageCache = {};
 
-// ── Init ───────────────────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   lerParams();
   checkAuth();
+  configurarSeletor();   // ← conecta o select ao script
   renderRoleBadge();
   configurarBarraProfessor();
   configurarModal();
@@ -56,8 +58,11 @@ function lerParams() {
   if (!colId || !docId) mostrarErro('Parâmetros inválidos. Volte à biblioteca.');
 }
 
-// ── Auth ─────────────────────────────────────────────────────────────────────
+// ── Auth + Seletor ────────────────────────────────────────────────────────────
 function checkAuth() {
+  const seletor = document.getElementById('user-role');
+
+  // 1. Tenta ler do localStorage (usuário real)
   try {
     const user = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
     const isTeacher =
@@ -68,33 +73,45 @@ function checkAuth() {
       user.isTeacher === true;
     userRole = isTeacher ? 'teacher' : 'student';
   } catch { userRole = 'student'; }
-}
 
-function renderRoleBadge() {
-  const header = document.querySelector('.partes-header');
-  if (!header) return;
-  const old = header.querySelector('.role-badge');
-  if (old) old.remove();
-  const badge = document.createElement('span');
-  badge.className = 'role-badge';
-  if (userRole === 'teacher') {
-    badge.style.cssText = 'margin-left:auto;background:rgba(250,204,21,0.15);color:#facc15;border:1px solid rgba(250,204,21,0.4);padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;white-space:nowrap;flex-shrink:0;';
-    badge.textContent = '👨‍🏫 Modo Professor';
-  } else {
-    badge.style.cssText = 'margin-left:auto;background:rgba(14,165,233,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;white-space:nowrap;flex-shrink:0;';
-    badge.textContent = '🎓 Modo Aluno';
+  // 2. Sincroniza o select com o papel detectado
+  if (seletor) {
+    seletor.value = userRole;
+    seletor.style.display = 'block';
   }
-  header.appendChild(badge);
 }
 
-// ── Barra professor ──────────────────────────────────────────────────────────
-function configurarBarraProfessor() {
-  if (userRole !== 'teacher') return;
-  const barra = document.getElementById('barra-professor');
-  barra.style.display = 'flex';
+function configurarSeletor() {
+  const seletor = document.getElementById('user-role');
+  if (!seletor) return;
 
+  seletor.addEventListener('change', () => {
+    userRole = seletor.value;           // atualiza papel
+    renderRoleBadge();                  // atualiza badge no header
+    atualizarBarraProfessor();          // mostra/oculta barra professor
+    if (documentoCarregado) {
+      renderizarGrupos();               // re-renderiza sem recarregar PDF
+    }
+  });
+}
+
+// ── Badge de papel ────────────────────────────────────────────────────────────
+function renderRoleBadge() {
+  // remove badge anterior se existir
+  const old = document.getElementById('role-badge-partes');
+  if (old) old.remove();
+}
+
+// ── Barra professor ───────────────────────────────────────────────────────────
+function configurarBarraProfessor() {
   document.getElementById('btn-novo-grupo').addEventListener('click', criarNovoGrupo);
   document.getElementById('btn-salvar-grupos').addEventListener('click', salvarGrupos);
+  atualizarBarraProfessor();
+}
+
+function atualizarBarraProfessor() {
+  const barra = document.getElementById('barra-professor');
+  barra.style.display = userRole === 'teacher' ? 'flex' : 'none';
 }
 
 function marcarModificado() {
@@ -105,7 +122,7 @@ function marcarModificado() {
   if (ind) ind.style.display = 'inline';
 }
 
-// ── Modal seletor ──────────────────────────────────────────────────────────
+// ── Modal seletor ─────────────────────────────────────────────────────────────
 let modalTargetIdx = null;
 
 function configurarModal() {
@@ -139,7 +156,6 @@ function abrirSeletorPaginas(idxGrupo) {
         fecharModal();
       });
       grid.appendChild(item);
-      // Renderiza miniatura
       renderMiniatura(numPag, item.querySelector(`#seletor-thumb-${numPag}`), 80);
     });
   }
@@ -152,7 +168,7 @@ function fecharModal() {
   modalTargetIdx = null;
 }
 
-// ── Carregar documento ─────────────────────────────────────────────────────
+// ── Carregar documento ────────────────────────────────────────────────────────
 async function carregarDocumento() {
   try {
     const docRef = doc(db, 'biblioteca_colecoes', colId, 'documentos', docId);
@@ -175,6 +191,7 @@ async function carregarDocumento() {
     document.getElementById('download-completo').style.display = 'flex';
     await inicializarPdf();
     await carregarGrupos();
+    documentoCarregado = true;
     renderizarGrupos();
   } catch (err) {
     console.error('Erro ao carregar documento:', err);
@@ -192,7 +209,7 @@ async function inicializarPdf() {
   totalPaginas = pdfDoc.numPages;
 }
 
-// ── Carregar grupos do Firestore (com migração automática) ─────────────────
+// ── Carregar grupos do Firestore (com migração automática) ────────────────────
 async function carregarGrupos() {
   try {
     const rotuloRef = doc(db, 'biblioteca_rotulos', `${colId}_${docId}`);
@@ -207,15 +224,15 @@ async function carregarGrupos() {
         return;
       }
 
-      // Formato antigo: { paginas: { "1": "Flauta", "2": "Clarinete" } } → migrar
+      // Formato antigo → migrar
       if (data.paginas && typeof data.paginas === 'object') {
         grupos = migrarFormatoAntigo(data.paginas);
-        marcarModificado(); // já marca para salvar no novo formato
+        marcarModificado();
         return;
       }
     }
 
-    // Nada salvo → detecção automática
+    // Nada salvo → detecção automática por varredura
     grupos = await algoritmoVarredura();
   } catch (e) {
     console.warn('Erro ao carregar grupos, usando varredura:', e);
@@ -223,9 +240,8 @@ async function carregarGrupos() {
   }
 }
 
-// Migração: { "1": "Flauta", "2": "Flauta", "3": "Clarinete" } → grupos
 function migrarFormatoAntigo(paginas) {
-  const mapa = {}; // nome → [páginas]
+  const mapa = {};
   Object.entries(paginas).forEach(([numStr, nome]) => {
     if (!mapa[nome]) mapa[nome] = [];
     mapa[nome].push(parseInt(numStr));
@@ -245,14 +261,11 @@ async function algoritmoVarredura() {
     const instrumento = await detectarInstrumentoNaPagina(page);
 
     if (instrumento) {
-      // Nova página com instrumento identificado → novo grupo
       grupoAtual = { nome: instrumento, paginas: [i] };
       resultado.push(grupoAtual);
     } else if (grupoAtual) {
-      // Sem detecção → continua no grupo atual
       grupoAtual.paginas.push(i);
     } else {
-      // Primeira(s) página(s) sem detecção
       grupoAtual = { nome: `Página ${i}`, paginas: [i] };
       resultado.push(grupoAtual);
     }
@@ -273,13 +286,12 @@ async function detectarInstrumentoNaPagina(page) {
   } catch (e) {
     console.warn('Erro ao extrair texto:', e);
   }
-  return null; // sem detecção
+  return null;
 }
 
-// ── Salvar grupos no Firestore ───────────────────────────────────────────────
+// ── Salvar grupos no Firestore ────────────────────────────────────────────────
 async function salvarGrupos() {
   if (userRole !== 'teacher') return;
-  // Validação: nenhum grupo vazio
   const grupoVazio = grupos.find(g => g.paginas.length === 0);
   if (grupoVazio) {
     alert(`❌ O instrumento "${grupoVazio.nome}" não tem páginas. Adicione páginas ou exclua o instrumento.`);
@@ -307,7 +319,7 @@ async function salvarGrupos() {
   }
 }
 
-// ── Helpers de estado ────────────────────────────────────────────────────────
+// ── Helpers de estado ─────────────────────────────────────────────────────────
 function getPaginasAtribuidas() {
   return new Set(grupos.flatMap(g => g.paginas));
 }
@@ -321,23 +333,19 @@ function getPaginasDisponiveis() {
   return disponiveis;
 }
 
-// ── Operações de edição de grupos (somente professor) ─────────────────────
+// ── Operações de edição de grupos (somente professor) ─────────────────────────
 function criarNovoGrupo() {
   if (userRole !== 'teacher') return;
   grupos.push({ nome: 'Novo Instrumento', paginas: [] });
   marcarModificado();
   renderizarGrupos();
-  // Foca no input de renomear do novo grupo
   const idx = grupos.length - 1;
   setTimeout(() => iniciarRenomear(idx), 100);
 }
 
 function adicionarPaginaAoGrupo(idxGrupo, numPagina) {
   if (userRole !== 'teacher') return;
-  // Remove de qualquer grupo que já tenha esta página
-  grupos.forEach(g => {
-    g.paginas = g.paginas.filter(p => p !== numPagina);
-  });
+  grupos.forEach(g => { g.paginas = g.paginas.filter(p => p !== numPagina); });
   grupos[idxGrupo].paginas.push(numPagina);
   grupos[idxGrupo].paginas.sort((a, b) => a - b);
   marcarModificado();
@@ -362,7 +370,7 @@ function excluirGrupo(idxGrupo) {
 
 function iniciarRenomear(idxGrupo) {
   if (userRole !== 'teacher') return;
-  const nomeWrap  = document.getElementById(`grupo-nome-wrap-${idxGrupo}`);
+  const nomeWrap   = document.getElementById(`grupo-nome-wrap-${idxGrupo}`);
   const renameWrap = document.getElementById(`grupo-rename-wrap-${idxGrupo}`);
   const input      = document.getElementById(`grupo-rename-input-${idxGrupo}`);
   if (!nomeWrap || !renameWrap || !input) return;
@@ -380,7 +388,6 @@ function confirmarRenomear(idxGrupo) {
   grupos[idxGrupo].nome = novo;
   marcarModificado();
   cancelarRenomear(idxGrupo);
-  // Atualiza só o texto sem re-renderizar tudo
   const nomeEl = document.getElementById(`grupo-prof-nome-${idxGrupo}`);
   if (nomeEl) nomeEl.textContent = novo;
 }
@@ -392,10 +399,9 @@ function cancelarRenomear(idxGrupo) {
   if (renameWrap) renameWrap.style.display = 'none';
 }
 
-// ── Renderizar grid de grupos ───────────────────────────────────────────────
+// ── Renderizar grid de grupos ─────────────────────────────────────────────────
 function renderizarGrupos() {
   const content = document.getElementById('partes-content');
-  const totalGrupos = grupos.length;
   const totalInstrumentos = grupos.filter(g => g.paginas.length > 0).length;
 
   content.innerHTML = `
@@ -403,30 +409,31 @@ function renderizarGrupos() {
       <i class="fas fa-layer-group"></i>
       <span>${totalInstrumentos}</span> instrumento${totalInstrumentos !== 1 ? 's' : ''} encontrado${totalInstrumentos !== 1 ? 's' : ''}
       &nbsp;·&nbsp; ${totalPaginas} página${totalPaginas !== 1 ? 's' : ''} no total
-      ${userRole === 'teacher' ? '<span style="margin-left:10px;font-size:0.78rem;color:var(--muted);">Modo edição ativo</span>' : ''}
+      ${userRole === 'teacher'
+        ? '<span style="margin-left:10px;font-size:0.78rem;color:var(--dourado);">✏️ Modo edição ativo</span>'
+        : '<span style="margin-left:10px;font-size:0.78rem;color:var(--muted);">🎓 Modo aluno</span>'
+      }
     </p>
     <div class="partes-grid" id="partes-grid"></div>
   `;
 
   const grid = document.getElementById('partes-grid');
   grupos.forEach((grupo, idx) => {
-    if (userRole === 'teacher') {
-      grid.appendChild(criarCardProfessor(grupo, idx));
-    } else {
-      grid.appendChild(criarCardAluno(grupo, idx));
-    }
+    grid.appendChild(
+      userRole === 'teacher'
+        ? criarCardProfessor(grupo, idx)
+        : criarCardAluno(grupo, idx)
+    );
   });
 
-  // Renderiza miniaturas após montar o DOM
+  // Renderiza miniaturas
   grupos.forEach((grupo, idx) => {
     if (userRole === 'teacher') {
-      // Miniaturas de todas as páginas do grupo
       grupo.paginas.forEach(numPag => {
         const wrapEl = document.getElementById(`mini-thumb-${idx}-${numPag}`);
         if (wrapEl) renderMiniatura(numPag, wrapEl, 80);
       });
     } else {
-      // Só a primeira página (thumbnail principal)
       if (grupo.paginas.length > 0) {
         const wrapEl = document.getElementById(`grupo-thumb-${idx}`);
         if (wrapEl) renderMiniatura(grupo.paginas[0], wrapEl, 200);
@@ -465,7 +472,6 @@ function criarCardAluno(grupo, idx) {
     </div>
   `;
 
-  // Clique na thumbnail também baixa
   card.querySelector('.grupo-thumb').addEventListener('click', () => baixarGrupo(idx));
   return card;
 }
@@ -476,7 +482,6 @@ function criarCardProfessor(grupo, idx) {
   card.className = 'grupo-card professor-mode';
   card.id = `grupo-card-${idx}`;
 
-  // Miniaturas das páginas já no grupo
   const thumbsHTML = grupo.paginas.map(numPag => `
     <div class="grupo-mini-wrap">
       <div class="grupo-mini-thumb" id="mini-thumb-${idx}-${numPag}">
@@ -496,7 +501,6 @@ function criarCardProfessor(grupo, idx) {
     : `<span class="grupo-prof-count">${numPags} página${numPags !== 1 ? 's' : ''}</span>`;
 
   card.innerHTML = `
-    <!-- Header do card -->
     <div class="grupo-prof-header">
       <div id="grupo-nome-wrap-${idx}" style="display:flex;align-items:center;gap:6px;flex:1;">
         <span class="grupo-prof-nome" id="grupo-prof-nome-${idx}">${grupo.nome}</span>
@@ -518,7 +522,6 @@ function criarCardProfessor(grupo, idx) {
       </button>
     </div>
 
-    <!-- Fila de miniaturas -->
     <div class="grupo-thumbs-row">
       ${thumbsHTML}
       <button class="btn-adicionar-pag" onclick="abrirSeletorPaginas(${idx})">
@@ -527,7 +530,6 @@ function criarCardProfessor(grupo, idx) {
       </button>
     </div>
 
-    <!-- Rodapé -->
     <div class="grupo-prof-footer">
       ${aviso}
       <button class="btn-baixar-grupo" style="width:auto;padding:6px 16px;"
@@ -541,15 +543,15 @@ function criarCardProfessor(grupo, idx) {
   return card;
 }
 
-// ── Renderizar miniatura (usa cache) ────────────────────────────────────────
+// ── Renderizar miniatura (usa cache) ──────────────────────────────────────────
 async function renderMiniatura(numPagina, wrapEl, alturaAlvo = 200) {
   if (!wrapEl) return;
   try {
-    // Usa canvas cacheado se já renderizou
     if (pageCache[numPagina]) {
-      const clone = pageCache[numPagina].cloneNode();
-      const ctx   = clone.getContext('2d');
-      ctx.drawImage(pageCache[numPagina], 0, 0);
+      const clone = document.createElement('canvas');
+      clone.width  = pageCache[numPagina].width;
+      clone.height = pageCache[numPagina].height;
+      clone.getContext('2d').drawImage(pageCache[numPagina], 0, 0);
       wrapEl.innerHTML = '';
       wrapEl.appendChild(clone);
       return;
@@ -574,11 +576,8 @@ async function renderMiniatura(numPagina, wrapEl, alturaAlvo = 200) {
   }
 }
 
-// ── Download do grupo (pdf-lib, multi-página) ─────────────────────────────
+// ── Download do grupo (pdf-lib, multi-página) ─────────────────────────────────
 async function baixarGrupo(idxGrupo) {
-  if (userRole !== 'teacher') {
-    // Aluno: verifica se tem páginas
-  }
   const grupo = grupos[idxGrupo];
   if (!grupo || grupo.paginas.length === 0) {
     alert('❌ Este instrumento não tem páginas atribuídas.');
@@ -586,19 +585,15 @@ async function baixarGrupo(idxGrupo) {
   }
   const btn = document.getElementById(`btn-baixar-${idxGrupo}`);
   try {
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
-    }
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...'; }
     const PDFLib = await loadPdfLib();
     const { PDFDocument } = PDFLib;
     const response  = await fetch(pdfUrl);
     const pdfBytes  = await response.arrayBuffer();
     const pdfOrig   = await PDFDocument.load(pdfBytes);
     const novoPdf   = await PDFDocument.create();
-    // Copia as páginas do grupo (índice base-0)
-    const indices = grupo.paginas.map(p => p - 1);
-    const pagsCopy = await novoPdf.copyPages(pdfOrig, indices);
+    const indices   = grupo.paginas.map(p => p - 1);
+    const pagsCopy  = await novoPdf.copyPages(pdfOrig, indices);
     pagsCopy.forEach(p => novoPdf.addPage(p));
     const novoBytes = await novoPdf.save();
     const blob      = new Blob([novoBytes], { type: 'application/pdf' });
@@ -615,14 +610,11 @@ async function baixarGrupo(idxGrupo) {
     console.error('Erro ao baixar grupo:', err);
     alert('❌ Erro ao gerar o PDF. Tente novamente.');
   } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-download"></i> Baixar';
-    }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-download"></i> Baixar'; }
   }
 }
 
-// ── Registro de download ───────────────────────────────────────────────────
+// ── Registro de download ──────────────────────────────────────────────────────
 async function registrarDownload(nomeArquivo) {
   try {
     const usuario   = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
@@ -631,12 +623,10 @@ async function registrarDownload(nomeArquivo) {
       nomeAluno, nomeArquivo,
       data: Timestamp.fromDate(new Date())
     });
-  } catch (e) {
-    console.warn('Erro ao registrar download:', e);
-  }
+  } catch (e) { console.warn('Erro ao registrar download:', e); }
 }
 
-// ── Loaders externos ─────────────────────────────────────────────────────────
+// ── Loaders externos ──────────────────────────────────────────────────────────
 async function loadPdfJs() {
   if (pdfJsLib) return pdfJsLib;
   return new Promise((resolve, reject) => {
@@ -646,10 +636,7 @@ async function loadPdfJs() {
     }
     const s = document.createElement('script');
     s.src = PDFJS_CDN;
-    s.onload = () => {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-      pdfJsLib = window.pdfjsLib; resolve(pdfJsLib);
-    };
+    s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; pdfJsLib = window.pdfjsLib; resolve(pdfJsLib); };
     s.onerror = reject;
     document.head.appendChild(s);
   });
@@ -667,7 +654,7 @@ async function loadPdfLib() {
   });
 }
 
-// ── Erro fatal ─────────────────────────────────────────────────────────────
+// ── Erro fatal ────────────────────────────────────────────────────────────────
 function mostrarErro(msg) {
   const loadInicial = document.getElementById('loading-inicial');
   if (loadInicial) loadInicial.style.display = 'none';
@@ -679,7 +666,7 @@ function mostrarErro(msg) {
     </div>`;
 }
 
-// ── Expor para onclick inline ──────────────────────────────────────────────
+// ── Expor para onclick inline ─────────────────────────────────────────────────
 window.baixarGrupo          = baixarGrupo;
 window.abrirSeletorPaginas  = abrirSeletorPaginas;
 window.removerPaginaDoGrupo = removerPaginaDoGrupo;
