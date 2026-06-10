@@ -33,7 +33,7 @@
             padding-bottom: 90px;
         }
 
-        /* ── HEADER ──────────────────────────────────────────────────────────── */
+        /* ── HEADER ── */
         .partes-header {
             background: rgba(11,18,32,0.85);
             backdrop-filter: blur(10px);
@@ -72,7 +72,7 @@
             flex: 1;
         }
 
-        /* ── SELETOR DE MODO ─────────────────────────────────────────────────── */
+        /* ── SELETOR DE MODO ── */
         .user-role-selector {
             background: var(--card-alt);
             border: 1px solid var(--border);
@@ -88,7 +88,7 @@
         .user-role-selector:hover  { border-color: var(--azul); }
         .user-role-selector:focus  { border-color: var(--azul); box-shadow: 0 0 0 2px rgba(14,165,233,0.2); }
 
-        /* ── TOGGLE LISTA / GRADE ────────────────────────────────────────────── */
+        /* ── TOGGLE LISTA / GRADE ── */
         .view-toggle {
             display: flex;
             gap: 4px;
@@ -117,7 +117,7 @@
 
         .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
 
-        /* ── PLAYER DE ÁUDIO ─────────────────────────────────────────────────── */
+        /* ── PLAYER DE ÁUDIO ── */
         .audio-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -131,7 +131,7 @@
         .audio-section i { font-size: 1.6rem; color: var(--verde); flex-shrink: 0; }
         .audio-section audio { flex: 1; height: 38px; border-radius: 6px; outline: none; }
 
-        /* ── DOWNLOAD COMPLETO ───────────────────────────────────────────────── */
+        /* ── DOWNLOAD COMPLETO ── */
         .download-completo {
             background: var(--azul-suave);
             border: 1px solid var(--azul);
@@ -160,18 +160,7 @@
             gap: 6px;
         }
 
-        /* ── TÍTULO SEÇÃO ────────────────────────────────────────────────────── */
-        .section-title {
-            font-size: 1rem;
-            color: var(--muted);
-            margin: 0 0 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-title span { color: var(--azul); font-weight: 700; }
-
-        /* ── LOADING GLOBAL ──────────────────────────────────────────────────── */
+        /* ── LOADING ── */
         .loading-partes {
             display: flex;
             flex-direction: column;
@@ -185,55 +174,91 @@
         .loading-partes p { margin: 0; font-size: 0.95rem; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── GRADE (padrão) ──────────────────────────────────────────────────── */
+        /* ══════════════════════════════════════════════
+           MODO GRADE (padrão)
+        ══════════════════════════════════════════════ */
         .partes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 20px;
-            transition: all 0.2s;
         }
 
-        /* ── MODO LISTA ──────────────────────────────────────────────────────── */
+        /* ══════════════════════════════════════════════
+           MODO LISTA — sem miniatura, estilo coleção
+        ══════════════════════════════════════════════ */
         .partes-grid.view-list {
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
         }
-        /* Card em modo lista: horizontal */
+
+        /* Oculta a miniatura do PDF no modo lista */
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-thumb {
+            display: none;
+        }
+
+        /* Card vira linha horizontal idêntica ao .document-item da biblioteca */
         .partes-grid.view-list .grupo-card:not(.professor-mode) {
             flex-direction: row;
-            align-items: stretch;
+            align-items: center;
+            border-radius: 12px;
+            padding: 14px 16px;
+            gap: 14px;
+            transform: none !important;
         }
-        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-thumb {
-            width: 90px;
-            min-width: 90px;
-            min-height: 110px;
+        .partes-grid.view-list .grupo-card:not(.professor-mode):hover {
+            background: var(--azul-suave);
+            border-color: var(--azul);
+            box-shadow: none;
+            transform: none !important;
+        }
+
+        /* Ícone de partitura no lugar da miniatura */
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info::before {
+            content: "\f1c1"; /* fa-file-pdf */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--azul);
             flex-shrink: 0;
-            border-radius: 0;
+            margin-right: 2px;
         }
+
+        /* Info vira linha */
         .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info {
-            border-top: none;
-            border-left: 1px solid var(--border);
             flex-direction: row;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 10px 14px;
+            border-top: none;
+            border-left: none;
+            padding: 0;
+            gap: 12px;
+            flex: 1;
         }
+
+        /* Nome ocupa o espaço disponível */
         .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-nome-wrap {
             flex: 1;
-            min-width: 120px;
         }
+        .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-nome {
+            font-size: 1rem;
+        }
+
+        /* Páginas ao lado do nome */
         .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-paginas-label {
             white-space: nowrap;
+            font-size: 0.75rem;
         }
+
+        /* Botão download compacto à direita */
         .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo {
             width: auto;
             padding: 7px 16px;
             margin-top: 0;
             flex-shrink: 0;
+            white-space: nowrap;
         }
 
-        /* ── CARD DE GRUPO — MODO ALUNO ──────────────────────────────────────── */
+        /* ── CARD DE GRUPO — MODO ALUNO (grade) ── */
         .grupo-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -247,9 +272,6 @@
             border-color: var(--azul);
             transform: translateY(-3px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        }
-        .partes-grid.view-list .grupo-card:not(.professor-mode):hover {
-            transform: translateX(3px);
         }
         .grupo-thumb {
             width: 100%;
@@ -325,7 +347,7 @@
         .btn-baixar-grupo:hover { background: var(--azul); color: white; border-color: var(--azul); }
         .btn-baixar-grupo:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ── CARD DE GRUPO — MODO PROFESSOR ──────────────────────────────────── */
+        /* ── CARD DE GRUPO — MODO PROFESSOR ── */
         .grupo-card.professor-mode {
             border-color: rgba(250,204,21,0.25);
             grid-column: 1 / -1;
@@ -333,6 +355,9 @@
         .grupo-card.professor-mode:hover {
             border-color: var(--dourado);
             transform: none;
+        }
+        .partes-grid.view-list .grupo-card.professor-mode {
+            width: 100%;
         }
         .grupo-prof-header {
             padding: 12px 16px;
@@ -342,41 +367,25 @@
             gap: 10px;
             background: rgba(250,204,21,0.04);
         }
-        .grupo-prof-nome {
-            font-weight: 700;
-            font-size: 1rem;
-            color: var(--ink);
-            flex: 1;
-        }
+        .grupo-prof-nome { font-weight: 700; font-size: 1rem; color: var(--ink); flex: 1; }
         .btn-renomear-grupo {
-            background: none; border: none;
-            color: var(--muted); cursor: pointer;
-            padding: 4px 6px; border-radius: 4px;
-            font-size: 0.82rem; transition: color 0.2s;
+            background: none; border: none; color: var(--muted); cursor: pointer;
+            padding: 4px 6px; border-radius: 4px; font-size: 0.82rem; transition: color 0.2s;
         }
         .btn-renomear-grupo:hover { color: var(--dourado); }
         .btn-excluir-grupo {
-            background: none; border: none;
-            color: var(--muted); cursor: pointer;
-            padding: 4px 6px; border-radius: 4px;
-            font-size: 0.82rem; transition: color 0.2s;
+            background: none; border: none; color: var(--muted); cursor: pointer;
+            padding: 4px 6px; border-radius: 4px; font-size: 0.82rem; transition: color 0.2s;
         }
         .btn-excluir-grupo:hover { color: var(--vermelho); }
-
         .grupo-thumbs-row {
-            padding: 14px 16px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: flex-start;
-            border-bottom: 1px solid var(--border);
+            padding: 14px 16px; display: flex; flex-wrap: wrap;
+            gap: 10px; align-items: flex-start; border-bottom: 1px solid var(--border);
         }
         .grupo-mini-wrap { position: relative; width: 80px; flex-shrink: 0; }
         .grupo-mini-thumb {
-            width: 80px; height: 110px;
-            background: #fff; border-radius: 6px;
-            overflow: hidden; display: flex;
-            align-items: center; justify-content: center;
+            width: 80px; height: 110px; background: #fff; border-radius: 6px;
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
             border: 1px solid var(--border);
         }
         .grupo-mini-thumb canvas { width: 100% !important; height: auto !important; }
@@ -384,88 +393,63 @@
         .btn-remover-pag {
             position: absolute; top: -6px; right: -6px;
             width: 20px; height: 20px; border-radius: 50%;
-            background: var(--vermelho); color: white;
-            border: none; cursor: pointer; font-size: 0.7rem;
-            display: flex; align-items: center; justify-content: center;
+            background: var(--vermelho); color: white; border: none; cursor: pointer;
+            font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
             font-weight: 700; transition: transform 0.15s; z-index: 2;
         }
         .btn-remover-pag:hover { transform: scale(1.2); }
         .btn-adicionar-pag {
-            width: 80px; height: 110px;
-            border: 2px dashed rgba(56,189,248,0.35);
-            border-radius: 6px; background: none;
-            color: var(--azul); cursor: pointer;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 4px; font-size: 0.7rem;
-            transition: all 0.2s; flex-shrink: 0;
+            width: 80px; height: 110px; border: 2px dashed rgba(56,189,248,0.35);
+            border-radius: 6px; background: none; color: var(--azul); cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 4px; font-size: 0.7rem; transition: all 0.2s; flex-shrink: 0;
         }
         .btn-adicionar-pag:hover { border-color: var(--azul); background: rgba(56,189,248,0.06); }
         .btn-adicionar-pag i { font-size: 1.2rem; }
-
         .grupo-prof-footer {
-            padding: 10px 16px;
-            display: flex; align-items: center;
-            justify-content: space-between;
-            gap: 10px; flex-wrap: wrap;
+            padding: 10px 16px; display: flex; align-items: center;
+            justify-content: space-between; gap: 10px; flex-wrap: wrap;
         }
         .grupo-prof-count { font-size: 0.75rem; color: var(--muted); }
-
         .grupo-rename-wrap { display: none; align-items: center; gap: 6px; flex: 1; }
         .grupo-rename-input {
             background: var(--bg); border: 1px solid var(--dourado);
-            border-radius: 6px; padding: 4px 8px;
-            color: var(--ink); font-size: 0.9rem; flex: 1; outline: none;
+            border-radius: 6px; padding: 4px 8px; color: var(--ink);
+            font-size: 0.9rem; flex: 1; outline: none;
         }
         .btn-confirm-rename {
-            background: var(--verde); color: var(--bg);
-            border: none; padding: 4px 10px;
-            border-radius: 5px; cursor: pointer;
-            font-size: 0.78rem; font-weight: 700;
+            background: var(--verde); color: var(--bg); border: none;
+            padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.78rem; font-weight: 700;
         }
         .btn-cancel-rename {
-            background: var(--card-alt); color: var(--muted);
-            border: 1px solid var(--border); padding: 4px 10px;
-            border-radius: 5px; cursor: pointer; font-size: 0.78rem;
+            background: var(--card-alt); color: var(--muted); border: 1px solid var(--border);
+            padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.78rem;
         }
 
-        /* ── BARRA PROFESSOR ─────────────────────────────────────────────────── */
+        /* ── BARRA PROFESSOR ── */
         #barra-professor {
-            position: fixed;
-            bottom: 70px;
-            left: 0; right: 0;
-            background: rgba(11,18,32,0.95);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(250,204,21,0.3);
-            padding: 10px 20px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            z-index: 90;
+            position: fixed; bottom: 70px; left: 0; right: 0;
+            background: rgba(11,18,32,0.95); backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(250,204,21,0.3); padding: 10px 20px;
+            display: none; align-items: center; justify-content: center;
+            gap: 12px; z-index: 90;
         }
         #btn-novo-grupo {
-            background: var(--azul-escuro);
-            color: var(--azul);
-            border: 1px solid var(--border);
-            padding: 8px 18px; border-radius: 8px;
-            cursor: pointer; font-size: 0.85rem; font-weight: 600;
-            display: flex; align-items: center; gap: 6px;
-            transition: all 0.2s;
+            background: var(--azul-escuro); color: var(--azul); border: 1px solid var(--border);
+            padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+            display: flex; align-items: center; gap: 6px; transition: all 0.2s;
         }
         #btn-novo-grupo:hover { border-color: var(--azul); background: rgba(14,165,233,0.1); }
         #btn-salvar-grupos {
-            background: var(--verde); color: #020617;
-            border: none; padding: 8px 22px; border-radius: 8px;
-            cursor: pointer; font-size: 0.85rem; font-weight: 700;
-            display: flex; align-items: center; gap: 6px;
-            transition: opacity 0.2s;
+            background: var(--verde); color: #020617; border: none; padding: 8px 22px;
+            border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 700;
+            display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;
         }
         #btn-salvar-grupos:disabled { opacity: 0.5; cursor: not-allowed; }
         #btn-salvar-grupos:hover:not(:disabled) { opacity: 0.85; }
         .salvar-indicator { font-size: 0.72rem; color: var(--dourado); display: none; }
 
-        /* ── MODAL SELETOR DE PÁGINAS ────────────────────────────────────────── */
+        /* ── MODAL SELETOR DE PÁGINAS ── */
         #modal-seletor {
             position: fixed; inset: 0; z-index: 200;
             display: none; align-items: center; justify-content: center; padding: 20px;
@@ -477,10 +461,9 @@
         }
         #modal-seletor-box {
             position: relative; background: var(--card);
-            border: 1px solid rgba(250,204,21,0.3);
-            border-radius: 16px; width: 100%; max-width: 560px;
-            max-height: 80vh; display: flex; flex-direction: column;
-            overflow: hidden; z-index: 1;
+            border: 1px solid rgba(250,204,21,0.3); border-radius: 16px;
+            width: 100%; max-width: 560px; max-height: 80vh;
+            display: flex; flex-direction: column; overflow: hidden; z-index: 1;
         }
         #modal-seletor-header {
             padding: 16px 20px; border-bottom: 1px solid var(--border);
@@ -488,12 +471,10 @@
         }
         #modal-seletor-header span { font-weight: 700; color: var(--ink); font-size: 0.95rem; }
         #modal-seletor-fechar {
-            background: none; border: none;
-            color: var(--muted); font-size: 1.4rem;
+            background: none; border: none; color: var(--muted); font-size: 1.4rem;
             cursor: pointer; line-height: 1; padding: 0 4px;
         }
         #modal-seletor-fechar:hover { color: var(--vermelho); }
-        #modal-seletor-vazio { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 0.9rem; }
         #modal-seletor-grid {
             padding: 16px;
             display: grid;
@@ -512,19 +493,26 @@
         .seletor-thumb canvas { width: 100% !important; height: auto !important; }
         .seletor-label { background: var(--card-alt); padding: 4px 6px; font-size: 0.65rem; color: var(--muted); text-align: center; }
 
-        /* ── ERRO ────────────────────────────────────────────────────────────── */
+        /* ── ERRO ── */
         .erro-doc { text-align: center; padding: 60px 20px; color: var(--vermelho); }
         .erro-doc i { font-size: 3rem; display: block; margin-bottom: 12px; }
 
-        /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+        /* ── RESPONSIVE ── */
         @media (max-width: 600px) {
             .partes-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
-            .partes-grid.view-list { grid-template-columns: 1fr; }
+            .partes-grid.view-list { gap: 8px; }
             .grupo-card.professor-mode { grid-column: 1 / -1; }
             #barra-professor { gap: 8px; padding: 8px 12px; }
             #btn-novo-grupo, #btn-salvar-grupos { padding: 7px 14px; font-size: 0.8rem; }
             .partes-header h1 { font-size: 0.9rem; }
             .view-toggle button { padding: 5px 7px; font-size: 0.8rem; }
+            /* No mobile em modo lista o botão fica embaixo do nome */
+            .partes-grid.view-list .grupo-card:not(.professor-mode) {
+                flex-wrap: wrap;
+            }
+            .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -540,7 +528,7 @@
         </div>
     </div>
 
-    <!-- ── HEADER ────────────────────────────────────────────────────────────── -->
+    <!-- ── HEADER ── -->
     <header class="partes-header">
         <a class="btn-voltar" id="btn-voltar" href="biblioteca.html">
             <i class="fas fa-arrow-left"></i> Voltar
@@ -549,24 +537,23 @@
 
         <!-- Toggle Lista / Grade -->
         <div class="view-toggle" id="view-toggle" title="Alternar visualização">
-            <button id="btn-view-list" class="active" title="Visualização em lista">
+            <button id="btn-view-list" class="active" title="Lista">
                 <i class="fas fa-list"></i>
             </button>
-            <button id="btn-view-grid" title="Visualização em grade">
+            <button id="btn-view-grid" title="Grade">
                 <i class="fas fa-th-large"></i>
             </button>
         </div>
 
-        <!-- Seletor de modo (igual à biblioteca) -->
+        <!-- Seletor de modo -->
         <select id="user-role" class="user-role-selector">
             <option value="student">🎓 Aluno</option>
             <option value="teacher">👨‍🏫 Professor</option>
         </select>
     </header>
 
-    <!-- ── CONTEÚDO PRINCIPAL ────────────────────────────────────────────────── -->
+    <!-- ── CONTEÚDO PRINCIPAL ── -->
     <div class="container">
-        <!-- Áudio (se existir) -->
         <div class="audio-section" id="audio-section" style="display:none;">
             <i class="fas fa-music"></i>
             <audio id="audio-player" controls>
@@ -574,7 +561,6 @@
             </audio>
         </div>
 
-        <!-- Download completo -->
         <div class="download-completo" id="download-completo" style="display:none;">
             <span>📄 Baixar o documento completo (todas as partes)</span>
             <a class="btn-dl-completo" id="btn-dl-completo" href="#" target="_blank">
@@ -582,7 +568,6 @@
             </a>
         </div>
 
-        <!-- Grid de grupos/partes -->
         <div id="partes-content">
             <div class="loading-partes" id="loading-inicial">
                 <i class="fas fa-spinner"></i>
@@ -591,7 +576,7 @@
         </div>
     </div>
 
-    <!-- ── BARRA PROFESSOR (sticky acima do bottom-nav) ──────────────────────── -->
+    <!-- ── BARRA PROFESSOR ── -->
     <div id="barra-professor">
         <button id="btn-novo-grupo">
             <i class="fas fa-plus"></i> Novo Instrumento
@@ -602,7 +587,7 @@
         </button>
     </div>
 
-    <!-- ── MODAL SELETOR DE PÁGINAS ──────────────────────────────────────────── -->
+    <!-- ── MODAL SELETOR DE PÁGINAS ── -->
     <div id="modal-seletor">
         <div id="modal-seletor-overlay"></div>
         <div id="modal-seletor-box">
@@ -614,7 +599,7 @@
         </div>
     </div>
 
-    <!-- ── BOTTOM NAV ────────────────────────────────────────────────────────── -->
+    <!-- ── BOTTOM NAV ── -->
     <nav class="bottom-nav">
         <a href="aluno.html" class="nav-item" data-page="home">
             <i class="fas fa-home nav-icon"></i>
@@ -640,7 +625,7 @@
 
     <script src="loader.js"></script>
 
-    <!-- ── TOGGLE LISTA / GRADE ───────────────────────────────────────────────── -->
+    <!-- ── TOGGLE LISTA / GRADE ── -->
     <script>
     (function () {
         const STORAGE_KEY = 'partes_view_mode';
@@ -665,11 +650,10 @@
             localStorage.setItem(STORAGE_KEY, mode);
         }
 
-        // Aplica modo salvo (padrão: lista)
         const saved = localStorage.getItem(STORAGE_KEY) || 'list';
-        // Aguarda o grid ser renderizado pelo script_partes.js antes de aplicar
         document.addEventListener('DOMContentLoaded', () => applyMode(saved));
-        // Observer para quando o grid for injetado dinamicamente
+
+        /* Observer: aplica o modo assim que o grid for injetado pelo script_partes.js */
         const observer = new MutationObserver(() => {
             const grid = getGrid();
             if (grid) {
