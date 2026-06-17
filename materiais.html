@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Materiais – Filhos de Asafe</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="bottom-nav.css" />
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-light: #ede9fe;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --card-bg: #ffffff;
+      --bg: #f9fafb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* HEADER */
+    .page-header {
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: #fff;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .page-header .back-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      padding: 0.4rem 0.7rem;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .page-header h1 { font-size: 1.2rem; font-weight: 700; }
+    .page-header p { font-size: 0.8rem; opacity: 0.85; }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 2px solid var(--border);
+      padding: 0 1rem;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.85rem 0.5rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.85rem;
+      transition: all .2s;
+    }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* SECTIONS */
+    .section { display: none; padding: 1.25rem; }
+    .section.active { display: block; }
+
+    /* CARDS */
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+    .card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--primary); }
+
+    /* FORM */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--muted); }
+    .form-group select,
+    .form-group input {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.92rem;
+      background: #fff;
+      color: var(--text);
+      transition: border-color .2s;
+    }
+    .form-group select:focus,
+    .form-group input:focus { outline: none; border-color: var(--primary); }
+
+    /* QUANTIDADE PALHETA */
+    .qty-row { display: flex; align-items: center; gap: 0.75rem; }
+    .qty-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: #fff;
+      color: var(--primary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+    }
+    .qty-display {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 2ch;
+      text-align: center;
+    }
+
+    /* CHIPS MATERIAL */
+    .material-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .chip {
+      padding: 0.45rem 1rem;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      transition: all .15s;
+    }
+    .chip.selected { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .chip.palheta { --chip-color: #7c3aed; }
+    .chip.saxofone { --chip-color: #b45309; }
+    .chip.clarinete { --chip-color: #0369a1; }
+    .chip.palheta.selected { background: #7c3aed; border-color: #7c3aed; }
+    .chip.saxofone.selected { background: #b45309; border-color: #b45309; }
+    .chip.clarinete.selected { background: #0369a1; border-color: #0369a1; }
+
+    /* BOTÃO SALVAR */
+    .btn-primary {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: var(--success);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+    .toast.show { display: block; }
+    .toast.error { background: var(--danger); }
+
+    /* FILTROS */
+    .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-row select, .filter-row input {
+      flex: 1;
+      min-width: 120px;
+      padding: 0.5rem 0.7rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    /* TABELA */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    th {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:hover td { background: #f5f3ff; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .badge.palheta { background: #ede9fe; color: #7c3aed; }
+    .badge.saxofone { background: #fef3c7; color: #b45309; }
+    .badge.clarinete { background: #e0f2fe; color: #0369a1; }
+    .empty-state { text-align: center; padding: 2rem; color: var(--muted); }
+    .empty-state span { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+
+    /* RELATÓRIO – cards resumo */
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      border-top: 3px solid var(--primary);
+    }
+    .stat-card.palheta { border-top-color: #7c3aed; }
+    .stat-card.saxofone { border-top-color: #b45309; }
+    .stat-card.clarinete { border-top-color: #0369a1; }
+    .stat-card.total { border-top-color: #16a34a; }
+    .stat-num { font-size: 2rem; font-weight: 800; }
+    .stat-card.palheta .stat-num { color: #7c3aed; }
+    .stat-card.saxofone .stat-num { color: #b45309; }
+    .stat-card.clarinete .stat-num { color: #0369a1; }
+    .stat-card.total .stat-num { color: #16a34a; }
+    .stat-label { font-size: 0.75rem; color: var(--muted); font-weight: 600; margin-top: 0.2rem; }
+
+    /* RANKING */
+    .ranking-list { list-style: none; }
+    .ranking-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+    .ranking-list li:last-child { border-bottom: none; }
+    .rank-name { font-weight: 600; }
+    .rank-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 10px;
+      padding: 0.15rem 0.55rem;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    /* LOADER */
+    .loader { text-align: center; padding: 2rem; color: var(--muted); }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid var(--primary-light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Observação char counter */
+    .char-counter { font-size: 0.75rem; color: var(--muted); text-align: right; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <div>
+    <h1>📦 Controle de Materiais</h1>
+    <p>Palhetas · Saxofones · Clarinetes</p>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('registrar', this)">✏️ Registrar</button>
+  <button class="tab-btn" onclick="showTab('historico', this)">📋 Histórico</button>
+  <button class="tab-btn" onclick="showTab('relatorio', this)">📊 Relatório</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== ABA REGISTRAR ===== -->
+<div class="section active" id="tab-registrar">
+  <div class="card">
+    <h2>Novo Registro</h2>
+
+    <!-- Aluno -->
+    <div class="form-group">
+      <label>Aluno *</label>
+      <select id="sel-aluno">
+        <option value="">Carregando alunos...</option>
+      </select>
+    </div>
+
+    <!-- Material -->
+    <div class="form-group">
+      <label>Tipo de Material *</label>
+      <div class="material-chips" id="chips-material">
+        <div class="chip palheta" data-value="Palheta" onclick="selectMaterial(this)">🎵 Palheta</div>
+        <div class="chip saxofone" data-value="Saxofone Soprano" onclick="selectMaterial(this)">🎷 Sax Soprano</div>
+        <div class="chip saxofone" data-value="Saxofone Alto" onclick="selectMaterial(this)">🎷 Sax Alto</div>
+        <div class="chip saxofone" data-value="Saxofone Tenor" onclick="selectMaterial(this)">🎷 Sax Tenor</div>
+        <div class="chip clarinete" data-value="Clarinete" onclick="selectMaterial(this)">🎶 Clarinete</div>
+        <div class="chip" data-value="Outro" onclick="selectMaterial(this)">📦 Outro</div>
+      </div>
+    </div>
+
+    <!-- Quantidade (só aparece para palheta) -->
+    <div class="form-group" id="grp-quantidade" style="display:none">
+      <label>Quantidade de Palhetas</label>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <span class="qty-display" id="qty-display">1</span>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+
+    <!-- Material customizado -->
+    <div class="form-group" id="grp-outro" style="display:none">
+      <label>Descreva o material</label>
+      <input type="text" id="txt-outro" placeholder="Ex: Estojo, bocal..." maxlength="60" />
+    </div>
+
+    <!-- Data -->
+    <div class="form-group">
+      <label>Data da Entrega *</label>
+      <input type="date" id="inp-data" />
+    </div>
+
+    <!-- Observação -->
+    <div class="form-group">
+      <label>Observação <span style="font-weight:400">(opcional)</span></label>
+      <input type="text" id="inp-obs" placeholder="Ex: Palheta nº 2, instrumento da banda..." maxlength="120"
+             oninput="document.getElementById('obs-counter').textContent = this.value.length + '/120'" />
+      <div class="char-counter" id="obs-counter">0/120</div>
+    </div>
+
+    <button class="btn-primary" id="btn-salvar" onclick="salvarRegistro()">💾 Salvar Registro</button>
+  </div>
+</div>
+
+<!-- ===== ABA HISTÓRICO ===== -->
+<div class="section" id="tab-historico">
+  <div class="filter-row">
+    <select id="fil-material" onchange="aplicarFiltros()">
+      <option value="">Todos os materiais</option>
+      <option value="Palheta">🎵 Palhetas</option>
+      <option value="Saxofone">🎷 Saxofones</option>
+      <option value="Clarinete">🎶 Clarinetes</option>
+      <option value="Outro">📦 Outros</option>
+    </select>
+    <input type="month" id="fil-mes" onchange="aplicarFiltros()" />
+  </div>
+  <div id="loader-historico" class="loader">
+    <div class="spinner"></div><p>Carregando...</p>
+  </div>
+  <div class="table-wrap" id="wrap-tabela" style="display:none">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Aluno</th>
+          <th>Material</th>
+          <th>Qtd</th>
+          <th>Obs</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-historico"></tbody>
+    </table>
+  </div>
+  <div class="empty-state" id="empty-historico" style="display:none">
+    <span>📭</span>
+    <p>Nenhum registro encontrado.</p>
+  </div>
+</div>
+
+<!-- ===== ABA RELATÓRIO ===== -->
+<div class="section" id="tab-relatorio">
+  <div class="filter-row">
+    <select id="rel-periodo" onchange="carregarRelatorio()">
+      <option value="todos">Todo o período</option>
+      <option value="mes">Mês atual</option>
+      <option value="ano">Ano atual</option>
+    </select>
+    <select id="rel-aluno" onchange="carregarRelatorio()">
+      <option value="">Todos os alunos</option>
+    </select>
+  </div>
+
+  <div id="loader-relatorio" class="loader">
+    <div class="spinner"></div><p>Carregando...</p>
+  </div>
+
+  <div id="conteudo-relatorio" style="display:none">
+    <!-- Cards de resumo -->
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">Total Entregas</div>
+      </div>
+      <div class="stat-card palheta">
+        <div class="stat-num" id="stat-palhetas">0</div>
+        <div class="stat-label">Palhetas</div>
+      </div>
+      <div class="stat-card saxofone">
+        <div class="stat-num" id="stat-saxofones">0</div>
+        <div class="stat-label">Saxofones</div>
+      </div>
+      <div class="stat-card clarinete">
+        <div class="stat-num" id="stat-clarinetes">0</div>
+        <div class="stat-label">Clarinetes</div>
+      </div>
+    </div>
+
+    <!-- Ranking de alunos -->
+    <div class="card">
+      <h2>🏆 Alunos que mais receberam</h2>
+      <ul class="ranking-list" id="ranking-alunos"></ul>
+    </div>
+
+    <!-- Detalhes por material -->
+    <div class="card">
+      <h2>📦 Detalhes por Material</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Material</th><th>Entregas</th><th>Qtd Total</th></tr>
+          </thead>
+          <tbody id="tbody-relatorio"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom nav -->
+<div id="bottom-nav-container"></div>
+<script src="bottom-nav.js"></script>
+
+<!-- Firebase -->
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+<script src="materiais.js"></script>
+</body>
+</html>
