@@ -65,6 +65,9 @@ export function agruparEventosPorMes(eventos) {
 
 /* ======================================================
    3. CALCULAR FREQUÊNCIA DO ALUNO NO MÊS
+   Considera apenas os eventos em que o aluno estava
+   na lista de chamada (presente ou falta registrada).
+   Chamadas anteriores à aprovação do aluno são ignoradas.
    ====================================================== */
 export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
   if (!eventosMes || eventosMes.length === 0) {
@@ -75,11 +78,20 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
     };
   }
 
-  const totalEventos = eventosMes.length;
+  // Filtra apenas eventos em que o aluno aparece na lista
+  const eventosDoAluno = eventosMes.filter(ev =>
+    ev.presencas.some(p => p.nome === nomeAluno)
+  );
+
+  const totalEventos = eventosDoAluno.length;
+
+  if (totalEventos === 0) {
+    return { totalEventos: 0, presencasAluno: 0, percentual: 0 };
+  }
 
   let presencasAluno = 0;
 
-  eventosMes.forEach(ev => {
+  eventosDoAluno.forEach(ev => {
     const hit = ev.presencas.find(p => p.nome === nomeAluno);
     if (hit && hit.presenca === "presente") {
       presencasAluno++;
@@ -108,18 +120,25 @@ export async function contarChamadasPorTurma(ano, turmaId) {
 
 /* ======================================================
    5. CALCULAR FREQUÊNCIA DO ALUNO NO ANO (por turma)
-   Retorna presencas e percentual anuais do aluno,
-   usando somente os eventos da sua turma como denominador.
+   Considera apenas os eventos em que o aluno estava
+   na lista de chamada (presente ou falta registrada).
+   Chamadas anteriores à aprovação do aluno são ignoradas.
    ====================================================== */
 export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) {
   if (!turmaId) return { totalEventos: 0, presencasAluno: 0, percentual: 0 };
 
   const eventos = await obterEventosDoAno(ano, turmaId);
-  const totalEventos = eventos.length;
+
+  // Filtra apenas eventos em que o aluno aparece na lista
+  const eventosDoAluno = eventos.filter(ev =>
+    ev.presencas.some(p => p.nome === nomeAluno)
+  );
+
+  const totalEventos = eventosDoAluno.length;
   if (totalEventos === 0) return { totalEventos: 0, presencasAluno: 0, percentual: 0 };
 
   let presencasAluno = 0;
-  eventos.forEach(ev => {
+  eventosDoAluno.forEach(ev => {
     const hit = ev.presencas.find(p => p.nome === nomeAluno);
     if (hit && hit.presenca === "presente") presencasAluno++;
   });
