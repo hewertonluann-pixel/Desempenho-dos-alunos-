@@ -98,8 +98,6 @@ export async function carregarAlunoAtual() {
 export function montarPainelAluno(aluno) {
   document.getElementById("nomeAluno").textContent = aluno.nome;
 
-  // ✅ Se a turma do aluno começa com "Fase" (ex: "Fase 1", "Fase 2"),
-  // exibe o nome da turma no lugar do instrumento.
   const ehFase = /^fase\s*\d/i.test(aluno.turmaNome || "");
   const labelInstrumento = document.getElementById("instrumentoAluno");
   if (labelInstrumento) {
@@ -148,7 +146,6 @@ export async function montarGraficoFrequencia(aluno, ano) {
   if (!destino || !anoTexto) return;
   anoTexto.textContent = ano;
 
-  // Passa o turmaId do aluno para filtrar apenas os eventos da sua turma
   const turmaId = aluno.turmaId || null;
 
   await gerarPainelFrequencia(
@@ -186,7 +183,7 @@ export function abrirPopupFrequencia(info, destino) {
   destino.querySelector(".modal-content .modal-body").innerHTML = `
     <h2 class="modal-title">📅 Frequência de ${meses[info.mes]}</h2>
     <div class="modal-stats-grid">
-      <div class="stat-box"><div class="stat-label">Chamadas</div><div class="stat-value">${info.totalEventos}</div></div>
+      <div class="stat-box"><div class="stat-label">Chamadas na lista</div><div class="stat-value">${info.totalEventos}</div></div>
       <div class="stat-box"><div class="stat-label">Presenças</div><div class="stat-value stat-success">${info.presencasAluno}</div></div>
       <div class="stat-box stat-highlight"><div class="stat-label">Frequência</div><div class="stat-value stat-primary">${info.percentual}%</div></div>
     </div>
@@ -235,7 +232,7 @@ window.fecharPopupConquista = function() {
 };
 
 /* ========================================================
-    6. CALCULAR ENERGIA (filtrada por turma do aluno)
+    6. CALCULAR ENERGIA (filtrada por turma e por participação na lista)
    ======================================================== */
 export async function calcularEnergiaDoAluno(aluno) {
   const turmaId = aluno.turmaId || null;
@@ -250,22 +247,32 @@ export async function calcularEnergiaDoAluno(aluno) {
   const grupos     = agruparEventosPorMes(todosEventos);
   const chaveMes   = `${anoAtual}-${mesAtual}`;
   const eventosMes = grupos[chaveMes] || [];
+
+  // Cálculo mensal — já usa o filtro da lista (via frequencia.js atualizado)
   const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
   const energiaMensal = freqMensal.percentual;
 
-  let totalPresencasAno = 0, totalEventosAno = 0;
+  // Cálculo anual — considera apenas eventos em que o aluno estava na lista
+  let totalPresencasAno = 0;
+  let totalEventosAno   = 0;
+
   Object.keys(grupos).forEach(chave => {
     if (!chave.startsWith(String(anoAtual))) return;
     grupos[chave].forEach(ev => {
+      // ✅ Só conta se o aluno aparece na lista deste evento
+      const naLista = ev.presencas.some(p => p.nome === aluno.nome);
+      if (!naLista) return;
+
       totalEventosAno++;
       const hit = ev.presencas.find(p => p.nome === aluno.nome);
       if (hit && hit.presenca === "presente") totalPresencasAno++;
     });
   });
+
   const energiaAnual = totalEventosAno > 0
     ? Math.round((totalPresencasAno / totalEventosAno) * 100) : 0;
 
-  // ✅ FIX: gravar frequenciaMensal e frequenciaTotal no objeto aluno
+  // ✅ Gravar frequenciaMensal e frequenciaTotal no objeto aluno
   // para que gerarPainelConquistas possa avaliar as condições corretamente
   aluno.frequenciaMensal = freqMensal; // { totalEventos, presencasAluno, percentual }
   aluno.frequenciaTotal  = totalPresencasAno;
@@ -284,7 +291,6 @@ export async function iniciarPainelAluno() {
   const usuario       = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
   const ehDonoDaPagina= usuario.nome && usuario.nome === aluno.nome;
 
-  // Ocultar elementos se não for o dono
   if (!ehDonoDaPagina) {
     const btnSenha  = document.querySelector(".btn-change-password");
     const labelFoto = document.querySelector('label[for="novaFoto"]');
@@ -296,7 +302,6 @@ export async function iniciarPainelAluno() {
     if (btnApp)    btnApp.style.display    = "none";
   }
 
-  // Preferências de visibilidade
   const preferencias = aluno.preferencias || {
     comprometimento: true, frequencia: true, conquistas: true,
     evolucao: true, notificacoes: true, licoes: true
@@ -321,7 +326,6 @@ export async function iniciarPainelAluno() {
       painel.style.display = visivel ? "" : "none";
     });
 
-    // Reordenar paineis
     const ordem = aluno.ordemPaineis || [
       "comprometimento","notificacoes","frequencia","conquistas","licoes","evolucao"
     ];
@@ -342,12 +346,10 @@ export async function iniciarPainelAluno() {
   montarPainelAluno(aluno);
   carregarNotificacoes();
   await montarGraficoFrequencia(aluno, anoVisualizacao);
-  const energia = await calcularEnergiaDoAluno(aluno); // ✅ agora popula aluno.frequenciaMensal
+  const energia = await calcularEnergiaDoAluno(aluno);
 
-  // 📸 Garantir snapshot do mês atual (cria automaticamente se não existir)
   await garantirSnapshotDoMes(aluno);
 
-  // 📊 Carregar todos os snapshots para o gráfico
   const snapshots = await carregarSnapshotsAluno(aluno);
 
   const destinoGrafico = document.getElementById("painelEvolucao");
@@ -355,7 +357,7 @@ export async function iniciarPainelAluno() {
     gerarGraficoEvolucao(aluno, energia, destinoGrafico, snapshots);
   }
 
-  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas")); // ✅ aluno já tem frequenciaMensal
+  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
 
   if (ehDonoDaPagina) await carregarLicoesAluno(aluno.nome);
 
