@@ -189,6 +189,7 @@
       collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { exportarChamada3Colunas } from "./exportar-chamada.js";
+    import { calcularMetricasCombo, renderCardComboHTML } from "./combos.js";
 
     const params  = new URLSearchParams(window.location.search);
     let eventoId  = params.get("id") || null;
