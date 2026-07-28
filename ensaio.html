@@ -145,6 +145,19 @@
     .btn-cancelar { background: #1f2937; color: #e5e7eb; box-shadow: 0 8px 20px rgba(15,23,42,0.9); }
     .btn-exportar { background: #0ea5e9; color: white; box-shadow: 0 8px 22px rgba(14,165,233,0.4); }
     .loader { text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.85rem; }
+
+.container-aluno.justificado {
+  background: radial-gradient(circle at top left, rgba(245,158,11,0.30), var(--card));
+  border-color: #f59e0b;
+  box-shadow: 0 8px 22px rgba(245,158,11,0.38);
+}
+
+.chip-status.justificado {
+  background: rgba(245,158,11,0.18);
+  color: #fde68a;
+  border-color: #f59e0b;
+}
+    
   </style>
 </head>
 <body>
@@ -251,10 +264,11 @@
     }
 
     function proximoEstado(atual) {
-      if (!atual || atual === "") return "presente";
-      if (atual === "presente")   return "ausente";
-      return "";
-    }
+  if (!atual || atual === "") return "presente";
+  if (atual === "presente") return "ausente";
+  if (atual === "ausente") return "justificado";
+  return "";
+}
 
     // ── Carregamento ──────────────────────────────────────────────
     async function carregarAlunos() {
@@ -320,7 +334,7 @@
             nome:        p.nome,
             instrumento: p.instrumento || "",
             foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-            presenca:    p.presenca || ""
+            presenca:    p.presenca === "FJ" ? "justificado" : (p.presenca || "")
           }));
       } else {
         if (dados.turmaId) {
@@ -339,7 +353,7 @@
             .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
           presencasSalvas.forEach(p => {
             const a = alunos.find(al => al.nome === p.nome);
-            if (a) a.presenca = p.presenca;
+            if (a) a.presenca = p.presenca === "FJ" ? "justificado" : p.presenca;
           });
         }
       }
@@ -347,23 +361,32 @@
 
     // ── Render ────────────────────────────────────────────────────
     function atualizarCard(card, aluno) {
-      card.classList.remove("presente", "ausente", "vazio");
-      const chip  = card.querySelector(".chip-status");
-      const icone = card.querySelector(".icone-acao");
-      if (aluno.presenca === "presente") {
-        card.classList.add("presente");
-        chip.textContent = "Presente"; chip.className = "chip-status presente";
-        if (icone) icone.textContent = "✓";
-      } else if (aluno.presenca === "ausente") {
-        card.classList.add("ausente");
-        chip.textContent = "Ausente"; chip.className = "chip-status ausente";
-        if (icone) icone.textContent = "✕";
-      } else {
-        card.classList.add("vazio");
-        chip.textContent = "Pendente"; chip.className = "chip-status";
-        if (icone) icone.textContent = "○";
-      }
-    }
+  card.classList.remove("presente", "ausente", "justificado", "vazio");
+  const chip  = card.querySelector(".chip-status");
+  const icone = card.querySelector(".icone-acao");
+
+  if (aluno.presenca === "presente") {
+    card.classList.add("presente");
+    chip.textContent = "Presente";
+    chip.className = "chip-status presente";
+    if (icone) icone.textContent = "✓";
+  } else if (aluno.presenca === "ausente") {
+    card.classList.add("ausente");
+    chip.textContent = "Ausente";
+    chip.className = "chip-status ausente";
+    if (icone) icone.textContent = "✕";
+  } else if (aluno.presenca === "justificado") {
+    card.classList.add("justificado");
+    chip.textContent = "Justificado";
+    chip.className = "chip-status justificado";
+    if (icone) icone.textContent = "🟠";
+  } else {
+    card.classList.add("vazio");
+    chip.textContent = "Pendente";
+    chip.className = "chip-status";
+    if (icone) icone.textContent = "○";
+  }
+}
 
     // ── Índice do card com foco atual ────────────────────────────────
     let idxFocado = -1;
@@ -455,11 +478,14 @@
         const obs  = observacoesEl.value.trim();
 
         const presencas = alunos.map(a => ({
-          alunoId:     a.id || "",
-          nome:        a.nome,
-          instrumento: a.instrumento || "",
-          presenca:    a.presenca || "ausente"
-        }));
+  alunoId:     a.id || "",
+  nome:        a.nome,
+  instrumento: a.instrumento || "",
+  presenca:
+    a.presenca === "justificado" ? "FJ" :
+    a.presenca === "presente" ? "presente" :
+    a.presenca === "ausente" ? "ausente" : "ausente"
+}));
 
         if (eventoId) {
           await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
