@@ -1,6 +1,8 @@
 // exportar-chamada.js
 // 📸 Exportar chamada em PNG – 3 colunas + resumo completo + rodapé
 
+import { calcularMetricasCombo } from "./combos.js";
+
 export async function exportarChamada3Colunas() {
   const painelOriginal = document.getElementById("painelAlunos");
   if (!painelOriginal) { alert("Painel não encontrado!"); return; }
@@ -25,6 +27,29 @@ export async function exportarChamada3Colunas() {
     dataEnsaio = `${dia}/${mes}/${ano}`;
   }
 
+  const turmaId = document.body.dataset.turmaId || window.turmaId || null;
+
+  const getHistoricoAluno = async (nomeAluno) => {
+    if (!turmaId || !window.db) return [];
+    try {
+      const { collection, getDocs, query, where } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js");
+      const snap = await getDocs(query(collection(window.db, "eventos"), where("turmaId", "==", turmaId)));
+      const historico = [];
+      snap.forEach(doc => {
+        const dados = doc.data();
+        if (!dados.data || !Array.isArray(dados.presencas)) return;
+        const registro = dados.presencas.find(p => p.nome === nomeAluno);
+        if (!registro) return;
+        historico.push({ data: dados.data, status: registro.presenca || "" });
+      });
+      historico.sort((a, b) => a.data.localeCompare(b.data));
+      return historico;
+    } catch (e) {
+      console.warn("Falha ao carregar histórico de", nomeAluno, e);
+      return [];
+    }
+  };
+
   // === Pré-carregar todas as imagens com crossOrigin para evitar taint ===
   const imgPromises = [];
   cards.forEach(card => {
@@ -34,7 +59,7 @@ export async function exportarChamada3Colunas() {
         const preload = new Image();
         preload.crossOrigin = "anonymous";
         preload.onload  = () => resolve({ el: img, src: preload.src });
-        preload.onerror = () => resolve(null); // falhou, ignora
+        preload.onerror = () => resolve(null);
         preload.src = img.src + (img.src.includes("?") ? "&" : "?") + "_t=" + Date.now();
       }));
     }
@@ -70,12 +95,13 @@ export async function exportarChamada3Colunas() {
   temp.appendChild(titulo);
 
   // === Copiar cards preservando fotos ===
-  cards.forEach(card => {
+  for (const card of cards) {
     const clone = card.cloneNode(true);
     clone.style.transform = "none";
     clone.style.cursor    = "default";
     clone.style.margin    = "0";
     clone.style.outline   = "none";
+    clone.style.position  = "relative";
 
     // Força crossOrigin nas imagens clonadas para html2canvas capturar
     const imgOriginal = card.querySelector(".foto-aluno img");
@@ -85,8 +111,43 @@ export async function exportarChamada3Colunas() {
       imgClone.src = imgOriginal.src;
     }
 
+    const nomeAluno = (card.querySelector(".nome")?.textContent || "").trim();
+    const statusHoje = card.classList.contains("presente") ? "P" :
+      card.classList.contains("ausente") ? "F" :
+      card.classList.contains("justificado") ? "FJ" : "";
+
+    const historico = await getHistoricoAluno(nomeAluno);
+    const metricas = calcularMetricasCombo(historico);
+
+    const badge = statusHoje === "P"
+      ? { icon: "✅", cor: "#22c55e", n: metricas.comboPresencaAtual }
+      : statusHoje === "F"
+        ? { icon: "❌", cor: "#ef4444", n: metricas.comboFaltaAtual }
+        : statusHoje === "FJ"
+          ? { icon: "🟠", cor: "#f59e0b", n: 1 }
+          : { icon: "➖", cor: "#64748b", n: 0 };
+
+    const badgeCombo = document.createElement("div");
+    Object.assign(badgeCombo.style, {
+      position: "absolute",
+      top: "14px",
+      right: "14px",
+      padding: "8px 14px",
+      borderRadius: "18px",
+      border: `2px solid ${badge.cor}`,
+      color: badge.cor,
+      background: "rgba(2,6,23,0.55)",
+      fontWeight: "800",
+      fontSize: "18px",
+      lineHeight: "1",
+      boxShadow: "0 0 0 1px rgba(0,0,0,0.15) inset",
+      pointerEvents: "none",
+    });
+    badgeCombo.innerText = `${badge.icon} x${badge.n}`;
+    clone.appendChild(badgeCombo);
+
     temp.appendChild(clone);
-  });
+  }
 
   // === Linha final: Observações + Resumo ===
   const linhaFinal = document.createElement("div");
