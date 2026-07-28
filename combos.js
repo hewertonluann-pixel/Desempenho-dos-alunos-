@@ -193,13 +193,11 @@ function renderCardComboHTML(nomeAluno, statusHoje, historico = []) {
 }
 
 // Exporta para uso em outros arquivos (exportar-chamada.js, ensaio.html, conquistas.js)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        calcularMetricasCombo,
-        classificarNivelCombo,
-        avaliarAlertaFalta,
-        renderHistoricoIcones,
-        verificarConquistasCombo,
-        renderCardComboHTML
-    };
-}
+export {
+    calcularMetricasCombo,
+    classificarNivelCombo,
+    avaliarAlertaFalta,
+    renderHistoricoIcones,
+    verificarConquistasCombo,
+    renderCardComboHTML
+};
