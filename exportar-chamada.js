@@ -1,8 +1,6 @@
 // exportar-chamada.js
 // 📸 Exportar chamada em PNG – 3 colunas + resumo completo + rodapé
 
-import { renderCardComboHTML } from "./combos.js";
-
 export async function exportarChamada3Colunas() {
   const painelOriginal = document.getElementById("painelAlunos");
   if (!painelOriginal) { alert("Painel não encontrado!"); return; }
@@ -16,7 +14,7 @@ export async function exportarChamada3Colunas() {
     else if (c.classList.contains("ausente"))  ausentes++;
     else                                        pendentes++;
   });
-  const total = cards.length;
+  const total       = cards.length;
   const porcentagem = total > 0 ? Math.round((presentes / total) * 100) : 0;
 
   // === Data: lê do input editável ===
@@ -36,7 +34,7 @@ export async function exportarChamada3Colunas() {
         const preload = new Image();
         preload.crossOrigin = "anonymous";
         preload.onload  = () => resolve({ el: img, src: preload.src });
-        preload.onerror = () => resolve(null);
+        preload.onerror = () => resolve(null); // falhou, ignora
         preload.src = img.src + (img.src.includes("?") ? "&" : "?") + "_t=" + Date.now();
       }));
     }
@@ -71,22 +69,23 @@ export async function exportarChamada3Colunas() {
   titulo.innerText = `📋 Chamada do Ensaio – ${dataEnsaio}`;
   temp.appendChild(titulo);
 
-  // === Combos por aluno ===
-  const historicos = window.historicosChamada || {};
-  cards.forEach((card, index) => {
-    const nome = card.querySelector(".nome")?.innerText?.trim() || `Aluno ${index + 1}`;
-    const statusHoje = card.classList.contains("presente")
-      ? "P"
-      : card.classList.contains("ausente")
-        ? "F"
-        : "FJ";
+  // === Copiar cards preservando fotos ===
+  cards.forEach(card => {
+    const clone = card.cloneNode(true);
+    clone.style.transform = "none";
+    clone.style.cursor    = "default";
+    clone.style.margin    = "0";
+    clone.style.outline   = "none";
 
-    const alunoId = card.dataset.alunoId || card.dataset.id || nome;
-    const historico = historicos[alunoId] || [];
+    // Força crossOrigin nas imagens clonadas para html2canvas capturar
+    const imgOriginal = card.querySelector(".foto-aluno img");
+    const imgClone    = clone.querySelector(".foto-aluno img");
+    if (imgOriginal && imgClone) {
+      imgClone.crossOrigin = "anonymous";
+      imgClone.src = imgOriginal.src;
+    }
 
-    const bloco = document.createElement("div");
-    bloco.innerHTML = renderCardComboHTML(nome, statusHoje, historico);
-    temp.appendChild(bloco.firstElementChild);
+    temp.appendChild(clone);
   });
 
   // === Linha final: Observações + Resumo ===
@@ -100,19 +99,17 @@ export async function exportarChamada3Colunas() {
     gap: "20px",
   });
 
+  // Observações
   const obsInput = document.getElementById("observacoes");
-  const obsArea = document.createElement("div");
+  const obsArea  = document.createElement("div");
   Object.assign(obsArea.style, {
-    flex: "1",
-    fontSize: "20px",
-    lineHeight: "1.5",
-    color: "#e0fafa",
-    fontWeight: "500",
-    maxWidth: "660px",
+    flex: "1", fontSize: "20px", lineHeight: "1.5",
+    color: "#e0fafa", fontWeight: "500", maxWidth: "660px",
   });
   obsArea.innerHTML = `<strong style="font-size:18px;color:#00ffcc;">Observações:</strong><br>${obsInput ? (obsInput.value || "—") : "—"}`;
   linhaFinal.appendChild(obsArea);
 
+  // Resumo completo
   const resumoBox = document.createElement("div");
   Object.assign(resumoBox.style, { width: "340px", textAlign: "right" });
 
@@ -123,34 +120,25 @@ export async function exportarChamada3Colunas() {
     (pendentes > 0 ? ` &nbsp;·&nbsp; ⏳ ${pendentes} pendentes` : "");
   resumoBox.appendChild(labelResumo);
 
+  // Barra de progresso
   const barraWrap = document.createElement("div");
   Object.assign(barraWrap.style, {
-    width: "100%",
-    height: "16px",
-    borderRadius: "10px",
-    background: "#333",
-    overflow: "hidden",
-    boxShadow: "inset 0 0 6px rgba(0,0,0,0.7)",
+    width: "100%", height: "16px", borderRadius: "10px",
+    background: "#333", overflow: "hidden", boxShadow: "inset 0 0 6px rgba(0,0,0,0.7)",
   });
-
   const barra = document.createElement("div");
   Object.assign(barra.style, {
-    height: "100%",
-    width: `${porcentagem}%`,
+    height: "100%", width: `${porcentagem}%`,
     background: "linear-gradient(90deg, #00ffcc, #0099aa)",
     boxShadow: "0 0 10px rgba(0,255,204,0.9)",
   });
-
   barraWrap.appendChild(barra);
   resumoBox.appendChild(barraWrap);
 
   const txtPct = document.createElement("div");
   Object.assign(txtPct.style, {
-    fontSize: "28px",
-    fontWeight: "bold",
-    color: "#00ffcc",
-    marginTop: "6px",
-    textShadow: "0 0 6px rgba(0,255,204,0.7)",
+    fontSize: "28px", fontWeight: "bold", color: "#00ffcc",
+    marginTop: "6px", textShadow: "0 0 6px rgba(0,255,204,0.7)",
   });
   txtPct.innerText = `${porcentagem}% de frequência`;
   resumoBox.appendChild(txtPct);
@@ -169,14 +157,8 @@ export async function exportarChamada3Colunas() {
     borderTop: "1px solid #1e3a5f",
     paddingTop: "10px",
   });
-
   const agora = new Date();
-  const horaExport = agora.toLocaleString("pt-BR", {
-    timeZone: "America/Sao_Paulo",
-    dateStyle: "short",
-    timeStyle: "short"
-  });
-
+  const horaExport = agora.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short" });
   rodape.innerText = `Orquestra Filhos de Asafe  ·  Exportado em ${horaExport}`;
   temp.appendChild(rodape);
 
