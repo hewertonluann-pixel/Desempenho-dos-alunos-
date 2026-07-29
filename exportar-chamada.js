@@ -170,6 +170,8 @@ badgeTxt.textContent = badge.label;
 badgeCombo.appendChild(badgeDot);
 badgeCombo.appendChild(badgeTxt);
 clone.appendChild(badgeCombo);
+temp.appendChild(clone);
+}
 
   // === Linha final: Observações + Resumo ===
   const linhaFinal = document.createElement("div");
