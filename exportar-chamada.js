@@ -130,13 +130,46 @@ export async function exportarChamada3Colunas() {
     }
 
     const badge =
-      statusHoje === "P"
-        ? { icon: "✅", cor: "#22c55e", n: metricas.comboPresencaAtual }
-        : statusHoje === "F"
-          ? { icon: "❌", cor: "#ef4444", n: metricas.comboFaltaAtual }
-          : statusHoje === "FJ"
-            ? { icon: "🟠", cor: "#f59e0b", n: 1 }
-            : { icon: "➖", cor: "#64748b", n: 0 };
+  statusHoje === "P"
+    ? { icon: "●", label: `x${metricas.comboPresencaAtual}`, cor: "#86efac", fundo: "rgba(34,197,94,0.14)" }
+    : statusHoje === "F"
+      ? { icon: "●", label: `x${metricas.comboFaltaAtual}`, cor: "#fca5a5", fundo: "rgba(248,113,113,0.14)" }
+      : statusHoje === "FJ"
+        ? { icon: "●", label: "just.", cor: "#fde68a", fundo: "rgba(251,191,36,0.16)" }
+        : { icon: "●", label: "—", cor: "#94a3b8", fundo: "rgba(148,163,184,0.10)" };
+
+const badgeCombo = document.createElement("div");
+Object.assign(badgeCombo.style, {
+  position: "absolute",
+  top: "14px",
+  right: "14px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  padding: "6px 10px",
+  borderRadius: "10px",
+  color: badge.cor,
+  background: badge.fundo,
+  fontWeight: "700",
+  fontSize: "13px",
+  lineHeight: "1",
+  letterSpacing: ".02em",
+  pointerEvents: "none",
+  backdropFilter: "blur(4px)",
+});
+
+const badgeDot = document.createElement("span");
+badgeDot.textContent = badge.icon;
+badgeDot.style.fontSize = "10px";
+badgeDot.style.lineHeight = "1";
+badgeDot.style.opacity = "0.95";
+
+const badgeTxt = document.createElement("span");
+badgeTxt.textContent = badge.label;
+
+badgeCombo.appendChild(badgeDot);
+badgeCombo.appendChild(badgeTxt);
+clone.appendChild(badgeCombo);
 
     const badgeCombo = document.createElement("div");
     Object.assign(badgeCombo.style, {
