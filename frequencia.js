@@ -198,3 +198,43 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) 
     elementoDestino.appendChild(mesCard);
   });
 }
+/* ======================================================
+   7. NORMALIZAR STATUS DE PRESENÇA
+   Unifica os formatos salvos no Firestore em um único
+   padrão usado pelo combos.js: "P" | "F" | "FJ"
+   ====================================================== */
+export function normalizarStatusPresenca(valor) {
+  if (valor === "presente" || valor === "P") return "P";
+  if (valor === "FJ" || valor === "justificado") return "FJ";
+  if (valor === "ausente" || valor === "F") return "F";
+  return "";
+}
+
+/* ======================================================
+   8. HISTÓRICO NORMALIZADO DO ALUNO (para combos.js)
+   Reaproveita obterEventosDoAno — não duplica consulta.
+   Retorna array ordenado cronologicamente:
+   [{ data: "2026-07-22", status: "P" }, ...]
+   ====================================================== */
+export async function obterHistoricoNormalizadoAluno(nomeAluno, turmaId, ano) {
+  if (!turmaId) {
+    console.warn("obterHistoricoNormalizadoAluno: turmaId não informado.");
+    return [];
+  }
+
+  const eventos = await obterEventosDoAno(ano, turmaId);
+
+  const historico = eventos
+    .filter(ev => ev.presencas.some(p => p.nome === nomeAluno))
+    .map(ev => {
+      const registro = ev.presencas.find(p => p.nome === nomeAluno);
+      return {
+        data: ev.data,
+        status: normalizarStatusPresenca(registro?.presenca)
+      };
+    });
+
+  historico.sort((a, b) => a.data.localeCompare(b.data));
+
+  return historico;
+}
