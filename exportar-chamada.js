@@ -171,28 +171,6 @@ badgeCombo.appendChild(badgeDot);
 badgeCombo.appendChild(badgeTxt);
 clone.appendChild(badgeCombo);
 
-    const badgeCombo = document.createElement("div");
-    Object.assign(badgeCombo.style, {
-      position: "absolute",
-      top: "14px",
-      right: "14px",
-      padding: "8px 14px",
-      borderRadius: "18px",
-      border: `2px solid ${badge.cor}`,
-      color: badge.cor,
-      background: "rgba(2,6,23,0.55)",
-      fontWeight: "800",
-      fontSize: "18px",
-      lineHeight: "1",
-      boxShadow: "0 0 0 1px rgba(0,0,0,0.15) inset",
-      pointerEvents: "none",
-    });
-    badgeCombo.innerText = `${badge.icon} x${badge.n}`;
-    clone.appendChild(badgeCombo);
-
-    temp.appendChild(clone);
-  }
-
   // === Linha final: Observações + Resumo ===
   const linhaFinal = document.createElement("div");
   Object.assign(linhaFinal.style, {
