@@ -36,7 +36,6 @@
       max-width: 480px; margin: 0 auto;
     }
 
-    /* ── Cabeçalho ── */
     #cab {
       flex-shrink: 0;
       padding: 12px 16px 10px;
@@ -85,7 +84,6 @@
     .prog-fill { height: 100%; background: var(--verde); border-radius: 3px; width: 0%; transition: width .4s ease; }
     .prog-pct  { font-size: .72rem; color: var(--verde); font-weight: 700; min-width: 34px; text-align: right; }
 
-    /* ── Arena ── */
     #arena {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -98,7 +96,6 @@
       margin-bottom: 10px; text-align: center;
     }
 
-    /* ── Card (ocupa toda a largura) ── */
     .fc-row {
       width: 100%;
       display: flex;
@@ -111,7 +108,6 @@
       position: relative;
     }
 
-    /* ── Setas sobrepostas — discretas ── */
     .btn-nav {
       position: absolute;
       top: 50%;
@@ -138,7 +134,6 @@
     #btnAnterior { left: 8px; }
     #btnProximo  { right: 8px; }
 
-    /* ── Flashcard ── */
     .flashcard {
       width: 100%; background: var(--surface);
       border: 1px solid var(--border); border-radius: var(--radius);
@@ -149,10 +144,12 @@
       from { opacity: 0; transform: translateY(20px) scale(.97); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .flashcard.sair-ausente  { animation: fcSlideLeft  .22s ease forwards; }
-    .flashcard.sair-presente { animation: fcSlideRight .22s ease forwards; }
+    .flashcard.sair-ausente      { animation: fcSlideLeft .22s ease forwards; }
+    .flashcard.sair-presente     { animation: fcSlideRight .22s ease forwards; }
+    .flashcard.sair-justificado  { animation: fcSlideUp .22s ease forwards; }
     @keyframes fcSlideLeft  { to { opacity: 0; transform: translateX(-60px) scale(.95); } }
     @keyframes fcSlideRight { to { opacity: 0; transform: translateX( 60px) scale(.95); } }
+    @keyframes fcSlideUp    { to { opacity: 0; transform: translateY(-40px) scale(.95); } }
 
     .fc-foto {
       width: 100%; aspect-ratio: 4/3; background: var(--surface2);
@@ -168,9 +165,10 @@
       font-size: 4rem; gap: 8px;
       opacity: 0; transition: opacity .2s; pointer-events: none;
     }
-    .fc-overlay.show    { opacity: 1; }
-    .fc-overlay.presente { background: rgba(34,197,94,.55); }
-    .fc-overlay.ausente  { background: rgba(248,113,113,.55); }
+    .fc-overlay.show         { opacity: 1; }
+    .fc-overlay.presente     { background: rgba(34,197,94,.55); }
+    .fc-overlay.ausente      { background: rgba(248,113,113,.55); }
+    .fc-overlay.justificado  { background: rgba(251,191,36,.55); }
     .fc-overlay span { font-size: .9rem; font-weight: 800; letter-spacing: .08em; color: #fff; }
 
     .fc-info { padding: 12px 14px 10px; }
@@ -178,34 +176,48 @@
     .fc-inst { font-size: .78rem; color: var(--muted); }
 
     .fc-acoes {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-      padding: 0 14px 12px;
+      display: grid; grid-template-columns: 1fr;
+      gap: 8px; padding: 0 14px 12px;
+    }
+    .acoes-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
     }
     .btn-acao {
       padding: 12px 6px; border-radius: var(--radius-sm); border: none;
-      font-size: .9rem; font-weight: 800; letter-spacing: .04em;
+      font-size: .84rem; font-weight: 800; letter-spacing: .04em;
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       gap: 6px; -webkit-tap-highlight-color: transparent;
       transition: transform .1s, box-shadow .15s; outline: none;
     }
     .btn-acao:active { transform: scale(.95); }
+
     .btn-presente {
       background: rgba(34,197,94,.15); color: #86efac;
       border: 2px solid rgba(34,197,94,.4);
     }
-    .btn-presente:hover { background: rgba(34,197,94,.25); }
     .btn-presente.ativo {
       background: var(--verde); color: #012614;
       border-color: var(--verde); box-shadow: 0 6px 20px rgba(34,197,94,.45);
     }
+
     .btn-ausente {
       background: rgba(248,113,113,.15); color: #fca5a5;
       border: 2px solid rgba(248,113,113,.35);
     }
-    .btn-ausente:hover { background: rgba(248,113,113,.25); }
     .btn-ausente.ativo {
       background: var(--vermelho); color: #2c0000;
       border-color: var(--vermelho); box-shadow: 0 6px 20px rgba(248,113,113,.4);
+    }
+
+    .btn-justificado {
+      background: rgba(251,191,36,.16); color: #fde68a;
+      border: 2px solid rgba(251,191,36,.4);
+    }
+    .btn-justificado.ativo {
+      background: var(--amarelo); color: #3b2a00;
+      border-color: var(--amarelo); box-shadow: 0 6px 20px rgba(251,191,36,.4);
     }
 
     .btn-desfazer-wrap { text-align: center; padding: 0 14px 12px; }
@@ -218,7 +230,6 @@
     .btn-desfazer.show { display: inline-flex; align-items: center; gap: 5px; }
     .btn-desfazer:active { color: var(--ink); border-color: var(--muted); }
 
-    /* Dots */
     .dots-row {
       display: flex; align-items: center; justify-content: center;
       margin-top: 12px; gap: 5px; min-height: 18px;
@@ -228,11 +239,11 @@
       background: var(--faint); transition: background .2s, transform .2s;
       cursor: pointer;
     }
-    .dot.ativo    { background: var(--cyan); transform: scale(1.4); }
-    .dot.presente { background: var(--verde); }
-    .dot.ausente  { background: var(--vermelho); }
+    .dot.ativo       { background: var(--cyan); transform: scale(1.4); }
+    .dot.presente    { background: var(--verde); }
+    .dot.ausente     { background: var(--vermelho); }
+    .dot.justificado { background: var(--amarelo); }
 
-    /* ── Tela fim ── */
     #tela-fim {
       display: none; flex-direction: column;
       align-items: center; justify-content: center;
@@ -244,8 +255,8 @@
     .fim-titulo { font-size: 1.25rem; font-weight: 800; color: var(--ink); }
     .fim-sub    { font-size: .83rem; color: var(--muted); max-width: 28ch; }
     .fim-stats  {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; width: 100%; max-width: 280px; margin: 6px 0;
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px; width: 100%; max-width: 360px; margin: 6px 0;
     }
     .stat-box {
       background: var(--surface); border: 1px solid var(--border);
@@ -255,6 +266,8 @@
     .stat-lab { font-size: .7rem; color: var(--muted); margin-top: 3px; }
     .stat-box.pres .stat-num { color: var(--verde); }
     .stat-box.ause .stat-num { color: var(--vermelho); }
+    .stat-box.just .stat-num { color: var(--amarelo); }
+
     .fim-acoes {
       display: flex; flex-direction: column; gap: 10px;
       width: 100%; max-width: 280px; margin-top: 4px;
@@ -271,9 +284,8 @@
     .btn-salvar-fim:active   { transform: scale(.97); }
     .btn-salvar-fim:disabled { opacity: .4; cursor: default; }
 
-    /* Oculto até salvar com sucesso */
     .btn-ver-ensaio {
-      display: none;                    /* <─ começa escondido */
+      display: none;
       width: 100%; padding: 13px 8px; border-radius: 999px;
       border: 1px solid var(--border);
       background: var(--surface2); color: var(--cyan);
@@ -282,9 +294,7 @@
       -webkit-tap-highlight-color: transparent;
       transition: background .15s, transform .1s; outline: none;
     }
-    .btn-ver-ensaio.show {
-      display: flex;                    /* <─ aparece após salvar */
-    }
+    .btn-ver-ensaio.show { display: flex; }
     .btn-ver-ensaio:active { transform: scale(.97); background: var(--border); }
 
     .btn-revisar {
@@ -295,7 +305,6 @@
     }
     .btn-revisar:active { background: var(--border); }
 
-    /* ── Modal obs ── */
     #modal-obs {
       display: none; position: fixed; inset: 0; z-index: 300;
       background: rgba(0,0,0,.75); align-items: flex-end; justify-content: center;
@@ -323,7 +332,6 @@
       background: var(--cyan); color: #001a1f; font-weight: 700; font-size: .9rem; cursor: pointer;
     }
 
-    /* ── Loader ── */
     #overlay-load {
       position: fixed; inset: 0; z-index: 500;
       display: flex; flex-direction: column;
@@ -338,7 +346,6 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     #overlay-load p { font-size: .85rem; color: var(--muted); }
 
-    /* ── Toast ── */
     #toast {
       position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
       background: var(--surface2); border: 1px solid var(--border);
@@ -389,8 +396,6 @@
   </div>
 
   <div id="arena">
-
-    <!-- Tela final -->
     <div id="tela-fim">
       <div class="fim-icone">🎉</div>
       <div class="fim-titulo">Chamada concluída!</div>
@@ -404,16 +409,18 @@
           <div class="stat-num" id="numAusentes">0</div>
           <div class="stat-lab">Ausentes</div>
         </div>
+        <div class="stat-box just">
+          <div class="stat-num" id="numJustificados">0</div>
+          <div class="stat-lab">Justificadas</div>
+        </div>
       </div>
       <div class="fim-acoes">
         <button class="btn-salvar-fim" id="btnSalvar">💾 Salvar chamada</button>
-        <!-- Aparece somente após salvar com sucesso -->
         <button class="btn-ver-ensaio" id="btnVerEnsaio">📋 Ver ensaio</button>
-        <button class="btn-revisar"   id="btnRevisar">↩ Revisar chamada</button>
+        <button class="btn-revisar" id="btnRevisar">↩ Revisar chamada</button>
       </div>
     </div>
 
-    <!-- Contador -->
     <div id="contador"></div>
 
     <div class="fc-row" id="fcRow" style="display:none">
@@ -432,8 +439,11 @@
             <div class="fc-inst" id="fcInst">—</div>
           </div>
           <div class="fc-acoes">
-            <button class="btn-acao btn-ausente"  id="btnAusente">✘ Ausente</button>
-            <button class="btn-acao btn-presente" id="btnPresente">✔ Presente</button>
+            <div class="acoes-grid-3">
+              <button class="btn-acao btn-ausente" id="btnAusente">✘ Ausente</button>
+              <button class="btn-acao btn-justificado" id="btnJustificado">🟠 Justificada</button>
+              <button class="btn-acao btn-presente" id="btnPresente">✔ Presente</button>
+            </div>
           </div>
           <div class="btn-desfazer-wrap">
             <button class="btn-desfazer" id="btnDesfazer">↺ Desfazer marcação</button>
@@ -444,9 +454,7 @@
       </div>
     </div>
 
-    <!-- Dots -->
     <div class="dots-row" id="dots"></div>
-
   </div>
 </div>
 
@@ -474,6 +482,7 @@
   const fcInst        = document.getElementById("fcInst");
   const btnPresente   = document.getElementById("btnPresente");
   const btnAusente    = document.getElementById("btnAusente");
+  const btnJustificado= document.getElementById("btnJustificado");
   const btnDesfazer   = document.getElementById("btnDesfazer");
   const btnAnterior   = document.getElementById("btnAnterior");
   const btnProximo    = document.getElementById("btnProximo");
@@ -481,6 +490,7 @@
   const telaFim       = document.getElementById("tela-fim");
   const numPresentes  = document.getElementById("numPresentes");
   const numAusentes   = document.getElementById("numAusentes");
+  const numJustificados = document.getElementById("numJustificados");
   const btnRevisar    = document.getElementById("btnRevisar");
   const btnSalvar     = document.getElementById("btnSalvar");
   const btnVerEnsaio  = document.getElementById("btnVerEnsaio");
@@ -495,7 +505,6 @@
   let idx       = 0;
   let transicao = false;
 
-  // Se já tem eventoId (chamada aberta para edição), revela o botão imediatamente
   if (eventoId) btnVerEnsaio.classList.add("show");
 
   let toastTimer;
@@ -509,6 +518,21 @@
   function getTurma() {
     try { return JSON.parse(localStorage.getItem("turmaAtiva")); } catch { return null; }
   }
+
+  function normalizarPresenca(valor) {
+    if (valor === "FJ" || valor === "justificado") return "justificado";
+    if (valor === "presente" || valor === "P") return "presente";
+    if (valor === "ausente" || valor === "F") return "ausente";
+    return "";
+  }
+
+  function serializarPresenca(valor) {
+    if (valor === "justificado") return "FJ";
+    if (valor === "presente") return "presente";
+    if (valor === "ausente") return "ausente";
+    return "ausente";
+  }
+
   const turma = getTurma();
   if (turma?.nome) {
     badgeWrap.innerHTML = `<div class="turma-badge">🏫 ${turma.nome}</div>`;
@@ -521,7 +545,8 @@
     const br = new Intl.DateTimeFormat("pt-BR", {
       timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit"
     }).format(new Date());
-    const [d,m,a] = br.split("/"); return `${a}-${m}-${d}`;
+    const [d,m,a] = br.split("/");
+    return `${a}-${m}-${d}`;
   }
 
   function atualizarProgresso() {
@@ -545,20 +570,45 @@
     alunos.forEach((a, i) => {
       const d = document.createElement("div");
       d.className = "dot";
-      if (i === idx)                      d.classList.add("ativo");
+      if (i === idx) d.classList.add("ativo");
       else if (a.presenca === "presente") d.classList.add("presente");
-      else if (a.presenca === "ausente")  d.classList.add("ausente");
+      else if (a.presenca === "ausente") d.classList.add("ausente");
+      else if (a.presenca === "justificado") d.classList.add("justificado");
       d.addEventListener("click", () => goTo(i));
       dotsEl.appendChild(d);
     });
   }
 
+  function atualizarOverlay(aluno) {
+    fcOverlay.className = "fc-overlay";
+
+    if (aluno.presenca === "presente") {
+      fcOverlay.classList.add("show", "presente");
+      fcOverlayIcon.textContent = "✔";
+      fcOverlayTxt.textContent = "PRESENTE";
+    } else if (aluno.presenca === "ausente") {
+      fcOverlay.classList.add("show", "ausente");
+      fcOverlayIcon.textContent = "✘";
+      fcOverlayTxt.textContent = "AUSENTE";
+    } else if (aluno.presenca === "justificado") {
+      fcOverlay.classList.add("show", "justificado");
+      fcOverlayIcon.textContent = "🟠";
+      fcOverlayTxt.textContent = "JUSTIFICADA";
+    } else {
+      fcOverlayIcon.textContent = "";
+      fcOverlayTxt.textContent = "";
+    }
+  }
+
   function renderCard(allowFim = false) {
     if (!alunos.length) return;
-    if (allowFim && alunos.every(a => a.presenca !== "")) { mostrarFim(); return; }
+    if (allowFim && alunos.every(a => a.presenca !== "")) {
+      mostrarFim();
+      return;
+    }
 
     telaFim.classList.remove("show");
-    fcRow.style.display    = "flex";
+    fcRow.style.display = "flex";
     contador.style.display = "block";
 
     const aluno = alunos[idx];
@@ -566,33 +616,32 @@
     fcFoto.innerHTML = "";
     if (aluno.foto) {
       const img = document.createElement("img");
-      img.src = aluno.foto; img.alt = aluno.nome; img.loading = "lazy";
+      img.src = aluno.foto;
+      img.alt = aluno.nome;
+      img.loading = "lazy";
       fcFoto.appendChild(img);
     } else {
       fcFoto.textContent = "👤";
     }
 
-    const ov = fcOverlay;
-    ov.className = "fc-overlay";
-    if (aluno.presenca === "presente") {
-      ov.classList.add("show", "presente");
-      fcOverlayIcon.textContent = "✔"; fcOverlayTxt.textContent = "PRESENTE";
-    } else if (aluno.presenca === "ausente") {
-      ov.classList.add("show", "ausente");
-      fcOverlayIcon.textContent = "✘"; fcOverlayTxt.textContent = "AUSENTE";
-    }
-    fcFoto.appendChild(ov);
+    atualizarOverlay(aluno);
+    fcFoto.appendChild(fcOverlay);
 
     fcNome.textContent = aluno.nome;
     fcInst.textContent = aluno.instrumento || "—";
 
-    btnPresente.className = "btn-acao btn-presente" + (aluno.presenca === "presente" ? " ativo" : "");
-    btnAusente.className  = "btn-acao btn-ausente"  + (aluno.presenca === "ausente"  ? " ativo" : "");
-    btnDesfazer.className = "btn-desfazer"           + (aluno.presenca !== ""        ? " show"  : "");
+    btnPresente.className =
+      "btn-acao btn-presente" + (aluno.presenca === "presente" ? " ativo" : "");
+    btnAusente.className =
+      "btn-acao btn-ausente" + (aluno.presenca === "ausente" ? " ativo" : "");
+    btnJustificado.className =
+      "btn-acao btn-justificado" + (aluno.presenca === "justificado" ? " ativo" : "");
+    btnDesfazer.className =
+      "btn-desfazer" + (aluno.presenca !== "" ? " show" : "");
 
     contador.textContent = `Aluno ${idx + 1} de ${alunos.length}`;
-    btnAnterior.disabled = (idx === 0);
-    btnProximo.disabled  = (idx === alunos.length - 1);
+    btnAnterior.disabled = idx === 0;
+    btnProximo.disabled = idx === alunos.length - 1;
 
     flashcard.style.animation = "none";
     requestAnimationFrame(() => {
@@ -606,119 +655,185 @@
   }
 
   function mostrarFim() {
-    fcRow.style.display    = "none";
+    fcRow.style.display = "none";
     contador.style.display = "none";
     telaFim.classList.add("show");
     numPresentes.textContent = alunos.filter(a => a.presenca === "presente").length;
-    numAusentes.textContent  = alunos.filter(a => a.presenca === "ausente").length;
+    numAusentes.textContent = alunos.filter(a => a.presenca === "ausente").length;
+    numJustificados.textContent = alunos.filter(a => a.presenca === "justificado").length;
     dotsEl.innerHTML = "";
     atualizarProgresso();
   }
 
   function goTo(novoIdx) {
     if (novoIdx < 0 || novoIdx >= alunos.length) return;
-    idx = novoIdx; renderCard(false);
+    idx = novoIdx;
+    renderCard(false);
   }
 
   function proximo() {
     const proxPend = alunos.findIndex((a, i) => i > idx && a.presenca === "");
-    if (proxPend !== -1) { idx = proxPend; renderCard(false); return; }
-    if (idx < alunos.length - 1) { idx++; renderCard(false); return; }
+    if (proxPend !== -1) {
+      idx = proxPend;
+      renderCard(false);
+      return;
+    }
+    if (idx < alunos.length - 1) {
+      idx++;
+      renderCard(false);
+      return;
+    }
     renderCard(true);
   }
 
-  function vibrar(ms = 28) { try { navigator.vibrate?.(ms); } catch {} }
+  function vibrar(ms = 28) {
+    try { navigator.vibrate?.(ms); } catch {}
+  }
 
   function marcar(estado) {
     if (transicao) return;
     transicao = true;
     alunos[idx].presenca = estado;
     atualizarProgresso();
-    vibrar(estado === "presente" ? 30 : 18);
 
-    fcOverlay.className = `fc-overlay show ${estado}`;
-    fcOverlayIcon.textContent = estado === "presente" ? "✔" : "✘";
-    fcOverlayTxt.textContent  = estado === "presente" ? "PRESENTE" : "AUSENTE";
+    if (estado === "presente") vibrar(30);
+    else if (estado === "justificado") vibrar(22);
+    else vibrar(18);
+
+    atualizarOverlay(alunos[idx]);
+
     btnPresente.className = "btn-acao btn-presente" + (estado === "presente" ? " ativo" : "");
-    btnAusente.className  = "btn-acao btn-ausente"  + (estado === "ausente"  ? " ativo" : "");
+    btnAusente.className = "btn-acao btn-ausente" + (estado === "ausente" ? " ativo" : "");
+    btnJustificado.className = "btn-acao btn-justificado" + (estado === "justificado" ? " ativo" : "");
     btnDesfazer.className = "btn-desfazer show";
 
-    flashcard.classList.add(estado === "presente" ? "sair-presente" : "sair-ausente");
+    flashcard.classList.add(
+      estado === "presente" ? "sair-presente" :
+      estado === "justificado" ? "sair-justificado" :
+      "sair-ausente"
+    );
+
     setTimeout(() => {
-      flashcard.classList.remove("sair-presente", "sair-ausente");
+      flashcard.classList.remove("sair-presente", "sair-ausente", "sair-justificado");
       transicao = false;
       proximo();
     }, 240);
   }
 
-  function desfazer() { alunos[idx].presenca = ""; renderCard(false); }
+  function desfazer() {
+    alunos[idx].presenca = "";
+    renderCard(false);
+  }
 
-  btnPresente.addEventListener("click",  () => marcar("presente"));
-  btnAusente.addEventListener("click",   () => marcar("ausente"));
-  btnDesfazer.addEventListener("click",  desfazer);
-  btnAnterior.addEventListener("click",  () => goTo(idx - 1));
-  btnProximo.addEventListener("click",   () => goTo(idx + 1));
-  btnRevisar.addEventListener("click",   () => {
+  btnPresente.addEventListener("click", () => marcar("presente"));
+  btnAusente.addEventListener("click", () => marcar("ausente"));
+  btnJustificado.addEventListener("click", () => marcar("justificado"));
+  btnDesfazer.addEventListener("click", desfazer);
+  btnAnterior.addEventListener("click", () => goTo(idx - 1));
+  btnProximo.addEventListener("click", () => goTo(idx + 1));
+  btnRevisar.addEventListener("click", () => {
     const prim = alunos.findIndex(a => a.presenca === "");
-    idx = prim !== -1 ? prim : 0; renderCard(false);
+    idx = prim !== -1 ? prim : 0;
+    renderCard(false);
   });
   btnVerEnsaio.addEventListener("click", () => {
     location.href = eventoId ? `ensaio.html?id=${eventoId}` : "ensaio.html";
   });
-  btnObs.addEventListener("click",       () => modalObs.classList.add("show"));
+  btnObs.addEventListener("click", () => modalObs.classList.add("show"));
   btnFecharObs.addEventListener("click", () => modalObs.classList.remove("show"));
-  modalObs.addEventListener("click",     e => { if (e.target === modalObs) modalObs.classList.remove("show"); });
+  modalObs.addEventListener("click", e => {
+    if (e.target === modalObs) modalObs.classList.remove("show");
+  });
 
   async function carregarAlunos() {
     if (eventoId) return;
+
     if (turma?.id) {
       const snap = await getDocs(
-        query(collection(db, "alunos"), where("turmaId", "==", turma.id), where("ativo", "!=", false)));
+        query(collection(db, "alunos"), where("turmaId", "==", turma.id), where("ativo", "!=", false))
+      );
       alunos = snap.docs
-        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+        .map(d => ({
+          id: d.id,
+          nome: d.data().nome,
+          instrumento: d.data().instrumento || "",
+          foto: d.data().foto || "",
+          presenca: ""
+        }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
       return;
     }
+
     const snap = await getDocs(collection(db, "alunos"));
     alunos = snap.docs
       .filter(d => d.data().ativo !== false)
-      .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+      .map(d => ({
+        id: d.id,
+        nome: d.data().nome,
+        instrumento: d.data().instrumento || "",
+        foto: d.data().foto || "",
+        presenca: ""
+      }))
       .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
   }
 
   async function carregarEvento() {
-    if (!eventoId) { inputData.value = hojeISO(); return; }
+    if (!eventoId) {
+      inputData.value = hojeISO();
+      return;
+    }
+
     const snap = await getDoc(doc(db, "eventos", eventoId));
-    if (!snap.exists()) { inputData.value = hojeISO(); return; }
+    if (!snap.exists()) {
+      inputData.value = hojeISO();
+      return;
+    }
+
     const dados = snap.data();
     inputData.value = dados.data || hojeISO();
-    obsEl.value     = dados.observacoes || "";
+    obsEl.value = dados.observacoes || "";
+
     if (dados.turmaNome) {
       badgeWrap.innerHTML = `<div class="turma-badge">🏫 ${dados.turmaNome}</div>`;
-      btnSalvar.disabled  = false;
+      btnSalvar.disabled = false;
     }
+
     const ativoMap = {}, fotoMap = {}, nomeMap = {};
     try {
       const s = await getDocs(collection(db, "alunos"));
       s.forEach(d => {
         ativoMap[d.id] = d.data().ativo !== false;
-        fotoMap[d.id]  = d.data().foto  || "";
+        fotoMap[d.id] = d.data().foto || "";
         nomeMap[d.data().nome] = d.data().foto || "";
       });
     } catch {}
+
     const salvas = dados.presencas || [];
     if (salvas.length) {
       alunos = salvas
         .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
-        .map(p => ({ id: p.alunoId || "", nome: p.nome, instrumento: p.instrumento || "",
-          foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "", presenca: "" }));
+        .map(p => ({
+          id: p.alunoId || "",
+          nome: p.nome,
+          instrumento: p.instrumento || "",
+          foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
+          presenca: normalizarPresenca(p.presenca)
+        }));
     } else {
       const q2 = dados.turmaId
         ? query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
         : collection(db, "alunos");
+
       const s = await getDocs(q2);
-      alunos = s.docs.filter(d => d.data().ativo !== false)
-        .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+      alunos = s.docs
+        .filter(d => d.data().ativo !== false)
+        .map(d => ({
+          id: d.id,
+          nome: d.data().nome,
+          instrumento: d.data().instrumento || "",
+          foto: d.data().foto || "",
+          presenca: ""
+        }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
     }
   }
@@ -727,31 +842,45 @@
     await carregarAlunos();
     await carregarEvento();
     overlayLoad.style.display = "none";
-    idx = 0; renderCard(false);
+    idx = 0;
+    renderCard(false);
   }
 
   async function salvar() {
     try {
       btnSalvar.disabled = true;
-      const data      = inputData.value || hojeISO();
-      const obs       = obsEl.value.trim();
+
+      const data = inputData.value || hojeISO();
+      const obs = obsEl.value.trim();
+
       const presencas = alunos.map(a => ({
-        alunoId: a.id || "", nome: a.nome, instrumento: a.instrumento || "",
-        presenca: a.presenca || "ausente"
+        alunoId: a.id || "",
+        nome: a.nome,
+        instrumento: a.instrumento || "",
+        presenca: serializarPresenca(a.presenca)
       }));
+
       if (eventoId) {
-        await updateDoc(doc(db, "eventos", eventoId), { data, observacoes: obs, presencas });
+        await updateDoc(doc(db, "eventos", eventoId), {
+          data,
+          observacoes: obs,
+          presencas
+        });
       } else {
         const nv = await addDoc(collection(db, "eventos"), {
-          data, observacoes: obs, presencas,
-          turmaId: turma?.id || "", turmaNome: turma?.nome || "", tipo: "aula"
+          data,
+          observacoes: obs,
+          presencas,
+          turmaId: turma?.id || "",
+          turmaNome: turma?.nome || "",
+          tipo: "aula"
         });
         eventoId = nv.id;
       }
+
       await recalcular(data);
       toast("✔ Chamada salva com sucesso!");
       btnSalvar.innerHTML = "✔ Salvo!";
-      // Revela o botão e aponta para a chamada recém-salva
       btnVerEnsaio.classList.add("show");
     } catch (e) {
       console.error(e);
@@ -763,38 +892,55 @@
   async function recalcular(dataISO) {
     const [ano, mes] = dataISO.split("-");
     const chave = `${ano}-${mes}`;
-    const tId   = turma?.id || null;
+    const tId = turma?.id || null;
+
     const evSnap = await getDocs(collection(db, "eventos"));
-    const evMes  = [];
+    const evMes = [];
+
     evSnap.forEach(d => {
       const dd = d.data();
       if (!dd.data?.startsWith(chave)) return;
       if (tId && dd.turmaId && dd.turmaId !== tId) return;
       evMes.push(dd);
     });
-    const total = evMes.length; if (!total) return;
+
+    const total = evMes.length;
+    if (!total) return;
+
     const cId = {}, cNome = {};
     evMes.forEach(ev => (ev.presencas || []).forEach(p => {
       if (!p) return;
-      const ok = p.presenca === "presente";
-      if (p.alunoId) cId[p.alunoId]  = (cId[p.alunoId]  || 0) + (ok ? 1 : 0);
-      if (p.nome)    cNome[p.nome]    = (cNome[p.nome]    || 0) + (ok ? 1 : 0);
+      const ok = p.presenca === "presente" || p.presenca === "P";
+      if (p.alunoId) cId[p.alunoId] = (cId[p.alunoId] || 0) + (ok ? 1 : 0);
+      if (p.nome) cNome[p.nome] = (cNome[p.nome] || 0) + (ok ? 1 : 0);
     }));
+
     const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
-    const sigla  = siglas[parseInt(mes, 10) - 1] || mes;
+    const sigla = siglas[parseInt(mes, 10) - 1] || mes;
+
     const alSnap = await getDocs(collection(db, "alunos"));
     for (const ds of alSnap.docs) {
       const d = ds.data();
       if (d.ativo === false) continue;
       if (tId && d.turmaId && d.turmaId !== tId) continue;
+
       const pres = cId[ds.id] ?? cNome[d.nome] ?? 0;
-      const pct  = Math.round((pres / total) * 100);
+      const pct = Math.round((pres / total) * 100);
       const hist = Array.isArray(d.presencas) ? [...d.presencas] : [];
+
       let reg = hist.find(r => r.mes === chave);
-      if (!reg) { reg = { mes: chave, totalEnsaios: total, presencasAluno: pres, percentual: pct }; hist.push(reg); }
-      else { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
+      if (!reg) {
+        reg = { mes: chave, totalEnsaios: total, presencasAluno: pres, percentual: pct };
+        hist.push(reg);
+      } else {
+        reg.totalEnsaios = total;
+        reg.presencasAluno = pres;
+        reg.percentual = pct;
+      }
+
       const fa = d.frequenciaAnual || {};
       fa[sigla] = { percentual: pct, totalEnsaios: total, presencasAluno: pres };
+
       await updateDoc(doc(db, "alunos", ds.id), {
         presencas: hist,
         frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
