@@ -2,66 +2,59 @@
 // 📸 Exportar chamada em PNG – 3 colunas + resumo completo + rodapé
 
 import { calcularMetricasCombo } from "./combos.js";
+import { obterHistoricoNormalizadoAluno } from "./frequencia.js";
 
 export async function exportarChamada3Colunas() {
   const painelOriginal = document.getElementById("painelAlunos");
-  if (!painelOriginal) { alert("Painel não encontrado!"); return; }
+  if (!painelOriginal) {
+    alert("Painel não encontrado!");
+    return;
+  }
 
   const cards = painelOriginal.querySelectorAll(".container-aluno");
 
   // === Contagem de presenças ===
   let presentes = 0, ausentes = 0, pendentes = 0;
   cards.forEach(c => {
-    if      (c.classList.contains("presente")) presentes++;
-    else if (c.classList.contains("ausente"))  ausentes++;
-    else                                        pendentes++;
+    if (c.classList.contains("presente")) presentes++;
+    else if (c.classList.contains("ausente")) ausentes++;
+    else pendentes++;
   });
-  const total       = cards.length;
+
+  const total = cards.length;
   const porcentagem = total > 0 ? Math.round((presentes / total) * 100) : 0;
 
   // === Data: lê do input editável ===
   let dataEnsaio = "--/--/----";
+  let anoEnsaio = new Date().getFullYear();
+
   const inputData = document.getElementById("inputData");
   if (inputData && inputData.value) {
     const [ano, mes, dia] = inputData.value.split("-");
     dataEnsaio = `${dia}/${mes}/${ano}`;
+    anoEnsaio = ano;
   }
 
-  const turmaId = document.body.dataset.turmaId || window.turmaId || null;
-
-  const getHistoricoAluno = async (nomeAluno) => {
-    if (!turmaId || !window.db) return [];
-    try {
-      const { collection, getDocs, query, where } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js");
-      const snap = await getDocs(query(collection(window.db, "eventos"), where("turmaId", "==", turmaId)));
-      const historico = [];
-      snap.forEach(doc => {
-        const dados = doc.data();
-        if (!dados.data || !Array.isArray(dados.presencas)) return;
-        const registro = dados.presencas.find(p => p.nome === nomeAluno);
-        if (!registro) return;
-        historico.push({ data: dados.data, status: registro.presenca || "" });
-      });
-      historico.sort((a, b) => a.data.localeCompare(b.data));
-      return historico;
-    } catch (e) {
-      console.warn("Falha ao carregar histórico de", nomeAluno, e);
-      return [];
-    }
-  };
+  const turmaId =
+    document.body.dataset.turmaId ||
+    window.turmaId ||
+    JSON.parse(localStorage.getItem("turmaAtiva") || "null")?.id ||
+    null;
 
   // === Pré-carregar todas as imagens com crossOrigin para evitar taint ===
   const imgPromises = [];
   cards.forEach(card => {
     const img = card.querySelector(".foto-aluno img");
     if (img && img.src) {
-      imgPromises.push(new Promise(resolve => {
-        const preload = new Image();
-        preload.crossOrigin = "anonymous";
-        preload.onload  = () => resolve({ el: img, src: preload.src });
-        preload.onerror = () => resolve(null);
-        preload.src = img.src + (img.src.includes("?") ? "&" : "?") + "_t=" + Date.now();
-      }));
+      imgPromises.push(
+        new Promise(resolve => {
+          const preload = new Image();
+          preload.crossOrigin = "anonymous";
+          preload.onload = () => resolve({ el: img, src: preload.src });
+          preload.onerror = () => resolve(null);
+          preload.src = img.src + (img.src.includes("?") ? "&" : "?") + "_t=" + Date.now();
+        })
+      );
     }
   });
   await Promise.all(imgPromises);
@@ -94,38 +87,56 @@ export async function exportarChamada3Colunas() {
   titulo.innerText = `📋 Chamada do Ensaio – ${dataEnsaio}`;
   temp.appendChild(titulo);
 
-  // === Copiar cards preservando fotos ===
+  // === Copiar cards preservando fotos + badge de combo ===
   for (const card of cards) {
     const clone = card.cloneNode(true);
     clone.style.transform = "none";
-    clone.style.cursor    = "default";
-    clone.style.margin    = "0";
-    clone.style.outline   = "none";
-    clone.style.position  = "relative";
+    clone.style.cursor = "default";
+    clone.style.margin = "0";
+    clone.style.outline = "none";
+    clone.style.position = "relative";
 
     // Força crossOrigin nas imagens clonadas para html2canvas capturar
     const imgOriginal = card.querySelector(".foto-aluno img");
-    const imgClone    = clone.querySelector(".foto-aluno img");
+    const imgClone = clone.querySelector(".foto-aluno img");
     if (imgOriginal && imgClone) {
       imgClone.crossOrigin = "anonymous";
       imgClone.src = imgOriginal.src;
     }
 
     const nomeAluno = (card.querySelector(".nome")?.textContent || "").trim();
-    const statusHoje = card.classList.contains("presente") ? "P" :
-      card.classList.contains("ausente") ? "F" :
-      card.classList.contains("justificado") ? "FJ" : "";
 
-    const historico = await getHistoricoAluno(nomeAluno);
-    const metricas = calcularMetricasCombo(historico);
+    const statusHoje = card.classList.contains("presente")
+      ? "P"
+      : card.classList.contains("ausente")
+        ? "F"
+        : card.classList.contains("justificado")
+          ? "FJ"
+          : "";
 
-    const badge = statusHoje === "P"
-      ? { icon: "✅", cor: "#22c55e", n: metricas.comboPresencaAtual }
-      : statusHoje === "F"
-        ? { icon: "❌", cor: "#ef4444", n: metricas.comboFaltaAtual }
-        : statusHoje === "FJ"
-          ? { icon: "🟠", cor: "#f59e0b", n: 1 }
-          : { icon: "➖", cor: "#64748b", n: 0 };
+    let historico = [];
+    let metricas = {
+      comboPresencaAtual: 0,
+      comboFaltaAtual: 0,
+    };
+
+    if (nomeAluno && turmaId) {
+      try {
+        historico = await obterHistoricoNormalizadoAluno(nomeAluno, turmaId, anoEnsaio);
+        metricas = calcularMetricasCombo(historico);
+      } catch (e) {
+        console.warn(`Falha ao calcular combo de ${nomeAluno}:`, e);
+      }
+    }
+
+    const badge =
+      statusHoje === "P"
+        ? { icon: "✅", cor: "#22c55e", n: metricas.comboPresencaAtual }
+        : statusHoje === "F"
+          ? { icon: "❌", cor: "#ef4444", n: metricas.comboFaltaAtual }
+          : statusHoje === "FJ"
+            ? { icon: "🟠", cor: "#f59e0b", n: 1 }
+            : { icon: "➖", cor: "#64748b", n: 0 };
 
     const badgeCombo = document.createElement("div");
     Object.assign(badgeCombo.style, {
@@ -160,12 +171,15 @@ export async function exportarChamada3Colunas() {
     gap: "20px",
   });
 
-  // Observações
   const obsInput = document.getElementById("observacoes");
-  const obsArea  = document.createElement("div");
+  const obsArea = document.createElement("div");
   Object.assign(obsArea.style, {
-    flex: "1", fontSize: "20px", lineHeight: "1.5",
-    color: "#e0fafa", fontWeight: "500", maxWidth: "660px",
+    flex: "1",
+    fontSize: "20px",
+    lineHeight: "1.5",
+    color: "#e0fafa",
+    fontWeight: "500",
+    maxWidth: "660px",
   });
   obsArea.innerHTML = `<strong style="font-size:18px;color:#00ffcc;">Observações:</strong><br>${obsInput ? (obsInput.value || "—") : "—"}`;
   linhaFinal.appendChild(obsArea);
@@ -175,7 +189,12 @@ export async function exportarChamada3Colunas() {
   Object.assign(resumoBox.style, { width: "340px", textAlign: "right" });
 
   const labelResumo = document.createElement("div");
-  Object.assign(labelResumo.style, { fontSize: "17px", color: "#00ffcc", fontWeight: "600", marginBottom: "6px" });
+  Object.assign(labelResumo.style, {
+    fontSize: "17px",
+    color: "#00ffcc",
+    fontWeight: "600",
+    marginBottom: "6px",
+  });
   labelResumo.innerHTML =
     `✅ ${presentes} presentes &nbsp;·&nbsp; ❌ ${ausentes} ausentes` +
     (pendentes > 0 ? ` &nbsp;·&nbsp; ⏳ ${pendentes} pendentes` : "");
@@ -184,12 +203,18 @@ export async function exportarChamada3Colunas() {
   // Barra de progresso
   const barraWrap = document.createElement("div");
   Object.assign(barraWrap.style, {
-    width: "100%", height: "16px", borderRadius: "10px",
-    background: "#333", overflow: "hidden", boxShadow: "inset 0 0 6px rgba(0,0,0,0.7)",
+    width: "100%",
+    height: "16px",
+    borderRadius: "10px",
+    background: "#333",
+    overflow: "hidden",
+    boxShadow: "inset 0 0 6px rgba(0,0,0,0.7)",
   });
+
   const barra = document.createElement("div");
   Object.assign(barra.style, {
-    height: "100%", width: `${porcentagem}%`,
+    height: "100%",
+    width: `${porcentagem}%`,
     background: "linear-gradient(90deg, #00ffcc, #0099aa)",
     boxShadow: "0 0 10px rgba(0,255,204,0.9)",
   });
@@ -198,8 +223,11 @@ export async function exportarChamada3Colunas() {
 
   const txtPct = document.createElement("div");
   Object.assign(txtPct.style, {
-    fontSize: "28px", fontWeight: "bold", color: "#00ffcc",
-    marginTop: "6px", textShadow: "0 0 6px rgba(0,255,204,0.7)",
+    fontSize: "28px",
+    fontWeight: "bold",
+    color: "#00ffcc",
+    marginTop: "6px",
+    textShadow: "0 0 6px rgba(0,255,204,0.7)",
   });
   txtPct.innerText = `${porcentagem}% de frequência`;
   resumoBox.appendChild(txtPct);
@@ -218,8 +246,13 @@ export async function exportarChamada3Colunas() {
     borderTop: "1px solid #1e3a5f",
     paddingTop: "10px",
   });
+
   const agora = new Date();
-  const horaExport = agora.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short" });
+  const horaExport = agora.toLocaleString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    dateStyle: "short",
+    timeStyle: "short",
+  });
   rodape.innerText = `Orquestra Filhos de Asafe  ·  Exportado em ${horaExport}`;
   temp.appendChild(rodape);
 
