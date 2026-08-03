@@ -169,7 +169,7 @@ export async function exportarChamada3Colunas() {
       : statusHoje === "F"
         ? { icon: "●", label: `x${metricas.comboFaltaAtual}`, cor: "#fca5a5", fundo: "rgba(248,113,113,0.14)" }
         : statusHoje === "FJ"
-          ? { icon: "●", label: "just.", cor: "#fde68a", fundo: "rgba(251,191,36,0.16)" }
+          ? { icon: "●", label: "just.", cor: "#fca5a5", fundo: "rgba(185,28,28,0.16)" }
           : { icon: "●", label: "—", cor: "#94a3b8", fundo: "rgba(148,163,184,0.10)" };
 
   const badgeCombo = document.createElement("div");

@@ -17,7 +17,7 @@
       --faint:     #3a4460;
       --verde:     #22c55e;
       --vermelho:  #f87171;
-      --amarelo:   #fbbf24;
+      --amarelo:   #b91c1c;
       --cyan:      #22d3ee;
       --radius:    20px;
       --radius-sm: 12px;
@@ -168,7 +168,7 @@
     .fc-overlay.show         { opacity: 1; }
     .fc-overlay.presente     { background: rgba(34,197,94,.55); }
     .fc-overlay.ausente      { background: rgba(248,113,113,.55); }
-    .fc-overlay.justificado  { background: rgba(251,191,36,.55); }
+    .fc-overlay.justificado  { background: rgba(185,28,28,.55); }
     .fc-overlay span { font-size: .9rem; font-weight: 800; letter-spacing: .08em; color: #fff; }
 
     .fc-info { padding: 12px 14px 10px; }
@@ -212,12 +212,12 @@
     }
 
     .btn-justificado {
-      background: rgba(251,191,36,.16); color: #fde68a;
-      border: 2px solid rgba(251,191,36,.4);
+      background: rgba(185,28,28,.16); color: #fca5a5;
+      border: 2px solid rgba(185,28,28,.4);
     }
     .btn-justificado.ativo {
-      background: var(--amarelo); color: #3b2a00;
-      border-color: var(--amarelo); box-shadow: 0 6px 20px rgba(251,191,36,.4);
+      background: var(--amarelo); color: #2c0000;
+      border-color: var(--amarelo); box-shadow: 0 6px 20px rgba(185,28,28,.4);
     }
 
     .btn-desfazer-wrap { text-align: center; padding: 0 14px 12px; }
@@ -242,7 +242,7 @@
     .dot.ativo       { background: var(--cyan); transform: scale(1.4); }
     .dot.presente    { background: var(--verde); }
     .dot.ausente     { background: var(--vermelho); }
-    .dot.justificado { background: var(--amarelo); }
+    .dot.justificado { background: var(--amarelo); opacity: 0.6; }
 
     #tela-fim {
       display: none; flex-direction: column;
