@@ -147,15 +147,15 @@
     .loader { text-align: center; margin-top: 10px; color: var(--muted); font-size: 0.85rem; }
 
 .container-aluno.justificado {
-  background: radial-gradient(circle at top left, rgba(185,28,28,0.30), var(--card));
-  border-color: #991b1b;
-  box-shadow: 0 8px 22px rgba(185,28,28,0.35);
+  background: radial-gradient(circle at top left, rgba(217,119,6,0.12), var(--card));
+  border-color: rgba(217,119,6,0.25);
+  box-shadow: 0 8px 22px rgba(217,119,6,0.12);
 }
 
 .chip-status.justificado {
-  background: rgba(185,28,28,0.20);
-  color: #fca5a5;
-  border-color: #991b1b;
+  background: rgba(217,119,6,0.10);
+  color: #fcd34d;
+  border-color: rgba(217,119,6,0.25);
 }
     
   </style>
@@ -379,7 +379,7 @@
     card.classList.add("justificado");
     chip.textContent = "Justificado";
     chip.className = "chip-status justificado";
-    if (icone) icone.textContent = "🟠";
+    if (icone) icone.textContent = "⚑";
   } else {
     card.classList.add("vazio");
     chip.textContent = "Pendente";
