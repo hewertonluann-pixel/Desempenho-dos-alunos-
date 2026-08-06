@@ -183,7 +183,7 @@ export function abrirPopupFrequencia(info, destino) {
   destino.querySelector(".modal-content .modal-body").innerHTML = `
     <h2 class="modal-title">📅 Frequência de ${meses[info.mes]}</h2>
     <div class="modal-stats-grid">
-      <div class="stat-box"><div class="stat-label">Chamadas na lista</div><div class="stat-value">${info.totalEventos}</div></div>
+      <div class="stat-box"><div class="stat-label">Chamadas</div><div class="stat-value">${info.totalEventos}</div></div>
       <div class="stat-box"><div class="stat-label">Presenças</div><div class="stat-value stat-success">${info.presencasAluno}</div></div>
       <div class="stat-box stat-highlight"><div class="stat-label">Frequência</div><div class="stat-value stat-primary">${info.percentual}%</div></div>
     </div>
