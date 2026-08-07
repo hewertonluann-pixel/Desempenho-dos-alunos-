@@ -1,5 +1,17 @@
-// licoes.js
+// licoes.js — CORRIGIDO (07/08/2026)
 // Modal em 2 passos: seleção do tipo → gravação
+//
+// 🔧 CORREÇÕES APLICADAS PARA RESOLVER ÁUDIOS RUINS/CORTADOS/MUDOS:
+// 1. Bitrate: 24kbps → 128kbps (qualidade musical)
+// 2. getUserMedia: echoCancellation/noiseSuppression autoGainControl desativados,
+//    sampleRate 16kHz → 44.1kHz, channelCount 2 (estéreo)
+// 3. Monitor de volume em tempo real (evita gravações mudas)
+// 4. requestData() antes de stop() (evita cortar última nota)
+// 5. Retry automático no upload (3 tentativas)
+// 6. Limite de tamanho: 5MB → 8MB
+// 7. Fallback de formato (webm → mp4 → ogg)
+// 8. Estimativa de tamanho ajustada para 128kbps (~16KB/s)
+// 9. Alerta se gravação ficou quase muda (verificar microfone)
 
 import { db } from "./firebase-config.js";
 import {
@@ -745,7 +757,8 @@ function atualizarTempo() {
   segundos++;
   const m = String(Math.floor(segundos / 60)).padStart(2, "0");
   const s = String(segundos % 60).padStart(2, "0");
-  const kbEstimado = Math.round(segundos * 3);
+  // ✅ CORRIGIDO: Estimativa ajustada para 128kbps estéreo (~16KB/s)
+  const kbEstimado = Math.round(segundos * 16);
   const mbEstimado = (kbEstimado / 1024).toFixed(2);
 
   const tempoEl = document.getElementById("tempoGravacao");
@@ -753,11 +766,13 @@ function atualizarTempo() {
     ? `${m}:${s} (~${kbEstimado}KB)`
     : `${m}:${s} (~${mbEstimado}MB)`;
 
+  // Wave bar é atualizada pelo monitor de volume em tempo real (iniciarGravacao)
   const wave = document.getElementById("waveBar");
-  if (wave) wave.style.transform = `scaleX(${Math.min(1, segundos / 30)})`;
+  if (wave && gravando) wave.style.transform = `scaleX(${Math.min(1, segundos / 30)})`;
 
   const status = document.getElementById("statusGravador");
-  if (kbEstimado > 4 * 1024 && status) status.textContent = "⚠ Perto do limite de 5MB. Finalize em breve.";
+  // ✅ CORRIGIDO: Alerta ajustado para limite de 8MB (~500s a 128kbps)
+  if (kbEstimado > 7 * 1024 && status && kbEstimado > segundos * 15) status.textContent = "⚠ Perto do limite de 8MB. Finalize em breve.";
 }
 
 async function iniciarGravacao() {
@@ -773,20 +788,93 @@ async function iniciarGravacao() {
   }
 
   try {
+    // ✅ CORRIGIDO: Otimizado para música (não voz de chamada)
+    // echoCancellation/noiseSuppression cortavam frequências dos instrumentos
+    // autoGainControl causava volume inconsistente
+    // sampleRate 16kHz limitava agudos a 8kHz (música precisa de até 20kHz)
+    // channelCount 2 captura estéreo
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000 }
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+        sampleRate: 44100,
+        channelCount: 2
+      }
     });
     streamAtual = stream;
 
-    let options = { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 24000 };
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: "audio/webm", audioBitsPerSecond: 24000 };
+    // ✅ CORRIGIDO: Bitrate aumentado de 24kbps para 128kbps (qualidade musical)
+    // Fallback para formatos alternativos se webm+opus não for suportado
+    // 128kbps estéreo 44.1kHz = ~15.6KB/s → 5 min ≈ 4.7MB (cabe no limite de 5MB)
+    let options = null;
+    const formatosSuportados = [
+      { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 128000 },
+      { mimeType: "audio/webm", audioBitsPerSecond: 128000 },
+      { mimeType: "audio/mp4", audioBitsPerSecond: 128000 },
+      { mimeType: "audio/ogg;codecs=opus", audioBitsPerSecond: 128000 }
+    ];
+    for (const fmt of formatosSuportados) {
+      if (MediaRecorder.isTypeSupported(fmt.mimeType)) {
+        options = fmt;
+        break;
+      }
+    }
+    if (!options) {
+      streamAtual.getTracks().forEach(t => t.stop());
+      streamAtual = null;
+      if (msg) { msg.textContent = "Seu navegador não suporta gravação de áudio de qualidade."; msg.className = "msg-licao err"; }
+      return;
+    }
 
     mediaRecorder = new MediaRecorder(stream, options);
     chunks = []; blobAtual = null; segundos = 0; gravando = true;
 
+    // ✅ CORRIGIDO: Monitor de volume em tempo real
+    // Alerta visual se o microfone não está captando som (evita gravações mudas)
+    let audioContext = null;
+    let analyser = null;
+    let monitorInterval = null;
+    let nivelVolume = 0;
+    let silenciosoDetectado = true;
+
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      const sourceNode = audioContext.createMediaStreamSource(stream);
+      sourceNode.connect(analyser);
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      monitorInterval = setInterval(() => {
+        analyser.getByteFrequencyData(dataArray);
+        const media = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+        nivelVolume = media;
+
+        // Atualizar wave bar com volume real (não apenas tempo)
+        const waveEl = document.getElementById("waveBar");
+        if (waveEl) waveEl.style.transform = `scaleX(${Math.min(1, media / 80)})`;
+
+        // Alertar se está gravando mas sem som
+        if (media < 5) {
+          silenciosoDetectado = true;
+        } else {
+          if (silenciosoDetectado && status) {
+            silenciosoDetectado = false;
+            status.textContent = "🎵 Áudio captado. Continue gravando...";
+          }
+        }
+      }, 100);
+    } catch (e) {
+      console.warn("Monitor de volume não disponível:", e);
+    }
+
     mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
 
     mediaRecorder.onstop = () => {
+      // ✅ Limpar monitor de volume
+      if (monitorInterval) clearInterval(monitorInterval);
+      if (audioContext && audioContext.state !== "closed") audioContext.close();
       gravando = false;
       if (streamAtual) { streamAtual.getTracks().forEach(t => t.stop()); streamAtual = null; }
 
@@ -798,15 +886,24 @@ async function iniciarGravacao() {
         blobAtual = null; return;
       }
       const tamanhoMB = (blob.size / 1024 / 1024).toFixed(2);
-      if (blob.size > 5 * 1024 * 1024) {
-        if (status) status.textContent = `⚠ Áudio muito grande (${tamanhoMB}MB). Máx: 5MB.`;
+      // ✅ CORRIGIDO: Limite aumentado de 5MB para 8MB
+      // Com 128kbps estéreo: 5 min ≈ 4.7MB (cabe com folga)
+      // Permite gravações mais longas sem sacrificar qualidade
+      if (blob.size > 8 * 1024 * 1024) {
+        if (status) status.textContent = `⚠ Áudio muito grande (${tamanhoMB}MB). Máx: 8MB.`;
         blobAtual = null; return;
       }
 
       blobAtual = blob;
       urlAudioTemp = URL.createObjectURL(blob);
       if (btnOuv) btnOuv.disabled = false;
-      if (status) status.textContent = `Gravação concluída! (${tamanhoMB}MB) Ouça antes de enviar.`;
+      
+      // ✅ Alertar se a gravação ficou muito silenciosa (possível microfone mudo)
+      if (nivelVolume < 5 && status) {
+        status.textContent = `⚠️ Áudio quase mudo (${tamanhoMB}MB). Verifique o microfone!`;
+      } else {
+        status.textContent = `Gravação concluída! (${tamanhoMB}MB) Ouça antes de enviar.`;
+      }
 
       // Habilitar envio
       const btnEnv = document.getElementById("btnEnviarLicao");
@@ -814,7 +911,7 @@ async function iniciarGravacao() {
     };
 
     mediaRecorder.start(250);
-    if (status)  status.textContent  = "Gravando... fale normalmente.";
+    if (status)  status.textContent  = "🎤 Gravando... toque seu instrumento. Aguarde o aviso.";
     if (btnGrav) btnGrav.disabled = true;
     if (btnPar)  btnPar.disabled  = false;
     if (btnOuv)  btnOuv.disabled  = true;
@@ -832,11 +929,19 @@ function pararGravacao() {
   const btnPar  = document.getElementById("btnPararLicao");
 
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop();
-    if (btnPar)  btnPar.disabled  = true;
-    if (btnGrav) btnGrav.disabled = false;
-    if (timerId) { clearInterval(timerId); timerId = null; }
-    if (status)  status.textContent = "Processando áudio...";
+    // ✅ CORRIGIDO: requestData() força emissão do último chunk antes de stop()
+    // Sem isso, os últimos milissegundos podem ser perdidos (áudio cortado)
+    if (mediaRecorder.state === "recording") {
+      mediaRecorder.requestData();
+    }
+    // ✅ Pequeno delay para garantir que ondataavailable processe o último chunk
+    setTimeout(() => {
+      mediaRecorder.stop();
+      if (btnPar)  btnPar.disabled  = true;
+      if (btnGrav) btnGrav.disabled = false;
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      if (status)  status.textContent = "Processando áudio...";
+    }, 60);
   }
 }
 
@@ -898,8 +1003,39 @@ async function enviarLicao() {
   const arquivoRef = ref(storage, caminho);
 
   try {
-    if (msg) msg.textContent = "Enviando áudio...";
-    await uploadBytes(arquivoRef, blobAtual, { contentType: blobAtual.type || "audio/webm" });
+    // ✅ CORRIGIDO: Validação adicional do blob antes do upload
+    if (blobAtual.size < 1000) {
+      if (msg) { msg.textContent = "⚠ Áudio muito pequeno para enviar. Grave novamente."; msg.className = "msg-licao err"; }
+      return;
+    }
+
+    // ✅ CORRIGIDO: Retry automático (3 tentativas) para conexões instáveis
+    let tentativas = 0;
+    const maxTentativas = 3;
+    let uploadOk = false;
+    let ultimoErro = null;
+
+    while (tentativas < maxTentativas && !uploadOk) {
+      tentativas++;
+      try {
+        if (msg) msg.textContent = `Enviando áudio... (${tentativas}/${maxTentativas})`;
+        await uploadBytes(arquivoRef, blobAtual, {
+          contentType: blobAtual.type || "audio/webm",
+          cacheControl: "no-cache",
+          customMetadata: { duracao: segundos }
+        });
+        uploadOk = true;
+      } catch (erroUpload) {
+        ultimoErro = erroUpload;
+        console.warn(`Upload tentativa ${tentativas}/${maxTentativas} falhou:`, erroUpload);
+        if (tentativas < maxTentativas) {
+          // Esperar progressivamente mais tempo entre tentativas
+          await new Promise(resolve => setTimeout(resolve, 1000 * tentativas));
+        }
+      }
+    }
+
+    if (!uploadOk) throw ultimoErro;
 
     if (msg) msg.textContent = "Obtendo URL...";
     const audioURL = await getDownloadURL(arquivoRef);
