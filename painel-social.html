@@ -29,6 +29,94 @@
 
     @media (min-width: 1400px) { .grid-principal { grid-template-columns: repeat(5, 1fr); } }
 
+    /* ===== ABAS DE TURMA ===== */
+    .abas-turmas {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .abas-turmas-label {
+      font-size: 0.75rem; color: #9ca3af; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+      margin-right: 4px;
+    }
+    .chip-turma {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(34,211,238,0.2);
+      color: #9ca3af; font-size: 0.72rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .chip-turma:hover { background: rgba(34,211,238,0.08); border-color: rgba(34,211,238,0.45); }
+    .chip-turma.ativo {
+      background: rgba(34,211,238,0.15);
+      border-color: #22d3ee;
+      color: #22d3ee;
+      box-shadow: 0 0 12px rgba(34,211,238,0.15);
+    }
+    .chip-turma .chip-qtd {
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px; padding: 1px 7px;
+      font-size: 0.65rem; font-weight: 700;
+    }
+
+    /* ===== BLOCO DE TURMA ===== */
+    .bloco-turma {
+      grid-column: 1 / -1;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      margin-top: 8px;
+    }
+    .bloco-turma-cabecalho {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(34,211,238,0.2);
+      margin-bottom: 12px;
+    }
+    .bloco-turma-nome { font-size: 1rem; font-weight: 800; color: #22d3ee; display: flex; align-items: center; gap: 8px; }
+    .bloco-turma-qtd { font-size: 0.72rem; font-weight: 600; color: #6b7280; }
+    .bloco-turma-metricas { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .bloco-turma-metrica { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: #9ca3af; }
+    .bloco-turma-metrica .valor { font-weight: 800; color: #22d3ee; font-size: 0.85rem; }
+    .bloco-turma-destaques { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .bloco-turma-destaques-label { font-size: 0.7rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.4px; margin-right: 2px; }
+    .destaque-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.35);
+      color: #fde68a; font-size: 0.7rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .destaque-chip:hover { background: rgba(251,191,36,0.2); transform: translateY(-1px); }
+    .destaque-chip .destaque-avatar {
+      width: 22px; height: 22px; border-radius: 999px; overflow: hidden;
+      border: 1px solid rgba(251,191,36,0.5); flex-shrink: 0; background: #020617;
+    }
+    .destaque-chip .destaque-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ===== BADGE DE TURMA NO CARD ===== */
+    .badge-turma {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.6rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.3px;
+      background: rgba(34,211,238,0.1);
+      color: #22d3ee;
+      border: 1px solid rgba(34,211,238,0.35);
+      margin-top: 2px; max-width: 100%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
     /* ===== BARRA DE CONTROLE DE VISUALIZAÇÃO ===== */
     .barra-visualizacao {
       grid-column: 1 / -1;
@@ -317,6 +405,9 @@
       .grid-principal  { grid-template-columns: 1fr; }
       .separador-grupo { grid-column: 1; }
       .barra-visualizacao { grid-column: 1; }
+      .bloco-turma { padding: 12px; }
+      .bloco-turma-cabecalho { flex-direction: column; align-items: flex-start; }
+      .chip-turma { padding: 6px 10px; font-size: 0.68rem; }
     }
     @media (min-width: 1024px) { body { padding-inline: 40px; } }
   </style>
@@ -349,10 +440,12 @@
     let abaAtual      = "nivel";
     let mesAtual      = new Date().getMonth();
     let dadosGrupo    = { nome: 'Filhos de Asafe', anoCriacao: '2021', descricao: '', logoUrl: '' };
+    let todasTurmas   = []; // turmas cadastradas em turmas.html
 
     // Persistência de preferências
     let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
     let ordenacaoGeral = localStorage.getItem("ps_ordenacaoGeral") || "nivel";
+    let turmaAtiva    = localStorage.getItem("ps_turmaAtiva") || "todas"; // "todas" | "sem_turma" | turmaId
 
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -366,6 +459,16 @@
       if (fase === "1" || fase === "fase1") return "fase1";
       if (fase === "2" || fase === "fase2") return "fase2";
       return "orquestra";
+    }
+
+    function escapeHtml(texto) {
+      if (texto == null) return "";
+      return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function classificarInstrumento(instrumento) {
@@ -420,6 +523,54 @@
     function agruparPorGrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => { const { grupo } = classificarInstrumento(a.instrumento); if (!map.has(grupo)) map.set(grupo, []); map.get(grupo).push(a); });
+      return map;
+    }
+
+    // ================================================================
+    // AGRUPAMENTO POR TURMA — usando turmaId/turmaNome do aluno
+    // ================================================================
+    function chaveTurma(aluno) {
+      if (aluno.turmaId) return aluno.turmaId;
+      return "__sem_turma__";
+    }
+    function nomeTurmaDisplay(turmaId) {
+      const turma = todasTurmas.find(t => t.id === turmaId);
+      if (turma) return turma.nome;
+      if (turmaId === "__sem_turma__") return "Sem turma";
+      // Fallback: usar turmaNome gravado em algum aluno (ex.: "FASE 1")
+      const amostra = todosAtivos.find(a => a.turmaId === turmaId);
+      const raw = amostra?.turmaNome || turmaId || "Sem turma";
+      // Normalizar nomes antigos gravados em caixa alta (ex.: "ORQUESTRA" → "Orquestra", "FASE 2" → "Fase 2")
+      return formatarTurma(raw);
+    }
+    function formatarTurma(nome) {
+      if (!nome) return "Sem turma";
+      const map = { "ORQUESTRA": "Orquestra", "FASE 1": "Fase 1", "FASE 2": "Fase 2" };
+      const upper = nome.toUpperCase();
+      if (map[upper]) return map[upper];
+      return nome;
+    }
+    function iconTurmaDisplay(turmaId) {
+      const turma = todasTurmas.find(t => t.id === turmaId);
+      if (turma?.tipo === "orquestra") return "🎻";
+      if (turma?.tipo === "inicial" || /^fase\s?\d/i.test(nomeTurmaDisplay(turmaId))) return "📚";
+      return "👥";
+    }
+    function ordemTurma(turmaId) {
+      // Orquestra primeiro, depois por ordem de cadastro
+      const turma = todasTurmas.find(t => t.id === turmaId);
+      if (turma?.tipo === "orquestra") return 0;
+      if (turmaId === "__sem_turma__") return 9999;
+      const idx = todasTurmas.findIndex(t => t.id === turmaId);
+      return idx >= 0 ? idx + 1 : 5000;
+    }
+    function agruparPorTurma(alunos) {
+      const map = new Map();
+      alunos.forEach(a => {
+        const chave = chaveTurma(a);
+        if (!map.has(chave)) map.set(chave, []);
+        map.get(chave).push(a);
+      });
       return map;
     }
     function agruparPorSubgrupo(alunos) {
@@ -516,11 +667,11 @@
     }
 
     function htmlRanking(grupoMap, aba, mes) {
-      const grupos = [...grupoMap.keys()].filter(k => k !== "Maestro");
+      const grupos = [...grupoMap.keys()].filter(k => k !== "Maestro" && k !== "__sem_turma__");
       let dados = grupos.map(nome => {
         const alunos = grupoMap.get(nome);
-        if (aba === "score") { const raw = calcularMetricaGrupo(alunos, "score", mes); return { nome, nivel: raw.nivel, freq: raw.freq, valor: null }; }
-        return { nome, valor: calcularMetricaGrupo(alunos, aba, mes) };
+        if (aba === "score") { const raw = calcularMetricaGrupo(alunos, "score", mes); return { nome: nomeTurmaDisplay(nome), nivel: raw.nivel, freq: raw.freq, valor: null }; }
+        return { nome: nomeTurmaDisplay(nome), valor: calcularMetricaGrupo(alunos, aba, mes) };
       });
       if (aba === "score") {
         const maxNivel = Math.max(...dados.map(d => d.nivel), 1);
@@ -568,6 +719,7 @@
             <div class="info-principal">
               <div class="nome-aluno">${aluno.nome}</div>
               <span class="badge-fase fase1">Fase 1</span>
+              ${aluno.turmaNome ? `<span class="badge-turma">📚 ${escapeHtml(aluno.turmaNome)}</span>` : ""}
             </div>
           </div>
           <div class="barra-comprometimento">
@@ -598,6 +750,7 @@
             <div class="info-principal">
               <div class="nome-aluno">${aluno.nome}</div>
               <span class="badge-fase fase2">Fase 2</span>
+              ${aluno.turmaNome ? `<span class="badge-turma">📚 ${escapeHtml(aluno.turmaNome)}</span>` : ""}
             </div>
           </div>
           <div class="nivel-geral-destaque">
@@ -632,6 +785,7 @@
             <div class="info-principal">
               <div class="nome-aluno">${aluno.nome}</div>
               <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
+              ${aluno.turmaNome ? `<span class="badge-turma">📚 ${escapeHtml(aluno.turmaNome)}</span>` : ""}
             </div>
           </div>
           <div class="nivel-geral-destaque"><span class="label-nivel">🎯 Nível Geral</span><span class="valor-nivel">${total}</span></div>
@@ -666,6 +820,65 @@
       return `<div class="separador-grupo" id="${id}"><div class="separador-linha"></div><div class="separador-texto">🎼 ${nome} <span class="separador-count">${qtd} aluno${qtd > 1 ? 's' : ''}</span></div><div class="separador-linha"></div></div>`;
     }
 
+    // ================================================================
+    // ABAS DE TURMA
+    // ================================================================
+    function htmlAbasTurma(turmaMap) {
+      const chips = [];
+      // Chip "Todas"
+      const qtdTodas = todosAtivos.length;
+      chips.push(`<button class="chip-turma ${turmaAtiva === 'todas' ? 'ativo' : ''}" onclick="selecionarTurma('todas')">🏠 Todas <span class="chip-qtd">${qtdTodas}</span></button>`);
+      // Um chip por turma cadastrada (com alunos ativos)
+      [...turmaMap.keys()] .filter(k => k !== "__sem_turma__")
+        .sort((a, b) => ordemTurma(a) - ordemTurma(b))
+        .forEach(chave => {
+          const alunos = turmaMap.get(chave);
+          if (!alunos.length) return;
+          const nome = nomeTurmaDisplay(chave);
+          const icone = iconTurmaDisplay(chave);
+          chips.push(`<button class="chip-turma ${turmaAtiva === chave ? 'ativo' : ''}" onclick="selecionarTurma('${chave}')">${icone} ${escapeHtml(nome)} <span class="chip-qtd">${alunos.length}</span></button>`);
+        });
+      // Chip "Sem turma" se houver alunos sem turma
+      const semTurma = turmaMap.get("__sem_turma__") || [];
+      if (semTurma.length) {
+        chips.push(`<button class="chip-turma ${turmaAtiva === '__sem_turma__' ? 'ativo' : ''}" onclick="selecionarTurma('__sem_turma__')">🚫 Sem turma <span class="chip-qtd">${semTurma.length}</span></button>`);
+      }
+      return `<div class="abas-turmas"><span class="abas-turmas-label">Turmas:</span>${chips.join("")}</div>`;
+    }
+
+    // ================================================================
+    // BLOCO DE TURMA — cabeçalho + métricas coletivas + destaques
+    // ================================================================
+    function htmlBlocoTurma(chave, alunos) {
+      const nome = nomeTurmaDisplay(chave);
+      const icone = iconTurmaDisplay(chave);
+      const mediaAnual  = media(alunos.map(a => a.energiaAnual ?? 0));
+      const mediaMensal = media(alunos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
+      const destaqueNivel  = alunos.length ? alunos.slice().sort((a, b) => ((b.leitura ?? 0) + (b.metodo ?? 0)) - ((a.leitura ?? 0) + (a.metodo ?? 0)))[0] : null;
+      const destaqueMensal = alunos.length ? alunos.slice().sort((a, b) => (b.frequenciaMensal?.porcentagem ?? 0) - (a.frequenciaMensal?.porcentagem ?? 0))[0] : null;
+      const htmlDestaque = (al, titulo) => al
+        ? `<span class="destaque-chip" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(al.nome)}&view=public'"><span class="destaque-avatar">${al.foto ? `<img src="${al.foto}" alt="${escapeHtml(al.nome)}">` : ""}</span>${titulo}: ${escapeHtml(al.nome.split(" ")[0])}</span>`
+        : "";
+      return `
+        <div class="bloco-turma">
+          <div class="bloco-turma-cabecalho">
+            <div>
+              <div class="bloco-turma-nome">${icone} ${escapeHtml(nome)}</div>
+              <div class="bloco-turma-qtd">👥 ${alunos.length} aluno${alunos.length !== 1 ? "s" : ""}</div>
+            </div>
+            <div class="bloco-turma-metricas">
+              <div class="bloco-turma-metrica">📈 Média Anual <span class="valor">${mediaAnual}%</span></div>
+              <div class="bloco-turma-metrica">📅 Média Mensal <span class="valor">${mediaMensal}%</span></div>
+            </div>
+          </div>
+          <div class="bloco-turma-destaques">
+            <span class="bloco-turma-destaques-label">🏆 Destaques</span>
+            ${htmlDestaque(destaqueNivel, "🎯 Maior nível")}
+            ${htmlDestaque(destaqueMensal, "📅 Mais presente")}
+          </div>
+        </div>`;
+    }
+
     function htmlBarraVisualizacao() {
       const desabilitarOrdenacao = modoBancada;
       return `
@@ -687,16 +900,23 @@
       const container   = document.getElementById("gridCompleto");
       const grupoMap    = agruparPorGrupo(todosAtivos);
       const subgrupoMap = agruparPorSubgrupo(todosAtivos);
+      // Excluir maestros do agrupamento por turma (eles têm card próprio no topo)
+      const semMaestros = todosAtivos.filter(a => {
+        const { grupo } = classificarInstrumento(a.instrumento);
+        return grupo !== "Maestro";
+      });
+      const turmaMap    = agruparPorTurma(semMaestros);
       const maestros    = grupoMap.get("Maestro") || [];
       const maestroHTML = maestros.map(htmlCardPorFase).join("");
 
       let html = `
         ${htmlBarraVisualizacao()}
+        ${htmlAbasTurma(turmaMap)}
         ${htmlPainelBanda()}
         ${htmlPainelSobre()}
         ${htmlPainelGeral(todosAtivos)}
         ${htmlBadges(subgrupoMap)}
-        ${htmlRanking(grupoMap, abaAtual, mesAtual)}
+        ${htmlRanking(turmaMap, abaAtual, mesAtual)}
         ${maestroHTML}
       `;
 
@@ -709,16 +929,48 @@
           html += alunosOrdenados.map(htmlCardPorFase).join("");
         });
       } else {
-        const semMaestro = todosAtivos.filter(a => {
-          const { grupo } = classificarInstrumento(a.instrumento);
-          return grupo !== "Maestro";
+        // ── Renderização por turma ──
+        const turmasOrdenadas = [...turmaMap.keys()]
+          .filter(k => k !== "__sem_turma__")
+          .sort((a, b) => ordemTurma(a) - ordemTurma(b));
+        const chavesVisiveis = turmaAtiva === "todas"
+          ? turmasOrdenadas
+          : [turmaAtiva];
+        chavesVisiveis.forEach(chave => {
+          const alunos = turmaMap.get(chave) || [];
+          if (!alunos.length) return;
+          html += htmlBlocoTurma(chave, alunos);
+          const ordenados = ordenarAlunosGeral(alunos, ordenacaoGeral)
+            .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
+            .sort((a, b) => a._c.ordem - b._c.ordem);
+          html += ordenados.map(htmlCardPorFase).join("");
         });
-        const ordenados = ordenarAlunosGeral(semMaestro, ordenacaoGeral);
-        html += ordenados.map(htmlCardPorFase).join("");
+        // Alunos sem turma (só aparecem na aba "Todas" ou "Sem turma")
+        const semTurma = turmaMap.get("__sem_turma__") || [];
+        if (semTurma.length && (turmaAtiva === "todas" || turmaAtiva === "__sem_turma__")) {
+          html += htmlBlocoTurma("__sem_turma__", semTurma);
+          html += ordenarAlunosGeral(semTurma, ordenacaoGeral).map(htmlCardPorFase).join("");
+        }
+        // Fallback: se não houver nenhum aluno (base vazia ou só maestros),
+        // renderizar em lista geral para não quebrar a visualização
+        if (turmaMap.size === 0) {
+          const semMaestro = todosAtivos.filter(a => {
+            const { grupo } = classificarInstrumento(a.instrumento);
+            return grupo !== "Maestro";
+          });
+          html += ordenarAlunosGeral(semMaestro, ordenacaoGeral).map(htmlCardPorFase).join("");
+        }
       }
 
       container.innerHTML = html;
     }
+
+    window.selecionarTurma = (chave) => {
+      turmaAtiva = chave;
+      localStorage.setItem("ps_turmaAtiva", chave);
+      renderizarTudo();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     window.trocarAba       = aba   => { abaAtual = aba; renderizarTudo(); };
     window.mudarMes        = delta => { mesAtual = (mesAtual + delta + 12) % 12; renderizarTudo(); };
@@ -738,16 +990,18 @@
     };
 
     async function carregarAlunos() {
-      const [snap, eventosAno, grupoSnap] = await Promise.all([
+      const [snap, eventosAno, grupoSnap, turmasSnap] = await Promise.all([
         getDocs(collection(db, "alunos")),
         obterEventosDoAno(2026),
-        getDoc(doc(db, "config", "grupo"))
+        getDoc(doc(db, "config", "grupo")),
+        getDocs(collection(db, "turmas")).catch(() => null)
       ]);
       gruposEventos = agruparEventosPorMes(eventosAno);
       const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       alunos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
       todosAtivos = alunos.filter(a => a.ativo !== false);
       if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
+      if (turmasSnap) todasTurmas = turmasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderizarTudo();
     }
 
