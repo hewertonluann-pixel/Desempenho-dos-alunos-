@@ -27,7 +27,7 @@
       margin-bottom: 36px;
     }
 
-    @media (min-width: 1400px) { .grid-principal { grid-template-columns: repeat(5, 1fr); } }
+    /* Grid responsivo automático — sem trava de colunas fixas */
 
     /* ===== ABAS DE TURMA ===== */
     .abas-turmas {
@@ -402,7 +402,7 @@
     .card-fase2 .label-nivel { color: #a78bfa; }
 
     @media (max-width: 768px) {
-      .grid-principal  { grid-template-columns: 1fr; }
+      .grid-principal  { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
       .separador-grupo { grid-column: 1; }
       .barra-visualizacao { grid-column: 1; }
       .bloco-turma { padding: 12px; }
@@ -445,7 +445,12 @@
     // Persistência de preferências
     let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
     let ordenacaoGeral = localStorage.getItem("ps_ordenacaoGeral") || "nivel";
-    let turmaAtiva    = localStorage.getItem("ps_turmaAtiva") || "todas"; // "todas" | "sem_turma" | turmaId
+    let turmaAtiva    = localStorage.getItem("ps_turmaAtiva") || "todas"; // "todas" | "fase1" | "fase2" | "orquestra" | "__sem_turma__"
+    // Se o valor salvo for inválido (ex.: turmaId antigo do Firestore), resetar para "todas"
+    if (!["todas", "fase1", "fase2", "orquestra", "__sem_turma__"].includes(turmaAtiva)) {
+      turmaAtiva = "todas";
+      localStorage.setItem("ps_turmaAtiva", turmaAtiva);
+    }
 
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -527,42 +532,35 @@
     }
 
     // ================================================================
-    // AGRUPAMENTO POR TURMA — usando turmaId/turmaNome do aluno
+    // AGRUPAMENTO POR TURMA — usando a fase do aluno (mesma lógica da página professor)
+    // Chaves: "fase1", "fase2", "orquestra", "__sem_turma__"
     // ================================================================
     function chaveTurma(aluno) {
-      if (aluno.turmaId) return aluno.turmaId;
+      const fase = getFaseAluno(aluno);
+      if (fase === "fase1") return "fase1";
+      if (fase === "fase2") return "fase2";
+      // Alunos sem fase definida mas com instrumento (orquestra)
+      if (aluno.instrumento && aluno.instrumento.trim() !== "") return "orquestra";
       return "__sem_turma__";
     }
-    function nomeTurmaDisplay(turmaId) {
-      const turma = todasTurmas.find(t => t.id === turmaId);
-      if (turma) return turma.nome;
-      if (turmaId === "__sem_turma__") return "Sem turma";
-      // Fallback: usar turmaNome gravado em algum aluno (ex.: "FASE 1")
-      const amostra = todosAtivos.find(a => a.turmaId === turmaId);
-      const raw = amostra?.turmaNome || turmaId || "Sem turma";
-      // Normalizar nomes antigos gravados em caixa alta (ex.: "ORQUESTRA" → "Orquestra", "FASE 2" → "Fase 2")
-      return formatarTurma(raw);
+    function nomeTurmaDisplay(chave) {
+      if (chave === "fase1") return "Fase 1";
+      if (chave === "fase2") return "Fase 2";
+      if (chave === "orquestra") return "Orquestra";
+      return "Sem turma";
     }
-    function formatarTurma(nome) {
-      if (!nome) return "Sem turma";
-      const map = { "ORQUESTRA": "Orquestra", "FASE 1": "Fase 1", "FASE 2": "Fase 2" };
-      const upper = nome.toUpperCase();
-      if (map[upper]) return map[upper];
-      return nome;
-    }
-    function iconTurmaDisplay(turmaId) {
-      const turma = todasTurmas.find(t => t.id === turmaId);
-      if (turma?.tipo === "orquestra") return "🎻";
-      if (turma?.tipo === "inicial" || /^fase\s?\d/i.test(nomeTurmaDisplay(turmaId))) return "📚";
+    function iconTurmaDisplay(chave) {
+      if (chave === "fase1") return "📚";
+      if (chave === "fase2") return "📚";
+      if (chave === "orquestra") return "🎻";
       return "👥";
     }
-    function ordemTurma(turmaId) {
-      // Orquestra primeiro, depois por ordem de cadastro
-      const turma = todasTurmas.find(t => t.id === turmaId);
-      if (turma?.tipo === "orquestra") return 0;
-      if (turmaId === "__sem_turma__") return 9999;
-      const idx = todasTurmas.findIndex(t => t.id === turmaId);
-      return idx >= 0 ? idx + 1 : 5000;
+    function ordemTurma(chave) {
+      // Orquestra primeiro, depois Fase 1, Fase 2, e por último Sem turma
+      if (chave === "orquestra") return 0;
+      if (chave === "fase1") return 1;
+      if (chave === "fase2") return 2;
+      return 9999;
     }
     function agruparPorTurma(alunos) {
       const map = new Map();
@@ -666,10 +664,10 @@
       return 0;
     }
 
-    function htmlRanking(grupoMap, aba, mes) {
-      const grupos = [...grupoMap.keys()].filter(k => k !== "Maestro" && k !== "__sem_turma__");
+    function htmlRanking(turmaMap, aba, mes) {
+      const grupos = [...turmaMap.keys()].filter(k => k !== "__sem_turma__");
       let dados = grupos.map(nome => {
-        const alunos = grupoMap.get(nome);
+        const alunos = turmaMap.get(nome);
         if (aba === "score") { const raw = calcularMetricaGrupo(alunos, "score", mes); return { nome: nomeTurmaDisplay(nome), nivel: raw.nivel, freq: raw.freq, valor: null }; }
         return { nome: nomeTurmaDisplay(nome), valor: calcularMetricaGrupo(alunos, aba, mes) };
       });
@@ -719,7 +717,6 @@
             <div class="info-principal">
               <div class="nome-aluno">${aluno.nome}</div>
               <span class="badge-fase fase1">Fase 1</span>
-              ${aluno.turmaNome ? `<span class="badge-turma">📚 ${escapeHtml(aluno.turmaNome)}</span>` : ""}
             </div>
           </div>
           <div class="barra-comprometimento">
@@ -750,7 +747,6 @@
             <div class="info-principal">
               <div class="nome-aluno">${aluno.nome}</div>
               <span class="badge-fase fase2">Fase 2</span>
-              ${aluno.turmaNome ? `<span class="badge-turma">📚 ${escapeHtml(aluno.turmaNome)}</span>` : ""}
             </div>
           </div>
           <div class="nivel-geral-destaque">
@@ -785,7 +781,6 @@
             <div class="info-principal">
               <div class="nome-aluno">${aluno.nome}</div>
               <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
-              ${aluno.turmaNome ? `<span class="badge-turma">📚 ${escapeHtml(aluno.turmaNome)}</span>` : ""}
             </div>
           </div>
           <div class="nivel-geral-destaque"><span class="label-nivel">🎯 Nível Geral</span><span class="valor-nivel">${total}</span></div>
@@ -930,11 +925,10 @@
         });
       } else {
         // ── Renderização por turma ──
-        const turmasOrdenadas = [...turmaMap.keys()]
-          .filter(k => k !== "__sem_turma__")
-          .sort((a, b) => ordemTurma(a) - ordemTurma(b));
+        // Sempre mostrar as 3 turmas fixas + sem turma
+        const todasChaves = ["orquestra", "fase1", "fase2", "__sem_turma__"];
         const chavesVisiveis = turmaAtiva === "todas"
-          ? turmasOrdenadas
+          ? todasChaves
           : [turmaAtiva];
         chavesVisiveis.forEach(chave => {
           const alunos = turmaMap.get(chave) || [];
@@ -945,21 +939,6 @@
             .sort((a, b) => a._c.ordem - b._c.ordem);
           html += ordenados.map(htmlCardPorFase).join("");
         });
-        // Alunos sem turma (só aparecem na aba "Todas" ou "Sem turma")
-        const semTurma = turmaMap.get("__sem_turma__") || [];
-        if (semTurma.length && (turmaAtiva === "todas" || turmaAtiva === "__sem_turma__")) {
-          html += htmlBlocoTurma("__sem_turma__", semTurma);
-          html += ordenarAlunosGeral(semTurma, ordenacaoGeral).map(htmlCardPorFase).join("");
-        }
-        // Fallback: se não houver nenhum aluno (base vazia ou só maestros),
-        // renderizar em lista geral para não quebrar a visualização
-        if (turmaMap.size === 0) {
-          const semMaestro = todosAtivos.filter(a => {
-            const { grupo } = classificarInstrumento(a.instrumento);
-            return grupo !== "Maestro";
-          });
-          html += ordenarAlunosGeral(semMaestro, ordenacaoGeral).map(htmlCardPorFase).join("");
-        }
       }
 
       container.innerHTML = html;
