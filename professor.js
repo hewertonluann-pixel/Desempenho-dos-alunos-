@@ -300,7 +300,7 @@ export async function renderizarPainel() {
         .progresso-item { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .item-label { font-size: 11px; color: #94a3b8; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-label:hover { color: #0ea5e9; text-decoration: underline; }
-        .controles { display: flex; align-items: center; background: #0f172a; border-radius: 6px; border: 1px solid #334155; height: 32px; padding: 2px; }
+        .controles { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border-radius: 6px; border: 1px solid #334155; height: 32px; padding: 2px; }
         .controles button { background: none; border: none; color: #94a3b8; width: 24px; cursor: pointer; font-size: 16px; }
         .controles button:hover { color: #f1f5f9; background: #1e293b; border-radius: 4px; }
         .controles input { background: none; border: none; color: #f1f5f9; width: 34px; text-align: center; font-size: 14px; font-weight: 600; padding: 0; }
