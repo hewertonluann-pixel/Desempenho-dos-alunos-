@@ -18,7 +18,10 @@ const CATALOGO_INSTRUMENTOS = [
   { nome: 'Violoncelo', aliases: ['violoncelo', 'violoncello', 'cello'] },
   { nome: 'Contrabaixo', aliases: ['contrabaixo', 'contrabasso', 'contrabass', 'double bass'] },
   { nome: 'Flauta', aliases: ['flauta transversal', 'flauta', 'flute'] },
+  { nome: 'Escaleta', aliases: ['escaleta', 'melodica', 'melódica', 'melodion'] },
   { nome: 'Oboé', aliases: ['oboé', 'oboe'] },
+  { nome: 'Clarinete em Sib', aliases: ['clarinet in bb', 'clarinet in b b', 'clarinet in b flat', 'clarinet in b-flat', 'clarinete em sib', 'clarinete sib', 'clarinete si bemol'] },
+  { nome: 'Clarinete em Dó', aliases: ['clarinet in c', 'clarinete em do', 'clarinete dó', 'clarinete c'] },
   { nome: 'Clarinete', aliases: ['clarinete', 'clarinet'] },
   { nome: 'Fagote', aliases: ['fagote', 'bassoon'] },
   { nome: 'Saxofone Soprano', aliases: ['saxofone soprano', 'sax soprano', 'soprano sax', 'soprano saxophone', 'saxophone soprano'] },
@@ -28,6 +31,9 @@ const CATALOGO_INSTRUMENTOS = [
   { nome: 'Saxofone', aliases: ['saxofone', 'saxophone'] },
   { nome: 'Trompete', aliases: ['trompete', 'trumpet', 'cornet'] },
   { nome: 'Trompa', aliases: ['trompa', 'french horn'] },
+  { nome: 'Trombone 01', aliases: ['trombone 01', 'trombone 1'] },
+  { nome: 'Trombone 02', aliases: ['trombone 02', 'trombone 2'] },
+  { nome: 'Trombone Base', aliases: ['trombone base', 'bass trombone', 'trombone baixo'] },
   { nome: 'Trombone', aliases: ['trombone'] },
   { nome: 'Tuba', aliases: ['tuba'] },
   { nome: 'Bombardino', aliases: ['bombardino', 'euphonium'] },
@@ -47,6 +53,10 @@ const TERMOS_GRADE = [
   'orchestral score',
   'conductor score'
 ];
+
+// Incrementar quando o catálogo ou a regra de agrupamento mudar. Rótulos
+// salvos com versão anterior serão reprocessados automaticamente em memória.
+const ALGORITMO_RECONHECIMENTO_VERSAO = 3;
 
 // ── Estado global ────────────────────────────────────────────────────────────
 let pdfJsLib  = null;
@@ -121,12 +131,38 @@ function renderRoleBadge() {
 function configurarBarraProfessor() {
   document.getElementById('btn-novo-grupo').addEventListener('click', criarNovoGrupo);
   document.getElementById('btn-salvar-grupos').addEventListener('click', salvarGrupos);
+  document.getElementById('btn-reprocessar-grupos')?.addEventListener('click', reprocessarGrupos);
   atualizarBarraProfessor();
 }
 
 function atualizarBarraProfessor() {
   const barra = document.getElementById('barra-professor');
   barra.style.display = userRole === 'teacher' ? 'flex' : 'none';
+}
+
+async function reprocessarGrupos() {
+  if (userRole !== 'teacher' || !pdfDoc) return;
+  const btn = document.getElementById('btn-reprocessar-grupos');
+  if (!window.confirm('Reprocessar todas as páginas com o algoritmo atualizado? Os rótulos atuais serão substituídos em memória. Clique em “Salvar Tudo” para confirmar.')) return;
+
+  const textoOriginal = btn?.innerHTML;
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+    }
+    grupos = await algoritmoVarredura();
+    marcarModificado();
+    renderizarGrupos();
+  } catch (e) {
+    console.error('Erro ao reprocessar grupos:', e);
+    alert('Não foi possível reprocessar as páginas. Tente novamente.');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal || '<i class="fas fa-rotate"></i> Reprocessar';
+    }
+  }
 }
 
 function marcarModificado() {
@@ -350,12 +386,25 @@ async function carregarGrupos() {
     const snap = await getDoc(rotuloRef);
     if (snap.exists()) {
       const data = snap.data();
-      if (data.grupos && Array.isArray(data.grupos) && data.grupos.length > 0) {
-        grupos = data.grupos; return;
+      const versaoSalva = Number(data.algoritmoVersao || 0);
+      const precisaReprocessar = versaoSalva < ALGORITMO_RECONHECIMENTO_VERSAO;
+
+      if (!precisaReprocessar && data.grupos && Array.isArray(data.grupos) && data.grupos.length > 0) {
+        grupos = data.grupos;
+        return;
       }
-      if (data.paginas && typeof data.paginas === 'object') {
-        grupos = migrarFormatoAntigo(data.paginas); marcarModificado(); return;
+
+      if (!precisaReprocessar && data.paginas && typeof data.paginas === 'object') {
+        grupos = migrarFormatoAntigo(data.paginas);
+        marcarModificado();
+        return;
       }
+
+      // Rótulos antigos são mantidos no Firestore até o professor confirmar
+      // o resultado, mas não bloqueiam mais o algoritmo atualizado.
+      grupos = await algoritmoVarredura();
+      marcarModificado();
+      return;
     }
     grupos = await algoritmoVarredura();
   } catch (e) {
@@ -607,7 +656,11 @@ async function salvarGrupos() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
     const rotuloRef = doc(db, 'biblioteca_rotulos', `${colId}_${docId}`);
-    await setDoc(rotuloRef, { grupos }, { merge: false });
+    await setDoc(rotuloRef, {
+      grupos,
+      algoritmoVersao: ALGORITMO_RECONHECIMENTO_VERSAO,
+      atualizadoEm: Timestamp.now()
+    }, { merge: false });
     gruposModificados = false;
     if (ind) ind.style.display = 'none';
     btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
