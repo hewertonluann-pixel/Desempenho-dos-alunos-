@@ -474,7 +474,8 @@ async function detectarInstrumentoNaPagina(page) {
         paginas: [],
         instrumentosDetectados: instrumentosCabecalho,
         confianca: gradeExplicita ? 0.99 : 0.90,
-        origem: 'automatico'
+        origem: 'automatico',
+        fonte: 'cabecalho'
       };
     }
 
@@ -485,7 +486,8 @@ async function detectarInstrumentoNaPagina(page) {
         paginas: [],
         instrumentosDetectados: instrumentosCabecalho,
         confianca: 0.90,
-        origem: 'automatico'
+        origem: 'automatico',
+        fonte: 'cabecalho'
       };
     }
 
@@ -501,7 +503,8 @@ async function detectarInstrumentoNaPagina(page) {
         paginas: [],
         instrumentosDetectados: instrumentosPagina,
         confianca: 0.70,
-        origem: 'automatico-ampliado'
+        origem: 'automatico-ampliado',
+        fonte: 'pagina'
       };
     }
 
@@ -512,7 +515,8 @@ async function detectarInstrumentoNaPagina(page) {
         paginas: [],
         instrumentosDetectados: instrumentosPagina,
         confianca: 0.65,
-        origem: 'automatico-ampliado'
+        origem: 'automatico-ampliado',
+        fonte: 'pagina'
       };
     }
   } catch (e) {
@@ -525,7 +529,8 @@ async function detectarInstrumentoNaPagina(page) {
     paginas: [],
     instrumentosDetectados: [],
     confianca: 0,
-    origem: 'sem-texto-ou-sem-match'
+    origem: 'sem-texto-ou-sem-match',
+    fonte: 'desconhecida'
   };
 }
 
@@ -536,21 +541,40 @@ async function algoritmoVarredura() {
   for (let i = 1; i <= totalPaginas; i++) {
     const page = await pdfDoc.getPage(i);
     const deteccao = await detectarInstrumentoNaPagina(page);
+    const ehNovoCabecalho = Boolean(deteccao.nome && deteccao.fonte === 'cabecalho');
+    const mesmoInstrumento = Boolean(grupoAtual && deteccao.nome === grupoAtual.nome);
 
-    if (deteccao.nome) {
+    if (ehNovoCabecalho && grupoAtual && !mesmoInstrumento) {
+      // Só um novo cabeçalho encerra explicitamente o instrumento atual.
+      // Exemplo: Flauta (páginas 1, 2 e 3) só termina quando surgir o próximo
+      // cabeçalho, como “Clarinete”, em uma página posterior.
       grupoAtual = {
         nome: deteccao.nome,
         tipo: deteccao.tipo,
         paginas: [i],
         instrumentosDetectados: deteccao.instrumentosDetectados,
         confianca: deteccao.confianca,
-        origem: deteccao.origem
+        origem: deteccao.origem,
+        fonte: deteccao.fonte
       };
       resultado.push(grupoAtual);
     } else if (grupoAtual) {
-      // Páginas intermediárias sem cabeçalho continuam pertencendo ao grupo
-      // anterior, como no comportamento original.
+      // Páginas sem novo cabeçalho, inclusive as que contêm uma ocorrência
+      // textual no corpo ou no rodapé, continuam no instrumento atual.
       grupoAtual.paginas.push(i);
+    } else if (deteccao.nome) {
+      // Se o PDF começar com uma identificação encontrada apenas no fallback,
+      // ela ainda pode iniciar o primeiro grupo com confiança reduzida.
+      grupoAtual = {
+        nome: deteccao.nome,
+        tipo: deteccao.tipo,
+        paginas: [i],
+        instrumentosDetectados: deteccao.instrumentosDetectados,
+        confianca: deteccao.confianca,
+        origem: deteccao.origem,
+        fonte: deteccao.fonte
+      };
+      resultado.push(grupoAtual);
     } else {
       // Sem grupo anterior, não inventar um instrumento: deixar a página
       // explícita para revisão manual do professor.
@@ -560,7 +584,8 @@ async function algoritmoVarredura() {
         paginas: [i],
         instrumentosDetectados: [],
         confianca: 0,
-        origem: 'sem-texto-ou-sem-match'
+        origem: 'sem-texto-ou-sem-match',
+        fonte: 'desconhecida'
       };
       resultado.push(grupoAtual);
     }
