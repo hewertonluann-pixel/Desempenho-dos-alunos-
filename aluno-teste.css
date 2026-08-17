@@ -1,0 +1,408 @@
+/* Tema isolado de aluno-teste.html. aluno.html continua usando aluno.css. */
+
+body::before {
+  content: "Protótipo de melhoria";
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 1100;
+  padding: 4px 8px;
+  border: 1px solid rgba(34, 211, 238, .35);
+  border-radius: 999px;
+  background: rgba(2, 6, 23, .8);
+  color: #67e8f9;
+  font-size: .68rem;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.quick-card {
+  grid-column: 1 / -1;
+  padding: 18px 20px;
+  background: radial-gradient(circle at 90% 0%, rgba(34,211,238,.16), transparent 42%), linear-gradient(135deg, rgba(14,165,233,.18), rgba(15,23,42,.96));
+  border-color: rgba(34,211,238,.42);
+}
+
+.quick-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 5px;
+}
+
+.quick-card-subtitle {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: .88rem;
+  line-height: 1.45;
+}
+
+.quick-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.quick-stat {
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid rgba(148,163,184,.2);
+  border-radius: 13px;
+  background: rgba(2,6,23,.42);
+}
+
+.quick-stat-label,
+.quick-stat-note {
+  display: block;
+  color: #94a3b8;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.quick-stat-value {
+  display: block;
+  margin: 4px 0;
+  color: #f8fafc;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.quick-stat-note {
+  color: #a5f3fc;
+  font-weight: 500;
+}
+
+.quick-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 10px 16px;
+  border: 1px solid rgba(103,232,249,.4);
+  border-radius: 10px;
+  background: rgba(8,145,178,.26);
+  color: #ecfeff;
+  font-size: .86rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 160ms ease-out, background 160ms ease-out;
+}
+
+.quick-card-action:hover,
+.quick-card-action:focus-visible { background: rgba(8,145,178,.46); }
+.quick-card-action:active { transform: scale(.97); }
+
+.card h2 {
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.25;
+}
+
+.notificacao .conteudo { font-size: .84rem; line-height: 1.4; }
+.notificacao .conteudo small { font-size: .72rem; }
+
+/* Evita zoom automático do Safari ao focar o campo de senha. */
+.modal-body input,
+.popup-content input {
+  min-height: 46px;
+  font-size: 16px;
+}
+
+/* Ações principais com área de toque confortável. */
+.btn-change-password,
+.btn-professor-mode,
+.btn-download-app,
+.btn-send-lesson,
+.btn-salvar,
+.btn-cancelar,
+.btn-fechar-modal,
+.btn-fechar-conquista {
+  min-height: 44px;
+}
+
+.bottom-nav .nav-item {
+  min-width: 60px;
+  min-height: 56px;
+  padding: 8px 6px;
+}
+
+.bottom-nav .nav-icon { font-size: 22px; }
+.bottom-nav .nav-label { font-size: 10px; }
+
+@media (max-width: 768px) {
+  /* A bottom-nav passa a ser a única navegação principal no celular. */
+  .navbar,
+  .top-navbar,
+  .desktop-navbar { display: none !important; }
+
+  body {
+    padding-top: 60px !important;
+    padding-bottom: 82px;
+  }
+
+  body::before {
+    top: auto;
+    right: 8px;
+    bottom: 82px;
+    opacity: .82;
+  }
+
+  .main-container {
+    display: block;
+    padding: 12px 12px 24px;
+  }
+
+  .content-area {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .quick-card { grid-column: auto; }
+
+  .card {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 0;
+    padding: 16px;
+    border-radius: 15px;
+  }
+
+  .card h2 { margin-bottom: 12px; padding-bottom: 9px; }
+  .bottom-nav { display: flex !important; }
+}
+
+@media (max-width: 600px) {
+  /* Perfil compacto: identidade e níveis no primeiro bloco. */
+  .sidebar {
+    width: 100%;
+    display: block;
+    margin-bottom: 14px;
+  }
+
+  .profile-card {
+    display: grid;
+    grid-template-columns: 66px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "foto nome nivel"
+      "foto instrumento detalhes"
+      "acoes acoes acoes";
+    align-items: center;
+    gap: 7px 11px;
+    padding: 13px;
+    text-align: left;
+  }
+
+  .photo-upload {
+    grid-area: foto;
+    width: 66px;
+    height: 66px;
+    margin: 0;
+  }
+
+  .profile-photo { border-width: 2px; }
+  .upload-icon { padding: 5px; }
+  .upload-icon svg { width: 17px; height: 17px; }
+
+  .aluno-name {
+    grid-area: nome;
+    align-self: end;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .instrument {
+    grid-area: instrumento;
+    align-self: start;
+    margin: 0;
+    font-size: .78rem;
+  }
+
+  .level-info {
+    grid-area: nivel;
+    min-width: 54px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+
+  .level-label { font-size: .62rem; white-space: nowrap; }
+  .level-value { font-size: 1.25rem; line-height: 1.1; }
+
+  .level-details {
+    grid-area: detalhes;
+    display: flex;
+    justify-content: flex-start;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .detail-item {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 5px;
+    align-items: baseline;
+  }
+
+  .detail-label { font-size: .66rem; }
+  .detail-value { font-size: 1rem; }
+
+  .detail-method-name {
+    grid-column: 1 / -1;
+    max-width: 90px;
+    overflow: hidden;
+    color: #94a3b8;
+    font-size: .64rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-change-password,
+  .btn-professor-mode,
+  .btn-download-app {
+    grid-area: acoes;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 2px;
+    padding: 10px 12px;
+    font-size: .82rem;
+    text-align: center;
+  }
+
+  .sidebar-buttons-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .social-link-card,
+  .social-link { min-height: 44px; }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px;
+  }
+
+  .quick-card { padding: 16px; }
+  .quick-card h2 { font-size: 1.15rem; }
+
+  .quick-card-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .quick-stat:last-child { grid-column: 1 / -1; }
+  .quick-stat { min-height: 68px; padding: 10px; }
+  .quick-stat-value { font-size: 1.08rem; }
+  .quick-stat-label,
+  .quick-stat-note { font-size: .7rem; }
+
+  .btn-send-lesson {
+    min-height: 48px;
+    padding: 13px 16px;
+    font-size: .95rem;
+  }
+
+  .arrow-btn { min-width: 44px; min-height: 44px; }
+  .stat-label { font-size: .7rem; }
+
+  .bottom-nav {
+    height: 76px;
+    padding: 0 4px;
+  }
+
+  .bottom-nav .nav-item {
+    min-width: 0;
+    flex: 1;
+    padding: 8px 3px;
+  }
+
+  .modal-buttons,
+  .popup-buttons { gap: 8px; }
+
+  .modal-buttons button,
+  .popup-buttons button {
+    min-height: 44px;
+    font-size: .88rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .profile-card {
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    column-gap: 8px;
+  }
+
+  .photo-upload { width: 58px; height: 58px; }
+  .level-info { min-width: 48px; padding-inline: 5px; }
+  .level-label { font-size: .56rem; }
+  .detail-method-name { max-width: 76px; }
+  .quick-card-subtitle { font-size: .8rem; }
+  .bottom-nav .nav-label { font-size: 9px; }
+  .bottom-nav .nav-icon { font-size: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+html,
+body { max-width: 100%; overflow-x: hidden; }
+
+#painelEvolucao { max-width: 100%; overflow: hidden; }
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(103,232,249,.8);
+  outline-offset: 3px;
+}
+
+button,
+a { -webkit-tap-highlight-color: transparent; }
+button:active,
+a:active { transform: scale(.97); }
+
+@media print {
+  body::before { display: none; }
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    body { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
+    .bottom-nav { padding-bottom: env(safe-area-inset-bottom); }
+  }
+}
+
+@media (min-width: 769px) {
+  .quick-card { margin-bottom: 0; }
+}
+
+@media (max-width: 768px) {
+  .evolucao-section { margin-bottom: 8px; }
+}
+
+@media (max-width: 600px) {
+  .quick-card-subtitle,
+  .notificacao .conteudo { overflow-wrap: anywhere; }
+}
+
+/* A página de teste mantém os mesmos IDs e scripts para preservar os dados reais. */
+.css-test-marker { display: none; }
