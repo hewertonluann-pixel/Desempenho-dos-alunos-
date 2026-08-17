@@ -8,17 +8,44 @@ const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const PDFLIB_CDN   = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 
-const INSTRUMENTOS = [
-  'violino i','violino 1','violino ii','violino 2','violino','viola',
-  'violoncelo','cello','contrabaixo','contrabass',
-  'flauta','flute','oboé','oboe','clarinete','clarinet',
-  'fagote','bassoon','saxofone soprano','saxofone alto',
-  'saxofone tenor','saxofone barítono','saxofone','saxophone',
-  'trompete','trumpet','trompa','french horn','horn',
-  'trombone','tuba','bombardino','euphonium',
-  'percussão','percussao','bateria','timpani','tímpano',
-  'piano','teclado','keyboard','órgão','orgao',
-  'soprano','contralto','tenor','baixo'
+// Catálogo canônico usado pela detecção automática. Os aliases são normalizados
+// antes da comparação, portanto acentos, caixa e pontuação não são relevantes.
+const CATALOGO_INSTRUMENTOS = [
+  { nome: 'Violino I', aliases: ['violino i', 'violino 1', 'violin i', 'violin 1'] },
+  { nome: 'Violino II', aliases: ['violino ii', 'violino 2', 'violin ii', 'violin 2'] },
+  { nome: 'Violino', aliases: ['violino', 'violin'] },
+  { nome: 'Viola', aliases: ['viola'] },
+  { nome: 'Violoncelo', aliases: ['violoncelo', 'violoncello', 'cello'] },
+  { nome: 'Contrabaixo', aliases: ['contrabaixo', 'contrabasso', 'contrabass', 'double bass'] },
+  { nome: 'Flauta', aliases: ['flauta transversal', 'flauta', 'flute'] },
+  { nome: 'Oboé', aliases: ['oboé', 'oboe'] },
+  { nome: 'Clarinete', aliases: ['clarinete', 'clarinet'] },
+  { nome: 'Fagote', aliases: ['fagote', 'bassoon'] },
+  { nome: 'Saxofone Soprano', aliases: ['saxofone soprano', 'sax soprano', 'soprano sax'] },
+  { nome: 'Saxofone Alto', aliases: ['saxofone alto', 'sax alto', 'alto sax'] },
+  { nome: 'Saxofone Tenor', aliases: ['saxofone tenor', 'sax tenor', 'tenor sax'] },
+  { nome: 'Saxofone Barítono', aliases: ['saxofone barítono', 'saxofone baritono', 'sax barítono', 'sax baritono', 'baritone sax'] },
+  { nome: 'Saxofone', aliases: ['saxofone', 'saxophone'] },
+  { nome: 'Trompete', aliases: ['trompete', 'trumpet', 'cornet'] },
+  { nome: 'Trompa', aliases: ['trompa', 'french horn'] },
+  { nome: 'Trombone', aliases: ['trombone'] },
+  { nome: 'Tuba', aliases: ['tuba'] },
+  { nome: 'Bombardino', aliases: ['bombardino', 'euphonium'] },
+  { nome: 'Percussão', aliases: ['percussão', 'percussao', 'bateria', 'tímpano', 'timpani'] },
+  { nome: 'Piano', aliases: ['piano', 'teclado', 'keyboard'] },
+  { nome: 'Órgão', aliases: ['órgão', 'orgao', 'organ'] },
+  { nome: 'Soprano', aliases: ['soprano'], generico: true },
+  { nome: 'Contralto', aliases: ['contralto'], generico: true },
+  { nome: 'Tenor', aliases: ['tenor'], generico: true },
+  { nome: 'Baixo', aliases: ['baixo'], generico: true }
+];
+
+const TERMOS_GRADE = [
+  'grade',
+  'partitura geral',
+  'full score',
+  'orchestral score',
+  'conductor score'
 ];
 
 // ── Estado global ────────────────────────────────────────────────────────────
@@ -348,36 +375,198 @@ function migrarFormatoAntigo(paginas) {
     .sort((a, b) => Math.min(...a.paginas) - Math.min(...b.paginas));
 }
 
-async function algoritmoVarredura() {
-  const resultado = [];
-  let grupoAtual  = null;
-  for (let i = 1; i <= totalPaginas; i++) {
-    const page = await pdfDoc.getPage(i);
-    const instrumento = await detectarInstrumentoNaPagina(page);
-    if (instrumento) {
-      grupoAtual = { nome: instrumento, paginas: [i] };
-      resultado.push(grupoAtual);
-    } else if (grupoAtual) {
-      grupoAtual.paginas.push(i);
-    } else {
-      grupoAtual = { nome: `Página ${i}`, paginas: [i] };
-      resultado.push(grupoAtual);
+function normalizarTexto(valor = '') {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[‐‑‒–—]/g, '-')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function localizarInstrumentos(texto) {
+  const normalizado = ` ${normalizarTexto(texto)} `;
+  const candidatos = [];
+
+  for (const item of CATALOGO_INSTRUMENTOS) {
+    const aliases = [...item.aliases]
+      .sort((a, b) => normalizarTexto(b).length - normalizarTexto(a).length);
+    const aliasEncontrado = aliases.find(alias => {
+      const aliasNormalizado = normalizarTexto(alias);
+      return normalizado.includes(` ${aliasNormalizado} `);
+    });
+
+    if (!aliasEncontrado) continue;
+    const aliasNormalizado = normalizarTexto(aliasEncontrado);
+
+    // Soprano, contralto, tenor e baixo também podem ser registros vocais.
+    // Só os aceitamos quando aparecem acompanhados de contexto musical.
+    if (item.generico) {
+      const contexto = normalizado.includes(` ${aliasNormalizado} `) && (
+        normalizado.includes('voz') ||
+        normalizado.includes('vocal') ||
+        normalizado.includes('coro') ||
+        normalizado.includes('coral') ||
+        normalizado.includes('naipe') ||
+        normalizado.includes('parte') ||
+        normalizado.includes('instrumento')
+      );
+      if (!contexto) continue;
     }
+
+    candidatos.push({ nome: item.nome, alias: aliasEncontrado, aliasNormalizado });
   }
-  return resultado;
+
+  // Evita contar simultaneamente um alias-base/genérico e seu alias específico:
+  // “violino ii” deve ser apenas Violino II, e “saxofone tenor” não deve
+  // virar Saxofone Tenor + Tenor quando o cabeçalho mencionar “parte”.
+  return candidatos.filter((item, _, lista) => !lista.some(outro => {
+    if (outro === item || outro.aliasNormalizado.length <= item.aliasNormalizado.length) return false;
+    const aliasMaior = ` ${outro.aliasNormalizado} `;
+    return aliasMaior.includes(` ${item.aliasNormalizado} `);
+  }));
+}
+
+function contemTermoGrade(texto) {
+  const normalizado = ` ${normalizarTexto(texto)} `;
+  return TERMOS_GRADE.some(termo => normalizado.includes(` ${normalizarTexto(termo)} `));
+}
+
+function extrairTextoDaPagina(textContent) {
+  const itens = (textContent.items || [])
+    .map(item => ({
+      texto: item.str || '',
+      x: Number(item.transform?.[4] || 0),
+      y: Number(item.transform?.[5] || 0)
+    }))
+    .filter(item => item.texto.trim());
+
+  // PDF.js nem sempre entrega os itens na ordem visual. Ordenar pela posição
+  // torna a leitura do cabeçalho mais previsível entre PDFs diferentes.
+  itens.sort((a, b) => b.y - a.y || a.x - b.x);
+
+  const textoPagina = itens.map(item => item.texto).join(' ');
+  const yMax = itens.length ? Math.max(...itens.map(item => item.y)) : 0;
+  const textoCabecalho = itens
+    .filter(item => item.y >= yMax - 180)
+    .map(item => item.texto)
+    .join(' ');
+
+  return { itens, textoPagina, textoCabecalho };
 }
 
 async function detectarInstrumentoNaPagina(page) {
   try {
     const textContent = await page.getTextContent();
-    const texto = textContent.items.slice(0, 30).map(i => i.str).join(' ').toLowerCase().substring(0, 300);
-    for (const inst of INSTRUMENTOS) {
-      if (texto.includes(inst.toLowerCase())) {
-        return inst.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      }
+    const { textoPagina, textoCabecalho } = extrairTextoDaPagina(textContent);
+    const encontradosCabecalho = localizarInstrumentos(textoCabecalho);
+    const instrumentosCabecalho = [...new Set(encontradosCabecalho.map(item => item.nome))];
+    const gradeExplicita = contemTermoGrade(textoCabecalho);
+
+    // Uma grade pode ser identificada pelo título explícito ou pela presença
+    // de dois ou mais instrumentos distintos no cabeçalho.
+    if (gradeExplicita || instrumentosCabecalho.length >= 2) {
+      return {
+        nome: 'GRADE',
+        tipo: 'grade',
+        paginas: [],
+        instrumentosDetectados: instrumentosCabecalho,
+        confianca: gradeExplicita ? 0.99 : 0.90,
+        origem: 'automatico'
+      };
     }
-  } catch (e) { console.warn('Erro ao extrair texto:', e); }
-  return null;
+
+    if (instrumentosCabecalho.length === 1) {
+      return {
+        nome: instrumentosCabecalho[0],
+        tipo: 'instrumento',
+        paginas: [],
+        instrumentosDetectados: instrumentosCabecalho,
+        confianca: 0.90,
+        origem: 'automatico'
+      };
+    }
+
+    // Segunda tentativa: toda a camada textual da página. A confiança é menor
+    // porque outras referências musicais podem aparecer fora do cabeçalho.
+    const encontradosPagina = localizarInstrumentos(textoPagina);
+    const instrumentosPagina = [...new Set(encontradosPagina.map(item => item.nome))];
+
+    if (instrumentosPagina.length >= 2) {
+      return {
+        nome: 'GRADE',
+        tipo: 'grade',
+        paginas: [],
+        instrumentosDetectados: instrumentosPagina,
+        confianca: 0.70,
+        origem: 'automatico-ampliado'
+      };
+    }
+
+    if (instrumentosPagina.length === 1) {
+      return {
+        nome: instrumentosPagina[0],
+        tipo: 'instrumento',
+        paginas: [],
+        instrumentosDetectados: instrumentosPagina,
+        confianca: 0.65,
+        origem: 'automatico-ampliado'
+      };
+    }
+  } catch (e) {
+    console.warn('Erro ao extrair texto:', e);
+  }
+
+  return {
+    nome: null,
+    tipo: 'desconhecido',
+    paginas: [],
+    instrumentosDetectados: [],
+    confianca: 0,
+    origem: 'sem-texto-ou-sem-match'
+  };
+}
+
+async function algoritmoVarredura() {
+  const resultado = [];
+  let grupoAtual = null;
+
+  for (let i = 1; i <= totalPaginas; i++) {
+    const page = await pdfDoc.getPage(i);
+    const deteccao = await detectarInstrumentoNaPagina(page);
+
+    if (deteccao.nome) {
+      grupoAtual = {
+        nome: deteccao.nome,
+        tipo: deteccao.tipo,
+        paginas: [i],
+        instrumentosDetectados: deteccao.instrumentosDetectados,
+        confianca: deteccao.confianca,
+        origem: deteccao.origem
+      };
+      resultado.push(grupoAtual);
+    } else if (grupoAtual) {
+      // Páginas intermediárias sem cabeçalho continuam pertencendo ao grupo
+      // anterior, como no comportamento original.
+      grupoAtual.paginas.push(i);
+    } else {
+      // Sem grupo anterior, não inventar um instrumento: deixar a página
+      // explícita para revisão manual do professor.
+      grupoAtual = {
+        nome: `Página ${i} — revisar`,
+        tipo: 'desconhecido',
+        paginas: [i],
+        instrumentosDetectados: [],
+        confianca: 0,
+        origem: 'sem-texto-ou-sem-match'
+      };
+      resultado.push(grupoAtual);
+    }
+  }
+
+  return resultado;
 }
 
 async function salvarGrupos() {
@@ -558,6 +747,10 @@ function criarCardAluno(grupo, idx) {
   card.className = 'grupo-card';
   card.id = `grupo-card-${idx}`;
 
+  const ehGrade = grupo.tipo === 'grade' || normalizarTexto(grupo.nome).startsWith('grade');
+  const badgeTipo = ehGrade
+    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">Partitura geral</small>'
+    : '';
   const numPags   = grupo.paginas.length;
   const labelPags = numPags === 1
     ? 'Página ' + grupo.paginas[0]
@@ -573,9 +766,9 @@ function criarCardAluno(grupo, idx) {
     </div>
     <div class="grupo-info">
       <span class="grupo-paginas-label">${labelPags}</span>
-      <div class="grupo-nome-wrap">
-        <span class="grupo-nome">${grupo.nome}</span>
-      </div>
+          <div class="grupo-nome-wrap">
+            <span class="grupo-nome">${grupo.nome}</span>${badgeTipo}
+          </div>
       <div class="grupo-btns">
         <button class="btn-visualizar-grupo" id="btn-ver-${idx}" title="Visualizar em tela cheia">
           <i class="fas fa-expand"></i> <span class="viz-label">Visualizar</span>
@@ -601,6 +794,10 @@ function criarCardProfessor(grupo, idx) {
   card.className = 'grupo-card professor-mode';
   card.id = `grupo-card-${idx}`;
 
+  const ehGrade = grupo.tipo === 'grade' || normalizarTexto(grupo.nome).startsWith('grade');
+  const badgeTipo = ehGrade
+    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">Partitura geral</small>'
+    : '';
   const thumbsHTML = grupo.paginas.map(numPag => `
     <div class="grupo-mini-wrap">
       <div class="grupo-mini-thumb" id="mini-thumb-${idx}-${numPag}">
@@ -620,7 +817,7 @@ function criarCardProfessor(grupo, idx) {
   card.innerHTML = `
     <div class="grupo-prof-header">
       <div id="grupo-nome-wrap-${idx}" style="display:flex;align-items:center;gap:6px;flex:1;">
-        <span class="grupo-prof-nome" id="grupo-prof-nome-${idx}">${grupo.nome}</span>
+        <span class="grupo-prof-nome" id="grupo-prof-nome-${idx}">${grupo.nome}</span>${badgeTipo}
         <button class="btn-renomear-grupo" title="Renomear" onclick="iniciarRenomear(${idx})">
           <i class="fas fa-pen"></i>
         </button>
