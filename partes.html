@@ -550,52 +550,57 @@
             display: inline-flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 8px;
+            gap: 6px;
             flex: 0 1 auto;
             flex-wrap: wrap;
         }
         #viz-zoom-controls {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             flex-shrink: 0;
-            background: var(--card-alt);
+            background: rgba(30,41,59,0.72);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 4px;
+            padding: 3px;
         }
-        #viz-zoom-controls button {
-            min-width: 74px;
+        #viz-zoom-controls button,
+        #viz-baixar,
+        #viz-fechar {
+            width: 34px;
+            min-width: 34px;
             height: 34px;
-            padding: 0 9px;
-            border: 1px solid rgba(56,189,248,0.25);
-            border-radius: 6px;
-            background: rgba(56,189,248,0.08);
-            color: var(--azul);
+            padding: 0;
+            border-radius: 7px;
             cursor: pointer;
-            font-size: 0.76rem;
-            font-weight: 700;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
-            white-space: nowrap;
-            transition: all 0.2s;
+            transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
         }
-        #viz-zoom-controls button span { display: inline; }
-        #viz-zoom-controls button:hover:not(:disabled) {
+        #viz-zoom-controls button {
+            border: 1px solid rgba(56,189,248,0.22);
+            background: rgba(56,189,248,0.08);
+            color: var(--azul);
+            font-size: 1rem;
+        }
+        #viz-zoom-controls button:hover:not(:disabled),
+        #viz-zoom-controls button:focus-visible {
             background: var(--azul);
             color: white;
+            transform: translateY(-1px);
         }
+        #viz-zoom-controls button span.sr-only { display: block; }
         #viz-zoom-controls button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
         #viz-zoom-label {
-            min-width: 52px;
+            min-width: 46px;
+            padding: 0 2px;
             text-align: center;
             color: var(--ink);
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-weight: 800;
             font-variant-numeric: tabular-nums;
         }
@@ -603,39 +608,34 @@
             background: var(--azul-escuro);
             color: var(--azul);
             border: 1px solid var(--border);
-            padding: 7px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            transition: all 0.2s;
+            font-size: 0.9rem;
             flex-shrink: 0;
         }
-        #viz-baixar:hover { background: var(--azul); color: white; border-color: var(--azul); }
+        #viz-baixar:hover, #viz-baixar:focus-visible { background: var(--azul); color: white; border-color: var(--azul); transform: translateY(-1px); }
         #viz-fechar {
             background: rgba(239,68,68,0.18);
             color: #fecaca;
             border: 1px solid rgba(239,68,68,0.55);
-            min-width: 78px;
-            height: 38px;
-            padding: 0 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            line-height: 1;
-            transition: all 0.2s;
+            font-size: 1.15rem;
             flex-shrink: 0;
         }
-        #viz-fechar:hover { background: var(--vermelho); color: white; }
-        #viz-fechar .viz-close-symbol { font-size: 1.25rem; line-height: 0.8; }
+        #viz-fechar:hover, #viz-fechar:focus-visible { background: var(--vermelho); color: white; transform: translateY(-1px); }
+        #viz-fechar .viz-close-symbol { line-height: 0.8; }
+        #viz-zoom-controls button:focus-visible,
+        #viz-baixar:focus-visible,
+        #viz-fechar:focus-visible,
+        .viz-nav:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
 
         /* Área do canvas */
         #viz-body {
@@ -713,10 +713,10 @@
             #viz-body { padding: 10px; }
         }
         @media (max-width: 520px) {
-            #viz-acoes { justify-content: stretch; }
-            #viz-zoom-controls { flex: 1 1 100%; justify-content: center; }
-            #viz-zoom-controls button { flex: 1 1 auto; min-width: 0; }
-            #viz-baixar, #viz-fechar { flex: 1 1 0; }
+            #viz-acoes { justify-content: stretch; gap: 4px; }
+            #viz-zoom-controls { flex: 1 1 auto; justify-content: center; }
+            #viz-zoom-controls button { flex: 0 0 34px; }
+            #viz-baixar, #viz-fechar { flex: 0 0 34px; }
         }
 
         /* ── ERRO ── */
@@ -815,21 +815,21 @@
             <div id="viz-acoes" aria-label="Ações da visualização">
                 <div id="viz-zoom-controls" role="group" aria-label="Controles de zoom">
                     <button id="viz-zoom-out" type="button" title="Diminuir zoom" aria-label="Diminuir zoom">
-                        <i class="fas fa-minus"></i><span>Zoom −</span>
+                        <i class="fas fa-minus" aria-hidden="true"></i><span class="sr-only">Diminuir zoom</span>
                     </button>
                     <span id="viz-zoom-label" aria-live="polite">100%</span>
                     <button id="viz-zoom-in" type="button" title="Aumentar zoom" aria-label="Aumentar zoom">
-                        <i class="fas fa-plus"></i><span>Zoom +</span>
+                        <i class="fas fa-plus" aria-hidden="true"></i><span class="sr-only">Aumentar zoom</span>
                     </button>
                     <button id="viz-zoom-reset" type="button" title="Ajustar à tela" aria-label="Ajustar à tela">
-                        <i class="fas fa-expand"></i><span>Ajustar à tela</span>
+                        <i class="fas fa-expand" aria-hidden="true"></i><span class="sr-only">Ajustar à tela</span>
                     </button>
                 </div>
-                <button id="viz-baixar" title="Baixar esta parte">
-                    <i class="fas fa-download"></i><span>Baixar</span>
+                <button id="viz-baixar" type="button" title="Baixar esta parte" aria-label="Baixar esta parte">
+                    <i class="fas fa-download" aria-hidden="true"></i><span class="sr-only">Baixar esta parte</span>
                 </button>
                 <button id="viz-fechar" type="button" title="Sair da visualização" aria-label="Sair da visualização">
-                    <span class="viz-close-symbol" aria-hidden="true">×</span><span>Sair</span>
+                    <span class="viz-close-symbol" aria-hidden="true">×</span><span class="sr-only">Sair da visualização</span>
                 </button>
             </div>
         </div>
