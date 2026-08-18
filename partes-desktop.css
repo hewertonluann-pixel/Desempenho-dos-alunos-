@@ -148,9 +148,17 @@
         font-size: 0.8rem;
     }
 
-    /* Lista desktop: cada instrumento ocupa uma linha limpa, sem redundância visual. */
+    /* Lista desktop: cartões compactos em duas ou mais colunas para reduzir áreas vazias. */
     .partes-desktop-page .partes-grid.view-list {
-        gap: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        align-items: stretch;
+        gap: 14px 16px;
+    }
+
+    /* O cartão do professor continua ocupando toda a largura da lista. */
+    .partes-desktop-page .partes-grid.view-list .grupo-card.professor-mode {
+        grid-column: 1 / -1;
     }
 
     .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
