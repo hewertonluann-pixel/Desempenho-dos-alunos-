@@ -224,6 +224,7 @@ let vizRendering = false;
 let swipeStartX  = 0;
 let vizZoom      = 1;
 let vizRotation  = 0;
+let vizRenderQueued = false;
 const VIZ_ZOOM_MIN = 0.5;
 const VIZ_ZOOM_MAX = 3;
 const VIZ_ZOOM_STEP = 0.25;
@@ -393,8 +394,12 @@ function atualizarControleTelaCheia() {
 }
 
 async function renderVizPagina() {
-  if (vizRendering) return;
+  if (vizRendering) {
+    vizRenderQueued = true;
+    return;
+  }
   vizRendering = true;
+  vizRenderQueued = false;
 
   const grupo  = grupos[vizGrupoIdx];
   const numPag = grupo.paginas[vizPagIdx];
@@ -434,6 +439,10 @@ async function renderVizPagina() {
     loading.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:var(--vermelho);font-size:2rem;"></i><span>Erro ao carregar</span>';
   } finally {
     vizRendering = false;
+    if (vizRenderQueued && vizGrupoIdx !== null) {
+      vizRenderQueued = false;
+      renderVizPagina();
+    }
   }
 }
 
