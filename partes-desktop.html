@@ -858,6 +858,9 @@
                 <button id="viz-fullscreen" type="button" title="Entrar em tela cheia" aria-label="Entrar em tela cheia">
                     <i id="viz-fullscreen-icon" class="fas fa-expand" aria-hidden="true"></i><span class="sr-only">Entrar em tela cheia</span>
                 </button>
+                <button id="viz-focus-toggle" type="button" title="Mostrar somente o PDF" aria-label="Mostrar somente o PDF" aria-pressed="false">
+                    <i id="viz-focus-icon" class="fas fa-eye-slash" aria-hidden="true"></i><span class="sr-only">Mostrar somente o PDF</span>
+                </button>
                 <button id="viz-baixar" type="button" title="Baixar esta parte" aria-label="Baixar esta parte">
                     <i class="fas fa-download" aria-hidden="true"></i><span class="sr-only">Baixar esta parte</span>
                 </button>
@@ -877,6 +880,10 @@
             </button>
             <button class="viz-nav" id="viz-next" aria-label="Próxima página">
                 <i class="fas fa-chevron-right"></i>
+            </button>
+            <button id="viz-focus-exit" type="button" title="Mostrar comandos e navegação" aria-label="Mostrar comandos e navegação" hidden>
+                <i class="fas fa-eye" aria-hidden="true"></i>
+                <span>Mostrar controles</span>
             </button>
         </div>
         <div id="viz-swipe-hint">Use os botões laterais para alternar páginas. Ao ampliar, role para navegar pela partitura.</div>
@@ -949,6 +956,48 @@
 
         btnList.addEventListener('click', () => applyMode('list'));
         btnGrid.addEventListener('click', () => applyMode('grid'));
+    })();
+    </script>
+
+    <script>
+    // Modo foco exclusivo da versão desktop: recolhe o chrome do visualizador
+    // sem alterar a página original partes.html.
+    (() => {
+        const modal = document.getElementById('viz-modal');
+        const toggle = document.getElementById('viz-focus-toggle');
+        const exit = document.getElementById('viz-focus-exit');
+        const icon = document.getElementById('viz-focus-icon');
+        if (!modal || !toggle || !exit) return;
+
+        function aplicarModoFoco(ativo) {
+            modal.classList.toggle('viz-focus', ativo);
+            toggle.setAttribute('aria-pressed', String(ativo));
+            toggle.title = ativo ? 'Mostrar comandos e navegação' : 'Mostrar somente o PDF';
+            toggle.setAttribute('aria-label', toggle.title);
+            const sr = toggle.querySelector('.sr-only');
+            if (sr) sr.textContent = toggle.title;
+            if (icon) icon.className = ativo ? 'fas fa-eye' : 'fas fa-eye-slash';
+            exit.hidden = !ativo;
+            if (ativo) exit.focus({ preventScroll: true });
+        }
+
+        toggle.addEventListener('click', () => {
+            aplicarModoFoco(!modal.classList.contains('viz-focus'));
+        });
+        exit.addEventListener('click', () => aplicarModoFoco(false));
+        document.getElementById('viz-fechar')?.addEventListener('click', () => aplicarModoFoco(false), { capture: true });
+
+        document.addEventListener('keydown', (event) => {
+            if (!modal.classList.contains('aberto')) return;
+            if (event.key.toLowerCase() === 'f' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                event.preventDefault();
+                aplicarModoFoco(!modal.classList.contains('viz-focus'));
+            }
+        });
+
+        new MutationObserver(() => {
+            if (!modal.classList.contains('aberto')) aplicarModoFoco(false);
+        }).observe(modal, { attributes: true, attributeFilter: ['class'] });
     })();
     </script>
 

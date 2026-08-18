@@ -750,6 +750,86 @@
     }
 }
 
+/* Modo foco: somente a partitura fica visível; o botão de retorno permanece acessível. */
+.partes-desktop-page #viz-modal.viz-focus #viz-topbar,
+.partes-desktop-page #viz-modal.viz-focus #viz-swipe-hint {
+    display: none;
+}
+
+.partes-desktop-page #viz-modal.viz-focus #viz-body {
+    padding: 0;
+}
+
+.partes-desktop-page #viz-modal.viz-focus .viz-nav {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.partes-desktop-page #viz-modal.viz-focus #viz-canvas {
+    box-shadow: none;
+    max-width: 100%;
+}
+
+.partes-desktop-page #viz-focus-toggle {
+    color: var(--azul);
+}
+
+.partes-desktop-page #viz-focus-exit {
+    position: absolute;
+    z-index: 4;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 9px 14px;
+    border: 1px solid rgba(90, 190, 255, 0.55);
+    border-radius: 999px;
+    background: rgba(8, 17, 31, 0.82);
+    color: #dff5ff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(8px);
+    transition: transform 160ms ease-out, background 160ms ease-out, opacity 160ms ease-out;
+}
+
+.partes-desktop-page #viz-focus-exit:hover,
+.partes-desktop-page #viz-focus-exit:focus-visible {
+    background: var(--azul);
+    color: #07111f;
+}
+
+.partes-desktop-page #viz-focus-exit:active {
+    transform: scale(0.97);
+}
+
+.partes-desktop-page #viz-focus-exit[hidden] {
+    display: none;
+}
+
+@media (max-width: 800px) {
+    .partes-desktop-page #viz-modal.viz-focus #viz-body {
+        padding: 0;
+    }
+
+    .partes-desktop-page #viz-focus-exit {
+        top: max(12px, env(safe-area-inset-top));
+        right: max(12px, env(safe-area-inset-right));
+        min-width: 46px;
+        min-height: 46px;
+        padding: 10px 13px;
+    }
+
+    .partes-desktop-page #viz-focus-exit span {
+        display: none;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .partes-desktop-page *,
     .partes-desktop-page *::before,
