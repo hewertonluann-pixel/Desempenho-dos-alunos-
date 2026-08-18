@@ -1,0 +1,312 @@
+/*
+ * partes-desktop.css
+ * Camada visual exclusiva de partes-desktop.html.
+ * O comportamento continua em script_partes.js; este arquivo altera apenas o layout.
+ */
+
+@media (min-width: 801px) {
+    :root {
+        --desktop-content-width: 1560px;
+        --desktop-gutter: clamp(24px, 3vw, 56px);
+    }
+
+    body.partes-desktop-page {
+        min-width: 1024px;
+        padding-bottom: 32px;
+        background:
+            radial-gradient(circle at 12% 0%, rgba(14, 165, 233, 0.13), transparent 34%),
+            radial-gradient(circle at 90% 8%, rgba(30, 41, 59, 0.8), transparent 42%),
+            #020617;
+    }
+
+    /* A página desktop usa a barra superior; a navegação móvel não ocupa espaço. */
+    body.partes-desktop-page #bottom-nav,
+    body.partes-desktop-page .bottom-nav,
+    body.partes-desktop-page .bottom-nav-container {
+        display: none !important;
+    }
+
+    .partes-desktop-page .partes-header {
+        min-height: 72px;
+        padding: 14px var(--desktop-gutter);
+        gap: 18px;
+        background: rgba(7, 15, 30, 0.94);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .partes-desktop-page .btn-voltar,
+    .partes-desktop-page .user-role-selector,
+    .partes-desktop-page .view-toggle button {
+        min-height: 40px;
+    }
+
+    .partes-desktop-page .btn-voltar {
+        padding: 9px 16px;
+        font-size: 0.88rem;
+    }
+
+    .partes-desktop-page .partes-header h1 {
+        font-size: 1.18rem;
+        letter-spacing: -0.01em;
+    }
+
+    .partes-desktop-page .user-role-selector {
+        padding: 8px 12px;
+        font-size: 0.84rem;
+    }
+
+    .partes-desktop-page .view-toggle {
+        padding: 4px;
+    }
+
+    .partes-desktop-page .view-toggle button {
+        min-width: 42px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .partes-desktop-page .container {
+        width: min(100%, var(--desktop-content-width));
+        max-width: none;
+        padding: 30px var(--desktop-gutter) 56px;
+    }
+
+    /* Faixas de contexto com duas colunas: informação à esquerda e ação à direita. */
+    .partes-desktop-page .audio-section,
+    .partes-desktop-page .download-completo {
+        min-height: 72px;
+        margin-bottom: 18px;
+        padding: 16px 22px;
+        border-radius: 14px;
+    }
+
+    .partes-desktop-page .audio-section audio {
+        height: 42px;
+    }
+
+    .partes-desktop-page .download-completo {
+        margin-bottom: 30px;
+    }
+
+    .partes-desktop-page .download-completo span {
+        font-size: 0.94rem;
+    }
+
+    .partes-desktop-page .btn-dl-completo {
+        min-height: 42px;
+        padding: 10px 20px;
+    }
+
+    /* Grade desktop: cartões sem esticar demais, com 4–6 colunas conforme a tela. */
+    .partes-desktop-page .partes-grid:not(.view-list) {
+        grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+        align-items: stretch;
+        gap: 20px;
+    }
+
+    .partes-desktop-page .partes-grid:not(.view-list) .grupo-card:not(.professor-mode) {
+        min-height: 392px;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) {
+        border-radius: 16px;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode):hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.34);
+    }
+
+    .partes-desktop-page .grupo-thumb {
+        min-height: 258px;
+        max-height: 310px;
+    }
+
+    .partes-desktop-page .grupo-info {
+        min-height: 128px;
+        padding: 15px 16px 16px;
+    }
+
+    .partes-desktop-page .grupo-nome {
+        font-size: 0.96rem;
+        line-height: 1.35;
+    }
+
+    .partes-desktop-page .grupo-paginas-label {
+        font-size: 0.74rem;
+    }
+
+    .partes-desktop-page .grupo-btns {
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .partes-desktop-page .btn-visualizar-grupo,
+    .partes-desktop-page .btn-baixar-grupo {
+        min-height: 40px;
+        padding: 9px 10px;
+        font-size: 0.8rem;
+    }
+
+    /* Lista desktop: cada instrumento ocupa uma linha limpa, sem redundância visual. */
+    .partes-desktop-page .partes-grid.view-list {
+        gap: 10px;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
+        min-height: 70px;
+        padding: 14px 18px;
+        border-radius: 12px;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info {
+        min-height: 0;
+        padding: 0;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-btns {
+        min-width: 236px;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo,
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo {
+        min-height: 38px;
+        padding: 8px 14px;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo .viz-label {
+        display: inline;
+    }
+
+    /* Modo professor: miniaturas alinhadas em várias colunas, com menos altura desperdiçada. */
+    .partes-desktop-page .grupo-card.professor-mode {
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .partes-desktop-page .grupo-prof-header {
+        min-height: 58px;
+        padding: 12px 20px;
+    }
+
+    .partes-desktop-page .grupo-prof-nome {
+        font-size: 1rem;
+    }
+
+    .partes-desktop-page .grupo-thumbs-row {
+        max-height: 248px;
+        overflow-y: auto;
+        padding: 16px 20px;
+        gap: 12px;
+    }
+
+    .partes-desktop-page .grupo-mini-wrap,
+    .partes-desktop-page .grupo-mini-thumb,
+    .partes-desktop-page .btn-adicionar-pag {
+        width: 88px;
+    }
+
+    .partes-desktop-page .grupo-mini-thumb,
+    .partes-desktop-page .btn-adicionar-pag {
+        height: 122px;
+    }
+
+    .partes-desktop-page .grupo-prof-footer {
+        min-height: 58px;
+        padding: 12px 20px;
+    }
+
+    /* Barra de professor flutuante e compacta, em vez de ocupar a largura inteira. */
+    .partes-desktop-page #barra-professor {
+        bottom: 22px;
+        left: 50%;
+        right: auto;
+        width: max-content;
+        max-width: calc(100vw - 48px);
+        padding: 10px 14px;
+        border: 1px solid rgba(250, 204, 21, 0.35);
+        border-radius: 14px;
+        transform: translateX(-50%);
+        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45);
+        background: rgba(7, 15, 30, 0.96);
+    }
+
+    .partes-desktop-page #btn-novo-grupo,
+    .partes-desktop-page #btn-reprocessar-grupos,
+    .partes-desktop-page #btn-salvar-grupos {
+        min-height: 40px;
+        padding: 9px 16px;
+    }
+
+    .partes-desktop-page .salvar-indicator {
+        white-space: nowrap;
+    }
+
+    /* Seletor de páginas maior para aproveitar a largura do monitor. */
+    .partes-desktop-page #modal-seletor-box {
+        max-width: 900px;
+        max-height: 86vh;
+    }
+
+    .partes-desktop-page #modal-seletor-grid {
+        grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+        gap: 14px;
+    }
+
+    .partes-desktop-page .seletor-thumb {
+        height: 154px;
+    }
+
+    /* Visualizador desktop: canvas centralizado, área ampla e controles estáveis. */
+    .partes-desktop-page #viz-topbar {
+        min-height: 66px;
+        padding: 12px 28px;
+        gap: 12px 20px;
+    }
+
+    .partes-desktop-page #viz-body {
+        padding: 28px 86px 36px;
+    }
+
+    .partes-desktop-page #viz-canvas {
+        box-shadow: 0 14px 48px rgba(0, 0, 0, 0.72);
+    }
+
+    .partes-desktop-page .viz-nav {
+        width: 50px;
+        height: 50px;
+    }
+
+    .partes-desktop-page #viz-prev { left: 24px; }
+    .partes-desktop-page #viz-next { right: 24px; }
+
+    .partes-desktop-page .erro-doc {
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 70px 30px;
+        border: 1px solid rgba(239, 68, 68, 0.24);
+        border-radius: 16px;
+        background: rgba(239, 68, 68, 0.04);
+    }
+}
+
+/* Em telas menores, a cópia continua legível, mas não força largura mínima. */
+@media (max-width: 800px) {
+    .partes-desktop-page .partes-header h1 {
+        font-size: 0.95rem;
+    }
+
+    .partes-desktop-page .container {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .partes-desktop-page *,
+    .partes-desktop-page *::before,
+    .partes-desktop-page *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
