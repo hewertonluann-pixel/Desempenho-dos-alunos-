@@ -148,6 +148,76 @@
         font-size: 0.8rem;
     }
 
+    /* Cabeçalho superior dos cards: instrumento e partitura geral ficam destacados. */
+    .partes-desktop-page .grupo-card:not(.professor-mode) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "instrumento instrumento"
+            "thumb thumb"
+            "paginas botoes";
+        grid-template-rows: auto minmax(258px, auto) auto;
+        align-content: start;
+        overflow: hidden;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-info {
+        display: contents;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-nome-wrap {
+        grid-area: instrumento;
+        min-width: 0;
+        min-height: 52px;
+        padding: 13px 16px;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+        background: linear-gradient(90deg, rgba(14, 165, 233, 0.13), rgba(15, 23, 42, 0.16));
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-nome {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 1rem;
+        letter-spacing: 0.01em;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-nome-wrap > small,
+    .partes-desktop-page .grupo-prof-header small {
+        display: inline-flex !important;
+        flex: 0 0 auto;
+        align-items: center;
+        margin-left: 10px !important;
+        padding: 4px 8px !important;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 999px;
+        background: rgba(224, 242, 254, 0.12) !important;
+        color: #7dd3fc !important;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        line-height: 1.1;
+        white-space: nowrap;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-thumb {
+        grid-area: thumb;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-paginas-label {
+        grid-area: paginas;
+        align-self: center;
+        min-width: 0;
+        padding: 12px 0 12px 16px;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-btns {
+        grid-area: botoes;
+        align-self: center;
+        padding: 10px 16px 10px 12px;
+    }
+
     /* Lista desktop: cartões compactos em duas ou mais colunas para reduzir áreas vazias. */
     .partes-desktop-page .partes-grid.view-list {
         display: grid;
@@ -162,9 +232,26 @@
     }
 
     .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
-        min-height: 70px;
-        padding: 14px 18px;
+        min-height: 106px;
+        padding: 0;
         border-radius: 12px;
+        grid-template-areas:
+            "instrumento instrumento"
+            "paginas botoes";
+        grid-template-rows: auto 1fr;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-nome-wrap {
+        min-height: 44px;
+        padding: 10px 14px;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-paginas-label {
+        padding: 10px 0 10px 14px;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-btns {
+        padding: 8px 14px 8px 10px;
     }
 
     .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info {

@@ -321,6 +321,8 @@ A barra inferior é parte da navegação principal em telas pequenas. Verifique 
 
 Em cards de professor, mantenha leitura como **Bona** quando essa for a nomenclatura do campo. Exiba o método instrumental pelo nome salvo do método. Em desktop, mantenha cards compactos lado a lado, com número e status na mesma linha e sem redundância textual.
 
+A variação [`partes-desktop.html`](./partes-desktop.html) reutiliza [`script_partes.js`](./script_partes.js) e recebe ajustes visuais em [`partes-desktop.css`](./partes-desktop.css), sem alterar [`partes.html`](./partes.html). Na versão desktop, os cards de aluno usam um cabeçalho superior com o nome do instrumento em destaque; quando o grupo tem `tipo: "grade"` ou nome iniciado por `GRADE`, a mesma linha apresenta `GRADE · Partitura geral`. A lista usa duas ou mais colunas responsivas e a grade posiciona o cabeçalho antes da miniatura. Os cards de professor permanecem em largura total para preservar miniaturas e comandos de edição.
+
 ### Testar alterações na Biblioteca
 
 Para qualquer mudança em `script_biblioteca.js` ou `script_partes.js`, teste: PDF com instrumento de uma página, instrumento de várias páginas, nomes compostos em português e inglês, GRADE explícita, GRADE com múltiplos instrumentos, página sem texto, rótulo antigo e correção manual do professor. Sem camada de texto selecionável, o algoritmo não reconhece o instrumento porque OCR não faz parte do projeto.
