@@ -385,15 +385,368 @@
     }
 }
 
-/* Em telas menores, a cópia continua legível, mas não força largura mínima. */
+/* Adaptação mobile: prioriza leitura, alcance do polegar e áreas de toque confortáveis. */
 @media (max-width: 800px) {
+    body.partes-desktop-page {
+        min-width: 0;
+        padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    }
+
+    .partes-desktop-page .partes-header {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 8px;
+        padding: 10px 12px;
+        align-items: center;
+    }
+
+    .partes-desktop-page .btn-voltar,
+    .partes-desktop-page .view-toggle button,
+    .partes-desktop-page .user-role-selector {
+        min-height: 44px;
+    }
+
+    .partes-desktop-page .btn-voltar {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+    }
+
     .partes-desktop-page .partes-header h1 {
-        font-size: 0.95rem;
+        min-width: 0;
+        font-size: 0.9rem;
+    }
+
+    .partes-desktop-page .view-toggle {
+        gap: 2px;
+        padding: 3px;
+    }
+
+    .partes-desktop-page .view-toggle button {
+        min-width: 44px;
+        padding: 10px 11px;
+        font-size: 0.84rem;
+    }
+
+    .partes-desktop-page .user-role-selector {
+        grid-column: 1 / -1;
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 0.9rem;
     }
 
     .partes-desktop-page .container {
-        padding-left: 14px;
-        padding-right: 14px;
+        width: 100%;
+        padding: 16px 12px calc(96px + env(safe-area-inset-bottom));
+    }
+
+    .partes-desktop-page .audio-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        border-radius: 12px;
+    }
+
+    .partes-desktop-page .audio-section i {
+        align-self: center;
+        font-size: 1.4rem;
+    }
+
+    .partes-desktop-page .audio-section audio {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .partes-desktop-page .download-completo {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 18px;
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .partes-desktop-page .download-completo span {
+        font-size: 0.84rem;
+        line-height: 1.35;
+    }
+
+    .partes-desktop-page .btn-dl-completo {
+        justify-content: center;
+        min-height: 48px;
+        padding: 12px 16px;
+        font-size: 0.88rem;
+    }
+
+    /* No mobile, cada instrumento ocupa uma linha para manter nome e ações legíveis. */
+    .partes-desktop-page .partes-grid,
+    .partes-desktop-page .partes-grid.view-list {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "instrumento"
+            "thumb"
+            "paginas"
+            "botoes";
+        grid-template-rows: auto minmax(210px, auto) auto auto;
+        min-width: 0;
+        border-radius: 14px;
+        overflow: hidden;
+        transform: none !important;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-info {
+        display: contents;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-nome-wrap {
+        grid-area: instrumento;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 8px;
+        min-width: 0;
+        min-height: 54px;
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+        background: linear-gradient(90deg, rgba(14, 165, 233, 0.14), rgba(15, 23, 42, 0.18));
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-nome {
+        min-width: 0;
+        flex: 1 1 150px;
+        font-size: 1rem;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-nome-wrap > small {
+        display: inline-flex !important;
+        flex: 0 0 auto;
+        align-items: center;
+        margin-left: 0 !important;
+        padding: 5px 8px !important;
+        border: 1px solid rgba(56, 189, 248, 0.34);
+        border-radius: 999px;
+        background: rgba(224, 242, 254, 0.12) !important;
+        color: #7dd3fc !important;
+        font-size: 0.68rem;
+        font-weight: 800;
+        line-height: 1.1;
+        white-space: nowrap;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-thumb {
+        grid-area: thumb;
+        display: flex;
+        min-height: 210px;
+        max-height: none;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-paginas-label {
+        grid-area: paginas;
+        display: block !important;
+        min-width: 0;
+        padding: 11px 14px 0;
+        font-size: 0.73rem;
+        line-height: 1.35;
+        white-space: normal;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-btns {
+        grid-area: botoes;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        min-width: 0;
+        margin: 0;
+        padding: 12px 14px 14px;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .btn-visualizar-grupo .viz-label {
+        display: inline !important;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .btn-visualizar-grupo,
+    .partes-desktop-page .grupo-card:not(.professor-mode) .btn-baixar-grupo {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        margin: 0;
+        padding: 12px 8px;
+        border-radius: 10px;
+        font-size: 0.84rem;
+        line-height: 1.15;
+        white-space: normal;
+    }
+
+    .partes-desktop-page .grupo-card:not(.professor-mode) .btn-visualizar-grupo .viz-label {
+        display: inline;
+    }
+
+    /* A lista não usa miniatura; mantém o mesmo cabeçalho e amplia as ações. */
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
+        grid-template-areas:
+            "instrumento"
+            "paginas"
+            "botoes";
+        grid-template-rows: auto auto auto;
+        min-height: 0;
+        padding: 0;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-thumb {
+        display: none;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info::before,
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-nome-wrap::before {
+        display: none !important;
+    }
+
+    .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-paginas-label {
+        display: block !important;
+        padding-top: 11px;
+    }
+
+    /* Card do professor: cabeçalho e comandos com alvos de toque maiores. */
+    .partes-desktop-page .grupo-card.professor-mode {
+        grid-column: 1 / -1;
+        width: 100%;
+        border-radius: 14px;
+    }
+
+    .partes-desktop-page .grupo-prof-header {
+        min-height: 64px;
+        padding: 10px 12px;
+        gap: 6px;
+    }
+
+    .partes-desktop-page .grupo-prof-nome {
+        min-width: 0;
+        font-size: 1rem;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .partes-desktop-page .btn-renomear-grupo,
+    .partes-desktop-page .btn-excluir-grupo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 44px;
+        width: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+
+    .partes-desktop-page .grupo-thumbs-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 12px;
+        padding: 16px 14px 18px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+    }
+
+    .partes-desktop-page .grupo-mini-wrap,
+    .partes-desktop-page .grupo-mini-thumb,
+    .partes-desktop-page .btn-adicionar-pag {
+        width: 88px;
+    }
+
+    .partes-desktop-page .grupo-mini-wrap {
+        scroll-snap-align: start;
+    }
+
+    .partes-desktop-page .grupo-mini-thumb,
+    .partes-desktop-page .btn-adicionar-pag {
+        height: 122px;
+    }
+
+    .partes-desktop-page .btn-remover-pag {
+        width: 32px;
+        height: 32px;
+        top: -9px;
+        right: -9px;
+        font-size: 0.9rem;
+    }
+
+    .partes-desktop-page .grupo-prof-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px 14px 14px;
+    }
+
+    .partes-desktop-page .grupo-prof-footer .btn-baixar-grupo {
+        width: 100% !important;
+        min-height: 48px;
+        padding: 12px 16px !important;
+        font-size: 0.86rem;
+    }
+
+    /* Barra fixa acima da navegação inferior, sem bloquear a área de leitura. */
+    .partes-desktop-page #barra-professor {
+        left: 10px;
+        right: 10px;
+        bottom: calc(66px + env(safe-area-inset-bottom));
+        width: auto;
+        max-width: none;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 14px;
+    }
+
+    .partes-desktop-page #btn-novo-grupo,
+    .partes-desktop-page #btn-reprocessar-grupos,
+    .partes-desktop-page #btn-salvar-grupos {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 48px;
+        padding: 10px 6px;
+        font-size: 0.73rem;
+        line-height: 1.15;
+        white-space: normal;
+    }
+
+    .partes-desktop-page .salvar-indicator {
+        flex: 1 1 100%;
+        text-align: center;
+        white-space: normal;
+        font-size: 0.72rem;
+    }
+
+    /* Botões do visualizador também recebem área de toque adequada no celular. */
+    .partes-desktop-page .viz-nav {
+        width: 46px;
+        height: 46px;
+    }
+
+    .partes-desktop-page #viz-prev { left: 8px; }
+    .partes-desktop-page #viz-next { right: 8px; }
+
+    .partes-desktop-page #viz-topbar {
+        min-height: 58px;
+        padding: 8px 10px;
+        gap: 6px;
+    }
+
+    .partes-desktop-page #viz-topbar button {
+        min-width: 42px;
+        min-height: 42px;
     }
 }
 
