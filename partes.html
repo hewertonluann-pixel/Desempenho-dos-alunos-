@@ -554,7 +554,8 @@
             flex: 0 1 auto;
             flex-wrap: wrap;
         }
-        #viz-zoom-controls {
+        #viz-zoom-controls,
+        #viz-rotacao-controls {
             display: inline-flex;
             align-items: center;
             gap: 3px;
@@ -565,6 +566,8 @@
             padding: 3px;
         }
         #viz-zoom-controls button,
+        #viz-rotacao-controls button,
+        #viz-fullscreen,
         #viz-baixar,
         #viz-fechar {
             width: 34px;
@@ -578,24 +581,32 @@
             justify-content: center;
             transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
         }
-        #viz-zoom-controls button {
+        #viz-zoom-controls button,
+        #viz-rotacao-controls button {
             border: 1px solid rgba(56,189,248,0.22);
             background: rgba(56,189,248,0.08);
             color: var(--azul);
             font-size: 1rem;
         }
         #viz-zoom-controls button:hover:not(:disabled),
-        #viz-zoom-controls button:focus-visible {
+        #viz-zoom-controls button:focus-visible,
+        #viz-rotacao-controls button:hover,
+        #viz-rotacao-controls button:focus-visible,
+        #viz-fullscreen:hover,
+        #viz-fullscreen:focus-visible {
             background: var(--azul);
             color: white;
             transform: translateY(-1px);
         }
-        #viz-zoom-controls button span.sr-only { display: block; }
+        #viz-zoom-controls button span.sr-only,
+        #viz-rotacao-controls button span.sr-only,
+        #viz-fullscreen span.sr-only { display: block; }
         #viz-zoom-controls button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
-        #viz-zoom-label {
+        #viz-zoom-label,
+        #viz-rotation-label {
             min-width: 46px;
             padding: 0 2px;
             text-align: center;
@@ -603,6 +614,14 @@
             font-size: 0.78rem;
             font-weight: 800;
             font-variant-numeric: tabular-nums;
+        }
+        #viz-rotate { min-width: 34px; }
+        #viz-fullscreen {
+            background: rgba(56,189,248,0.08);
+            color: var(--azul);
+            border: 1px solid rgba(56,189,248,0.22);
+            font-size: 0.9rem;
+            flex-shrink: 0;
         }
         #viz-baixar {
             background: var(--azul-escuro);
@@ -622,6 +641,8 @@
         #viz-fechar:hover, #viz-fechar:focus-visible { background: var(--vermelho); color: white; transform: translateY(-1px); }
         #viz-fechar .viz-close-symbol { line-height: 0.8; }
         #viz-zoom-controls button:focus-visible,
+        #viz-rotacao-controls button:focus-visible,
+        #viz-fullscreen:focus-visible,
         #viz-baixar:focus-visible,
         #viz-fechar:focus-visible,
         .viz-nav:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
@@ -714,9 +735,11 @@
         }
         @media (max-width: 520px) {
             #viz-acoes { justify-content: stretch; gap: 4px; }
-            #viz-zoom-controls { flex: 1 1 auto; justify-content: center; }
-            #viz-zoom-controls button { flex: 0 0 34px; }
-            #viz-baixar, #viz-fechar { flex: 0 0 34px; }
+            #viz-zoom-controls,
+            #viz-rotacao-controls { flex: 0 0 auto; justify-content: center; }
+            #viz-zoom-controls button,
+            #viz-rotacao-controls button { flex: 0 0 34px; }
+            #viz-fullscreen, #viz-baixar, #viz-fechar { flex: 0 0 34px; }
         }
 
         /* ── ERRO ── */
@@ -825,6 +848,15 @@
                         <i class="fas fa-expand" aria-hidden="true"></i><span class="sr-only">Ajustar à tela</span>
                     </button>
                 </div>
+                <div id="viz-rotacao-controls" role="group" aria-label="Rotação da página">
+                    <button id="viz-rotate" type="button" title="Girar 90 graus" aria-label="Girar 90 graus">
+                        <i class="fas fa-redo" aria-hidden="true"></i><span class="sr-only">Girar 90 graus</span>
+                    </button>
+                    <span id="viz-rotation-label" aria-live="polite">0°</span>
+                </div>
+                <button id="viz-fullscreen" type="button" title="Entrar em tela cheia" aria-label="Entrar em tela cheia">
+                    <i id="viz-fullscreen-icon" class="fas fa-expand" aria-hidden="true"></i><span class="sr-only">Entrar em tela cheia</span>
+                </button>
                 <button id="viz-baixar" type="button" title="Baixar esta parte" aria-label="Baixar esta parte">
                     <i class="fas fa-download" aria-hidden="true"></i><span class="sr-only">Baixar esta parte</span>
                 </button>

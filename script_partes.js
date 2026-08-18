@@ -223,6 +223,7 @@ let vizPagIdx    = 0;
 let vizRendering = false;
 let swipeStartX  = 0;
 let vizZoom      = 1;
+let vizRotation  = 0;
 const VIZ_ZOOM_MIN = 0.5;
 const VIZ_ZOOM_MAX = 3;
 const VIZ_ZOOM_STEP = 0.25;
@@ -237,10 +238,12 @@ function configurarVisualizador() {
   const zoomOut = document.getElementById('viz-zoom-out');
   const zoomIn  = document.getElementById('viz-zoom-in');
   const zoomReset = document.getElementById('viz-zoom-reset');
+  const rotateBtn = document.getElementById('viz-rotate');
+  const fullscreenBtn = document.getElementById('viz-fullscreen');
   const canvas = document.getElementById('viz-canvas');
   const body   = document.getElementById('viz-body');
 
-  if (!modal || !fechar || !prev || !next || !dlBtn || !zoomOut || !zoomIn || !zoomReset || !canvas) {
+  if (!modal || !fechar || !prev || !next || !dlBtn || !zoomOut || !zoomIn || !zoomReset || !rotateBtn || !fullscreenBtn || !canvas) {
     console.warn('configurarVisualizador: elementos do modal não encontrados no DOM.');
     return;
   }
@@ -252,7 +255,12 @@ function configurarVisualizador() {
   zoomOut.addEventListener('click', () => alterarZoom(-VIZ_ZOOM_STEP));
   zoomIn.addEventListener('click',  () => alterarZoom(VIZ_ZOOM_STEP));
   zoomReset.addEventListener('click', () => definirZoom(1));
+  rotateBtn.addEventListener('click', girarViz);
+  fullscreenBtn.addEventListener('click', alternarTelaCheia);
+  document.addEventListener('fullscreenchange', atualizarControleTelaCheia);
   atualizarControlesZoom();
+  atualizarControlesRotacao();
+  atualizarControleTelaCheia();
 
   // FIX: fecha ao clicar no fundo (#viz-body), não em um overlay inexistente
   if (body) {
@@ -267,6 +275,7 @@ function configurarVisualizador() {
     if (e.key === 'Escape')     fecharVisualizador();
     if (e.key === 'ArrowLeft')  navegarViz(-1);
     if (e.key === 'ArrowRight') navegarViz(1);
+    if (e.key.toLowerCase() === 'r') girarViz();
   });
 
   // Swipe mobile
@@ -281,19 +290,26 @@ function abrirVisualizador(idxGrupo, idxPagina = 0) {
   vizGrupoIdx = idxGrupo;
   vizPagIdx   = idxPagina;
   vizZoom     = 1;
+  vizRotation = 0;
   atualizarControlesZoom();
+  atualizarControlesRotacao();
   document.getElementById('viz-modal').classList.add('aberto');
   document.body.style.overflow = 'hidden';
   renderVizPagina();
 }
 
 function fecharVisualizador() {
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
   document.getElementById('viz-modal').classList.remove('aberto');
   document.body.style.overflow = '';
   vizGrupoIdx = null;
   vizPagIdx   = 0;
   vizZoom     = 1;
+  vizRotation = 0;
   atualizarControlesZoom();
+  atualizarControlesRotacao();
   const canvas = document.getElementById('viz-canvas');
   if (canvas) {
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
@@ -336,6 +352,46 @@ function atualizarControlesZoom() {
   if (zoomIn) zoomIn.disabled = vizZoom >= VIZ_ZOOM_MAX;
 }
 
+function girarViz() {
+  if (vizGrupoIdx === null) return;
+  vizRotation = (vizRotation + 90) % 360;
+  atualizarControlesRotacao();
+  renderVizPagina();
+}
+
+function atualizarControlesRotacao() {
+  const label = document.getElementById('viz-rotation-label');
+  if (label) label.textContent = `${vizRotation}°`;
+}
+
+async function alternarTelaCheia() {
+  const modal = document.getElementById('viz-modal');
+  if (!modal) return;
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else if (modal.requestFullscreen) {
+      await modal.requestFullscreen();
+    }
+  } catch (err) {
+    console.warn('Tela cheia indisponível neste navegador:', err);
+  } finally {
+    atualizarControleTelaCheia();
+  }
+}
+
+function atualizarControleTelaCheia() {
+  const btn = document.getElementById('viz-fullscreen');
+  const icon = document.getElementById('viz-fullscreen-icon');
+  if (!btn || !icon) return;
+  const ativo = Boolean(document.fullscreenElement);
+  btn.title = ativo ? 'Sair da tela cheia' : 'Entrar em tela cheia';
+  btn.setAttribute('aria-label', btn.title);
+  const sr = btn.querySelector('.sr-only');
+  if (sr) sr.textContent = btn.title;
+  icon.className = ativo ? 'fas fa-compress' : 'fas fa-expand';
+}
+
 async function renderVizPagina() {
   if (vizRendering) return;
   vizRendering = true;
@@ -359,10 +415,10 @@ async function renderVizPagina() {
     const page   = await pdfDoc.getPage(numPag);
     const dpr    = window.devicePixelRatio || 1;
     const maxW   = Math.max(280, Math.min(window.innerWidth - 32, 900));
-    const baseVP = page.getViewport({ scale: 1 });
+    const baseVP = page.getViewport({ scale: 1, rotation: vizRotation });
     const fitScale = (maxW / baseVP.width) * dpr;
     const scale  = fitScale * vizZoom;
-    const vp     = page.getViewport({ scale });
+    const vp     = page.getViewport({ scale, rotation: vizRotation });
 
     canvas.width  = vp.width;
     canvas.height = vp.height;
