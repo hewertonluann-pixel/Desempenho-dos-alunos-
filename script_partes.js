@@ -222,6 +222,10 @@ let vizGrupoIdx  = null;
 let vizPagIdx    = 0;
 let vizRendering = false;
 let swipeStartX  = 0;
+let vizZoom      = 1;
+const VIZ_ZOOM_MIN = 0.5;
+const VIZ_ZOOM_MAX = 3;
+const VIZ_ZOOM_STEP = 0.25;
 
 function configurarVisualizador() {
   // FIX: guard — aborta silenciosamente se o modal ainda não estiver no DOM
@@ -230,10 +234,13 @@ function configurarVisualizador() {
   const prev   = document.getElementById('viz-prev');
   const next   = document.getElementById('viz-next');
   const dlBtn  = document.getElementById('viz-baixar');
+  const zoomOut = document.getElementById('viz-zoom-out');
+  const zoomIn  = document.getElementById('viz-zoom-in');
+  const zoomReset = document.getElementById('viz-zoom-reset');
   const canvas = document.getElementById('viz-canvas');
   const body   = document.getElementById('viz-body');
 
-  if (!modal || !fechar || !prev || !next || !dlBtn || !canvas) {
+  if (!modal || !fechar || !prev || !next || !dlBtn || !zoomOut || !zoomIn || !zoomReset || !canvas) {
     console.warn('configurarVisualizador: elementos do modal não encontrados no DOM.');
     return;
   }
@@ -242,6 +249,10 @@ function configurarVisualizador() {
   prev.addEventListener('click',   () => navegarViz(-1));
   next.addEventListener('click',   () => navegarViz(1));
   dlBtn.addEventListener('click',  () => baixarGrupo(vizGrupoIdx));
+  zoomOut.addEventListener('click', () => alterarZoom(-VIZ_ZOOM_STEP));
+  zoomIn.addEventListener('click',  () => alterarZoom(VIZ_ZOOM_STEP));
+  zoomReset.addEventListener('click', () => definirZoom(1));
+  atualizarControlesZoom();
 
   // FIX: fecha ao clicar no fundo (#viz-body), não em um overlay inexistente
   if (body) {
@@ -269,6 +280,8 @@ function configurarVisualizador() {
 function abrirVisualizador(idxGrupo, idxPagina = 0) {
   vizGrupoIdx = idxGrupo;
   vizPagIdx   = idxPagina;
+  vizZoom     = 1;
+  atualizarControlesZoom();
   document.getElementById('viz-modal').classList.add('aberto');
   document.body.style.overflow = 'hidden';
   renderVizPagina();
@@ -279,6 +292,8 @@ function fecharVisualizador() {
   document.body.style.overflow = '';
   vizGrupoIdx = null;
   vizPagIdx   = 0;
+  vizZoom     = 1;
+  atualizarControlesZoom();
   const canvas = document.getElementById('viz-canvas');
   if (canvas) {
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
@@ -291,7 +306,34 @@ function navegarViz(delta) {
   const novoIdx = vizPagIdx + delta;
   if (novoIdx < 0 || novoIdx >= grupo.paginas.length) return;
   vizPagIdx = novoIdx;
+  const body = document.getElementById('viz-body');
+  if (body) {
+    body.scrollTop = 0;
+    body.scrollLeft = 0;
+  }
   renderVizPagina();
+}
+
+function definirZoom(novoZoom) {
+  const zoomAnterior = vizZoom;
+  vizZoom = Math.max(VIZ_ZOOM_MIN, Math.min(VIZ_ZOOM_MAX, novoZoom));
+  atualizarControlesZoom();
+  if (zoomAnterior !== vizZoom && vizGrupoIdx !== null && document.getElementById('viz-modal')?.classList.contains('aberto')) {
+    renderVizPagina();
+  }
+}
+
+function alterarZoom(delta) {
+  definirZoom(Number((vizZoom + delta).toFixed(2)));
+}
+
+function atualizarControlesZoom() {
+  const label = document.getElementById('viz-zoom-label');
+  const zoomOut = document.getElementById('viz-zoom-out');
+  const zoomIn = document.getElementById('viz-zoom-in');
+  if (label) label.textContent = `${Math.round(vizZoom * 100)}%`;
+  if (zoomOut) zoomOut.disabled = vizZoom <= VIZ_ZOOM_MIN;
+  if (zoomIn) zoomIn.disabled = vizZoom >= VIZ_ZOOM_MAX;
 }
 
 async function renderVizPagina() {
@@ -316,9 +358,10 @@ async function renderVizPagina() {
   try {
     const page   = await pdfDoc.getPage(numPag);
     const dpr    = window.devicePixelRatio || 1;
-    const maxW   = Math.min(window.innerWidth - 32, 900);
+    const maxW   = Math.max(280, Math.min(window.innerWidth - 32, 900));
     const baseVP = page.getViewport({ scale: 1 });
-    const scale  = (maxW / baseVP.width) * dpr;
+    const fitScale = (maxW / baseVP.width) * dpr;
+    const scale  = fitScale * vizZoom;
     const vp     = page.getViewport({ scale });
 
     canvas.width  = vp.width;

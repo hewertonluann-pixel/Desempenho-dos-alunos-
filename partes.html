@@ -542,6 +542,45 @@
             color: var(--muted);
             white-space: nowrap;
         }
+        #viz-zoom-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            background: var(--card-alt);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3px;
+        }
+        #viz-zoom-controls button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--azul);
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        #viz-zoom-controls button:hover:not(:disabled) {
+            background: var(--azul);
+            color: white;
+        }
+        #viz-zoom-controls button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        #viz-zoom-label {
+            min-width: 48px;
+            text-align: center;
+            color: var(--ink);
+            font-size: 0.72rem;
+            font-variant-numeric: tabular-nums;
+        }
         #viz-baixar {
             background: var(--azul-escuro);
             color: var(--azul);
@@ -562,33 +601,40 @@
             background: rgba(239,68,68,0.15);
             color: var(--vermelho);
             border: 1px solid rgba(239,68,68,0.3);
-            width: 36px; height: 36px;
+            min-width: 36px; height: 36px;
+            padding: 0 10px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2rem;
-            display: flex;
+            font-size: 0.82rem;
+            font-weight: 700;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
             line-height: 1;
             transition: all 0.2s;
             flex-shrink: 0;
         }
         #viz-fechar:hover { background: var(--vermelho); color: white; }
+        #viz-fechar i { font-size: 0.95rem; }
 
         /* Área do canvas */
         #viz-body {
             flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
             overflow: auto;
             position: relative;
             padding: 16px;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
         }
         #viz-loading {
+            position: absolute;
+            inset: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 12px;
             color: var(--muted);
         }
@@ -597,9 +643,12 @@
             display: none;
             border-radius: 6px;
             box-shadow: 0 8px 40px rgba(0,0,0,0.7);
-            max-width: 100%;
-            touch-action: pan-y;
+            max-width: none;
+            touch-action: pan-x pan-y;
+            cursor: grab;
+            margin: 0 auto;
         }
+        #viz-canvas:active { cursor: grabbing; }
 
         /* Botões de navegação lateral */
         .viz-nav {
@@ -633,6 +682,12 @@
             flex-shrink: 0;
         }
         @media (min-width: 601px) { #viz-swipe-hint { display: none; } }
+        @media (max-width: 700px) {
+            #viz-topbar { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+            #viz-nome { min-width: 45%; }
+            #viz-contador { order: 3; width: 100%; text-align: center; }
+            #viz-body { padding: 10px; }
+        }
 
         /* ── ERRO ── */
         .erro-doc { text-align: center; padding: 60px 20px; color: var(--vermelho); }
@@ -727,10 +782,24 @@
         <div id="viz-topbar">
             <span id="viz-nome"></span>
             <span id="viz-contador"></span>
+            <div id="viz-zoom-controls" role="group" aria-label="Controles de zoom">
+                <button id="viz-zoom-out" type="button" title="Diminuir zoom" aria-label="Diminuir zoom">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <span id="viz-zoom-label" aria-live="polite">100%</span>
+                <button id="viz-zoom-in" type="button" title="Aumentar zoom" aria-label="Aumentar zoom">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="viz-zoom-reset" type="button" title="Ajustar à tela" aria-label="Ajustar à tela">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
             <button id="viz-baixar" title="Baixar esta parte">
                 <i class="fas fa-download"></i>
             </button>
-            <button id="viz-fechar" aria-label="Fechar visualizador">×</button>
+            <button id="viz-fechar" type="button" title="Sair da visualização" aria-label="Sair da visualização">
+                <i class="fas fa-times"></i><span>Sair</span>
+            </button>
         </div>
         <div id="viz-body">
             <div id="viz-loading">
@@ -745,7 +814,7 @@
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
-        <div id="viz-swipe-hint">← deslize para navegar →</div>
+        <div id="viz-swipe-hint">Use os botões laterais para alternar páginas. Ao ampliar, role para navegar pela partitura.</div>
     </div>
 
     <!-- OVERLAY do visualizador (fecha ao clicar fora do canvas) -->
