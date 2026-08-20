@@ -352,15 +352,24 @@
         height: 154px;
     }
 
-    /* Visualizador desktop: canvas centralizado, área ampla e controles estáveis. */
+    /* Visualizador desktop: barra flutuante acima da partitura, sem conflito com a navegação global. */
     .partes-desktop-page #viz-topbar {
+        position: absolute;
+        top: 18px;
+        left: 50%;
+        z-index: 10;
+        width: min(960px, calc(100vw - 48px));
         min-height: 66px;
-        padding: 12px 28px;
+        padding: 12px 20px;
         gap: 12px 20px;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        border-radius: 16px;
+        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.45);
+        transform: translateX(-50%);
     }
 
     .partes-desktop-page #viz-body {
-        padding: 28px 86px 36px;
+        padding: 118px 86px 36px;
     }
 
     .partes-desktop-page #viz-canvas {
