@@ -222,6 +222,7 @@ let vizGrupoIdx  = null;
 let vizPagIdx    = 0;
 let vizRendering = false;
 let swipeStartX  = 0;
+let swipeStartY  = 0;
 let vizZoom      = 1;
 let vizRotation  = 0;
 let vizRenderQueued = false;
@@ -279,11 +280,22 @@ function configurarVisualizador() {
     if (e.key.toLowerCase() === 'r') girarViz();
   });
 
-  // Swipe mobile
-  canvas.addEventListener('touchstart', e => { swipeStartX = e.touches[0].clientX; }, { passive: true });
-  canvas.addEventListener('touchend',   e => {
-    const diff = swipeStartX - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) navegarViz(diff > 0 ? 1 : -1);
+  // Swipe mobile: só troca de página em uma partitura sem rotação/zoom.
+  // Assim, a rolagem natural do documento nunca vira uma troca involuntária.
+  canvas.addEventListener('touchstart', e => {
+    const toque = e.touches[0];
+    swipeStartX = toque.clientX;
+    swipeStartY = toque.clientY;
+  }, { passive: true });
+  canvas.addEventListener('touchend', e => {
+    if (vizRotation !== 0 || vizZoom > 1) return;
+    const toque = e.changedTouches[0];
+    const diffX = swipeStartX - toque.clientX;
+    const diffY = swipeStartY - toque.clientY;
+    const distanciaX = Math.abs(diffX);
+    const distanciaY = Math.abs(diffY);
+    const gestoHorizontal = distanciaX >= 60 && distanciaX > distanciaY * 1.35;
+    if (gestoHorizontal) navegarViz(diffX > 0 ? 1 : -1);
   }, { passive: true });
 }
 

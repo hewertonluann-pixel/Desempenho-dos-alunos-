@@ -516,6 +516,20 @@
             backdrop-filter: blur(6px);
         }
         #viz-modal.aberto { display: flex; }
+        /* Em tela cheia, prioriza a leitura: somente o documento permanece visível.
+           A saída continua disponível pela tecla Escape e pelo controle do navegador. */
+        #viz-modal:fullscreen #viz-topbar,
+        #viz-modal:fullscreen .viz-nav,
+        #viz-modal:fullscreen #viz-swipe-hint,
+        #viz-modal:-webkit-full-screen #viz-topbar,
+        #viz-modal:-webkit-full-screen .viz-nav,
+        #viz-modal:-webkit-full-screen #viz-swipe-hint {
+            display: none;
+        }
+        #viz-modal:fullscreen #viz-body,
+        #viz-modal:-webkit-full-screen #viz-body {
+            padding: 0;
+        }
 
         /* Barra superior */
         #viz-topbar {
