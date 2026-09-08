@@ -18,7 +18,8 @@ import {
   obterEventosDoAno,
   agruparEventosPorMes,
   calcularFrequenciaMensalParaAluno,
-  gerarPainelFrequencia
+  gerarPainelFrequencia,
+  normalizarStatusPresenca
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
@@ -170,6 +171,27 @@ export function abrirPopupFrequencia(info, destino) {
     "05":"Maio","06":"Junho","07":"Julho","08":"Agosto",
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
+  const alunoAtual = document.getElementById("nomeAluno")?.textContent || "";
+  const formatarData = data => {
+    if (!data) return "Data não informada";
+    const [ano, mes, dia] = data.split("-");
+    return ano && mes && dia ? `${dia}/${mes}/${ano}` : data;
+  };
+  const chamadas = (info.eventos || [])
+    .map(evento => {
+      const registro = (evento.presencas || []).find(p => p.nome === alunoAtual);
+      return registro ? {
+        data: evento.data,
+        status: normalizarStatusPresenca(registro.presenca)
+      } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => (a.data || "").localeCompare(b.data || ""));
+  const statusChamada = {
+    P: { classe: "presente", rotulo: "Presente", icone: "✓" },
+    F: { classe: "ausente", rotulo: "Ausente", icone: "✕" },
+    FJ: { classe: "justificada", rotulo: "Justificada", icone: "!" }
+  };
   const conquistasFrequencia = [];
   if (info.percentual >= 100) {
     conquistasFrequencia.push({ icone: '🎖️', titulo: 'Presença Perfeita', descricao: 'Comparece a 100% dos ensaios.' });
@@ -186,6 +208,21 @@ export function abrirPopupFrequencia(info, destino) {
       <div class="stat-box"><div class="stat-label">Chamadas</div><div class="stat-value">${info.totalEventos}</div></div>
       <div class="stat-box"><div class="stat-label">Presenças</div><div class="stat-value stat-success">${info.presencasAluno}</div></div>
       <div class="stat-box stat-highlight"><div class="stat-label">Frequência</div><div class="stat-value stat-primary">${info.percentual}%</div></div>
+    </div>
+    <div class="modal-chamadas-section">
+      <h4>Datas das chamadas</h4>
+      <div class="lista-chamadas">
+        ${chamadas.length
+          ? chamadas.map(chamada => {
+              const status = statusChamada[chamada.status] || statusChamada.F;
+              return `<div class="chamada-item ${status.classe}">
+                <span class="chamada-data">📅 ${formatarData(chamada.data)}</span>
+                <span class="chamada-status"><b>${status.icone}</b> ${status.rotulo}</span>
+              </div>`;
+            }).join("")
+          : `<p class="sem-chamadas">Nenhuma chamada registrada para este aluno neste mês.</p>`
+        }
+      </div>
     </div>
     ${conquistasHTML}
     <button onclick="fecharPopupFrequencia()" class="btn-fechar-modal">Fechar</button>`;
