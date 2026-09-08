@@ -284,6 +284,30 @@
     .btn-salvar-fim:active   { transform: scale(.97); }
     .btn-salvar-fim:disabled { opacity: .4; cursor: default; }
 
+    .salvar-progresso {
+      display: none; flex-direction: column; gap: 6px;
+      width: 100%; padding: 10px 12px; margin-top: 2px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); text-align: left;
+    }
+    .salvar-progresso.show { display: flex; }
+    .salvar-progresso-linha {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      font-size: .74rem; color: var(--muted);
+    }
+    .salvar-progresso-status { color: var(--ink); font-weight: 700; }
+    .salvar-progresso-pct { color: var(--cyan); font-weight: 800; }
+    .salvar-progresso-barra {
+      width: 100%; height: 7px; background: var(--faint);
+      border-radius: 999px; overflow: hidden;
+    }
+    .salvar-progresso-fill {
+      height: 100%; width: 0%; background: var(--cyan); border-radius: inherit;
+      transition: width .25s ease, background .2s ease;
+    }
+    .salvar-progresso.concluido .salvar-progresso-fill { background: var(--verde); }
+    .salvar-progresso.erro .salvar-progresso-fill { background: var(--vermelho); }
+
     .btn-ver-ensaio {
       display: none;
       width: 100%; padding: 13px 8px; border-radius: 999px;
@@ -416,6 +440,15 @@
       </div>
       <div class="fim-acoes">
         <button class="btn-salvar-fim" id="btnSalvar">💾 Salvar chamada</button>
+        <div class="salvar-progresso" id="salvarProgresso" role="status" aria-live="polite">
+          <div class="salvar-progresso-linha">
+            <span class="salvar-progresso-status" id="salvarProgressoStatus">Preparando o salvamento…</span>
+            <span class="salvar-progresso-pct" id="salvarProgressoPct">0%</span>
+          </div>
+          <div class="salvar-progresso-barra" role="progressbar" aria-label="Progresso do salvamento" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="salvar-progresso-fill" id="salvarProgressoFill"></div>
+          </div>
+        </div>
         <button class="btn-ver-ensaio" id="btnVerEnsaio">📋 Ver ensaio</button>
         <button class="btn-revisar" id="btnRevisar">↩ Revisar chamada</button>
       </div>
@@ -493,6 +526,11 @@
   const numJustificados = document.getElementById("numJustificados");
   const btnRevisar    = document.getElementById("btnRevisar");
   const btnSalvar     = document.getElementById("btnSalvar");
+  const salvarProgresso = document.getElementById("salvarProgresso");
+  const salvarProgressoStatus = document.getElementById("salvarProgressoStatus");
+  const salvarProgressoFill = document.getElementById("salvarProgressoFill");
+  const salvarProgressoPct = document.getElementById("salvarProgressoPct");
+  const salvarProgressoBarra = salvarProgresso.querySelector('[role="progressbar"]');
   const btnVerEnsaio  = document.getElementById("btnVerEnsaio");
   const btnObs        = document.getElementById("btnObs");
   const modalObs      = document.getElementById("modal-obs");
@@ -513,6 +551,17 @@
     toastEl.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), ms);
+  }
+
+  function atualizarProgressoSalvamento(percentual, status) {
+    const pct = Math.max(0, Math.min(100, Math.round(percentual)));
+    salvarProgresso.classList.add("show");
+    salvarProgresso.classList.remove("concluido", "erro");
+    salvarProgressoStatus.textContent = status;
+    salvarProgressoFill.style.background = "";
+    salvarProgressoFill.style.width = pct + "%";
+    salvarProgressoPct.textContent = pct + "%";
+    salvarProgressoBarra.setAttribute("aria-valuenow", String(pct));
   }
 
   function getTurma() {
@@ -847,6 +896,9 @@
   }
 
   async function salvar() {
+    if (btnSalvar.disabled) return;
+
+    atualizarProgressoSalvamento(5, "Preparando os dados…");
     try {
       btnSalvar.disabled = true;
 
@@ -859,6 +911,8 @@
         instrumento: a.instrumento || "",
         presenca: serializarPresenca(a.presenca)
       }));
+
+      atualizarProgressoSalvamento(20, eventoId ? "Atualizando o ensaio…" : "Criando o ensaio…");
 
       if (eventoId) {
         await updateDoc(doc(db, "eventos", eventoId), {
@@ -878,18 +932,24 @@
         eventoId = nv.id;
       }
 
-      await recalcular(data);
+      atualizarProgressoSalvamento(45, "Ensaio salvo. Atualizando frequências…");
+      await recalcular(data, atualizarProgressoSalvamento);
+      atualizarProgressoSalvamento(100, "Salvamento concluído!");
+      salvarProgresso.classList.add("concluido");
       toast("✔ Chamada salva com sucesso!");
       btnSalvar.innerHTML = "✔ Salvo!";
       btnVerEnsaio.classList.add("show");
     } catch (e) {
       console.error(e);
+      salvarProgresso.classList.add("show", "erro");
+      salvarProgressoStatus.textContent = "Não foi possível concluir o salvamento.";
+      salvarProgressoFill.style.background = "var(--vermelho)";
       toast("❌ Erro ao salvar. Tente novamente.");
       btnSalvar.disabled = false;
     }
   }
 
-  async function recalcular(dataISO) {
+  async function recalcular(dataISO, informarProgresso = () => {}) {
     const [ano, mes] = dataISO.split("-");
     const chave = `${ano}-${mes}`;
     const tId = turma?.id || null;
@@ -919,10 +979,14 @@
     const sigla = siglas[parseInt(mes, 10) - 1] || mes;
 
     const alSnap = await getDocs(collection(db, "alunos"));
-    for (const ds of alSnap.docs) {
+    const alunosAtivos = alSnap.docs.filter(ds => {
       const d = ds.data();
-      if (d.ativo === false) continue;
-      if (tId && d.turmaId && d.turmaId !== tId) continue;
+      return d.ativo !== false && (!tId || !d.turmaId || d.turmaId === tId);
+    });
+    const totalAlunos = alunosAtivos.length;
+
+    for (const [indice, ds] of alunosAtivos.entries()) {
+      const d = ds.data();
 
       const pres = cId[ds.id] ?? cNome[d.nome] ?? 0;
       const pct = Math.round((pres / total) * 100);
@@ -946,6 +1010,11 @@
         frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
         frequenciaAnual: fa
       });
+
+      const pctRecalculo = totalAlunos
+        ? 50 + ((indice + 1) / totalAlunos) * 45
+        : 95;
+      informarProgresso(pctRecalculo, `Atualizando frequência: ${indice + 1} de ${totalAlunos}…`);
     }
   }
 
