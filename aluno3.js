@@ -173,9 +173,9 @@ export function abrirPopupFrequencia(info, destino) {
   };
   const alunoAtual = document.getElementById("nomeAluno")?.textContent || "";
   const formatarData = data => {
-    if (!data) return "Data não informada";
-    const [ano, mes, dia] = data.split("-");
-    return ano && mes && dia ? `${dia}/${mes}/${ano}` : data;
+    if (!data) return "--/--";
+    const [, mes, dia] = data.split("-");
+    return mes && dia ? `${dia}/${mes}` : data;
   };
   const chamadas = (info.eventos || [])
     .map(evento => {
@@ -187,11 +187,6 @@ export function abrirPopupFrequencia(info, destino) {
     })
     .filter(Boolean)
     .sort((a, b) => (a.data || "").localeCompare(b.data || ""));
-  const statusChamada = {
-    P: { classe: "presente", rotulo: "Presente", icone: "✓" },
-    F: { classe: "ausente", rotulo: "Ausente", icone: "✕" },
-    FJ: { classe: "justificada", rotulo: "Justificada", icone: "!" }
-  };
   const conquistasFrequencia = [];
   if (info.percentual >= 100) {
     conquistasFrequencia.push({ icone: '🎖️', titulo: 'Presença Perfeita', descricao: 'Comparece a 100% dos ensaios.' });
@@ -213,13 +208,9 @@ export function abrirPopupFrequencia(info, destino) {
       <h4>Datas das chamadas</h4>
       <div class="lista-chamadas">
         ${chamadas.length
-          ? chamadas.map(chamada => {
-              const status = statusChamada[chamada.status] || statusChamada.F;
-              return `<div class="chamada-item ${status.classe}">
-                <span class="chamada-data">📅 ${formatarData(chamada.data)}</span>
-                <span class="chamada-status"><b>${status.icone}</b> ${status.rotulo}</span>
-              </div>`;
-            }).join("")
+          ? chamadas.map(chamada => `<span class="chamada-item ${chamada.status === "P" ? "presente" : "ausente"}"
+              title="${chamada.status === "P" ? "Presente" : "Ausente"}"
+              aria-label="${chamada.status === "P" ? "Presente" : "Ausente"} em ${formatarData(chamada.data)}">${formatarData(chamada.data)}</span>`).join("")
           : `<p class="sem-chamadas">Nenhuma chamada registrada para este aluno neste mês.</p>`
         }
       </div>

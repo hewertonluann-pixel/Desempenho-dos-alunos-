@@ -810,17 +810,13 @@ body {
 .modal-conquistas-section h4 { font-size: 0.95rem; color: #fbbf24; margin-bottom: 12px; font-weight: 700; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 .modal-conquistas-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 
-.modal-chamadas-section { margin-top: 20px; text-align: left; }
-.modal-chamadas-section h4 { font-size: 0.95rem; color: var(--azul); margin-bottom: 12px; font-weight: 700; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-.lista-chamadas { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 2px; }
-.chamada-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.82rem; }
-.chamada-item.presente { color: var(--verde); background: rgba(34,197,94,.10); border-color: rgba(34,197,94,.35); }
-.chamada-item.ausente { color: var(--vermelho); background: rgba(248,113,113,.10); border-color: rgba(248,113,113,.35); }
-.chamada-item.justificada { color: var(--amarelo); background: rgba(250,204,21,.10); border-color: rgba(250,204,21,.35); }
-.chamada-data { color: var(--ink); font-weight: 600; }
-.chamada-status { font-weight: 800; white-space: nowrap; }
-.chamada-status b { font-size: 1rem; }
-.sem-chamadas { color: var(--muted); font-size: 0.82rem; text-align: center; margin: 4px 0; }
+.modal-chamadas-section { margin-top: 14px; text-align: left; }
+.modal-chamadas-section h4 { font-size: 0.82rem; color: var(--azul); margin-bottom: 8px; font-weight: 700; }
+.lista-chamadas { display: flex; flex-wrap: wrap; gap: 5px; max-height: 100px; overflow-y: auto; }
+.chamada-item { display: inline-flex; align-items: center; justify-content: center; min-width: 42px; padding: 4px 6px; border-radius: 5px; border: 1px solid transparent; font-size: 0.72rem; font-weight: 700; line-height: 1.1; }
+.chamada-item.presente { color: #bbf7d0; background: rgba(34,197,94,.22); border-color: rgba(34,197,94,.45); }
+.chamada-item.ausente { color: #fecaca; background: rgba(248,113,113,.22); border-color: rgba(248,113,113,.45); }
+.sem-chamadas { color: var(--muted); font-size: 0.76rem; margin: 2px 0; }
 
 .mini-achievement { background: var(--card-alt); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; }
 .mini-achievement.ouro  { border-color: #fbbf24; background: rgba(251,191,36,.1); }
