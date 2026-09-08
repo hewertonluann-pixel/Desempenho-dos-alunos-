@@ -181,8 +181,10 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) 
     const mesCard = document.createElement("div");
     mesCard.className = "month-card";
     mesCard.onclick = () => abrirPopupCallback({
+      ano,
       mes: mesNumero,
-      ...freq
+      ...freq,
+      eventos: eventosMes
     });
 
     // Gráfico de pizza (donut) com porcentagem centralizada
