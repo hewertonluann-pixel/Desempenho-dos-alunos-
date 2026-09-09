@@ -47,7 +47,23 @@
       const nome=$('loginNome').value.trim(), senha=$('loginSenha').value.trim(); $('loginErro').textContent='';
       if(!nome||!senha){$('loginErro').textContent='Preencha nome e senha.';return}
       $('btnLogin').disabled=true;
-      try{const snap=await getDocs(query(collection(db,'usuarios'),where('nome','==',nome))); if(snap.empty){$('loginErro').textContent='Usuário não encontrado.';return} const u=snap.docs[0].data(); if(u.senha!==senha){$('loginErro').textContent='Senha incorreta.';return} salvarUsuarioAtual(u.nome,'professor'); sessionStorage.setItem('coralLogado','1'); entrar()}catch(e){console.error(e);$('loginErro').textContent='Erro de conexão. Tente novamente.'}finally{$('btnLogin').disabled=false}}
+      try{
+        const snapProf=await getDocs(query(collection(db,'usuarios'),where('nome','==',nome)));
+        if(!snapProf.empty){
+          const u=snapProf.docs[0].data();
+          if(u.senha!==senha){$('loginErro').textContent='Senha incorreta.';return}
+          salvarUsuarioAtual(u.nome,'professor'); sessionStorage.setItem('coralLogado','1'); entrar(); return;
+        }
+        // Mesmo fluxo do index: primeiro login/apelido, depois nome completo.
+        let snapAluno=await getDocs(query(collection(db,'alunos'),where('login','==',nome)));
+        if(snapAluno.empty) snapAluno=await getDocs(query(collection(db,'alunos'),where('nome','==',nome)));
+        if(snapAluno.empty){$('loginErro').textContent='Usuário não encontrado.';return}
+        const alunoDoc=snapAluno.docs[0], aluno=alunoDoc.data();
+        if(aluno.senha!==senha){$('loginErro').textContent='Senha incorreta.';return}
+        if(aluno.classificado!==true){$('loginErro').textContent='Este acesso é exclusivo para usuários classificados.';return}
+        salvarUsuarioAtual(aluno.nome,'aluno',true,alunoDoc.id); sessionStorage.setItem('coralLogado','1'); entrar();
+      }catch(e){console.error(e);$('loginErro').textContent='Erro de conexão. Tente novamente.'}finally{$('btnLogin').disabled=false}
+    }
     async function entrar(){login.classList.add('hidden');app.classList.remove('hidden');await carregarTurmas()}
     async function carregarTurmas(){const snap=await getDocs(query(collection(db,'turmas'),where('tipo','==','coral')));turmas=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));const select=$('coralSelect');select.innerHTML=turmas.length?turmas.map(t=>`<option value="${t.id}">${t.nome}</option>`).join(''):'<option>Nenhuma turma Coral cadastrada</option>';const antiga=JSON.parse(localStorage.getItem('turmaAtiva')||'null');turma=turmas.find(t=>t.id===antiga?.id)||turmas[0]||null;if(turma){select.value=turma.id;setAtiva();await carregarDados()}}
     $('coralSelect').addEventListener('change',async e=>{turma=turmas.find(t=>t.id===e.target.value);setAtiva();await carregarDados()});
