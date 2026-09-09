@@ -799,9 +799,11 @@
 
     if (turma?.id) {
       let snap;
-      if (turma.tipo === "coral") {
-        const turmaSnap = await getDoc(doc(db, "turmas", turma.id));
-        const membros = new Set(turmaSnap.exists() ? turmaSnap.data().alunos || [] : []);
+      const turmaSnap = await getDoc(doc(db, "turmas", turma.id));
+      const dadosTurma = turmaSnap.exists() ? turmaSnap.data() : turma;
+      const ehCoral = String(dadosTurma.tipo || "").toLowerCase() === "coral";
+      if (ehCoral) {
+        const membros = new Set(dadosTurma.alunos || turma.alunos || []);
         const todosSnap = await getDocs(collection(db, "alunos"));
         snap = { docs: todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false) };
       } else {

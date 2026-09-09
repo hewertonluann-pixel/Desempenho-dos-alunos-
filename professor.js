@@ -1,7 +1,7 @@
 // ========== professor.js ==========
 import { db } from "./firebase-config.js";
 import {
-  collection, query, where, getDocs, addDoc, updateDoc, doc, deleteDoc, serverTimestamp
+  collection, query, where, getDocs, getDoc, addDoc, updateDoc, doc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
 import { obterEventosDoAno, agruparEventosPorMes, calcularFrequenciaMensalParaAluno } from "./frequencia.js";
@@ -106,16 +106,29 @@ function setupModalAdicionar() {
       }
 
       const turmaAtiva = getTurmaAtiva();
-      await addDoc(collection(db, "alunos"), {
+      let ehCoral = String(turmaAtiva?.tipo || "").toLowerCase() === "coral";
+      if (turmaAtiva?.id && !ehCoral) {
+        const turmaSnap = await getDoc(doc(db, "turmas", turmaAtiva.id));
+        ehCoral = turmaSnap.exists() && String(turmaSnap.data().tipo || "").toLowerCase() === "coral";
+      }
+      const novoAlunoRef = await addDoc(collection(db, "alunos"), {
         nome, instrumento, foto: fotoBase64,
         leituraNome: "Bona", metodoNome: "Método",
         leitura: 1, metodo: 1, energia: 100,
         frequenciaMensal: { porcentagem: 0 }, frequenciaAnual: {},
         conquistas: [], classificado: false, senha: "asafe",
-        turmaId: turmaAtiva?.id || "",
-        turmaNome: turmaAtiva?.nome || "",
+        turmaId: ehCoral ? "" : (turmaAtiva?.id || ""),
+        turmaNome: ehCoral ? "" : (turmaAtiva?.nome || ""),
         criadoEm: new Date().toISOString()
       });
+      if (ehCoral) {
+        const turmaRef = doc(db, "turmas", turmaAtiva.id);
+        const turmaSnap = await getDoc(turmaRef);
+        const membros = turmaSnap.exists() ? (turmaSnap.data().alunos || []) : [];
+        if (!membros.includes(novoAlunoRef.id)) {
+          await updateDoc(turmaRef, { alunos: [...membros, novoAlunoRef.id] });
+        }
+      }
 
       modal.classList.remove("ativo");
       mostrarMensagem("mensagemSucesso", `🎉 Aluno "${nome}" adicionado!`);
@@ -180,7 +193,18 @@ async function carregarAlunos() {
   const turmaAtiva = getTurmaAtiva();
   let snap;
   if (turmaAtiva?.id) {
-    snap = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)));
+    const turmaAtualSnap = await getDoc(doc(db, "turmas", turmaAtiva.id));
+    const turmaAtual = turmaAtualSnap.exists() ? turmaAtualSnap.data() : turmaAtiva;
+    const ehCoral = String(turmaAtual.tipo || "").toLowerCase() === "coral";
+    if (ehCoral) {
+      // Coral é uma atividade extra: seus membros vivem em turmas.alunos,
+      // não no campo turmaId do aluno (que continua sendo a turma principal).
+      const membros = new Set(turmaAtual.alunos || turmaAtiva.alunos || []);
+      const todosSnap = await getDocs(collection(db, "alunos"));
+      snap = { docs: todosSnap.docs.filter(d => membros.has(d.id)) };
+    } else {
+      snap = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)));
+    }
   } else {
     snap = await getDocs(collection(db, "alunos"));
   }
@@ -436,6 +460,9 @@ async function criarEventoGenerico() {
       mostrarMensagem("mensagemInfo", "⚠️ Selecione uma turma ativa antes de criar a chamada.");
       return;
     }
+    const turmaAtualSnap = await getDoc(doc(db, "turmas", turmaAtiva.id));
+    const turmaAtual = turmaAtualSnap.exists() ? turmaAtualSnap.data() : turmaAtiva;
+    const ehCoral = String(turmaAtual.tipo || "").toLowerCase() === "coral";
     const hoje = new Intl.DateTimeFormat('pt-BR', {
       timeZone: 'America/Sao_Paulo',
       year: 'numeric', month: '2-digit', day: '2-digit'
@@ -454,10 +481,8 @@ async function criarEventoGenerico() {
     }
 
     let alunosSnap;
-    if (turmaAtiva.tipo === "coral") {
-      const turmaSnap = await getDocs(query(collection(db, "turmas"), where("tipo", "==", "coral")));
-      const turmaCoral = turmaSnap.docs.find(d => d.id === turmaAtiva.id);
-      const membros = new Set(turmaCoral?.data()?.alunos || []);
+    if (ehCoral) {
+      const membros = new Set(turmaAtual.alunos || []);
       const todosSnap = await getDocs(collection(db, "alunos"));
       alunosSnap = todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false);
     } else {
@@ -466,7 +491,7 @@ async function criarEventoGenerico() {
     const presencas = alunosSnap.map(d => ({ alunoId: d.id, nome: d.data().nome, presenca: "falta" }));
 
     const novo = await addDoc(collection(db, "eventos"), {
-      turmaId: turmaAtiva.id, turmaNome: turmaAtiva.nome, tipo: turmaAtiva.tipo === "coral" ? "coral" : "aula", data: hoje, observacoes: "", presencas
+      turmaId: turmaAtiva.id, turmaNome: turmaAtiva.nome, tipo: ehCoral ? "coral" : "aula", data: hoje, observacoes: "", presencas
     });
 
     mostrarMensagem("mensagemSucesso", `📝 Chamada criada para ${turmaAtiva.nome}!`);
