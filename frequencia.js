@@ -35,6 +35,9 @@ export async function obterEventosDoAno(ano, turmaId = null) {
   snap.forEach(doc => {
     const dados = doc.data();
     if (!dados.data) return;
+    // Eventos do Coral só aparecem quando a consulta informa explicitamente
+    // a turma Coral; consultas gerais não devem misturar essa atividade extra.
+    if (!turmaId && dados.tipo === "coral") return;
     if (dados.data.startsWith(`${ano}-`)) {
       eventos.push({
         id: doc.id,

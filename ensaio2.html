@@ -798,9 +798,17 @@
     if (eventoId) return;
 
     if (turma?.id) {
-      const snap = await getDocs(
-        query(collection(db, "alunos"), where("turmaId", "==", turma.id), where("ativo", "!=", false))
-      );
+      let snap;
+      if (turma.tipo === "coral") {
+        const turmaSnap = await getDoc(doc(db, "turmas", turma.id));
+        const membros = new Set(turmaSnap.exists() ? turmaSnap.data().alunos || [] : []);
+        const todosSnap = await getDocs(collection(db, "alunos"));
+        snap = { docs: todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false) };
+      } else {
+        snap = await getDocs(
+          query(collection(db, "alunos"), where("turmaId", "==", turma.id), where("ativo", "!=", false))
+        );
+      }
       alunos = snap.docs
         .map(d => ({
           id: d.id,
@@ -950,6 +958,7 @@
   }
 
   async function recalcular(dataISO, informarProgresso = () => {}) {
+    if (turma?.tipo === "coral") return;
     const [ano, mes] = dataISO.split("-");
     const chave = `${ano}-${mes}`;
     const tId = turma?.id || null;

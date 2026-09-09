@@ -453,11 +453,20 @@ async function criarEventoGenerico() {
       return;
     }
 
-    const alunosSnap = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)));
-    const presencas = alunosSnap.docs.map(d => ({ alunoId: d.id, nome: d.data().nome, presenca: "falta" }));
+    let alunosSnap;
+    if (turmaAtiva.tipo === "coral") {
+      const turmaSnap = await getDocs(query(collection(db, "turmas"), where("tipo", "==", "coral")));
+      const turmaCoral = turmaSnap.docs.find(d => d.id === turmaAtiva.id);
+      const membros = new Set(turmaCoral?.data()?.alunos || []);
+      const todosSnap = await getDocs(collection(db, "alunos"));
+      alunosSnap = todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false);
+    } else {
+      alunosSnap = (await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)))).docs;
+    }
+    const presencas = alunosSnap.map(d => ({ alunoId: d.id, nome: d.data().nome, presenca: "falta" }));
 
     const novo = await addDoc(collection(db, "eventos"), {
-      turmaId: turmaAtiva.id, turmaNome: turmaAtiva.nome, data: hoje, tipo: "aula", observacoes: "", presencas
+      turmaId: turmaAtiva.id, turmaNome: turmaAtiva.nome, tipo: turmaAtiva.tipo === "coral" ? "coral" : "aula", data: hoje, observacoes: "", presencas
     });
 
     mostrarMensagem("mensagemSucesso", `📝 Chamada criada para ${turmaAtiva.nome}!`);

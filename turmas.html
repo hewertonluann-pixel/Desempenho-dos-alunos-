@@ -147,6 +147,7 @@
     .badge-orquestra { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
     .badge-inicial   { background: rgba(14,165,233,0.2);  color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
     .badge-fase      { background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
+    .badge-coral     { background: rgba(236,72,153,0.18); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.35); }
     .badge-alunos    { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
 
     /* ── BADGE DE CHAMADAS ── */
@@ -487,6 +488,7 @@
               <option value="">Selecione o tipo...</option>
               <option value="orquestra">🎻 Orquestra</option>
               <option value="inicial">📚 Turma Inicial</option>
+              <option value="coral">🎤 Coral (atividade extra)</option>
             </select>
           </div>
           <div class="form-group" id="grupoFase">
@@ -642,6 +644,7 @@
       }
       lista.innerHTML = todasTurmas.map(t => {
         const isOrq      = t.tipo === "orquestra";
+        const isCoral    = t.tipo === "coral";
         const ativa      = t.id === turmaSelecionadaId;
         const qtd        = (t.alunos || []).length;
         const faseLabel  = isOrq ? "" : `Fase ${t.fase}`;
@@ -654,8 +657,8 @@
               ${ativa ? '<span class="turma-selecionada-label">✓ selecionada</span>' : ''}
             </div>
             <div class="turma-badges">
-              <span class="badge ${isOrq ? 'badge-orquestra' : 'badge-inicial'}">${isOrq ? '🎻 Orquestra' : '📚 Inicial'}</span>
-              ${faseLabel ? `<span class="badge badge-fase">${faseLabel}</span>` : ''}
+              <span class="badge ${isCoral ? 'badge-coral' : (isOrq ? 'badge-orquestra' : 'badge-inicial')} ">${isCoral ? '🎤 Coral' : (isOrq ? '🎻 Orquestra' : '📚 Inicial')}</span>
+              ${!isCoral && faseLabel ? `<span class="badge badge-fase">${faseLabel}</span>` : ''}
               <span class="badge badge-alunos">👥 ${qtd} aluno${qtd !== 1 ? 's' : ''}</span>
               ${t.instrumento ? `<span class="badge" style="background:rgba(255,255,255,0.06);color:#9ca3af;border:1px solid rgba(255,255,255,0.1);">🎵 ${t.instrumento}</span>` : ''}
               <a class="badge-chamadas" href="gerenciar-eventos.html" onclick="salvarTurmaAtiva('${t.id}', '${t.nome.replace(/'/g, "&apos;")}', event)">
@@ -676,7 +679,8 @@
     window.salvarTurmaAtiva = function(turmaId, turmaNome, event) {
       event.preventDefault();
       try {
-        localStorage.setItem("turmaAtiva", JSON.stringify({ id: turmaId, nome: turmaNome }));
+        const turma = todasTurmas.find(t => t.id === turmaId);
+        localStorage.setItem("turmaAtiva", JSON.stringify({ id: turmaId, nome: turmaNome, tipo: turma?.tipo || "" }));
       } catch(_) {}
       window.location.href = "gerenciar-eventos.html";
     };
@@ -765,7 +769,8 @@
       bar.classList.add("visivel");
       document.getElementById("turmaInfoNome").textContent = t.nome;
       document.getElementById("turmaInfoSub").textContent  =
-        t.tipo === "orquestra" ? "🎻 Orquestra" : `📚 Turma Inicial — Fase ${t.fase}`;
+        t.tipo === "coral" ? "🎤 Atividade extra — alunos mantêm suas turmas originais" :
+        (t.tipo === "orquestra" ? "🎻 Orquestra" : `📚 Turma Inicial — Fase ${t.fase}`);
     }
 
     /* ── TABS ── */
@@ -804,7 +809,7 @@
         const foto = a.foto ? `<div class="aluno-foto-mini"><img src="${a.foto}" /></div>` : `<div class="aluno-foto-mini">🎵</div>`;
         return `<div class="aluno-item ${sel?'selecionado':''}" onclick="window.toggleRemover('${a.id}')">
           <div class="aluno-check">${sel?'✓':''}</div>${foto}
-          <div class="aluno-info"><div class="aluno-nome-mini">${a.nome}</div><div class="aluno-turma-atual">${a.instrumento||'Sem instrumento'}</div></div>
+          <div class="aluno-info"><div class="aluno-nome-mini">${a.nome}</div><div class="aluno-turma-atual">${a.instrumento||'Sem instrumento'}</div>${t.tipo === "coral" ? `<a href="aluno-coral.html?nome=${encodeURIComponent(a.nome)}" onclick="event.stopPropagation()" style="font-size:.7rem;color:#f9a8d4;">🎤 Abrir painel Coral</a>` : ''}</div>
         </div>`;
       }).join("");
       contador.style.display = "block";
@@ -909,11 +914,15 @@
         const ids  = [...selecionados];
         const novos= [...(t.alunos||[]), ...ids.filter(id=>!(t.alunos||[]).includes(id))];
         await updateDoc(doc(db,"turmas",turmaSelecionadaId),{alunos:novos});
-        for (const id of ids) await updateDoc(doc(db,"alunos",id),{turmaId:turmaSelecionadaId,turmaNome:t.nome,fase});
+        if (t.tipo !== "coral") {
+          for (const id of ids) await updateDoc(doc(db,"alunos",id),{turmaId:turmaSelecionadaId,turmaNome:t.nome,fase});
+        }
         turmaSelecionadaDados.alunos=novos;
         const idx=todasTurmas.findIndex(x=>x.id===turmaSelecionadaId);
         if(idx>=0) todasTurmas[idx].alunos=novos;
-        todosAlunos.forEach(a=>{if(ids.includes(a.id)){a.turmaId=turmaSelecionadaId;a.turmaNome=t.nome;a.fase=fase;}});
+        if (t.tipo !== "coral") {
+          todosAlunos.forEach(a=>{if(ids.includes(a.id)){a.turmaId=turmaSelecionadaId;a.turmaNome=t.nome;a.fase=fase;}});
+        }
         selecionados.clear();
         renderizarListaTurmas();
         renderizarAlunosDisponiveis();
@@ -932,11 +941,15 @@
         const t    = turmaSelecionadaDados;
         const novos= (t.alunos||[]).filter(id=>!ids.includes(id));
         await updateDoc(doc(db,"turmas",turmaSelecionadaId),{alunos:novos});
-        for (const id of ids) await updateDoc(doc(db,"alunos",id),{turmaId:"",turmaNome:""});
+        if (t.tipo !== "coral") {
+          for (const id of ids) await updateDoc(doc(db,"alunos",id),{turmaId:"",turmaNome:""});
+        }
         turmaSelecionadaDados.alunos=novos;
         const idx=todasTurmas.findIndex(x=>x.id===turmaSelecionadaId);
         if(idx>=0) todasTurmas[idx].alunos=novos;
-        todosAlunos.forEach(a=>{if(ids.includes(a.id)){a.turmaId="";a.turmaNome="";}});
+        if (t.tipo !== "coral") {
+          todosAlunos.forEach(a=>{if(ids.includes(a.id)){a.turmaId="";a.turmaNome="";}});
+        }
         selecionadosRemover.clear();
         renderizarListaTurmas();
         renderizarAlunosDaTurma();

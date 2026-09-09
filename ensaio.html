@@ -275,12 +275,20 @@
       if (eventoId) return;
 
       if (turmaAtiva?.id) {
-        const snap = await getDocs(
-          query(collection(db, "alunos"),
-            where("turmaId", "==", turmaAtiva.id),
-            where("ativo",   "!=",  false)
-          )
-        );
+        let snap;
+        if (turmaAtiva.tipo === "coral") {
+          const turmaSnap = await getDoc(doc(db, "turmas", turmaAtiva.id));
+          const membros = new Set(turmaSnap.exists() ? turmaSnap.data().alunos || [] : []);
+          const todosSnap = await getDocs(collection(db, "alunos"));
+          snap = { docs: todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false) };
+        } else {
+          snap = await getDocs(
+            query(collection(db, "alunos"),
+              where("turmaId", "==", turmaAtiva.id),
+              where("ativo",   "!=",  false)
+            )
+          );
+        }
         alunos = snap.docs
           .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
           .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
@@ -510,6 +518,7 @@
 
     // ── Recalcular frequência ─────────────────────────────────────
     async function recalcular(dataISO) {
+      if (turmaAtiva?.tipo === "coral") return;
       const [ano, mes] = dataISO.split("-");
       const chaveMes   = `${ano}-${mes}`;
 
