@@ -4,6 +4,11 @@ const urlsToCache = [
   "/index.html",
   "/aluno.html",
   "/professor.html",
+  "/coral.html",
+  "/manifest-coral.json",
+  "/ensaio2.html",
+  "/auth.js",
+  "/firebase-config.js",
   "/aluno.css",
   "/conquistas.js",
   "/professor.css"
