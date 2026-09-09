@@ -201,7 +201,9 @@ async function carregarAlunos() {
       // não no campo turmaId do aluno (que continua sendo a turma principal).
       const membros = new Set(turmaAtual.alunos || turmaAtiva.alunos || []);
       const todosSnap = await getDocs(collection(db, "alunos"));
-      snap = { docs: todosSnap.docs.filter(d => membros.has(d.id)) };
+      // Compatibilidade com alunos cadastrados antes do isolamento do Coral:
+      // alguns podem ter sido salvos apenas com turmaId apontando para KADOSH.
+      snap = { docs: todosSnap.docs.filter(d => membros.has(d.id) || d.data().turmaId === turmaAtiva.id) };
     } else {
       snap = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)));
     }
@@ -484,7 +486,9 @@ async function criarEventoGenerico() {
     if (ehCoral) {
       const membros = new Set(turmaAtual.alunos || []);
       const todosSnap = await getDocs(collection(db, "alunos"));
-      alunosSnap = todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false);
+      alunosSnap = todosSnap.docs.filter(d =>
+        (membros.has(d.id) || d.data().turmaId === turmaAtiva.id) && d.data().ativo !== false
+      );
     } else {
       alunosSnap = (await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)))).docs;
     }

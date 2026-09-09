@@ -805,7 +805,9 @@
       if (ehCoral) {
         const membros = new Set(dadosTurma.alunos || turma.alunos || []);
         const todosSnap = await getDocs(collection(db, "alunos"));
-        snap = { docs: todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false) };
+        snap = { docs: todosSnap.docs.filter(d =>
+          (membros.has(d.id) || d.data().turmaId === turma.id) && d.data().ativo !== false
+        ) };
       } else {
         snap = await getDocs(
           query(collection(db, "alunos"), where("turmaId", "==", turma.id), where("ativo", "!=", false))

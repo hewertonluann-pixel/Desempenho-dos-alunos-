@@ -316,7 +316,7 @@ export async function iniciarPainelAluno() {
   const turmasSnap = await getDocs(query(collection(db, "turmas"), where("tipo", "==", "coral")));
   const turmaCoral = turmasSnap.docs
     .map(d => ({ id: d.id, ...d.data() }))
-    .find(t => (t.alunos || []).includes(aluno.id));
+    .find(t => (t.alunos || []).includes(aluno.id) || aluno.turmaId === t.id);
   turmaCoralId = turmaCoral?.id || "__sem_turma_coral__";
 
   const usuario       = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
