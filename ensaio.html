@@ -22,6 +22,7 @@
       --chip-ink: #e5e7eb;
     }
     * { box-sizing: border-box; }
+    html.origem-coral .navbar { display: none !important; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
@@ -207,6 +208,8 @@
     const params  = new URLSearchParams(window.location.search);
     let eventoId  = params.get("id") || null;
     let alunos    = [];
+    const origemCoral = params.get("origem") === "coral";
+    if (origemCoral) document.documentElement.classList.add("origem-coral");
 
     const painel         = document.getElementById("painelAlunos");
     const inputData      = document.getElementById("inputData");
@@ -511,7 +514,7 @@
 
         await recalcular(data);
         alert("✔️ Chamada salva e frequências atualizadas com sucesso!");
-        window.location.href = "professor.html";
+        window.location.href = origemCoral ? "coral.html" : "professor.html";
       } catch (e) { console.error(e); alert("Ocorreu um erro ao salvar a chamada."); }
       finally     { btnSalvar.disabled = false; loader.style.display = "none"; }
     }
@@ -570,8 +573,11 @@
 
     btnSalvar.addEventListener("click", salvar);
     btnCancelar.addEventListener("click", () => {
-      if (confirm("Cancelar alterações e voltar ao painel do professor?"))
-        window.location.href = "professor.html";
+      const destino = origemCoral ? "coral.html" : "professor.html";
+      const mensagem = origemCoral
+        ? "Cancelar alterações e voltar ao painel do Coral?"
+        : "Cancelar alterações e voltar ao painel do professor?";
+      if (confirm(mensagem)) window.location.href = destino;
     });
 
     inicializar();
