@@ -4,6 +4,8 @@
 
 import { calcularMetricasCombo } from "./combos.js";
 import { obterHistoricoNormalizadoAluno } from "./frequencia.js";
+import { db } from "./firebase-config.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 // ── Helpers de loading no botão ─────────────────────────────────
 function ativarLoadingNoBotao(btn) {
@@ -80,6 +82,23 @@ export async function exportarChamada3Colunas() {
       JSON.parse(localStorage.getItem("turmaAtiva") || "null")?.id ||
       null;
 
+    let turmaAtiva = null;
+    try { turmaAtiva = JSON.parse(localStorage.getItem("turmaAtiva") || "null"); } catch (_) {}
+    let nomeTurma = turmaAtiva?.nome || "";
+    let tipoTurma = turmaAtiva?.tipo || "";
+    // Busca o documento para sessões antigas que não salvaram o tipo no localStorage.
+    if (turmaId && (!tipoTurma || !nomeTurma)) {
+      try {
+        const turmaSnap = await getDoc(doc(db, "turmas", turmaId));
+        if (turmaSnap.exists()) {
+          const dados = turmaSnap.data();
+          nomeTurma = nomeTurma || dados.nome || "";
+          tipoTurma = tipoTurma || dados.tipo || "";
+        }
+      } catch (_) {}
+    }
+    const ehCoral = String(tipoTurma).toLowerCase() === "coral";
+
     // === Pré-carregar todas as imagens com crossOrigin para evitar taint ===
     const imgPromises = [];
     cards.forEach(card => {
@@ -139,7 +158,9 @@ export async function exportarChamada3Colunas() {
       fontSize: "26px",
       textShadow: "0 0 8px rgba(0,255,204,0.6)",
     });
-    titulo.innerText = `📋 Chamada do Ensaio – ${dataEnsaio}`;
+    titulo.innerText = ehCoral
+      ? `Ensaio ${nomeTurma || "Coral"} - ${dataEnsaio}`
+      : `📋 Ensaio - ${dataEnsaio}`;
     temp.appendChild(titulo);
 
     // === Copiar cards preservando fotos + badge de combo ===
@@ -321,7 +342,9 @@ export async function exportarChamada3Colunas() {
       dateStyle: "short",
       timeStyle: "short",
     });
-    rodape.innerText = `Orquestra Filhos de Asafe  ·  Exportado em ${horaExport}`;
+    rodape.innerText = ehCoral
+      ? `Coral ${nomeTurma || "Coral"}`
+      : `Orquestra Filhos de Asafe  ·  Exportado em ${horaExport}`;
     temp.appendChild(rodape);
 
     // === Renderizar e baixar ===
