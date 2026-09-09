@@ -57,6 +57,11 @@ export async function exportarChamada3Colunas() {
 
     const total = cards.length;
     const porcentagem = total > 0 ? Math.round((presentes / total) * 100) : 0;
+    // Mantém o visual atual para turmas pequenas e adensa apenas relatórios
+    // grandes, evitando que a última coluna seja cortada na imagem exportada.
+    const colunas = total > 48 ? 5 : total > 30 ? 4 : 3;
+    const compacto = colunas >= 4;
+    const superCompacto = colunas >= 5;
 
     // === Data: lê do input editável ===
     let dataEnsaio = "--/--/----";
@@ -97,21 +102,37 @@ export async function exportarChamada3Colunas() {
     const temp = document.createElement("div");
     Object.assign(temp.style, {
       width: "1100px",
+      boxSizing: "border-box",
       padding: "30px 30px 20px",
       background: "#1e1e2f",
       color: "white",
       display: "grid",
-      gridTemplateColumns: "repeat(3, 1fr)",
-      gap: "20px",
+      gridTemplateColumns: `repeat(${colunas}, minmax(0, 1fr))`,
+      gap: compacto ? "14px" : "20px",
       fontFamily: "Segoe UI, Arial, sans-serif",
       border: "2px solid #00ffcc55",
       borderRadius: "16px",
     });
+    temp.className = "exportacao-chamada";
+
+    const estiloDensidade = document.createElement("style");
+    estiloDensidade.textContent = `
+      .exportacao-chamada .container-aluno {
+        min-width: 0 !important; width: auto !important; box-sizing: border-box !important;
+        padding: ${superCompacto ? "6px 7px" : compacto ? "7px 8px" : "8px 10px"} !important;
+        gap: ${superCompacto ? "6px" : compacto ? "8px" : "10px"} !important;
+      }
+      .exportacao-chamada .foto-aluno { width: ${superCompacto ? "38px" : compacto ? "44px" : "52px"} !important; height: ${superCompacto ? "38px" : compacto ? "44px" : "52px"} !important; }
+      .exportacao-chamada .nome { font-size: ${superCompacto ? "1rem" : compacto ? "1.15rem" : "1.5rem"} !important; }
+      .exportacao-chamada .instrumento { font-size: ${superCompacto ? ".72rem" : compacto ? ".82rem" : "1rem"} !important; }
+      .exportacao-chamada .chip-status { font-size: ${superCompacto ? ".58rem" : compacto ? ".64rem" : ".7rem"} !important; padding: ${superCompacto ? "1px 5px" : compacto ? "1px 6px" : "2px 8px"} !important; }
+    `;
+    temp.appendChild(estiloDensidade);
 
     // === Título ===
     const titulo = document.createElement("h2");
     Object.assign(titulo.style, {
-      gridColumn: "1 / 4",
+      gridColumn: `1 / ${colunas + 1}`,
       textAlign: "center",
       margin: "0 0 10px",
       color: "#00ffcc",
@@ -210,7 +231,7 @@ export async function exportarChamada3Colunas() {
     // === Linha final: Observações + Resumo ===
     const linhaFinal = document.createElement("div");
     Object.assign(linhaFinal.style, {
-      gridColumn: "1 / 4",
+      gridColumn: `1 / ${colunas + 1}`,
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
@@ -285,7 +306,7 @@ export async function exportarChamada3Colunas() {
     // === Rodapé ===
     const rodape = document.createElement("div");
     Object.assign(rodape.style, {
-      gridColumn: "1 / 4",
+      gridColumn: `1 / ${colunas + 1}`,
       textAlign: "center",
       marginTop: "16px",
       fontSize: "13px",
