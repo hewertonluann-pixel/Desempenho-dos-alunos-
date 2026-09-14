@@ -210,7 +210,11 @@ async function carregarAlunos() {
   } else {
     snap = await getDocs(collection(db, "alunos"));
   }
-  return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.nome.localeCompare(b.nome));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => {
+    const inativoA = a.ativo === false ? 1 : 0;
+    const inativoB = b.ativo === false ? 1 : 0;
+    return inativoA - inativoB || a.nome.localeCompare(b.nome, "pt-BR");
+  });
 }
 
 export async function renderizarPainel() {
