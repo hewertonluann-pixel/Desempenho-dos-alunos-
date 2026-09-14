@@ -208,9 +208,14 @@ export function abrirPopupFrequencia(info, destino) {
       <h4>Datas das chamadas</h4>
       <div class="lista-chamadas">
         ${chamadas.length
-          ? chamadas.map(chamada => `<span class="chamada-item ${chamada.status === "P" ? "presente" : "ausente"}"
-              title="${chamada.status === "P" ? "Presente" : "Ausente"}"
-              aria-label="${chamada.status === "P" ? "Presente" : "Ausente"} em ${formatarData(chamada.data)}">${formatarData(chamada.data)}</span>`).join("")
+          ? chamadas.map(chamada => {
+              const estado = chamada.status === "P" ? "presente" : chamada.status === "FJ" ? "justificado" : "ausente";
+              const simbolo = chamada.status === "P" ? "✓" : chamada.status === "FJ" ? "⚑" : "×";
+              const rotulo = chamada.status === "P" ? "Presente" : chamada.status === "FJ" ? "Falta justificada" : "Falta";
+              return `<span class="chamada-item ${estado}"
+                title="${rotulo}"
+                aria-label="${rotulo} em ${formatarData(chamada.data)}"><span class="chamada-simbolo" aria-hidden="true">${simbolo}</span><span>${formatarData(chamada.data)}</span></span>`;
+            }).join("")
           : `<p class="sem-chamadas">Nenhuma chamada registrada para este aluno neste mês.</p>`
         }
       </div>
