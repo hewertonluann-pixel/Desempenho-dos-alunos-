@@ -464,9 +464,15 @@
 
         const snapEventos  = await getDocs(collection(db,"eventos"));
         const todosEventos = snapEventos.docs.map(d=>({id:d.id,...d.data()}));
-        const eventosMes    = todosEventos.filter(e=>e.data?.startsWith(chave));
-        const eventosAno    = todosEventos.filter(e=>e.data?.startsWith(`${anoRel}-`));
-        const eventosMesAnt = todosEventos.filter(e=>e.data?.startsWith(chaveAnterior));
+        // O relatório deve considerar somente as chamadas da turma do aluno.
+        // Sem esse filtro, chamadas de outras turmas no mesmo dia eram misturadas.
+        const eventosDoAluno = todosEventos.filter(e =>
+          e.turmaId === aluno.turmaId &&
+          e.presencas?.some(p => p.nome === aluno.nome)
+        );
+        const eventosMes    = eventosDoAluno.filter(e=>e.data?.startsWith(chave));
+        const eventosAno    = eventosDoAluno.filter(e=>e.data?.startsWith(`${anoRel}-`));
+        const eventosMesAnt = eventosDoAluno.filter(e=>e.data?.startsWith(chaveAnterior));
 
         const freqMes         = calcularFrequencia(eventosMes,    aluno.nome);
         const freqGeral       = calcularFrequencia(eventosAno,    aluno.nome);
