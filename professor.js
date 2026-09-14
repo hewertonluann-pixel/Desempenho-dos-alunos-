@@ -5,6 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
 import { obterEventosDoAno, agruparEventosPorMes, calcularFrequenciaMensalParaAluno } from "./frequencia.js";
+import { criarParticipacaoPrincipal, calcularFrequenciaElegivel } from "./participacoes.js";
 
 if (!db) console.error("❌ Firebase DB não carregado.");
 
@@ -119,7 +120,10 @@ function setupModalAdicionar() {
         conquistas: [], classificado: false, senha: "asafe",
         turmaId: ehCoral ? "" : (turmaAtiva?.id || ""),
         turmaNome: ehCoral ? "" : (turmaAtiva?.nome || ""),
-        criadoEm: new Date().toISOString()
+        criadoEm: new Date().toISOString(),
+        participacoes: !ehCoral && turmaAtiva?.id
+          ? [criarParticipacaoPrincipal(turmaAtiva.id, turmaAtiva.nome, new Date())]
+          : []
       });
       if (ehCoral) {
         const turmaRef = doc(db, "turmas", turmaAtiva.id);
@@ -587,7 +591,7 @@ async function atualizarComprometimentoGeral() {
 
       // Calcular frequência do aluno usando somente os eventos da sua turma
       const eventosMes = turmasMap[turmaId].agrupado[chaveMes] || [];
-      const freq = calcularFrequenciaMensalParaAluno(eventosMes, dados.nome);
+      const freq = calcularFrequenciaElegivel(eventosMes, { id: alunoDoc.id, ...dados }, turmaId);
 
       await updateDoc(doc(db, "alunos", alunoDoc.id), {
         "frequenciaMensal.porcentagem": freq.percentual,

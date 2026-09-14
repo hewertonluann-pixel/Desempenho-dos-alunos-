@@ -341,6 +341,7 @@
       collection, getDocs, doc, getDoc, query, where, orderBy
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { regrasDeConquistas } from "./conquistas.js";
+    import { calcularFrequenciaElegivel, obterChamadasElegiveis, mediaFrequenciasValidas } from "./participacoes.js";
 
     const MESES = {
       "01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril",
@@ -416,16 +417,15 @@
       }
     }
 
-    async function buscarDadosTurma(anoRel) {
+    async function buscarDadosTurma(anoRel, turmaId) {
       try {
         const snapAlunos = await getDocs(collection(db,'alunos'));
-        const todosAlunos = snapAlunos.docs.map(d=>({id:d.id,...d.data()})).filter(a=>a.ativo!==false);
+        const todosAlunos = snapAlunos.docs.map(d=>({id:d.id,...d.data()})).filter(a=>a.ativo!==false && a.turmaId === turmaId);
         const snapEventos = await getDocs(collection(db,'eventos'));
-        const eventosAno  = snapEventos.docs.map(d=>({id:d.id,...d.data()})).filter(e=>e.data?.startsWith(`${anoRel}-`));
+        const eventosAno  = snapEventos.docs.map(d=>({id:d.id,...d.data()})).filter(e=>e.data?.startsWith(`${anoRel}-`) && e.turmaId === turmaId);
         const freqPorAluno = {};
         todosAlunos.forEach(a => {
-          const p = eventosAno.filter(ev=>ev.presencas?.find(x=>x.nome===a.nome)?.presenca==='presente').length;
-          freqPorAluno[a.nome] = eventosAno.length>0 ? Math.round((p/eventosAno.length)*100) : 0;
+          freqPorAluno[a.id] = calcularFrequenciaElegivel(eventosAno, a, turmaId);
         });
         const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
         return {
@@ -433,7 +433,7 @@
           mediaNivel:   avg(todosAlunos.map(a=>(Number(a.leitura)||0)+(Number(a.metodo)||0))),
           mediaLeitura: avg(todosAlunos.map(a=>Number(a.leitura)||0)),
           mediaMetodo:  avg(todosAlunos.map(a=>Number(a.metodo)||0)),
-          mediaFreq:    avg(todosAlunos.map(a=>freqPorAluno[a.nome]||0))
+          mediaFreq:    mediaFrequenciasValidas(todosAlunos.map(a=>freqPorAluno[a.id]))
         };
       } catch(e) { console.warn('Erro turma:',e); return null; }
     }
@@ -447,7 +447,7 @@
         total: todosAlunos.length,
         rankMetodo:  todosAlunos.map(a=>Number(a.metodo)||0).filter(v=>v>mA).length+1,
         rankLeitura: todosAlunos.map(a=>Number(a.leitura)||0).filter(v=>v>lA).length+1,
-        rankFreq:    todosAlunos.map(a=>freqPorAluno[a.nome]||0).filter(v=>v>freqAnual).length+1
+        rankFreq:    todosAlunos.map(a=>freqPorAluno[a.id]).filter(v=>v?.avaliavel && v.percentual > freqAnual).length+1
       };
     }
 
@@ -466,24 +466,22 @@
         const todosEventos = snapEventos.docs.map(d=>({id:d.id,...d.data()}));
         // O relatório deve considerar somente as chamadas da turma do aluno.
         // Sem esse filtro, chamadas de outras turmas no mesmo dia eram misturadas.
-        const eventosDoAluno = todosEventos.filter(e =>
-          e.turmaId === aluno.turmaId &&
-          e.presencas?.some(p => p.nome === aluno.nome)
-        );
-        const eventosMes    = eventosDoAluno.filter(e=>e.data?.startsWith(chave));
-        const eventosAno    = eventosDoAluno.filter(e=>e.data?.startsWith(`${anoRel}-`));
-        const eventosMesAnt = eventosDoAluno.filter(e=>e.data?.startsWith(chaveAnterior));
+        const eventosDaTurma = todosEventos.filter(e => e.turmaId === aluno.turmaId);
+        const eventosMes    = eventosDaTurma.filter(e=>e.data?.startsWith(chave));
+        const eventosAno    = eventosDaTurma.filter(e=>e.data?.startsWith(`${anoRel}-`));
+        const eventosMesAnt = eventosDaTurma.filter(e=>e.data?.startsWith(chaveAnterior));
 
-        const freqMes         = calcularFrequencia(eventosMes,    aluno.nome);
-        const freqGeral       = calcularFrequencia(eventosAno,    aluno.nome);
-        const freqMesAnterior = calcularFrequencia(eventosMesAnt, aluno.nome);
+        const freqMes         = calcularFrequenciaElegivel(eventosMes, aluno, aluno.turmaId);
+        const freqGeral       = calcularFrequenciaElegivel(eventosAno, aluno, aluno.turmaId);
+        const freqMesAnterior = calcularFrequenciaElegivel(eventosMesAnt, aluno, aluno.turmaId);
+        const chamadasMesAluno = obterChamadasElegiveis(eventosMes, aluno, aluno.turmaId);
 
         const conquistasMes = regrasDeConquistas.filter(c =>
-          c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual}})
+          c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual, percentual:freqMes.percentual}})
         );
-        const presencaDetalhada = eventosMes.map(ev => {
+        const presencaDetalhada = chamadasMesAluno.map(ev => {
           const p = ev.presencas?.find(x=>x.nome===aluno.nome);
-          return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : "Ausente" };
+          return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : p?.presenca === "justificado" ? "Justificado" : "Ausente" };
         }).sort((a,b)=>a.data.localeCompare(b.data));
 
         const snapshots    = await buscarSnapshots(id);
@@ -497,7 +495,7 @@
         const metodoAnterior  = snapAnterior?.metodo  ?? null;
         const metodoMeta      = metodoAtual  + 2;
 
-        const dadosTurma    = await buscarDadosTurma(anoRel);
+        const dadosTurma    = await buscarDadosTurma(anoRel, aluno.turmaId);
         const rankings      = calcularRankings(aluno, dadosTurma, freqGeral.percentual);
         const evolucaoAluno = snapshots.slice(-6);
 
@@ -539,6 +537,7 @@
     function medalhaClasse(pos) { return pos===1?'ouro':pos===2?'prata':pos===3?'bronze':'normal'; }
     function medalhaTexto(pos)  { return pos===1?'🥇 1º':pos===2?'🥈 2º':pos===3?'🥉 3º':`${pos}º`; }
     function chipComp(val, media) {
+      if (val === null || val === undefined || media === null || media === undefined) return {cls:'igual', chip:'chip-igual', txt:'● Sem dados'};
       const d = val-media;
       if (d> 0.5) return {cls:'acima', chip:'chip-acima', txt:`▲ +${d.toFixed(1)}`};
       if (d<-0.5) return {cls:'abaixo',chip:'chip-abaixo',txt:`▼ ${d.toFixed(1)}`};
@@ -618,12 +617,14 @@
         };
         const mkComp = (label,val,media,unid) => {
           const c=chipComp(val,media);
+          const valTxt = val === null || val === undefined ? '—' : `${val}${unid}`;
+          const mediaTxt = media === null || media === undefined ? '—' : `${media.toFixed(1)}${unid}`;
           return `<div class="comp-mini-card">
             <div class="comp-mini-label">${label}</div>
             <div class="comp-mini-row">
-              <span class="comp-mini-voce ${c.cls}">${val}${unid}</span>
+              <span class="comp-mini-voce ${c.cls}">${valTxt}</span>
               <span class="comp-mini-vs">vs</span>
-              <span class="comp-mini-media">${media.toFixed(1)}${unid}</span>
+              <span class="comp-mini-media">${mediaTxt}</span>
             </div>
             <span class="comp-chip-sm ${c.chip}">${c.txt}</span>
           </div>`;

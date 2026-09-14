@@ -310,6 +310,7 @@
     import { db } from "./firebase-config.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { regrasDeConquistas } from "./conquistas.js";
+    import { calcularFrequenciaElegivel, mediaFrequenciasValidas } from "./participacoes.js";
 
     const MESES = {"01":"Janeiro","02":"Fevereiro","03":"Março","04":"Abril","05":"Maio","06":"Junho","07":"Julho","08":"Agosto","09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"};
     const NOMES_MES_CURTO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -371,19 +372,19 @@
             const snapAlunos = await getDocs(collection(db,'alunos'));
             const alunos = snapAlunos.docs
                 .map(d => ({id:d.id,...d.data()}))
-                .filter(a => a.ativo !== false)
+                .filter(a => a.ativo !== false && a.turmaId)
                 .sort((a,b) => a.nome.localeCompare(b.nome));
 
             setLoaderMsg('Carregando eventos...');
             const snapEventos = await getDocs(collection(db,'eventos'));
             const todosEventos = snapEventos.docs.map(d=>({id:d.id,...d.data()}));
-            const eventosMes = todosEventos.filter(e => e.data?.startsWith(chave));
-            const eventosAno = todosEventos.filter(e => e.data?.startsWith(`${ano}-`));
+            const eventosMes = todosEventos.filter(e => e.tipo !== 'coral' && e.data?.startsWith(chave));
+            const eventosAno = todosEventos.filter(e => e.tipo !== 'coral' && e.data?.startsWith(`${ano}-`));
 
             const freqPorAluno = {};
             alunos.forEach(a => {
-                const p = eventosAno.filter(ev=>ev.presencas?.find(x=>x.nome===a.nome)?.presenca==='presente').length;
-                freqPorAluno[a.nome] = eventosAno.length > 0 ? Math.round((p/eventosAno.length)*100) : 0;
+                const eventosDaTurma = eventosAno.filter(ev => ev.turmaId === a.turmaId);
+                freqPorAluno[a.id] = calcularFrequenciaElegivel(eventosDaTurma, a, a.turmaId);
             });
 
             const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
@@ -393,7 +394,7 @@
                 mediaNivel: avg(alunos.map(a=>(Number(a.leitura)||0)+(Number(a.metodo)||0))),
                 mediaLeitura: avg(alunos.map(a=>Number(a.leitura)||0)),
                 mediaMetodo: avg(alunos.map(a=>Number(a.metodo)||0)),
-                mediaFreq: avg(alunos.map(a=>freqPorAluno[a.nome]||0))
+                mediaFreq: mediaFrequenciasValidas(alunos.map(a=>freqPorAluno[a.id]))
             };
 
             setLoaderMsg('Carregando snapshots...');
@@ -425,8 +426,8 @@
                     lAnt: snapAnterior?.leitura ?? null,
                     mAtual: snapAtual?.metodo ?? aluno.metodo ?? 1,
                     mAnt: snapAnterior?.metodo ?? null,
-                    freqMes: calcularFrequencia(eventosMes, aluno.nome),
-                    freqPorAluno: freqPorAluno[aluno.nome] || 0
+                    freqMes: calcularFrequenciaElegivel(eventosMes.filter(e => e.turmaId === aluno.turmaId), aluno, aluno.turmaId),
+                    freqPorAluno: freqPorAluno[aluno.id]?.percentual ?? null
                 };
             });
 
@@ -455,16 +456,17 @@
                 const metodoAtual = snapAtual?.metodo ?? aluno.metodo ?? 1;
                 const metodoAnterior = snapAnterior?.metodo ?? null;
                 
-                const freqMes = calcularFrequencia(eventosMes, aluno.nome);
-                const freqGeral = calcularFrequencia(eventosAno, aluno.nome);
-                const freqMesAnterior = calcularFrequencia(todosEventos.filter(e=>e.data?.startsWith(chaveAnterior)), aluno.nome);
+                const freqMes = calcularFrequenciaElegivel(eventosMes.filter(e => e.turmaId === aluno.turmaId), aluno, aluno.turmaId);
+                const freqGeral = calcularFrequenciaElegivel(eventosAno.filter(e => e.turmaId === aluno.turmaId), aluno, aluno.turmaId);
+                const freqMesAnterior = calcularFrequenciaElegivel(todosEventos.filter(e=>e.data?.startsWith(chaveAnterior) && e.turmaId === aluno.turmaId), aluno, aluno.turmaId);
 
-                const conquistasMes = regrasDeConquistas.filter(c => c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual}}) );
+                const conquistasMes = regrasDeConquistas.filter(c => c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual, percentual:freqMes.percentual}}) );
                 
-                const presencaDetalhada = eventosMes
+                const presencaDetalhada = eventosMes.filter(e => e.turmaId === aluno.turmaId)
+                    .filter(ev => ev.presencas?.some(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome))
                     .map(ev => {
                         const p = ev.presencas?.find(x=>x.nome===aluno.nome);
-                        return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : "Ausente" };
+                        return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : p?.presenca === "justificado" ? "Justificado" : "Ausente" };
                     })
                     .sort((a,b)=>a.data.localeCompare(b.data));
 
@@ -563,8 +565,10 @@
     function criarIndice(nomeMes, ano, fatia, resumosCompletos, startIdx, isPrimeira) {
         const totalAlunos = resumosCompletos.length;
         const totalEvoluiu = resumosCompletos.filter(r => statusTexto(r.lAtual,r.lAnt)==='evoluiu' || statusTexto(r.mAtual,r.mAnt)==='evoluiu').length;
-        const mediaFreqMes = totalAlunos ? Math.round(resumosCompletos.reduce((s,r)=>s+r.freqMes.percentual,0)/totalAlunos) : 0;
-        const mediaFreqAno = totalAlunos ? Math.round(resumosCompletos.reduce((s,r)=>s+r.freqPorAluno,0)/totalAlunos) : 0;
+        const frequenciasMesValidas = resumosCompletos.map(r => r.freqMes.percentual).filter(v => v !== null && v !== undefined);
+        const mediaFreqMes = frequenciasMesValidas.length ? Math.round(frequenciasMesValidas.reduce((s,r)=>s+r,0)/frequenciasMesValidas.length) : null;
+        const frequenciasValidas = resumosCompletos.map(r => r.freqPorAluno).filter(v => v !== null && v !== undefined);
+        const mediaFreqAno = frequenciasValidas.length ? Math.round(frequenciasValidas.reduce((s,r)=>s+r,0)/frequenciasValidas.length) : null;
 
         const rows = fatia.map((r, i) => {
             const stL = statusTexto(r.lAtual, r.lAnt);
@@ -576,7 +580,7 @@
                 <td>${r.aluno.instrumento||'—'}</td>
                 <td>L${r.lAtual} / M${r.mAtual}</td>
                 <td>${freqStr}</td>
-                <td>${r.freqPorAluno}%</td>
+                <td>${r.freqPorAluno === null || r.freqPorAluno === undefined ? '—' : `${r.freqPorAluno}%`}</td>
                 <td><span class="indice-badge badge-${geral}">${geral.charAt(0).toUpperCase()+geral.slice(1)}</span></td>
             </tr>`;
         }).join('');
@@ -585,8 +589,8 @@
             <div class="indice-resumo-grid">
                 <div class="indice-resumo-card"><div class="val">${totalAlunos}</div><div class="lbl">Alunos Ativos</div></div>
                 <div class="indice-resumo-card"><div class="val">${totalEvoluiu}</div><div class="lbl">Evoluíram</div></div>
-                <div class="indice-resumo-card"><div class="val">${mediaFreqMes}%</div><div class="lbl">Freq. Média (Mês)</div></div>
-                <div class="indice-resumo-card"><div class="val">${mediaFreqAno}%</div><div class="lbl">Freq. Média (Ano)</div></div>
+                <div class="indice-resumo-card"><div class="val">${mediaFreqMes === null ? '—' : `${mediaFreqMes}%`}</div><div class="lbl">Freq. Média (Mês)</div></div>
+                <div class="indice-resumo-card"><div class="val">${mediaFreqAno === null ? '—' : `${mediaFreqAno}%`}</div><div class="lbl">Freq. Média (Ano)</div></div>
             </div>` : '';
 
         const div = document.createElement('div');
@@ -637,7 +641,9 @@
             };
             const mkComp = (label,val,media,unid) => {
                 const c = chipComp(val,media);
-                return `<div class="comp-mini-card"><div class="comp-mini-label">${label}</div><div class="comp-mini-row"><span class="comp-mini-voce ${c.cls}">${val}${unid}</span><span class="comp-mini-vs">vs</span><span class="comp-mini-media">${media.toFixed(1)}${unid}</span></div><span class="comp-chip-sm ${c.chip}">${c.txt}</span></div>`;
+                const valTxt = val === null || val === undefined ? '—' : `${val}${unid}`;
+                const mediaTxt = media === null || media === undefined ? '—' : `${media.toFixed(1)}${unid}`;
+                return `<div class="comp-mini-card"><div class="comp-mini-label">${label}</div><div class="comp-mini-row"><span class="comp-mini-voce ${c.cls}">${valTxt}</span><span class="comp-mini-vs">vs</span><span class="comp-mini-media">${mediaTxt}</span></div><span class="comp-chip-sm ${c.chip}">${c.txt}</span></div>`;
             };
             const graficoSlotId = `grafico-slot-${aluno.id}`;
             const graficoHTML = canvasRef ? `<div class="evolucao-chart-wrap" id="${graficoSlotId}"></div>` : `<div class="evolucao-sem-dados">Histórico insuficiente (mín. 2)</div>`;
@@ -831,6 +837,7 @@
     function medalhaClasse(pos) { return pos===1?'ouro':pos===2?'prata':pos===3?'bronze':'normal'; }
     function medalhaTexto(pos) { return pos===1?'🥇 1º':pos===2?'🥈 2º':pos===3?'🥉 3º':`${pos}º`; }
     function chipComp(val, media) {
+        if (val === null || val === undefined || media === null || media === undefined) return { cls:'igual', chip:'chip-igual', txt:'● Sem dados' };
         const d = val - media;
         if (d> 0.5) return { cls:'acima', chip:'chip-acima', txt:`▲ +${d.toFixed(1)}` };
         if (d<-0.5) return { cls:'abaixo',chip:'chip-abaixo',txt:`▼ ${d.toFixed(1)}` };
@@ -845,7 +852,7 @@
             total: todosAlunos.length,
             rankMetodo: todosAlunos.map(a=>Number(a.metodo)||0).filter(v=>v>mA).length+1,
             rankLeitura: todosAlunos.map(a=>Number(a.leitura)||0).filter(v=>v>lA).length+1,
-            rankFreq: todosAlunos.map(a=>freqPorAluno[a.nome]||0).filter(v=>v>freqAnual).length+1
+            rankFreq: todosAlunos.map(a=>freqPorAluno[a.id]).filter(v=>v?.avaliavel && v.percentual>freqAnual).length+1
         };
     }
     function gerarAnalise(aluno,freqMes,freqGeral,freqMesAnterior,leituraAtual,leituraAnterior,metodoAtual,metodoAnterior) {

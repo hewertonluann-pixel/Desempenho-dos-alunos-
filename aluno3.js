@@ -25,6 +25,7 @@ import {
 import { carregarLicoesAluno } from "./licoes.js";
 import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista } from "./conquistas.js";
 import { carregarNotificacoes } from "./notificacoes.js";
+import { calcularFrequenciaElegivel } from "./participacoes.js";
 
 // 📸 Novo sistema de snapshots mensais
 import {
@@ -281,34 +282,18 @@ export async function calcularEnergiaDoAluno(aluno) {
   const chaveMes   = `${anoAtual}-${mesAtual}`;
   const eventosMes = grupos[chaveMes] || [];
 
-  // Cálculo mensal — já usa o filtro da lista (via frequencia.js atualizado)
-  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
-  const energiaMensal = freqMensal.percentual;
+  // Cálculo mensal: somente chamadas elegíveis para a participação do aluno.
+  const freqMensal = calcularFrequenciaElegivel(eventosMes, aluno, turmaId);
+  const energiaMensal = freqMensal.percentual ?? 0;
 
-  // Cálculo anual — considera apenas eventos em que o aluno estava na lista
-  let totalPresencasAno = 0;
-  let totalEventosAno   = 0;
-
-  Object.keys(grupos).forEach(chave => {
-    if (!chave.startsWith(String(anoAtual))) return;
-    grupos[chave].forEach(ev => {
-      // ✅ Só conta se o aluno aparece na lista deste evento
-      const naLista = ev.presencas.some(p => p.nome === aluno.nome);
-      if (!naLista) return;
-
-      totalEventosAno++;
-      const hit = ev.presencas.find(p => p.nome === aluno.nome);
-      if (hit && hit.presenca === "presente") totalPresencasAno++;
-    });
-  });
-
-  const energiaAnual = totalEventosAno > 0
-    ? Math.round((totalPresencasAno / totalEventosAno) * 100) : 0;
+  const eventosAno = todosEventos.filter(ev => ev.data?.startsWith(`${anoAtual}-`));
+  const freqAnual = calcularFrequenciaElegivel(eventosAno, aluno, turmaId);
+  const energiaAnual = freqAnual.percentual ?? 0;
 
   // ✅ Gravar frequenciaMensal e frequenciaTotal no objeto aluno
   // para que gerarPainelConquistas possa avaliar as condições corretamente
   aluno.frequenciaMensal = freqMensal; // { totalEventos, presencasAluno, percentual }
-  aluno.frequenciaTotal  = totalPresencasAno;
+  aluno.frequenciaTotal  = freqAnual.presencas;
 
   atualizarEnergiaVisual(energiaMensal, energiaAnual);
   return energiaMensal;

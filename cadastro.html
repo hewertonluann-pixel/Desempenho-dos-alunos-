@@ -375,6 +375,7 @@
 
 <script type="module">
   import { db } from "./firebase-config.js";
+  import { criarParticipacaoPrincipal } from "./participacoes.js";
   import {
     collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where
   } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
@@ -499,7 +500,10 @@
         classificado: false,
         ativo: true,
         senha: "asafe",
-        criadoEm: new Date().toISOString()
+        criadoEm: new Date().toISOString(),
+        participacoes: isOrq
+          ? [criarParticipacaoPrincipal(turmaDados.id, turmaDados.nome, new Date())]
+          : []
       };
 
       const ref = await addDoc(collection(db, "alunos"), novoAluno);

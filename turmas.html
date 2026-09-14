@@ -915,7 +915,19 @@
         const novos= [...(t.alunos||[]), ...ids.filter(id=>!(t.alunos||[]).includes(id))];
         await updateDoc(doc(db,"turmas",turmaSelecionadaId),{alunos:novos});
         if (t.tipo !== "coral") {
-          for (const id of ids) await updateDoc(doc(db,"alunos",id),{turmaId:turmaSelecionadaId,turmaNome:t.nome,fase});
+          const { criarParticipacaoPrincipal } = await import("./participacoes.js");
+          for (const id of ids) {
+            const aluno = todosAlunos.find(a => a.id === id) || {};
+            const participacoes = (Array.isArray(aluno.participacoes) ? aluno.participacoes : []).map(p =>
+              p?.tipo === "principal" && !p?.fimEm && p.turmaId !== turmaSelecionadaId
+                ? { ...p, fimEm: new Date().toISOString().slice(0, 10) }
+                : p
+            );
+            if (!participacoes.some(p => p?.turmaId === turmaSelecionadaId && !p?.fimEm)) {
+              participacoes.push(criarParticipacaoPrincipal(turmaSelecionadaId, t.nome, new Date()));
+            }
+            await updateDoc(doc(db,"alunos",id),{turmaId:turmaSelecionadaId,turmaNome:t.nome,fase,participacoes});
+          }
         }
         turmaSelecionadaDados.alunos=novos;
         const idx=todasTurmas.findIndex(x=>x.id===turmaSelecionadaId);
@@ -948,6 +960,16 @@
         const idx=todasTurmas.findIndex(x=>x.id===turmaSelecionadaId);
         if(idx>=0) todasTurmas[idx].alunos=novos;
         if (t.tipo !== "coral") {
+          const fimEm = new Date().toISOString().slice(0, 10);
+          for (const id of ids) {
+            const aluno = todosAlunos.find(a => a.id === id) || {};
+            const participacoes = (Array.isArray(aluno.participacoes) ? aluno.participacoes : []).map(p =>
+              p?.tipo === "principal" && p.turmaId === turmaSelecionadaId && !p.fimEm
+                ? { ...p, fimEm }
+                : p
+            );
+            await updateDoc(doc(db,"alunos",id),{turmaId:"",turmaNome:"",participacoes});
+          }
           todosAlunos.forEach(a=>{if(ids.includes(a.id)){a.turmaId="";a.turmaNome="";}});
         }
         selecionadosRemover.clear();

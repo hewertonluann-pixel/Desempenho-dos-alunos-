@@ -203,6 +203,7 @@
       collection, getDocs, getDoc, addDoc, updateDoc, doc, query, where
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { exportarChamada3Colunas } from "./exportar-chamada.js";
+    import { calcularFrequenciaElegivel } from "./participacoes.js";
     import { calcularMetricasCombo, renderCardComboHTML } from "./combos.js";
 
     const params  = new URLSearchParams(window.location.search);
@@ -531,20 +532,9 @@
       evSnap.forEach(d => {
         const dd = d.data();
         if (!dd.data?.startsWith(chaveMes)) return;
-        if (turmaIdAtual && dd.turmaId && dd.turmaId !== turmaIdAtual) return;
+        if (!turmaIdAtual || dd.turmaId !== turmaIdAtual) return;
         eventosMes.push(dd);
       });
-
-      const total = eventosMes.length; if (!total) return;
-
-      const contId   = {};
-      const contNome = {};
-      eventosMes.forEach(ev => (ev.presencas||[]).forEach(p => {
-        if (!p) return;
-        const presente = p.presenca === "presente";
-        if (p.alunoId) contId[p.alunoId]  = (contId[p.alunoId]  || 0) + (presente ? 1 : 0);
-        if (p.nome)    contNome[p.nome]    = (contNome[p.nome]   || 0) + (presente ? 1 : 0);
-      }));
 
       const siglas = ["JAN","FEV","MAR","ABR","MAI","JUN","JUL","AGO","SET","OUT","NOV","DEZ"];
       const sigla  = siglas[parseInt(mes,10)-1] || mes;
@@ -553,19 +543,21 @@
       for (const ds of alSnap.docs) {
         const d = ds.data();
         if (d.ativo === false) continue;
-        if (turmaIdAtual && d.turmaId && d.turmaId !== turmaIdAtual) continue;
-
-        const pres = contId[ds.id] ?? contNome[d.nome] ?? 0;
-        const pct  = Math.round((pres / total) * 100);
+        if (!turmaIdAtual || d.turmaId !== turmaIdAtual) continue;
+        const aluno = { id: ds.id, ...d };
+        const freq = calcularFrequenciaElegivel(eventosMes, aluno, turmaIdAtual);
+        const pres = freq.presencas;
+        const pct  = freq.percentual;
+        const totalElegiveis = freq.totalAvaliadas;
         const hist = Array.isArray(d.presencas) ? [...d.presencas] : [];
         let reg    = hist.find(r => r.mes === chaveMes);
-        if (!reg) { reg = { mes: chaveMes, totalEnsaios: total, presencasAluno: pres, percentual: pct }; hist.push(reg); }
-        else      { reg.totalEnsaios = total; reg.presencasAluno = pres; reg.percentual = pct; }
+        if (!reg) { reg = { mes: chaveMes, totalEnsaios: totalElegiveis, presencasAluno: pres, percentual: pct }; hist.push(reg); }
+        else      { reg.totalEnsaios = totalElegiveis; reg.presencasAluno = pres; reg.percentual = pct; }
         const freqAno = d.frequenciaAnual || {};
-        freqAno[sigla] = { percentual: pct, totalEnsaios: total, presencasAluno: pres };
+        freqAno[sigla] = { percentual: pct, totalEnsaios: totalElegiveis, presencasAluno: pres, justificadas: freq.justificadas };
         await updateDoc(doc(db, "alunos", ds.id), {
           presencas:        hist,
-          frequenciaMensal: { porcentagem: pct, totalEventos: total, presencas: pres },
+          frequenciaMensal: { porcentagem: pct, percentual: pct, totalEventos: totalElegiveis, presencas: pres, ausencias: freq.ausencias, justificadas: freq.justificadas },
           frequenciaAnual:  freqAno
         });
       }
