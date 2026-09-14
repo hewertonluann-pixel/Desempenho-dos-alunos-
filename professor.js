@@ -330,10 +330,11 @@ export async function renderizarPainel() {
         .progresso-item { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .item-label { font-size: 11px; color: #94a3b8; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-label:hover { color: #0ea5e9; text-decoration: underline; }
-        .controles { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border-radius: 6px; border: 1px solid #334155; height: 32px; padding: 2px; }
-        .controles button { background: none; border: none; color: #94a3b8; width: 24px; cursor: pointer; font-size: 16px; }
-        .controles button:hover { color: #f1f5f9; background: #1e293b; border-radius: 4px; }
-        .controles input { background: none; border: none; color: #f1f5f9; width: 34px; text-align: center; font-size: 14px; font-weight: 600; padding: 0; }
+        .controles { display: flex; align-items: center; justify-content: space-between; background: #0f172a; border-radius: 8px; border: 1px solid #475569; height: 38px; padding: 3px; gap: 5px; }
+        .controles button { background: #334155; border: 1px solid #64748b; color: #f8fafc; width: 31px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 21px; line-height: 1; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,.3); transition: background .15s, transform .1s, border-color .15s; }
+        .controles button:hover { color: #fff; background: #0ea5e9; border-color: #38bdf8; }
+        .controles button:active { transform: scale(.9); }
+        .controles input { background: #020617; border: 1px solid #334155; border-radius: 5px; color: #f1f5f9; width: 38px; height: 29px; text-align: center; font-size: 14px; font-weight: 700; padding: 0; }
         .controles input::-webkit-inner-spin-button { -webkit-appearance: none; }
         .card-footer { padding: 12px 16px; display: flex; gap: 8px; border-top: 1px solid #334155; background: #1e293b; }
         .btn-card-action {

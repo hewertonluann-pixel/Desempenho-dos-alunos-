@@ -361,6 +361,16 @@
     .modal.ativo { display: flex; }
     .botoes-modal { display: flex; justify-content: space-between; margin-top: 18px; gap: 10px; }
     .botoes-modal button { flex: 1; padding: 10px 0; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #fff; transition: transform 0.2s ease, background 0.3s; }
+    #modalSolfejo .modal-conteudo, #modalInstrumental .modal-conteudo { position: relative; width: min(92vw, 520px); padding: 30px; gap: 16px; }
+    #modalSolfejo .modal-conteudo h2, #modalInstrumental .modal-conteudo h2 { margin: 0; color: #00ffcc; font-size: clamp(1.15rem, 4vw, 1.55rem); line-height: 1.25; text-align: center; }
+    #modalSolfejo .modal-conteudo > input, #modalInstrumental .modal-conteudo > input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #52627e; border-radius: 8px; background: #0f172a; color: #f8fafc; font-size: 1rem; outline: none; }
+    #modalSolfejo .modal-conteudo > input:focus, #modalInstrumental .modal-conteudo > input:focus { border-color: #00ffcc; box-shadow: 0 0 0 3px rgba(0,255,204,.18); }
+    #modalSolfejo .botoes-modal button, #modalInstrumental .botoes-modal button { min-height: 42px; color: #fff; background: #334155; border: 1px solid #64748b; }
+    #modalSolfejo .botoes-modal button:first-child, #modalInstrumental .botoes-modal button:first-child { background: #7f1d4d; border-color: #be185d; }
+    #modalSolfejo .botoes-modal button:last-child, #modalInstrumental .botoes-modal button:last-child { background: #047857; border-color: #10b981; }
+    #modalSolfejo .botoes-modal button:hover, #modalInstrumental .botoes-modal button:hover { filter: brightness(1.18); transform: translateY(-1px); }
+    #modalSolfejo .fechar-modal, #modalInstrumental .fechar-modal { position: absolute; top: 10px; right: 15px; color: #cbd5e1; font-size: 1.4rem; line-height: 1; cursor: pointer; }
+    #modalSolfejo .fechar-modal:hover, #modalInstrumental .fechar-modal:hover { color: #fff; }
     .btn-adicionar { background: #16a34a; } .btn-adicionar:hover { background: #15803d; transform: scale(1.03); }
     .btn-cancelar { background: #dc2626; } .btn-cancelar:hover { background: #b91c1c; transform: scale(1.03); }
 
