@@ -813,10 +813,10 @@ body {
 .modal-chamadas-section { margin-top: 14px; text-align: left; }
 .modal-chamadas-section h4 { font-size: 0.82rem; color: var(--azul); margin-bottom: 8px; font-weight: 700; }
 .lista-chamadas { display: flex; flex-wrap: wrap; gap: 5px; max-height: 100px; overflow-y: auto; }
-.chamada-item { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 54px; padding: 4px 6px; border-radius: 5px; border: 1px solid transparent; font-size: 0.72rem; font-weight: 700; line-height: 1.1; }
-.chamada-simbolo { font-size: 0.82rem; font-weight: 900; line-height: 1; }
+.chamada-item { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 58px; padding: 4px 7px; border-radius: 5px; border: 1px solid transparent; font-size: 0.72rem; font-weight: 700; line-height: 1.1; }
+.chamada-simbolo-quadrado { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border: 1px solid currentColor; border-radius: 3px; font-size: 0.72rem; font-weight: 900; line-height: 1; }
 .chamada-item.presente { color: #bbf7d0; background: rgba(34,197,94,.22); border-color: rgba(34,197,94,.45); }
-.chamada-item.justificado { color: #fed7aa; background: rgba(249,115,22,.22); border-color: rgba(249,115,22,.55); }
+.chamada-item.justificado { color: #fed7aa; background: rgba(249,115,22,.3); border-color: #f97316; }
 .chamada-item.ausente { color: #fecaca; background: rgba(248,113,113,.22); border-color: rgba(248,113,113,.45); }
 .sem-chamadas { color: var(--muted); font-size: 0.76rem; margin: 2px 0; }
 

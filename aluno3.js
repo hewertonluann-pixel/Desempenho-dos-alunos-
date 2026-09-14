@@ -214,7 +214,7 @@ export function abrirPopupFrequencia(info, destino) {
               const rotulo = chamada.status === "P" ? "Presente" : chamada.status === "FJ" ? "Falta justificada" : "Falta";
               return `<span class="chamada-item ${estado}"
                 title="${rotulo}"
-                aria-label="${rotulo} em ${formatarData(chamada.data)}"><span class="chamada-simbolo" aria-hidden="true">${simbolo}</span><span>${formatarData(chamada.data)}</span></span>`;
+                aria-label="${rotulo} em ${formatarData(chamada.data)}"><span class="chamada-simbolo-quadrado" aria-hidden="true">${simbolo}</span><span>${formatarData(chamada.data)}</span></span>`;
             }).join("")
           : `<p class="sem-chamadas">Nenhuma chamada registrada para este aluno neste mês.</p>`
         }
