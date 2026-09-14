@@ -42,6 +42,9 @@ export async function obterEventosDoAno(ano, turmaId = null) {
       eventos.push({
         id: doc.id,
         data: dados.data,
+        turmaId: dados.turmaId || "",
+        turmaNome: dados.turmaNome || "",
+        tipo: dados.tipo || "aula",
         presencas: dados.presencas || []
       });
     }
