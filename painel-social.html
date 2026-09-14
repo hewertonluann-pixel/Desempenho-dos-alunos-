@@ -434,6 +434,7 @@
     import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { regrasDeConquistas } from "./conquistas.js";
     import { obterEventosDoAno, agruparEventosPorMes } from "./frequencia.js";
+    import { calcularFrequenciaElegivel } from "./participacoes.js";
 
     let todosAtivos   = [];
     let gruposEventos = {};
@@ -445,12 +446,7 @@
     // Persistência de preferências
     let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
     let ordenacaoGeral = localStorage.getItem("ps_ordenacaoGeral") || "nivel";
-    let turmaAtiva    = localStorage.getItem("ps_turmaAtiva") || "todas"; // "todas" | "fase1" | "fase2" | "orquestra" | "__sem_turma__"
-    // Se o valor salvo for inválido (ex.: turmaId antigo do Firestore), resetar para "todas"
-    if (!["todas", "fase1", "fase2", "orquestra", "__sem_turma__"].includes(turmaAtiva)) {
-      turmaAtiva = "todas";
-      localStorage.setItem("ps_turmaAtiva", turmaAtiva);
-    }
+    let turmaAtiva    = localStorage.getItem("ps_turmaAtiva") || "todas";
 
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -509,21 +505,31 @@
       const d = regrasDeConquistas.filter(r => r.condicao(aluno)).map(r => r.icone);
       return d.length > 0 ? d.join(" ") : "—";
     }
+    function chamadasDoAluno(aluno, grupos, mes = null) {
+      const eventos = Object.keys(grupos)
+        .filter(ch => !mes || ch === mes)
+        .flatMap(ch => grupos[ch] || []);
+      if (!aluno.turmaId) {
+        const listadas = eventos.filter(ev => ev.tipo !== "coral" && ev.presencas?.some(p =>
+          (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome
+        ));
+        const avaliadas = listadas.filter(ev => {
+          const p = ev.presencas.find(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome);
+          return p?.presenca !== "justificado" && p?.presenca !== "J";
+        });
+        const presentes = avaliadas.filter(ev => {
+          const p = ev.presencas.find(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome);
+          return p?.presenca === "presente" || p?.presenca === "P";
+        }).length;
+        return { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
+      }
+      return calcularFrequenciaElegivel(eventos, aluno, aluno.turmaId);
+    }
     function calcularEnergiaAnualLocal(aluno, grupos) {
-      let total = 0, presentes = 0;
-      Object.keys(grupos).forEach(ch => grupos[ch].forEach(ev => {
-        total++;
-        const h = ev.presencas.find(p => p.nome === aluno.nome);
-        if (h && h.presenca === "presente") presentes++;
-      }));
-      return total > 0 ? Math.round((presentes / total) * 100) : 0;
+      return chamadasDoAluno(aluno, grupos).percentual ?? 0;
     }
     function freqAlunoNoMes(aluno, mesIdx) {
-      const evs = gruposEventos[`2026-${mesesChaves[mesIdx]}`] || [];
-      if (!evs.length) return 0;
-      let p = 0;
-      evs.forEach(ev => { const h = ev.presencas.find(x => x.nome === aluno.nome); if (h && h.presenca === "presente") p++; });
-      return Math.round((p / evs.length) * 100);
+      return chamadasDoAluno(aluno, gruposEventos, `2026-${mesesChaves[mesIdx]}`).percentual ?? 0;
     }
     function agruparPorGrupo(alunos) {
       const map = new Map();
@@ -536,6 +542,8 @@
     // Chaves: "fase1", "fase2", "orquestra", "__sem_turma__"
     // ================================================================
     function chaveTurma(aluno) {
+      const turma = todasTurmas.find(t => t.id === aluno.turmaId);
+      if (turma && String(turma.tipo || "").toLowerCase() !== "coral") return turma.id;
       const fase = getFaseAluno(aluno);
       if (fase === "fase1") return "fase1";
       if (fase === "fase2") return "fase2";
@@ -544,18 +552,23 @@
       return "__sem_turma__";
     }
     function nomeTurmaDisplay(chave) {
+      const turma = todasTurmas.find(t => t.id === chave);
+      if (turma) return turma.nome || "Turma";
       if (chave === "fase1") return "Fase 1";
       if (chave === "fase2") return "Fase 2";
       if (chave === "orquestra") return "Orquestra";
       return "Sem turma";
     }
     function iconTurmaDisplay(chave) {
+      const turma = todasTurmas.find(t => t.id === chave);
+      if (turma) return "🎻";
       if (chave === "fase1") return "📚";
       if (chave === "fase2") return "📚";
       if (chave === "orquestra") return "🎻";
       return "👥";
     }
     function ordemTurma(chave) {
+      if (todasTurmas.some(t => t.id === chave)) return 0;
       // Orquestra primeiro, depois Fase 1, Fase 2, e por último Sem turma
       if (chave === "orquestra") return 0;
       if (chave === "fase1") return 1;
@@ -706,7 +719,7 @@
     // CARD — FASE 1 (só presença, sem instrumento, sem nível)
     // ================================================================
     function htmlCardFase1(aluno) {
-      const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
@@ -735,7 +748,7 @@
     // CARD — FASE 2 (presença + índice de leitura, sem instrumento)
     // ================================================================
     function htmlCardFase2(aluno) {
-      const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
       const leitura       = aluno.leitura ?? 0;
       const conquistas    = calcularConquistas(aluno);
@@ -769,7 +782,7 @@
     // CARD — ORQUESTRA / FASE 3 (com instrumento, nível geral, leitura e método)
     // ================================================================
     function htmlCard(aluno) {
-      const energiaMensal = aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
       const total         = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
       const conquistas    = calcularConquistas(aluno);
@@ -848,7 +861,7 @@
       const nome = nomeTurmaDisplay(chave);
       const icone = iconTurmaDisplay(chave);
       const mediaAnual  = media(alunos.map(a => a.energiaAnual ?? 0));
-      const mediaMensal = media(alunos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
+      const mediaMensal = media(alunos.map(a => a.energiaMensal ?? a.frequenciaMensal?.porcentagem ?? 0));
       const destaqueNivel  = alunos.length ? alunos.slice().sort((a, b) => ((b.leitura ?? 0) + (b.metodo ?? 0)) - ((a.leitura ?? 0) + (a.metodo ?? 0)))[0] : null;
       const destaqueMensal = alunos.length ? alunos.slice().sort((a, b) => (b.frequenciaMensal?.porcentagem ?? 0) - (a.frequenciaMensal?.porcentagem ?? 0))[0] : null;
       const htmlDestaque = (al, titulo) => al
@@ -893,6 +906,7 @@
 
     function renderizarTudo() {
       const container   = document.getElementById("gridCompleto");
+      todosAtivos.forEach(a => { a.energiaMensal = freqAlunoNoMes(a, mesAtual); });
       const grupoMap    = agruparPorGrupo(todosAtivos);
       const subgrupoMap = agruparPorSubgrupo(todosAtivos);
       // Excluir maestros do agrupamento por turma (eles têm card próprio no topo)
@@ -926,7 +940,7 @@
       } else {
         // ── Renderização por turma ──
         // Sempre mostrar as 3 turmas fixas + sem turma
-        const todasChaves = ["orquestra", "fase1", "fase2", "__sem_turma__"];
+        const todasChaves = [...turmaMap.keys()];
         const chavesVisiveis = turmaAtiva === "todas"
           ? todasChaves
           : [turmaAtiva];
@@ -981,6 +995,15 @@
       todosAtivos = alunos.filter(a => a.ativo !== false);
       if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
       if (turmasSnap) todasTurmas = turmasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const idsCoral = new Set(todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral").map(t => t.id));
+      todosAtivos = todosAtivos.filter(a => !idsCoral.has(a.turmaId));
+      if (turmaAtiva !== "todas" && !todasTurmas.some(t => t.id === turmaAtiva)) {
+        turmaAtiva = "todas";
+        localStorage.setItem("ps_turmaAtiva", turmaAtiva);
+      }
+      alunos.forEach(a => {
+        a.energiaMensal = freqAlunoNoMes(a, mesAtual);
+      });
       renderizarTudo();
     }
 
