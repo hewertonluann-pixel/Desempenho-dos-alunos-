@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <title>Painel Social 🎵 — Orquestra</title>
   <link rel="stylesheet" href="aluno.css" />
   <link rel="stylesheet" href="bottom-nav.css" />
@@ -502,7 +503,13 @@
     function medalha(pos) { return pos === 0 ? "🥇" : pos === 1 ? "🥈" : pos === 2 ? "🥉" : `${pos+1}.`; }
     function media(arr)   { if (!arr.length) return 0; return Math.round(arr.reduce((s, v) => s + v, 0) / arr.length); }
     function calcularConquistas(aluno) {
-      const d = regrasDeConquistas.filter(r => r.condicao(aluno)).map(r => r.icone);
+      // As conquistas agora são históricas e ficam salvas como uma lista de IDs.
+      // O painel social exibe apenas um resumo, sem executar regras antigas.
+      const ids = Array.isArray(aluno.conquistas) ? aluno.conquistas : [];
+      const d = ids.map(item => {
+        const id = typeof item === "string" ? item : item?.id;
+        return regrasDeConquistas.find(regra => regra.id === id)?.icone;
+      }).filter(Boolean);
       return d.length > 0 ? d.join(" ") : "—";
     }
     function chamadasDoAluno(aluno, grupos, mes = null) {
