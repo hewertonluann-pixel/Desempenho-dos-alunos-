@@ -22,10 +22,8 @@
 import { db } from "./firebase-config.js";
 import { collection, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import { regrasDeConquistas } from "./conquistas.js";
 const storage = getStorage();
-const auth = getAuth();
 const LIMITE = 2 * 1024 * 1024;
 const configRef = doc(db, "configuracoes", "conquistas");
 let configuracoes = {};
@@ -37,7 +35,7 @@ function render(){
   document.querySelectorAll("[data-upload]").forEach(b=>b.addEventListener("click",()=>upload(b.dataset.upload,b)));
   document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>remover(b.dataset.remove,b)));
 }
-async function carregar(){if(!autorizado()){statusGeral.textContent="Acesso restrito ao professor classificado.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Você não tem permissão para editar conquistas.</p>";return}try{if(!auth.currentUser)await signInAnonymously(auth);const snap=await getDoc(configRef);configuracoes=snap.exists()?snap.data().itens||{}:{};render()}catch(e){console.error(e);statusGeral.textContent="Ative o login anônimo no Firebase Authentication para permitir o upload.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Não foi possível autenticar o editor de ícones.</p>"}}
+async function carregar(){if(!autorizado()){statusGeral.textContent="Acesso restrito ao professor classificado.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Você não tem permissão para editar conquistas.</p>";return}try{const snap=await getDoc(configRef);configuracoes=snap.exists()?snap.data().itens||{}:{};render()}catch(e){console.error(e);statusGeral.textContent="Não foi possível carregar as configurações das conquistas.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Erro ao carregar o editor de ícones.</p>"}}
 async function upload(id,botao){const input=document.querySelector(`[data-file="${id}"]`), file=input?.files?.[0], status=document.querySelector(`[data-status="${id}"]`);if(!file){status.textContent="Escolha um PNG.";status.className="status err";return}if(file.type!=="image/png"||file.size>LIMITE){status.textContent="Use PNG de até 2 MB.";status.className="status err";return}botao.disabled=true;status.textContent="Enviando...";try{const caminho=`conquistas/${id}.png`;const arquivoRef=ref(storage,caminho);await uploadBytes(arquivoRef,file,{contentType:"image/png",cacheControl:"public,max-age=3600"});const url=await getDownloadURL(arquivoRef);configuracoes[id]={url,caminho,atualizadoEm:new Date().toISOString()};await setDoc(configRef,{itens:configuracoes},{merge:true});status.textContent="Ícone salvo.";status.className="status ok";document.getElementById("barraProgresso").style.width="100%";render()}catch(e){console.error(e);status.textContent="Não foi possível enviar.";status.className="status err"}finally{botao.disabled=false}}
 async function remover(id,botao){const status=document.querySelector(`[data-status="${id}"]`);if(!confirm("Remover o ícone desta conquista?"))return;botao.disabled=true;try{const caminho=configuracoes[id]?.caminho||`conquistas/${id}.png`;await deleteObject(ref(storage,caminho)).catch(()=>{});delete configuracoes[id];await setDoc(configRef,{itens:configuracoes},{merge:true});render()}catch(e){status.textContent="Não foi possível remover.";status.className="status err"}finally{botao.disabled=false}}
 carregar();
