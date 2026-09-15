@@ -494,7 +494,8 @@ body {
 .achievement-card.bloqueado { opacity: 0.5; cursor: not-allowed; }
 .achievement-card.bloqueado:hover { transform: none; box-shadow: 0 5px 18px rgba(0,0,0,.4); }
 
-.achievement-icon { display: block; font-size: 1.5rem; margin-bottom: 6px; }
+.achievement-icon { display: flex; align-items: center; justify-content: center; width: 62px; height: 62px; font-size: 1.5rem; margin-bottom: 6px; }
+.achievement-icon img { display: block; width: 58px; height: 58px; object-fit: contain; }
 
 .achievement-name {
   font-size: 0.65rem;
@@ -876,7 +877,8 @@ body {
 
 .conquista-header-modal { background: linear-gradient(135deg, rgba(14,165,233,.15), rgba(34,211,238,.1)); border-bottom: 1px solid var(--border); padding: 30px 24px; text-align: center; position: relative; }
 
-.conquista-simbolo-grande { font-size: 5rem; line-height: 1; margin-bottom: 16px; text-shadow: 0 0 20px rgba(34,211,238,.5); animation: pulse-glow 2s ease-in-out infinite; }
+.conquista-simbolo-grande { width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 5rem; line-height: 1; text-shadow: 0 0 20px rgba(34,211,238,.5); animation: pulse-glow 2s ease-in-out infinite; }
+.conquista-simbolo-grande img { width: 100%; height: 100%; object-fit: contain; }
 
 @keyframes pulse-glow {
   0%,100% { transform: scale(1); filter: brightness(1); }

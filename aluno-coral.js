@@ -8,6 +8,7 @@ import { db } from "./firebase-config.js";
 import {
   collection,
   getDocs,
+  getDoc,
   doc,
   updateDoc,
   query,
@@ -23,7 +24,7 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista } from "./conquistas.js";
+import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, definirIconesConquistas } from "./conquistas.js";
 import { carregarNotificacoes } from "./notificacoes.js";
 
 // 📸 Novo sistema de snapshots mensais
@@ -382,6 +383,8 @@ export async function iniciarPainelAluno() {
   await garantirSnapshotDoMes(aluno);
 
   const snapshots = await carregarSnapshotsAluno(aluno);
+  const configConquistas = await getDoc(doc(db, "configuracoes", "conquistas"));
+  definirIconesConquistas(configConquistas.exists() ? configConquistas.data().itens || {} : {});
 
   const destinoGrafico = document.getElementById("painelEvolucao");
   if (window.gerarGraficoEvolucao) {

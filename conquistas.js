@@ -21,6 +21,12 @@ export const regrasDeConquistas = [
 
 export const mapaConquistas = Object.fromEntries(regrasDeConquistas.map(c => [c.id, c]));
 
+export function definirIconesConquistas(itens = {}) {
+  regrasDeConquistas.forEach(regra => {
+    regra.imagemUrl = itens[regra.id]?.url || "";
+  });
+}
+
 function normalizarPremios(lista) {
   if (!Array.isArray(lista)) return [];
   return lista.map((item, ordem) => typeof item === "string"
@@ -96,8 +102,8 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
     const card = document.createElement("button");
     card.type = "button";
     card.className = `achievement-card desbloqueado raridade-${regra.raridade}`;
-    card.innerHTML = `<div class="achievement-icon">${regra.icone}</div><div class="achievement-name">${regra.titulo}</div><div class="achievement-data">${premio.desbloqueadaEm ? formatarData(premio.desbloqueadaEm) : "Desbloqueada"}</div>`;
-    card.addEventListener("click", () => abrirPopupConquista(regra.icone, regra.titulo, regra.descricao, premio.detalhe ? [premio.detalhe] : [], regra.raridade, regra.regraLogica));
+    card.innerHTML = `<div class="achievement-icon">${regra.imagemUrl ? `<img src="${regra.imagemUrl}" alt="" loading="lazy">` : regra.icone}</div><div class="achievement-name">${regra.titulo}</div><div class="achievement-data">${premio.desbloqueadaEm ? formatarData(premio.desbloqueadaEm) : "Desbloqueada"}</div>`;
+    card.addEventListener("click", () => abrirPopupConquista(regra.icone, regra.titulo, regra.descricao, premio.detalhe ? [premio.detalhe] : [], regra.raridade, regra.regraLogica, null, regra.imagemUrl));
     elementoAlvo.appendChild(card);
   });
 }
@@ -110,10 +116,11 @@ function formatarData(valor) {
 
 function safeSet(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
 
-export function abrirPopupConquista(icone, titulo, descricao, detalhes = [], raridade = "bronze", condicao = null, progresso = null) {
+export function abrirPopupConquista(icone, titulo, descricao, detalhes = [], raridade = "bronze", condicao = null, progresso = null, imagemUrl = "") {
   const popup = document.getElementById("popupConquista");
   if (!popup) return;
-  safeSet("conquistaIconeModal", icone || "🏆");
+  const iconeModal = document.getElementById("conquistaIconeModal");
+  if (iconeModal) iconeModal.innerHTML = imagemUrl ? `<img src="${imagemUrl}" alt="${titulo || "Conquista"}">` : (icone || "🏆");
   safeSet("conquistaNomeModal", titulo || "Conquista");
   safeSet("conquistaNivelModal", ({ ouro: "Ouro", prata: "Prata", bronze: "Bronze", lendario: "Lendário" })[raridade] || "Troféu");
   safeSet("conquistaDescricaoModal", descricao || "Conquista desbloqueada.");
