@@ -469,6 +469,26 @@ body {
   box-shadow: 0 5px 18px rgba(0,0,0,0.4);
 }
 
+.achievement-card.desbloqueado {
+  appearance: none;
+  width: 100%;
+  color: inherit;
+  cursor: pointer;
+  min-height: 116px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.achievement-card.desbloqueado.raridade-bronze { border-color: #cd7f32; background: linear-gradient(145deg, rgba(205,127,50,.2), #0b1220); }
+.achievement-card.desbloqueado.raridade-prata { border-color: #94a3b8; background: linear-gradient(145deg, rgba(148,163,184,.2), #0b1220); }
+.achievement-card.desbloqueado.raridade-ouro { border-color: #fbbf24; background: linear-gradient(145deg, rgba(251,191,36,.2), #0b1220); }
+.achievement-card.desbloqueado.raridade-lendario { border-color: #c084fc; background: linear-gradient(145deg, rgba(192,132,252,.24), #0b1220); box-shadow: 0 0 18px rgba(192,132,252,.25); }
+.achievement-card.desbloqueado:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.achievement-data { color: var(--muted); font-size: .62rem; }
+.conquistas-vazio { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 24px 12px; border: 1px dashed var(--border); border-radius: 12px; }
+
 .achievement-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.5); }
 .achievement-card.desbloqueado { border: 1px solid var(--border); box-shadow: 0 5px 18px rgba(0,0,0,.4); }
 .achievement-card.bloqueado { opacity: 0.5; cursor: not-allowed; }

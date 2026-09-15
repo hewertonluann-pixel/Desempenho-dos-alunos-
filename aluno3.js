@@ -23,7 +23,7 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista } from "./conquistas.js";
+import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, avaliarConquistasHistoricas, registrarConquistas } from "./conquistas.js";
 import { carregarNotificacoes } from "./notificacoes.js";
 import { calcularFrequenciaElegivel } from "./participacoes.js";
 
@@ -294,6 +294,7 @@ export async function calcularEnergiaDoAluno(aluno) {
   // para que gerarPainelConquistas possa avaliar as condições corretamente
   aluno.frequenciaMensal = freqMensal; // { totalEventos, presencasAluno, percentual }
   aluno.frequenciaTotal  = freqAnual.presencas;
+  aluno._eventosAno = todosEventos;
 
   atualizarEnergiaVisual(energiaMensal, energiaAnual);
   return energiaMensal;
@@ -375,6 +376,18 @@ export async function iniciarPainelAluno() {
     gerarGraficoEvolucao(aluno, energia, destinoGrafico, snapshots);
   }
 
+  const [eventosSnap, apresentacoesSnap] = await Promise.all([
+    getDocs(collection(db, "eventos")),
+    getDocs(collection(db, "apresentacoes")).catch(() => ({ docs: [] }))
+  ]);
+  const todosEventos = eventosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const eventosCoral = todosEventos.filter(ev => ev.tipo === "coral" || ev.turmaTipo === "coral");
+  const premiosCalculados = avaliarConquistasHistoricas(aluno, snapshots, aluno._eventosAno || [], eventosCoral, apresentacoesSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+  const conquistasAtualizadas = registrarConquistas(aluno, premiosCalculados);
+  if (JSON.stringify(conquistasAtualizadas) !== JSON.stringify(Array.isArray(aluno.conquistas) ? aluno.conquistas : [])) {
+    aluno.conquistas = conquistasAtualizadas;
+    await updateDoc(doc(db, "alunos", aluno.id), { conquistas: conquistasAtualizadas });
+  }
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
 
   if (ehDonoDaPagina) await carregarLicoesAluno(aluno.nome);
