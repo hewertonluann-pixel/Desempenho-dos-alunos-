@@ -63,7 +63,7 @@ function registro(ev, aluno) { return (ev?.presencas || []).find(x => (x.alunoId
 function mesFinal(mes) { return `${mes}-28`; }
 function mesSeguinte(anterior, atual) { const [a, m] = String(anterior).split("-").map(Number); const [aa, mm] = String(atual).split("-").map(Number); return aa * 12 + mm === a * 12 + m + 1; }
 
-export function avaliarConquistasHistoricas(aluno, snapshots = [], eventos = [], eventosCoral = [], apresentacoes = []) {
+export function avaliarConquistasHistoricas(aluno, snapshots = [], eventos = [], eventosCoral = [], apresentacoes = [], alunoNoCoral = false) {
   const premios = [];
   const adicionar = (id, competencia, data, detalhe = "") => premios.push({ id, competencia: mapaConquistas[id]?.periodicidade === "mensal" ? competencia : undefined, desbloqueadaEm: data || new Date().toISOString().slice(0, 10), detalhe });
   const chamadas = (eventos || []).filter(ev => chamadaElegivelParaAluno(ev, aluno, aluno.turmaId)).sort((a, b) => dataEvento(a).localeCompare(dataEvento(b)));
@@ -97,7 +97,7 @@ export function avaliarConquistasHistoricas(aluno, snapshots = [], eventos = [],
     evolucoes.push({ chave: atual.chave, evoluiu: leitura || metodo });
   }
   for (let i = 2; i < evolucoes.length; i++) if (evolucoes[i - 2].evoluiu && evolucoes[i - 1].evoluiu && evolucoes[i].evoluiu && mesSeguinte(evolucoes[i - 2].chave, evolucoes[i - 1].chave) && mesSeguinte(evolucoes[i - 1].chave, evolucoes[i].chave)) { adicionar("constancia", null, mesFinal(evolucoes[i].chave), "Combo de evolução em três meses consecutivos."); break; }
-  const coral = (eventosCoral || []).filter(ev => presente(ev, aluno)).sort((a, b) => dataEvento(a).localeCompare(dataEvento(b)))[0]; if (coral) adicionar("participacao_coral", null, dataEvento(coral), "Primeira presença registrada em chamada do Coral.");
+  const coral = alunoNoCoral ? (eventosCoral || []).filter(ev => presente(ev, aluno)).sort((a, b) => dataEvento(a).localeCompare(dataEvento(b)))[0] : null; if (coral) adicionar("participacao_coral", null, dataEvento(coral), "Primeira presença registrada em chamada do Coral.");
   if (aluno.classificado === true) adicionar("destaque_professor", null, dataISO(aluno.classificadoEm || aluno.criadoEm), "Classificação manual registrada.");
   const inicio = dataISO(aluno.criadoEm); if (inicio) { const aniversario = new Date(`${inicio}T00:00:00`); aniversario.setFullYear(aniversario.getFullYear() + 1); const hoje = new Date().toISOString().slice(0, 10); if (aniversario.toISOString().slice(0, 10) <= hoje) adicionar("aniversario_participacao", null, aniversario.toISOString().slice(0, 10), "Um ano desde o cadastro."); }
   const apresentacao = (apresentacoes || []).find(ev => presente(ev, aluno)); if (apresentacao) adicionar("presenca_apresentacao", null, dataEvento(apresentacao), "Presença registrada em apresentação.");
@@ -139,6 +139,32 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
       grade.appendChild(card);
     });
     elementoAlvo.appendChild(grade);
+    const unicas = [];
+    const idsUnicas = new Set();
+    premios.forEach(premio => {
+      const regra = mapaConquistas[premio.id];
+      if (regra?.periodicidade !== "mensal" && !idsUnicas.has(premio.id)) {
+        idsUnicas.add(premio.id);
+        unicas.push(premio);
+      }
+    });
+    if (unicas.length) {
+      const faixa = document.createElement("div");
+      faixa.className = "conquistas-unicas-faixa";
+      faixa.innerHTML = `<span class="conquistas-unicas-titulo">Únicas</span>`;
+      unicas.forEach(premio => {
+        const regra = mapaConquistas[premio.id];
+        const botao = document.createElement("button");
+        botao.type = "button";
+        botao.className = `conquista-unica-mini raridade-${regra.raridade}`;
+        botao.title = regra.titulo;
+        botao.setAttribute("aria-label", regra.titulo);
+        botao.innerHTML = regra.imagemUrl ? `<img src="${regra.imagemUrl}" alt="">` : regra.icone;
+        botao.addEventListener("click", () => abrirPopupConquista(regra.icone, regra.titulo, regra.descricao, premio.detalhe ? [premio.detalhe] : [], regra.raridade, regra.regraLogica, null, regra.imagemUrl));
+        faixa.appendChild(botao);
+      });
+      elementoAlvo.appendChild(faixa);
+    }
     elementoAlvo.querySelector("[data-mes-anterior]").addEventListener("click", () => { mesSelecionado = deslocarMes(mesSelecionado, -1); renderizar(); });
     elementoAlvo.querySelector("[data-mes-proximo]").addEventListener("click", () => { mesSelecionado = deslocarMes(mesSelecionado, 1); renderizar(); });
   };

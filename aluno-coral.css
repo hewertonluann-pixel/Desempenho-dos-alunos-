@@ -463,6 +463,11 @@ body {
 .conquistas-mes-vazio { grid-column: 1 / -1; color: var(--muted); text-align: center; padding: 20px 10px; border: 1px dashed var(--border); border-radius: 12px; }
 .conquistas-mes-vazio[hidden] { display: none; }
 .conquistas-grade-mes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+.conquistas-unicas-faixa { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; overflow-x: auto; padding: 7px 2px 3px; border-top: 1px solid rgba(148,163,184,.18); scrollbar-width: thin; }
+.conquistas-unicas-titulo { flex: 0 0 auto; color: var(--muted); font-size: .62rem; text-transform: uppercase; letter-spacing: .04em; }
+.conquista-unica-mini { flex: 0 0 34px; width: 34px; height: 34px; padding: 3px; border-radius: 8px; border: 1px solid var(--border); background: #0b1220; color: inherit; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.conquista-unica-mini img { display: block; width: 26px; height: 26px; object-fit: contain; }
+.conquista-unica-mini.raridade-bronze { border-color: #cd7f32; }.conquista-unica-mini.raridade-prata { border-color: #94a3b8; }.conquista-unica-mini.raridade-ouro { border-color: #fbbf24; }.conquista-unica-mini.raridade-lendario { border-color: #c084fc; }
 
 .achievement-card {
   background: #0b1220;

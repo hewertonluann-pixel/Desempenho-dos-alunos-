@@ -379,13 +379,18 @@ export async function iniciarPainelAluno() {
     gerarGraficoEvolucao(aluno, energia, destinoGrafico, snapshots);
   }
 
-  const [eventosSnap, apresentacoesSnap] = await Promise.all([
+  const [eventosSnap, apresentacoesSnap, turmasCoralSnap] = await Promise.all([
     getDocs(collection(db, "eventos")),
-    getDocs(collection(db, "apresentacoes")).catch(() => ({ docs: [] }))
+    getDocs(collection(db, "apresentacoes")).catch(() => ({ docs: [] })),
+    getDocs(collection(db, "turmas")).catch(() => ({ docs: [] }))
   ]);
   const todosEventos = eventosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const eventosCoral = todosEventos.filter(ev => ev.tipo === "coral" || ev.turmaTipo === "coral");
-  const premiosCalculados = avaliarConquistasHistoricas(aluno, snapshots, aluno._eventosAno || [], eventosCoral, apresentacoesSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+  const alunoNoCoral = turmasCoralSnap.docs.some(d => {
+    const turma = d.data();
+    return String(turma.tipo || "").toLowerCase() === "coral" && (turma.alunos || []).includes(aluno.id);
+  });
+  const premiosCalculados = avaliarConquistasHistoricas(aluno, snapshots, aluno._eventosAno || [], eventosCoral, apresentacoesSnap.docs.map(d => ({ id: d.id, ...d.data() })), alunoNoCoral);
   const conquistasAtualizadas = registrarConquistas(aluno, premiosCalculados);
   if (JSON.stringify(conquistasAtualizadas) !== JSON.stringify(Array.isArray(aluno.conquistas) ? aluno.conquistas : [])) {
     aluno.conquistas = conquistasAtualizadas;
