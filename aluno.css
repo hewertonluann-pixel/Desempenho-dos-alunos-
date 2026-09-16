@@ -457,6 +457,13 @@ body {
   gap: 10px;
 }
 
+.conquistas-navegacao { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 2px; color: var(--text); text-transform: capitalize; }
+.conquistas-mes-btn { width: 32px; height: 32px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: var(--azul-escuro); color: var(--text); font-size: 1.45rem; line-height: 1; cursor: pointer; }
+.conquistas-mes-btn:hover { background: var(--azul); }
+.conquistas-mes-vazio { grid-column: 1 / -1; color: var(--muted); text-align: center; padding: 20px 10px; border: 1px dashed var(--border); border-radius: 12px; }
+.conquistas-mes-vazio[hidden] { display: none; }
+.conquistas-grade-mes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+
 .achievement-card {
   background: #0b1220;
   padding: 10px 8px;

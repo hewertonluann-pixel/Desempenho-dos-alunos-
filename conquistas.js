@@ -108,20 +108,41 @@ export function avaliarConquistasHistoricas(aluno, snapshots = [], eventos = [],
 export function gerarPainelConquistas(aluno, elementoAlvo) {
   if (!elementoAlvo) return;
   const premios = normalizarPremios(aluno.conquistas);
-  elementoAlvo.innerHTML = "";
-  if (!premios.length) {
-    elementoAlvo.innerHTML = `<div class="conquistas-vazio">Ainda não há troféus desbloqueados. Continue participando!</div>`;
-    return;
-  }
-  premios.slice().sort((a, b) => String(a.desbloqueadaEm || "9999-12-31").localeCompare(String(b.desbloqueadaEm || "9999-12-31")) || (a.ordem ?? 0) - (b.ordem ?? 0)).forEach(premio => {
-    const regra = mapaConquistas[premio.id];
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = `achievement-card desbloqueado raridade-${regra.raridade}`;
-    card.innerHTML = `<div class="achievement-icon">${regra.imagemUrl ? `<img src="${regra.imagemUrl}" alt="" loading="lazy">` : regra.icone}</div><div class="achievement-name">${regra.titulo}</div><div class="achievement-data">${premio.desbloqueadaEm ? formatarData(premio.desbloqueadaEm) : "Desbloqueada"}</div>`;
-    card.addEventListener("click", () => abrirPopupConquista(regra.icone, regra.titulo, regra.descricao, premio.detalhe ? [premio.detalhe] : [], regra.raridade, regra.regraLogica, null, regra.imagemUrl));
-    elementoAlvo.appendChild(card);
-  });
+  const hoje = new Date();
+  const chaveHoje = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
+  let mesSelecionado = elementoAlvo.dataset.mesConquistas || chaveHoje;
+  const rotuloMes = chave => {
+    const [ano, mes] = chave.split("-").map(Number);
+    return new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date(ano, mes - 1, 1));
+  };
+  const deslocarMes = (chave, delta) => {
+    const [ano, mes] = chave.split("-").map(Number);
+    const data = new Date(ano, mes - 1 + delta, 1);
+    return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}`;
+  };
+  const renderizar = () => {
+    elementoAlvo.dataset.mesConquistas = mesSelecionado;
+    const doMes = premios.filter(premio => {
+      const competencia = premio.competencia || String(premio.desbloqueadaEm || "").slice(0, 7);
+      return competencia === mesSelecionado;
+    });
+    elementoAlvo.innerHTML = `<div class="conquistas-navegacao"><button type="button" class="conquistas-mes-btn" data-mes-anterior aria-label="Mês anterior">‹</button><strong>🏆 ${rotuloMes(mesSelecionado)}</strong><button type="button" class="conquistas-mes-btn" data-mes-proximo aria-label="Próximo mês">›</button></div><div class="conquistas-mes-vazio" ${doMes.length ? 'hidden' : ''}>Nenhum troféu desbloqueado neste mês.</div>`;
+    const grade = document.createElement("div");
+    grade.className = "conquistas-grade-mes";
+    doMes.slice().sort((a, b) => String(a.desbloqueadaEm || "9999-12-31").localeCompare(String(b.desbloqueadaEm || "9999-12-31")) || (a.ordem ?? 0) - (b.ordem ?? 0)).forEach(premio => {
+      const regra = mapaConquistas[premio.id];
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `achievement-card desbloqueado raridade-${regra.raridade}`;
+      card.innerHTML = `<div class="achievement-icon">${regra.imagemUrl ? `<img src="${regra.imagemUrl}" alt="" loading="lazy">` : regra.icone}</div><div class="achievement-name">${regra.titulo}</div><div class="achievement-data">${premio.desbloqueadaEm ? formatarData(premio.desbloqueadaEm) : "Desbloqueada"}</div>`;
+      card.addEventListener("click", () => abrirPopupConquista(regra.icone, regra.titulo, regra.descricao, premio.detalhe ? [premio.detalhe] : [], regra.raridade, regra.regraLogica, null, regra.imagemUrl));
+      grade.appendChild(card);
+    });
+    elementoAlvo.appendChild(grade);
+    elementoAlvo.querySelector("[data-mes-anterior]").addEventListener("click", () => { mesSelecionado = deslocarMes(mesSelecionado, -1); renderizar(); });
+    elementoAlvo.querySelector("[data-mes-proximo]").addEventListener("click", () => { mesSelecionado = deslocarMes(mesSelecionado, 1); renderizar(); });
+  };
+  renderizar();
 }
 
 function formatarData(valor) {
