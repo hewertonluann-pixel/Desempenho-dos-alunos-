@@ -460,7 +460,8 @@
                 const freqGeral = calcularFrequenciaElegivel(eventosAno.filter(e => e.turmaId === aluno.turmaId), aluno, aluno.turmaId);
                 const freqMesAnterior = calcularFrequenciaElegivel(todosEventos.filter(e=>e.data?.startsWith(chaveAnterior) && e.turmaId === aluno.turmaId), aluno, aluno.turmaId);
 
-                const conquistasMes = regrasDeConquistas.filter(c => c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual, percentual:freqMes.percentual}}) );
+                const idsConquistasMes = freqMes.percentual === 100 ? ["presenca_perfeita"] : freqMes.percentual >= 90 ? ["presenca_exemplar"] : freqMes.percentual >= 80 ? ["compromisso"] : [];
+                const conquistasMes = regrasDeConquistas.filter(c => idsConquistasMes.includes(c.id));
                 
                 const presencaDetalhada = eventosMes.filter(e => e.turmaId === aluno.turmaId)
                     .filter(ev => ev.presencas?.some(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome))

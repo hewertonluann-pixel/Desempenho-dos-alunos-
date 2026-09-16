@@ -476,9 +476,8 @@
         const freqMesAnterior = calcularFrequenciaElegivel(eventosMesAnt, aluno, aluno.turmaId);
         const chamadasMesAluno = obterChamadasElegiveis(eventosMes, aluno, aluno.turmaId);
 
-        const conquistasMes = regrasDeConquistas.filter(c =>
-          c.condicao({...aluno, frequenciaMensal:{porcentagem:freqMes.percentual, percentual:freqMes.percentual}})
-        );
+        const idsConquistasMes = freqMes.percentual === 100 ? ["presenca_perfeita"] : freqMes.percentual >= 90 ? ["presenca_exemplar"] : freqMes.percentual >= 80 ? ["compromisso"] : [];
+        const conquistasMes = regrasDeConquistas.filter(c => idsConquistasMes.includes(c.id));
         const presencaDetalhada = chamadasMesAluno.map(ev => {
           const p = ev.presencas?.find(x=>x.nome===aluno.nome);
           return { data: formatarData(ev.data), status: p?.presenca==="presente" ? "Presente" : p?.presenca === "justificado" ? "Justificado" : "Ausente" };

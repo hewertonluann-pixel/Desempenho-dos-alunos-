@@ -97,8 +97,8 @@ function corBarra(pct) {
 
 /* ===== CONQUISTAS DO ALUNO NO MÊS ===== */
 function contarConquistasMes(aluno, freqMes) {
-  const alunoSim = { ...aluno, frequenciaMensal: { porcentagem: freqMes.percentual } };
-  return regrasDeConquistas.filter(c => c.condicao(alunoSim)).length;
+  const id = freqMes.percentual === 100 ? "presenca_perfeita" : freqMes.percentual >= 90 ? "presenca_exemplar" : freqMes.percentual >= 80 ? "compromisso" : null;
+  return id && regrasDeConquistas.some(c => c.id === id) ? 1 : 0;
 }
 
 /* ===== CRIAR HTML DO CARD ===== */

@@ -130,14 +130,9 @@ export async function abrirPopupFrequencia(info, destino) {
   const aluno = await carregarAlunoAtual();
   const { mapaConquistas } = await import("./conquistas.js");
 
-  const alunoSimulado = {
-    ...aluno,
-    frequenciaMensal: { porcentagem: info.percentual }
-  };
-
-  const conquistasMes = [];
-  if (mapaConquistas.presenca_perfeita.condicao(alunoSimulado)) conquistasMes.push(mapaConquistas.presenca_perfeita);
-  if (mapaConquistas.musico_pontual.condicao(alunoSimulado)) conquistasMes.push(mapaConquistas.musico_pontual);
+  const percentual = info.percentual ?? 0;
+  const idConquista = percentual === 100 ? "presenca_perfeita" : percentual >= 90 ? "presenca_exemplar" : percentual >= 80 ? "compromisso" : null;
+  const conquistasMes = idConquista && mapaConquistas[idConquista] ? [mapaConquistas[idConquista]] : [];
 
   destino.querySelector(".modal-content").innerHTML = `
     <span class="close-button" onclick="fecharPopupFrequencia()">&times;</span>
