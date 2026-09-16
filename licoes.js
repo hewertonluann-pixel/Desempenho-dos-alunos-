@@ -47,6 +47,7 @@ let streamAtual = null;
 let tipoSelecionado = null; // 'leitura' | 'metodo'
 
 let alunoIdCache = null;
+let enviandoLicao = false;
 
 /* ============================================================
    ESTILOS
@@ -970,11 +971,17 @@ async function enviarLicao() {
     if (msg) { msg.textContent = "Informe o número da lição."; msg.className = "msg-licao err"; }
     return;
   }
+  if (enviandoLicao) return;
+  enviandoLicao = true;
+  const btnEnviar = document.getElementById("btnEnviarLicao");
+  if (btnEnviar) btnEnviar.disabled = true;
 
   let usuario;
   try { usuario = JSON.parse(localStorage.getItem("usuarioAtual")); } catch { usuario = null; }
   if (!usuario?.nome) {
     if (msg) { msg.textContent = "Sessão inválida. Faça login novamente."; msg.className = "msg-licao err"; }
+    enviandoLicao = false;
+    if (btnEnviar) btnEnviar.disabled = false;
     return;
   }
 
@@ -989,14 +996,40 @@ async function enviarLicao() {
       const snap = await getDocs(q);
       if (snap.empty) {
         if (msg) { msg.textContent = "Aluno não encontrado."; msg.className = "msg-licao err"; }
+        enviandoLicao = false;
+        if (btnEnviar) btnEnviar.disabled = false;
         return;
       }
       alunoId = snap.docs[0].id;
       alunoIdCache = alunoId;
     } catch {
       if (msg) { msg.textContent = "Erro ao buscar dados do aluno."; msg.className = "msg-licao err"; }
+      enviandoLicao = false;
+      if (btnEnviar) btnEnviar.disabled = false;
       return;
     }
+  }
+
+  try {
+    const existentes = await getDocs(query(
+      collection(db, "licoes"),
+      where("alunoId", "==", alunoId),
+      where("tipo", "==", tipo)
+    ));
+    const duplicada = existentes.docs.some(d => {
+      const licao = d.data();
+      const status = String(licao.status || "").toLowerCase();
+      return Number(licao.numero) === numero && status !== "reprovada" && status !== "reprovado";
+    });
+    if (duplicada) {
+      if (msg) { msg.textContent = `A lição ${numero} já foi enviada. Escolha o próximo número.`; msg.className = "msg-licao err"; }
+      await preencherProximoNumero();
+      enviandoLicao = false;
+      if (btnEnviar) btnEnviar.disabled = false;
+      return;
+    }
+  } catch (erroDuplicidade) {
+    console.warn("Validação de duplicidade indisponível; envio continuará:", erroDuplicidade);
   }
 
   const caminho   = `licoes/${alunoId}/${tipo}_${numero}_${Date.now()}.webm`;
@@ -1006,6 +1039,8 @@ async function enviarLicao() {
     // ✅ CORRIGIDO: Validação adicional do blob antes do upload
     if (blobAtual.size < 1000) {
       if (msg) { msg.textContent = "⚠ Áudio muito pequeno para enviar. Grave novamente."; msg.className = "msg-licao err"; }
+      enviandoLicao = false;
+      if (btnEnviar) btnEnviar.disabled = false;
       return;
     }
 
@@ -1060,6 +1095,7 @@ async function enviarLicao() {
       fecharModalLicao();
       carregarLicoesAluno(alunoNome);
     }, 1200);
+    enviandoLicao = false;
 
   } catch (erro) {
     console.error("❌ Erro ao enviar lição:", erro);
@@ -1069,6 +1105,8 @@ async function enviarLicao() {
     else if (erro.message?.includes("CORS"))   mensagemErro = "Erro de CORS. Tente novamente.";
     else if (erro.message?.includes("network")) mensagemErro = "Erro de rede. Verifique sua conexão.";
     if (msg) { msg.textContent = mensagemErro; msg.className = "msg-licao err"; }
+    enviandoLicao = false;
+    if (btnEnviar) btnEnviar.disabled = false;
   }
 }
 
