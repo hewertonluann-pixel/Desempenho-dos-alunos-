@@ -1,10 +1,14 @@
-const CACHE_NAME = "painel-orquestra-cache-v41";
+const CACHE_NAME = "painel-orquestra-cache-v42";
 const urlsToCache = [
   "/",
   "/index.html",
   "/aluno.html",
   "/professor.html",
   "/coral.html",
+  "/favicon.svg",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/logo-fa.jpeg",
   "/manifest-coral.json",
   "/ensaio2.html",
   "/auth.js",
