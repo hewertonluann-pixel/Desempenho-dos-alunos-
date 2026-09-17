@@ -15,7 +15,7 @@ export const regrasDeConquistas = [
   { id: "superacao", titulo: "Superação", icone: "🚀", raridade: "ouro", descricao: "Melhorou a frequência em relação ao mês anterior.", regraLogica: "Frequência mensal maior que no mês anterior." },
   { id: "retorno_ao_ritmo", titulo: "Retorno ao Ritmo", icone: "🔁", raridade: "prata", descricao: "Voltou a atingir pelo menos 80% depois de um mês abaixo da meta.", regraLogica: "Mês anterior abaixo de 80% e mês atual igual ou superior a 80%." },
   { id: "participacao_coral", titulo: "Primeira Participação Coral", icone: "🎶", raridade: "prata", descricao: "Participou pela primeira vez de uma chamada do Coral.", regraLogica: "Primeira presença registrada em chamada do Coral." },
-  { id: "destaque_professor", titulo: "Destaque do Professor", icone: "🏅", raridade: "ouro", descricao: "Recebeu classificação manual do professor.", regraLogica: "Classificação manual registrada pelo professor." },
+  { id: "destaque_professor", titulo: "Líder", icone: "🏅", raridade: "ouro", descricao: "Recebeu classificação manual do professor.", regraLogica: "Classificação manual registrada pelo professor." },
   { id: "aniversario_participacao", titulo: "Aniversário de Participação", icone: "🎂", raridade: "ouro", descricao: "Completou um ano desde o cadastro.", regraLogica: "Pelo menos um ano desde criadoEm." },
   { id: "presenca_apresentacao", titulo: "Presença em Apresentação", icone: "🎤", raridade: "lendario", descricao: "Participou de uma apresentação registrada no sistema.", regraLogica: "Presença em uma apresentação." }
 ];
