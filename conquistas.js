@@ -151,7 +151,7 @@ export function gerarPainelConquistas(aluno, elementoAlvo) {
     if (unicas.length) {
       const faixa = document.createElement("div");
       faixa.className = "conquistas-unicas-faixa";
-      faixa.innerHTML = `<span class="conquistas-unicas-titulo">Únicas</span>`;
+      faixa.innerHTML = `<span class="conquistas-unicas-titulo"></span>`;
       unicas.forEach(premio => {
         const regra = mapaConquistas[premio.id];
         const botao = document.createElement("button");
