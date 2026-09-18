@@ -299,7 +299,7 @@
           );
         }
         alunos = snap.docs
-          .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+          .map(d => ({ id: d.id, nome: d.data().nome, instrumento: turmaAtiva.tipo === "coral" ? (d.data().instrumentoCoral || d.data().instrumento || "") : (d.data().instrumento || ""), foto: d.data().foto || "", presenca: "" }))
           .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
         return;
       }

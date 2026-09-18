@@ -823,7 +823,7 @@
         .map(d => ({
           id: d.id,
           nome: d.data().nome,
-          instrumento: d.data().instrumento || "",
+          instrumento: ehCoral ? (d.data().instrumentoCoral || d.data().instrumento || "") : (d.data().instrumento || ""),
           foto: d.data().foto || "",
           presenca: ""
         }))
