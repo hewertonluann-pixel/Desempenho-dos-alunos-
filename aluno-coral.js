@@ -106,7 +106,7 @@ export function montarPainelAluno(aluno) {
   if (labelInstrumento) {
     labelInstrumento.textContent = ehFase
       ? `📚 ${aluno.turmaNome}`
-      : (aluno.instrumento || "Não definido");
+      : (aluno.instrumentoCoral || aluno.instrumento || "Não definido");
   }
 
   const fotoImg = document.getElementById("fotoAluno");
