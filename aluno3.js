@@ -206,7 +206,7 @@ export function abrirPopupFrequencia(info, destino) {
     .map(id => mapaConquistas[id])
     .filter(Boolean);
   const conquistasHTML = conquistasFrequencia.length
-    ? `<div class="modal-conquistas-section"><h4>🏆 Conquistas do Mês</h4><div class="conquistas-mes-list">${conquistasFrequencia.map(c => `<div class="conquista-mes-card"><div class="conquista-mes-icon">${c.imagemUrl ? `<img src="${escaparHtml(c.imagemUrl)}" alt="${escaparHtml(c.titulo)}">` : c.icone}</div><div class="conquistas-mes-info"><div class="conquista-mes-titulo">${escaparHtml(c.titulo)}</div><div class="conquista-mes-descricao">${escaparHtml(c.descricao)}</div></div></div>`).join('')}</div></div>`
+    ? `<div class="modal-conquistas-section"><h4>🏆 Conquistas do Mês</h4><div class="conquistas-mes-list">${conquistasFrequencia.map(c => `<div class="conquista-mes-card"><div class="conquista-mes-icon">${c.imagemUrl ? `<img src="${escaparHtml(c.imagemUrl)}" alt="${escaparHtml(c.titulo)}">` : c.icone}</div><div class="conquista-mes-info"><div class="conquista-mes-titulo">${escaparHtml(c.titulo)}</div><div class="conquista-mes-descricao">${escaparHtml(c.descricao)}</div></div></div>`).join('')}</div></div>`
     : '';
   destino.querySelector(".modal-content .modal-body").innerHTML = `
     <h2 class="modal-title">📅 Frequência de ${meses[info.mes]}</h2>
