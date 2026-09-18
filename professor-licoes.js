@@ -634,11 +634,13 @@ export function mostrarPainelLicoes() {
   const destino = document.getElementById("painelLicoesProf");
   if (!destino) { console.error("❌ painelLicoesProf não encontrado."); return; }
 
+  window.ocultarTodosPaineis?.();
+
   if (!document.getElementById("cardSolicitacoesLicao")) {
     inserirPainel();
     destino.style.display = "block";
     return;
   }
 
-  destino.style.display = (destino.style.display === "none" || destino.style.display === "") ? "block" : "none";
+  destino.style.display = "block";
 }

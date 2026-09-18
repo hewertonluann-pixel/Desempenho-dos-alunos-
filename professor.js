@@ -222,6 +222,7 @@ async function carregarAlunos() {
 }
 
 export async function renderizarPainel() {
+  window.ocultarTodosPaineis?.();
   const loader = document.getElementById("loader");
   const painel = document.getElementById("painel");
   const conteudo = document.getElementById("conteudo");

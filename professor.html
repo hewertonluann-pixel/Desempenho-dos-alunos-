@@ -493,7 +493,7 @@
       <button onclick="window.location.href='ensaio2.html'">📋 Fazer Chamada</button>
       <button onclick="window.location.href='gerenciar-eventos.html'">🗂️ Gerenciar Chamadas</button>
       <button id="btnAtualizarComprometimento">⚡ Atualizar Comprometimento</button>
-      <button onclick="carregarModulo('relatorio')">📊 Relatório Mensal</button>
+      <button onclick="mostrarPainelRelatorio()">📊 Relatório Mensal</button>
       <button onclick="mostrarPainelSnapshots()">📸 Evolução Mensal</button>
       <button onclick="window.location.href='conquistas-editor.html'">🏆 Editar Conquistas</button>
       <button onclick="window.location.href='dashboard-turma.html'" style="background:linear-gradient(135deg,#0891b2,#0e7490);">🖥️ Dashboard Turma</button>
@@ -693,9 +693,13 @@
       const p = document.getElementById('painelSnapshots');
       p.style.display = 'block';
     }
-    function carregarRelatorio() {
+    function carregarRelatorio() { mostrarPainelRelatorio(); }
+    function mostrarPainelRelatorio() {
+      ocultarTodosPaineis();
       if (typeof carregarModulo === 'function') carregarModulo('relatorio');
     }
+    window.ocultarTodosPaineis = ocultarTodosPaineis;
+    window.mostrarPainelRelatorio = mostrarPainelRelatorio;
 
     /* ══════════════════════════════════════════
        BOTTOM SHEET — lógica
@@ -767,6 +771,8 @@
           if (intro) intro.style.display = 'none';
         });
       });
+      document.getElementById('btnAdicionarAluno')?.addEventListener('click', ocultarTodosPaineis);
+      document.getElementById('btnAtualizarComprometimento')?.addEventListener('click', ocultarTodosPaineis);
     });
   </script>
 
