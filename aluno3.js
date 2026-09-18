@@ -24,7 +24,7 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, avaliarConquistasHistoricas, registrarConquistas, definirIconesConquistas } from "./conquistas.js";
+import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, avaliarConquistasHistoricas, registrarConquistas, definirIconesConquistas, mapaConquistas } from "./conquistas.js";
 import { carregarNotificacoes } from "./notificacoes.js";
 import { calcularFrequenciaElegivel } from "./participacoes.js";
 
@@ -189,15 +189,24 @@ export function abrirPopupFrequencia(info, destino) {
     })
     .filter(Boolean)
     .sort((a, b) => (a.data || "").localeCompare(b.data || ""));
-  const conquistasFrequencia = [];
-  if (info.percentual >= 100) {
-    conquistasFrequencia.push({ icone: '🎖️', titulo: 'Presença Perfeita', descricao: 'Comparece a 100% dos ensaios.' });
-    conquistasFrequencia.push({ icone: '🎯', titulo: 'Músico Esforçado', descricao: 'Frequência mensal acima de 80%.' });
-  } else if (info.percentual >= 80) {
-    conquistasFrequencia.push({ icone: '🎯', titulo: 'Músico Esforçado', descricao: 'Frequência mensal acima de 80%.' });
-  }
+  const escaparHtml = valor => String(valor ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+  const idsConquistasFrequencia = info.percentual >= 100
+    ? ["presenca_perfeita"]
+    : info.percentual >= 90
+      ? ["presenca_exemplar"]
+      : info.percentual >= 80
+        ? ["compromisso"]
+        : [];
+  const conquistasFrequencia = idsConquistasFrequencia
+    .map(id => mapaConquistas[id])
+    .filter(Boolean);
   const conquistasHTML = conquistasFrequencia.length
-    ? `<div class="modal-conquistas-section"><h4>🏆 Conquistas do Mês</h4><div class="conquistas-mes-list">${conquistasFrequencia.map(c => `<div class="conquista-mes-card"><div class="conquista-mes-icon">${c.icone}</div><div class="conquista-mes-info"><div class="conquista-mes-titulo">${c.titulo}</div><div class="conquista-mes-descricao">${c.descricao}</div></div></div>`).join('')}</div></div>`
+    ? `<div class="modal-conquistas-section"><h4>🏆 Conquistas do Mês</h4><div class="conquistas-mes-list">${conquistasFrequencia.map(c => `<div class="conquista-mes-card"><div class="conquista-mes-icon">${c.imagemUrl ? `<img src="${escaparHtml(c.imagemUrl)}" alt="${escaparHtml(c.titulo)}">` : c.icone}</div><div class="conquistas-mes-info"><div class="conquista-mes-titulo">${escaparHtml(c.titulo)}</div><div class="conquista-mes-descricao">${escaparHtml(c.descricao)}</div></div></div>`).join('')}</div></div>`
     : '';
   destino.querySelector(".modal-content .modal-body").innerHTML = `
     <h2 class="modal-title">📅 Frequência de ${meses[info.mes]}</h2>
@@ -365,14 +374,14 @@ export async function iniciarPainelAluno() {
 
   montarPainelAluno(aluno);
   carregarNotificacoes();
+  const configConquistas = await getDoc(doc(db, "configuracoes", "conquistas"));
+  definirIconesConquistas(configConquistas.exists() ? configConquistas.data().itens || {} : {});
   await montarGraficoFrequencia(aluno, anoVisualizacao);
   const energia = await calcularEnergiaDoAluno(aluno);
 
   await garantirSnapshotDoMes(aluno);
 
   const snapshots = await carregarSnapshotsAluno(aluno);
-  const configConquistas = await getDoc(doc(db, "configuracoes", "conquistas"));
-  definirIconesConquistas(configConquistas.exists() ? configConquistas.data().itens || {} : {});
 
   const destinoGrafico = document.getElementById("painelEvolucao");
   if (window.gerarGraficoEvolucao) {
