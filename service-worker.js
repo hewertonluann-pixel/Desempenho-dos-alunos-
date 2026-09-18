@@ -1,4 +1,4 @@
-const CACHE_NAME = "painel-orquestra-cache-v42";
+const CACHE_NAME = "painel-orquestra-cache-v43";
 const urlsToCache = [
   "/",
   "/index.html",
