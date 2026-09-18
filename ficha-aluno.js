@@ -46,6 +46,7 @@ const btnSalvarPessoais = document.getElementById("btnSalvarPessoais");
 // Dados Gerais
 const campoNome         = document.getElementById("campoNome");
 const campoInstrumento  = document.getElementById("campoInstrumento");
+const campoInstrumentoCoral = document.getElementById("campoInstrumentoCoral");
 const campoTurma        = document.getElementById("campoTurma");
 const campoAtivo        = document.getElementById("campoAtivo");
 const campoClassificado = document.getElementById("campoClassificado");
@@ -156,7 +157,8 @@ async function carregarFicha() {
 
     // Dados Gerais
     campoNome.value         = d.nome         || "";
-    campoInstrumento.value  = d.instrumento  || "";
+    campoInstrumento.value      = d.instrumento      || "";
+    campoInstrumentoCoral.value = d.instrumentoCoral || "";
     campoAtivo.value        = String(d.ativo !== false);
     campoClassificado.value = String(d.classificado === true);
     await carregarTurmas(d.turmaId || "");
@@ -240,6 +242,7 @@ btnSalvarPessoais.addEventListener("click", async () => {
 btnSalvarDados.addEventListener("click", async () => {
   const nome         = campoNome.value.trim();
   const instrumento  = campoInstrumento.value.trim();
+  const instrumentoCoral = campoInstrumentoCoral.value.trim();
   const turmaId      = campoTurma.value || "";
   const ativo        = campoAtivo.value === "true";
   const classificado = campoClassificado.value === "true";
@@ -251,13 +254,13 @@ btnSalvarDados.addEventListener("click", async () => {
       const ts = await getDoc(doc(db, "turmas", turmaId));
       if (ts.exists()) turmaNome = ts.data().nome || "";
     }
-    await updateDoc(doc(db, "alunos", alunoId), { nome, instrumento, turmaId, turmaNome, ativo, classificado });
+    await updateDoc(doc(db, "alunos", alunoId), { nome, instrumento, instrumentoCoral, turmaId, turmaNome, ativo, classificado });
     nomeExibido.textContent        = nome;
     instrumentoExibido.textContent = instrumento || "Instrumento não informado";
     tituloPagina.textContent       = `Ficha — ${nome}`;
     turmaExibida.textContent       = turmaNome ? `🏫 ${turmaNome}` : "";
     turmaExibida.style.display     = turmaNome ? "inline-flex" : "none";
-    dadosAluno = { ...dadosAluno, nome, instrumento, turmaId, turmaNome, ativo, classificado };
+    dadosAluno = { ...dadosAluno, nome, instrumento, instrumentoCoral, turmaId, turmaNome, ativo, classificado };
     toast("✅ Dados salvos com sucesso!");
   } catch (e) {
     toast("❌ Erro ao salvar dados.", "err");
