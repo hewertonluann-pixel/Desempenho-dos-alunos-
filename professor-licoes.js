@@ -554,7 +554,7 @@ function inserirPainel() {
   if (!destino) { console.error("❌ painelLicoesProf não encontrado."); return; }
 
   injetarEstilos();
-
+  destino.innerHTML = "";
   const wrapper = document.createElement("div");
   wrapper.id = "cardSolicitacoesLicao";
   wrapper.style.cssText = "background:rgba(15,23,42,0.9);border:1px solid rgba(56,189,248,0.3);border-radius:12px;padding:14px;box-shadow:0 0 18px rgba(15,118,255,0.35);margin-bottom:18px;";
