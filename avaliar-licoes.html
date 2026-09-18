@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avaliar Lições — Painel Professor</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    :root { --bg:#020617; --card:#0f172a; --border:rgba(56,189,248,.25); --ink:#e2e8f0; --muted:#94a3b8; --cyan:#22d3ee; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at top,#0f172a 0%,#020617 48%,#000 100%); color:var(--ink); font-family:Inter,system-ui,sans-serif; }
+    .pagina { width:min(1500px,100%); margin:0 auto; padding:28px 22px 50px; }
+    .cabecalho { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; }
+    .cabecalho h1 { margin:0; color:var(--cyan); font-size:clamp(1.35rem,3vw,2rem); }
+    .cabecalho p { margin:5px 0 0; color:var(--muted); font-size:.88rem; }
+    .acoes { display:flex; gap:9px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn { border:1px solid var(--border); border-radius:9px; padding:10px 14px; color:var(--ink); background:#1e293b; text-decoration:none; cursor:pointer; font-weight:600; }
+    .btn:hover { border-color:var(--cyan); background:#164e63; }
+    .barra { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:14px 16px; margin-bottom:20px; background:rgba(15,23,42,.9); border:1px solid var(--border); border-radius:13px; }
+    .barra label { color:var(--muted); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    #seletorTurma { min-width:230px; max-width:100%; padding:9px 11px; border-radius:8px; color:var(--ink); background:#1e293b; border:1px solid #334155; }
+    #turmaAtual { color:var(--cyan); font-size:.8rem; }
+    #painelLicoesProf { min-height:180px; }
+    .estado { padding:34px 18px; text-align:center; color:var(--muted); border:1px dashed var(--border); border-radius:13px; }
+    @media (max-width:600px) { .pagina { padding:20px 12px 40px; } .cabecalho { align-items:flex-start; flex-direction:column; } .acoes { justify-content:flex-start; } .btn { flex:1; text-align:center; } #seletorTurma { width:100%; } }
+  </style>
+</head>
+<body>
+  <script type="module" src="navegacao.js"></script>
+  <main class="pagina">
+    <header class="cabecalho">
+      <div>
+        <h1>🎤 Avaliar Lições</h1>
+        <p>Analise as solicitações pendentes agrupadas por aluno.</p>
+      </div>
+      <div class="acoes">
+        <a class="btn" href="professor.html">← Voltar ao professor</a>
+        <button class="btn" id="btnAtualizar" type="button">↻ Atualizar</button>
+      </div>
+    </header>
+    <section class="barra" aria-label="Contexto da turma">
+      <label for="seletorTurma">Turma ativa</label>
+      <select id="seletorTurma"><option value="">Carregando turmas...</option></select>
+      <span id="turmaAtual"></span>
+    </section>
+    <section id="painelLicoesProf">
+      <div class="estado">Carregando solicitações de lição...</div>
+    </section>
+  </main>
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { mostrarPainelLicoes } from "./professor-licoes.js";
+
+    const seletor = document.getElementById("seletorTurma");
+    const badge = document.getElementById("turmaAtual");
+    const chave = "turmaAtiva";
+    const lerTurma = () => { try { return JSON.parse(localStorage.getItem(chave)); } catch { return null; } };
+    const aplicarTurma = turma => {
+      localStorage.setItem(chave, JSON.stringify(turma));
+      badge.textContent = turma ? `${turma.nome} · ${turma.tipo || ""}` : "Todas as turmas";
+      if (turma) seletor.value = turma.id;
+    };
+
+    async function carregarTurmas() {
+      const snap = await getDocs(query(collection(db, "turmas"), orderBy("nome")));
+      seletor.innerHTML = '<option value="">— Todas as turmas —</option>';
+      snap.forEach(d => {
+        const turma = { id: d.id, ...d.data() };
+        const option = document.createElement("option");
+        option.value = turma.id;
+        option.textContent = turma.nome;
+        option.dataset.turma = JSON.stringify(turma);
+        seletor.appendChild(option);
+      });
+      const atual = lerTurma();
+      if (atual && [...seletor.options].some(o => o.value === atual.id)) aplicarTurma(atual);
+      else aplicarTurma(null);
+    }
+
+    seletor.addEventListener("change", () => {
+      const option = seletor.selectedOptions[0];
+      aplicarTurma(option?.value ? JSON.parse(option.dataset.turma) : null);
+    });
+    document.getElementById("btnAtualizar").addEventListener("click", () => mostrarPainelLicoes());
+
+    await carregarTurmas();
+    mostrarPainelLicoes();
+  </script>
+</body>
+</html>

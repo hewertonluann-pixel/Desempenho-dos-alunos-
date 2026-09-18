@@ -487,7 +487,7 @@
 
       <button id="btnAdicionarAluno">➕ Adicionar Aluno</button>
       <button id="btnMostrarAlunos">👥 Gerenciar Alunos</button>
-      <button onclick="mostrarPainelLicoes()">🎤 Avaliar Lições</button>
+      <button onclick="window.location.href='avaliar-licoes.html'">🎤 Avaliar Lições</button>
       <button onclick="window.location.href='configuracoes-grupo.html'">🏢 Editar Grupo</button>
       <!-- ALTERADO: Fazer Chamada agora navega direto para ensaio2.html -->
       <button onclick="window.location.href='ensaio2.html'">📋 Fazer Chamada</button>
@@ -502,7 +502,6 @@
 
     <div class="painel-alunos">
       <div id="conteudo"></div>
-      <div class="painel-licoes-prof" id="painelLicoesProf" style="display:none;"></div>
       <div class="painel" id="painel"></div>
       <div id="loader" class="loader" style="display:none;">
         <div class="spinner"></div>
@@ -601,7 +600,7 @@
       <button class="sheet-btn" data-action="btnMostrarAlunos">
         <span class="btn-icon">👥</span><span class="btn-label">Gerenciar Alunos</span>
       </button>
-      <button class="sheet-btn" data-fn="mostrarPainelLicoes">
+      <button class="sheet-btn" data-href="avaliar-licoes.html">
         <span class="btn-icon">🎤</span><span class="btn-label">Avaliar Lições</span>
       </button>
       <button class="sheet-btn" data-href="configuracoes-grupo.html">
