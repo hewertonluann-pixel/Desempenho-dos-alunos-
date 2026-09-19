@@ -91,6 +91,7 @@
     .btn-restart:hover { opacity:0.85; }
     .stars { font-size:2.5rem; margin-bottom:12px; }
   </style>
+  <script type="module" src="jornada-atividades.js"></script>
 </head>
 <body>
 <div class="toast" id="toast"></div>
@@ -406,6 +407,12 @@ function endGame(){
     <p style="font-size:1.6rem;font-weight:bold;color:#f9a825;margin-bottom:20px">⭐ ${score} pontos</p>
     <button class="btn-restart" onclick="initGame()">🔄 Jogar Novamente</button>`;
   document.getElementById('progress-bar').style.width='100%';
+  if (won) {
+    window.JornadaAtividades?.instalarBotaoProximaAtividade({
+      atividadeId: "escada-notas",
+      detalhes: { pontuacao: score }
+    })();
+  }
 }
 function initGame(){
   cs=0; score=0; lives=3; combo=0; refVisible=false;

@@ -185,6 +185,7 @@
       .note-btn { width: 48px; height: 48px; font-size: 0.9rem; }
     }
   </style>
+  <script type="module" src="jornada-atividades.js"></script>
 </head>
 <body>
 
@@ -646,7 +647,11 @@ function renderizarPasso() {
     const btnPratica = document.createElement('button');
     btnPratica.className = 'btn-next green';
     btnPratica.innerHTML = '🎯 Praticar agora – Atividade 3';
-    btnPratica.onclick = () => { window.location.href = 'atividades-notas.html'; };
+    btnPratica.onclick = async () => {
+      const salvar = window.JornadaAtividades?.concluirAtividade("como-funciona-pauta", { passosConcluidos: TOTAL });
+      if (salvar) await salvar;
+      window.location.href = 'atividades-notas.html';
+    };
     nav.appendChild(btnPratica);
   }
   document.getElementById('conteudoPasso').appendChild(nav);

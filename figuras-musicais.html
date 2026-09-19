@@ -311,6 +311,7 @@
       .intro-arrow{display:none;}
     }
   </style>
+  <script type="module" src="jornada-atividades.js"></script>
 </head>
 <body>
   <div id="global-loader">
@@ -552,6 +553,12 @@
     buildProgress();
     if(current===2) initTree();
     if(current===4) initPauta();
+    if(current===TOTAL-1) {
+      window.JornadaAtividades?.instalarBotaoProximaAtividade({
+        atividadeId: "figuras-musicais",
+        detalhes: { slidesConcluidos: TOTAL }
+      })();
+    }
   }
 
   // Init

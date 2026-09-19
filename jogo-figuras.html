@@ -112,6 +112,7 @@
     .start-btn:hover{filter:brightness(1.15);}
     @media(max-width:420px){.options-grid{grid-template-columns:1fr 1fr;}}
   </style>
+  <script type="module" src="jornada-atividades.js"></script>
 </head>
 <body>
   <div id="global-loader">
@@ -485,6 +486,12 @@
       </div>
     `;
     res.classList.add('show');buildModeSelector();
+    if (passed) {
+      window.JornadaAtividades?.instalarBotaoProximaAtividade({
+        atividadeId: "jogo-figuras",
+        detalhes: { modo: currentMode + 1, pontuacao: score }
+      })();
+    }
   }
   </script>
 </body>

@@ -150,6 +150,7 @@
       .scale-row { gap: 6px; margin-bottom: 16px; }
     }
   </style>
+  <script type="module" src="jornada-atividades.js"></script>
 </head>
 <body>
 <div class="toast" id="toast"></div>
@@ -344,6 +345,12 @@ function endGame(){
     <button class="btn-restart" onclick="initGame()">🔄 Jogar Novamente</button>
   `;
   document.getElementById("progress-bar").style.width="100%";
+  if (won) {
+    window.JornadaAtividades?.instalarBotaoProximaAtividade({
+      atividadeId: "notas-musicais",
+      detalhes: { pontuacao: score }
+    })();
+  }
 }
 
 function showToast(msg,type){

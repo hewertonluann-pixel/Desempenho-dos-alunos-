@@ -126,6 +126,12 @@
       display: flex; align-items: center; gap: 10px;
       margin-top: 12px; font-size: 0.78rem; color: #64748b; flex-wrap: wrap;
     }
+    .atividade-card.jornada-locked { opacity: 0.52; filter: grayscale(.35); cursor: not-allowed; }
+    .atividade-card.jornada-locked:hover { transform: none; border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .atividade-card.jornada-completed { border-color: rgba(34,197,94,.65); }
+    .jornada-status { display: block; margin-top: 10px; color: #86efac; font-size: .76rem; font-weight: 700; }
+    .jornada-locked .jornada-status { color: #facc15; }
+    .jornada-banner { position: absolute; inset: auto 0 0; padding: 5px 8px; background: rgba(0,0,0,.62); color: #fde68a; font-size: .72rem; font-weight: 700; text-align: center; }
     .card-coming { opacity: 0.42; pointer-events: none; cursor: default; }
     .card-coming .card-banner::after {
       content: 'Em breve'; position: absolute; bottom: 0; left: 0; right: 0;
@@ -170,7 +176,7 @@
     <div class="atividades-grid">
 
       <!-- 1: Notas Musicais -->
-      <a href="escalas-game.html" class="atividade-card">
+      <a href="escalas-game.html" class="atividade-card" data-jornada-id="notas-musicais">
         <div class="card-banner amber">
           <span class="card-num">1</span>
           <span>🎹</span>
@@ -189,7 +195,7 @@
       </a>
 
       <!-- 2: Escada de Notas -->
-      <a href="escada-notas.html" class="atividade-card">
+      <a href="escada-notas.html" class="atividade-card" data-jornada-id="escada-notas">
         <div class="card-banner rose">
           <span class="card-num">2</span>
           <span>🪜</span>
@@ -208,7 +214,7 @@
       </a>
 
       <!-- 2.5: Como Funciona a Pauta (Tutorial) -->
-      <a href="como-funciona-pauta.html" class="atividade-card tutorial-card">
+      <a href="como-funciona-pauta.html" class="atividade-card tutorial-card" data-jornada-id="como-funciona-pauta">
         <div class="card-banner cyan">
           <span class="card-num" style="font-size:0.6rem;width:26px">2.5</span>
           <span>🎼</span>
@@ -227,7 +233,7 @@
       </a>
 
       <!-- 3: Figuras Musicais (Tutorial + Jogo) -->
-      <a href="figuras-musicais.html" class="atividade-card tutorial-card">
+      <a href="figuras-musicais.html" class="atividade-card tutorial-card" data-jornada-id="figuras-musicais">
         <div class="card-banner violet">
           <span class="card-num">3</span>
           <span>𝅗𝅥</span>
@@ -246,7 +252,7 @@
       </a>
 
       <!-- 3.5: Jogo das Figuras Musicais -->
-      <a href="jogo-figuras.html" class="atividade-card">
+      <a href="jogo-figuras.html" class="atividade-card" data-jornada-id="jogo-figuras">
         <div class="card-banner purple">
           <span class="card-num" style="font-size:0.6rem;width:26px">3.5</span>
           <span>🎮</span>
@@ -315,7 +321,7 @@
     <div class="atividades-grid">
 
       <!-- 5: Tom ou Semitom -->
-      <a href="jogo-tom-semitom.html" class="atividade-card">
+      <a href="jogo-tom-semitom.html" class="atividade-card" data-jornada-id="tom-semitom">
         <div class="card-banner teal">
           <span class="card-num">5</span>
           <span>🎵</span>
@@ -334,7 +340,7 @@
       </a>
 
       <!-- 6: Tetracordes -->
-      <a href="tetracordes.html" class="atividade-card">
+      <a href="tetracordes.html" class="atividade-card" data-jornada-id="tetracordes">
         <div class="card-banner indigo">
           <span class="card-num">6</span>
           <span>🎼</span>
@@ -432,6 +438,47 @@
     </a>
   </nav>
 
+  <script type="module">
+    import { JORNADA_ATIVIDADES, carregarProgressoJornada } from "./jornada-atividades.js";
+
+    const cards = [...document.querySelectorAll("[data-jornada-id]")];
+    const status = document.createElement("span");
+    status.className = "jornada-status";
+
+    function aplicarJornada(progresso) {
+      let bloqueado = false;
+      for (const atividade of JORNADA_ATIVIDADES) {
+        const card = document.querySelector(`[data-jornada-id="${atividade.id}"]`);
+        if (!card) continue;
+        const concluida = progresso[atividade.id]?.concluida === true;
+        card.classList.toggle("jornada-completed", concluida);
+        card.classList.toggle("jornada-locked", bloqueado && !concluida);
+        card.setAttribute("aria-disabled", bloqueado && !concluida ? "true" : "false");
+        const body = card.querySelector(".card-body");
+        const old = body?.querySelector(".jornada-status");
+        if (old) old.remove();
+        if (body) {
+          const label = document.createElement("span");
+          label.className = "jornada-status";
+          label.textContent = concluida ? "✅ Concluída" : (bloqueado ? `🔒 Conclua a ${atividade.ordem - 1}ª atividade primeiro` : "▶ Próxima da jornada");
+          body.appendChild(label);
+        }
+        if (bloqueado && !concluida) {
+          card.addEventListener("click", (event) => event.preventDefault());
+        }
+        if (!concluida) bloqueado = true;
+      }
+    }
+
+    try {
+      const progresso = await carregarProgressoJornada();
+      aplicarJornada(progresso);
+    } catch (erro) {
+      console.error("Não foi possível carregar a jornada de atividades", erro);
+      // Em caso de falha de leitura, não bloqueia o acesso nem impede o uso do site.
+      cards.forEach((card) => card.classList.add("jornada-offline"));
+    }
+  </script>
   <script src="loader.js"></script>
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="bottom-nav.js"></script>

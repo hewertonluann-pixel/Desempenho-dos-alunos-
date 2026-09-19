@@ -144,6 +144,7 @@
     @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
     .game-screen { display: block; }
   </style>
+  <script type="module" src="jornada-atividades.js"></script>
 </head>
 <body>
 <div class="container mode-natural" id="container">
@@ -618,6 +619,12 @@ function mostrarFim(){
   document.getElementById('finalErros').textContent = errosTotal;
   document.getElementById('finalPerfeito').textContent = errosModo === 0 ? 'Perfeito!' : taxa + '%';
   document.getElementById('endText').innerHTML = 'Taxa de acerto: <strong>' + taxa + '%</strong><br/>Modos concluidos: <strong>' + modesDone.length + '/4</strong><br/>' + (errosModo === 0 ? '<strong>Modo atual zerado sem erros!</strong>' : '');
+  if (modesDone.length >= 4) {
+    window.JornadaAtividades?.instalarBotaoProximaAtividade({
+      atividadeId: "tom-semitom",
+      detalhes: { modosConcluidos: modesDone.length, acertos: acertosTotal }
+    })();
+  }
 }
 
 function comecarJogo(){

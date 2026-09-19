@@ -113,6 +113,7 @@ main{padding:1rem;max-width:520px;margin:0 auto}
 .toast-txt strong{color:var(--accent2)}
 footer{text-align:center;color:var(--muted);font-size:.72rem;padding:1.2rem 1rem;border-top:1px solid #2a2a3a;margin-top:1rem}
 </style>
+  <script type="module" src="jornada-atividades.js"></script>
 </head>
 <body>
 
@@ -332,6 +333,12 @@ function showResult(){
   addXP(xpGain);
   if(pct>=.6&&G.done.indexOf(G.curLvl)<0){
     G.done.push(G.curLvl);
+    if (G.curLvl === LEVELS.length - 1) {
+      window.JornadaAtividades?.instalarBotaoProximaAtividade({
+        atividadeId: "tetracordes",
+        detalhes: { faseFinal: true, percentual: Math.round(pct * 100), pontuacao: G.correct }
+      })();
+    }
     var next=LEVELS[G.curLvl+1];
     if(next)setTimeout(function(){toast('🔓','Fase desbloqueada!',next.title);},800);
     else setTimeout(function(){toast('🏆','Parabéns!','Você completou o TetroQuest!');},800);
