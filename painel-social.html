@@ -405,6 +405,49 @@
     }
     .card-fase2 .label-nivel { color: #a78bfa; }
 
+    /* ===== NOVA ORGANIZAÇÃO POR TURMAS ===== */
+    .resumo-turmas {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .resumo-turma-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #101b2e, #050914);
+      border: 1px solid rgba(34,211,238,0.28);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.32);
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .resumo-turma-card:hover { transform: translateY(-3px); border-color: rgba(34,211,238,.7); box-shadow: 0 14px 28px rgba(8,47,73,.65); }
+    .resumo-turma-card.cor { border-color: rgba(244,114,182,.38); background: linear-gradient(145deg, #24152b, #080711); }
+    .resumo-turma-topo { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .resumo-turma-nome { font-size: 1.05rem; font-weight: 800; color:#f8fafc; }
+    .resumo-turma-qtd { font-size:.72rem; color:#94a3b8; margin-top:2px; }
+    .resumo-turma-abrir { font-size:.68rem; color:#22d3ee; font-weight:700; white-space:nowrap; }
+    .resumo-turma-card.cor .resumo-turma-abrir { color:#f9a8d4; }
+    .resumo-turma-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .resumo-turma-stat { padding:8px 10px; border-radius:10px; background:rgba(15,23,42,.72); border:1px solid rgba(148,163,184,.14); }
+    .resumo-turma-stat-label { display:block; color:#94a3b8; font-size:.67rem; }
+    .resumo-turma-stat-value { display:block; color:#f8fafc; font-size:1.05rem; font-weight:800; margin-top:2px; }
+    .resumo-turma-vozes { display:flex; gap:5px; flex-wrap:wrap; min-height:20px; }
+    .resumo-turma-voz { padding:3px 7px; border-radius:999px; color:#cbd5e1; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.18); font-size:.64rem; }
+    .resumo-turma-card.cor .resumo-turma-voz { background:rgba(244,114,182,.1); border-color:rgba(244,114,182,.24); }
+    .turma-detalhe-titulo { grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px; }
+    .turma-detalhe-titulo h2 { margin:0; color:#f8fafc; font-size:1.15rem; }
+    .turma-voltar { border:1px solid rgba(34,211,238,.28); border-radius:999px; background:rgba(15,23,42,.75); color:#22d3ee; padding:6px 11px; font-size:.7rem; font-weight:700; cursor:pointer; }
+    .turma-voltar:hover { background:rgba(34,211,238,.12); }
+    .atividade-extra { display:inline-flex; align-items:center; gap:4px; margin-top:3px; padding:2px 7px; border-radius:999px; font-size:.62rem; font-weight:700; color:#f9a8d4; background:rgba(244,114,182,.1); border:1px solid rgba(244,114,182,.3); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .subgrupo-turma { grid-column:1 / -1; display:flex; align-items:center; gap:10px; margin:12px 0 0; color:#22d3ee; font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.45px; }
+    .subgrupo-turma::after { content:""; height:1px; flex:1; background:linear-gradient(90deg,rgba(34,211,238,.35),transparent); }
+
     @media (max-width: 768px) {
       .grid-principal  { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
       .separador-grupo { grid-column: 1; }
@@ -441,7 +484,9 @@
     import { calcularFrequenciaElegivel } from "./participacoes.js";
 
     let todosAtivos   = [];
+    let todosAtivosComCoral = [];
     let gruposEventos = {};
+    let gruposEventosCoral = {};
     let abaAtual      = "nivel";
     let mesAtual      = new Date().getMonth();
     let dadosGrupo    = { nome: 'Filhos de Asafe', anoCriacao: '2021', descricao: '', logoUrl: '' };
@@ -541,6 +586,16 @@
     function freqAlunoNoMes(aluno, mesIdx) {
       return chamadasDoAluno(aluno, gruposEventos, `2026-${mesesChaves[mesIdx]}`).percentual ?? 0;
     }
+    function chamadasCoralDoAluno(aluno, grupos, mes = null) {
+      const eventos = Object.keys(grupos).filter(ch => !mes || ch === mes).flatMap(ch => grupos[ch] || []);
+      const registros = eventos.map(ev => ev.presencas?.find(p => (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome)).filter(Boolean);
+      const avaliadas = registros.filter(p => p.presenca !== "justificado" && p.presenca !== "J");
+      const presentes = avaliadas.filter(p => p.presenca === "presente" || p.presenca === "P").length;
+      return { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
+    }
+    function freqAlunoCoralNoMes(aluno, turmaId, mesIdx) {
+      return chamadasCoralDoAluno(aluno, gruposEventosCoral[turmaId] || {}, `2026-${mesesChaves[mesIdx]}`).percentual ?? 0;
+    }
     function agruparPorGrupo(alunos) {
       const map = new Map();
       alunos.forEach(a => { const { grupo } = classificarInstrumento(a.instrumento); if (!map.has(grupo)) map.set(grupo, []); map.get(grupo).push(a); });
@@ -555,10 +610,12 @@
       const turma = todasTurmas.find(t => t.id === aluno.turmaId);
       if (turma && String(turma.tipo || "").toLowerCase() !== "coral") return turma.id;
       const fase = getFaseAluno(aluno);
-      if (fase === "fase1") return "fase1";
-      if (fase === "fase2") return "fase2";
+      const turmasPrincipais = todasTurmas.filter(t => String(t.tipo || "").toLowerCase() !== "coral");
+      const porNome = termo => turmasPrincipais.find(t => String(t.nome || "").toLowerCase().replace(/\s+/g, "") === termo);
+      if (fase === "fase1") return porNome("fase1")?.id || "fase1";
+      if (fase === "fase2") return porNome("fase2")?.id || "fase2";
       // Alunos sem fase definida mas com instrumento (orquestra)
-      if (aluno.instrumento && aluno.instrumento.trim() !== "") return "orquestra";
+      if (aluno.instrumento && aluno.instrumento.trim() !== "") return porNome("orquestra")?.id || "orquestra";
       return "__sem_turma__";
     }
     function nomeTurmaDisplay(chave) {
@@ -571,14 +628,26 @@
     }
     function iconTurmaDisplay(chave) {
       const turma = todasTurmas.find(t => t.id === chave);
-      if (turma) return "🎻";
+      if (turma) {
+        const nome = String(turma.nome || "").toLowerCase();
+        if (String(turma.tipo || "").toLowerCase() === "coral") return "🎶";
+        if (nome.includes("fase")) return "📚";
+        return "🎻";
+      }
       if (chave === "fase1") return "📚";
       if (chave === "fase2") return "📚";
       if (chave === "orquestra") return "🎻";
       return "👥";
     }
     function ordemTurma(chave) {
-      if (todasTurmas.some(t => t.id === chave)) return 0;
+      const turma = todasTurmas.find(t => t.id === chave);
+      if (turma) {
+        const nome = String(turma.nome || "").toLowerCase();
+        if (nome.includes("orquestra")) return 0;
+        if (nome.includes("fase 1") || nome.includes("fase1")) return 1;
+        if (nome.includes("fase 2") || nome.includes("fase2")) return 2;
+        return 3;
+      }
       // Orquestra primeiro, depois Fase 1, Fase 2, e por último Sem turma
       if (chave === "orquestra") return 0;
       if (chave === "fase1") return 1;
@@ -593,6 +662,32 @@
         map.get(chave).push(a);
       });
       return map;
+    }
+    function obterTurmasCoral() {
+      return todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral");
+    }
+    function vozCoralAluno(aluno) {
+      return aluno.instrumentoCoral || aluno.instrumentocoral || aluno.vozCoral || "";
+    }
+    function mapaCoral(alunos) {
+      const mapa = new Map();
+      obterTurmasCoral().forEach(turma => mapa.set(turma.id, []));
+      alunos.forEach(aluno => {
+        obterTurmasCoral().forEach(turma => {
+          const membros = new Set(Array.isArray(turma.alunos) ? turma.alunos : []);
+          if (membros.has(aluno.id) || aluno.turmaId === turma.id) {
+            const coralAluno = { ...aluno, _isCoralView: true, instrumento: vozCoralAluno(aluno) || "Voz não definida" };
+            coralAluno.energiaAnual = chamadasCoralDoAluno(coralAluno, gruposEventosCoral[turma.id] || {}).percentual ?? 0;
+            coralAluno.energiaMensal = freqAlunoCoralNoMes(coralAluno, turma.id, mesAtual);
+            mapa.get(turma.id).push(coralAluno);
+          }
+        });
+      });
+      return mapa;
+    }
+    function turmaPrincipalDoAluno(aluno) {
+      const turma = todasTurmas.find(t => t.id === aluno.turmaId);
+      return turma && String(turma.tipo || "").toLowerCase() !== "coral" ? turma : null;
     }
     function agruparPorSubgrupo(alunos) {
       const map = new Map();
@@ -654,7 +749,7 @@
     // ================================================================
     function htmlPainelGeral(ativos) {
       const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
-      const mediaMensal = media(ativos.map(a => a.frequenciaMensal?.porcentagem ?? 0));
+      const mediaMensal = media(ativos.map(a => a.energiaMensal ?? a.frequenciaMensal?.porcentagem ?? 0));
       const grupoMap = agruparPorGrupo(ativos);
       const bancadas = [...grupoMap.keys()].filter(k => k !== "Maestro").length;
       return `
@@ -804,6 +899,7 @@
             <div class="info-principal">
               <div class="nome-aluno">${aluno.nome}</div>
               <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
+              ${!aluno._isCoralView && aluno._coralVoz ? `<span class="atividade-extra">🎶 KADOSH · ${escapeHtml(aluno._coralVoz)}</span>` : ""}
             </div>
           </div>
           <div class="nivel-geral-destaque"><span class="label-nivel">🎯 Nível Geral</span><span class="valor-nivel">${total}</span></div>
@@ -827,6 +923,7 @@
     // ROTEADOR DE CARD — escolhe o template pela fase do aluno
     // ================================================================
     function htmlCardPorFase(aluno) {
+      if (aluno._isCoralView) return htmlCard(aluno);
       const fase = getFaseAluno(aluno);
       if (fase === "fase1") return htmlCardFase1(aluno);
       if (fase === "fase2") return htmlCardFase2(aluno);
@@ -897,6 +994,39 @@
         </div>`;
     }
 
+    function dadosResumoTurma(nome, alunos, coral = false) {
+      const mediaAnual = media(alunos.map(a => a.energiaAnual ?? 0));
+      const mediaMensal = media(alunos.map(a => a.energiaMensal ?? a.frequenciaMensal?.porcentagem ?? 0));
+      const labels = [...new Set(alunos.map(a => a.instrumento).filter(Boolean))].slice(0, coral ? 5 : 4);
+      return { nome, mediaAnual, mediaMensal, labels };
+    }
+    function htmlResumoTurma(chave, alunos, coral = false) {
+      const dados = dadosResumoTurma(nomeTurmaDisplay(chave), alunos, coral);
+      const icone = coral ? "🎶" : iconTurmaDisplay(chave);
+      return `<article class="resumo-turma-card ${coral ? "cor" : ""}" onclick="selecionarTurma('${chave}')">
+        <div class="resumo-turma-topo"><div><div class="resumo-turma-nome">${icone} ${escapeHtml(dados.nome)}</div><div class="resumo-turma-qtd">👥 ${alunos.length} integrante${alunos.length !== 1 ? "s" : ""}</div></div><span class="resumo-turma-abrir">Ver alunos →</span></div>
+        <div class="resumo-turma-stats"><div class="resumo-turma-stat"><span class="resumo-turma-stat-label">📈 Média anual</span><span class="resumo-turma-stat-value">${dados.mediaAnual}%</span></div><div class="resumo-turma-stat"><span class="resumo-turma-stat-label">📅 Média mensal</span><span class="resumo-turma-stat-value">${dados.mediaMensal}%</span></div></div>
+        <div class="resumo-turma-vozes">${dados.labels.length ? dados.labels.map(label => `<span class="resumo-turma-voz">${escapeHtml(label)}</span>`).join("") : `<span class="resumo-turma-voz">Sem grupos definidos</span>`}</div>
+      </article>`;
+    }
+    function htmlResumoTurmas(turmaMap, coralMap) {
+      const cards = [];
+      [...turmaMap.keys()].sort((a, b) => ordemTurma(a) - ordemTurma(b)).forEach(chave => {
+        const alunos = turmaMap.get(chave) || [];
+        if (alunos.length) cards.push(htmlResumoTurma(chave, alunos));
+      });
+      coralMap.forEach((alunos, chave) => { if (alunos.length) cards.push(htmlResumoTurma(chave, alunos, true)); });
+      return `<div class="resumo-turmas">${cards.join("")}</div>`;
+    }
+    function htmlSubgruposTurma(alunos, coral = false) {
+      const subgrupos = new Map();
+      alunos.forEach(aluno => {
+        const nome = aluno.instrumento || (coral ? "Voz não definida" : "Sem bancada");
+        if (!subgrupos.has(nome)) subgrupos.set(nome, []);
+        subgrupos.get(nome).push(aluno);
+      });
+      return [...subgrupos.entries()].sort((a, b) => a[0].localeCompare(b[0], "pt-BR")).map(([nome, grupo]) => `${htmlSeparadorGrupo(nome, grupo.length).replace("separador-grupo", "subgrupo-turma")}${grupo.map(htmlCardPorFase).join("")}`).join("");
+    }
     function htmlBarraVisualizacao() {
       const desabilitarOrdenacao = modoBancada;
       return `
@@ -915,59 +1045,46 @@
     }
 
     function renderizarTudo() {
-      const container   = document.getElementById("gridCompleto");
+      const container = document.getElementById("gridCompleto");
       todosAtivos.forEach(a => { a.energiaMensal = freqAlunoNoMes(a, mesAtual); });
-      const grupoMap    = agruparPorGrupo(todosAtivos);
+      const grupoMap = agruparPorGrupo(todosAtivos);
       const subgrupoMap = agruparPorSubgrupo(todosAtivos);
-      // Excluir maestros do agrupamento por turma (eles têm card próprio no topo)
-      const semMaestros = todosAtivos.filter(a => {
-        const { grupo } = classificarInstrumento(a.instrumento);
-        return grupo !== "Maestro";
-      });
-      const turmaMap    = agruparPorTurma(semMaestros);
-      const maestros    = grupoMap.get("Maestro") || [];
-      const maestroHTML = maestros.map(htmlCardPorFase).join("");
+      const semMaestros = todosAtivos.filter(a => classificarInstrumento(a.instrumento).grupo !== "Maestro");
+      const turmaMap = agruparPorTurma(semMaestros);
+      const coralMap = mapaCoral(todosAtivosComCoral);
+      const maestros = grupoMap.get("Maestro") || [];
+      let html = `${htmlBarraVisualizacao()}`;
 
-      let html = `
-        ${htmlBarraVisualizacao()}
-        ${htmlAbasTurma(turmaMap)}
-        ${htmlPainelBanda()}
-        ${htmlPainelSobre()}
-        ${htmlPainelGeral(todosAtivos)}
-        ${htmlBadges(subgrupoMap)}
-        ${htmlRanking(turmaMap, abaAtual, mesAtual)}
-        ${maestroHTML}
-      `;
-
-      if (modoBancada) {
-        [...grupoMap.keys()].filter(k => k !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(grupo => {
-          const alunosOrdenados = grupoMap.get(grupo).slice()
-            .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
-            .sort((a, b) => { if (a._c.ordem !== b._c.ordem) return a._c.ordem - b._c.ordem; return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0); });
-          html += htmlSeparadorGrupo(grupo, alunosOrdenados.length);
-          html += alunosOrdenados.map(htmlCardPorFase).join("");
-        });
+      if (turmaAtiva === "todas") {
+        html += `<div class="turma-detalhe-titulo"><h2>📚 Turmas e atividades</h2></div>`;
+        html += htmlResumoTurmas(turmaMap, coralMap);
+        html += htmlPainelGeral(todosAtivos);
+        html += htmlPainelBanda();
+        html += htmlPainelSobre();
+        html += htmlBadges(subgrupoMap);
+        html += htmlRanking(turmaMap, abaAtual, mesAtual);
+        html += maestros.map(htmlCardPorFase).join("");
       } else {
-        // ── Renderização por turma ──
-        // Sempre mostrar as 3 turmas fixas + sem turma
-        const todasChaves = [...turmaMap.keys()];
-        const chavesVisiveis = turmaAtiva === "todas"
-          ? todasChaves
-          : [turmaAtiva];
-        chavesVisiveis.forEach(chave => {
-          const alunos = turmaMap.get(chave) || [];
-          if (!alunos.length) return;
-          html += htmlBlocoTurma(chave, alunos);
-          const ordenados = ordenarAlunosGeral(alunos, ordenacaoGeral)
-            .map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }))
-            .sort((a, b) => a._c.ordem - b._c.ordem);
-          html += ordenados.map(htmlCardPorFase).join("");
-        });
+        const coralSelecionado = coralMap.has(turmaAtiva);
+        const alunosTurma = coralSelecionado ? (coralMap.get(turmaAtiva) || []) : (turmaMap.get(turmaAtiva) || []);
+        if (alunosTurma.length) {
+          html += `<div class="turma-detalhe-titulo"><h2>${coralSelecionado ? "🎶" : iconTurmaDisplay(turmaAtiva)} ${escapeHtml(nomeTurmaDisplay(turmaAtiva))}</h2><button class="turma-voltar" onclick="selecionarTurma('todas')">← Todas as turmas</button></div>`;
+          html += htmlBlocoTurma(turmaAtiva, alunosTurma);
+          html += htmlPainelGeral(alunosTurma);
+          if (coralSelecionado) html += htmlSubgruposTurma(alunosTurma, true);
+          else if (modoBancada) html += htmlSubgruposTurma(alunosTurma);
+          else {
+            const ordenados = ordenarAlunosGeral(alunosTurma, ordenacaoGeral).map(a => ({ ...a, _c: classificarInstrumento(a.instrumento) }));
+            html += ordenados.map(htmlCardPorFase).join("");
+          }
+        } else {
+          turmaAtiva = "todas";
+          localStorage.setItem("ps_turmaAtiva", turmaAtiva);
+          html += htmlResumoTurmas(turmaMap, coralMap);
+        }
       }
-
       container.innerHTML = html;
     }
-
     window.selecionarTurma = (chave) => {
       turmaAtiva = chave;
       localStorage.setItem("ps_turmaAtiva", chave);
@@ -1003,10 +1120,21 @@
       const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       alunos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
       todosAtivos = alunos.filter(a => a.ativo !== false);
+      todosAtivosComCoral = todosAtivos.slice();
       if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
       if (turmasSnap) todasTurmas = turmasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const eventosCoral = await Promise.all(obterTurmasCoral().map(async turma => [turma.id, agruparEventosPorMes(await obterEventosDoAno(2026, turma.id))]));
+      gruposEventosCoral = Object.fromEntries(eventosCoral);
       const idsCoral = new Set(todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral").map(t => t.id));
       todosAtivos = todosAtivos.filter(a => !idsCoral.has(a.turmaId));
+      const membrosCoral = new Set(todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral").flatMap(t => Array.isArray(t.alunos) ? t.alunos : []));
+      todosAtivos.forEach(a => {
+        if (membrosCoral.has(a.id)) {
+          const coral = todasTurmas.find(t => Array.isArray(t.alunos) && t.alunos.includes(a.id));
+          a._coralVoz = vozCoralAluno(a) || "Voz não definida";
+          a._coralNome = coral?.nome || "KADOSH";
+        }
+      });
       if (turmaAtiva !== "todas" && !todasTurmas.some(t => t.id === turmaAtiva)) {
         turmaAtiva = "todas";
         localStorage.setItem("ps_turmaAtiva", turmaAtiva);
