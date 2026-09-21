@@ -604,6 +604,10 @@
     return `${a}-${m}-${d}`;
   }
 
+  function vozCoral(dados) {
+    return dados.instrumentoCoral || dados.instrumentocoral || dados.vozCoral || "";
+  }
+
   function atualizarProgresso() {
     const total   = alunos.length;
     const marcado = alunos.filter(a => a.presenca !== "").length;
@@ -823,7 +827,7 @@
         .map(d => ({
           id: d.id,
           nome: d.data().nome,
-          instrumento: ehCoral ? (d.data().instrumentoCoral || d.data().instrumento || "") : (d.data().instrumento || ""),
+          instrumento: ehCoral ? (vozCoral(d.data()) || d.data().instrumento || "") : (d.data().instrumento || ""),
           foto: d.data().foto || "",
           presenca: ""
         }))
@@ -865,10 +869,11 @@
       btnSalvar.disabled = false;
     }
 
-    const ativoMap = {}, fotoMap = {}, nomeMap = {};
+    const ativoMap = {}, fotoMap = {}, nomeMap = {}, dadosAlunos = {};
     try {
       const s = await getDocs(collection(db, "alunos"));
       s.forEach(d => {
+        dadosAlunos[d.id] = d.data();
         ativoMap[d.id] = d.data().ativo !== false;
         fotoMap[d.id] = d.data().foto || "";
         nomeMap[d.data().nome] = d.data().foto || "";
@@ -876,13 +881,16 @@
     } catch {}
 
     const salvas = dados.presencas || [];
+    const turmaSnap = dados.turmaId ? await getDoc(doc(db, "turmas", dados.turmaId)) : null;
+    const dadosTurma = turmaSnap?.exists() ? turmaSnap.data() : turma;
+    const ehCoral = String(dadosTurma?.tipo || "").toLowerCase() === "coral";
     if (salvas.length) {
       alunos = salvas
         .filter(p => !p.alunoId || ativoMap[p.alunoId] !== false)
         .map(p => ({
           id: p.alunoId || "",
           nome: p.nome,
-          instrumento: p.instrumento || "",
+          instrumento: ehCoral ? (vozCoral(dadosAlunos[p.alunoId] || {}) || p.instrumento || "") : (p.instrumento || ""),
           foto: (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
           presenca: normalizarPresenca(p.presenca)
         }));
@@ -897,7 +905,7 @@
         .map(d => ({
           id: d.id,
           nome: d.data().nome,
-          instrumento: d.data().instrumento || "",
+          instrumento: ehCoral ? (vozCoral(d.data()) || d.data().instrumento || "") : (d.data().instrumento || ""),
           foto: d.data().foto || "",
           presenca: ""
         }))

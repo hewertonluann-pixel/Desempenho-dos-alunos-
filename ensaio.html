@@ -279,15 +279,26 @@
   return "";
 }
 
+    function vozCoral(dados) {
+      return dados.instrumentoCoral || dados.instrumentocoral || dados.vozCoral || "";
+    }
+
+    async function carregarTurma(turmaId) {
+      if (!turmaId) return turmaAtiva || null;
+      const snap = await getDoc(doc(db, "turmas", turmaId));
+      return snap.exists() ? { id: turmaId, ...snap.data() } : turmaAtiva;
+    }
+
     // ── Carregamento ──────────────────────────────────────────────
     async function carregarAlunos() {
       if (eventoId) return;
 
       if (turmaAtiva?.id) {
+        const turmaAtual = await carregarTurma(turmaAtiva.id);
+        const ehCoral = String(turmaAtual?.tipo || turmaAtiva.tipo || "").toLowerCase() === "coral";
         let snap;
-        if (turmaAtiva.tipo === "coral") {
-          const turmaSnap = await getDoc(doc(db, "turmas", turmaAtiva.id));
-          const membros = new Set(turmaSnap.exists() ? turmaSnap.data().alunos || [] : []);
+        if (ehCoral) {
+          const membros = new Set(turmaAtual?.alunos || []);
           const todosSnap = await getDocs(collection(db, "alunos"));
           snap = { docs: todosSnap.docs.filter(d => membros.has(d.id) && d.data().ativo !== false) };
         } else {
@@ -299,7 +310,7 @@
           );
         }
         alunos = snap.docs
-          .map(d => ({ id: d.id, nome: d.data().nome, instrumento: turmaAtiva.tipo === "coral" ? (d.data().instrumentoCoral || d.data().instrumento || "") : (d.data().instrumento || ""), foto: d.data().foto || "", presenca: "" }))
+          .map(d => ({ id: d.id, nome: d.data().nome, instrumento: ehCoral ? (vozCoral(d.data()) || d.data().instrumento || "") : (d.data().instrumento || ""), foto: d.data().foto || "", presenca: "" }))
           .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
         return;
       }
@@ -330,9 +341,11 @@
       let ativoMap = {};
       const fotoMap = {};
       const nomeMap = {};
+      const dadosAlunos = {};
       try {
         const alunosSnap = await getDocs(collection(db, "alunos"));
         alunosSnap.forEach(d => {
+          dadosAlunos[d.id] = d.data();
           ativoMap[d.id] = d.data().ativo !== false;
           fotoMap[d.id]  = d.data().foto || "";
           nomeMap[d.data().nome] = d.data().foto || "";
@@ -340,6 +353,8 @@
       } catch (_) {}
 
       const presencasSalvas = dados.presencas || [];
+      const turmaEvento = await carregarTurma(dados.turmaId);
+      const ehCoral = String(turmaEvento?.tipo || "").toLowerCase() === "coral";
       if (presencasSalvas.length) {
         alunos = presencasSalvas
           .filter(p => {
@@ -349,7 +364,7 @@
           .map(p => ({
             id:          p.alunoId || "",
             nome:        p.nome,
-            instrumento: p.instrumento || "",
+            instrumento: ehCoral ? (vozCoral(dadosAlunos[p.alunoId] || {}) || p.instrumento || "") : (p.instrumento || ""),
             foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
             presenca:    p.presenca === "FJ" ? "justificado" : (p.presenca || "")
           }));
@@ -360,13 +375,13 @@
           );
           alunos = s.docs
             .filter(d => d.data().ativo !== false)
-            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: ehCoral ? (vozCoral(d.data()) || d.data().instrumento || "") : (d.data().instrumento || ""), foto: d.data().foto || "", presenca: "" }))
             .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
         } else {
           const s = await getDocs(collection(db, "alunos"));
           alunos = s.docs
             .filter(d => d.data().ativo !== false)
-            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: d.data().instrumento || "", foto: d.data().foto || "", presenca: "" }))
+            .map(d => ({ id: d.id, nome: d.data().nome, instrumento: ehCoral ? (vozCoral(d.data()) || d.data().instrumento || "") : (d.data().instrumento || ""), foto: d.data().foto || "", presenca: "" }))
             .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
           presencasSalvas.forEach(p => {
             const a = alunos.find(al => al.nome === p.nome);
