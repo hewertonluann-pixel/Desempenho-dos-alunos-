@@ -6,6 +6,7 @@ import {
 import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
 import { obterEventosDoAno, agruparEventosPorMes, calcularFrequenciaMensalParaAluno } from "./frequencia.js";
 import { criarParticipacaoPrincipal, calcularFrequenciaElegivel } from "./participacoes.js";
+import { atualizarComprometimentoGeral as recalcularComprometimentoGeral } from "./comprometimento.js";
 
 if (!db) console.error("❌ Firebase DB não carregado.");
 
@@ -552,58 +553,8 @@ async function atualizarComprometimentoGeral() {
   if (btn) { btn.disabled = true; btn.textContent = "⏳ Atualizando..."; }
 
   try {
-    const anoAtual = new Date().getFullYear();
-    const mesAtual = String(new Date().getMonth() + 1).padStart(2, "0");
-    const chaveMes = `${anoAtual}-${mesAtual}`;
-
-    // Carregar todos os alunos (sem filtro de turma ativa)
-    // para garantir que TODOS sejam atualizados corretamente,
-    // cada um usando somente os eventos da sua própria turma.
-    const alunosSnap = await getDocs(collection(db, "alunos"));
-
-    // Agrupar alunos por turmaId para minimizar leituras no Firestore:
-    // em vez de buscar eventos N vezes (1 por aluno), buscamos 1 vez por turma.
-    const turmasMap = {}; // { turmaId: { eventos, agrupado } }
-
-    for (const alunoDoc of alunosSnap.docs) {
-      const dados = alunoDoc.data();
-      if (dados.ativo === false) continue;
-
-      const turmaId = dados.turmaId || null;
-
-      // Se ainda não buscamos os eventos desta turma, buscar agora
-      if (turmaId && !turmasMap[turmaId]) {
-        const eventosDoAno = await obterEventosDoAno(anoAtual, turmaId);
-        turmasMap[turmaId] = {
-          agrupado: agruparEventosPorMes(eventosDoAno)
-        };
-      }
-
-      // Aluno sem turmaId: freq = 0, não é possível calcular denominável correto
-      if (!turmaId) {
-        await updateDoc(doc(db, "alunos", alunoDoc.id), {
-          "frequenciaMensal.porcentagem": 0,
-          "frequenciaMensal.totalEventos": 0,
-          "frequenciaMensal.presencas": 0,
-          ultimaAtualizacaoComprometimento: serverTimestamp()
-        });
-        continue;
-      }
-
-      // Calcular frequência do aluno usando somente os eventos da sua turma
-      const eventosMes = turmasMap[turmaId].agrupado[chaveMes] || [];
-      const freq = calcularFrequenciaElegivel(eventosMes, { id: alunoDoc.id, ...dados }, turmaId);
-
-      await updateDoc(doc(db, "alunos", alunoDoc.id), {
-        "frequenciaMensal.porcentagem": freq.percentual,
-        "frequenciaMensal.totalEventos": freq.totalEventos,
-        "frequenciaMensal.presencas": freq.presencasAluno,
-        ultimaAtualizacaoComprometimento: serverTimestamp()
-      });
-    }
-
-    const total = alunosSnap.docs.filter(d => d.data().ativo !== false).length;
-    mostrarMensagem("mensagemSucesso", `⚡ Comprometimento de ${total} alunos atualizado por turma!`);
+    const resultado = await recalcularComprometimentoGeral();
+    mostrarMensagem("mensagemSucesso", `⚡ Comprometimento de ${resultado.atualizados} alunos atualizado por turma!`);
   } catch (error) {
     console.error(error);
     mostrarMensagem("mensagemInfo", "❌ Erro na atualização.");
