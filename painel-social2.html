@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#22d3ee">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Mosaico Social 🎵 — Orquestra</title>
+  <link rel="stylesheet" href="aluno.css" />
+  <link rel="stylesheet" href="bottom-nav.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    body {
+      background: #0b1020;
+      color: #e5e7eb;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 { text-align: center; color: #22d3ee; margin-bottom: 4px; font-size: 1.6rem; }
+    .subtitulo { text-align: center; color: #9ca3af; margin-bottom: 24px; font-size: 0.95rem; }
+
+    .grid-principal {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+      margin-bottom: 36px;
+    }
+
+    /* Grid responsivo automático — sem trava de colunas fixas */
+
+    /* ===== ABAS DE TURMA ===== */
+    .abas-turmas {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .abas-turmas-label {
+      font-size: 0.75rem; color: #9ca3af; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+      margin-right: 4px;
+    }
+    .chip-turma {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(34,211,238,0.2);
+      color: #9ca3af; font-size: 0.72rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .chip-turma:hover { background: rgba(34,211,238,0.08); border-color: rgba(34,211,238,0.45); }
+    .chip-turma.ativo {
+      background: rgba(34,211,238,0.15);
+      border-color: #22d3ee;
+      color: #22d3ee;
+      box-shadow: 0 0 12px rgba(34,211,238,0.15);
+    }
+    .chip-turma .chip-qtd {
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px; padding: 1px 7px;
+      font-size: 0.65rem; font-weight: 700;
+    }
+
+    /* ===== BLOCO DE TURMA ===== */
+    .bloco-turma {
+      grid-column: 1 / -1;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      margin-top: 8px;
+    }
+    .bloco-turma-cabecalho {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(34,211,238,0.2);
+      margin-bottom: 12px;
+    }
+    .bloco-turma-nome { font-size: 1rem; font-weight: 800; color: #22d3ee; display: flex; align-items: center; gap: 8px; }
+    .bloco-turma-qtd { font-size: 0.72rem; font-weight: 600; color: #6b7280; }
+    .bloco-turma-metricas { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .bloco-turma-metrica { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: #9ca3af; }
+    .bloco-turma-metrica .valor { font-weight: 800; color: #22d3ee; font-size: 0.85rem; }
+    .bloco-turma-destaques { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .bloco-turma-destaques-label { font-size: 0.7rem; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.4px; margin-right: 2px; }
+    .destaque-chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.35);
+      color: #fde68a; font-size: 0.7rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .destaque-chip:hover { background: rgba(251,191,36,0.2); transform: translateY(-1px); }
+    .destaque-chip .destaque-avatar {
+      width: 22px; height: 22px; border-radius: 999px; overflow: hidden;
+      border: 1px solid rgba(251,191,36,0.5); flex-shrink: 0; background: #020617;
+    }
+    .destaque-chip .destaque-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ===== BADGE DE TURMA NO CARD ===== */
+    .badge-turma {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.6rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.3px;
+      background: rgba(34,211,238,0.1);
+      color: #22d3ee;
+      border: 1px solid rgba(34,211,238,0.35);
+      margin-top: 2px; max-width: 100%;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* ===== BARRA DE CONTROLE DE VISUALIZAÇÃO ===== */
+    .barra-visualizacao {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 12px;
+      margin-bottom: 4px;
+    }
+    .barra-visualizacao-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .toggle-visualizacao {
+      display: flex;
+      background: rgba(15,23,42,0.8);
+      border-radius: 999px;
+      border: 1px solid rgba(34,211,238,0.2);
+      overflow: hidden;
+    }
+    .toggle-btn {
+      padding: 5px 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .toggle-btn.ativo {
+      background: rgba(34,211,238,0.15);
+      color: #22d3ee;
+    }
+    .select-ordenacao {
+      padding: 5px 10px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 999px;
+      color: #22d3ee;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .select-ordenacao:hover { border-color: rgba(34,211,238,0.5); }
+    .select-ordenacao option { background: #0b1020; color: #e5e7eb; }
+    .select-ordenacao:disabled { opacity: 0.35; cursor: default; }
+
+    /* ===== PAINEL DA BANDA ===== */
+    .painel-banda {
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .painel-banda-titulo {
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
+    }
+    .painel-banda-corpo {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; flex: 1; justify-content: center; padding: 8px 0;
+    }
+    .painel-banda-logo {
+      width: 100px; height: 100px; border-radius: 16px; overflow: hidden;
+      border: 2px solid rgba(34,211,238,0.4);
+      background: rgba(2,6,23,0.6); flex-shrink: 0;
+    }
+    .painel-banda-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .painel-banda-nome { font-size: 1.15rem; font-weight: 800; color: #f9fafb; text-align: center; line-height: 1.3; }
+    .painel-banda-rodape {
+      padding-top: 10px;
+      border-top: 1px solid rgba(34,211,238,0.15);
+      font-size: 0.78rem; color: #9ca3af; text-align: center;
+    }
+
+    /* ===== PAINEL SOBRE NÓS ===== */
+    .painel-sobre {
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .painel-sobre-titulo {
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
+    }
+    .painel-sobre-texto {
+      font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;
+      flex: 1;
+    }
+    .painel-sobre-vazio {
+      font-size: 0.82rem; color: #4b5563; font-style: italic; text-align: center; padding: 12px 0;
+    }
+
+    /* ===== PAINEL GERAL ===== */
+    .painel-geral {
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .painel-geral-titulo {
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
+    }
+    .stat-geral-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 10px; background: rgba(15,23,42,0.6); border-radius: 8px;
+    }
+    .stat-geral-label { font-size: 0.75rem; color: #9ca3af; display: flex; align-items: center; gap: 6px; }
+    .stat-geral-valor { font-size: 1.3rem; font-weight: 900; color: #22d3ee; }
+
+    /* ===== BANCADAS (badges) ===== */
+    .badges-container {
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .badges-titulo {
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
+    }
+    .badges-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge-subgrupo {
+      background: rgba(34,211,238,0.08);
+      border: 1px solid rgba(34,211,238,0.3);
+      border-radius: 999px; padding: 4px 10px;
+      font-size: 0.72rem; font-weight: 600; color: #22d3ee;
+      cursor: pointer; transition: background 0.2s, transform 0.15s; white-space: nowrap;
+    }
+    .badge-subgrupo:hover { background: rgba(34,211,238,0.18); transform: translateY(-2px); }
+
+    /* ===== RANKING ===== */
+    .bloco-ranking {
+      background: linear-gradient(145deg, #0f172a, #020617);
+      border: 1px solid rgba(34,211,238,0.2);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .ranking-titulo {
+      font-size: 0.85rem; font-weight: 700; color: #22d3ee; margin: 0;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(34,211,238,0.2);
+    }
+    .ranking-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 5px 12px; border-radius: 999px;
+      border: 1px solid rgba(34,211,238,0.3);
+      background: transparent; color: #9ca3af;
+      font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn.ativo { background: rgba(34,211,238,0.15); border-color: #22d3ee; color: #22d3ee; }
+    .mes-control { display: flex; align-items: center; gap: 8px; justify-content: center; }
+    .mes-control button {
+      background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3);
+      color: #22d3ee; border-radius: 6px; padding: 3px 10px;
+      cursor: pointer; font-size: 0.85rem; transition: background 0.2s;
+    }
+    .mes-control button:hover { background: rgba(34,211,238,0.2); }
+    .mes-nome { font-weight: 700; color: #f9fafb; font-size: 0.8rem; min-width: 70px; text-align: center; }
+    .ranking-lista {
+      display: flex; flex-direction: column; gap: 6px;
+      max-height: 280px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: rgba(34,211,238,0.3) transparent;
+    }
+    .ranking-lista::-webkit-scrollbar       { width: 4px; }
+    .ranking-lista::-webkit-scrollbar-track { background: transparent; }
+    .ranking-lista::-webkit-scrollbar-thumb { background: rgba(34,211,238,0.3); border-radius: 99px; }
+    .ranking-linha { display: flex; align-items: center; gap: 6px; }
+    .ranking-pos   { font-size: 0.9rem; font-weight: 700; min-width: 20px; text-align: center; flex-shrink: 0; }
+    .ranking-nome  { font-size: 0.72rem; font-weight: 600; color: #e5e7eb; min-width: 70px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ranking-valor { font-size: 0.72rem; font-weight: 700; color: #22d3ee; min-width: 40px; text-align: right; flex-shrink: 0; }
+    .ranking-barra-wrap { flex: 1; height: 7px; background: rgba(255,255,255,0.07); border-radius: 999px; overflow: hidden; }
+    .ranking-barra-fill { height: 100%; border-radius: 999px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+
+    /* ===== SEPARADOR DE GRUPO (grid) ===== */
+    .separador-grupo {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0 8px; margin-top: 16px;
+    }
+    .separador-linha { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(34,211,238,0.3), transparent); }
+    .separador-texto { font-size: 0.85rem; font-weight: 700; color: #22d3ee; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .separador-count { font-size: 0.7rem; color: #6b7280; font-weight: 500; }
+
+    /* ===== CARDS BASE ===== */
+    .card-social {
+      background: radial-gradient(circle at top left, #1f2937, #020617);
+      border-radius: 16px; padding: 14px 14px 12px;
+      border: 1px solid rgba(34,211,238,0.22);
+      box-shadow: 0 10px 25px rgba(15,23,42,0.7);
+      display: flex; flex-direction: column; gap: 8px;
+      cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    .card-social:hover { transform: translateY(-4px); box-shadow: 0 16px 35px rgba(8,47,73,0.85); border-color: rgba(56,189,248,0.7); }
+    .topo-card { display: flex; align-items: center; gap: 10px; }
+    .foto-social { width: 64px; height: 64px; border-radius: 999px; overflow: hidden; border: 2px solid rgba(34,211,238,0.5); flex-shrink: 0; background: #020617; }
+    .foto-social img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .info-principal { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .nome-aluno        { font-size: 1rem; font-weight: 600; color: #f9fafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .instrumento-aluno { font-size: 0.85rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nivel-geral-destaque { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(56,189,248,0.08)); border-radius: 10px; border: 1px solid rgba(34,211,238,0.3); margin-top: 8px; }
+    .label-nivel { font-size: 0.85rem; font-weight: 600; color: #22d3ee; }
+    .valor-nivel  { font-size: 1.4rem;  font-weight: 700; color: #f9fafb; }
+    .niveis-secundarios { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .nivel-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(15,23,42,0.6); border-radius: 8px; font-size: 0.8rem; color: #9ca3af; }
+    .nivel-item .valor { font-weight: 600; color: #e5e7eb; font-size: 0.9rem; }
+    .barra-comprometimento { margin-top: 8px; }
+    .barra-label { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #e5e7eb; margin-bottom: 4px; }
+    .barra-container { width: 100%; height: 6px; border-radius: 999px; background: #020617; overflow: hidden; }
+    .barra-preenchimento { height: 100%; width: 0%; transition: width 0.4s ease; border-radius: 999px; }
+    .conquistas-social { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(34,211,238,0.15); display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: #9ca3af; }
+    .conquistas-social .icones { font-size: 1.3rem; display: flex; gap: 4px; flex-wrap: wrap; }
+    .loader-texto { text-align: center; color: #6b7280; padding: 40px; font-size: 0.95rem; }
+
+    /* ===== BADGES DE FASE ===== */
+    .badge-fase {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.4px;
+      margin-top: 2px;
+    }
+    .badge-fase.fase1 {
+      background: rgba(251,191,36,0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(251,191,36,0.4);
+    }
+    .badge-fase.fase2 {
+      background: rgba(167,139,250,0.15);
+      color: #a78bfa;
+      border: 1px solid rgba(167,139,250,0.4);
+    }
+
+    /* ===== VARIAÇÕES DE CARD POR FASE ===== */
+    /* Fase 1 — acento âmbar */
+    .card-fase1 {
+      border-color: rgba(251,191,36,0.25);
+      background: radial-gradient(circle at top left, #1f1a0e, #020617);
+    }
+    .card-fase1:hover {
+      border-color: rgba(251,191,36,0.7);
+      box-shadow: 0 16px 35px rgba(120,80,0,0.4);
+    }
+    .card-fase1 .foto-social { border-color: rgba(251,191,36,0.5); }
+
+    /* Fase 2 — acento lilás */
+    .card-fase2 {
+      border-color: rgba(167,139,250,0.25);
+      background: radial-gradient(circle at top left, #150d1f, #020617);
+    }
+    .card-fase2:hover {
+      border-color: rgba(167,139,250,0.7);
+      box-shadow: 0 16px 35px rgba(80,40,120,0.4);
+    }
+    .card-fase2 .foto-social { border-color: rgba(167,139,250,0.5); }
+    .card-fase2 .nivel-geral-destaque {
+      background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(139,92,246,0.08));
+      border-color: rgba(167,139,250,0.3);
+    }
+    .card-fase2 .label-nivel { color: #a78bfa; }
+
+    /* ===== NOVA ORGANIZAÇÃO POR TURMAS ===== */
+    .resumo-turmas {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .resumo-turma-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #101b2e, #050914);
+      border: 1px solid rgba(34,211,238,0.28);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.32);
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .resumo-turma-card:hover { transform: translateY(-3px); border-color: rgba(34,211,238,.7); box-shadow: 0 14px 28px rgba(8,47,73,.65); }
+    .resumo-turma-card.cor { border-color: rgba(244,114,182,.38); background: linear-gradient(145deg, #24152b, #080711); }
+    .resumo-turma-topo { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .resumo-turma-nome { font-size: 1.05rem; font-weight: 800; color:#f8fafc; }
+    .resumo-turma-qtd { font-size:.72rem; color:#94a3b8; margin-top:2px; }
+    .resumo-turma-abrir { font-size:.68rem; color:#22d3ee; font-weight:700; white-space:nowrap; }
+    .resumo-turma-card.cor .resumo-turma-abrir { color:#f9a8d4; }
+    .resumo-turma-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .resumo-turma-stat { padding:8px 10px; border-radius:10px; background:rgba(15,23,42,.72); border:1px solid rgba(148,163,184,.14); }
+    .resumo-turma-stat-label { display:block; color:#94a3b8; font-size:.67rem; }
+    .resumo-turma-stat-value { display:block; color:#f8fafc; font-size:1.05rem; font-weight:800; margin-top:2px; }
+    .resumo-turma-vozes { display:flex; gap:5px; flex-wrap:wrap; min-height:20px; }
+    .resumo-turma-voz { padding:3px 7px; border-radius:999px; color:#cbd5e1; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.18); font-size:.64rem; }
+    .resumo-turma-card.cor .resumo-turma-voz { background:rgba(244,114,182,.1); border-color:rgba(244,114,182,.24); }
+    .turma-detalhe-titulo { grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px; }
+    .turma-detalhe-titulo h2 { margin:0; color:#f8fafc; font-size:1.15rem; }
+    .turma-voltar { border:1px solid rgba(34,211,238,.28); border-radius:999px; background:rgba(15,23,42,.75); color:#22d3ee; padding:6px 11px; font-size:.7rem; font-weight:700; cursor:pointer; }
+    .turma-voltar:hover { background:rgba(34,211,238,.12); }
+    .atividade-extra { display:inline-flex; align-items:center; gap:4px; margin-top:3px; padding:2px 7px; border-radius:999px; font-size:.62rem; font-weight:700; color:#f9a8d4; background:rgba(244,114,182,.1); border:1px solid rgba(244,114,182,.3); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .subgrupo-turma { grid-column:1 / -1; display:flex; align-items:center; gap:10px; margin:12px 0 0; color:#22d3ee; font-size:.8rem; font-weight:800; text-transform:uppercase; letter-spacing:.45px; }
+    .subgrupo-turma::after { content:""; height:1px; flex:1; background:linear-gradient(90deg,rgba(34,211,238,.35),transparent); }
+
+    @media (max-width: 768px) {
+      .grid-principal  { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      .separador-grupo { grid-column: 1; }
+      .barra-visualizacao { grid-column: 1; }
+      .bloco-turma { padding: 12px; }
+      .bloco-turma-cabecalho { flex-direction: column; align-items: flex-start; }
+      .chip-turma { padding: 6px 10px; font-size: 0.68rem; }
+    }
+    @media (min-width: 1024px) { body { padding-inline: 40px; } }
+  
+    /* ===== PAINEL SOCIAL 2 — MOSAICO COMPACTO ===== */
+    body.mosaico-page { padding: 12px; }
+    .mosaico-page h1 { margin-top: 12px; margin-bottom: 2px; font-size: 1.35rem; }
+    .mosaico-page .subtitulo { margin-bottom: 14px; font-size: .78rem; }
+    .mosaico-controles {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+      padding: 8px 10px; margin-bottom: 2px;
+      background: linear-gradient(145deg, #0b1220, #020617);
+      border: 1px solid rgba(34,211,238,.22); border-radius: 12px;
+    }
+    .mosaico-controles-label { color:#94a3b8; font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:.4px; margin-right:2px; }
+    .mosaico-filtro {
+      border: 1px solid rgba(34,211,238,.22); border-radius:999px;
+      background:rgba(15,23,42,.78); color:#94a3b8; cursor:pointer;
+      padding:5px 9px; font-size:.68rem; font-weight:800; white-space:nowrap;
+    }
+    .mosaico-filtro:hover, .mosaico-filtro.ativo { color:#22d3ee; border-color:#22d3ee; background:rgba(34,211,238,.12); }
+    .mosaico-filtro.filtro-coral { color:#f9a8d4; border-color:rgba(244,114,182,.28); }
+    .mosaico-filtro.filtro-coral.ativo { background:rgba(244,114,182,.13); border-color:#f9a8d4; }
+    .mosaico-grid {
+      grid-column: 1 / -1;
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+      gap:10px; align-items:stretch;
+    }
+    .mosaico-card {
+      min-width:0; min-height:166px; padding:10px 9px 9px;
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      border-radius:14px; border:1px solid rgba(34,211,238,.28);
+      background:radial-gradient(circle at top left,#17243a,#020617 78%);
+      box-shadow:0 7px 16px rgba(0,0,0,.34); cursor:pointer;
+      transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+      text-align:center; overflow:hidden;
+    }
+    .mosaico-card:hover, .mosaico-card:focus-visible { transform:translateY(-3px); border-color:#22d3ee; box-shadow:0 12px 23px rgba(8,47,73,.7); outline:none; }
+    .mosaico-card.mosaico-coral { border-color:rgba(244,114,182,.42); background:radial-gradient(circle at top left,#2a1833,#080711 78%); }
+    .mosaico-foto { width:58px; height:58px; flex:0 0 58px; border-radius:50%; overflow:hidden; border:2px solid rgba(34,211,238,.58); background:#0f172a; display:grid; place-items:center; color:#67e8f9; font-size:1rem; font-weight:900; }
+    .mosaico-coral .mosaico-foto { border-color:rgba(244,114,182,.64); color:#f9a8d4; }
+    .mosaico-foto img { width:100%; height:100%; object-fit:cover; display:block; }
+    .mosaico-nome { width:100%; color:#f8fafc; font-size:.79rem; font-weight:850; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mosaico-instrumento { width:100%; color:#a5b4fc; font-size:.66rem; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mosaico-coral .mosaico-instrumento { color:#f9a8d4; }
+    .mosaico-nivel { width:100%; margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:5px; padding:7px 8px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
+    .mosaico-coral .mosaico-nivel { background:rgba(244,114,182,.09); border-color:rgba(244,114,182,.22); }
+    .mosaico-nivel-label { color:#94a3b8; font-size:.61rem; font-weight:700; white-space:nowrap; }
+    .mosaico-nivel-valor { color:#f8fafc; font-size:1.05rem; font-weight:900; line-height:1; }
+    .mosaico-vazio { grid-column:1 / -1; padding:36px 12px; color:#94a3b8; text-align:center; border:1px dashed rgba(148,163,184,.28); border-radius:14px; }
+    .mosaico-contador { grid-column:1 / -1; color:#64748b; font-size:.7rem; text-align:right; margin-top:-3px; }
+    @media (max-width: 520px) {
+      body.mosaico-page { padding:8px; }
+      .mosaico-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+      .mosaico-card { min-height:156px; padding:9px 7px 8px; }
+      .mosaico-foto { width:52px; height:52px; flex-basis:52px; }
+      .mosaico-nome { font-size:.74rem; }
+      .mosaico-instrumento { font-size:.62rem; }
+      .mosaico-nivel { padding:6px; }
+      .mosaico-nivel-valor { font-size:.98rem; }
+    }
+    @media (min-width: 1100px) {
+      .mosaico-grid { grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); }
+    }
+
+  </style>
+</head>
+
+<body class="mosaico-page">
+  <h1>🧩 Mosaico de Alunos</h1>
+  <p class="subtitulo">Perfis compactos para visualizar e abrir os alunos rapidamente.</p>
+
+  <div class="grid-principal" id="gridCompleto">
+    <div class="loader-texto">⌛ Carregando alunos...</div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="aluno.html"        class="nav-item"        data-page="home">      <i class="fas fa-home nav-icon"></i>             <span class="nav-label">Home</span></a>
+    <a href="painel-social2.html" class="nav-item active" data-page="comunidade"><i class="fas fa-th nav-icon"></i>              <span class="nav-label">Mosaico</span></a>
+    <a href="biblioteca.html"   class="nav-item"        data-page="biblioteca"><i class="fas fa-book nav-icon"></i>              <span class="nav-label">Biblioteca</span></a>
+    <a href="atividades.html"   class="nav-item"        data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i>    <span class="nav-label">Atividades</span></a>
+    <a href="professor.html"    class="nav-item"        data-page="professor"  id="navProfessor" style="display:none;"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></a>
+  </nav>
+
+  <script type="module">
+    import { db } from "./firebase-config.js";
+    import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { regrasDeConquistas } from "./conquistas.js";
+    import { obterEventosDoAno, agruparEventosPorMes } from "./frequencia.js";
+    import { calcularFrequenciaElegivel } from "./participacoes.js";
+
+    let todosAtivos   = [];
+    let todosAtivosComCoral = [];
+    let gruposEventos = {};
+    let gruposEventosCoral = {};
+    let abaAtual      = "nivel";
+    let mesAtual      = new Date().getMonth();
+    let dadosGrupo    = { nome: 'Filhos de Asafe', anoCriacao: '2021', descricao: '', logoUrl: '' };
+    let todasTurmas   = []; // turmas cadastradas em turmas.html
+
+    // Persistência de preferências
+    let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
+    let ordenacaoGeral = localStorage.getItem("ps_ordenacaoGeral") || "nivel";
+    let turmaAtiva    = "todas";
+
+    const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                         "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+    const mesesChaves = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+
+    // ================================================================
+    // DETECÇÃO DE FASE
+    // ================================================================
+    function getFaseAluno(aluno) {
+      const fase = (aluno.fase ?? "").toString().toLowerCase().replace(/\s/g, "");
+      if (fase === "1" || fase === "fase1") return "fase1";
+      if (fase === "2" || fase === "fase2") return "fase2";
+      return "orquestra";
+    }
+
+    function escapeHtml(texto) {
+      if (texto == null) return "";
+      return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function classificarInstrumento(instrumento) {
+      if (!instrumento) return { grupo: "Outros", subgrupo: "Outros", label: "Outros", ordem: 999 };
+      const inst = instrumento.trim().toLowerCase();
+      if (inst.includes("violino")) return { grupo: "Cordas",    subgrupo: "Violino",  label: "Violino",      ordem: 1 };
+      if (inst.includes("viola"))   return { grupo: "Cordas",    subgrupo: "Viola",    label: "Viola",         ordem: 2 };
+      if (inst.includes("sax")) {
+        if (inst.includes("soprano")) return { grupo: "Saxofones", subgrupo: "Soprano",  label: "Sax Soprano",  ordem: 1 };
+        if (inst.includes("alto"))    return { grupo: "Saxofones", subgrupo: "Alto",     label: "Sax Alto",     ordem: 2 };
+        if (inst.includes("tenor"))   return { grupo: "Saxofones", subgrupo: "Tenor",    label: "Sax Tenor",    ordem: 3 };
+        if (inst.includes("barítono"))return { grupo: "Saxofones", subgrupo: "Barítono", label: "Sax Barítono", ordem: 4 };
+        return { grupo: "Saxofones", subgrupo: instrumento.trim(), label: instrumento.trim(), ordem: 5 };
+      }
+      if (inst.includes("trompete")) return { grupo: "Metais", subgrupo: "Trompete", label: "Trompete", ordem: 1 };
+      if (inst.includes("trombone")) return { grupo: "Metais", subgrupo: "Trombone", label: "Trombone", ordem: 2 };
+      if (inst.includes("tuba"))     return { grupo: "Metais", subgrupo: "Tuba",     label: "Tuba",     ordem: 3 };
+      if (inst.includes("percussão") || inst.includes("percussao") || inst.includes("bateria") || inst.includes("timbale"))
+        return { grupo: "Percussão", subgrupo: "Percussão", label: "Percussão", ordem: 1 };
+      if (inst.includes("piano") || inst.includes("teclado"))
+        return { grupo: "Piano", subgrupo: "Piano", label: "Piano", ordem: 1 };
+      return { grupo: instrumento.trim(), subgrupo: null, label: instrumento.trim(), ordem: 999 };
+    }
+
+    function corBarra(pct) {
+      if (pct < 40) return "linear-gradient(90deg,#f97373,#fb923c)";
+      if (pct < 80) return "linear-gradient(90deg,#facc15,#fef08a)";
+      return              "linear-gradient(90deg,#22c55e,#4ade80)";
+    }
+    function medalha(pos) { return pos === 0 ? "🥇" : pos === 1 ? "🥈" : pos === 2 ? "🥉" : `${pos+1}.`; }
+    function media(arr)   { if (!arr.length) return 0; return Math.round(arr.reduce((s, v) => s + v, 0) / arr.length); }
+    function calcularConquistas(aluno) {
+      // As conquistas agora são históricas e ficam salvas como uma lista de IDs.
+      // O painel social exibe apenas um resumo, sem executar regras antigas.
+      const ids = Array.isArray(aluno.conquistas) ? aluno.conquistas : [];
+      const d = ids.map(item => {
+        const id = typeof item === "string" ? item : item?.id;
+        return regrasDeConquistas.find(regra => regra.id === id)?.icone;
+      }).filter(Boolean);
+      return d.length > 0 ? d.join(" ") : "—";
+    }
+    function chamadasDoAluno(aluno, grupos, mes = null) {
+      const eventos = Object.keys(grupos)
+        .filter(ch => !mes || ch === mes)
+        .flatMap(ch => grupos[ch] || []);
+      if (!aluno.turmaId) {
+        const listadas = eventos.filter(ev => ev.tipo !== "coral" && ev.presencas?.some(p =>
+          (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome
+        ));
+        const avaliadas = listadas.filter(ev => {
+          const p = ev.presencas.find(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome);
+          return p?.presenca !== "justificado" && p?.presenca !== "J";
+        });
+        const presentes = avaliadas.filter(ev => {
+          const p = ev.presencas.find(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome);
+          return p?.presenca === "presente" || p?.presenca === "P";
+        }).length;
+        return { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
+      }
+      return calcularFrequenciaElegivel(eventos, aluno, aluno.turmaId);
+    }
+    function calcularEnergiaAnualLocal(aluno, grupos) {
+      return chamadasDoAluno(aluno, grupos).percentual ?? 0;
+    }
+    function freqAlunoNoMes(aluno, mesIdx) {
+      return chamadasDoAluno(aluno, gruposEventos, `2026-${mesesChaves[mesIdx]}`).percentual ?? 0;
+    }
+    function chamadasCoralDoAluno(aluno, grupos, mes = null) {
+      const eventos = Object.keys(grupos).filter(ch => !mes || ch === mes).flatMap(ch => grupos[ch] || []);
+      const registros = eventos.map(ev => ev.presencas?.find(p => (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome)).filter(Boolean);
+      const avaliadas = registros.filter(p => p.presenca !== "justificado" && p.presenca !== "J");
+      const presentes = avaliadas.filter(p => p.presenca === "presente" || p.presenca === "P").length;
+      return { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
+    }
+    function freqAlunoCoralNoMes(aluno, turmaId, mesIdx) {
+      return chamadasCoralDoAluno(aluno, gruposEventosCoral[turmaId] || {}, `2026-${mesesChaves[mesIdx]}`).percentual ?? 0;
+    }
+    function agruparPorGrupo(alunos) {
+      const map = new Map();
+      alunos.forEach(a => { const { grupo } = classificarInstrumento(a.instrumento); if (!map.has(grupo)) map.set(grupo, []); map.get(grupo).push(a); });
+      return map;
+    }
+
+    // ================================================================
+    // AGRUPAMENTO POR TURMA — usando a fase do aluno (mesma lógica da página professor)
+    // Chaves: "fase1", "fase2", "orquestra", "__sem_turma__"
+    // ================================================================
+    function chaveTurma(aluno) {
+      const turma = todasTurmas.find(t => t.id === aluno.turmaId);
+      if (turma && String(turma.tipo || "").toLowerCase() !== "coral") return turma.id;
+      const fase = getFaseAluno(aluno);
+      const turmasPrincipais = todasTurmas.filter(t => String(t.tipo || "").toLowerCase() !== "coral");
+      const porNome = termo => turmasPrincipais.find(t => String(t.nome || "").toLowerCase().replace(/\s+/g, "") === termo);
+      if (fase === "fase1") return porNome("fase1")?.id || "fase1";
+      if (fase === "fase2") return porNome("fase2")?.id || "fase2";
+      // Alunos sem fase definida mas com instrumento (orquestra)
+      if (aluno.instrumento && aluno.instrumento.trim() !== "") return porNome("orquestra")?.id || "orquestra";
+      return "__sem_turma__";
+    }
+    function nomeTurmaDisplay(chave) {
+      const turma = todasTurmas.find(t => t.id === chave);
+      if (turma) return turma.nome || "Turma";
+      if (chave === "fase1") return "Fase 1";
+      if (chave === "fase2") return "Fase 2";
+      if (chave === "orquestra") return "Orquestra";
+      return "Sem turma";
+    }
+    function iconTurmaDisplay(chave) {
+      const turma = todasTurmas.find(t => t.id === chave);
+      if (turma) {
+        const nome = String(turma.nome || "").toLowerCase();
+        if (String(turma.tipo || "").toLowerCase() === "coral") return "🎶";
+        if (nome.includes("fase")) return "📚";
+        return "🎻";
+      }
+      if (chave === "fase1") return "📚";
+      if (chave === "fase2") return "📚";
+      if (chave === "orquestra") return "🎻";
+      return "👥";
+    }
+    function ordemTurma(chave) {
+      const turma = todasTurmas.find(t => t.id === chave);
+      if (turma) {
+        const nome = String(turma.nome || "").toLowerCase();
+        if (nome.includes("orquestra")) return 0;
+        if (nome.includes("fase 1") || nome.includes("fase1")) return 1;
+        if (nome.includes("fase 2") || nome.includes("fase2")) return 2;
+        return 3;
+      }
+      // Orquestra primeiro, depois Fase 1, Fase 2, e por último Sem turma
+      if (chave === "orquestra") return 0;
+      if (chave === "fase1") return 1;
+      if (chave === "fase2") return 2;
+      return 9999;
+    }
+    function agruparPorTurma(alunos) {
+      const map = new Map();
+      alunos.forEach(a => {
+        const chave = chaveTurma(a);
+        if (!map.has(chave)) map.set(chave, []);
+        map.get(chave).push(a);
+      });
+      return map;
+    }
+    function obterTurmasCoral() {
+      return todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral");
+    }
+    function vozCoralAluno(aluno) {
+      return aluno.instrumentoCoral || aluno.instrumentocoral || aluno.vozCoral || "";
+    }
+    function mapaCoral(alunos) {
+      const mapa = new Map();
+      obterTurmasCoral().forEach(turma => mapa.set(turma.id, []));
+      alunos.forEach(aluno => {
+        obterTurmasCoral().forEach(turma => {
+          const membros = new Set(Array.isArray(turma.alunos) ? turma.alunos : []);
+          if (membros.has(aluno.id) || aluno.turmaId === turma.id) {
+            const coralAluno = { ...aluno, _isCoralView: true, instrumento: vozCoralAluno(aluno) || "Voz não definida" };
+            coralAluno.energiaAnual = chamadasCoralDoAluno(coralAluno, gruposEventosCoral[turma.id] || {}).percentual ?? 0;
+            coralAluno.energiaMensal = freqAlunoCoralNoMes(coralAluno, turma.id, mesAtual);
+            mapa.get(turma.id).push(coralAluno);
+          }
+        });
+      });
+      return mapa;
+    }
+    function turmaPrincipalDoAluno(aluno) {
+      const turma = todasTurmas.find(t => t.id === aluno.turmaId);
+      return turma && String(turma.tipo || "").toLowerCase() !== "coral" ? turma : null;
+    }
+    function agruparPorSubgrupo(alunos) {
+      const map = new Map();
+      alunos.forEach(a => {
+        const c = classificarInstrumento(a.instrumento);
+        if (!map.has(c.grupo)) map.set(c.grupo, new Map());
+        const sub = map.get(c.grupo);
+        if (!sub.has(c.label)) sub.set(c.label, { alunos: [], ordem: c.ordem });
+        sub.get(c.label).alunos.push(a);
+      });
+      return map;
+    }
+
+    function ordenarAlunosGeral(alunos, criterio) {
+      return alunos.slice().sort((a, b) => {
+        if (criterio === "nivel")          return ((b.leitura ?? 0) + (b.metodo ?? 0)) - ((a.leitura ?? 0) + (a.metodo ?? 0));
+        if (criterio === "comp_anual")     return (b.energiaAnual ?? 0) - (a.energiaAnual ?? 0);
+        if (criterio === "comp_mensal")    return (b.frequenciaMensal?.porcentagem ?? 0) - (a.frequenciaMensal?.porcentagem ?? 0);
+        return 0;
+      });
+    }
+
+    // ================================================================
+    // PAINEL DA BANDA — usa dadosGrupo
+    // ================================================================
+    function htmlPainelBanda() {
+      const logo = dadosGrupo.logoUrl && dadosGrupo.logoUrl.startsWith('http')
+        ? dadosGrupo.logoUrl : './logo-fa.jpeg';
+      const nome = dadosGrupo.nome || 'Filhos de Asafe';
+      const ano  = dadosGrupo.anoCriacao || '2021';
+      return `
+        <div class="painel-banda">
+          <div class="painel-banda-titulo">🎶 A Banda</div>
+          <div class="painel-banda-corpo">
+            <div class="painel-banda-logo"><img src="${logo}" alt="${nome}"></div>
+            <div class="painel-banda-nome">${nome}</div>
+          </div>
+          <div class="painel-banda-rodape">Desde ${ano}</div>
+        </div>`;
+    }
+
+    // ================================================================
+    // PAINEL SOBRE NÓS
+    // ================================================================
+    function htmlPainelSobre() {
+      const descricao = (dadosGrupo.descricao || '').trim();
+      const corpo = descricao
+        ? `<div class="painel-sobre-texto">${descricao.replace(/\n/g, '<br>')}</div>`
+        : `<div class="painel-sobre-vazio">Nenhuma descrição cadastrada ainda.</div>`;
+      return `
+        <div class="painel-sobre">
+          <div class="painel-sobre-titulo">ℹ️ Sobre Nós</div>
+          ${corpo}
+        </div>`;
+    }
+
+    // ================================================================
+    // PAINEL GERAL
+    // ================================================================
+    function htmlPainelGeral(ativos) {
+      const mediaAnual  = media(ativos.map(a => a.energiaAnual ?? 0));
+      const mediaMensal = media(ativos.map(a => a.energiaMensal ?? a.frequenciaMensal?.porcentagem ?? 0));
+      const grupoMap = agruparPorGrupo(ativos);
+      const bancadas = [...grupoMap.keys()].filter(k => k !== "Maestro").length;
+      return `
+        <div class="painel-geral">
+          <div class="painel-geral-titulo">📊 Painel Geral</div>
+          <div class="stat-geral-item"><span class="stat-geral-label">👥 Alunos</span><span class="stat-geral-valor">${ativos.length}</span></div>
+          <div class="stat-geral-item"><span class="stat-geral-label">📈 Comprometimento Anual</span><span class="stat-geral-valor">${mediaAnual}%</span></div>
+          <div class="stat-geral-item"><span class="stat-geral-label">📅 Comprometimento Mensal</span><span class="stat-geral-valor">${mediaMensal}%</span></div>
+          <div class="stat-geral-item"><span class="stat-geral-label">🎼 Bancadas</span><span class="stat-geral-valor">${bancadas}</span></div>
+        </div>`;
+    }
+
+    function htmlBadges(subgrupoMap) {
+      const badges = [];
+      [...subgrupoMap.keys()].filter(pai => pai !== "Maestro").sort((a, b) => a.localeCompare(b)).forEach(pai => {
+        [...subgrupoMap.get(pai).entries()].sort((a, b) => a[1].ordem - b[1].ordem).forEach(([label, info]) => {
+          badges.push({ label, grupoPai: pai, qtd: info.alunos.length });
+        });
+      });
+      const badgesHtml = badges.map(b =>
+        `<span class="badge-subgrupo" onclick="scrollParaGrupo('${b.grupoPai}')">${b.label} <strong>${b.qtd}</strong></span>`
+      ).join("");
+      return `<div class="badges-container"><div class="badges-titulo">🎼 Bancadas</div><div class="badges-wrap">${badgesHtml}</div></div>`;
+    }
+
+    function calcularMetricaGrupo(alunos, aba, mes) {
+      if (aba === "nivel")      return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
+      if (aba === "frequencia") return media(alunos.map(a => freqAlunoNoMes(a, mes)));
+      if (aba === "score")      return { nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))), freq: media(alunos.map(a => freqAlunoNoMes(a, mes))) };
+      return 0;
+    }
+
+    function htmlRanking(turmaMap, aba, mes) {
+      const grupos = [...turmaMap.keys()].filter(k => k !== "__sem_turma__");
+      let dados = grupos.map(nome => {
+        const alunos = turmaMap.get(nome);
+        if (aba === "score") { const raw = calcularMetricaGrupo(alunos, "score", mes); return { nome: nomeTurmaDisplay(nome), nivel: raw.nivel, freq: raw.freq, valor: null }; }
+        return { nome: nomeTurmaDisplay(nome), valor: calcularMetricaGrupo(alunos, aba, mes) };
+      });
+      if (aba === "score") {
+        const maxNivel = Math.max(...dados.map(d => d.nivel), 1);
+        dados.forEach(d => { d.valor = Math.round((Math.round((d.nivel / maxNivel) * 100) + d.freq) / 2); });
+      }
+      dados.sort((a, b) => b.valor - a.valor);
+      const maxValor  = Math.max(...dados.map(d => d.valor), 1);
+      const unidade   = aba === "nivel" ? " pts" : "%";
+      const gradiente = aba === "nivel" ? "linear-gradient(90deg,#38bdf8,#818cf8)" : aba === "frequencia" ? null : "linear-gradient(90deg,#f59e0b,#fcd34d)";
+      const linhas = dados.map((d, i) => {
+        const pct  = Math.round((d.valor / maxValor) * 100);
+        const grad = gradiente || corBarra(d.valor);
+        return `<div class="ranking-linha"><span class="ranking-pos">${medalha(i)}</span><span class="ranking-nome">${d.nome}</span><div class="ranking-barra-wrap"><div class="ranking-barra-fill" style="width:${pct}%;background:${grad};"></div></div><span class="ranking-valor">${d.valor}${unidade}</span></div>`;
+      }).join("");
+      const mesControlDisplay = aba === "nivel" ? "none" : "flex";
+      return `
+        <div class="bloco-ranking">
+          <div class="ranking-titulo">🏆 Ranking</div>
+          <div class="ranking-tabs">
+            <button class="tab-btn ${aba==='nivel'     ?'ativo':''}" onclick="trocarAba('nivel')">🎯</button>
+            <button class="tab-btn ${aba==='frequencia'?'ativo':''}" onclick="trocarAba('frequencia')">📅</button>
+            <button class="tab-btn ${aba==='score'     ?'ativo':''}" onclick="trocarAba('score')">⭐</button>
+          </div>
+          <div class="mes-control" style="display:${mesControlDisplay}">
+            <button onclick="mudarMes(-1)">◀</button>
+            <span class="mes-nome">${mesesNomes[mes]}</span>
+            <button onclick="mudarMes(1)">▶</button>
+          </div>
+          <div class="ranking-lista">${linhas}</div>
+        </div>`;
+    }
+
+    // ================================================================
+    // CARD — FASE 1 (só presença, sem instrumento, sem nível)
+    // ================================================================
+    function htmlCardFase1(aluno) {
+      const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaGeral  = aluno.energiaAnual ?? 0;
+      const conquistas    = calcularConquistas(aluno);
+      const bgMensal      = corBarra(energiaMensal);
+      return `
+        <div class="card-social card-fase1" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+          <div class="topo-card">
+            <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
+            <div class="info-principal">
+              <div class="nome-aluno">${aluno.nome}</div>
+              <span class="badge-fase fase1">Fase 1</span>
+            </div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📊 Presença Anual</span><span>${energiaGeral}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaGeral}%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📅 Presença Mensal</span><span>${energiaMensal}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaMensal}%;background:${bgMensal};"></div></div>
+          </div>
+          <div class="conquistas-social"><span>🏆 Conquistas</span><span class="icones">${conquistas}</span></div>
+        </div>`;
+    }
+
+    // ================================================================
+    // CARD — FASE 2 (presença + índice de leitura, sem instrumento)
+    // ================================================================
+    function htmlCardFase2(aluno) {
+      const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaGeral  = aluno.energiaAnual ?? 0;
+      const leitura       = aluno.leitura ?? 0;
+      const conquistas    = calcularConquistas(aluno);
+      const bgMensal      = corBarra(energiaMensal);
+      return `
+        <div class="card-social card-fase2" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+          <div class="topo-card">
+            <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
+            <div class="info-principal">
+              <div class="nome-aluno">${aluno.nome}</div>
+              <span class="badge-fase fase2">Fase 2</span>
+            </div>
+          </div>
+          <div class="nivel-geral-destaque">
+            <span class="label-nivel">📘 Índice de Leitura</span>
+            <span class="valor-nivel">${leitura}</span>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📊 Presença Anual</span><span>${energiaGeral}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaGeral}%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📅 Presença Mensal</span><span>${energiaMensal}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaMensal}%;background:${bgMensal};"></div></div>
+          </div>
+          <div class="conquistas-social"><span>🏆 Conquistas</span><span class="icones">${conquistas}</span></div>
+        </div>`;
+    }
+
+    // ================================================================
+    // CARD — ORQUESTRA / FASE 3 (com instrumento, nível geral, leitura e método)
+    // ================================================================
+    function htmlCard(aluno) {
+      const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
+      const energiaGeral  = aluno.energiaAnual ?? 0;
+      const total         = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
+      const conquistas    = calcularConquistas(aluno);
+      const bgMensal      = corBarra(energiaMensal);
+      return `
+        <div class="card-social" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+          <div class="topo-card">
+            <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
+            <div class="info-principal">
+              <div class="nome-aluno">${aluno.nome}</div>
+              <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
+              ${!aluno._isCoralView && aluno._coralVoz ? `<span class="atividade-extra">🎶 KADOSH · ${escapeHtml(aluno._coralVoz)}</span>` : ""}
+            </div>
+          </div>
+          <div class="nivel-geral-destaque"><span class="label-nivel">🎯 Nível Geral</span><span class="valor-nivel">${total}</span></div>
+          <div class="niveis-secundarios">
+            <div class="nivel-item"><span>📘 Leitura</span><span class="valor">${aluno.leitura ?? 0}</span></div>
+            <div class="nivel-item"><span>🎵 Método</span><span class="valor">${aluno.metodo ?? 0}</span></div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📊 Geral</span><span>${energiaGeral}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaGeral}%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
+          </div>
+          <div class="barra-comprometimento">
+            <div class="barra-label"><span>📅 Mensal</span><span>${energiaMensal}%</span></div>
+            <div class="barra-container"><div class="barra-preenchimento" style="width:${energiaMensal}%;background:${bgMensal};"></div></div>
+          </div>
+          <div class="conquistas-social"><span>🏆 Conquistas</span><span class="icones">${conquistas}</span></div>
+        </div>`;
+    }
+
+    // ================================================================
+    // ROTEADOR DE CARD — escolhe o template pela fase do aluno
+    // ================================================================
+    function htmlCardPorFase(aluno) {
+      if (aluno._isCoralView) return htmlCard(aluno);
+      const fase = getFaseAluno(aluno);
+      if (fase === "fase1") return htmlCardFase1(aluno);
+      if (fase === "fase2") return htmlCardFase2(aluno);
+      return htmlCard(aluno);
+    }
+
+    function htmlSeparadorGrupo(nome, qtd) {
+      const id = `grupo-${nome.toLowerCase().replace(/[\s\/]+/g, "-")}`;
+      return `<div class="separador-grupo" id="${id}"><div class="separador-linha"></div><div class="separador-texto">🎼 ${nome} <span class="separador-count">${qtd} aluno${qtd > 1 ? 's' : ''}</span></div><div class="separador-linha"></div></div>`;
+    }
+
+    // ================================================================
+    // ABAS DE TURMA
+    // ================================================================
+    function htmlAbasTurma(turmaMap) {
+      const chips = [];
+      // Chip "Todas"
+      const qtdTodas = todosAtivos.length;
+      chips.push(`<button class="chip-turma ${turmaAtiva === 'todas' ? 'ativo' : ''}" onclick="selecionarTurma('todas')">🏠 Todas <span class="chip-qtd">${qtdTodas}</span></button>`);
+      // Um chip por turma cadastrada (com alunos ativos)
+      [...turmaMap.keys()] .filter(k => k !== "__sem_turma__")
+        .sort((a, b) => ordemTurma(a) - ordemTurma(b))
+        .forEach(chave => {
+          const alunos = turmaMap.get(chave);
+          if (!alunos.length) return;
+          const nome = nomeTurmaDisplay(chave);
+          const icone = iconTurmaDisplay(chave);
+          chips.push(`<button class="chip-turma ${turmaAtiva === chave ? 'ativo' : ''}" onclick="selecionarTurma('${chave}')">${icone} ${escapeHtml(nome)} <span class="chip-qtd">${alunos.length}</span></button>`);
+        });
+      // Chip "Sem turma" se houver alunos sem turma
+      const semTurma = turmaMap.get("__sem_turma__") || [];
+      if (semTurma.length) {
+        chips.push(`<button class="chip-turma ${turmaAtiva === '__sem_turma__' ? 'ativo' : ''}" onclick="selecionarTurma('__sem_turma__')">🚫 Sem turma <span class="chip-qtd">${semTurma.length}</span></button>`);
+      }
+      return `<div class="abas-turmas"><span class="abas-turmas-label">Turmas:</span>${chips.join("")}</div>`;
+    }
+
+    // ================================================================
+    // BLOCO DE TURMA — cabeçalho + métricas coletivas + destaques
+    // ================================================================
+    function htmlBlocoTurma(chave, alunos) {
+      const nome = nomeTurmaDisplay(chave);
+      const icone = iconTurmaDisplay(chave);
+      const mediaAnual  = media(alunos.map(a => a.energiaAnual ?? 0));
+      const mediaMensal = media(alunos.map(a => a.energiaMensal ?? a.frequenciaMensal?.porcentagem ?? 0));
+      const destaqueNivel  = alunos.length ? alunos.slice().sort((a, b) => ((b.leitura ?? 0) + (b.metodo ?? 0)) - ((a.leitura ?? 0) + (a.metodo ?? 0)))[0] : null;
+      const destaqueMensal = alunos.length ? alunos.slice().sort((a, b) => (b.frequenciaMensal?.porcentagem ?? 0) - (a.frequenciaMensal?.porcentagem ?? 0))[0] : null;
+      const htmlDestaque = (al, titulo) => al
+        ? `<span class="destaque-chip" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(al.nome)}&view=public'"><span class="destaque-avatar">${al.foto ? `<img src="${al.foto}" alt="${escapeHtml(al.nome)}">` : ""}</span>${titulo}: ${escapeHtml(al.nome.split(" ")[0])}</span>`
+        : "";
+      return `
+        <div class="bloco-turma">
+          <div class="bloco-turma-cabecalho">
+            <div>
+              <div class="bloco-turma-nome">${icone} ${escapeHtml(nome)}</div>
+              <div class="bloco-turma-qtd">👥 ${alunos.length} aluno${alunos.length !== 1 ? "s" : ""}</div>
+            </div>
+            <div class="bloco-turma-metricas">
+              <div class="bloco-turma-metrica">📈 Média Anual <span class="valor">${mediaAnual}%</span></div>
+              <div class="bloco-turma-metrica">📅 Média Mensal <span class="valor">${mediaMensal}%</span></div>
+            </div>
+          </div>
+          <div class="bloco-turma-destaques">
+            <span class="bloco-turma-destaques-label">🏆 Destaques</span>
+            ${htmlDestaque(destaqueNivel, "🎯 Maior nível")}
+            ${htmlDestaque(destaqueMensal, "📅 Mais presente")}
+          </div>
+        </div>`;
+    }
+
+    function dadosResumoTurma(nome, alunos, coral = false) {
+      const mediaAnual = media(alunos.map(a => a.energiaAnual ?? 0));
+      const mediaMensal = media(alunos.map(a => a.energiaMensal ?? a.frequenciaMensal?.porcentagem ?? 0));
+      const labels = [...new Set(alunos.map(a => a.instrumento).filter(Boolean))].slice(0, coral ? 5 : 4);
+      return { nome, mediaAnual, mediaMensal, labels };
+    }
+    function htmlResumoTurma(chave, alunos, coral = false) {
+      const dados = dadosResumoTurma(nomeTurmaDisplay(chave), alunos, coral);
+      const icone = coral ? "🎶" : iconTurmaDisplay(chave);
+      return `<article class="resumo-turma-card ${coral ? "cor" : ""}" onclick="selecionarTurma('${chave}')">
+        <div class="resumo-turma-topo"><div><div class="resumo-turma-nome">${icone} ${escapeHtml(dados.nome)}</div><div class="resumo-turma-qtd">👥 ${alunos.length} integrante${alunos.length !== 1 ? "s" : ""}</div></div><span class="resumo-turma-abrir">Ver alunos →</span></div>
+        <div class="resumo-turma-stats"><div class="resumo-turma-stat"><span class="resumo-turma-stat-label">📈 Média anual</span><span class="resumo-turma-stat-value">${dados.mediaAnual}%</span></div><div class="resumo-turma-stat"><span class="resumo-turma-stat-label">📅 Média mensal</span><span class="resumo-turma-stat-value">${dados.mediaMensal}%</span></div></div>
+        <div class="resumo-turma-vozes">${dados.labels.length ? dados.labels.map(label => `<span class="resumo-turma-voz">${escapeHtml(label)}</span>`).join("") : `<span class="resumo-turma-voz">Sem grupos definidos</span>`}</div>
+      </article>`;
+    }
+    function htmlResumoTurmas(turmaMap, coralMap) {
+      const cards = [];
+      [...turmaMap.keys()].sort((a, b) => ordemTurma(a) - ordemTurma(b)).forEach(chave => {
+        const alunos = turmaMap.get(chave) || [];
+        if (alunos.length) cards.push(htmlResumoTurma(chave, alunos));
+      });
+      coralMap.forEach((alunos, chave) => { if (alunos.length) cards.push(htmlResumoTurma(chave, alunos, true)); });
+      return `<div class="resumo-turmas">${cards.join("")}</div>`;
+    }
+    function htmlSubgruposTurma(alunos, coral = false) {
+      const subgrupos = new Map();
+      alunos.forEach(aluno => {
+        const nome = aluno.instrumento || (coral ? "Voz não definida" : "Sem bancada");
+        if (!subgrupos.has(nome)) subgrupos.set(nome, []);
+        subgrupos.get(nome).push(aluno);
+      });
+      return [...subgrupos.entries()].sort((a, b) => a[0].localeCompare(b[0], "pt-BR")).map(([nome, grupo]) => `${htmlSeparadorGrupo(nome, grupo.length).replace("separador-grupo", "subgrupo-turma")}${grupo.map(htmlCardPorFase).join("")}`).join("");
+    }
+    function htmlBarraVisualizacao() {
+      const desabilitarOrdenacao = modoBancada;
+      return `
+        <div class="barra-visualizacao">
+          <span class="barra-visualizacao-label">Visualização:</span>
+          <div class="toggle-visualizacao">
+            <button class="toggle-btn ${modoBancada ? 'ativo' : ''}" onclick="alternarModo(true)">🎼 Por Bancada</button>
+            <button class="toggle-btn ${!modoBancada ? 'ativo' : ''}" onclick="alternarModo(false)">👥 Geral</button>
+          </div>
+          <select class="select-ordenacao" id="selectOrdenacao" onchange="alterarOrdenacao(this.value)" ${desabilitarOrdenacao ? 'disabled' : ''}>
+            <option value="nivel"       ${ordenacaoGeral === 'nivel'       ? 'selected' : ''}>🎯 Nível Geral</option>
+            <option value="comp_anual"  ${ordenacaoGeral === 'comp_anual'  ? 'selected' : ''}>📊 Comprometimento Anual</option>
+            <option value="comp_mensal" ${ordenacaoGeral === 'comp_mensal' ? 'selected' : ''}>📅 Comprometimento Mensal</option>
+          </select>
+        </div>`;
+    }
+
+    function nomeInicialAluno(nome) {
+      return String(nome || "?").split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join("").toUpperCase();
+    }
+    function nivelCompacto(aluno) {
+      if (aluno.nivel != null && aluno.nivel !== "") return aluno.nivel;
+      return (Number(aluno.leitura) || 0) + (Number(aluno.metodo) || 0);
+    }
+    function htmlCardCompacto(aluno) {
+      const coral = Boolean(aluno._isCoralView);
+      const instrumento = coral ? (vozCoralAluno(aluno) || aluno.instrumento || "Voz não definida") : (aluno.instrumento || "Instrumento não definido");
+      const nome = escapeHtml(aluno.nome || "Aluno");
+      const foto = aluno.foto ? `<img src="${aluno.foto}" alt="${nome}" loading="lazy">` : `<span>${nomeInicialAluno(aluno.nome)}</span>`;
+      return `<article class="mosaico-card ${coral ? "mosaico-coral" : ""}" tabindex="0" role="link" aria-label="Abrir perfil de ${nome}" onclick="abrirPerfilMosaico('${encodeURIComponent(aluno.nome)}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); abrirPerfilMosaico('${encodeURIComponent(aluno.nome)}'); }">
+        <div class="mosaico-foto">${foto}</div>
+        <div class="mosaico-nome" title="${nome}">${nome}</div>
+        <div class="mosaico-instrumento" title="${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>
+        <div class="mosaico-nivel"><span class="mosaico-nivel-label">🎯 Nível</span><span class="mosaico-nivel-valor">${nivelCompacto(aluno)}</span></div>
+      </article>`;
+    }
+    function htmlFiltrosMosaico(turmaMap, coralMap) {
+      const botoes = [`<button class="mosaico-filtro ${turmaAtiva === "todas" ? "ativo" : ""}" onclick="selecionarTurma('todas')">Todos <span>(${todosAtivos.length})</span></button>`];
+      [...turmaMap.keys()].filter(k => k !== "__sem_turma__").sort((a,b) => ordemTurma(a) - ordemTurma(b)).forEach(chave => {
+        const qtd = turmaMap.get(chave)?.length || 0;
+        if (qtd) botoes.push(`<button class="mosaico-filtro ${turmaAtiva === chave ? "ativo" : ""}" onclick="selecionarTurma('${chave}')">${iconTurmaDisplay(chave)} ${escapeHtml(nomeTurmaDisplay(chave))} <span>(${qtd})</span></button>`);
+      });
+      coralMap.forEach((alunos, chave) => {
+        if (alunos.length) botoes.push(`<button class="mosaico-filtro filtro-coral ${turmaAtiva === chave ? "ativo" : ""}" onclick="selecionarTurma('${chave}')">🎶 ${escapeHtml(nomeTurmaDisplay(chave))} <span>(${alunos.length})</span></button>`);
+      });
+      return `<div class="mosaico-controles"><span class="mosaico-controles-label">Turma</span>${botoes.join("")}</div>`;
+    }
+    function renderizarTudo() {
+      const container = document.getElementById("gridCompleto");
+      todosAtivos.forEach(a => { a.energiaMensal = freqAlunoNoMes(a, mesAtual); });
+      const turmaMap = agruparPorTurma(todosAtivos);
+      const coralMap = mapaCoral(todosAtivosComCoral);
+      let alunos = todosAtivos;
+      let coralSelecionado = false;
+      if (turmaAtiva !== "todas") {
+        if (coralMap.has(turmaAtiva)) {
+          alunos = coralMap.get(turmaAtiva) || [];
+          coralSelecionado = true;
+        } else {
+          alunos = turmaMap.get(turmaAtiva) || [];
+        }
+      }
+      if (!alunos.length && turmaAtiva !== "todas") {
+        turmaAtiva = "todas";
+        localStorage.setItem("ps_turmaAtiva", turmaAtiva);
+        alunos = todosAtivos;
+      }
+      const cards = alunos.slice().sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")).map(htmlCardCompacto).join("");
+      const contador = alunos.length === 1 ? "1 perfil exibido" : `${alunos.length} perfis exibidos`;
+      container.innerHTML = `${htmlFiltrosMosaico(turmaMap, coralMap)}<div class="mosaico-contador">${contador}</div><div class="mosaico-grid">${cards || '<div class="mosaico-vazio">Nenhum aluno encontrado nesta turma.</div>'}</div>`;
+    }
+    window.abrirPerfilMosaico = nomeCodificado => {
+      window.location.href = `aluno.html?nome=${nomeCodificado}&view=public`;
+    };
+    window.selecionarTurma = (chave) => {
+      turmaAtiva = chave;
+      localStorage.setItem("ps_turmaAtiva", chave);
+      renderizarTudo();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.trocarAba       = aba   => { abaAtual = aba; renderizarTudo(); };
+    window.mudarMes        = delta => { mesAtual = (mesAtual + delta + 12) % 12; renderizarTudo(); };
+    window.scrollParaGrupo = nome  => {
+      const id = nome.toLowerCase().replace(/[\s\/]+/g, "-");
+      document.getElementById(`grupo-${id}`)?.scrollIntoView({ behavior:'smooth', block:'start' });
+    };
+    window.alternarModo = (bancada) => {
+      modoBancada = bancada;
+      localStorage.setItem("ps_modoBancada", bancada);
+      renderizarTudo();
+    };
+    window.alterarOrdenacao = (criterio) => {
+      ordenacaoGeral = criterio;
+      localStorage.setItem("ps_ordenacaoGeral", criterio);
+      renderizarTudo();
+    };
+
+    async function carregarAlunos() {
+      const [snap, eventosAno, grupoSnap, turmasSnap] = await Promise.all([
+        getDocs(collection(db, "alunos")),
+        obterEventosDoAno(2026),
+        getDoc(doc(db, "config", "grupo")),
+        getDocs(collection(db, "turmas")).catch(() => null)
+      ]);
+      gruposEventos = agruparEventosPorMes(eventosAno);
+      const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      alunos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
+      todosAtivos = alunos.filter(a => a.ativo !== false);
+      todosAtivosComCoral = todosAtivos.slice();
+      if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
+      if (turmasSnap) todasTurmas = turmasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const eventosCoral = await Promise.all(obterTurmasCoral().map(async turma => [turma.id, agruparEventosPorMes(await obterEventosDoAno(2026, turma.id))]));
+      gruposEventosCoral = Object.fromEntries(eventosCoral);
+      const idsCoral = new Set(todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral").map(t => t.id));
+      todosAtivos = todosAtivos.filter(a => !idsCoral.has(a.turmaId));
+      const membrosCoral = new Set(todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral").flatMap(t => Array.isArray(t.alunos) ? t.alunos : []));
+      todosAtivos.forEach(a => {
+        if (membrosCoral.has(a.id)) {
+          const coral = todasTurmas.find(t => Array.isArray(t.alunos) && t.alunos.includes(a.id));
+          a._coralVoz = vozCoralAluno(a) || "Voz não definida";
+          a._coralNome = coral?.nome || "KADOSH";
+        }
+      });
+      if (turmaAtiva !== "todas" && !todasTurmas.some(t => t.id === turmaAtiva)) {
+        turmaAtiva = "todas";
+        localStorage.setItem("ps_turmaAtiva", turmaAtiva);
+      }
+      alunos.forEach(a => {
+        a.energiaMensal = freqAlunoNoMes(a, mesAtual);
+      });
+      renderizarTudo();
+    }
+
+    carregarAlunos();
+  </script>
+
+  <script type="module" src="navegacao.js"></script>
+  <script type="module" src="bottom-nav.js"></script>
+</body>
+</html>
