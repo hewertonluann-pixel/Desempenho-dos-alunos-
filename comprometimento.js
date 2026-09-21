@@ -70,6 +70,21 @@ export async function atualizarComprometimentoMes({ mes = chaveMesAtual(), turma
       alunoTurmaId
     );
 
+    const historico = Array.isArray(dados.presencas) ? [...dados.presencas] : [];
+    const registro = historico.find(item => item?.mes === chave);
+    if (registro) {
+      registro.totalEnsaios = freq.totalAvaliadas;
+      registro.presencasAluno = freq.presencasAluno;
+      registro.percentual = freq.percentual;
+    } else {
+      historico.push({
+        mes: chave,
+        totalEnsaios: freq.totalAvaliadas,
+        presencasAluno: freq.presencasAluno,
+        percentual: freq.percentual
+      });
+    }
+
     const frequenciaAnual = { ...(dados.frequenciaAnual || {}) };
     const mesNumero = chave.slice(5, 7);
     const sigla = MESES_ABREVIADOS[mesNumero] || mesNumero;
@@ -82,6 +97,7 @@ export async function atualizarComprometimentoMes({ mes = chaveMesAtual(), turma
     };
 
     await updateDoc(doc(db, "alunos", alunoDoc.id), {
+      presencas: historico,
       "frequenciaMensal.porcentagem": freq.percentual,
       "frequenciaMensal.percentual": freq.percentual,
       "frequenciaMensal.totalEventos": freq.totalEventos,
