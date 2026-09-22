@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#22d3ee">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Mosaico Social 🎵 — Orquestra</title>
+  <link rel="stylesheet" href="loader.css">
   <link rel="stylesheet" href="aluno.css" />
   <link rel="stylesheet" href="bottom-nav.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -524,6 +525,17 @@
 </head>
 
 <body class="mosaico-page">
+  <!-- Loading global, igual ao usado nas páginas Aluno e Biblioteca -->
+  <div id="global-loader">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div id="emoji-container">🎷</div>
+      <div id="verse-container">
+        <div id="verse-text"></div>
+        <div id="verse-reference"></div>
+      </div>
+    </div>
+  </div>
   <h1>🧩 Mosaico de Alunos</h1>
   <p class="subtitulo">Perfis compactos para visualizar e abrir os alunos rapidamente.</p>
 
@@ -533,7 +545,7 @@
 
   <nav class="bottom-nav">
     <a href="aluno.html"        class="nav-item"        data-page="home">      <i class="fas fa-home nav-icon"></i>             <span class="nav-label">Home</span></a>
-    <a href="painel-social2.html" class="nav-item active" data-page="comunidade"><i class="fas fa-th nav-icon"></i>              <span class="nav-label">Mosaico</span></a>
+    <a href="painel-social.html" class="nav-item active" data-page="comunidade"><i class="fas fa-users nav-icon"></i>            <span class="nav-label">Comunidade</span></a>
     <a href="biblioteca.html"   class="nav-item"        data-page="biblioteca"><i class="fas fa-book nav-icon"></i>              <span class="nav-label">Biblioteca</span></a>
     <a href="atividades.html"   class="nav-item"        data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i>    <span class="nav-label">Atividades</span></a>
     <a href="professor.html"    class="nav-item"        data-page="professor"  id="navProfessor" style="display:none;"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></a>
@@ -1227,6 +1239,7 @@
     carregarAlunos();
   </script>
 
+  <script src="loader.js"></script>
   <script type="module" src="navegacao.js"></script>
   <script type="module" src="bottom-nav.js"></script>
 </body>
