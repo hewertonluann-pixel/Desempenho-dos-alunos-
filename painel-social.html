@@ -494,15 +494,18 @@
       text-align:center; overflow:hidden;
     }
     .mosaico-card:hover, .mosaico-card:focus-visible { transform:translateY(-3px); border-color:#22d3ee; box-shadow:0 12px 23px rgba(8,47,73,.7); outline:none; }
-    .mosaico-card.mosaico-coral { border-color:rgba(244,114,182,.42); background:radial-gradient(circle at top left,#2a1833,#080711 78%); }
+    /* O Coral é uma atividade extra: usa uma identidade ciano mais clara. */
+    .mosaico-card.mosaico-coral { border-color:rgba(103,232,249,.82); background:radial-gradient(circle at top left,#164e63,#082f49 58%,#061826 100%); box-shadow:0 7px 18px rgba(8,145,178,.28); }
+    .mosaico-card.mosaico-coral:hover, .mosaico-card.mosaico-coral:focus-visible { border-color:#cffafe; box-shadow:0 12px 25px rgba(34,211,238,.42); }
     .mosaico-foto { width:58px; height:58px; flex:0 0 58px; border-radius:50%; overflow:hidden; border:2px solid rgba(34,211,238,.58); background:#0f172a; display:grid; place-items:center; color:#67e8f9; font-size:1rem; font-weight:900; }
-    .mosaico-coral .mosaico-foto { border-color:rgba(244,114,182,.64); color:#f9a8d4; }
+    .mosaico-coral .mosaico-foto { border-color:#67e8f9; color:#cffafe; background:#0e7490; }
     .mosaico-foto img { width:100%; height:100%; object-fit:cover; display:block; }
     .mosaico-nome { width:100%; color:#f8fafc; font-size:.79rem; font-weight:850; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-instrumento { width:100%; color:#a5b4fc; font-size:.66rem; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .mosaico-coral .mosaico-instrumento { color:#f9a8d4; }
+    .mosaico-coral .mosaico-instrumento { color:#a5f3fc; }
     .mosaico-nivel { width:100%; margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:5px; padding:7px 8px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
-    .mosaico-coral .mosaico-nivel { background:rgba(244,114,182,.09); border-color:rgba(244,114,182,.22); }
+    .mosaico-coral .mosaico-voz { width:100%; margin-top:auto; padding:8px 7px; box-sizing:border-box; border-radius:9px; background:rgba(103,232,249,.16); border:1px solid rgba(165,243,252,.55); color:#ecfeff; font-size:.72rem; font-weight:900; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mosaico-coral .mosaico-voz::before { content:"🎶 "; }
     .mosaico-nivel-label { color:#94a3b8; font-size:.61rem; font-weight:700; white-space:nowrap; }
     .mosaico-nivel-valor { color:#f8fafc; font-size:1.05rem; font-weight:900; line-height:1; }
     .mosaico-vazio { grid-column:1 / -1; padding:36px 12px; color:#94a3b8; text-align:center; border:1px dashed rgba(148,163,184,.28); border-radius:14px; }
@@ -1133,8 +1136,8 @@
       return `<article class="mosaico-card ${coral ? "mosaico-coral" : ""}" tabindex="0" role="link" aria-label="Abrir perfil de ${nome}" onclick="abrirPerfilMosaico('${encodeURIComponent(aluno.nome)}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); abrirPerfilMosaico('${encodeURIComponent(aluno.nome)}'); }">
         <div class="mosaico-foto">${foto}</div>
         <div class="mosaico-nome" title="${nome}">${nome}</div>
-        <div class="mosaico-instrumento" title="${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>
-        <div class="mosaico-nivel"><span class="mosaico-nivel-label">🎯 Nível</span><span class="mosaico-nivel-valor">${nivelCompacto(aluno)}</span></div>
+        ${!coral ? `<div class="mosaico-instrumento" title="${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : ""}
+        ${coral ? `<div class="mosaico-voz" title="Voz coral: ${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : `<div class="mosaico-nivel"><span class="mosaico-nivel-label">🎯 Nível</span><span class="mosaico-nivel-valor">${nivelCompacto(aluno)}</span></div>`}
       </article>`;
     }
     function htmlFiltrosMosaico(turmaMap, coralMap) {
