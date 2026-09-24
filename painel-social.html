@@ -479,6 +479,10 @@
     .mosaico-filtro:hover, .mosaico-filtro.ativo { color:#22d3ee; border-color:#22d3ee; background:rgba(34,211,238,.12); }
     .mosaico-filtro.filtro-coral { color:#f9a8d4; border-color:rgba(244,114,182,.28); }
     .mosaico-filtro.filtro-coral.ativo { background:rgba(244,114,182,.13); border-color:#f9a8d4; }
+    .mosaico-resumo-instrumentos { grid-column:1 / -1; display:flex; align-items:center; gap:7px; flex-wrap:wrap; padding:7px 10px; margin:0 0 2px; background:rgba(15,23,42,.55); border:1px solid rgba(34,211,238,.14); border-radius:10px; }
+    .mosaico-resumo-titulo { color:#94a3b8; font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.35px; }
+    .mosaico-instrumento-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border:1px solid rgba(34,211,238,.2); border-radius:999px; background:rgba(34,211,238,.07); color:#cbd5e1; font-size:.66rem; font-weight:750; white-space:nowrap; }
+    .mosaico-instrumento-chip strong { color:#22d3ee; font-size:.72rem; }
     .mosaico-grid {
       grid-column: 1 / -1;
       display:grid; grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
@@ -572,7 +576,7 @@
     // Persistência de preferências
     let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
     let ordenacaoGeral = localStorage.getItem("ps_ordenacaoGeral") || "nivel";
-    let turmaAtiva    = "todas";
+    let turmaAtiva    = "orquestra";
 
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -1140,7 +1144,19 @@
         ${coral ? `<div class="mosaico-voz" title="Voz coral: ${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : `<div class="mosaico-nivel"><span class="mosaico-nivel-label">🎯 Nível</span><span class="mosaico-nivel-valor">${nivelCompacto(aluno)}</span></div>`}
       </article>`;
     }
-    function htmlFiltrosMosaico(turmaMap, coralMap) {
+    function htmlResumoInstrumentos(alunos, coralSelecionado) {
+      const contagem = new Map();
+      alunos.forEach(aluno => {
+        const nome = coralSelecionado
+          ? (vozCoralAluno(aluno) || "Voz não definida")
+          : (classificarInstrumento(aluno.instrumento).label || "Outros");
+        contagem.set(nome, (contagem.get(nome) || 0) + 1);
+      });
+      const itens = [...contagem.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"));
+      if (!itens.length) return "";
+      return `<div class="mosaico-resumo-instrumentos"><span class="mosaico-resumo-titulo">${coralSelecionado ? "Vozes" : "Instrumentos"}</span>${itens.map(([nome, quantidade]) => `<span class="mosaico-instrumento-chip">${escapeHtml(nome)} <strong>${quantidade}</strong></span>`).join("")}</div>`;
+    }
+    function htmlFiltrosMosaico(turmaMap, coralMap, alunosSelecionados, coralSelecionado) {
       const botoes = [`<button class="mosaico-filtro ${turmaAtiva === "todas" ? "ativo" : ""}" onclick="selecionarTurma('todas')">Todos <span>(${todosAtivos.length})</span></button>`];
       [...turmaMap.keys()].filter(k => k !== "__sem_turma__").sort((a,b) => ordemTurma(a) - ordemTurma(b)).forEach(chave => {
         const qtd = turmaMap.get(chave)?.length || 0;
@@ -1149,7 +1165,7 @@
       coralMap.forEach((alunos, chave) => {
         if (alunos.length) botoes.push(`<button class="mosaico-filtro filtro-coral ${turmaAtiva === chave ? "ativo" : ""}" onclick="selecionarTurma('${chave}')">🎶 ${escapeHtml(nomeTurmaDisplay(chave))} <span>(${alunos.length})</span></button>`);
       });
-      return `<div class="mosaico-controles"><span class="mosaico-controles-label">Turma</span>${botoes.join("")}</div>`;
+      return `<div class="mosaico-controles"><span class="mosaico-controles-label">Turma</span>${botoes.join("")}</div>${htmlResumoInstrumentos(alunosSelecionados, coralSelecionado)}`;
     }
     function renderizarTudo() {
       const container = document.getElementById("gridCompleto");
@@ -1173,7 +1189,7 @@
       }
       const cards = alunos.slice().sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")).map(htmlCardCompacto).join("");
       const contador = alunos.length === 1 ? "1 perfil exibido" : `${alunos.length} perfis exibidos`;
-      container.innerHTML = `${htmlFiltrosMosaico(turmaMap, coralMap)}<div class="mosaico-contador">${contador}</div><div class="mosaico-grid">${cards || '<div class="mosaico-vazio">Nenhum aluno encontrado nesta turma.</div>'}</div>`;
+      container.innerHTML = `${htmlFiltrosMosaico(turmaMap, coralMap, alunos, coralSelecionado)}<div class="mosaico-contador">${contador}</div><div class="mosaico-grid">${cards || '<div class="mosaico-vazio">Nenhum aluno encontrado nesta turma.</div>'}</div>`;
     }
     window.abrirPerfilMosaico = nomeCodificado => {
       window.location.href = `aluno.html?nome=${nomeCodificado}&view=public`;
@@ -1228,8 +1244,12 @@
           a._coralNome = coral?.nome || "KADOSH";
         }
       });
-      if (turmaAtiva !== "todas" && !todasTurmas.some(t => t.id === turmaAtiva)) {
-        turmaAtiva = "todas";
+      const turmaOrquestra = todasTurmas.find(t => String(t.tipo || "").toLowerCase() !== "coral" && String(t.nome || "").toLowerCase().includes("orquestra"));
+      if (turmaAtiva === "orquestra" && turmaOrquestra) turmaAtiva = turmaOrquestra.id;
+      const chavesTurmas = new Set(todosAtivos.map(chaveTurma));
+      const chavesCoral = new Set(obterTurmasCoral().map(t => t.id));
+      if (turmaAtiva !== "todas" && !chavesTurmas.has(turmaAtiva) && !chavesCoral.has(turmaAtiva)) {
+        turmaAtiva = chavesTurmas.has("orquestra") ? "orquestra" : "todas";
         localStorage.setItem("ps_turmaAtiva", turmaAtiva);
       }
       alunos.forEach(a => {
