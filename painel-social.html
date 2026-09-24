@@ -480,8 +480,15 @@
     .mosaico-filtro.filtro-coral { color:#f9a8d4; border-color:rgba(244,114,182,.28); }
     .mosaico-filtro.filtro-coral.ativo { background:rgba(244,114,182,.13); border-color:#f9a8d4; }
     .mosaico-resumo-instrumentos { grid-column:1 / -1; display:flex; align-items:center; gap:7px; flex-wrap:wrap; padding:7px 10px; margin:0 0 2px; background:rgba(15,23,42,.55); border:1px solid rgba(34,211,238,.14); border-radius:10px; }
-    .mosaico-resumo-titulo { color:#94a3b8; font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.35px; }
-    .mosaico-instrumento-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border:1px solid rgba(34,211,238,.2); border-radius:999px; background:rgba(34,211,238,.07); color:#cbd5e1; font-size:.66rem; font-weight:750; white-space:nowrap; }
+    .mosaico-resumo-instrumentos > summary { display:flex; align-items:center; gap:7px; width:100%; cursor:pointer; list-style:none; color:#94a3b8; font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.35px; }
+    .mosaico-resumo-instrumentos > summary::-webkit-details-marker { display:none; }
+    .mosaico-resumo-instrumentos > summary::before { content:"▸"; color:#22d3ee; font-size:.8rem; transition:transform .16s ease; }
+    .mosaico-resumo-instrumentos[open] > summary::before { transform:rotate(90deg); }
+    .mosaico-resumo-titulo { flex:1; }
+    .mosaico-resumo-ajuda { color:#64748b; font-size:.6rem; font-weight:600; text-transform:none; letter-spacing:0; }
+    .mosaico-instrumentos-opcoes { display:flex; align-items:center; gap:7px; flex-wrap:wrap; width:100%; padding-top:7px; }
+    .mosaico-instrumento-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border:1px solid rgba(34,211,238,.2); border-radius:999px; background:rgba(34,211,238,.07); color:#cbd5e1; cursor:pointer; font:inherit; font-size:.66rem; font-weight:750; white-space:nowrap; }
+    .mosaico-instrumento-chip:hover, .mosaico-instrumento-chip.ativo { color:#22d3ee; border-color:#22d3ee; background:rgba(34,211,238,.14); }
     .mosaico-instrumento-chip strong { color:#22d3ee; font-size:.72rem; }
     .mosaico-grid {
       grid-column: 1 / -1;
@@ -577,6 +584,7 @@
     let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
     let ordenacaoGeral = localStorage.getItem("ps_ordenacaoGeral") || "nivel";
     let turmaAtiva    = "orquestra";
+    let filtroInstrumento = "";
 
     const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                          "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -1154,7 +1162,9 @@
       });
       const itens = [...contagem.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"));
       if (!itens.length) return "";
-      return `<div class="mosaico-resumo-instrumentos"><span class="mosaico-resumo-titulo">${coralSelecionado ? "Vozes" : "Instrumentos"}</span>${itens.map(([nome, quantidade]) => `<span class="mosaico-instrumento-chip">${escapeHtml(nome)} <strong>${quantidade}</strong></span>`).join("")}</div>`;
+      const titulo = coralSelecionado ? "Vozes" : "Instrumentos";
+      const tipo = itens.length === 1 ? "tipo" : "tipos";
+      return `<details class="mosaico-resumo-instrumentos" open><summary><span class="mosaico-resumo-titulo">${titulo} · ${itens.length} ${tipo}</span><span class="mosaico-resumo-ajuda">toque para recolher</span></summary><div class="mosaico-instrumentos-opcoes"><button type="button" class="mosaico-instrumento-chip ${!filtroInstrumento ? "ativo" : ""}" onclick="selecionarInstrumento('')">Todos <strong>${alunos.length}</strong></button>${itens.map(([nome, quantidade]) => `<button type="button" class="mosaico-instrumento-chip ${filtroInstrumento === nome ? "ativo" : ""}" onclick="selecionarInstrumento('${encodeURIComponent(nome)}')">${escapeHtml(nome)} <strong>${quantidade}</strong></button>`).join("")}</div></details>`;
     }
     function htmlFiltrosMosaico(turmaMap, coralMap, alunosSelecionados, coralSelecionado) {
       const botoes = [`<button class="mosaico-filtro ${turmaAtiva === "todas" ? "ativo" : ""}" onclick="selecionarTurma('todas')">Todos <span>(${todosAtivos.length})</span></button>`];
@@ -1187,8 +1197,14 @@
         localStorage.setItem("ps_turmaAtiva", turmaAtiva);
         alunos = todosAtivos;
       }
-      const cards = alunos.slice().sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")).map(htmlCardCompacto).join("");
-      const contador = alunos.length === 1 ? "1 perfil exibido" : `${alunos.length} perfis exibidos`;
+      const alunosFiltrados = filtroInstrumento
+        ? alunos.filter(aluno => {
+            const nome = coralSelecionado ? (vozCoralAluno(aluno) || "Voz não definida") : (classificarInstrumento(aluno.instrumento).label || "Outros");
+            return nome === filtroInstrumento;
+          })
+        : alunos;
+      const cards = alunosFiltrados.slice().sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")).map(htmlCardCompacto).join("");
+      const contador = alunosFiltrados.length === 1 ? "1 perfil exibido" : `${alunosFiltrados.length} perfis exibidos`;
       container.innerHTML = `${htmlFiltrosMosaico(turmaMap, coralMap, alunos, coralSelecionado)}<div class="mosaico-contador">${contador}</div><div class="mosaico-grid">${cards || '<div class="mosaico-vazio">Nenhum aluno encontrado nesta turma.</div>'}</div>`;
     }
     window.abrirPerfilMosaico = nomeCodificado => {
@@ -1196,9 +1212,14 @@
     };
     window.selecionarTurma = (chave) => {
       turmaAtiva = chave;
+      filtroInstrumento = "";
       localStorage.setItem("ps_turmaAtiva", chave);
       renderizarTudo();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.selecionarInstrumento = (nomeCodificado) => {
+      filtroInstrumento = nomeCodificado ? decodeURIComponent(nomeCodificado) : "";
+      renderizarTudo();
     };
 
     window.trocarAba       = aba   => { abaAtual = aba; renderizarTudo(); };
