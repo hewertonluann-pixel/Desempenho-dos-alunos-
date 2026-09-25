@@ -8,7 +8,8 @@
   <meta name="theme-color" content="#22d3ee">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nomeie as Notas – Teoria Musical</title><style>
+<title>Nomeie as Notas – Teoria Musical</title>
+<script type="module" src="jornada-atividades.js"></script><style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Segoe UI', sans-serif;
@@ -375,6 +376,12 @@ function nextNote(){
 function showLevelComplete(){
   clearTimer();
   const isLast=currentLevel>=LEVELS.length-1;
+  if(isLast){
+    window.JornadaAtividades?.instalarBotaoProximaAtividade({
+      atividadeId: "atividades-notas",
+      detalhes: { niveisConcluidos: LEVELS.length, pontuacao: score }
+    })();
+  }
   document.getElementById('overlay-title').textContent=isLast?'🏆 Parabéns!':'🎉 Nível Completo!';
   document.getElementById('overlay-msg').textContent=isLast
     ?'Você dominou todos os 5 níveis! Acertos: '+score

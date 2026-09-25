@@ -126,11 +126,13 @@
       display: flex; align-items: center; gap: 10px;
       margin-top: 12px; font-size: 0.78rem; color: #64748b; flex-wrap: wrap;
     }
-    .atividade-card.jornada-locked { opacity: 0.52; filter: grayscale(.35); cursor: not-allowed; }
-    .atividade-card.jornada-locked:hover { transform: none; border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-    .atividade-card.jornada-completed { border-color: rgba(34,197,94,.65); }
-    .jornada-status { display: block; margin-top: 10px; color: #86efac; font-size: .76rem; font-weight: 700; }
-    .jornada-locked .jornada-status { color: #facc15; }
+    .atividade-card.jornada-completed { border-color: rgba(34,197,94,.8); background: linear-gradient(160deg, rgba(34,197,94,.16), rgba(255,255,255,.06)); box-shadow: 0 8px 28px rgba(34,197,94,.2); }
+    .atividade-card.jornada-completed:hover { border-color: #4ade80; box-shadow: 0 14px 34px rgba(34,197,94,.3); }
+    .atividade-card.jornada-expired { border-color: rgba(234,179,8,.5); }
+    .jornada-status { display: block; margin-top: 10px; color: #cbd5e1; font-size: .76rem; font-weight: 700; }
+    .jornada-completed .jornada-status { color: #86efac; }
+    .jornada-expired .jornada-status { color: #fde68a; }
+    .jornada-trophy { position: absolute; left: 12px; bottom: 10px; padding: 3px 8px; border-radius: 20px; background: rgba(34,197,94,.26); border: 1px solid rgba(134,239,172,.62); color: #dcfce7; font-size: .72rem; font-weight: 800; }
     .jornada-banner { position: absolute; inset: auto 0 0; padding: 5px 8px; background: rgba(0,0,0,.62); color: #fde68a; font-size: .72rem; font-weight: 700; text-align: center; }
     .card-coming { opacity: 0.42; pointer-events: none; cursor: default; }
     .card-coming .card-banner::after {
@@ -271,7 +273,7 @@
       </a>
 
       <!-- 4: Nomeie as Notas -->
-      <a href="atividades-notas.html" class="atividade-card">
+      <a href="atividades-notas.html" class="atividade-card" data-jornada-id="atividades-notas">
         <div class="card-banner purple">
           <span class="card-num">4</span>
           <span>𝄞</span>
@@ -290,7 +292,7 @@
       </a>
 
       <!-- 4.5: Compassos — NOVO -->
-      <a href="compassos-game.html" class="atividade-card">
+      <a href="compassos-game.html" class="atividade-card" data-jornada-id="compassos-game">
         <div class="card-banner crimson">
           <span class="card-num" style="font-size:0.6rem;width:26px">4.5</span>
           <span>🥁</span>
@@ -439,34 +441,40 @@
   </nav>
 
   <script type="module">
-    import { JORNADA_ATIVIDADES, carregarProgressoJornada } from "./jornada-atividades.js";
+    import { JORNADA_ATIVIDADES, carregarProgressoJornada, trofeuAtivo, dataExpiracaoTrofeu } from "./jornada-atividades.js";
 
     const cards = [...document.querySelectorAll("[data-jornada-id]")];
     const status = document.createElement("span");
     status.className = "jornada-status";
 
     function aplicarJornada(progresso) {
-      let bloqueado = false;
       for (const atividade of JORNADA_ATIVIDADES) {
         const card = document.querySelector(`[data-jornada-id="${atividade.id}"]`);
         if (!card) continue;
-        const concluida = progresso[atividade.id]?.concluida === true;
+        const registro = progresso[atividade.id] || {};
+        const concluida = trofeuAtivo(registro);
+        const expirada = registro.concluida === true && !concluida && Boolean(dataExpiracaoTrofeu(registro));
         card.classList.toggle("jornada-completed", concluida);
-        card.classList.toggle("jornada-locked", bloqueado && !concluida);
-        card.setAttribute("aria-disabled", bloqueado && !concluida ? "true" : "false");
+        card.classList.toggle("jornada-expired", expirada);
+        card.classList.remove("jornada-locked");
+        card.setAttribute("aria-disabled", "false");
         const body = card.querySelector(".card-body");
         const old = body?.querySelector(".jornada-status");
         if (old) old.remove();
+        const oldTrophy = card.querySelector(".jornada-trophy");
+        if (oldTrophy) oldTrophy.remove();
         if (body) {
           const label = document.createElement("span");
           label.className = "jornada-status";
-          label.textContent = concluida ? "✅ Concluída" : (bloqueado ? `🔒 Conclua a ${atividade.ordem - 1}ª atividade primeiro` : "▶ Próxima da jornada");
+          label.textContent = concluida ? "✅ Concluída · troféu válido por 2 meses" : (expirada ? "🏆 Troféu expirado · refaça para renovar" : "▶ Disponível para praticar");
           body.appendChild(label);
         }
-        if (bloqueado && !concluida) {
-          card.addEventListener("click", (event) => event.preventDefault());
+        if (concluida) {
+          const trophy = document.createElement("span");
+          trophy.className = "jornada-trophy";
+          trophy.textContent = "🏆 Conquista";
+          card.querySelector(".card-banner")?.appendChild(trophy);
         }
-        if (!concluida) bloqueado = true;
       }
     }
 

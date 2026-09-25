@@ -13,9 +13,13 @@ export const JORNADA_ATIVIDADES = [
   { id: "como-funciona-pauta", ordem: 3, titulo: "Como Funciona a Pauta", url: "como-funciona-pauta.html", icone: "🎼" },
   { id: "figuras-musicais", ordem: 4, titulo: "Figuras Musicais", url: "figuras-musicais.html", icone: "𝅗𝅥" },
   { id: "jogo-figuras", ordem: 5, titulo: "Jogo das Figuras", url: "jogo-figuras.html", icone: "🎮" },
-  { id: "tom-semitom", ordem: 6, titulo: "Tom ou Semitom?", url: "jogo-tom-semitom.html", icone: "🎵" },
-  { id: "tetracordes", ordem: 7, titulo: "Tetracordes & Escalas", url: "tetracordes.html", icone: "🎼" },
+  { id: "atividades-notas", ordem: 6, titulo: "Nomeie as Notas", url: "atividades-notas.html", icone: "𝄞" },
+  { id: "compassos-game", ordem: 7, titulo: "Fórmulas de Compasso", url: "compassos-game.html", icone: "🥁" },
+  { id: "tom-semitom", ordem: 8, titulo: "Tom ou Semitom?", url: "jogo-tom-semitom.html", icone: "🎵" },
+  { id: "tetracordes", ordem: 9, titulo: "Tetracordes & Escalas", url: "tetracordes.html", icone: "🎼" },
 ];
+
+const DURACAO_TROFEU_MESES = 2;
 
 function usuarioAtual() {
   try {
@@ -60,6 +64,30 @@ export async function concluirAtividade(atividadeId, detalhes = {}) {
   return { salvo: true, proxima: JORNADA_ATIVIDADES[atividade.ordem] || null };
 }
 
+function dataDaConclusao(progresso) {
+  const valor = progresso?.concluidaEm;
+  if (!valor) return null;
+  if (typeof valor.toDate === "function") return valor.toDate();
+  if (valor instanceof Date) return valor;
+  const data = new Date(valor);
+  return Number.isNaN(data.getTime()) ? null : data;
+}
+
+export function dataExpiracaoTrofeu(progresso) {
+  const concluidaEm = dataDaConclusao(progresso);
+  if (!concluidaEm) return null;
+  const expiracao = new Date(concluidaEm);
+  expiracao.setMonth(expiracao.getMonth() + DURACAO_TROFEU_MESES);
+  return expiracao;
+}
+
+export function trofeuAtivo(progresso) {
+  if (progresso?.concluida !== true) return false;
+  const expiracao = dataExpiracaoTrofeu(progresso);
+  // Mantém conclusões antigas visíveis para compatibilidade com registros legados.
+  return !expiracao || expiracao.getTime() > Date.now();
+}
+
 export function proximaAtividade(atividadeId, progresso = {}) {
   const indice = JORNADA_ATIVIDADES.findIndex((item) => item.id === atividadeId);
   if (indice < 0) return null;
@@ -67,20 +95,8 @@ export function proximaAtividade(atividadeId, progresso = {}) {
 }
 
 export async function protegerPaginaAtual() {
-  const usuario = usuarioAtual();
-  if (!usuario) return;
-
-  const pagina = window.location.pathname.split("/").pop();
-  const atividade = JORNADA_ATIVIDADES.find((item) => item.url === pagina)
-    || (pagina === "tetroquestgame.html" ? JORNADA_ATIVIDADES.find((item) => item.id === "tetracordes") : null);
-  if (!atividade) return;
-
-  const progresso = await carregarProgressoJornada();
-  const indice = JORNADA_ATIVIDADES.findIndex((item) => item.id === atividade.id);
-  const anterior = JORNADA_ATIVIDADES.slice(0, indice).find((item) => !progresso[item.id]?.concluida);
-  if (anterior) {
-    window.location.replace("atividades.html");
-  }
+  // As atividades são independentes: nenhuma página é bloqueada por outra.
+  // A sugestão de próxima atividade continua sendo oferecida ao concluir.
 }
 
 export function instalarBotaoProximaAtividade({ atividadeId, seletor = "body", detalhes = {} } = {}) {

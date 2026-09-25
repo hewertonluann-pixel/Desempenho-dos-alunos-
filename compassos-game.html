@@ -9,6 +9,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Compassos — Jogo de Teoria Musical</title>
+<script type="module" src="jornada-atividades.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -663,6 +664,10 @@ function mostrarFeedback(emoji) {
 
 function vitoria() {
   tocarVitoria();
+  window.JornadaAtividades?.instalarBotaoProximaAtividade({
+    atividadeId: "compassos-game",
+    detalhes: { pontuacao }
+  })();
   document.getElementById('emoji-fim').textContent = '🏆';
   document.getElementById('titulo-fim').textContent = 'Parabéns! Você dominou!';
   document.getElementById('score-final').textContent = 'Completou todas as fases com sucesso!';
