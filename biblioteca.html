@@ -397,7 +397,12 @@
         }
 
         @media (max-width: 600px) {
-            .collections-grid { grid-template-columns: 1fr; }
+            .collections-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+            .collection-card { padding: 14px 8px; border-radius: 12px; }
+            .collection-card h3 { margin: 8px 0 6px; font-size: 1rem; line-height: 1.2; }
+            .collection-card p { font-size: 0.72rem; line-height: 1.35; }
+            .collection-card .file-count { font-size: 0.76rem; }
+            .icon-folder { font-size: 2.1rem; margin-bottom: 4px; }
             .upload-controls { flex-direction: column; align-items: stretch; }
             .new-col-input { max-width: none; }
             .search-sort-controls { flex-direction: column; align-items: stretch; }
