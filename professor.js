@@ -197,6 +197,8 @@ function setupModalInstrumental() {
 async function carregarAlunos() {
   const turmaAtiva = getTurmaAtiva();
   let snap;
+  let coralAtivos = null;
+  let coralInativos = new Set();
   if (turmaAtiva?.id) {
     const turmaAtualSnap = await getDoc(doc(db, "turmas", turmaAtiva.id));
     const turmaAtual = turmaAtualSnap.exists() ? turmaAtualSnap.data() : turmaAtiva;
@@ -204,20 +206,31 @@ async function carregarAlunos() {
     if (ehCoral) {
       // Coral é uma atividade extra: seus membros vivem em turmas.alunos,
       // não no campo turmaId do aluno (que continua sendo a turma principal).
-      const membros = new Set(turmaAtual.alunos || turmaAtiva.alunos || []);
+      coralAtivos = new Set(turmaAtual.alunos || turmaAtiva.alunos || []);
+      coralInativos = new Set(turmaAtual.alunosInativos || []);
       const todosSnap = await getDocs(collection(db, "alunos"));
       // Compatibilidade com alunos cadastrados antes do isolamento do Coral:
       // alguns podem ter sido salvos apenas com turmaId apontando para KADOSH.
-      snap = { docs: todosSnap.docs.filter(d => membros.has(d.id) || d.data().turmaId === turmaAtiva.id) };
+      snap = { docs: todosSnap.docs.filter(d => coralAtivos.has(d.id) || coralInativos.has(d.id) || d.data().turmaId === turmaAtiva.id) };
     } else {
       snap = await getDocs(query(collection(db, "alunos"), where("turmaId", "==", turmaAtiva.id)));
     }
   } else {
     snap = await getDocs(collection(db, "alunos"));
   }
-  return snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => {
-    const inativoA = a.ativo === false ? 1 : 0;
-    const inativoB = b.ativo === false ? 1 : 0;
+  return snap.docs.map(d => {
+    const aluno = { id: d.id, ...d.data() };
+    if (coralAtivos) {
+      // No coral, o status é da matrícula nessa turma, não do aluno global.
+      aluno._ativoNaTurma = coralAtivos.has(d.id) && !coralInativos.has(d.id);
+      if (!coralAtivos.has(d.id) && aluno.turmaId === turmaAtiva.id && !coralInativos.has(d.id)) {
+        aluno._ativoNaTurma = true;
+      }
+    }
+    return aluno;
+  }).sort((a, b) => {
+    const inativoA = (a._ativoNaTurma ?? (a.ativo !== false)) ? 0 : 1;
+    const inativoB = (b._ativoNaTurma ?? (b.ativo !== false)) ? 0 : 1;
     return inativoA - inativoB || a.nome.localeCompare(b.nome, "pt-BR");
   });
 }
@@ -247,8 +260,10 @@ export async function renderizarPainel() {
       return;
     }
 
-    painel.innerHTML = alunos.map(aluno => `
-      <div class="ficha-aluno-card ${aluno.ativo === false ? 'inativo' : ''}">
+    painel.innerHTML = alunos.map(aluno => {
+      const ativoNaTurma = aluno._ativoNaTurma ?? (aluno.ativo !== false);
+      return `
+      <div class="ficha-aluno-card ${ativoNaTurma ? '' : 'inativo'}">
         <div class="card-header">
           <div class="foto-container" onclick="selecionarFoto('${aluno.id}')">
             ${aluno.foto ? `<img src="${aluno.foto}" alt="Foto">` : '<div class="sem-foto">👤</div>'}
@@ -259,8 +274,8 @@ export async function renderizarPainel() {
             <h3 title="${aluno.nome}">${aluno.nome}</h3>
             <p>${aluno.instrumento || '—'} · ${aluno.turmaNome || 'Sem turma'}</p>
           </div>
-          <div class="status-badge ${aluno.ativo === false ? 'off' : 'on'}">
-            ${aluno.ativo === false ? 'Inativo' : 'Ativo'}
+          <div class="status-badge ${ativoNaTurma ? 'on' : 'off'}">
+            ${ativoNaTurma ? 'Ativo' : 'Inativo'}
           </div>
         </div>
 
@@ -294,15 +309,16 @@ export async function renderizarPainel() {
           <button class="btn-card-action secondary ${aluno.classificado ? 'active' : ''}" onclick="alternarClassificacao('${aluno.id}', ${aluno.classificado})">
             ${aluno.classificado ? '★ Classificado' : '☆ Classificar'}
           </button>
-          <button class="btn-card-action icon-only ${aluno.ativo === false ? 'play' : 'pause'}"
-            onclick="alternarAtivo('${aluno.id}', ${aluno.ativo !== false})"
-            title="${aluno.ativo === false ? 'Ativar' : 'Desativar'}">
-            ${aluno.ativo === false ? '▶️' : '⏸️'}
+          <button class="btn-card-action icon-only ${ativoNaTurma ? 'pause' : 'play'}"
+            onclick="alternarAtivo('${aluno.id}', ${ativoNaTurma})"
+            title="${ativoNaTurma ? 'Desativar' : 'Ativar'}">
+            ${ativoNaTurma ? '⏸️' : '▶️'}
           </button>
           <button class="btn-card-action icon-only danger" onclick="confirmarRemocao('${aluno.id}', '${aluno.nome}')" title="Remover">🗑️</button>
         </div>
       </div>
-    `).join("");
+    `;
+    }).join("");
 
     loader.style.display = "none";
     painel.style.display = "flex";
@@ -436,7 +452,37 @@ window.alternarClassificacao = async function(id, classificado) {
 
 window.alternarAtivo = async function(id, ativo) {
   try {
-    await updateDoc(doc(db, "alunos", id), { ativo: !ativo });
+    const turmaAtiva = getTurmaAtiva();
+    let ehCoral = String(turmaAtiva?.tipo || "").toLowerCase() === "coral";
+    if (turmaAtiva?.id && !ehCoral) {
+      const turmaSnap = await getDoc(doc(db, "turmas", turmaAtiva.id));
+      ehCoral = turmaSnap.exists() && String(turmaSnap.data().tipo || "").toLowerCase() === "coral";
+    }
+
+    if (ehCoral && turmaAtiva?.id) {
+      const turmaRef = doc(db, "turmas", turmaAtiva.id);
+      const turmaSnap = await getDoc(turmaRef);
+      const dadosTurma = turmaSnap.exists() ? turmaSnap.data() : turmaAtiva;
+      const membrosAtivos = new Set(dadosTurma.alunos || []);
+      const membrosInativos = new Set(dadosTurma.alunosInativos || []);
+
+      if (ativo) {
+        membrosAtivos.delete(id);
+        membrosInativos.add(id);
+      } else {
+        membrosInativos.delete(id);
+        membrosAtivos.add(id);
+      }
+
+      await updateDoc(turmaRef, {
+        alunos: [...membrosAtivos],
+        alunosInativos: [...membrosInativos]
+      });
+    } else {
+      // Turmas principais continuam usando o status global legado do aluno.
+      await updateDoc(doc(db, "alunos", id), { ativo: !ativo });
+    }
+
     renderizarPainel();
     mostrarMensagem("mensagemSucesso", ativo ? "⏸️ Aluno Desativado!" : "▶️ Aluno Ativado!");
   } catch (error) { mostrarMensagem("mensagemInfo", "❌ Erro na atualização."); }
