@@ -59,12 +59,6 @@ export async function exportarChamada3Colunas() {
 
     const total = cards.length;
     const porcentagem = total > 0 ? Math.round((presentes / total) * 100) : 0;
-    // Mantém o visual atual para turmas pequenas e adensa apenas relatórios
-    // grandes, evitando que a última coluna seja cortada na imagem exportada.
-    const colunas = total > 48 ? 5 : total > 30 ? 4 : 3;
-    const compacto = colunas >= 4;
-    const superCompacto = colunas >= 5;
-
     // === Data: lê do input editável ===
     let dataEnsaio = "--/--/----";
     let anoEnsaio = new Date().getFullYear();
@@ -98,6 +92,13 @@ export async function exportarChamada3Colunas() {
       } catch (_) {}
     }
     const ehCoral = String(tipoTurma).toLowerCase() === "coral";
+
+    // O coral/KADOSH usa sempre três colunas para manter os cards maiores
+    // e facilitar a leitura na imagem exportada. As demais turmas preservam
+    // a regra de densidade existente.
+    const colunas = ehCoral ? 3 : (total > 48 ? 5 : total > 30 ? 4 : 3);
+    const compacto = colunas >= 4;
+    const superCompacto = colunas >= 5;
 
     // === Pré-carregar todas as imagens com crossOrigin para evitar taint ===
     const imgPromises = [];
