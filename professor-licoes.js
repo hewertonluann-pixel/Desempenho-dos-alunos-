@@ -16,7 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 // ─── Cache global para permitir re-render sem novo fetch ───────────────────────
-let _gruposCache = new Map(); // Map<alunoNome, { alunoId, instrumento, solfejoNome, metodoNome, foto, leitura:[], metodo:[] }>
+let _gruposCache = new Map(); // Map<alunoId, { alunoId, nome, instrumento, solfejoNome, metodoNome, foto, leitura:[], metodo:[] }>
 
 // ─── ESTILOS ───────────────────────────────────────────────────────────────────
 function injetarEstilos() {
@@ -327,6 +327,7 @@ function criarCardAluno(nomeAluno, grupo) {
 
   const card = document.createElement("div");
   card.className = "aluno-licao-card";
+  card.dataset.alunoId = alunoId || "";
   card.dataset.alunoNome = nomeAluno;
 
   card._tabAtiva   = tabInicialL ? "leitura" : "metodo";
@@ -414,7 +415,7 @@ function vincularEventosCorpo(body, card, lista, tipo) {
 
 function reRenderCorpo(body, card, lista, tipo) {
   const idxKey = tipo === "leitura" ? "_idxLeitura" : "_idxMetodo";
-  const grupo  = _gruposCache.get(card.dataset.alunoNome);
+  const grupo  = _gruposCache.get(card.dataset.alunoId || `nome:${card.dataset.alunoNome}`);
   body.innerHTML = htmlCorpoLicao(lista[card[idxKey]], card[idxKey], lista.length, tipo, grupo.solfejoNome, grupo.metodoNome);
   vincularEventosCorpo(body, card, lista, tipo);
 }
@@ -433,7 +434,7 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
   const numeroFinal = inpNum  ? parseInt(inpNum.value, 10) : licao.numero;
   const feedback    = txtFeed ? txtFeed.value.trim() : "";
 
-  const grupo     = _gruposCache.get(card.dataset.alunoNome);
+  const grupo     = _gruposCache.get(card.dataset.alunoId || `nome:${card.dataset.alunoNome}`);
   const nomeRef   = tipoFinal === "leitura" ? (grupo.solfejoNome || "Bona") : (grupo.metodoNome || "N/A");
   const alunoId   = licao.alunoId;
   const alunoNome = card.dataset.alunoNome;
@@ -530,8 +531,8 @@ async function tratarLicao(body, card, lista, tipo, aprovar) {
   if (lista.length === 0) {
     const outroTipo  = tipo === "leitura" ? "metodo" : "leitura";
     const outraLista = outroTipo === "leitura"
-      ? _gruposCache.get(card.dataset.alunoNome).leitura
-      : _gruposCache.get(card.dataset.alunoNome).metodo;
+      ? _gruposCache.get(card.dataset.alunoId || `nome:${card.dataset.alunoNome}`).leitura
+      : _gruposCache.get(card.dataset.alunoId || `nome:${card.dataset.alunoNome}`).metodo;
 
     if (outraLista.length > 0) {
       card._tabAtiva = outroTipo;
@@ -589,12 +590,21 @@ async function carregarSolicitacoes() {
     return;
   }
 
+  const alunosSnap = await getDocs(collection(db, "alunos"));
+  const alunos = alunosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const alunoPorId = new Map(alunos.map(a => [a.id, a]));
+  const alunoPorNome = new Map();
+  alunos.forEach(a => {
+    [a.nome, ...(a.nomesAnteriores || [])].filter(Boolean).forEach(nome => alunoPorNome.set(nome, a));
+  });
+
   const itens = await Promise.all(
     snap.docs.map(async (docSnap) => {
       const d = { id: docSnap.id, ...docSnap.data() };
-      const aSnap = await getDocs(query(collection(db, "alunos"), where("nome", "==", d.alunoNome)));
-      if (!aSnap.empty) {
-        const a = aSnap.docs[0].data();
+      const a = (d.alunoId && alunoPorId.get(d.alunoId)) || alunoPorNome.get(d.alunoNome || d.aluno);
+      if (a) {
+        d.alunoId = a.id;
+        d.alunoNome = a.nome || d.alunoNome || d.aluno;
         d.instrumento = a.instrumento || "N/A";
         d.solfejoNome = a.leituraNome || a.solfejoNome || "Bona";
         d.metodoNome  = a.metodoNome  || "N/A";
@@ -605,9 +615,11 @@ async function carregarSolicitacoes() {
   );
 
   itens.forEach(item => {
-    if (!_gruposCache.has(item.alunoNome)) {
-      _gruposCache.set(item.alunoNome, {
+    const grupoId = item.alunoId || `nome:${item.alunoNome}`;
+    if (!_gruposCache.has(grupoId)) {
+      _gruposCache.set(grupoId, {
         alunoId:     item.alunoId,
+        nome:        item.alunoNome,
         instrumento: item.instrumento || "N/A",
         solfejoNome: item.solfejoNome || "Bona",
         metodoNome:  item.metodoNome  || "N/A",
@@ -616,16 +628,16 @@ async function carregarSolicitacoes() {
         metodo:  []
       });
     }
-    const g = _gruposCache.get(item.alunoNome);
+    const g = _gruposCache.get(grupoId);
     if (item.tipo === "leitura") g.leitura.push(item);
     else                         g.metodo.push(item);
   });
 
-  const nomesOrdenados = [..._gruposCache.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const gruposOrdenados = [..._gruposCache.values()].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 
   lista.innerHTML = "";
-  nomesOrdenados.forEach(nome => {
-    lista.appendChild(criarCardAluno(nome, _gruposCache.get(nome)));
+  gruposOrdenados.forEach(grupo => {
+    lista.appendChild(criarCardAluno(grupo.nome, grupo));
   });
 }
 

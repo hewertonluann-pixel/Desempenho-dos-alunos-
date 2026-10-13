@@ -675,12 +675,18 @@ async function preencherProximoNumero() {
   if (!usuario || !usuario.nome) { numeroInput.value = 1; return; }
 
   try {
-    const q = query(
-      collection(db, "licoes"),
-      where("alunoNome", "==", usuario.nome),
-      where("tipo", "==", tipoSelecionado)
-    );
-    const snap = await getDocs(q);
+    const alunoId = alunoIdCache || usuario.docId;
+    const q = alunoId
+      ? query(collection(db, "licoes"), where("alunoId", "==", alunoId), where("tipo", "==", tipoSelecionado))
+      : query(collection(db, "licoes"), where("alunoNome", "==", usuario.nome), where("tipo", "==", tipoSelecionado));
+    let snap = await getDocs(q);
+    if (snap.empty && alunoId) {
+      snap = await getDocs(query(
+        collection(db, "licoes"),
+        where("alunoNome", "==", usuario.nome),
+        where("tipo", "==", tipoSelecionado)
+      ));
+    }
     if (snap.empty) { numeroInput.value = 1; return; }
 
     let maximo = 0;
@@ -988,7 +994,7 @@ async function enviarLicao() {
   if (msg) msg.textContent = "Enviando lição...";
 
   const alunoNome = usuario.nome;
-  let alunoId = alunoIdCache;
+  let alunoId = alunoIdCache || usuario.docId;
 
   if (!alunoId) {
     try {
@@ -1093,7 +1099,7 @@ async function enviarLicao() {
 
     setTimeout(() => {
       fecharModalLicao();
-      carregarLicoesAluno(alunoNome);
+      carregarLicoesAluno({ nome: alunoNome, id: alunoId });
     }, 1200);
     enviandoLicao = false;
 
@@ -1114,27 +1120,50 @@ async function enviarLicao() {
    LISTAGEM DE LIÇÕES
    ============================================================ */
 
-export async function carregarLicoesAluno(nomeAluno) {
+export async function carregarLicoesAluno(alunoOuNome) {
   const lista = document.getElementById("listaLicoes");
   if (!lista) return;
 
+  const aluno = typeof alunoOuNome === "string"
+    ? { nome: alunoOuNome, id: alunoIdCache || JSON.parse(localStorage.getItem("usuarioAtual") || "{}").docId || "" }
+    : (alunoOuNome || {});
+  const nomeAluno = aluno.nome || "";
+  const alunoId = aluno.id || aluno.docId || alunoIdCache || "";
+  const nomesLegados = [nomeAluno, ...(aluno.nomesAnteriores || [])].filter(Boolean);
+
   lista.innerHTML = "Carregando lições...";
 
-  const q = query(collection(db, "licoes"), where("alunoNome", "==", nomeAluno));
-  const snap = await getDocs(q);
+  let docs = [];
+  if (alunoId) {
+    const porId = await getDocs(query(collection(db, "licoes"), where("alunoId", "==", alunoId)));
+    docs = porId.docs;
+  }
 
-  if (snap.empty) {
+  // Compatibilidade com lições antigas, criadas antes do campo alunoId.
+  if (nomesLegados.length) {
+    const legados = await Promise.all(nomesLegados.map(nome =>
+      getDocs(query(collection(db, "licoes"), where("alunoNome", "==", nome)))
+    ));
+    const existentes = new Set(docs.map(d => d.id));
+    legados.flatMap(snap => snap.docs).forEach(d => {
+      if (!existentes.has(d.id)) docs.push(d);
+    });
+  }
+
+  if (!docs.length) {
     lista.innerHTML = "<p style='font-size:0.9rem;opacity:0.8;'>Nenhuma lição enviada ainda.</p>";
     return;
   }
 
   lista.innerHTML = "";
 
-  snap.forEach(docSnap => {
+  docs.forEach(docSnap => {
     const l  = docSnap.data();
     const id = docSnap.id;
 
-    if (l.alunoNome !== nomeAluno && l.aluno !== nomeAluno) return;
+    const pertencePorId = alunoId && l.alunoId === alunoId;
+    const pertencePorNome = !l.alunoId && nomesLegados.includes(l.alunoNome || l.aluno);
+    if (!pertencePorId && !pertencePorNome) return;
 
     const card = document.createElement("div");
     card.className = "card-licao";

@@ -395,7 +395,7 @@ export async function iniciarPainelAluno() {
 
   gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
 
-  if (ehDonoDaPagina) await carregarLicoesAluno(aluno.nome);
+  if (ehDonoDaPagina) await carregarLicoesAluno(aluno);
 
   atualizarLegendasComprometimento();
 }
