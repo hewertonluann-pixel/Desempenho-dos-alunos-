@@ -295,6 +295,34 @@ function atualizarNumerosOrdem() {
 }
 
 // ========== SALVAR PAINÉIS: VISIBILIDADE + ORDEM ==========
+document.getElementById("btnRestaurarPainelConfig")?.addEventListener("click", async () => {
+  const mensagem = document.getElementById("mensagemPainelConfig");
+  const btn = document.getElementById("btnRestaurarPainelConfig");
+
+  try {
+    const aluno = await carregarAlunoAtual();
+    if (!aluno) return;
+
+    const ordemPaineis = paineisDisponiveis.map(painel => painel.id);
+    const preferencias = Object.fromEntries(ordemPaineis.map(id => [id, true]));
+
+    btn.disabled = true;
+    btn.textContent = "Restaurando...";
+    await updateDoc(doc(db, "alunos", aluno.id), { ordemPaineis, preferencias });
+    await carregarOrdemPaineis();
+    mensagem.textContent = "✅ Padrões restaurados com sucesso!";
+    mensagem.style.color = "#22c55e";
+  } catch (error) {
+    console.error("Erro ao restaurar padrões dos painéis:", error);
+    mensagem.textContent = "❌ Erro ao restaurar padrões. Tente novamente.";
+    mensagem.style.color = "#ef4444";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "↩️ Restaurar padrões";
+    setTimeout(() => { mensagem.textContent = ""; }, 3000);
+  }
+});
+
 document.getElementById("btnSalvarPainelConfig")?.addEventListener("click", async () => {
   const mensagem = document.getElementById("mensagemPainelConfig");
   const btn = document.getElementById("btnSalvarPainelConfig");

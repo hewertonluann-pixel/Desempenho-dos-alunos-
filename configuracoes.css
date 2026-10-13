@@ -273,6 +273,15 @@ input:checked + .slider:before {
   margin-top: 20px;
 }
 
+.painel-acoes {
+  display: flex;
+  gap: 12px;
+}
+
+.painel-acoes > button {
+  flex: 1;
+}
+
 /* ========== RESPONSIVIDADE ========== */
 @media (max-width: 768px) {
   .config-container {
@@ -412,5 +421,9 @@ input:checked + .slider:before {
     font-size: 1rem;
     padding: 5px 12px;
     min-width: 45px;
+  }
+
+  .painel-acoes {
+    flex-direction: column-reverse;
   }
 }
