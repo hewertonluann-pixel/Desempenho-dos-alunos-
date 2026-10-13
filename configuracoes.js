@@ -55,24 +55,7 @@ async function carregarAlunoAtual() {
 
 // ========== CARREGAR PREFERÊNCIAS ==========
 async function carregarPreferencias() {
-  const aluno = await carregarAlunoAtual();
-  if (!aluno) return;
-
-  const preferencias = aluno.preferencias || {
-    comprometimento: true,
-    frequencia: true,
-    conquistas: true,
-    evolucao: true,
-    notificacoes: true,
-    licoes: true
-  };
-
-  document.getElementById("toggleComprometimento").checked = preferencias.comprometimento !== false;
-  document.getElementById("toggleFrequencia").checked = preferencias.frequencia !== false;
-  document.getElementById("toggleConquistas").checked = preferencias.conquistas !== false;
-  document.getElementById("toggleEvolucao").checked = preferencias.evolucao !== false;
-  document.getElementById("toggleNotificacoes").checked = preferencias.notificacoes !== false;
-  document.getElementById("toggleLicoes").checked = preferencias.licoes !== false;
+  await carregarOrdemPaineis();
 }
 
 // ========== SALVAR SENHA ==========
@@ -174,37 +157,6 @@ document.getElementById("btnSalvarLogin")?.addEventListener("click", async () =>
   }
 });
 
-// ========== SALVAR PREFERÊNCIAS ==========
-document.getElementById("btnSalvarPreferencias")?.addEventListener("click", async () => {
-  const mensagem = document.getElementById("mensagemPreferencias");
-
-  try {
-    const aluno = await carregarAlunoAtual();
-    if (!aluno) return;
-
-    const preferencias = {
-      comprometimento: document.getElementById("toggleComprometimento").checked,
-      frequencia: document.getElementById("toggleFrequencia").checked,
-      conquistas: document.getElementById("toggleConquistas").checked,
-      evolucao: document.getElementById("toggleEvolucao").checked,
-      notificacoes: document.getElementById("toggleNotificacoes").checked,
-      licoes: document.getElementById("toggleLicoes").checked
-    };
-
-    await updateDoc(doc(db, "alunos", aluno.id), { preferencias });
-    mensagem.textContent = "✅ Preferências salvas com sucesso!";
-    mensagem.style.color = "#22c55e";
-
-    setTimeout(() => {
-      mensagem.textContent = "";
-    }, 3000);
-  } catch (error) {
-    console.error("Erro ao salvar preferências:", error);
-    mensagem.textContent = "❌ Erro ao salvar preferências. Tente novamente.";
-    mensagem.style.color = "#ef4444";
-  }
-});
-
 // ========== VOLTAR AO PAINEL ==========
 window.voltarParaPainel = function() {
   const params = new URLSearchParams(window.location.search);
@@ -215,9 +167,6 @@ window.voltarParaPainel = function() {
     window.location.href = "index.html";
   }
 };
-
-// ========== INICIALIZAÇÃO ==========
-document.addEventListener("DOMContentLoaded", carregarPreferencias);
 
 // ========== REPOSICIONAMENTO DE PAINÉIS ==========
 
@@ -237,6 +186,7 @@ async function carregarOrdemPaineis() {
   if (!aluno) return;
 
   const ordemSalva = aluno.ordemPaineis || paineisDisponiveis.map(p => p.id);
+  const preferencias = aluno.preferencias || {};
   const lista = document.getElementById("painelOrdemLista");
   if (!lista) return;
 
@@ -265,6 +215,10 @@ async function carregarOrdemPaineis() {
         <span class="drag-icon">${painel.icone}</span>
         <span class="drag-name">${painel.nome}</span>
       </div>
+      <label class="switch painel-switch" title="Ativar ou desativar painel">
+        <input type="checkbox" data-painel-id="${painel.id}" ${preferencias[painel.id] !== false ? "checked" : ""}>
+        <span class="slider"></span>
+      </label>
       <div class="drag-order">#${index + 1}</div>
     `;
 
@@ -340,9 +294,10 @@ function atualizarNumerosOrdem() {
   });
 }
 
-// ========== SALVAR ORDEM ==========
-document.getElementById("btnSalvarOrdem")?.addEventListener("click", async () => {
-  const mensagem = document.getElementById("mensagemOrdem");
+// ========== SALVAR PAINÉIS: VISIBILIDADE + ORDEM ==========
+document.getElementById("btnSalvarPainelConfig")?.addEventListener("click", async () => {
+  const mensagem = document.getElementById("mensagemPainelConfig");
+  const btn = document.getElementById("btnSalvarPainelConfig");
 
   try {
     const aluno = await carregarAlunoAtual();
@@ -350,23 +305,28 @@ document.getElementById("btnSalvarOrdem")?.addEventListener("click", async () =>
 
     const items = document.querySelectorAll(".drag-item");
     const ordemPaineis = Array.from(items).map(item => item.dataset.id);
+    const preferencias = {};
+    document.querySelectorAll("[data-painel-id]").forEach(input => {
+      preferencias[input.dataset.painelId] = input.checked;
+    });
 
-    await updateDoc(doc(db, "alunos", aluno.id), { ordemPaineis });
-    mensagem.textContent = "✅ Ordem dos painéis salva com sucesso!";
+    btn.disabled = true;
+    btn.textContent = "Salvando...";
+    await updateDoc(doc(db, "alunos", aluno.id), { ordemPaineis, preferencias });
+    mensagem.textContent = "✅ Painéis salvos com sucesso!";
     mensagem.style.color = "#22c55e";
-
-    setTimeout(() => {
-      mensagem.textContent = "";
-    }, 3000);
   } catch (error) {
-    console.error("Erro ao salvar ordem:", error);
-    mensagem.textContent = "❌ Erro ao salvar ordem. Tente novamente.";
+    console.error("Erro ao salvar painéis:", error);
+    mensagem.textContent = "❌ Erro ao salvar painéis. Tente novamente.";
     mensagem.style.color = "#ef4444";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "💾 Salvar Painéis";
+    setTimeout(() => { mensagem.textContent = ""; }, 3000);
   }
 });
 
 // ========== INICIALIZAÇÃO COMPLETA ==========
 document.addEventListener("DOMContentLoaded", () => {
   carregarPreferencias();
-  carregarOrdemPaineis();
 });

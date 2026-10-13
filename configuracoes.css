@@ -348,6 +348,11 @@ input:checked + .slider:before {
   cursor: grab;
 }
 
+.painel-switch {
+  flex-shrink: 0;
+  margin-right: 14px;
+}
+
 .drag-item.dragging .drag-handle {
   cursor: grabbing;
 }
