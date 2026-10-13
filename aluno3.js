@@ -36,6 +36,18 @@ import {
 
 let anoVisualizacao = new Date().getFullYear();
 
+function primeiroNome(nomeCompleto = "") {
+  return String(nomeCompleto).trim().split(/\s+/)[0] || "Aluno";
+}
+
+function normalizarIdentificador(valor = "") {
+  return String(valor)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLocaleLowerCase("pt-BR");
+}
+
 const mesesNomes = [
   "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
   "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
@@ -81,6 +93,12 @@ export async function carregarAlunoAtual() {
   const nomeAluno = params.get("nome");
   if (!nomeAluno) { window.location.href = "index.html"; return null; }
 
+  const sessao = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+  if (sessao.docId) {
+    const alunoPorId = await getDoc(doc(db, "alunos", sessao.docId));
+    if (alunoPorId.exists()) return { id: alunoPorId.id, ...alunoPorId.data() };
+  }
+
   const snap = await getDocs(collection(db, "alunos"));
   let alunoEncontrado = null;
   snap.forEach(d => {
@@ -99,7 +117,7 @@ export async function carregarAlunoAtual() {
     2. EXIBIR DADOS DO ALUNO
    ======================================================== */
 export function montarPainelAluno(aluno) {
-  document.getElementById("nomeAluno").textContent = aluno.nome;
+  document.getElementById("nomeAluno").textContent = primeiroNome(aluno.nome);
 
   const ehFase = /^fase\s*\d/i.test(aluno.turmaNome || "");
   const labelInstrumento = document.getElementById("instrumentoAluno");
@@ -415,23 +433,55 @@ export async function iniciarPainelAluno() {
 /* ========================================================
     8. POPUP SENHA
    ======================================================== */
-window.abrirPopup = () => {
+window.abrirPopup = async () => {
   document.getElementById("popupSenha").style.display = "flex";
   document.getElementById("mensagemSenha").textContent = "";
   document.getElementById("novaSenha").value = "";
+  const aluno = await carregarAlunoAtual();
+  if (!aluno) return;
+  document.getElementById("nomeCompleto").value = aluno.nome || "";
+  document.getElementById("loginAluno").value = aluno.login || "";
 };
 window.fecharPopup = () => { document.getElementById("popupSenha").style.display = "none"; };
-window.salvarSenha = async () => {
+window.salvarConfiguracoes = async () => {
+  const nomeCompleto = document.getElementById("nomeCompleto").value.trim().replace(/\s+/g, " ");
+  const login = document.getElementById("loginAluno").value.trim().replace(/\s+/g, " ");
   const novaSenha = document.getElementById("novaSenha").value;
   const mensagem  = document.getElementById("mensagemSenha");
   const aluno     = await carregarAlunoAtual();
-  if (novaSenha.length < 6) { mensagem.textContent = "A senha deve ter pelo menos 6 caracteres."; return; }
+  if (!aluno) return;
+  if (!nomeCompleto) { mensagem.textContent = "Informe seu nome completo."; return; }
+  if (novaSenha && novaSenha.length < 6) { mensagem.textContent = "A senha deve ter pelo menos 6 caracteres."; return; }
   try {
-    await updateDoc(doc(db, "alunos", aluno.id), { senha: novaSenha });
-    mensagem.textContent = "Senha alterada com sucesso!";
+    const [todosAlunos, todosUsuarios] = await Promise.all([
+      getDocs(collection(db, "alunos")),
+      getDocs(collection(db, "usuarios"))
+    ]);
+    const loginNormalizado = normalizarIdentificador(login);
+    const loginEmUso = loginNormalizado && (
+      todosAlunos.docs.some(d =>
+        d.id !== aluno.id && normalizarIdentificador(d.data().login || "") === loginNormalizado
+      ) || todosUsuarios.docs.some(d => normalizarIdentificador(d.data().login || "") === loginNormalizado)
+    );
+    if (loginEmUso) { mensagem.textContent = "Este login já está em uso. Escolha outro."; return; }
+
+    const alteracoes = { nome: nomeCompleto, login };
+    if (novaSenha) alteracoes.senha = novaSenha;
+    await updateDoc(doc(db, "alunos", aluno.id), alteracoes);
+
+    const usuarioAtual = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+    usuarioAtual.nome = nomeCompleto;
+    usuarioAtual.docId = aluno.id;
+    localStorage.setItem("usuarioAtual", JSON.stringify(usuarioAtual));
+    const novaUrl = `aluno.html?nome=${encodeURIComponent(nomeCompleto)}`;
+    window.history.replaceState({}, "", novaUrl);
+    document.getElementById("nomeAluno").textContent = primeiroNome(nomeCompleto);
+    mensagem.textContent = "Configurações salvas com sucesso!";
+    document.getElementById("novaSenha").value = "";
     setTimeout(() => fecharPopup(), 2000);
-  } catch { mensagem.textContent = "Erro ao alterar senha."; }
+  } catch { mensagem.textContent = "Erro ao salvar as configurações."; }
 };
+window.salvarSenha = window.salvarConfiguracoes;
 
 /* ========================================================
     9. FOTO / MODO PROFESSOR

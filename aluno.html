@@ -265,11 +265,17 @@
       <span class="close-button" onclick="fecharPopup()">&times;</span>
       <h2>⚙️ Configurações</h2>
       <div class="modal-body">
-        <label for="novaSenha">Alterar Senha</label>
+        <h3 style="margin:4px 0 0;color:var(--azul);font-size:1rem;border-bottom:1px solid var(--border);padding-bottom:8px;">Segurança e identificação</h3>
+        <label for="nomeCompleto">Nome completo</label>
+        <input type="text" id="nomeCompleto" placeholder="Seu nome completo" autocomplete="name" />
+        <label for="loginAluno">Login (opcional)</label>
+        <input type="text" id="loginAluno" placeholder="Ex.: maria.silva" autocomplete="username" autocapitalize="none" />
+        <small style="color:var(--muted);line-height:1.4;">Você poderá entrar usando este login, seu primeiro nome ou seu nome completo.</small>
+        <label for="novaSenha">Nova senha <span style="font-weight:400;color:var(--muted);">(opcional)</span></label>
         <input type="password" id="novaSenha" placeholder="Nova senha" />
         <div class="modal-buttons">
           <button onclick="fecharPopup()" class="btn-cancelar">Cancelar</button>
-          <button onclick="salvarSenha()" class="btn-salvar">Salvar Alterações</button>
+          <button onclick="salvarConfiguracoes()" class="btn-salvar">Salvar Alterações</button>
         </div>
         <p id="mensagemSenha"></p>
       </div>
