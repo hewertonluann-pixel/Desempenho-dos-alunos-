@@ -448,7 +448,9 @@
 
       alunos.forEach((aluno, idx) => {
         const card = document.createElement("div");
-        card.className = "container-aluno"; card.dataset.index = idx;
+        card.className = "container-aluno";
+        card.dataset.index = idx;
+        card.dataset.alunoId = aluno.id || "";
 
         const fw = document.createElement("div"); fw.className = "foto-aluno";
         if (aluno.foto) { const img = document.createElement("img"); img.src = aluno.foto; fw.appendChild(img); }

@@ -221,7 +221,7 @@
   <script type="module">
     import { db } from "./firebase-config.js";
     import {
-      collection, query, where, getDocs, updateDoc, doc
+      collection, query, where, getDocs, updateDoc, doc, arrayUnion
     } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
     /* ── HELPERS ── */
@@ -337,6 +337,10 @@
           bairro:         bairro || "",
           cidade:         cidade || ""
         };
+
+        if (user.nome && user.nome !== nomeCompleto) {
+          update.nomesAnteriores = arrayUnion(user.nome);
+        }
 
         // Só atualiza foto se uma nova foi selecionada
         if (novaFotoBase64) update.foto = novaFotoBase64;

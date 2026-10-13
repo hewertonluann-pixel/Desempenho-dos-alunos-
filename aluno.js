@@ -224,11 +224,11 @@ export async function calcularEnergiaDoAluno(aluno) {
   const grupos = agruparEventosPorMes(eventosAno);
   const chaveMes = `${anoAtual}-${mesAtual}`;
   const eventosMes = grupos[chaveMes] || [];
-  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
+  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome, aluno.id, aluno.nomesAnteriores || []);
 
   atualizarEnergiaVisual(freqMensal.percentual, "mensal");
 
-  const freqGeral = calcularFrequenciaMensalParaAluno(eventosAno, aluno.nome);
+  const freqGeral = calcularFrequenciaMensalParaAluno(eventosAno, aluno.nome, aluno.id, aluno.nomesAnteriores || []);
   atualizarEnergiaVisual(freqGeral.percentual, "geral");
 
   return freqMensal.percentual;

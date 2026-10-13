@@ -11,6 +11,7 @@ import {
   getDoc,
   doc,
   updateDoc,
+  arrayUnion,
   query,
   where
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
@@ -466,6 +467,9 @@ window.salvarConfiguracoes = async () => {
     if (loginEmUso) { mensagem.textContent = "Este login já está em uso. Escolha outro."; return; }
 
     const alteracoes = { nome: nomeCompleto, login };
+    if (aluno.nome && aluno.nome !== nomeCompleto) {
+      alteracoes.nomesAnteriores = arrayUnion(aluno.nome);
+    }
     if (novaSenha) alteracoes.senha = novaSenha;
     await updateDoc(doc(db, "alunos", aluno.id), alteracoes);
 

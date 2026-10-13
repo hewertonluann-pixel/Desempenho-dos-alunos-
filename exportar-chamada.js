@@ -199,7 +199,7 @@ export async function exportarChamada3Colunas() {
 
       if (nomeAluno && turmaId) {
         try {
-          historico = await obterHistoricoNormalizadoAluno(nomeAluno, turmaId, anoEnsaio);
+          historico = await obterHistoricoNormalizadoAluno(nomeAluno, turmaId, anoEnsaio, card.dataset.alunoId || null);
           metricas = calcularMetricasCombo(historico);
         } catch (e) {
           console.warn(`Falha ao calcular combo de ${nomeAluno}:`, e);

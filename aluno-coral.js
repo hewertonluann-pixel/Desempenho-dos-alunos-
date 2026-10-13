@@ -171,7 +171,7 @@ export function abrirPopupFrequencia(info, destino) {
     "05":"Maio","06":"Junho","07":"Julho","08":"Agosto",
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
-  const alunoAtual = document.getElementById("nomeAluno")?.textContent || "";
+  const alunoAtual = info.nomeAluno || document.getElementById("nomeAluno")?.textContent || "";
   const formatarData = data => {
     if (!data) return "--/--";
     const [, mes, dia] = data.split("-");
@@ -179,7 +179,9 @@ export function abrirPopupFrequencia(info, destino) {
   };
   const chamadas = (info.eventos || [])
     .map(evento => {
-      const registro = (evento.presencas || []).find(p => p.nome === alunoAtual);
+      const registro = (evento.presencas || []).find(p =>
+        (info.alunoId && p.alunoId === info.alunoId) || p.nome === alunoAtual
+      );
       return registro ? {
         data: evento.data,
         status: normalizarStatusPresenca(registro.presenca)
@@ -275,7 +277,7 @@ export async function calcularEnergiaDoAluno(aluno) {
   const eventosMes = grupos[chaveMes] || [];
 
   // Cálculo mensal — já usa o filtro da lista (via frequencia.js atualizado)
-  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
+  const freqMensal = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome, aluno.id, aluno.nomesAnteriores || []);
   const energiaMensal = freqMensal.percentual;
 
   // Cálculo anual — considera apenas eventos em que o aluno estava na lista
@@ -286,11 +288,11 @@ export async function calcularEnergiaDoAluno(aluno) {
     if (!chave.startsWith(String(anoAtual))) return;
     grupos[chave].forEach(ev => {
       // ✅ Só conta se o aluno aparece na lista deste evento
-      const naLista = ev.presencas.some(p => p.nome === aluno.nome);
+      const naLista = ev.presencas.some(p => p.alunoId === aluno.id || p.nome === aluno.nome);
       if (!naLista) return;
 
       totalEventosAno++;
-      const hit = ev.presencas.find(p => p.nome === aluno.nome);
+      const hit = ev.presencas.find(p => p.alunoId === aluno.id || p.nome === aluno.nome);
       if (hit && hit.presenca === "presente") totalPresencasAno++;
     });
   });

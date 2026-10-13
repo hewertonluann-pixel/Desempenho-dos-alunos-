@@ -75,7 +75,14 @@ export function agruparEventosPorMes(eventos) {
    na lista de chamada (presente ou falta registrada).
    Chamadas anteriores à aprovação do aluno são ignoradas.
    ====================================================== */
-export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
+function registroPertenceAoAluno(registro, nomeAluno, alunoId = null, nomesAlternativos = []) {
+  if (!registro) return false;
+  if (alunoId && registro.alunoId === alunoId) return true;
+  const nomes = new Set([nomeAluno, ...nomesAlternativos].filter(Boolean));
+  return nomes.has(registro.nome);
+}
+
+export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno, alunoId = null, nomesAlternativos = []) {
   if (!eventosMes || eventosMes.length === 0) {
     return {
       totalEventos: 0,
@@ -86,7 +93,7 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
 
   // Filtra apenas eventos em que o aluno aparece na lista
   const eventosDoAluno = eventosMes.filter(ev =>
-    ev.presencas.some(p => p.nome === nomeAluno)
+    ev.presencas.some(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos))
   );
 
   const totalEventos = eventosDoAluno.length;
@@ -98,7 +105,7 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno) {
   let presencasAluno = 0;
 
   eventosDoAluno.forEach(ev => {
-    const hit = ev.presencas.find(p => p.nome === nomeAluno);
+    const hit = ev.presencas.find(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos));
     if (hit && hit.presenca === "presente") {
       presencasAluno++;
     }
@@ -130,14 +137,14 @@ export async function contarChamadasPorTurma(ano, turmaId) {
    na lista de chamada (presente ou falta registrada).
    Chamadas anteriores à aprovação do aluno são ignoradas.
    ====================================================== */
-export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) {
+export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano, alunoId = null, nomesAlternativos = []) {
   if (!turmaId) return { totalEventos: 0, presencasAluno: 0, percentual: 0 };
 
   const eventos = await obterEventosDoAno(ano, turmaId);
 
   // Filtra apenas eventos em que o aluno aparece na lista
   const eventosDoAluno = eventos.filter(ev =>
-    ev.presencas.some(p => p.nome === nomeAluno)
+    ev.presencas.some(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos))
   );
 
   const totalEventos = eventosDoAluno.length;
@@ -145,7 +152,7 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) 
 
   let presencasAluno = 0;
   eventosDoAluno.forEach(ev => {
-    const hit = ev.presencas.find(p => p.nome === nomeAluno);
+    const hit = ev.presencas.find(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos));
     if (hit && hit.presenca === "presente") presencasAluno++;
   });
 
@@ -180,7 +187,7 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) 
 
     const eventosMes = agrupado[chaveMes] || [];
 
-    const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome);
+    const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome, aluno.id, aluno.nomesAnteriores || []);
 
     const mesAbreviado = mesesAbreviados[mesNumero];
 
@@ -189,6 +196,8 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano) 
     mesCard.onclick = () => abrirPopupCallback({
       ano,
       mes: mesNumero,
+      alunoId: aluno.id,
+      nomeAluno: aluno.nome,
       ...freq,
       eventos: eventosMes
     });
@@ -224,7 +233,7 @@ export function normalizarStatusPresenca(valor) {
    Retorna array ordenado cronologicamente:
    [{ data: "2026-07-22", status: "P" }, ...]
    ====================================================== */
-export async function obterHistoricoNormalizadoAluno(nomeAluno, turmaId, ano) {
+export async function obterHistoricoNormalizadoAluno(nomeAluno, turmaId, ano, alunoId = null, nomesAlternativos = []) {
   if (!turmaId) {
     console.warn("obterHistoricoNormalizadoAluno: turmaId não informado.");
     return [];
@@ -233,9 +242,9 @@ export async function obterHistoricoNormalizadoAluno(nomeAluno, turmaId, ano) {
   const eventos = await obterEventosDoAno(ano, turmaId);
 
   const historico = eventos
-    .filter(ev => ev.presencas.some(p => p.nome === nomeAluno))
+    .filter(ev => ev.presencas.some(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos)))
     .map(ev => {
-      const registro = ev.presencas.find(p => p.nome === nomeAluno);
+      const registro = ev.presencas.find(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos));
       return {
         data: ev.data,
         status: normalizarStatusPresenca(registro?.presenca)
