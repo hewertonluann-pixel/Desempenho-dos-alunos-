@@ -172,11 +172,11 @@ window.voltarParaPainel = function() {
 
 const paineisDisponiveis = [
   { id: "comprometimento", nome: "Comprometimento", icone: "⚡" },
+  { id: "notificacoes", nome: "Atividades Recentes", icone: "🔔" },
   { id: "frequencia", nome: "Frequência Anual", icone: "📅" },
   { id: "conquistas", nome: "Conquistas", icone: "🏆" },
-  { id: "evolucao", nome: "Evolução Técnica", icone: "📈" },
-  { id: "notificacoes", nome: "Atividades Recentes", icone: "🔔" },
-  { id: "licoes", nome: "Lições Enviadas", icone: "📝" }
+  { id: "licoes", nome: "Lições Enviadas", icone: "📝" },
+  { id: "evolucao", nome: "Evolução Técnica", icone: "📈" }
 ];
 
 let draggedElement = null;
