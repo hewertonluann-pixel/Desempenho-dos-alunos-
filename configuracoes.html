@@ -111,6 +111,11 @@
 
           <!-- CAMPOS PESSOAIS -->
           <div class="dados-grid">
+            <div class="input-group full">
+              <label for="dpNomeCompleto">Nome completo</label>
+              <input type="text" id="dpNomeCompleto" placeholder="Seu nome completo" autocomplete="name" />
+            </div>
+
             <div class="input-group">
               <label for="dpNascimento">Data de Nascimento</label>
               <input type="date" id="dpNascimento" />
@@ -160,9 +165,19 @@
       <section class="config-section">
         <div class="section-header">
           <h2>🔒 Segurança</h2>
-          <p class="section-description">Altere sua senha de acesso</p>
+          <p class="section-description">Gerencie seu login e sua senha de acesso</p>
         </div>
         <div class="section-body">
+          <div class="section-divider">🔑 Identificação de acesso</div>
+          <div class="input-group">
+            <label for="loginConfig">Login <span style="color:#6b7280;font-weight:400;font-size:0.78rem;">(opcional)</span></label>
+            <input type="text" id="loginConfig" placeholder="Ex.: maria.silva" autocomplete="username" autocapitalize="none" />
+            <small style="color:#6b7280;line-height:1.5;">Você também pode entrar usando seu primeiro nome ou nome completo.</small>
+          </div>
+          <button class="btn-primary" id="btnSalvarLogin">💾 Salvar Login</button>
+          <p class="mensagem-feedback" id="mensagemLogin"></p>
+
+          <div class="section-divider">🔒 Alterar senha</div>
           <div class="input-group">
             <label for="senhaAtual">Senha Atual</label>
             <input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
@@ -293,6 +308,9 @@
           prev.innerHTML = `<img src="${dados.foto}" />`;
         }
 
+        // Nome completo
+        document.getElementById("dpNomeCompleto").value = dados.nome || "";
+
         // Campos pessoais
         if (dados.dataNascimento) document.getElementById("dpNascimento").value  = dados.dataNascimento;
         if (dados.responsavel)    document.getElementById("dpResponsavel").value = dados.responsavel;
@@ -335,6 +353,7 @@
       }
 
       const nascimento = document.getElementById("dpNascimento").value;
+      const nomeCompleto= document.getElementById("dpNomeCompleto").value.trim().replace(/\s+/g, " ");
       const responsavel= document.getElementById("dpResponsavel").value.trim();
       const contato    = document.getElementById("dpContato").value.trim();
       const rua        = document.getElementById("dpRua").value.trim();
@@ -342,6 +361,11 @@
       const bairro     = document.getElementById("dpBairro").value.trim();
       const cidade     = document.getElementById("dpCidade").value.trim();
       const btn        = document.getElementById("btnSalvarDados");
+
+      if (!nomeCompleto) {
+        feedback("mensagemDados", "⚠️ Informe seu nome completo.", "err");
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = "Salvando...";
@@ -357,6 +381,7 @@
 
         const docId  = snap.docs[0].id;
         const update = {
+          nome:            nomeCompleto,
           dataNascimento: nascimento || "",
           responsavel:    responsavel || "",
           contato:        contato || "",
@@ -370,6 +395,11 @@
         if (novaFotoBase64) update.foto = novaFotoBase64;
 
         await updateDoc(doc(db, "alunos", docId), update);
+
+        user.nome = nomeCompleto;
+        user.docId = docId;
+        localStorage.setItem("usuarioAtual", JSON.stringify(user));
+        window.history.replaceState({}, "", `configuracoes.html?nome=${encodeURIComponent(nomeCompleto)}`);
 
         feedback("mensagemDados", "✅ Dados pessoais salvos com sucesso!", "ok");
         novaFotoBase64 = ""; // limpar após salvar

@@ -5,9 +5,18 @@ import { db } from "./firebase-config.js";
 import {
   collection,
   getDocs,
+  getDoc,
   doc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+function normalizarLogin(valor = "") {
+  return String(valor)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLocaleLowerCase("pt-BR");
+}
 
 // ========== OBTER ALUNO LOGADO ==========
 async function carregarAlunoAtual() {
@@ -17,6 +26,12 @@ async function carregarAlunoAtual() {
   if (!nomeAluno) {
     window.location.href = "index.html";
     return null;
+  }
+
+  const sessao = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
+  if (sessao.docId) {
+    const alunoPorId = await getDoc(doc(db, "alunos", sessao.docId));
+    if (alunoPorId.exists()) return { id: alunoPorId.id, ...alunoPorId.data() };
   }
 
   const snap = await getDocs(collection(db, "alunos"));
@@ -113,6 +128,49 @@ document.getElementById("btnSalvarSenha")?.addEventListener("click", async () =>
     console.error("Erro ao alterar senha:", error);
     mensagem.textContent = "❌ Erro ao alterar senha. Tente novamente.";
     mensagem.style.color = "#ef4444";
+  }
+});
+
+// ========== SALVAR LOGIN ==========
+document.getElementById("btnSalvarLogin")?.addEventListener("click", async () => {
+  const login = document.getElementById("loginConfig").value.trim().replace(/\s+/g, " ");
+  const mensagem = document.getElementById("mensagemLogin");
+  const btn = document.getElementById("btnSalvarLogin");
+
+  try {
+    const aluno = await carregarAlunoAtual();
+    if (!aluno) return;
+
+    const loginNormalizado = normalizarLogin(login);
+    const [todosAlunos, todosUsuarios] = await Promise.all([
+      getDocs(collection(db, "alunos")),
+      getDocs(collection(db, "usuarios"))
+    ]);
+    const loginEmUso = loginNormalizado && (
+      todosAlunos.docs.some(d =>
+        d.id !== aluno.id && normalizarLogin(d.data().login || "") === loginNormalizado
+      ) || todosUsuarios.docs.some(d => normalizarLogin(d.data().login || "") === loginNormalizado)
+    );
+
+    if (loginEmUso) {
+      mensagem.textContent = "❌ Este login já está em uso. Escolha outro.";
+      mensagem.style.color = "#ef4444";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Salvando...";
+    await updateDoc(doc(db, "alunos", aluno.id), { login });
+    mensagem.textContent = "✅ Login salvo com sucesso!";
+    mensagem.style.color = "#22c55e";
+  } catch (error) {
+    console.error("Erro ao salvar login:", error);
+    mensagem.textContent = "❌ Erro ao salvar login. Tente novamente.";
+    mensagem.style.color = "#ef4444";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "💾 Salvar Login";
+    setTimeout(() => { mensagem.textContent = ""; }, 3000);
   }
 });
 
