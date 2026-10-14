@@ -931,17 +931,3 @@ body {
 .conquista-mes-descricao { font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
 
 @media (max-width: 600px) { .conquista-mes-card { padding: 12px; gap: 10px; } .conquista-mes-icon { flex-basis: 44px; width: 44px; height: 44px; min-width: 44px; max-width: 44px; min-height: 44px; max-height: 44px; font-size: 2rem; } .conquista-mes-titulo { font-size: 0.95rem; } .conquista-mes-descricao { font-size: 0.8rem; } }
-
-/* Medalhas de atividades: validade visual de 30 dias */
-.medalhas-atividades-secao { grid-column: 1 / -1; margin: 18px 0 6px; padding: 14px; border: 1px solid rgba(34,211,238,.18); border-radius: 14px; background: rgba(15,23,42,.42); }
-.medalhas-atividades-titulo { display:flex; justify-content:space-between; align-items:center; gap:10px; color:var(--azul,#22d3ee); font-weight:800; font-size:.92rem; margin-bottom:14px; }
-.medalhas-atividades-titulo span { color:var(--muted,#94a3b8); font-size:.7rem; font-weight:600; }
-.medalhas-atividades-grade { display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:12px; }
-.medalha-atividade-card { display:flex; flex-direction:column; align-items:center; gap:5px; color:var(--ink,#e2e8f0); text-align:center; font-size:.78rem; }
-.medalha-atividade-card strong { line-height:1.25; }
-.medalha-atividade-card > span { color:var(--muted,#94a3b8); font-size:.7rem; }
-.medalha-atividade-grafico { --p:100%; width:92px; height:92px; border-radius:50%; display:grid; place-items:center; background:conic-gradient(#22d3ee var(--p),rgba(51,65,85,.7) 0); box-shadow:0 0 16px rgba(34,211,238,.18); position:relative; }
-.medalha-atividade-grafico::before { content:""; position:absolute; inset:7px; border-radius:50%; background:var(--card,#111827); }
-.medalha-atividade-centro { position:relative; z-index:1; width:62px; height:62px; border-radius:50%; display:grid; place-items:center; overflow:hidden; font-size:2rem; }
-.medalha-atividade-centro img { width:100%; height:100%; object-fit:contain; }
-@media (max-width:600px) { .medalhas-atividades-titulo { align-items:flex-start; flex-direction:column; gap:3px; } .medalhas-atividades-grade { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; } .medalha-atividade-grafico { width:78px; height:78px; } .medalha-atividade-centro { width:52px; height:52px; } }

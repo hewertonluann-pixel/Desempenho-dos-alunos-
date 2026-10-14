@@ -24,9 +24,8 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, definirIconesConquistas, definirMedalhasAtividades } from "./conquistas.js";
+import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, definirIconesConquistas } from "./conquistas.js";
 import { carregarNotificacoes } from "./notificacoes.js";
-import { carregarProgressoJornada } from "./jornada-atividades.js";
 
 // 📸 Novo sistema de snapshots mensais
 import {
@@ -388,15 +387,13 @@ export async function iniciarPainelAluno() {
   const snapshots = await carregarSnapshotsAluno(aluno);
   const configConquistas = await getDoc(doc(db, "configuracoes", "conquistas"));
   definirIconesConquistas(configConquistas.exists() ? configConquistas.data().itens || {} : {});
-  definirMedalhasAtividades(configConquistas.exists() ? configConquistas.data().atividades || {} : {});
-  const progressoAtividades = await carregarProgressoJornada(aluno.id);
 
   const destinoGrafico = document.getElementById("painelEvolucao");
   if (window.gerarGraficoEvolucao) {
     gerarGraficoEvolucao(aluno, energia, destinoGrafico, snapshots);
   }
 
-  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"), progressoAtividades);
+  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
 
   if (ehDonoDaPagina) await carregarLicoesAluno(aluno);
 

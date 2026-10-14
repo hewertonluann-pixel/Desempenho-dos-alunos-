@@ -21,16 +21,11 @@ export const regrasDeConquistas = [
 ];
 
 export const mapaConquistas = Object.fromEntries(regrasDeConquistas.map(c => [c.id, c]));
-let imagensAtividades = {};
 
 export function definirIconesConquistas(itens = {}) {
   regrasDeConquistas.forEach(regra => {
     regra.imagemUrl = itens[regra.id]?.url || "";
   });
-}
-
-export function definirMedalhasAtividades(itens = {}) {
-  imagensAtividades = itens || {};
 }
 
 function normalizarPremios(lista) {
@@ -110,7 +105,7 @@ export function avaliarConquistasHistoricas(aluno, snapshots = [], eventos = [],
   return premios.filter(p => mapaConquistas[p.id]).sort((a, b) => String(a.desbloqueadaEm).localeCompare(String(b.desbloqueadaEm)) || ordem.get(a.id) - ordem.get(b.id));
 }
 
-export function gerarPainelConquistas(aluno, elementoAlvo, progressoAtividades = {}) {
+export function gerarPainelConquistas(aluno, elementoAlvo) {
   if (!elementoAlvo) return;
   const premios = normalizarPremios(aluno.conquistas);
   const hoje = new Date();
@@ -132,26 +127,6 @@ export function gerarPainelConquistas(aluno, elementoAlvo, progressoAtividades =
       return competencia === mesSelecionado;
     });
     elementoAlvo.innerHTML = `<div class="conquistas-navegacao"><button type="button" class="conquistas-mes-btn" data-mes-anterior aria-label="Mês anterior">‹</button><strong>🏆 ${rotuloMes(mesSelecionado)}</strong><button type="button" class="conquistas-mes-btn" data-mes-proximo aria-label="Próximo mês">›</button></div><div class="conquistas-mes-vazio" ${doMes.length ? 'hidden' : ''}>Nenhum troféu desbloqueado neste mês.</div>`;
-    const medalhas = Object.values(progressoAtividades || {}).filter(registro => registro?.concluida === true && dataExpiracaoAtividade(registro)?.getTime() > Date.now());
-    if (medalhas.length) {
-      const secao = document.createElement("div");
-      secao.className = "medalhas-atividades-secao";
-      secao.innerHTML = `<div class="medalhas-atividades-titulo">🎖️ Medalhas das atividades <span>válidas por 30 dias</span></div>`;
-      const gradeMedalhas = document.createElement("div");
-      gradeMedalhas.className = "medalhas-atividades-grade";
-      medalhas.sort((a, b) => Number(a.ordem || 0) - Number(b.ordem || 0)).forEach(registro => {
-        const expiracao = dataExpiracaoAtividade(registro);
-        const diasRestantes = Math.max(0, Math.ceil((expiracao.getTime() - Date.now()) / 86400000));
-        const percentual = Math.max(0, Math.min(100, Math.round((diasRestantes / 30) * 100)));
-        const imagem = imagensAtividades[registro.atividadeId]?.url || "";
-        const card = document.createElement("div");
-        card.className = "medalha-atividade-card";
-        card.innerHTML = `<div class="medalha-atividade-grafico" style="--p:${percentual}%;"><div class="medalha-atividade-centro">${imagem ? `<img src="${imagem}" alt="">` : "🏅"}</div></div><strong>${registro.titulo || registro.atividadeId}</strong><span>${diasRestantes === 1 ? "1 dia restante" : `${diasRestantes} dias restantes`}</span>`;
-        gradeMedalhas.appendChild(card);
-      });
-      secao.appendChild(gradeMedalhas);
-      elementoAlvo.appendChild(secao);
-    }
     const grade = document.createElement("div");
     grade.className = "conquistas-grade-mes";
     doMes.slice().sort((a, b) => String(a.desbloqueadaEm || "9999-12-31").localeCompare(String(b.desbloqueadaEm || "9999-12-31")) || (a.ordem ?? 0) - (b.ordem ?? 0)).forEach(premio => {
@@ -194,16 +169,6 @@ export function gerarPainelConquistas(aluno, elementoAlvo, progressoAtividades =
     elementoAlvo.querySelector("[data-mes-proximo]").addEventListener("click", () => { mesSelecionado = deslocarMes(mesSelecionado, 1); renderizar(); });
   };
   renderizar();
-}
-
-function dataExpiracaoAtividade(registro) {
-  const valor = registro?.concluidaEm;
-  if (!valor) return null;
-  const inicio = typeof valor.toDate === "function" ? valor.toDate() : new Date(valor);
-  if (Number.isNaN(inicio.getTime())) return null;
-  const fim = new Date(inicio);
-  fim.setDate(fim.getDate() + 30);
-  return fim;
 }
 
 function formatarData(valor) {
