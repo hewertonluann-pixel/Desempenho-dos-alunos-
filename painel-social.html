@@ -921,7 +921,7 @@
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
       return `
-        <div class="card-social card-fase1" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+        <div class="card-social card-fase1" onclick="window.location.href='aluno.html?id=${encodeURIComponent(aluno.id)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
             <div class="info-principal">
@@ -951,7 +951,7 @@
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
       return `
-        <div class="card-social card-fase2" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+        <div class="card-social card-fase2" onclick="window.location.href='aluno.html?id=${encodeURIComponent(aluno.id)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
             <div class="info-principal">
@@ -985,7 +985,7 @@
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
       return `
-        <div class="card-social" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(aluno.nome)}&view=public'">
+        <div class="card-social" onclick="window.location.href='aluno.html?id=${encodeURIComponent(aluno.id)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
             <div class="info-principal">
@@ -1064,7 +1064,7 @@
       const destaqueNivel  = alunos.length ? alunos.slice().sort((a, b) => ((b.leitura ?? 0) + (b.metodo ?? 0)) - ((a.leitura ?? 0) + (a.metodo ?? 0)))[0] : null;
       const destaqueMensal = alunos.length ? alunos.slice().sort((a, b) => (b.frequenciaMensal?.porcentagem ?? 0) - (a.frequenciaMensal?.porcentagem ?? 0))[0] : null;
       const htmlDestaque = (al, titulo) => al
-        ? `<span class="destaque-chip" onclick="window.location.href='aluno.html?nome=${encodeURIComponent(al.nome)}&view=public'"><span class="destaque-avatar">${al.foto ? `<img src="${al.foto}" alt="${escapeHtml(al.nome)}">` : ""}</span>${titulo}: ${escapeHtml(al.nome.split(" ")[0])}</span>`
+        ? `<span class="destaque-chip" onclick="window.location.href='aluno.html?id=${encodeURIComponent(al.id)}&view=public'"><span class="destaque-avatar">${al.foto ? `<img src="${al.foto}" alt="${escapeHtml(al.nome)}">` : ""}</span>${titulo}: ${escapeHtml(al.nome.split(" ")[0])}</span>`
         : "";
       return `
         <div class="bloco-turma">
@@ -1148,7 +1148,7 @@
       const instrumento = coral ? (vozCoralAluno(aluno) || aluno.instrumento || "Voz não definida") : (aluno.instrumento || "Instrumento não definido");
       const nome = escapeHtml(aluno.nome || "Aluno");
       const foto = aluno.foto ? `<img src="${aluno.foto}" alt="${nome}" loading="lazy">` : `<span>${nomeInicialAluno(aluno.nome)}</span>`;
-      return `<article class="mosaico-card ${coral ? "mosaico-coral" : ""}" tabindex="0" role="link" aria-label="Abrir perfil de ${nome}" onclick="abrirPerfilMosaico('${encodeURIComponent(aluno.nome)}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); abrirPerfilMosaico('${encodeURIComponent(aluno.nome)}'); }">
+      return `<article class="mosaico-card ${coral ? "mosaico-coral" : ""}" tabindex="0" role="link" aria-label="Abrir perfil de ${nome}" onclick="abrirPerfilMosaico('${encodeURIComponent(aluno.id)}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); abrirPerfilMosaico('${encodeURIComponent(aluno.id)}'); }">
         <div class="mosaico-foto">${foto}</div>
         <div class="mosaico-nome" title="${nome}">${nome}</div>
         ${!coral ? `<div class="mosaico-instrumento" title="${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : ""}
@@ -1210,8 +1210,8 @@
       const contador = alunosFiltrados.length === 1 ? "1 perfil exibido" : `${alunosFiltrados.length} perfis exibidos`;
       container.innerHTML = `${htmlFiltrosMosaico(turmaMap, coralMap, alunos, coralSelecionado)}<div class="mosaico-contador">${contador}</div><div class="mosaico-grid">${cards || '<div class="mosaico-vazio">Nenhum aluno encontrado nesta turma.</div>'}</div>`;
     }
-    window.abrirPerfilMosaico = nomeCodificado => {
-      window.location.href = `aluno.html?nome=${nomeCodificado}&view=public`;
+    window.abrirPerfilMosaico = idCodificado => {
+      window.location.href = `aluno.html?id=${idCodificado}&view=public`;
     };
     window.selecionarTurma = (chave) => {
       turmaAtiva = chave;

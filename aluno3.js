@@ -92,10 +92,17 @@ window.fecharPopupConquista = fecharPopupConquista;
 export async function carregarAlunoAtual() {
   const params    = new URLSearchParams(window.location.search);
   const nomeAluno = params.get("nome");
-  if (!nomeAluno) { window.location.href = "index.html"; return null; }
+  const idAluno   = params.get("id");
+  const publico   = params.get("view") === "public";
+  if (!nomeAluno && !idAluno) { window.location.href = "index.html"; return null; }
+
+  if (idAluno) {
+    const alunoPorId = await getDoc(doc(db, "alunos", idAluno));
+    if (alunoPorId.exists()) return { id: alunoPorId.id, ...alunoPorId.data() };
+  }
 
   const sessao = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
-  if (sessao.docId) {
+  if (!publico && sessao.docId) {
     const alunoPorId = await getDoc(doc(db, "alunos", sessao.docId));
     if (alunoPorId.exists()) return { id: alunoPorId.id, ...alunoPorId.data() };
   }
@@ -337,7 +344,8 @@ export async function iniciarPainelAluno() {
   if (!aluno) return;
 
   const usuario       = JSON.parse(localStorage.getItem("usuarioAtual") || "{}");
-  const ehDonoDaPagina= usuario.nome && usuario.nome === aluno.nome;
+  const ehVisualizacaoPublica = new URLSearchParams(window.location.search).get("view") === "public";
+  const ehDonoDaPagina = !ehVisualizacaoPublica && usuario.nome && usuario.nome === aluno.nome;
 
   if (!ehDonoDaPagina) {
     const btnSenha  = document.querySelector(".btn-change-password");
