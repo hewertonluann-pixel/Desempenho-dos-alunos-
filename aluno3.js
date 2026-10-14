@@ -25,9 +25,10 @@ import {
 } from "./frequencia.js";
 
 import { carregarLicoesAluno } from "./licoes.js";
-import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, avaliarConquistasHistoricas, registrarConquistas, definirIconesConquistas, mapaConquistas } from "./conquistas.js";
+import { gerarPainelConquistas, abrirPopupConquista, fecharPopupConquista, avaliarConquistasHistoricas, registrarConquistas, definirIconesConquistas, definirMedalhasAtividades, mapaConquistas } from "./conquistas.js";
 import { carregarNotificacoes } from "./notificacoes.js";
 import { calcularFrequenciaElegivel } from "./participacoes.js";
+import { carregarProgressoJornada } from "./jornada-atividades.js";
 
 // 📸 Novo sistema de snapshots mensais
 import {
@@ -403,6 +404,8 @@ export async function iniciarPainelAluno() {
   carregarNotificacoes();
   const configConquistas = await getDoc(doc(db, "configuracoes", "conquistas"));
   definirIconesConquistas(configConquistas.exists() ? configConquistas.data().itens || {} : {});
+  definirMedalhasAtividades(configConquistas.exists() ? configConquistas.data().atividades || {} : {});
+  const progressoAtividades = await carregarProgressoJornada(aluno.id);
   await montarGraficoFrequencia(aluno, anoVisualizacao);
   const energia = await calcularEnergiaDoAluno(aluno);
 
@@ -432,7 +435,7 @@ export async function iniciarPainelAluno() {
     aluno.conquistas = conquistasAtualizadas;
     await updateDoc(doc(db, "alunos", aluno.id), { conquistas: conquistasAtualizadas });
   }
-  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"));
+  gerarPainelConquistas(aluno, document.getElementById("grade-conquistas"), progressoAtividades);
 
   if (ehDonoDaPagina) await carregarLicoesAluno(aluno.nome);
 

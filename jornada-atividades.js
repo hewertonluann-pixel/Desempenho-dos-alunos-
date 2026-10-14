@@ -19,7 +19,7 @@ export const JORNADA_ATIVIDADES = [
   { id: "tetracordes", ordem: 9, titulo: "Tetracordes & Escalas", url: "tetracordes.html", icone: "🎼" },
 ];
 
-const DURACAO_TROFEU_MESES = 2;
+const DURACAO_TROFEU_DIAS = 30;
 
 function usuarioAtual() {
   try {
@@ -34,11 +34,12 @@ function progressoRef(usuario, atividadeId) {
   return doc(db, "alunos", usuario.docId, "progressoAtividades", atividadeId);
 }
 
-export async function carregarProgressoJornada() {
+export async function carregarProgressoJornada(alunoId = null) {
   const usuario = usuarioAtual();
-  if (!usuario) return {};
+  const id = alunoId || usuario?.docId;
+  if (!id) return {};
 
-  const snap = await getDocs(collection(db, "alunos", usuario.docId, "progressoAtividades"));
+  const snap = await getDocs(collection(db, "alunos", id, "progressoAtividades"));
   return Object.fromEntries(snap.docs.map((item) => [item.id, item.data()]));
 }
 
@@ -77,7 +78,7 @@ export function dataExpiracaoTrofeu(progresso) {
   const concluidaEm = dataDaConclusao(progresso);
   if (!concluidaEm) return null;
   const expiracao = new Date(concluidaEm);
-  expiracao.setMonth(expiracao.getMonth() + DURACAO_TROFEU_MESES);
+  expiracao.setDate(expiracao.getDate() + DURACAO_TROFEU_DIAS);
   return expiracao;
 }
 

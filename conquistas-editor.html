@@ -17,7 +17,7 @@
 </head>
 <body>
 <main>
-  <header class="topo"><div><h1>🏆 Ícones das conquistas</h1><p>Envie um PNG para cada troféu. O painel do aluno padroniza as imagens em uma área de tamanho uniforme.</p></div><a class="voltar" href="professor.html">← Voltar ao professor</a></header>
+  <header class="topo"><div><h1>🏆 Imagens de conquistas e medalhas</h1><p>Envie um PNG para cada conquista ou medalha de atividade. As medalhas de atividades ficam disponíveis por 30 dias.</p></div><a class="voltar" href="professor.html">← Voltar ao professor</a></header>
   <div class="salvar-todos"><span class="nota">Formato recomendado: PNG quadrado, fundo transparente, até 2 MB.</span><span id="statusGeral" class="status"></span></div>
   <div class="barra"><i id="barraProgresso"></i></div>
   <section class="grade" id="gradeConquistas"><p>Carregando conquistas...</p></section>
@@ -27,21 +27,30 @@ import { db } from "./firebase-config.js";
 import { collection, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
 import { regrasDeConquistas } from "./conquistas.js";
+import { JORNADA_ATIVIDADES } from "./jornada-atividades.js";
 const storage = getStorage();
 const LIMITE = 2 * 1024 * 1024;
+const fontes = [
+  ...regrasDeConquistas.map(c => ({ ...c, grupo: "itens", tipo: "Conquista" })),
+  ...JORNADA_ATIVIDADES.map(c => ({ ...c, grupo: "atividades", tipo: "Medalha de atividade", descricao: `Medalha exibida por 30 dias após concluir ${c.titulo}.` }))
+];
 const configRef = doc(db, "configuracoes", "conquistas");
 let configuracoes = {};
 const statusGeral = document.getElementById("statusGeral");
 function autorizado(){ try { const u=JSON.parse(localStorage.getItem("usuarioAtual")||"{}"); return u.classificado === true || u.tipo === "professor"; } catch { return false; } }
 function escapeHtml(v){return String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\"':"&quot;", "'":"&#39;"}[c]));}
 function render(){
-  document.getElementById("gradeConquistas").innerHTML = regrasDeConquistas.map(c=>{const url=configuracoes[c.id]?.url||"";return `<article class="card" data-id="${c.id}"><div class="preview">${url?`<img src="${escapeHtml(url)}" alt="">`:`<span class="placeholder">🏆</span>`}</div><div><div class="nome">${escapeHtml(c.titulo)}</div><div class="desc">${escapeHtml(c.descricao)}</div></div><div class="acoes"><input class="arquivo" type="file" accept="image/png" data-file="${c.id}"><button data-upload="${c.id}">Enviar PNG</button>${url?`<button class="remover" data-remove="${c.id}">Remover</button>`:""}<span class="status" data-status="${c.id}"></span></div></article>`}).join("");
-  document.querySelectorAll("[data-upload]").forEach(b=>b.addEventListener("click",()=>upload(b.dataset.upload,b)));
-  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>remover(b.dataset.remove,b)));
+  document.getElementById("gradeConquistas").innerHTML = fontes.map(c=>{
+    const url=configuracoes[c.grupo]?.[c.id]?.url||"";
+    const rotulo = c.grupo === "atividades" ? "🎖️ " : "🏆 ";
+    return `<article class="card" data-id="${c.id}" data-grupo="${c.grupo}"><div class="preview">${url?`<img src="${escapeHtml(url)}" alt="">`:`<span class="placeholder">${rotulo}</span>`}</div><div><div class="nome">${rotulo}${escapeHtml(c.titulo)}</div><div class="desc">${escapeHtml(c.descricao)}</div></div><div class="acoes"><input class="arquivo" type="file" accept="image/png" data-file="${c.id}" data-grupo="${c.grupo}"><button data-upload="${c.id}" data-grupo="${c.grupo}">Enviar PNG</button>${url?`<button class="remover" data-remove="${c.id}" data-grupo="${c.grupo}">Remover</button>`:""}<span class="status" data-status="${c.id}" data-grupo="${c.grupo}"></span></div></article>`
+  }).join("");
+  document.querySelectorAll("[data-upload]").forEach(b=>b.addEventListener("click",()=>upload(b.dataset.upload,b,b.dataset.grupo)));
+  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>remover(b.dataset.remove,b,b.dataset.grupo)));
 }
-async function carregar(){if(!autorizado()){statusGeral.textContent="Acesso restrito ao professor classificado.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Você não tem permissão para editar conquistas.</p>";return}try{const snap=await getDoc(configRef);configuracoes=snap.exists()?snap.data().itens||{}:{};render()}catch(e){console.error(e);statusGeral.textContent="Não foi possível carregar as configurações das conquistas.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Erro ao carregar o editor de ícones.</p>"}}
-async function upload(id,botao){const input=document.querySelector(`[data-file="${id}"]`), file=input?.files?.[0], status=document.querySelector(`[data-status="${id}"]`);if(!file){status.textContent="Escolha um PNG.";status.className="status err";return}if(file.type!=="image/png"||file.size>LIMITE){status.textContent="Use PNG de até 2 MB.";status.className="status err";return}botao.disabled=true;status.textContent="Enviando...";try{const caminho=`biblioteca/conquistas/${id}.png`;const arquivoRef=ref(storage,caminho);await uploadBytes(arquivoRef,file,{contentType:"image/png",cacheControl:"public,max-age=3600"});const url=await getDownloadURL(arquivoRef);configuracoes[id]={url,caminho,atualizadoEm:new Date().toISOString()};await setDoc(configRef,{itens:configuracoes},{merge:true});status.textContent="Ícone salvo.";status.className="status ok";document.getElementById("barraProgresso").style.width="100%";render()}catch(e){console.error(e);status.textContent="Não foi possível enviar.";status.className="status err"}finally{botao.disabled=false}}
-async function remover(id,botao){const status=document.querySelector(`[data-status="${id}"]`);if(!confirm("Remover o ícone desta conquista?"))return;botao.disabled=true;try{const caminho=configuracoes[id]?.caminho||`conquistas/${id}.png`;await deleteObject(ref(storage,caminho)).catch(()=>{});delete configuracoes[id];await setDoc(configRef,{itens:configuracoes},{merge:true});render()}catch(e){status.textContent="Não foi possível remover.";status.className="status err"}finally{botao.disabled=false}}
+async function carregar(){if(!autorizado()){statusGeral.textContent="Acesso restrito ao professor classificado.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Você não tem permissão para editar conquistas.</p>";return}try{const snap=await getDoc(configRef);configuracoes=snap.exists()?snap.data():{};render()}catch(e){console.error(e);statusGeral.textContent="Não foi possível carregar as configurações das conquistas.";statusGeral.className="status err";document.getElementById("gradeConquistas").innerHTML="<p>Erro ao carregar o editor de ícones.</p>"}}
+async function upload(id,botao,grupo="itens"){const input=document.querySelector(`[data-file="${id}"][data-grupo="${grupo}"]`), file=input?.files?.[0], status=document.querySelector(`[data-status="${id}"][data-grupo="${grupo}"]`);if(!file){status.textContent="Escolha um PNG.";status.className="status err";return}if(file.type!=="image/png"||file.size>LIMITE){status.textContent="Use PNG de até 2 MB.";status.className="status err";return}botao.disabled=true;status.textContent="Enviando...";try{const caminho=`biblioteca/${grupo === "atividades" ? "medalhas-atividades" : "conquistas"}/${id}.png`;const arquivoRef=ref(storage,caminho);await uploadBytes(arquivoRef,file,{contentType:"image/png",cacheControl:"public,max-age=3600"});const url=await getDownloadURL(arquivoRef);configuracoes[grupo] ||= {};configuracoes[grupo][id]={url,caminho,atualizadoEm:new Date().toISOString()};await setDoc(configRef,{[grupo]:configuracoes[grupo]},{merge:true});status.textContent=grupo === "atividades" ? "Medalha salva." : "Ícone salvo.";status.className="status ok";document.getElementById("barraProgresso").style.width="100%";render()}catch(e){console.error(e);status.textContent="Não foi possível enviar.";status.className="status err"}finally{botao.disabled=false}}
+async function remover(id,botao,grupo="itens"){const status=document.querySelector(`[data-status="${id}"][data-grupo="${grupo}"]`);if(!confirm("Remover esta imagem?"))return;botao.disabled=true;try{const caminho=configuracoes[grupo]?.[id]?.caminho||`biblioteca/${grupo === "atividades" ? "medalhas-atividades" : "conquistas"}/${id}.png`;await deleteObject(ref(storage,caminho)).catch(()=>{});if(configuracoes[grupo]) delete configuracoes[grupo][id];await setDoc(configRef,{[grupo]:configuracoes[grupo]||{}},{merge:true});render()}catch(e){status.textContent="Não foi possível remover.";status.className="status err"}finally{botao.disabled=false}}
 carregar();
 </script>
 </body></html>
