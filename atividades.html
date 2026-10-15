@@ -566,15 +566,18 @@
     }
 
     try {
-      const [progresso, configSnap] = await Promise.all([
+      const [resultadoProgresso, resultadoConfig] = await Promise.allSettled([
         carregarProgressoJornada(),
         getDoc(doc(db, "configuracoes", "conquistas"))
       ]);
-      aplicarJornada(progresso, configSnap.exists() ? configSnap.data().atividades || {} : {});
+      const progresso = resultadoProgresso.status === "fulfilled" ? resultadoProgresso.value : {};
+      const configSnap = resultadoConfig.status === "fulfilled" ? resultadoConfig.value : null;
+      const medalhas = configSnap?.exists() ? configSnap.data().atividades || {} : {};
+      aplicarJornada(progresso, medalhas);
     } catch (erro) {
       console.error("Não foi possível carregar a jornada de atividades", erro);
-      // Em caso de falha de leitura, não bloqueia o acesso nem impede o uso do site.
-      cards.forEach((card) => card.classList.add("jornada-offline"));
+      // Mesmo sem dados remotos, mantém os cards com medalha bloqueada e progresso zerado.
+      aplicarJornada({}, {});
     }
   </script>
   <script src="loader.js"></script>
