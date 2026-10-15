@@ -565,20 +565,19 @@
       }
     }
 
-    try {
-      const [resultadoProgresso, resultadoConfig] = await Promise.allSettled([
+    aplicarJornada({}, {});
+
+    Promise.allSettled([
         carregarProgressoJornada(),
         getDoc(doc(db, "configuracoes", "conquistas"))
-      ]);
+      ]).then(([resultadoProgresso, resultadoConfig]) => {
       const progresso = resultadoProgresso.status === "fulfilled" ? resultadoProgresso.value : {};
       const configSnap = resultadoConfig.status === "fulfilled" ? resultadoConfig.value : null;
       const medalhas = configSnap?.exists() ? configSnap.data().atividades || {} : {};
       aplicarJornada(progresso, medalhas);
-    } catch (erro) {
+      }).catch((erro) => {
       console.error("Não foi possível carregar a jornada de atividades", erro);
-      // Mesmo sem dados remotos, mantém os cards com medalha bloqueada e progresso zerado.
-      aplicarJornada({}, {});
-    }
+      });
   </script>
   <script src="loader.js"></script>
   <script type="module" src="navegacao.js"></script>
