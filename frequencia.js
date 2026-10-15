@@ -198,6 +198,7 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano, 
       mes: mesNumero,
       alunoId: aluno.id,
       nomeAluno: aluno.nome,
+      nomesAlternativos: aluno.nomesAnteriores || [],
       ...freq,
       eventos: eventosMes
     });

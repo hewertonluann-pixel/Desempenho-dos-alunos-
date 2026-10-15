@@ -200,6 +200,7 @@ export function abrirPopupFrequencia(info, destino) {
     "09":"Setembro","10":"Outubro","11":"Novembro","12":"Dezembro"
   };
   const alunoAtual = document.getElementById("nomeAluno")?.textContent || "";
+  const nomesValidos = new Set([info.nomeAluno, ...(info.nomesAlternativos || []), alunoAtual].filter(Boolean));
   const formatarData = data => {
     if (!data) return "--/--";
     const [, mes, dia] = data.split("-");
@@ -207,7 +208,9 @@ export function abrirPopupFrequencia(info, destino) {
   };
   const chamadas = (info.eventos || [])
     .map(evento => {
-      const registro = (evento.presencas || []).find(p => p.nome === alunoAtual);
+      const registro = (evento.presencas || []).find(p =>
+        (info.alunoId && p.alunoId === info.alunoId) || nomesValidos.has(p.nome)
+      );
       return registro ? {
         data: evento.data,
         status: normalizarStatusPresenca(registro.presenca)
