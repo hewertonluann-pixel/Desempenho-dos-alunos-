@@ -63,12 +63,30 @@ async function instrumentoDoPerfil() {
   return '';
 }
 
+function instrumentosIdentificados() {
+  const encontrados = new Map();
+  documentos.forEach(item => {
+    item.grupos.forEach(grupo => {
+      const nome = String(grupo?.nome || '').trim();
+      const tipo = String(grupo?.tipo || '').toLowerCase();
+      const paginas = Array.isArray(grupo?.paginas) ? grupo.paginas : [];
+      const desconhecido = tipo === 'desconhecido' || /^página\s+\d+\s*[—-]\s*revisar$/i.test(nome);
+      if (!nome || !paginas.length || tipo === 'grade' || normalizar(nome) === 'grade' || desconhecido) return;
+      const chave = normalizar(nome);
+      if (!encontrados.has(chave)) encontrados.set(chave, nome);
+    });
+  });
+  return [...encontrados.values()].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+
 function preencherInstrumentos(preferido = '') {
   const select = $('instrument-select');
-  select.innerHTML = '<option value="">Selecione um instrumento</option>' + INSTRUMENTOS.map(i => `<option value="${escapar(i)}">${escapar(i)}</option>`).join('');
-  const encontrado = INSTRUMENTOS.find(i => normalizar(i) === normalizar(preferido));
+  const disponiveis = instrumentosIdentificados();
+  select.innerHTML = '<option value="">Selecione um instrumento</option>' + disponiveis.map(i => `<option value="${escapar(i)}">${escapar(i)}</option>`).join('');
+  const encontrado = disponiveis.find(i => normalizar(i) === normalizar(preferido));
   instrumentoAtual = encontrado || '';
   select.value = instrumentoAtual;
+  if (!disponiveis.length) $('status').textContent = 'Nenhum instrumento foi identificado nas partituras disponíveis.';
 }
 
 function gruposDoDocumento(item) {
