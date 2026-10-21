@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#22d3ee">
+  <title>Partituras por instrumento - Orquestra Filhos de Asafe</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="loader.css">
+  <link rel="stylesheet" href="bottom-nav.css">
+  <link rel="stylesheet" href="instrumento.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div id="global-loader"><div class="spinner-container"><div class="spinner"></div><div id="emoji-container">🎼</div><div id="verse-container"><div id="verse-text"></div><div id="verse-reference"></div></div></div></div>
+
+  <header class="instrumento-header">
+    <a class="btn-back" href="biblioteca.html"><i class="fas fa-arrow-left"></i> Biblioteca</a>
+    <h1><i class="fas fa-music"></i> Partituras por instrumento</h1>
+  </header>
+
+  <main class="instrumento-container">
+    <section class="hero-card">
+      <div>
+        <p class="eyebrow">Biblioteca de partes</p>
+        <h2>Encontre suas partituras</h2>
+        <p class="muted">Escolha um instrumento para listar as partes disponíveis em Músicas e Hinos da Harpa.</p>
+      </div>
+      <div class="filters">
+        <label for="instrument-select">Instrumento</label>
+        <select id="instrument-select"><option value="">Carregando instrumentos...</option></select>
+        <label for="collection-select">Coleção</label>
+        <select id="collection-select">
+          <option value="all">Músicas e Hinos da Harpa</option>
+          <option value="Músicas">Músicas</option>
+          <option value="Hinos da Harpa">Hinos da Harpa</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="Ações das partituras">
+      <div>
+        <strong id="results-count">Carregando...</strong>
+        <span id="selection-count" class="muted"></span>
+      </div>
+      <div class="toolbar-actions">
+        <button id="select-all" class="btn-secondary" type="button"><i class="fas fa-check-double"></i> Selecionar todos</button>
+        <button id="clear-selection" class="btn-secondary" type="button"><i class="fas fa-eraser"></i> Limpar</button>
+        <button id="download-selected" class="btn-primary" type="button" disabled><i class="fas fa-file-zipper"></i> Baixar selecionadas</button>
+      </div>
+    </section>
+
+    <div id="progress" class="progress" hidden><div class="progress-bar"><span id="progress-fill"></span></div><span id="progress-text">Preparando...</span></div>
+    <div id="status" class="status" role="status"></div>
+    <section id="scores-list" class="scores-list" aria-live="polite"></section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="aluno.html" class="nav-item" data-page="home"><i class="fas fa-home nav-icon"></i><span class="nav-label">Home</span></a>
+    <a href="painel-social.html" class="nav-item" data-page="comunidade"><i class="fas fa-users nav-icon"></i><span class="nav-label">Comunidade</span></a>
+    <a href="biblioteca.html" class="nav-item active" data-page="biblioteca"><i class="fas fa-book nav-icon"></i><span class="nav-label">Biblioteca</span></a>
+    <a href="atividades.html" class="nav-item" data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i><span class="nav-label">Atividades</span></a>
+    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></a>
+  </nav>
+
+  <script src="loader.js"></script>
+  <script type="module" src="script_instrumento.js"></script>
+  <script type="module" src="navegacao.js"></script>
+  <script type="module" src="bottom-nav.js"></script>
+</body>
+</html>

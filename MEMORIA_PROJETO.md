@@ -125,7 +125,8 @@ O item Professor permanece condicionado ao perfil classificado. Ao criar uma nov
 | `exportar-chamada.js` | Exportação de chamadas | Pode usar PDF/planilha, dependendo da tela. |
 | `atividades.html` | Lista e execução de atividades | Complementada por `atividades-notas.html` e `atividades-armadura.html`. |
 | `painel-social.html` | Comunidade/feed social | Usa dados de notificações, conquistas e ações. |
-| `biblioteca.html` | Coleções e documentos da Biblioteca | Usa `script_biblioteca.js`. |
+| `biblioteca.html` | Coleções e documentos da Biblioteca | Usa `script_biblioteca.js`; inclui o atalho “Por instrumento”. |
+| `instrumento.html` | Filtro e download de partituras por instrumento | Usa `script_instrumento.js`; consulta `Músicas`, `Hinos da Harpa` e `biblioteca_rotulos`. |
 | `partes.html` | Visualização e separação de páginas de PDF | Usa `script_partes.js`. |
 | `script_biblioteca.js` | Upload, busca, coleções, miniaturas e downloads | Usa Firestore e Firebase Storage. |
 | `script_partes.js` | PDF.js, reconhecimento de instrumentos e sub-PDFs | Possui regras de versão e reprocessamento. |
