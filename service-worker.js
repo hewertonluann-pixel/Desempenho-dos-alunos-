@@ -1,4 +1,4 @@
-const CACHE_NAME = "painel-orquestra-cache-v51";
+const CACHE_NAME = "painel-orquestra-cache-v52";
 const APP_SCOPE = self.registration.scope;
 
 const arquivosEssenciais = [
@@ -16,6 +16,9 @@ const arquivosEssenciais = [
   "logo-fa.jpeg",
   "aluno.css",
   "professor.css"
+  ,"cobertura_musicas.html"
+  ,"cobertura_musicas.css"
+  ,"cobertura_musicas.js"
 ];
 
 function urlDoApp(caminho) {
