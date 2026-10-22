@@ -10,6 +10,7 @@ const CACHE_STORES = { documentos: 'documentos', configuracoes: 'configuracoes',
 const CONFIGURACOES_PADRAO = [
   { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete', 'Clarinete 1', 'Clarinete I'], ativo: true, ordem: 20 },
   { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone', 'Trombone 1', 'Trombone I', 'Trombone 01'], ativo: true, ordem: 40 },
+  { key: 'trompete', nomeExibicao: 'Trompete', aliases: ['Trompete', 'Trumpet', 'Cornet'], ativo: true, ordem: 45 },
   { key: 'violino', nomeExibicao: 'Violino', aliases: ['Violino', 'Violino 1', 'Violino I'], ativo: true, ordem: 80 }
 ];
 let pdfLib = null;
