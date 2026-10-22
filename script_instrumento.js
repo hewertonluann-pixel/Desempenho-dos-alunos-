@@ -162,12 +162,24 @@ function grupoValido(grupo) {
 }
 function instrumentosIdentificados() {
   const encontrados = new Map();
-  documentos.forEach(item => item.grupos.filter(grupoValido).forEach(grupo => {
-    const agrupado = agrupamentoParaNome(String(grupo.nome).trim());
-    if (!encontrados.has(agrupado.key)) encontrados.set(agrupado.key, { ...agrupado, grupos: 0, paginas: 0 });
-    const itemInstrumento = encontrados.get(agrupado.key);
-    itemInstrumento.grupos += 1; itemInstrumento.paginas += grupo.paginas.length;
-  }));
+  documentos.forEach(item => {
+    const gruposDoDocumento = item.grupos.filter(grupoValido);
+    const instrumentosDoDocumento = new Map();
+    gruposDoDocumento.forEach(grupo => {
+      const agrupado = agrupamentoParaNome(String(grupo.nome).trim());
+      if (!instrumentosDoDocumento.has(agrupado.key)) instrumentosDoDocumento.set(agrupado.key, { ...agrupado, grupos: 0, paginas: 0 });
+      const instrumentoDoDocumento = instrumentosDoDocumento.get(agrupado.key);
+      instrumentoDoDocumento.grupos += 1;
+      instrumentoDoDocumento.paginas += grupo.paginas.length;
+    });
+    instrumentosDoDocumento.forEach(dados => {
+      if (!encontrados.has(dados.key)) encontrados.set(dados.key, { ...dados, grupos: 0, paginas: 0, partituras: 0 });
+      const instrumento = encontrados.get(dados.key);
+      instrumento.partituras += 1;
+      instrumento.grupos += dados.grupos;
+      instrumento.paginas += dados.paginas;
+    });
+  });
   return [...encontrados.values()].sort((a, b) => (a.config?.ordem ?? 9999) - (b.config?.ordem ?? 9999) || a.nome.localeCompare(b.nome, 'pt-BR'));
 }
 function resolverPreferido(preferido, disponiveis) {
@@ -188,7 +200,7 @@ async function instrumentoDoPerfil() {
 }
 function preencherInstrumentos(preferido = '') {
   const select = $('instrument-select'); const disponiveis = instrumentosIdentificados();
-  select.innerHTML = '<option value="">Selecione um instrumento</option>' + disponiveis.map(i => `<option value="${escapar(i.key)}">${escapar(i.nome)} (${i.grupos} ${i.grupos === 1 ? 'grupo' : 'grupos'})</option>`).join('');
+  select.innerHTML = '<option value="">Selecione um instrumento</option>' + disponiveis.map(i => `<option value="${escapar(i.key)}">${escapar(i.nome)} (${i.partituras} ${i.partituras === 1 ? 'partitura' : 'partituras'})</option>`).join('');
   const encontrado = resolverPreferido(preferido, disponiveis);
   instrumentoAtualKey = encontrado?.key || ''; instrumentoAtualNome = encontrado?.nome || ''; select.value = instrumentoAtualKey; select.disabled = false;
   $('results-count').textContent = `${disponiveis.length} instrumento${disponiveis.length === 1 ? '' : 's'} encontrado${disponiveis.length === 1 ? '' : 's'}`;
