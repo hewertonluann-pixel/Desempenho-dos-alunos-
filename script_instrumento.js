@@ -1,12 +1,15 @@
 import { db } from './firebase-config.js';
-import { collection, getDocs, getDoc, doc, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+import { collection, getDocs, getDoc, doc, setDoc, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 
+const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 const JSZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
 const COLECOES = ['Músicas', 'Hinos da Harpa'];
 const CACHE_DB = 'filhos-asafe-instrumentos-cache';
 const CACHE_VERSION = 1;
 const CACHE_STORES = { documentos: 'documentos', configuracoes: 'configuracoes', meta: 'meta' };
+const ALGORITMO_RECONHECIMENTO_VERSAO = 3;
 const CONFIGURACOES_PADRAO = [
   { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete', 'Clarinete 1', 'Clarinete I'], ativo: true, ordem: 20 },
   { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone', 'Trombone 1', 'Trombone I', 'Trombone 01'], ativo: true, ordem: 40 },
@@ -14,6 +17,7 @@ const CONFIGURACOES_PADRAO = [
   { key: 'violino', nomeExibicao: 'Violino', aliases: ['Violino', 'Violino 1', 'Violino I'], ativo: true, ordem: 80 }
 ];
 let pdfLib = null;
+let pdfJs = null;
 let JSZip = null;
 let documentos = [];
 let configuracoes = [];
@@ -103,6 +107,67 @@ function atualizarInfoCache(meta, origem) {
   $('cache-info').textContent = `${origem === 'cache' ? 'Carregados do dispositivo' : 'Dados atualizados'} em ${formatarData(meta.atualizadoEm)} · ${meta.quantidadeDocumentos || documentos.length} documentos`;
 }
 
+const CATALOGO_REPROCESSAMENTO = [
+  ['Violino I', ['violino i', 'violino 1', 'violin i', 'violin 1']], ['Violino II', ['violino ii', 'violino 2', 'violin ii', 'violin 2']], ['Violino', ['violino', 'violin']], ['Viola', ['viola']], ['Violoncelo', ['violoncelo', 'violoncello', 'cello']], ['Contrabaixo', ['contrabaixo', 'contrabasso', 'contrabass', 'double bass']], ['Flauta', ['flauta transversal', 'flauta', 'flute']], ['Escaleta', ['escaleta', 'melodica', 'melódica', 'melodion']], ['Oboé', ['oboé', 'oboe']], ['Clarinete em Sib', ['clarinet in bb', 'clarinet in b flat', 'clarinete em sib', 'clarinete sib', 'clarinete si bemol']], ['Clarinete em Dó', ['clarinet in c', 'clarinete em do', 'clarinete dó', 'clarinete c']], ['Clarinete', ['clarinete', 'clarinet']], ['Fagote', ['fagote', 'bassoon']], ['Saxofone Soprano', ['saxofone soprano', 'sax soprano', 'soprano sax', 'soprano saxophone', 'saxophone soprano']], ['Saxofone Alto', ['saxofone alto', 'alto saxofone', 'saxophone alto', 'alto saxophone', 'sax alto', 'alto sax']], ['Saxofone Tenor', ['saxofone tenor', 'tenor saxophone', 'saxophone tenor', 'sax tenor', 'tenor sax']], ['Saxofone Barítono', ['saxofone barítono', 'saxofone baritono', 'baritone saxophone', 'saxophone baritone', 'sax baritono']], ['Saxofone', ['saxofone', 'saxophone']], ['Trompete', ['trompete', 'trumpet', 'cornet']], ['Trompa', ['trompa', 'french horn']], ['Trombone 01', ['trombone 01', 'trombone 1']], ['Trombone 02', ['trombone 02', 'trombone 2']], ['Trombone Base', ['trombone base', 'bass trombone', 'trombone baixo']], ['Trombone', ['trombone']], ['Tuba', ['tuba']], ['Bombardino', ['bombardino', 'euphonium']], ['Percussão', ['percussão', 'percussao', 'bateria', 'tímpano', 'timpani']], ['Piano', ['piano', 'teclado', 'keyboard']], ['Órgão', ['órgão', 'orgao', 'organ']]
+].map(([nome, aliases]) => ({ nome, aliases }));
+const TERMOS_GRADE_REPROCESSAMENTO = ['grade', 'partitura geral', 'full score', 'orchestral score', 'conductor score'];
+
+function migrarPaginasAntigas(paginas) {
+  const mapa = new Map();
+  Object.entries(paginas || {}).forEach(([numero, nome]) => { const chave = String(nome || '').trim() || `Página ${numero} — revisar`; if (!mapa.has(chave)) mapa.set(chave, []); mapa.get(chave).push(Number(numero)); });
+  return [...mapa.entries()].map(([nome, paginasDoGrupo]) => ({ nome, tipo: 'instrumento', paginas: paginasDoGrupo.sort((a, b) => a - b), instrumentosDetectados: [nome], confianca: 0.5, origem: 'migrado', fonte: 'formato-antigo' }));
+}
+function localizarInstrumentoReprocessamento(texto) {
+  const normalizado = ` ${normalizar(texto)} `;
+  const encontrados = [];
+  CATALOGO_REPROCESSAMENTO.forEach(item => item.aliases.slice().sort((a, b) => normalizar(b).length - normalizar(a).length).some(alias => {
+    const chave = normalizar(alias); if (!normalizado.includes(` ${chave} `)) return false; encontrados.push({ nome: item.nome, alias: chave }); return true;
+  }));
+  return encontrados.filter((item, _, lista) => !lista.some(outro => outro !== item && outro.alias.length > item.alias.length && ` ${outro.alias} `.includes(` ${item.alias} `)));
+}
+function contemGradeReprocessamento(texto) { const normalizado = ` ${normalizar(texto)} `; return TERMOS_GRADE_REPROCESSAMENTO.some(termo => normalizado.includes(` ${normalizar(termo)} `)); }
+async function carregarPdfJs() {
+  if (pdfJs) return pdfJs;
+  await carregarScript(PDFJS_CDN);
+  pdfJs = window.pdfjsLib; pdfJs.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
+  return pdfJs;
+}
+async function analisarPdfParaGrupos(item) {
+  if (!item.url) throw new Error('PDF sem URL');
+  const resposta = await fetch(item.url); if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+  const biblioteca = await carregarPdfJs();
+  const pdf = await biblioteca.getDocument({ data: await resposta.arrayBuffer() }).promise;
+  const grupos = []; let grupoAtual = null;
+  for (let pagina = 1; pagina <= pdf.numPages; pagina++) {
+    const page = await pdf.getPage(pagina); const content = await page.getTextContent();
+    const itens = (content.items || []).filter(i => String(i.str || '').trim()).map(i => ({ texto: i.str, x: Number(i.transform?.[4] || 0), y: Number(i.transform?.[5] || 0) })).sort((a, b) => b.y - a.y || a.x - b.x);
+    const textoPagina = itens.map(i => i.texto).join(' '); const yMax = itens.length ? Math.max(...itens.map(i => i.y)) : 0; const textoCabecalho = itens.filter(i => i.y >= yMax - 180).map(i => i.texto).join(' ');
+    const cabecalho = localizarInstrumentoReprocessamento(textoCabecalho); const paginaInteira = localizarInstrumentoReprocessamento(textoPagina); const deteccoes = cabecalho.length ? cabecalho : paginaInteira; const nome = contemGradeReprocessamento(textoCabecalho) || cabecalho.length >= 2 || paginaInteira.length >= 2 ? 'GRADE' : deteccoes[0]?.nome;
+    const tipo = nome === 'GRADE' ? 'grade' : nome ? 'instrumento' : 'desconhecido';
+    const fonteCabecalho = Boolean(cabecalho.length || contemGradeReprocessamento(textoCabecalho));
+    if (fonteCabecalho && grupoAtual && grupoAtual.nome !== nome) { grupoAtual = { nome, tipo, paginas: [pagina], instrumentosDetectados: deteccoes.map(d => d.nome), confianca: tipo === 'grade' ? 0.9 : 0.85, origem: 'reprocessado', fonte: 'cabecalho' }; grupos.push(grupoAtual); }
+    else if (grupoAtual) grupoAtual.paginas.push(pagina);
+    else { grupoAtual = { nome: nome || `Página ${pagina} — revisar`, tipo, paginas: [pagina], instrumentosDetectados: deteccoes.map(d => d.nome), confianca: nome ? 0.7 : 0, origem: 'reprocessado', fonte: fonteCabecalho ? 'cabecalho' : 'pagina' }; grupos.push(grupoAtual); }
+  }
+  return grupos;
+}
+async function reprocessarPendentes(itens) {
+  const pendentes = itens.filter(item => !item.grupos.length || item.formatoAntigo);
+  if (!pendentes.length) return { processados: 0, falhas: [] };
+  setLoading('Processando partituras pendentes...', `Analisando 0 de ${pendentes.length} PDFs...`);
+  const falhas = []; let processados = 0;
+  for (const item of pendentes) {
+    try {
+      setLoading('Processando partituras pendentes...', `Analisando ${processados + 1} de ${pendentes.length}: ${item.nome}`);
+      const grupos = item.formatoAntigo ? item.grupos : await analisarPdfParaGrupos(item);
+      item.grupos = grupos; item.formatoAntigo = false; item.algoritmoVersao = ALGORITMO_RECONHECIMENTO_VERSAO;
+      await setDoc(doc(db, 'biblioteca_rotulos', `${item.colId}_${item.id}`), { grupos, algoritmoVersao: ALGORITMO_RECONHECIMENTO_VERSAO, atualizadoEm: Timestamp.fromDate(new Date()), migradoAutomaticamente: true }, { merge: true });
+      processados++;
+    } catch (error) { console.error(`Falha ao processar ${item.nome}`, error); falhas.push({ nome: item.nome, erro: error.message }); }
+  }
+  return { processados, falhas };
+}
+
 async function buscarDoFirestore() {
   setLoading('Buscando instrumentos identificados...', 'Carregando nomes dos rótulos das partituras...');
   const colSnap = await getDocs(collection(db, 'biblioteca_colecoes'));
@@ -112,12 +177,12 @@ async function buscarDoFirestore() {
     setLoading('Buscando instrumentos identificados...', `Lendo documentos da coleção ${col.nome}...`);
     const docsSnap = await getDocs(collection(db, 'biblioteca_colecoes', col.id, 'documentos'));
     const itens = await Promise.all(docsSnap.docs.map(async d => {
-      const data = d.data(); let grupos = [];
+      const data = d.data(); let grupos = []; let formatoAntigo = false; let algoritmoVersao = 0;
       try {
         const rotulo = await getDoc(doc(db, 'biblioteca_rotulos', `${col.id}_${d.id}`));
-        if (rotulo.exists()) { const r = rotulo.data(); grupos = Array.isArray(r.grupos) ? r.grupos : []; }
+        if (rotulo.exists()) { const r = rotulo.data(); algoritmoVersao = Number(r.algoritmoVersao || 0); if (Array.isArray(r.grupos) && r.grupos.length) grupos = r.grupos; else if (r.paginas && typeof r.paginas === 'object') { grupos = migrarPaginasAntigas(r.paginas); formatoAntigo = true; } }
       } catch (error) { console.warn('Não foi possível carregar o rótulo de', data.nome, error); }
-      return { id: d.id, colId: col.id, colecao: col.nome, nome: data.nome || 'Sem nome', url: data.url, grupos };
+      return { id: d.id, colId: col.id, colecao: col.nome, nome: data.nome || 'Sem nome', url: data.url, grupos, formatoAntigo, algoritmoVersao };
     }));
     carregados.push(...itens);
   }
@@ -127,10 +192,12 @@ async function buscarDoFirestore() {
     const configSnap = await getDocs(collection(db, 'biblioteca_instrumentos'));
     configs = configSnap.docs.map(d => ({ id: d.id, key: d.id, ...d.data() })).filter(c => c.ativo !== false);
   } catch (error) { console.warn('Configuração de agrupamentos indisponível; usando nomes originais.', error); }
+  const resultadoReprocessamento = await reprocessarPendentes(carregados);
+  if (resultadoReprocessamento.falhas.length) setStatus(`${resultadoReprocessamento.processados} partituras processadas; ${resultadoReprocessamento.falhas.length} precisam de revisão.`, true);
   const ordenados = carregados.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
   const configuracoesEfetivas = aplicarConfiguracoesPadrao(configs);
   await salvarCache(ordenados, configuracoesEfetivas);
-  return { documentos: ordenados, configuracoes: configuracoesEfetivas, meta: { atualizadoEm: new Date().toISOString(), quantidadeDocumentos: ordenados.length }, origem: 'servidor' };
+  return { documentos: ordenados, configuracoes: configuracoesEfetivas, meta: { atualizadoEm: new Date().toISOString(), quantidadeDocumentos: ordenados.length }, origem: 'servidor', reprocessamento: resultadoReprocessamento };
 }
 
 async function carregarDados(force = false) {
@@ -139,7 +206,10 @@ async function carregarDados(force = false) {
       setLoading('Carregando instrumentos...', 'Lendo os rótulos salvos neste dispositivo...');
       const cache = await lerCache();
       if (cache.meta?.schema === CACHE_VERSION && cache.documentos?.length) {
-        return { documentos: cache.documentos, configuracoes: aplicarConfiguracoesPadrao(cache.configuracoes || []), meta: cache.meta, origem: 'cache' };
+        const documentosCache = cache.documentos;
+        const resultadoReprocessamento = await reprocessarPendentes(documentosCache);
+        if (resultadoReprocessamento.processados) await salvarCache(documentosCache, aplicarConfiguracoesPadrao(cache.configuracoes || []));
+        return { documentos: documentosCache, configuracoes: aplicarConfiguracoesPadrao(cache.configuracoes || []), meta: cache.meta, origem: 'cache', reprocessamento: resultadoReprocessamento };
       }
     } catch (error) { console.warn('Cache indisponível; buscando no servidor.', error); }
   }
@@ -248,6 +318,6 @@ async function init() {
   setControls(true); $('scores-list').innerHTML = '';
   $('instrument-select').addEventListener('change', e => { const item = instrumentosIdentificados().find(i => i.key === e.target.value); instrumentoAtualKey = item?.key || ''; instrumentoAtualNome = item?.nome || ''; selecionados.clear(); renderizar(); });
   $('collection-select').addEventListener('change', renderizar); $('select-all').addEventListener('click', selecionarTodos); $('clear-selection').addEventListener('click', limparSelecao); $('download-selected').addEventListener('click', baixarSelecionadas); $('refresh-labels').addEventListener('click', atualizarRotulos);
-  try { const dados = await carregarDados(false); documentos = dados.documentos; configuracoes = dados.configuracoes; const perfil = await instrumentoDoPerfil(); preencherInstrumentos(queryInstrumento() || perfil); atualizarInfoCache(dados.meta, dados.origem); carregamentoConcluido = true; setLoading('', '', false); setControls(false); renderizar(); if (dados.origem === 'cache') setStatus('Rótulos carregados do dispositivo. Use “Atualizar rótulos” para verificar alterações.'); } catch (error) { console.error(error); setLoading('Não foi possível carregar os instrumentos.', 'Verifique sua conexão e tente novamente.'); $('loading-card').hidden = false; setStatus('Não foi possível carregar os rótulos. Tente novamente.', true); $('refresh-labels').innerHTML = '<i class="fas fa-rotate"></i> Tentar novamente'; $('refresh-labels').disabled = false; } finally { atualizarContador(); }
+  try { const dados = await carregarDados(false); documentos = dados.documentos; configuracoes = dados.configuracoes; const perfil = await instrumentoDoPerfil(); preencherInstrumentos(queryInstrumento() || perfil); atualizarInfoCache(dados.meta, dados.origem); carregamentoConcluido = true; setLoading('', '', false); setControls(false); renderizar(); if (dados.reprocessamento?.processados || dados.reprocessamento?.falhas?.length) setStatus(`${dados.reprocessamento.processados} partituras processadas automaticamente${dados.reprocessamento.falhas.length ? `; ${dados.reprocessamento.falhas.length} precisam de revisão.` : '.'}`, Boolean(dados.reprocessamento.falhas.length)); else if (dados.origem === 'cache') setStatus('Rótulos carregados do dispositivo. Use “Atualizar rótulos” para verificar alterações.'); } catch (error) { console.error(error); setLoading('Não foi possível carregar os instrumentos.', 'Verifique sua conexão e tente novamente.'); $('loading-card').hidden = false; setStatus('Não foi possível carregar os rótulos. Tente novamente.', true); $('refresh-labels').innerHTML = '<i class="fas fa-rotate"></i> Tentar novamente'; $('refresh-labels').disabled = false; } finally { atualizarContador(); }
 }
 document.addEventListener('DOMContentLoaded', init);
