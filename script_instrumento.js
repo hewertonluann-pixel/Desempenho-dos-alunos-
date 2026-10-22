@@ -10,7 +10,7 @@ const CACHE_VERSION = 1;
 const CACHE_STORES = { documentos: 'documentos', configuracoes: 'configuracoes', meta: 'meta' };
 const ALGORITMO_RECONHECIMENTO_VERSAO = 3;
 const CONFIGURACOES_PADRAO = [
-  { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete', 'Clarinete 1', 'Clarinete I'], ativo: true, ordem: 20 },
+  { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete', 'Clarinete 1', 'Clarinete I', 'Clarinete em Sib', 'Clarinete Sib', 'Clarinete Si Bemol', 'Clarinet in Bb', 'Clarinet in B Flat'], ativo: true, ordem: 20 },
   { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone', 'Trombone 1', 'Trombone I', 'Trombone 01'], ativo: true, ordem: 40 },
   { key: 'trompete', nomeExibicao: 'Trompete', aliases: ['Trompete', 'Trumpet', 'Cornet'], ativo: true, ordem: 45 },
   { key: 'violino', nomeExibicao: 'Violino', aliases: ['Violino', 'Violino 1', 'Violino I'], ativo: true, ordem: 80 }
@@ -96,7 +96,7 @@ function salvarCache(novosDocumentos, novasConfiguracoes) {
 }
 function aplicarConfiguracoesPadrao(remotas = []) {
   const mapa = new Map(CONFIGURACOES_PADRAO.map(config => [config.key, config]));
-  remotas.forEach(config => { const key = config.key || config.id || normalizar(config.nomeExibicao); mapa.set(key, { ...config, key }); });
+  remotas.forEach(config => { const key = config.key || config.id || normalizar(config.nomeExibicao); const padrao = mapa.get(key); mapa.set(key, { ...padrao, ...config, key, aliases: [...new Set([...(padrao?.aliases || []), ...(config.aliases || [])])] }); });
   return [...mapa.values()].filter(config => config.ativo !== false);
 }
 
