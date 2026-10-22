@@ -29,7 +29,7 @@
       </div>
       <div class="filters">
         <label for="instrument-select">Instrumento</label>
-        <select id="instrument-select"><option value="">Carregando instrumentos...</option></select>
+        <select id="instrument-select" disabled><option value="">Carregando instrumentos...</option></select>
         <label for="collection-select">Coleção</label>
         <select id="collection-select">
           <option value="all">Músicas e Hinos da Harpa</option>
@@ -43,16 +43,22 @@
       <div>
         <strong id="results-count">Carregando...</strong>
         <span id="selection-count" class="muted"></span>
+        <small id="cache-info" class="cache-info"></small>
       </div>
       <div class="toolbar-actions">
+        <button id="refresh-labels" class="btn-secondary" type="button" disabled><i class="fas fa-rotate"></i> Atualizar rótulos</button>
         <button id="select-all" class="btn-secondary" type="button"><i class="fas fa-check-double"></i> Selecionar todos</button>
         <button id="clear-selection" class="btn-secondary" type="button"><i class="fas fa-eraser"></i> Limpar</button>
         <button id="download-selected" class="btn-primary" type="button" disabled><i class="fas fa-file-zipper"></i> Baixar selecionadas</button>
       </div>
     </section>
 
+    <div id="loading-card" class="loading-card" role="status" aria-live="polite">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <div><strong id="loading-title">Buscando instrumentos identificados...</strong><span id="loading-message">Carregando nomes dos rótulos das partituras...</span></div>
+    </div>
     <div id="progress" class="progress" hidden><div class="progress-bar"><span id="progress-fill"></span></div><span id="progress-text">Preparando...</span></div>
-    <div id="status" class="status" role="status"></div>
+    <div id="status" class="status" role="status" aria-live="polite"></div>
     <section id="scores-list" class="scores-list" aria-live="polite"></section>
   </main>
 
