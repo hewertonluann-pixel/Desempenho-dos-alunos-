@@ -1,4 +1,4 @@
-const CACHE_NAME = "painel-orquestra-cache-v54";
+const CACHE_NAME = "painel-orquestra-cache-v55";
 const APP_SCOPE = self.registration.scope;
 
 const arquivosEssenciais = [
