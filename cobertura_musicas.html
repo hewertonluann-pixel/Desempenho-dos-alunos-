@@ -24,7 +24,16 @@
   </header>
 
   <main class="page-content">
-    <section class="notice" role="note"><strong>Regra de cobertura:</strong> uma música é completa quando possui pelo menos uma página para cada instrumento ativo encontrado no catálogo do sistema.</section>
+    <section class="notice" role="note"><strong>Regra de cobertura:</strong> uma música é completa quando possui pelo menos uma página para cada instrumento selecionado abaixo. A configuração é compartilhada com a página de instrumentos.</section>
+
+    <section class="instrument-settings" aria-labelledby="instrument-settings-title">
+      <div class="settings-heading">
+        <div><p class="eyebrow">CONFIGURAÇÃO DA ANÁLISE</p><h2 id="instrument-settings-title">Instrumentos considerados</h2><p>Ative somente os instrumentos que devem existir em todas as partituras. Os nomes foram agrupados pelos aliases cadastrados.</p></div>
+        <div class="settings-actions"><button id="select-all-instruments" class="btn small secondary" type="button">Selecionar todos</button><button id="clear-instruments" class="btn small secondary" type="button">Desmarcar todos</button><button id="save-instruments" class="btn small primary" type="button" disabled>Salvar configuração</button></div>
+      </div>
+      <div id="instrument-settings-status" class="settings-status" role="status" aria-live="polite">Carregando instrumentos detectados...</div>
+      <div id="instrument-toggles" class="instrument-toggles" aria-label="Instrumentos detectados"></div>
+    </section>
 
     <section class="summary-grid" aria-label="Resumo da cobertura">
       <article class="summary-card"><span class="summary-icon">♫</span><div><strong id="summary-songs">—</strong><span>Músicas verificadas</span></div></article>

@@ -97,7 +97,7 @@ function salvarCache(novosDocumentos, novasConfiguracoes) {
 function aplicarConfiguracoesPadrao(remotas = []) {
   const mapa = new Map(CONFIGURACOES_PADRAO.map(config => [config.key, config]));
   remotas.forEach(config => { const key = config.key || config.id || normalizar(config.nomeExibicao); const padrao = mapa.get(key); mapa.set(key, { ...padrao, ...config, key, aliases: [...new Set([...(padrao?.aliases || []), ...(config.aliases || [])])] }); });
-  return [...mapa.values()].filter(config => config.ativo !== false);
+  return [...mapa.values()];
 }
 
 function atualizarInfoCache(meta, origem) {
@@ -188,7 +188,7 @@ async function buscarDoFirestore() {
   let configs = [];
   try {
     const configSnap = await getDocs(collection(db, 'biblioteca_instrumentos'));
-    configs = configSnap.docs.map(d => ({ id: d.id, key: d.id, ...d.data() })).filter(c => c.ativo !== false);
+    configs = configSnap.docs.map(d => ({ id: d.id, key: d.id, ...d.data() }));
   } catch (error) { console.warn('Configuração de agrupamentos indisponível; usando nomes originais.', error); }
   const resultadoReprocessamento = await reprocessarPendentes(carregados);
   if (resultadoReprocessamento.falhas.length) setStatus(`${resultadoReprocessamento.processados} partituras processadas; ${resultadoReprocessamento.falhas.length} precisam de revisão.`, true);
@@ -205,9 +205,15 @@ async function carregarDados(force = false) {
       const cache = await lerCache();
       if (cache.meta?.schema === CACHE_VERSION && cache.documentos?.length) {
         const documentosCache = cache.documentos;
+        let configuracoesCache = aplicarConfiguracoesPadrao(cache.configuracoes || []);
+        try {
+          const configSnap = await getDocs(collection(db, 'biblioteca_instrumentos'));
+          const remotas = configSnap.docs.map(d => ({ id: d.id, key: d.id, ...d.data() }));
+          configuracoesCache = aplicarConfiguracoesPadrao(remotas);
+        } catch (error) { console.warn('Não foi possível atualizar a configuração de instrumentos; usando cache.', error); }
         const resultadoReprocessamento = await reprocessarPendentes(documentosCache);
-        if (resultadoReprocessamento.processados) await salvarCache(documentosCache, aplicarConfiguracoesPadrao(cache.configuracoes || []));
-        return { documentos: documentosCache, configuracoes: aplicarConfiguracoesPadrao(cache.configuracoes || []), meta: cache.meta, origem: 'cache', reprocessamento: resultadoReprocessamento };
+        if (resultadoReprocessamento.processados) await salvarCache(documentosCache, configuracoesCache);
+        return { documentos: documentosCache, configuracoes: configuracoesCache, meta: cache.meta, origem: 'cache', reprocessamento: resultadoReprocessamento };
       }
     } catch (error) { console.warn('Cache indisponível; buscando no servidor.', error); }
   }
@@ -235,6 +241,7 @@ function instrumentosIdentificados() {
     const instrumentosDoDocumento = new Map();
     gruposDoDocumento.forEach(grupo => {
       const agrupado = agrupamentoParaNome(String(grupo.nome).trim());
+      if (agrupado.config?.ativo === false) return;
       if (!instrumentosDoDocumento.has(agrupado.key)) instrumentosDoDocumento.set(agrupado.key, { ...agrupado, grupos: 0, paginas: 0 });
       const instrumentoDoDocumento = instrumentosDoDocumento.get(agrupado.key);
       instrumentoDoDocumento.grupos += 1;
