@@ -20,6 +20,8 @@
     <div class="header-actions">
       <button id="refresh-btn" class="btn secondary" type="button"><i>↻</i> Atualizar</button>
       <button id="export-btn" class="btn primary" type="button" disabled><i>⇩</i> Exportar CSV</button>
+      <button id="export-pdf-btn" class="btn primary" type="button" disabled><i>▣</i> Baixar PDF</button>
+      <button id="export-png-btn" class="btn secondary" type="button" disabled><i>▧</i> Baixar PNG</button>
     </div>
   </header>
 
@@ -61,14 +63,10 @@
     <section id="music-list" class="music-list" aria-live="polite" hidden></section>
     <div id="empty-state" class="empty-state" hidden><span>♫</span><strong>Nenhuma música corresponde aos filtros.</strong><p>Tente remover algum filtro ou atualizar os rótulos.</p></div>
 
-    <section class="missing-section" id="missing-section" hidden>
-      <div class="section-heading"><div><p class="eyebrow">LISTA DE TRABALHO</p><h2>Pendências encontradas</h2></div><strong id="missing-count">0</strong></div>
-      <p class="section-help">Cada linha representa uma combinação música + instrumento que ainda não possui páginas identificadas.</p>
-      <div id="missing-list" class="missing-list"></div>
-    </section>
   </main>
 
   <script src="loader.js"></script>
+  <script src="js/html2pdf.bundle.min.js"></script>
   <script type="module" src="cobertura_musicas.js"></script>
 </body>
 </html>
