@@ -68,20 +68,21 @@
         .header-section { text-align: center; margin-bottom: 30px; }
         .header-section p { color: var(--muted); font-size: 0.9rem; }
 
+        .library-search-row { display: flex; align-items: center; gap: 12px; max-width: 900px; margin: 20px auto 24px; }
         .instrumento-link {
-            display: flex; align-items: center; gap: 14px;
-            max-width: 720px; margin: 0 auto 24px; padding: 15px 18px;
+            display: flex; align-items: center; gap: 10px;
+            flex: 0 0 auto; max-width: none; margin: 0; padding: 10px 13px;
             color: var(--ink); text-decoration: none; text-align: left;
             background: linear-gradient(135deg, rgba(14,165,233,.2), rgba(11,18,32,.92));
-            border: 1px solid var(--azul); border-radius: 14px;
+            border: 1px solid var(--azul); border-radius: 10px;
             transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
         }
         .instrumento-link:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14,165,233,.2); background: rgba(14,165,233,.25); }
-        .instrumento-link i { color: var(--azul); font-size: 1.6rem; flex-shrink: 0; }
-        .instrumento-link strong { display: block; color: var(--azul); font-size: 1rem; margin-bottom: 3px; }
+        .instrumento-link i { color: var(--azul); font-size: 1.05rem; flex-shrink: 0; }
+        .instrumento-link strong { display: block; color: var(--azul); font-size: .86rem; white-space: nowrap; }
         .instrumento-link .fa-chevron-right { margin-left: auto; font-size: .9rem; }
 
-        .global-search-container { max-width: 600px; margin: 20px auto; }
+        .global-search-container { flex: 1 1 auto; max-width: none; min-width: 0; margin: 0; }
 
         .search-box {
             position: relative;
@@ -409,6 +410,11 @@
             .documents-list .doc-buttons { display: flex; gap: 15px; align-items: center; flex-shrink: 0; }
         }
 
+        @media (max-width: 800px) {
+            .library-search-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .instrumento-link { justify-content: center; width: 100%; }
+            .global-search-container { width: 100%; }
+        }
         @media (max-width: 600px) {
             .collections-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
             .collection-card { padding: 14px 8px; border-radius: 12px; }
@@ -461,22 +467,21 @@
         <div id="collections-view">
             <div class="header-section">
                 <p>Selecione uma categoria para acessar os documentos</p>
-                <div class="global-search-container">
-                    <div class="search-box">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        <input type="text" id="global-search-input" placeholder="Pesquisar em todas as coleções...">
-                        <button id="clear-global-search" style="display: none;">&times;</button>
+                <div class="library-search-row">
+                    <div class="global-search-container">
+                        <div class="search-box">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input type="text" id="global-search-input" placeholder="Pesquisar em todas as coleções...">
+                            <button id="clear-global-search" style="display: none;">&times;</button>
+                        </div>
                     </div>
+                    <a class="instrumento-link" href="instrumento.html">
+                        <i class="fas fa-music"></i>
+                        <strong>Por instrumento</strong>
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
                 </div>
             </div>
-
-            <a class="instrumento-link" href="instrumento.html">
-                <i class="fas fa-music"></i>
-                <div>
-                    <strong>Por instrumento</strong>
-                </div>
-                <i class="fas fa-chevron-right" aria-hidden="true"></i>
-            </a>
 
             <!-- Resultados da Busca Global -->
             <div id="global-search-results" class="global-search-results" style="display: none;">
