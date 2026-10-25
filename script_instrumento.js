@@ -229,7 +229,7 @@ function normalizarVarianteInstrumento(valor = '') {
 function aliasesDaConfiguracao(config) {
   const aliases = [config.nomeExibicao, config.chaveCanonica, ...(Array.isArray(config.aliases) ? config.aliases : [])].filter(Boolean).map(normalizarVarianteInstrumento);
   const ehSouzafone = aliases.some(alias => alias === 'souzafone' || alias.startsWith('souzafone '));
-  if (ehSouzafone) aliases.push('souzafone', 'sousafone', 'souzafone sib', 'sousafone sib', 'souzafone in sib', 'sousafone in sib', 'souzafone em sib', 'sousafone em sib', 'sib', 'em sib', 'in sib');
+  if (ehSouzafone) aliases.push('souzafone', 'sousafone', 'souzafone sib', 'sousafone sib', 'souzafone in sib', 'sousafone in sib', 'souzafone em sib', 'sousafone em sib');
   return [...new Set(aliases)];
 }
 function agrupamentoParaNome(nome) {
