@@ -106,7 +106,7 @@ function atualizarInfoCache(meta, origem) {
 }
 
 const CATALOGO_REPROCESSAMENTO = [
-  ['Violino I', ['violino i', 'violino 1', 'violin i', 'violin 1']], ['Violino II', ['violino ii', 'violino 2', 'violin ii', 'violin 2']], ['Violino', ['violino', 'violin']], ['Viola', ['viola']], ['Violoncelo', ['violoncelo', 'violoncello', 'cello']], ['Contrabaixo', ['contrabaixo', 'contrabasso', 'contrabass', 'double bass']], ['Flauta', ['flauta transversal', 'flauta', 'flute']], ['Escaleta', ['escaleta', 'melodica', 'melódica', 'melodion']], ['Oboé', ['oboé', 'oboe']], ['Clarinete em Sib', ['clarinet in bb', 'clarinet in b flat', 'clarinete em sib', 'clarinete sib', 'clarinete si bemol']], ['Clarinete em Dó', ['clarinet in c', 'clarinete em do', 'clarinete dó', 'clarinete c']], ['Clarinete', ['clarinete', 'clarinet']], ['Fagote', ['fagote', 'bassoon']], ['Saxofone Soprano', ['saxofone soprano', 'sax soprano', 'soprano sax', 'soprano saxophone', 'saxophone soprano']], ['Saxofone Alto', ['saxofone alto', 'alto saxofone', 'saxophone alto', 'alto saxophone', 'sax alto', 'alto sax']], ['Saxofone Tenor', ['saxofone tenor', 'tenor saxophone', 'saxophone tenor', 'sax tenor', 'tenor sax']], ['Saxofone Barítono', ['saxofone barítono', 'saxofone baritono', 'baritone saxophone', 'saxophone baritone', 'sax baritono']], ['Saxofone', ['saxofone', 'saxophone']], ['Trompete', ['trompete', 'trumpet', 'cornet']], ['Trompa', ['trompa', 'french horn']], ['Trombone 01', ['trombone 01', 'trombone 1']], ['Trombone 02', ['trombone 02', 'trombone 2']], ['Trombone Base', ['trombone base', 'bass trombone', 'trombone baixo']], ['Trombone', ['trombone']], ['Tuba', ['tuba']], ['Souzafone', ['souzafone', 'sousafone', 'souzafone sib', 'sousafone sib']], ['Bombardino', ['bombardino', 'euphonium']], ['Percussão', ['percussão', 'percussao', 'bateria', 'tímpano', 'timpani']], ['Piano', ['piano', 'teclado', 'keyboard']], ['Órgão', ['órgão', 'orgao', 'organ']]
+  ['Violino I', ['violino i', 'violino 1', 'violin i', 'violin 1']], ['Violino II', ['violino ii', 'violino 2', 'violin ii', 'violin 2']], ['Violino', ['violino', 'violin']], ['Viola', ['viola']], ['Violoncelo', ['violoncelo', 'violoncello', 'cello']], ['Contrabaixo', ['contrabaixo', 'contrabasso', 'contrabass', 'double bass']], ['Flauta', ['flauta transversal', 'flauta', 'flute']], ['Escaleta', ['escaleta', 'melodica', 'melódica', 'melodion']], ['Oboé', ['oboé', 'oboe']], ['Clarinete em Sib', ['clarinet in bb', 'clarinet in b flat', 'clarinete em sib', 'clarinete sib', 'clarinete si bemol']], ['Clarinete em Dó', ['clarinet in c', 'clarinete em do', 'clarinete dó', 'clarinete c']], ['Clarinete', ['clarinete', 'clarinet']], ['Fagote', ['fagote', 'bassoon']], ['Saxofone Soprano', ['saxofone soprano', 'sax soprano', 'soprano sax', 'soprano saxophone', 'saxophone soprano']], ['Saxofone Alto', ['saxofone alto', 'alto saxofone', 'saxophone alto', 'alto saxophone', 'sax alto', 'alto sax']], ['Saxofone Tenor', ['saxofone tenor', 'tenor saxophone', 'saxophone tenor', 'sax tenor', 'tenor sax']], ['Saxofone Barítono', ['saxofone barítono', 'saxofone baritono', 'baritone saxophone', 'saxophone baritone', 'sax baritono']], ['Saxofone', ['saxofone', 'saxophone']], ['Trompete', ['trompete', 'trumpet', 'cornet']], ['Trompa', ['trompa', 'french horn']], ['Trombone 01', ['trombone 01', 'trombone 1']], ['Trombone 02', ['trombone 02', 'trombone 2']], ['Trombone Base', ['trombone base', 'bass trombone', 'trombone baixo']], ['Trombone', ['trombone']], ['Tuba', ['tuba']], ['Souzafone', ['souzafone', 'sousafone', 'souzafone sib', 'sousafone sib', 'souzafone in sib', 'sousafone in sib', 'souzafone em sib', 'sousafone em sib']], ['Bombardino', ['bombardino', 'euphonium']], ['Percussão', ['percussão', 'percussao', 'bateria', 'tímpano', 'timpani']], ['Piano', ['piano', 'teclado', 'keyboard']], ['Órgão', ['órgão', 'orgao', 'organ']]
 ].map(([nome, aliases]) => ({ nome, aliases }));
 const TERMOS_GRADE_REPROCESSAMENTO = ['grade', 'partitura geral', 'full score', 'orchestral score', 'conductor score'];
 
@@ -221,10 +221,16 @@ async function carregarDados(force = false) {
 }
 
 function normalizarVarianteInstrumento(valor = '') {
-  return normalizar(valor).replace(/\bsousafone\b/g, 'souzafone');
+  return normalizar(valor)
+    .replace(/\bsousafone\b/g, 'souzafone')
+    .replace(/\b(in|em)\s+(sib|si bemol)\b/g, '$2')
+    .replace(/\bsi bemol\b/g, 'sib');
 }
 function aliasesDaConfiguracao(config) {
-  return [...new Set([config.nomeExibicao, config.chaveCanonica, ...(Array.isArray(config.aliases) ? config.aliases : [])].filter(Boolean).map(normalizarVarianteInstrumento))];
+  const aliases = [config.nomeExibicao, config.chaveCanonica, ...(Array.isArray(config.aliases) ? config.aliases : [])].filter(Boolean).map(normalizarVarianteInstrumento);
+  const ehSouzafone = aliases.some(alias => alias === 'souzafone' || alias.startsWith('souzafone '));
+  if (ehSouzafone) aliases.push('souzafone', 'sousafone', 'souzafone sib', 'sousafone sib', 'souzafone in sib', 'sousafone in sib', 'souzafone em sib', 'sousafone em sib', 'sib', 'em sib', 'in sib');
+  return [...new Set(aliases)];
 }
 function agrupamentoParaNome(nome) {
   const chave = normalizarVarianteInstrumento(nome);
