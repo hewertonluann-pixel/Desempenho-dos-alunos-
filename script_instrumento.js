@@ -8,7 +8,7 @@ const COLECOES = ['Músicas', 'Hinos da Harpa'];
 const CACHE_DB = 'filhos-asafe-instrumentos-cache';
 const CACHE_VERSION = 1;
 const CACHE_STORES = { documentos: 'documentos', configuracoes: 'configuracoes', meta: 'meta' };
-const ALGORITMO_RECONHECIMENTO_VERSAO = 3;
+const ALGORITMO_RECONHECIMENTO_VERSAO = 4;
 const CONFIGURACOES_PADRAO = [
   { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete', 'Clarinete 1', 'Clarinete I', 'Clarinete em Sib', 'Clarinete Sib', 'Clarinete Si Bemol', 'Clarinet in Bb', 'Clarinet in B Flat'], ativo: true, ordem: 20 },
   { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone', 'Trombone 1', 'Trombone I', 'Trombone 01'], ativo: true, ordem: 40 },
@@ -150,7 +150,7 @@ async function analisarPdfParaGrupos(item) {
   return grupos;
 }
 async function reprocessarPendentes(itens) {
-  const pendentes = itens.filter(item => !item.grupos.length || item.formatoAntigo);
+  const pendentes = itens.filter(item => !item.grupos.length || item.formatoAntigo || Number(item.algoritmoVersao || 0) < ALGORITMO_RECONHECIMENTO_VERSAO);
   if (!pendentes.length) return { processados: 0, falhas: [] };
   setLoading('Processando partituras pendentes...', `Analisando 0 de ${pendentes.length} PDFs...`);
   const falhas = []; let processados = 0;
