@@ -422,7 +422,7 @@ function renderDocumentsFiltered(docsToRender) {
       if (currentColModoPartes) {
         item.innerHTML = `
           <div class="doc-name" style="cursor:pointer;" onclick="abrirPartes('${currentCollectionId}', '${d.id}')" title="Ver partes">
-            ${d.nome} <span style="font-size:0.75rem;color:var(--azul);font-weight:400;">→ ver partes</span>
+            ${d.nome}
           </div>
           ${audioHTML}
           <div class="doc-buttons">
@@ -666,7 +666,7 @@ function renderGlobalResults(results) {
       item.innerHTML = `
         <div class="doc-info" style="flex:1; cursor:pointer;" onclick="window.location.href='partes.html?col=${d.collectionId}&doc=${d.id}'">
           <span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:2px;">${d.collectionName}</span>
-          <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome} <span style="font-size:0.75rem;color:var(--azul);">→ ver partes</span></div>
+          <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome}</div>
         </div>
         ${audioHTML}
         <div class="doc-buttons">
