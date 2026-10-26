@@ -152,15 +152,15 @@ async function analisarPdfParaGrupos(item) {
   }
   return grupos;
 }
-async function reprocessarPendentes(itens) {
-  const pendentes = itens.filter(item => !item.grupos.length || item.formatoAntigo);
+async function reprocessarPendentes(itens, forcarTodos = false) {
+  const pendentes = forcarTodos ? itens : itens.filter(item => !item.grupos.length || item.formatoAntigo);
   if (!pendentes.length) return { processados: 0, falhas: [] };
-  setLoading('Processando partituras pendentes...', `Analisando 0 de ${pendentes.length} PDFs...`);
+  setLoading(forcarTodos ? 'Reprocessando todas as partituras...' : 'Processando partituras pendentes...', `Analisando 0 de ${pendentes.length} PDFs...`);
   const falhas = []; let processados = 0;
   for (const item of pendentes) {
     try {
-      setLoading('Processando partituras pendentes...', `Analisando ${processados + 1} de ${pendentes.length}: ${item.nome}`);
-      const grupos = item.formatoAntigo ? item.grupos : await analisarPdfParaGrupos(item);
+      setLoading(forcarTodos ? 'Reprocessando todas as partituras...' : 'Processando partituras pendentes...', `Analisando ${processados + 1} de ${pendentes.length}: ${item.nome}`);
+      const grupos = forcarTodos || !item.formatoAntigo ? await analisarPdfParaGrupos(item) : item.grupos;
       item.grupos = grupos; item.formatoAntigo = false; item.algoritmoVersao = ALGORITMO_RECONHECIMENTO_VERSAO;
       await setDoc(doc(db, 'biblioteca_rotulos', `${item.colId}_${item.id}`), { grupos, algoritmoVersao: ALGORITMO_RECONHECIMENTO_VERSAO, atualizadoEm: Timestamp.fromDate(new Date()), migradoAutomaticamente: true }, { merge: true });
       processados++;
@@ -169,7 +169,7 @@ async function reprocessarPendentes(itens) {
   return { processados, falhas };
 }
 
-async function buscarDoFirestore() {
+async function buscarDoFirestore(forcarTodos = false) {
   setLoading('Buscando instrumentos identificados...', 'Carregando nomes dos rótulos das partituras...');
   const colSnap = await getDocs(collection(db, 'biblioteca_colecoes'));
   const colunas = colSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => COLECOES.includes(c.nome));
@@ -193,7 +193,7 @@ async function buscarDoFirestore() {
     const configSnap = await getDocs(collection(db, 'biblioteca_instrumentos'));
     configs = configSnap.docs.map(d => ({ id: d.id, key: d.id, ...d.data() }));
   } catch (error) { console.warn('Configuração de agrupamentos indisponível; usando nomes originais.', error); }
-  const resultadoReprocessamento = await reprocessarPendentes(carregados);
+  const resultadoReprocessamento = await reprocessarPendentes(carregados, forcarTodos);
   if (resultadoReprocessamento.falhas.length) setStatus(`${resultadoReprocessamento.processados} partituras processadas; ${resultadoReprocessamento.falhas.length} precisam de revisão.`, true);
   const ordenados = carregados.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
   const configuracoesEfetivas = aplicarConfiguracoesPadrao(configs);
@@ -201,7 +201,7 @@ async function buscarDoFirestore() {
   return { documentos: ordenados, configuracoes: configuracoesEfetivas, meta: { atualizadoEm: new Date().toISOString(), quantidadeDocumentos: ordenados.length }, origem: 'servidor', reprocessamento: resultadoReprocessamento };
 }
 
-async function carregarDados(force = false) {
+async function carregarDados(force = false, forcarTodos = false) {
   if (!force) {
     try {
       setLoading('Carregando instrumentos...', 'Lendo os rótulos salvos neste dispositivo...');
@@ -220,7 +220,7 @@ async function carregarDados(force = false) {
       }
     } catch (error) { console.warn('Cache indisponível; buscando no servidor.', error); }
   }
-  return buscarDoFirestore();
+  return buscarDoFirestore(forcarTodos);
 }
 
 function aliasesDaConfiguracao(config) {
@@ -323,7 +323,7 @@ function baixarBlob(blob, nome) { const url = URL.createObjectURL(blob); const a
 async function atualizarRotulos() {
   if (!carregamentoConcluido && documentos.length) return;
   setControls(true); $('refresh-labels').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Atualizando...'; setLoading('Atualizando rótulos...', 'Verificando alterações no Firestore...'); setStatus('');
-  try { const antes = documentos.length; const dados = await carregarDados(true); documentos = dados.documentos; configuracoes = dados.configuracoes; preencherInstrumentos(instrumentoAtualNome); renderizar(); atualizarInfoCache(dados.meta, 'servidor'); const depois = documentos.length; setStatus(`Atualização concluída: ${depois - antes > 0 ? depois - antes : 0} novos documentos verificados.`); } catch (error) { console.error(error); setStatus(carregamentoConcluido ? 'Não foi possível atualizar agora. Exibindo os dados carregados anteriormente.' : 'Não foi possível carregar os rótulos. Tente novamente.', true); } finally { $('refresh-labels').innerHTML = carregamentoConcluido ? '<i class="fas fa-rotate"></i> Atualizar rótulos' : '<i class="fas fa-rotate"></i> Tentar novamente'; $('loading-card').hidden = carregamentoConcluido; setControls(false); }
+  try { const antes = documentos.length; const dados = await carregarDados(true, true); documentos = dados.documentos; configuracoes = dados.configuracoes; preencherInstrumentos(instrumentoAtualNome); renderizar(); atualizarInfoCache(dados.meta, 'servidor'); const depois = documentos.length; setStatus(`${dados.reprocessamento?.processados || 0} partituras reprocessadas; ${depois - antes > 0 ? depois - antes : 0} novos documentos verificados.`); } catch (error) { console.error(error); setStatus(carregamentoConcluido ? 'Não foi possível atualizar agora. Exibindo os dados carregados anteriormente.' : 'Não foi possível carregar os rótulos. Tente novamente.', true); } finally { $('refresh-labels').innerHTML = carregamentoConcluido ? '<i class="fas fa-rotate"></i> Atualizar rótulos' : '<i class="fas fa-rotate"></i> Tentar novamente'; $('loading-card').hidden = carregamentoConcluido; setControls(false); }
 }
 async function init() {
   setControls(true); $('scores-list').innerHTML = '';
