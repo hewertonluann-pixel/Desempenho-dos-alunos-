@@ -8,6 +8,7 @@ const CONFIG_PADRAO = [
   { key: 'trombone-do', nomeExibicao: 'Trombone em Dó', aliases: ['Trombone em Dó','Trombone em Do','Trombone C','Trombone em C','Trombone in C'], ordem: 40 },
   { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone','Trombone 1','Trombone I','Trombone 01'], ordem: 41 },
   { key: 'trompete', nomeExibicao: 'Trompete', aliases: ['Trompete','Trumpet','Cornet'], ordem: 45 },
+  { key: 'souzafone', nomeExibicao: 'Souzafone', aliases: ['Souzafone','Sousafone','Sousaphone','Souzafone em Sib','Sousafone em Sib','Sousaphone in Sib','Sousaphone in Bb','Sousaphone in B Flat','Sousaphone in B'], ordem: 46 },
   { key: 'violino', nomeExibicao: 'Violino', aliases: ['Violino','Violino 1','Violino I'], ordem: 80 }
 ];
 let documentos = [], instrumentos = [], linhas = [], carregando = false, configuracaoAlterada = false;
