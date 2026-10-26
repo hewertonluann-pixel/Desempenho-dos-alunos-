@@ -4,7 +4,7 @@
 >
 > **Repositório:** [hewertonluann-pixel/Desempenho-dos-alunos-](https://github.com/hewertonluann-pixel/Desempenho-dos-alunos-)
 >
-> **Última revisão:** 18/08/2026
+> **Última revisão:** 26/10/2026
 >
 > **Aplicação:** Orquestra Filhos de Asafe — Assembleia de Deus Ministério Diamantina
 
@@ -27,9 +27,9 @@ Quando uma mudança for concluída, faça pelo menos estas verificações: carre
 | Sessão | `localStorage.usuarioAtual` | O login atual não usa `getAuth()`; a sessão é controlada pela aplicação. |
 | Hospedagem configurada | Firebase Hosting, projeto `asafenotas-5cf3f` | `firebase.json` publica a raiz do repositório. |
 | Hospedagem observada | O mesmo código também foi servido por URL Render durante testes | O deploy real deve ser confirmado no ambiente utilizado. |
-| PWA | `manifest.json` + `service-worker.js` | O cache atual é limitado e usa estratégia cache-first. |
+| PWA | `manifest.json` + `service-worker.js` | O cache usa versionamento; HTML e JavaScript são atualizados preferencialmente pela rede e possuem fallback para cache. |
 | PDFs | PDF.js | Extração de texto e renderização de miniaturas/páginas. |
-| Sub-PDFs | PDF-LIB | Geração de downloads por grupo de páginas. |
+| Sub-PDFs e PDFs consolidados | PDF-LIB | Geração de downloads por grupo de páginas e junção de várias partituras em um único PDF. |
 | Gráficos | Chart.js via CDN | Evolução técnica e dashboards. |
 | Áudio | `js/recorder.js` e Firebase Storage | Gravação/upload de lições e áudio associado à Biblioteca. |
 | Exportação | HTML2PDF, HTML2Canvas e QRCode via CDN ou arquivos locais | Relatórios, convites e exportações visuais. |
@@ -127,6 +127,7 @@ O item Professor permanece condicionado ao perfil classificado. Ao criar uma nov
 | `painel-social.html` | Comunidade/feed social | Usa dados de notificações, conquistas e ações. |
 | `biblioteca.html` | Coleções e documentos da Biblioteca | Usa `script_biblioteca.js`; inclui o atalho “Por instrumento”. |
 | `instrumento.html` | Filtro e download de partituras por instrumento | Usa `script_instrumento.js`; consulta `Músicas`, `Hinos da Harpa` e `biblioteca_rotulos`. |
+| `cobertura_musicas.html` | Auditoria de cobertura por música | Lista cada PDF e os instrumentos faltantes; permite ativar/desativar instrumentos, salvar a configuração compartilhada e exportar a lista em PDF/PNG. |
 | `partes.html` | Visualização e separação de páginas de PDF | Usa `script_partes.js`. |
 | `script_biblioteca.js` | Upload, busca, coleções, miniaturas e downloads | Usa Firestore e Firebase Storage. |
 | `script_partes.js` | PDF.js, reconhecimento de instrumentos e sub-PDFs | Possui regras de versão e reprocessamento. |
@@ -209,7 +210,10 @@ O catálogo possui nomes canônicos e aliases normalizados. Entre os nomes espec
 |---|---|
 | Saxofone Alto | `saxofone alto`, `alto saxofone`, `alto saxophone`, `sax alto` |
 | Saxofone Tenor | `saxofone tenor`, `tenor saxophone`, `saxophone tenor`, `sax tenor` |
-| Clarinete em Sib | `clarinet in bb`, `clarinet in b b`, `clarinet in b flat`, `clarinete em sib` |
+| Clarinete em Sib | `clarinet in bb`, `clarinet in b flat`, `clarinete em sib` |
+| Trombone em Sib | `trombone em sib`, `trombone sib`, `trombone bb`, `trombone in bb`, `trombone in b flat` |
+| Trombone em Dó | `trombone em dó`, `trombone em do`, `trombone c`, `trombone em c`, `trombone in c` |
+| Souzafone | `souzafone`, `sousafone`, `sousaphone` e variantes com `sib`, `bb`, `b flat` e `in b` |
 | Trombone 01/02 | `trombone 01`, `trombone 1`, `trombone 02`, `trombone 2` |
 | Trombone Base | `trombone base`, `bass trombone`, `trombone baixo` |
 
@@ -260,9 +264,27 @@ As classificações ficam em `biblioteca_rotulos`, usando como documento `${colI
 }
 ```
 
-A constante `ALGORITMO_RECONHECIMENTO_VERSAO` está em `3`. Sempre que o catálogo, a regra de cabeçalho, GRADE ou agrupamento mudar, incremente essa versão. Ao abrir um documento com versão antiga, o site reprocessa o PDF em memória; os rótulos antigos permanecem no Firestore até o professor confirmar em **Salvar Tudo**.
+A constante `ALGORITMO_RECONHECIMENTO_VERSAO` está em `6` em `script_partes.js` e `script_instrumento.js`. Sempre que o catálogo, a regra de cabeçalho, GRADE ou agrupamento mudar, incremente essa versão. A página `partes.html` reprocessa versões antigas para a edição do professor; a página `instrumento.html`, ao carregar pendências, grava os grupos atualizados em `biblioteca_rotulos`. O botão **Atualizar rótulos** da página de instrumentos força o reprocessamento de todos os PDFs carregados, mesmo quando já possuem grupos, e grava novamente seus rótulos.
 
-No modo professor, `partes.html` apresenta os comandos de editar grupos, criar instrumento, remover páginas, **Reprocessar** e **Salvar Tudo**. O reprocessamento não deve apagar automaticamente uma correção manual já confirmada sem uma ação explícita do professor.
+No modo professor, `partes.html` apresenta os comandos de editar grupos, criar instrumento, remover páginas, **Reprocessar** e **Salvar Tudo**. O reprocessamento não deve apagar automaticamente uma correção manual já confirmada sem uma ação explícita do professor. O reprocessamento em lote de `instrumento.html` é uma ação explícita do usuário pelo botão **Atualizar rótulos** e deve ser usado quando o catálogo de aliases for alterado.
+
+### 8.6 Página por instrumento
+
+`instrumento.html` carrega os documentos de `Músicas` e `Hinos da Harpa`, aplica os grupos salvos em `biblioteca_rotulos` e mostra somente os instrumentos efetivamente identificados e ativos. Os nomes exibidos são agrupados pelos aliases canônicos e a quantidade no seletor representa PDFs únicos, não a quantidade de grupos ou páginas.
+
+A página possui cache local dos documentos e das configurações de instrumentos. O cache acelera as aberturas seguintes; a atualização de rótulos consulta o Firestore e, no modo forçado, reprocessa todos os PDFs sequencialmente, mostrando o progresso ao usuário. O download em lote gera um único PDF consolidado com PDF-LIB, em vez de um arquivo ZIP.
+
+### 8.7 Auditoria de cobertura por música
+
+`cobertura_musicas.html`, acessível pelo painel do professor, lista os PDFs por música e informa os instrumentos faltantes em cada arquivo. A regra de completude considera todos os instrumentos ativos no catálogo compartilhado, e uma música só aparece como **Completa** quando possui todos eles.
+
+Os toggles da página permitem incluir ou excluir instrumentos da análise. A configuração é salva em `biblioteca_instrumentos`, com campos `key`, `nomeExibicao`, `aliases`, `ordem`, `ativo`, `atualizadoEm` e `origem`. A página `instrumento.html` deve respeitar os mesmos instrumentos ativos e aliases; não criar um catálogo paralelo sem atualizar os dois fluxos.
+
+A página de cobertura usa uma lista estruturada de músicas, não uma tabela-matriz, exibe duas colunas em desktop e uma em telas menores e permite exportar a lista filtrada em PDF ou PNG. O conteúdo exportado deve refletir os filtros e os instrumentos ativos salvos.
+
+### 8.8 Biblioteca: navegação por partes
+
+Quando `modoPartes` está ativo, a Biblioteca mantém o botão **Ver Partes** como ação principal. O texto auxiliar redundante `→ ver partes` não deve ser reintroduzido ao lado do nome do PDF; o nome pode continuar clicável e apontar para `partes.html`, mas a interface deve evitar duplicar a mesma indicação.
 
 ## 9. Modelo de dados Firestore
 
@@ -282,6 +304,7 @@ A tabela abaixo registra as coleções encontradas no código. Campos podem poss
 | `biblioteca_colecoes/{id}` | Coleções da Biblioteca | `nome`, `modoPartes`, `criadoEm`; possui subcoleção `documentos`. |
 | `biblioteca_colecoes/{col}/documentos/{id}` | PDFs e áudios | `nome`, `url`, caminhos do Storage, `audioUrl`, `audioStoragePath`, data. |
 | `biblioteca_rotulos/{col_doc}` | Grupos de páginas de partes | `grupos`, `algoritmoVersao`, `atualizadoEm`. |
+| `biblioteca_instrumentos/{key}` | Catálogo canônico e configuração compartilhada dos instrumentos | `key`, `nomeExibicao`, `aliases`, `ordem`, `ativo`, `atualizadoEm`, `origem`. Consumida por `cobertura_musicas.html` e `instrumento.html`. |
 | `downloads/{id}` | Registro de downloads | Usuário, arquivo e data. |
 | `materiais/{id}` | Materiais de apoio | Usado por `materiais.html`/`materiais.js`. |
 | `atividades/{id}` | Atividades e notas | Usada pelas páginas de atividades. |
@@ -294,7 +317,7 @@ O frontend acessa diretamente o Firestore e o Storage. Portanto, mudanças de no
 
 [`manifest.json`](./manifest.json) define o nome Orquestra, ícones 192/512, orientação retrato, modo `standalone`, cores e idioma `pt-BR`. [`index.html`](./index.html) registra [`service-worker.js`](./service-worker.js).
 
-O service worker usa o cache `painel-orquestra-cache-v36`, pré-carrega somente um conjunto pequeno de arquivos e aplica cache-first: primeiro procura no cache, depois faz `fetch`. Ao publicar uma alteração em um arquivo que pode estar pré-cacheado, incremente `CACHE_NAME`; caso contrário, usuários podem continuar vendo uma versão anterior.
+O service worker usa atualmente o cache `painel-orquestra-cache-v61`. Ele pré-carrega um conjunto pequeno de arquivos, invalida caches antigos no evento `activate` e usa rede com fallback para HTML e JavaScript, atualizando o cache quando a resposta é bem-sucedida. Ao publicar uma alteração em arquivo pré-cacheado ou em lógica de página, incremente `CACHE_NAME` e, quando necessário, altere o parâmetro de versão do `<script>` para evitar que o navegador reutilize um módulo antigo.
 
 O `firebase.json` publica a raiz `.` e ignora arquivos ocultos e `node_modules`. O projeto Firebase definido em [`.firebaserc`](./.firebaserc) é `asafenotas-5cf3f`. `CONFIGURAR_CORS.md` e [`cors.json`](./cors.json) documentam a configuração de CORS do Storage.
 
