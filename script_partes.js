@@ -31,6 +31,8 @@ const CATALOGO_INSTRUMENTOS = [
   { nome: 'Saxofone', aliases: ['saxofone', 'saxophone'] },
   { nome: 'Trompete', aliases: ['trompete', 'trumpet', 'cornet'] },
   { nome: 'Trompa', aliases: ['trompa', 'french horn'] },
+  { nome: 'Trombone em Sib', aliases: ['trombone em sib', 'trombone sib', 'trombone bb', 'trombone in bb', 'trombone in b flat'] },
+  { nome: 'Trombone em Dó', aliases: ['trombone em dó', 'trombone em do', 'trombone c', 'trombone em c', 'trombone in c'] },
   { nome: 'Trombone 01', aliases: ['trombone 01', 'trombone 1'] },
   { nome: 'Trombone 02', aliases: ['trombone 02', 'trombone 2'] },
   { nome: 'Trombone Base', aliases: ['trombone base', 'bass trombone', 'trombone baixo'] },
@@ -56,7 +58,7 @@ const TERMOS_GRADE = [
 
 // Incrementar quando o catálogo ou a regra de agrupamento mudar. Rótulos
 // salvos com versão anterior serão reprocessados automaticamente em memória.
-const ALGORITMO_RECONHECIMENTO_VERSAO = 3;
+const ALGORITMO_RECONHECIMENTO_VERSAO = 4;
 
 // ── Estado global ────────────────────────────────────────────────────────────
 let pdfJsLib  = null;

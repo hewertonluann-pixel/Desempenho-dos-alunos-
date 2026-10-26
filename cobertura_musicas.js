@@ -4,7 +4,9 @@ import { collection, getDocs, getDoc, doc, writeBatch, serverTimestamp } from 'h
 const COLECOES = ['Músicas', 'Hinos da Harpa'];
 const CONFIG_PADRAO = [
   { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete','Clarinete 1','Clarinete I','Clarinete em Sib','Clarinete Sib','Clarinete Si Bemol','Clarinet in Bb','Clarinet in B Flat'], ordem: 20 },
-  { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone','Trombone 1','Trombone I','Trombone 01'], ordem: 40 },
+  { key: 'trombone-sib', nomeExibicao: 'Trombone em Sib', aliases: ['Trombone em Sib','Trombone Sib','Trombone Bb','Trombone in Bb','Trombone in B Flat'], ordem: 39 },
+  { key: 'trombone-do', nomeExibicao: 'Trombone em Dó', aliases: ['Trombone em Dó','Trombone em Do','Trombone C','Trombone em C','Trombone in C'], ordem: 40 },
+  { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone','Trombone 1','Trombone I','Trombone 01'], ordem: 41 },
   { key: 'trompete', nomeExibicao: 'Trompete', aliases: ['Trompete','Trumpet','Cornet'], ordem: 45 },
   { key: 'violino', nomeExibicao: 'Violino', aliases: ['Violino','Violino 1','Violino I'], ordem: 80 }
 ];
