@@ -31,7 +31,7 @@ const CATALOGO_INSTRUMENTOS = [
   { nome: 'Saxofone', aliases: ['saxofone', 'saxophone'] },
   { nome: 'Trompete', aliases: ['trompete', 'trumpet', 'cornet'] },
   { nome: 'Trompa', aliases: ['trompa', 'french horn'] },
-  { nome: 'Souzafone', aliases: ['souzafone', 'sousafone', 'sousaphone', 'souzafone sib', 'sousafone sib', 'sousaphone sib', 'souzafone em sib', 'sousafone em sib', 'sousaphone em sib', 'souzafone in sib', 'sousafone in sib', 'sousaphone in sib', 'souzafone bb', 'sousafone bb', 'sousaphone bb', 'souzafone in bb', 'sousafone in bb', 'sousaphone in bb', 'souzafone in b', 'sousafone in b', 'sousaphone in b'] },
+  { nome: 'Souzafone', aliases: ['souzafone', 'sousafone', 'sousaphone', 'souzafone sib', 'sousafone sib', 'sousaphone sib', 'souzafone em sib', 'sousafone em sib', 'sousaphone em sib', 'souzafone in sib', 'sousafone in sib', 'sousaphone in sib', 'souzafone bb', 'sousafone bb', 'sousaphone bb', 'souzafone in bb', 'sousafone in bb', 'sousaphone in bb', 'souzafone b flat', 'sousafone b flat', 'sousaphone b flat', 'souzafone in b flat', 'sousafone in b flat', 'sousaphone in b flat', 'souzafone in b', 'sousafone in b', 'sousaphone in b'] },
   { nome: 'Trombone em Sib', aliases: ['trombone em sib', 'trombone sib', 'trombone bb', 'trombone in bb', 'trombone in b flat'] },
   { nome: 'Trombone em Dó', aliases: ['trombone em dó', 'trombone em do', 'trombone c', 'trombone em c', 'trombone in c'] },
   { nome: 'Trombone 01', aliases: ['trombone 01', 'trombone 1'] },
@@ -59,7 +59,7 @@ const TERMOS_GRADE = [
 
 // Incrementar quando o catálogo ou a regra de agrupamento mudar. Rótulos
 // salvos com versão anterior serão reprocessados automaticamente em memória.
-const ALGORITMO_RECONHECIMENTO_VERSAO = 5;
+const ALGORITMO_RECONHECIMENTO_VERSAO = 6;
 
 // ── Estado global ────────────────────────────────────────────────────────────
 let pdfJsLib  = null;
