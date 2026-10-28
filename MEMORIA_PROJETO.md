@@ -391,3 +391,14 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 ---
 
 **Manutenção:** atualize a data e a seção correspondente sempre que uma coleção, rota, parâmetro de URL, regra de permissão, versão do algoritmo de PDF ou estratégia de cache for alterada.
+
+## 17. Processo de verificação gradual
+
+A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
+
+### Estado do ciclo
+
+- Etapa atual: 1 — baseline e arquitetura
+- Etapas concluídas: nenhuma neste novo ciclo
+- Próxima ação: validar o baseline do projeto e registrar o primeiro resultado
+
