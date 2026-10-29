@@ -413,9 +413,9 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
-- Etapa atual: 9 — Firebase e segurança (bloqueada após auditoria estática local)
-- Etapas concluídas: 1–8 — registradas em 2026-10-29
-- Próxima ação: obter/revisar as regras ativas de Firestore e Storage; não avançar à Etapa 10 antes de avaliar as permissões reais
+- Etapa atual: 10 — PWA e navegação
+- Etapas concluídas: 1–9 — registradas em 2026-10-29
+- Próxima ação: verificar manifests, `service-worker.js`, loader, navegação e header, conforme o plano da Etapa 10
 
 ### 2026-10-29 — Etapa 1: baseline e arquitetura
 - Status: concluída
@@ -515,8 +515,8 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Próxima etapa: Etapa 9 — Firebase e segurança (`firebase-config.js`, `firebase.json`, `cors.json` e regras).
 
 
-### 2026-10-29 — Etapa 9: Firebase e segurança (bloqueada)
-- Status: revisão estática local realizada; etapa incompleta quanto às permissões ativas do projeto. Iniciada no mesmo dia da Etapa 8 por solicitação explícita do usuário; não avançar à Etapa 10 enquanto o bloqueio persistir.
+### 2026-10-29 — Etapa 9: auditoria inicial (bloqueio depois resolvido)
+- Status da auditoria inicial: ficou bloqueada até o usuário fornecer os textos das regras; a conclusão está registrada na atualização ao final desta memória.
 - Arquivos verificados: `firebase-config.js`, `firebase.json`, `.firebaserc`, `cors.json`, `CONFIGURAR_CORS.md`, `.gitignore`, `login.js`, `auth.js` e `RESET.HTML`; pesquisa em arquivos versionados por regras e credenciais.
 - Testes/evidências: checkout limpo em `main`, commit-base `bc2cf55`; JSONs de configuração válidos; `node --check` passou em `firebase-config.js`, `login.js`, `auth.js` e no módulo inline de `RESET.HTML`. Nenhum arquivo de regras Firestore/Storage está rastreado ou presente no checkout. Varredura dos arquivos rastreados não encontrou marcadores de chave privada/service account. Repositório GitHub confirmado como público.
 - Confirmado: `.firebaserc` aponta para `asafenotas-5cf3f`. `firebase.json` configura somente Hosting, com `public: "."`, e não define publicação de regras Firestore/Storage; a configuração ignora `firebase.json`, dotfiles e `node_modules`, mas não `RESET.HTML` nem os documentos Markdown do projeto. Se esse Hosting for implantado com a configuração atual, esses arquivos da raiz são candidatos a serem servidos publicamente.
@@ -526,3 +526,14 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Limites/bloqueio: sem arquivos de regras e sem inspeção autorizada do Console Firebase, não é possível afirmar se o projeto nega, restringe ou permite operações anônimas. Não houve deploy, autenticação, chamada a Firestore/Storage, teste de permissão, leitura ou alteração de dados. A presença de `firebase.json` local não comprova a configuração atualmente implantada.
 - Correções realizadas: nenhuma alteração funcional; nenhum segredo privado foi encontrado na varredura estática do repositório.
 - Próxima ação necessária para concluir a Etapa 9: fornecer/revisar os arquivos efetivos `firestore.rules` e `storage.rules` (ou uma exportação textual equivalente das regras ativas), além de confirmar o bucket e as origens Hosting pretendidas. Até isso ocorrer, manter a Etapa 9 bloqueada e não avançar à Etapa 10.
+
+
+### Atualização 2026-10-29 — conclusão da Etapa 9 com regras fornecidas
+- Status: Etapa 9 concluída como auditoria estática das configurações locais e dos textos das regras fornecidos pelo usuário. Os trechos foram tratados como as regras atuais informadas pelo usuário; não houve confirmação independente no Console Firebase.
+- Regra Firestore analisada: `allow read, write: if true` dentro de `match /{document=**}` autoriza qualquer cliente, autenticado ou anônimo, a ler, listar, criar, alterar e excluir documentos em qualquer coleção e subcoleção do banco.
+- Regras Storage analisadas: `allow read, write: if true` em `licoes/{allPaths=**}` e `biblioteca/{allPaths=**}` deixa qualquer cliente ler, enviar, substituir e excluir objetos nesses prefixos. No texto fornecido, outros caminhos não recebem permissão explícita e ficam negados por padrão, salvo existência de regras adicionais não fornecidas.
+- Severidade: crítica para confidencialidade e integridade. Se os trechos correspondem às regras implantadas, os dados de alunos, frequência, notas, conquistas e demais documentos do Firestore ficam expostos a leitura e alteração anônimas; arquivos de lições e Biblioteca também ficam publicamente legíveis e graváveis.
+- Risco combinado: `RESET.HTML` está na raiz incluída pelo Hosting, não apresenta autenticação no cliente e possui ações globais para atualizar alunos. Se a página estiver hospedada e a regra Firestore informada estiver ativa, as ações podem ser executadas por visitantes sem login. Isso não foi testado em produção.
+- Mitigação recomendada, ainda não aplicada: substituir permissões abertas por negação por padrão e regras específicas de propriedade/role para cada coleção e prefixo de Storage; implementar Firebase Authentication e autorização real antes de exigir `request.auth`, pois o login atual consulta senhas no Firestore e grava somente uma sessão em `localStorage`. Restringir ou remover `RESET.HTML` do diretório público. Validar as regras com Firebase Emulator Suite e dados de teste antes de qualquer deploy.
+- Limites: nenhum arquivo de regra foi criado ou alterado; não houve deploy, acesso ao Console, teste anônimo, acesso a documentos ou arquivos, nem tentativa de escrita. A configuração ativa pode divergir do texto enviado.
+- Próxima etapa: Etapa 10 — PWA e navegação (`manifest*`, `service-worker.js`, loader, navegação e header).
