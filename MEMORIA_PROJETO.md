@@ -308,12 +308,15 @@ A tabela abaixo registra as coleções encontradas no código. Campos podem poss
 | `downloads/{id}` | Registro de downloads | Usuário, arquivo e data. |
 | `materiais/{id}` | Materiais de apoio | Usado por `materiais.html`/`materiais.js`. |
 | `atividades/{id}` | Atividades e notas | Usada pelas páginas de atividades. |
+| `alunos/{id}/progressoAtividades/{atividadeId}` | Conclusão de atividades da jornada | Atividade, ordem, status, timestamp e detalhes; escrita depende do `docId` do aluno em `localStorage.usuarioAtual`. |
 | `config/grupo` | Identidade da orquestra | Nome e `logoUrl` do cabeçalho. |
 | `solicitacoesLicao`, `apresentacoes`, `convites_recital`, `ensaios` | Fluxos complementares | Confirmar o consumidor antes de alterar ou excluir. |
 
 O frontend acessa diretamente o Firestore e o Storage. Portanto, mudanças de nome de coleção, subcoleção ou campo precisam de uma estratégia de migração ou compatibilidade, não apenas de uma troca em um arquivo HTML.
 
 **Regra de domínio confirmada pelo usuário — Coral/KADOSH:** o Coral é uma atividade extra, distinta dos ensaios da orquestra. Alguns alunos da orquestra também participam, e várias outras pessoas não pertencem à orquestra e podem não ter ID/documento de aluno. A presença do Coral deve permanecer isolada e nunca alterar ou compor a frequência dos ensaios. Não presumir que todo participante do Coral precisa de `alunos/{id}`; preservar separadamente o vínculo à turma principal e a participação Coral.
+
+**Jornada de atividades:** `jornada-atividades.js` grava a conclusão em `alunos/{docId}/progressoAtividades/{atividadeId}` e as medalhas ficam ativas por 30 dias. O vencimento é apenas de exibição; registros não são apagados. Registros legados sem timestamp de conclusão permanecem ativos. O módulo exige `localStorage.usuarioAtual.docId`; as atividades são independentes e o validador de página não bloqueia acesso fora da ordem.
 
 ## 10. PWA, cache e deploy
 
@@ -399,9 +402,9 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
-- Etapa atual: 7 — atividades e jogos
-- Etapas concluídas: 1–6 — registradas em 2026-10-29
-- Próxima ação: verificar `atividades*`, `jornada*`, jogos e teoria, conforme o plano da Etapa 7
+- Etapa atual: 8 — biblioteca e arquivos
+- Etapas concluídas: 1–7 — registradas em 2026-10-29
+- Próxima ação: verificar Biblioteca, partituras, PDFs, gravação e Storage, conforme o plano da Etapa 8
 
 ### 2026-10-29 — Etapa 1: baseline e arquitetura
 - Status: concluída
@@ -470,3 +473,17 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Correções realizadas: nenhuma alteração funcional ou de dados; divergências e riscos registrados para decisão e correção controlada.
 - Pendências: definir um cadastro/identificador próprio para participantes Coral sem documento de aluno e como eles aparecem em chamadas, comunidade e conquistas; marcar/enriquecer eventos Coral de forma consistente e testar isolamento em todos os consumidores de frequência; manter `alunos.turmaId` representando a turma principal, independente da participação extra; revisar regras Firestore/Storage; escapar/validar conteúdo inserido no DOM. Permanece pendente a falha `FJ` registrada na Etapa 5; esta etapa não a corrigiu.
 - Próxima etapa: Etapa 7 — atividades e jogos (`atividades*`, `jornada*`, jogos e teoria).
+
+
+### 2026-10-29 — Etapa 7: atividades e jogos
+- Status: concluída como revisão estática, sem correções funcionais. Executada no mesmo dia da Etapa 6 por solicitação explícita do usuário, como exceção à cadência padrão de uma etapa por dia.
+- Arquivos verificados: `atividades.html`, `atividades-notas.html`, `atividades-armadura.html`, `jornada-atividades.js`, `compassos-game.html`, `escalas-game.html`, `escada-notas.html`, `figuras-musicais.html`, `jogo-figuras.html`, `jogo-tom-semitom.html`, `como-funciona-pauta.html`, `tetracordes.html` e `tetroquestgame.html`; integrações pontuais com `conquistas.js`, `conquistas-editor.html` e `aluno3.js`.
+- Testes/evidências: checkout inicial limpo no commit `c61d82e`; `node --check` passou em `jornada-atividades.js` e nos scripts inline das 12 páginas HTML examinadas. Teste sintético confirmou expiração após 30 dias e o comportamento de registros legados sem data; verificações estáticas confirmaram o retorno sem `docId`, a ausência de bloqueio de ordem e os critérios de conclusão descritos abaixo. Nenhuma página foi executada em navegador; nenhum acesso ou alteração de dados Firebase/Firestore.
+- Confirmado: a jornada tem nove IDs; `atividades.html` exibe as atividades e o fluxo salva conclusões em `alunos/{docId}/progressoAtividades/{atividadeId}`. A ordem fornece uma sugestão, não restringe o acesso: `protegerPaginaAtual()` é no-op e as páginas podem ser abertas diretamente. O módulo registra conclusão e detalhes no final do fluxo; os jogos não salvam checkpoints suficientes para retomar uma partida após recarregar. `jogo-figuras.html` guarda apenas desbloqueios de modos em `localStorage`.
+- Confirmado: a validade de medalha é calculada por 30 dias e a lista apresenta o estado expirado sem apagar o registro; quando falta `concluidaEm` válida, o código mantém o registro ativo por compatibilidade. A sessão precisa conter `usuarioAtual.docId`. Sem usuário/docId, `concluirAtividade()` retorna `salvo:false`, mas o botão não verifica esse resultado e pode mostrar “Jornada concluída!” mesmo sem gravar. A Etapa 2 já havia registrado que a sessão criada no cadastro não inclui `docId`; compatibilidade desse caminho continua pendente.
+- Falhas/riscos de lógica confirmados por inspeção estática: em `jogo-tom-semitom.html`, o contador usado para terminar a jornada corresponde a modos desbloqueados, não necessariamente concluídos; sair após desbloquear o último modo pode acionar a conclusão. Em `jogo-figuras.html`, qualquer modo aprovado aciona a jornada, embora a página anuncie três modos. `figuras-musicais.html` e `como-funciona-pauta.html` permitem chegar ao final por navegação de slides/passos sem validar todas as interações pedagógicas. O tutorial de pauta conclui ID de ordem 3, mas depois redireciona para `atividades-notas.html` (ordem 6), não para a ordem seguinte.
+- Confirmado: `concluirAtividade()` está exposta em `window.JornadaAtividades` e aceita qualquer ID cadastrado sem prova de conclusão no cliente; a proteção efetiva depende de regras de escrita do Firestore, não revisadas. A função que escolhe a próxima atividade usa a posição fixa, não o conjunto de atividades ainda pendentes. `atividades-armadura.html` não está no catálogo de nove IDs e a busca estática não encontrou link para essa página no checkout; decidir se deve fazer parte da jornada.
+- Suspeitas/limites: erros ao carregar o progresso são convertidos em mapa vazio sem aviso visível; URL de imagem da medalha é interpolada sem escape no `src`; o acesso/autorização real depende de sessão e regras remotas não inspecionadas. Não foram provados comportamento em navegador, gravação permitida, exploração de chamadas do cliente nem conteúdo/estado de dados existentes.
+- Correções realizadas: nenhuma alteração funcional ou de dados. Os achados foram registrados para decisão e correção controlada.
+- Pendências: impedir confirmação falsa quando não há `docId`; conferir a sessão criada por cadastro conforme pendência da Etapa 2; revisar as condições de conclusão em Tom/Semitom e Jogo das Figuras; decidir o contrato de progressão, checkpoints e retomada; alinhar ordem exibida e próximo destino; decidir a inclusão de Armadura; decidir como tratar conclusões legadas sem timestamp; revisar regras Firestore e validar URLs/HTML de medalhas. Continuam abertas a divergência `FJ` da Etapa 5 e as pendências de Coral da Etapa 6.
+- Próxima etapa: Etapa 8 — Biblioteca e arquivos (Biblioteca, partituras, PDFs, gravação e Storage).

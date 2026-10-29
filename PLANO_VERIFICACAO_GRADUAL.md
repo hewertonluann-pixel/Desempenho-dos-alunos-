@@ -103,4 +103,17 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Confirmado:** o recálculo normal da chamada retorna para turma Coral; a elegibilidade principal exige a turma correspondente. Entretanto, ambos os formulários criam eventos com `tipo: "aula"`, enquanto filtros genéricos e a conquista `participacao_coral` dependem do marcador Coral. Para perfis sem `turmaId`, o painel social pode considerar chamada Coral pelo fallback por ID/nome. A tela Coral cria documento em `alunos` para novos membros e não oferece inclusão avulsa por nome em nova chamada; participantes sem documento também não aparecem nos fluxos sociais/de conquistas baseados em `alunos`.
 - **Pendências principais:** corrigir/normalizar o tipo e o escopo dos eventos Coral em todos os cálculos; definir representação de participantes Coral sem ID de aluno; preservar separação entre turma principal e atividade extra; verificar regras Firestore/Storage e renderizações dinâmicas. A falha `FJ` da Etapa 5 continua aberta.
 - **Correções realizadas:** nenhuma correção funcional; achados registrados na memória.
-- **Próxima etapa:** Etapa 7 — atividades e jogos.
+- **Próxima etapa:** Etapa 7 — atividades e jogos (executada em 2026-10-29 por solicitação explícita; ver registro abaixo).
+
+
+### Etapa 7 — Atividades e jogos
+
+- **Status:** concluída em 2026-10-29 como revisão estática, sem alterações funcionais. Executada no mesmo dia da Etapa 6 após solicitação explícita do usuário, como exceção à cadência padrão de uma etapa por dia.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 7: atividades e jogos”.
+- **Arquivos verificados:** `atividades.html`, `atividades-notas.html`, `atividades-armadura.html`, `jornada-atividades.js`, `compassos-game.html`, `escalas-game.html`, `escada-notas.html`, `figuras-musicais.html`, `jogo-figuras.html`, `jogo-tom-semitom.html`, `como-funciona-pauta.html`, `tetracordes.html` e `tetroquestgame.html`; integrações pontuais com `conquistas.js`, `conquistas-editor.html` e `aluno3.js`.
+- **Evidências:** sintaxe válida no módulo de jornada e scripts inline das 12 páginas; teste sintético da validade de 30 dias e do tratamento legado sem data. Nenhuma execução em navegador ou conexão/alteração de dados Firebase.
+- **Confirmado:** jornada com nove IDs e gravação de conclusão por aluno em subcoleção; acesso não é bloqueado pela ordem. Sem `usuarioAtual.docId`, o progresso não é salvo, mas o botão pode exibir “Jornada concluída!”. O vencimento de medalha altera a exibição, não apaga o registro; documentos sem data válida permanecem ativos.
+- **Achados prioritários:** Tom/Semitom pode contar modo desbloqueado como concluído e registrar cedo ao sair; Jogo das Figuras registra jornada após aprovação de qualquer modo; tutoriais podem ser concluídos sem confirmar todas as interações. O tutorial de pauta segue para ordem 6 após concluir a ordem 3. Armadura não consta no catálogo e não foi encontrado link para a página. Partidas não possuem checkpoint/retomada consistente.
+- **Pendências:** corrigir feedback sem `docId`; alinhar condições de conclusão e ordem/destinos; definir inclusão da Armadura e política de checkpoints; decidir validade de registros legados sem timestamp; revisar as regras Firestore e a validação de URLs de medalhas. Pendências `FJ` (Etapa 5) e Coral (Etapa 6) permanecem abertas.
+- **Correções realizadas:** nenhuma correção funcional; achados documentados na memória.
+- **Próxima etapa:** Etapa 8 — Biblioteca e arquivos.
