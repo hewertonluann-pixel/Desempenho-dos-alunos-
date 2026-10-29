@@ -170,3 +170,22 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Correções realizadas:** nenhuma alteração em CSS, HTML, JS ou dados; apenas documentação dos resultados.
 - **Pendências:** corrigir primeiro os problemas de teclado/semântica e contraste, depois rolagem/reflow/zoom e referências; adicionar movimento reduzido e alternativas dos canvas; testar 320 CSS px, zoom 200%, teclado virtual, safe-area, teclado e leitor de tela antes de encerrar cada correção.
 - **Próxima etapa:** Etapa 12 — integração e consolidação dos fluxos completos e do backlog por prioridade.
+
+
+### Etapa 12 — Integração e consolidação
+
+- **Status:** concluída em 2026-10-29 como síntese documental; executada na mesma data da Etapa 11 por solicitação explícita do usuário, como exceção à regra de uma etapa por dia.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 12: integração e consolidação” e “Backlog consolidado após a Etapa 12”.
+- **Arquivos e registros verificados:** `MEMORIA_PROJETO.md`, `PLANO_VERIFICACAO_GRADUAL.md` e os registros das Etapas 1–11; extrações independentes validadas para todas as 11 etapas e uma síntese cruzada.
+- **Evidências:** pendências deduplicadas e agrupadas em P1 (segurança/acesso/integridade), P2 (decisões, funcionalidade, operações e acessibilidade) e P3 (robustez/eficiência), com origem, dependências e critério de saída no backlog da memória. Não houve revisão adicional de código, acesso ao Console Firebase, teste em produção ou alteração funcional.
+- **Achado prioritário:** não há P0 confirmado. A verificação das regras Firestore/Storage efetivamente implantadas é urgente (SEC-01); o risco de permissões abertas permanece condicional aos textos fornecidos corresponderem ao Console. Se confirmadas, reavaliar como crítico e validar a mitigação no Emulator antes de deploy.
+- **Dependências principais:** autenticação/autorização ↔ regras e dados pessoais/XSS; identidade `docId` ↔ sessão/progresso; contrato de chamadas/`alunoId`/enum ↔ frequência e comprometimento; uploads ↔ Storage/bucket/MIME; carregamento de rotas ↔ PWA/loader/nav/acessibilidade.
+- **Decisões preservadas:** Coral é atividade extra; sua presença não altera ensaios da orquestra; participantes externos podem não ter ID de aluno. A Etapa 12 não reabre essa regra; ainda pode ser decidida a representação dos externos em chamadas/comunidade/conquistas.
+- **Itens superados:** bloqueio inicial da Etapa 9 foi resolvido pelo envio dos textos, mas falta confirmar a implantação ativa; inexistência de `partes-desktop.css` foi confirmada, mas a referência continua sem decisão; registro do service worker em `coral.html` confirmado; falta de loader em `index.html` não classificada como defeito.
+- **Correções realizadas:** nenhuma correção funcional. Somente documentação e consolidação do backlog.
+- **Limitações:** a conclusão do ciclo de auditoria não significa que os itens estejam corrigidos, que regras ativas tenham sido verificadas ou que o sistema esteja pronto para produção. Não houve runtime, navegador, dispositivo, Firebase Console, Emulator ou alteração de dados.
+- **Próxima ação:** iniciar o backlog por SEC-01, depois tratar dependências P1 e executar os critérios de saída/testes registrados por item. Encerrar cada pendência apenas com evidência correspondente.
+
+## Estado final do ciclo
+
+As 12 etapas de verificação estão registradas e o backlog foi consolidado em `MEMORIA_PROJETO.md`. O ciclo documental está concluído; a implementação e validação dos itens do backlog permanecem abertas, com SEC-01 como verificação urgente inicial. Nenhum item funcional foi marcado como corrigido sem evidência.
