@@ -50,3 +50,13 @@ Adicionar ao final de `MEMORIA_PROJETO.md`:
 
 O ciclo só termina quando as 12 etapas tiverem registro na memória, as pendências estiverem consolidadas por prioridade e cada correção funcional tiver teste ou evidência associado.
 
+## Estado atualizado do ciclo
+
+### Etapa 1 — Baseline e arquitetura
+
+- **Status:** concluída em 2026-10-29.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 1: baseline e arquitetura”.
+- **Resultado:** baseline estático confirmado; sintaxe JavaScript e JSON válidos; seis referências locais pendentes foram catalogadas para validação posterior.
+- **Próxima etapa:** Etapa 2 — login e sessão.
+
+Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada conclusão, mantendo o registro correspondente na memória e no mesmo commit.

@@ -397,8 +397,16 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
+- Etapa atual: 2 — login e sessão
+- Etapas concluídas: 1 — baseline e arquitetura, em 2026-10-29
+- Próxima ação: verificar `index.html`, `login.js`, `auth.js`, `cadastro.html` e `RESET.HTML`
 
-- Etapa atual: 1 — baseline e arquitetura
-- Etapas concluídas: nenhuma neste novo ciclo
-- Próxima ação: validar o baseline do projeto e registrar o primeiro resultado
-
+### 2026-10-29 — Etapa 1: baseline e arquitetura
+- Status: concluída
+- Arquivos verificados: `INVENTARIO_PROJETO.md`, `PLANO_VERIFICACAO_GRADUAL.md`, `firebase.json`, `firebase-config.js`, `.firebaserc`, `manifest.json`, `manifest-coral.json`, `service-worker.js`, `cors.json` e as referências locais das páginas HTML.
+- Testes/evidências: checkout limpo no commit `96d53c0`; 137 arquivos no checkout atual, sendo 60 HTML, 45 JavaScript, 16 CSS, 4 JSON, 4 Markdown, 3 PNG, 1 JPEG, 1 SVG e 3 arquivos sem extensão; `node --check` passou em todos os 45 arquivos JavaScript; os quatro JSONs foram analisados com sucesso; 486 referências locais foram verificadas.
+- Confirmado: o projeto é estático, sem etapa de build; o Firebase Hosting publica a raiz (`firebase.json`); o Firestore usa o projeto `asafenotas-5cf3f`; o service worker está na versão de cache `painel-orquestra-cache-v61`; o manifest principal e o manifest do Coral Kadosh estão presentes; a configuração documentada do CORS permite a origem Render `https://filhosdeasafe.onrender.com`.
+- Suspeitas: o CORS não documenta a origem do Firebase Hosting; `manifest-coral.json` deve ser validado junto ao fluxo de instalação; a estratégia de cache e as referências absolutas devem ser revisadas na etapa 10.
+- Correções realizadas: nenhuma alteração funcional; somente o registro desta etapa e a atualização do plano.
+- Pendências: seis referências locais não resolvidas no checkout: `partes.html` → `partes-desktop.css`; `convites/convite.html` → `/mnt/data/eu.png`; `modules/chamada.html` → `modules/chamada.css`; `modules/gerenciar-alunos.html` → `modules/gerenciar-alunos.css`; `modules/relatorio.html` → `modules/relatorio.css`; `modules/relatorio.html` → `relatorio-turma.html`. Validar se são erros reais, referências legadas ou recursos gerados antes de corrigir.
+- Próxima etapa: Etapa 2 — login e sessão (`index.html`, `login.js`, `auth.js`, `cadastro.html` e `RESET.HTML`).
