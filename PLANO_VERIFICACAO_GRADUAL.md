@@ -60,3 +60,11 @@ O ciclo só termina quando as 12 etapas tiverem registro na memória, as pendên
 - **Próxima etapa:** Etapa 2 — login e sessão.
 
 Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada conclusão, mantendo o registro correspondente na memória e no mesmo commit.
+
+### Etapa 2 — Login e sessão
+
+- **Status:** concluída em 2026-10-29.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 2: login e sessão”.
+- **Resultado:** contratos de login, cadastro, sessão e redefinição de dados foram documentados; sintaxe dos scripts externos e inline passou; riscos de segurança e compatibilidade foram catalogados sem alteração funcional.
+- **Pendências principais:** revisar autenticação baseada em senha no Firestore, proteger `RESET.HTML`, tratar fotos do cadastro via Storage, incluir `docId` na sessão criada no cadastro e alinhar o bucket Firebase.
+- **Próxima etapa:** Etapa 3 — painel do aluno.

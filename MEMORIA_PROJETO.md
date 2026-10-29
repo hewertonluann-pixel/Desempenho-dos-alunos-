@@ -4,7 +4,7 @@
 >
 > **Repositório:** [hewertonluann-pixel/Desempenho-dos-alunos-](https://github.com/hewertonluann-pixel/Desempenho-dos-alunos-)
 >
-> **Última revisão:** 26/10/2026
+> **Última revisão:** 29/10/2026
 >
 > **Aplicação:** Orquestra Filhos de Asafe — Assembleia de Deus Ministério Diamantina
 
@@ -410,3 +410,13 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Correções realizadas: nenhuma alteração funcional; somente o registro desta etapa e a atualização do plano.
 - Pendências: seis referências locais não resolvidas no checkout: `partes.html` → `partes-desktop.css`; `convites/convite.html` → `/mnt/data/eu.png`; `modules/chamada.html` → `modules/chamada.css`; `modules/gerenciar-alunos.html` → `modules/gerenciar-alunos.css`; `modules/relatorio.html` → `modules/relatorio.css`; `modules/relatorio.html` → `relatorio-turma.html`. Validar se são erros reais, referências legadas ou recursos gerados antes de corrigir.
 - Próxima etapa: Etapa 2 — login e sessão (`index.html`, `login.js`, `auth.js`, `cadastro.html` e `RESET.HTML`).
+
+### 2026-10-29 — Etapa 2: login e sessão
+- Status: concluída
+- Arquivos verificados: `index.html`, `login.js`, `auth.js`, `cadastro.html`, `RESET.HTML`, `firebase-config.js` e `participacoes.js` como dependências diretas do fluxo de cadastro.
+- Testes/evidências: scripts externos `login.js` e `auth.js` aprovados com `node --check`; os três scripts inline de `index.html`, `cadastro.html` e `RESET.HTML` também foram aprovados; todos os IDs consumidos pelos scripts foram encontrados nos respectivos HTMLs; checkout limpo no commit `12abbed`.
+- Confirmado: o login de professor consulta `usuarios` antes de `alunos`; o login de aluno aceita `login`, nome completo ou primeiro nome após normalização sem acentos, espaços duplicados e diferenças de caixa; a senha é comparada no cliente com o campo `senha`; professor redireciona para `professor.html` e aluno para `aluno.html?nome=...`; a sessão usa `localStorage.usuarioAtual` com `nome`, `tipo`, `classificado` e `docId`; `garantirFormato()` remove somente valores legados que não começam com `{`; o cadastro exige `turma` na URL, lê `turmas/{turmaId}`, cria o documento em `alunos`, adiciona o ID à turma e redireciona para o painel do aluno; os campos necessários para os scripts estão presentes.
+- Suspeitas: a comparação por primeiro nome pode ser ambígua quando existem homônimos; `garantirFormato()` não valida JSON corrompido que comece com `{`; o cadastro salva foto Base64 no documento do Firestore, embora aceite arquivo de até 3 MB, o que pode exceder o limite do documento; a sessão criada pelo cadastro não contém `docId`; `RESET.HTML` usa `storageBucket: asafenotas-5cf3f.appspot.com`, enquanto `firebase-config.js` usa `asafenotas-5cf3f.firebasestorage.app`.
+- Correções realizadas: nenhuma alteração funcional nesta etapa; os contratos atuais foram documentados para evitar mudanças incompatíveis.
+- Pendências: avaliar migração do login para Firebase Authentication ou, no mínimo, retirar a comparação de senhas no cliente; proteger ou remover `RESET.HTML` da publicação pública, pois ele executa operações destrutivas em todos os alunos; definir política para senha inicial `asafe`; corrigir a inconsistência do bucket; decidir se o cadastro deve usar Firebase Storage para fotos e incluir `docId` na sessão; testar homônimos e documentos legados com dados controlados.
+- Próxima etapa: Etapa 3 — painel do aluno (`aluno.html`, `aluno3.js`, CSS, notificações e lições).
