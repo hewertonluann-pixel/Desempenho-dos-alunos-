@@ -68,3 +68,11 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Resultado:** contratos de login, cadastro, sessão e redefinição de dados foram documentados; sintaxe dos scripts externos e inline passou; riscos de segurança e compatibilidade foram catalogados sem alteração funcional.
 - **Pendências principais:** revisar autenticação baseada em senha no Firestore, proteger `RESET.HTML`, tratar fotos do cadastro via Storage, incluir `docId` na sessão criada no cadastro e alinhar o bucket Firebase.
 - **Próxima etapa:** Etapa 3 — painel do aluno.
+
+### Etapa 3 — Painel do aluno
+
+- **Status:** concluída em 2026-10-29.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 3: painel do aluno”.
+- **Resultado:** fluxo de carregamento, preferências, frequência, conquistas, notificações, foto e envio de lições foram mapeados; sintaxe dos módulos passou; riscos de autorização, privacidade, custo de consultas, tamanho de arquivos, MIME de áudio e inserção HTML foram catalogados.
+- **Pendências principais:** proteger visualização por ID e proprietário, filtrar notificações globais, migrar fotos para Storage com limite, preservar MIME/extensão de áudio, reduzir consultas globais e escapar conteúdo externo inserido no DOM.
+- **Próxima etapa:** Etapa 4 — painel do professor.
