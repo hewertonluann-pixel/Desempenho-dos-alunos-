@@ -200,6 +200,8 @@ Cada coleção possui a subcoleção `documentos`. Um documento pode conter, ent
 
 Quando `modoPartes` está ativo, abrir um documento leva para `partes.html?col={idDaColecao}&doc={idDoDocumento}`. Quando está desativado, o PDF é tratado como download direto. A Biblioteca também registra downloads na coleção `downloads` com o nome do aluno, nome do arquivo e data.
 
+**Observação da Etapa 8:** os fluxos de abertura, miniatura e processamento usam `url` diretamente e não reconstroem um URL a partir de `storagePath` quando o campo está ausente ou inválido. Uploads e exclusões Storage/Firestore são operações sequenciais, não transacionais; falhas intermediárias podem deixar objetos órfãos ou documentos com referências inconsistentes.
+
 ### 8.2 Reconhecimento atual
 
 A implementação está em [`script_partes.js`](./script_partes.js). Ela usa PDF.js para abrir o PDF e PDF-LIB para montar sub-PDFs por grupo. **OCR não é utilizado**; o algoritmo depende de uma camada de texto selecionável no PDF.
@@ -218,6 +220,8 @@ O catálogo possui nomes canônicos e aliases normalizados. Entre os nomes espec
 | Trombone Base | `trombone base`, `bass trombone`, `trombone baixo` |
 
 A normalização remove acentos, uniformiza caixa, converte hífens e espaços e compara aliases como palavras inteiras. Aliases específicos devem aparecer antes dos genéricos; por isso `Tenor Saxophone` não pode virar apenas `Tenor` ou `Saxofone`.
+
+**Divergência confirmada na Etapa 8:** `script_instrumento.js` e `cobertura_musicas.js` associam `Trombone 1` ao instrumento genérico `Trombone`, enquanto este catálogo documenta `trombone 1` como alias de `Trombone 01`. Alinhar os dois catálogos antes de reprocessar rótulos.
 
 ### 8.3 Cabeçalho, fallback e GRADE
 
@@ -268,6 +272,8 @@ A constante `ALGORITMO_RECONHECIMENTO_VERSAO` está em `6` em `script_partes.js`
 
 No modo professor, `partes.html` apresenta os comandos de editar grupos, criar instrumento, remover páginas, **Reprocessar** e **Salvar Tudo**. O reprocessamento não deve apagar automaticamente uma correção manual já confirmada sem uma ação explícita do professor. O reprocessamento em lote de `instrumento.html` é uma ação explícita do usuário pelo botão **Atualizar rótulos** e deve ser usado quando o catálogo de aliases for alterado.
 
+**Risco confirmado na Etapa 8:** ao carregar rótulos de versão antiga, `partes.html` pode reprocessá-los automaticamente em memória e marcar o documento como alterado. Se o professor salvar depois, os grupos antigos podem ser substituídos sem confirmação específica sobre a perda de ajustes manuais. Rever esse comportamento para preservar a regra descrita acima.
+
 ### 8.6 Página por instrumento
 
 `instrumento.html` carrega os documentos de `Músicas` e `Hinos da Harpa`, aplica os grupos salvos em `biblioteca_rotulos` e mostra somente os instrumentos efetivamente identificados e ativos. Os nomes exibidos são agrupados pelos aliases canônicos e a quantidade no seletor representa PDFs únicos, não a quantidade de grupos ou páginas.
@@ -285,6 +291,10 @@ A página de cobertura usa uma lista estruturada de músicas, não uma tabela-ma
 ### 8.8 Biblioteca: navegação por partes
 
 Quando `modoPartes` está ativo, a Biblioteca mantém o botão **Ver Partes** como ação principal. O texto auxiliar redundante `→ ver partes` não deve ser reintroduzido ao lado do nome do PDF; o nome pode continuar clicável e apontar para `partes.html`, mas a interface deve evitar duplicar a mesma indicação.
+
+### 8.9 Limitações confirmadas na auditoria
+
+`biblioteca-with-nav.html` é um placeholder sem o DOM operacional esperado por `script_biblioteca.js`; se for servido como rota da Biblioteca, a inicialização falha por ausência dos elementos. `materiais.html`/`materiais.js` implementam registro e histórico de entregas, não uma biblioteca de arquivos; além disso, o HTML carrega como script clássico um arquivo JavaScript com imports de módulo, impedindo sua inicialização conforme está marcado. `partes.html` referencia `partes-desktop.css`, ausente no checkout. A Biblioteca aceita áudio em formatos diversos, mas declara `audio/mpeg` nos players; as gravações de lições podem usar MIME diferente sob extensão `.webm` e não persistem `storagePath` no documento da lição.
 
 ## 9. Modelo de dados Firestore
 
@@ -350,11 +360,12 @@ A barra inferior é parte da navegação principal em telas pequenas. Verifique 
 
 Em cards de professor, mantenha leitura como **Bona** quando essa for a nomenclatura do campo. Exiba o método instrumental pelo nome salvo do método. Em desktop, mantenha cards compactos lado a lado, com número e status na mesma linha e sem redundância textual.
 
-A variação [`partes-desktop.html`](./partes-desktop.html) reutiliza [`script_partes.js`](./script_partes.js) e recebe ajustes visuais em [`partes-desktop.css`](./partes-desktop.css), sem alterar [`partes.html`](./partes.html). Na versão desktop, os cards de aluno usam um cabeçalho superior com o nome do instrumento em destaque; quando o grupo tem `tipo: "grade"` ou nome iniciado por `GRADE`, a mesma linha apresenta `GRADE · Partitura geral`. A lista usa duas ou mais colunas responsivas e a grade posiciona o cabeçalho antes da miniatura. Os cards de professor permanecem em largura total para preservar miniaturas e comandos de edição. Em telas de até 800 px, a mesma variação adota uma coluna, cabeçalho com quebra segura, quantidade de páginas separada e ações `Visualizar`/`Baixar` lado a lado com altura mínima de 48 px. Miniaturas do professor rolam horizontalmente, comandos de edição têm alvos maiores e a barra de ações respeita a navegação inferior e a área segura do aparelho.
+O layout desktop descrito para [`partes-desktop.html`](./partes-desktop.html) e [`partes-desktop.css`](./partes-desktop.css) deve ser tratado como intenção de design, não como implementação disponível: ambos os arquivos não existem nem estão rastreados no checkout auditado. Além disso, `partes.html:752` ainda referencia `partes-desktop.css`, que está ausente. Não assumir essa variação até os arquivos serem criados e publicados; decidir se a referência deve ser removida ou se os assets planejados devem ser recuperados.
 
 ### Testar alterações na Biblioteca
 
 Para qualquer mudança em `script_biblioteca.js` ou `script_partes.js`, teste: PDF com instrumento de uma página, instrumento de várias páginas, nomes compostos em português e inglês, GRADE explícita, GRADE com múltiplos instrumentos, página sem texto, rótulo antigo e correção manual do professor. Sem camada de texto selecionável, o algoritmo não reconhece o instrumento porque OCR não faz parte do projeto.
+
 
 ### Separar protótipos de produção
 
@@ -402,9 +413,9 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
-- Etapa atual: 8 — biblioteca e arquivos
-- Etapas concluídas: 1–7 — registradas em 2026-10-29
-- Próxima ação: verificar Biblioteca, partituras, PDFs, gravação e Storage, conforme o plano da Etapa 8
+- Etapa atual: 9 — Firebase e segurança
+- Etapas concluídas: 1–8 — registradas em 2026-10-29
+- Próxima ação: verificar `firebase-config.js`, `firebase.json`, `cors.json` e regras, conforme o plano da Etapa 9
 
 ### 2026-10-29 — Etapa 1: baseline e arquitetura
 - Status: concluída
@@ -487,3 +498,18 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Correções realizadas: nenhuma alteração funcional ou de dados. Os achados foram registrados para decisão e correção controlada.
 - Pendências: impedir confirmação falsa quando não há `docId`; conferir a sessão criada por cadastro conforme pendência da Etapa 2; revisar as condições de conclusão em Tom/Semitom e Jogo das Figuras; decidir o contrato de progressão, checkpoints e retomada; alinhar ordem exibida e próximo destino; decidir a inclusão de Armadura; decidir como tratar conclusões legadas sem timestamp; revisar regras Firestore e validar URLs/HTML de medalhas. Continuam abertas a divergência `FJ` da Etapa 5 e as pendências de Coral da Etapa 6.
 - Próxima etapa: Etapa 8 — Biblioteca e arquivos (Biblioteca, partituras, PDFs, gravação e Storage).
+
+
+### 2026-10-29 — Etapa 8: Biblioteca e arquivos
+- Status: concluída como revisão estática, sem alterações funcionais. Executada na mesma data das Etapas 5–7 a pedido explícito do usuário, como exceção à cadência padrão de uma etapa por dia.
+- Arquivos verificados: `biblioteca.html`, `biblioteca-with-nav.html`, `script_biblioteca.js`, `instrumento.html`, `script_instrumento.js`, `cobertura_musicas.html`, `cobertura_musicas.js`, `cobertura_musicas.css`, `partes.html`, `partes-ORIGINAL.html`, `script_partes.js`, `partes.css`, `js/recorder.js`, `js/recorderWorker.js`, `licoes.js`, `professor-licoes.js`, `materiais.html` e `materiais.js`; contratos da seção 8 deste arquivo e o inventário.
+- Testes/evidências: checkout inicial limpo em `main`, commit `6bb7c8d`. `node --check` passou para nove módulos/scripts JS e três scripts inline; verificação estática das referências HTML encontrou `partes.html` → `partes-desktop.css`, inexistente no checkout (referência já listada na Etapa 1). Não houve execução em navegador, rede, login, Firebase/Firestore/Storage, nem leitura ou alteração de dados reais.
+- Confirmado: Biblioteca grava documentos com URLs/caminhos Storage, mas os fluxos de abertura, miniatura e processamento usam `url` diretamente, sem resolver por `storagePath`. Uploads/substituições/exclusões são operações sequenciais; há caminhos que ignoram erros ou não limpam objetos após falhas posteriores, o que pode produzir referências inconsistentes ou objetos órfãos — possibilidade estática, não observada em dados reais.
+- Confirmado: `biblioteca-with-nav.html` é um placeholder sem os elementos que `script_biblioteca.js` procura e pode falhar ao inicializar. `materiais.html`/`materiais.js` registram entregas e históricos, não arquivos/Storage; `materiais.js` contém imports de módulo, mas o HTML o carrega como script clássico, incompatibilidade estática que impede a inicialização como marcada.
+- Confirmado: a classificação por instrumentos usa rótulos versionados, mas há divergência em `Trombone 1` versus o alias canônico `Trombone 01`. `partes.html` pode reprocessar rótulos de versão antiga automaticamente em memória; salvar depois pode substituir grupos manuais sem confirmação específica. `instrumento.html` não invalida automaticamente todo cache quando muda a versão do algoritmo, e falhas de reprocessamento em lote podem não ficar visíveis na mensagem final.
+- Confirmado: o processamento de PDF depende de URLs remotas e CDNs, usa a camada de texto (sem OCR) e gera sub-PDFs no cliente; a rotina de download não verifica `response.ok` antes do processamento. Não foram testados URL, CORS, CDNs, download, PDF/PNG exportado nem renderização em navegador.
+- Confirmado: os players da Biblioteca declaram `audio/mpeg` embora o seletor aceite outros formatos. O fluxo de lições usa `MediaRecorder`, acumula dados em memória e aplica o limite de 8 MiB após a captura; o arquivo usa extensão `.webm` mesmo quando o MIME pode ser MP4/Ogg, persiste `audioURL` sem `storagePath`, e a exclusão da lição remove o documento Firestore sem apagar o objeto Storage. O helper `recorder.js`/`recorderWorker.js` exporta WAV e não foi encontrado integrado ao fluxo de lições examinado.
+- Suspeitas/limites: interpolação de dados em `innerHTML`, controles de perfil no cliente e URLs de arquivo exigem revisão adicional, mas a explorabilidade e o acesso efetivo dependem de origem dos dados e regras Firestore/Storage não examinadas. Não se concluiu se os arquivos remotos são públicos, se URLs expiraram, nem se falhas/objetos órfãos existem em produção.
+- Correções realizadas: nenhuma correção funcional; os contratos e achados foram registrados para validação e correção controladas.
+- Pendências: definir fallback central `url`/`storagePath`; corrigir ou remover rotas placeholder e a inclusão de módulo em `materiais.html`; resolver a referência `partes-desktop.css`; alinhar aliases e a migração de rótulos sem perder ajustes manuais; tratar falhas parciais de upload/substituição/exclusão e guardar caminho de objetos quando necessário; alinhar MIME/extensão, validar tipo/tamanho e testar reprodução/exportação com arquivos reais; revisar regras e autorização na Etapa 9. Permanecem abertas `FJ` (Etapa 5), Coral (Etapa 6) e as pendências da jornada (Etapa 7).
+- Próxima etapa: Etapa 9 — Firebase e segurança (`firebase-config.js`, `firebase.json`, `cors.json` e regras).

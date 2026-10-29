@@ -117,3 +117,15 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Pendências:** corrigir feedback sem `docId`; alinhar condições de conclusão e ordem/destinos; definir inclusão da Armadura e política de checkpoints; decidir validade de registros legados sem timestamp; revisar as regras Firestore e a validação de URLs de medalhas. Pendências `FJ` (Etapa 5) e Coral (Etapa 6) permanecem abertas.
 - **Correções realizadas:** nenhuma correção funcional; achados documentados na memória.
 - **Próxima etapa:** Etapa 8 — Biblioteca e arquivos.
+
+
+### Etapa 8 — Biblioteca e arquivos
+
+- **Status:** concluída em 2026-10-29 como revisão estática, sem alterações funcionais. Executada na mesma data das Etapas 5–7 por solicitação explícita do usuário, como exceção à cadência padrão.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 8: Biblioteca e arquivos”.
+- **Arquivos verificados:** Biblioteca, instrumento/cobertura, separação de PDFs, gravação de áudio e materiais, conforme lista completa na memória.
+- **Evidências:** sintaxe aprovada em nove módulos/scripts JS e três blocos inline; checagem de referências locais identificou `partes.html` → `partes-desktop.css` ausente. Sem navegador, rede ou Firebase/Storage.
+- **Achados principais:** ausência de fallback por `storagePath`; placeholder `biblioteca-with-nav.html` incompatível com o módulo operacional; `materiais.js` carregado como script clássico apesar de usar imports; divergência de alias `Trombone 1`; reprocessamento de rótulos antigos pode substituir ajustes manuais; MIME/extensão inconsistentes em áudio e caminhos de falha que podem deixar referências/objetos Storage inconsistentes.
+- **Pendências:** alinhar URLs e aliases, preservar rótulos manuais, corrigir inicialização/rota e referência CSS, melhorar consistência de uploads/exclusões e validar MIME, playback, PDF e exportação com arquivos controlados; revisar permissões na Etapa 9. Não foram demonstrados objetos órfãos, acesso indevido ou falhas de rede reais.
+- **Correções realizadas:** nenhuma correção funcional; somente memória e plano atualizados.
+- **Próxima etapa:** Etapa 9 — Firebase e segurança.
