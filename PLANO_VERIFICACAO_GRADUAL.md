@@ -84,3 +84,11 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Resultado:** fluxos de turma ativa, gestão de alunos, ficha, níveis, snapshots, chamadas e dashboards foram mapeados; JavaScript externo e scripts inline passaram na validação estática; riscos de autorização, senha, referências órfãs, HTML não escapado, fotos Base64 e divergências entre coleções de chamadas foram documentados.
 - **Pendências principais:** implementar autorização real, unificar chamadas por `alunoId` e coleção, tornar o recálculo idempotente, sincronizar Coral/turmas, tratar exclusão de aluno, migrar fotos para Storage e consolidar os fluxos administrativos duplicados.
 - **Próxima etapa:** Etapa 5 — chamadas e frequência.
+
+### Etapa 5 — Chamadas e frequência
+
+- **Status:** concluída em 2026-10-29.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 5: chamadas e frequência”.
+- **Resultado:** fluxos de chamada, edição, exclusão, correção de turma, frequência elegível e comprometimento foram comparados; os scripts passaram na validação estática; foi confirmada uma divergência que trata `FJ` como falta comum.
+- **Pendências principais:** unificar estados e coleções, preservar históricos ao editar, tornar recálculos idempotentes, corrigir `FJ`, usar `alunoId`, padronizar fuso de Brasília e recalcular após correções em massa.
+- **Próxima etapa:** Etapa 6 — Coral e comunidade.
