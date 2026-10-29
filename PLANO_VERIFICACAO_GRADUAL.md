@@ -143,3 +143,16 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Correções realizadas:** nenhuma regra ou código foi alterado. Recomenda-se tratar a abertura das regras como prioridade crítica; a migração deve ser planejada com autenticação real e regras por usuário/role, pois a aplicação atual não implementa Firebase Authentication.
 - **Limites:** conclusão baseada nos textos fornecidos pelo usuário como correspondentes às regras atuais, sem validação independente no Console Firebase. Não afirmar que a configuração implantada coincide com os trechos sem essa conferência.
 - **Próxima etapa:** Etapa 10 — PWA e navegação.
+
+
+### Etapa 10 — PWA e navegação
+
+- **Status:** concluída em 2026-10-29 como revisão estática, sem alterações funcionais. Executada na mesma data da Etapa 9 por solicitação explícita do usuário, como exceção à cadência padrão.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 10: PWA e navegação”.
+- **Arquivos verificados:** manifests principal/Coral, service worker, loader, header e navegação; lista completa na memória.
+- **Evidências:** dois JSONs válidos; sintaxe aprovada em cinco módulos JS; 17 caminhos locais do precache presentes; ícones PNG de 192×192 e 512×512 conforme declarados. Sem execução em navegador, instalação/offline real ou Firebase.
+- **Achados principais:** worker v61 não pré-carrega páginas/manifesto do Coral, remove todos os caches do origin exceto o próprio e não aguarda `cache.put`; loader não acompanha dados assíncronos e pode não liberar overlay se seu JS falhar; ID `navProfessor` duplicado faz o bottom nav selecionar o elemento errado; Home do `aluno-coral` é redirecionado ao painel principal e não recebe estado ativo. `coral.html` registra o worker em `coral.html:83`; a hipótese de ausência de registro nessa página foi descartada na validação parental.
+- **Risco prioritário:** `navegacao.js:171` insere `aluno.foto` do Firestore em `innerHTML`. Em conjunto com as regras Firestore abertas fornecidas na Etapa 9, isso pode permitir injeção HTML persistente; não foi executado teste de exploração.
+- **Limitações:** compatibilidade do manifesto de `aluno-coral.html` pode ser intencional; confirmação requer decisão de produto. Não houve teste de instalação, offline, atualização de worker, acessibilidade ou comportamento visual em dispositivos.
+- **Correções realizadas:** nenhuma. Os achados devem ser corrigidos e testados em ambiente controlado.
+- **Próxima etapa:** Etapa 11 — CSS, mobile e acessibilidade.

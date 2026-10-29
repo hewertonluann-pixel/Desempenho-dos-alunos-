@@ -336,6 +336,8 @@ O service worker usa atualmente o cache `painel-orquestra-cache-v61`. Ele pré-c
 
 O `firebase.json` publica a raiz `.` e ignora arquivos ocultos e `node_modules`. O projeto Firebase definido em [`.firebaserc`](./.firebaserc) é `asafenotas-5cf3f`. `CONFIGURAR_CORS.md` e [`cors.json`](./cors.json) documentam a configuração de CORS do Storage.
 
+**Achados da Etapa 10:** `coral.html` usa `manifest-coral.json` e registra o service worker, mas o worker não pré-carrega `coral.html` nem `manifest-coral.json`; `aluno-coral.html` usa o manifesto principal. A limpeza de `activate` apaga todos os caches do mesmo origin exceto o nome atual, e o `cache.put` de documentos/scripts não é aguardado. O loader pode ocultar antes de dados assíncronos terminarem e não tem fallback se o próprio script falhar. A navegação injeta um `navProfessor` e o bottom nav repete o mesmo ID; o destino Home do Coral de aluno é reescrito para `aluno.html`. Ver o registro da Etapa 10 ao final desta memória para evidências e pendências.
+
 A aplicação pode ser testada localmente com um servidor estático, por exemplo `python3 -m http.server 8080`, a partir da raiz do repositório. Não abrir os HTML diretamente via `file://`, porque imports ES Modules, Firebase e PDF.js dependem de HTTP.
 
 ## 11. Regras para futuras alterações
@@ -413,9 +415,9 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
-- Etapa atual: 10 — PWA e navegação
-- Etapas concluídas: 1–9 — registradas em 2026-10-29
-- Próxima ação: verificar manifests, `service-worker.js`, loader, navegação e header, conforme o plano da Etapa 10
+- Etapa atual: 11 — CSS, mobile e acessibilidade
+- Etapas concluídas: 1–10 — registradas em 2026-10-29
+- Próxima ação: revisar CSS, mobile e acessibilidade das páginas críticas, conforme o plano da Etapa 11
 
 ### 2026-10-29 — Etapa 1: baseline e arquitetura
 - Status: concluída
@@ -537,3 +539,18 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Mitigação recomendada, ainda não aplicada: substituir permissões abertas por negação por padrão e regras específicas de propriedade/role para cada coleção e prefixo de Storage; implementar Firebase Authentication e autorização real antes de exigir `request.auth`, pois o login atual consulta senhas no Firestore e grava somente uma sessão em `localStorage`. Restringir ou remover `RESET.HTML` do diretório público. Validar as regras com Firebase Emulator Suite e dados de teste antes de qualquer deploy.
 - Limites: nenhum arquivo de regra foi criado ou alterado; não houve deploy, acesso ao Console, teste anônimo, acesso a documentos ou arquivos, nem tentativa de escrita. A configuração ativa pode divergir do texto enviado.
 - Próxima etapa: Etapa 10 — PWA e navegação (`manifest*`, `service-worker.js`, loader, navegação e header).
+
+
+### 2026-10-29 — Etapa 10: PWA e navegação
+- Status: concluída como revisão estática, sem alterações funcionais. Executada na mesma data da Etapa 9 por solicitação explícita do usuário, como exceção à regra de uma etapa por dia.
+- Arquivos verificados: `manifest.json`, `manifest-coral.json`, `index.html`, `coral.html`, `aluno-coral.html`, `service-worker.js`, `loader.js`, `loader.css`, `navegacao.js`, `bottom-nav.js`, `bottom-nav.css`, `header-template.js`, `aluno.html`, `professor.html`, `biblioteca.html`, `atividades.html` e `firebase.json`.
+- Testes/evidências: os dois manifests são JSON válidos; `node --check` passou em `service-worker.js`, `loader.js`, `navegacao.js`, `bottom-nav.js` e `header-template.js`. Os 17 caminhos locais declarados no precache existem; `icon-192.png` é 192×192 e `icon-512.png` é 512×512. Não houve execução em navegador/dispositivo, teste offline, rede ou Firebase.
+- Confirmado — manifests: o manifesto principal é ligado por `index.html` e tem `start_url`/`scope` relativos coerentes; seus ícones locais existem com as dimensões declaradas. `coral.html` liga `manifest-coral.json` e, em `coral.html:83`, registra `/service-worker.js`. `aluno-coral.html` liga o manifesto principal e não registra diretamente o worker; decidir se isso é intencional para a identidade PWA do painel Coral. Os caminhos absolutos funcionam sob a publicação atual na raiz; a hipótese de subdiretório é somente condicional.
+- Confirmado — service worker: `CACHE_NAME` está em `painel-orquestra-cache-v61`; a lista pré-cacheada não inclui `coral.html`, `manifest-coral.json` nem `aluno-coral.html`. `cache.addAll()` torna a instalação dependente do sucesso de todos os itens. O evento `activate` exclui todos os caches do mesmo origin cujo nome difere do cache atual, sem prefixo do aplicativo. Nas respostas network-first, `cache.put()` é iniciado sem ser aguardado por `event.waitUntil`; os demais GET same-origin não pré-cacheados usam cache-first e uma resposta de rede fria não é adicionada ao cache.
+- Confirmado — loader: `loader.js` combina `window.load`, uma verificação de prontidão e um timeout máximo; `checkPageReady()` considera `document.readyState === "complete"` suficiente e não aguarda carregamentos de dados assíncronos da aplicação. Se `loader.js` não carregar, as páginas com overlay não têm fallback independente para removê-lo. O overlay não declara estado acessível e as animações não respeitam `prefers-reduced-motion` nos arquivos examinados. `index.html` não usa o loader; não foi tratado como falha por si só.
+- Confirmado — navegação/header: `navegacao.js` injeta um `navProfessor` no início do body; `aluno.html` e `aluno-coral.html` também declaram `id="navProfessor"` no bottom nav. `bottom-nav.js` usa `getElementById`, portanto, com a navbar injetada antes do bottom nav, a busca seleciona o primeiro ID e pode deixar o link Professor inferior oculto. Em `aluno-coral.html`, o link Home é reescrito para `aluno.html?nome=...` e a função de item ativo não reconhece `aluno-coral`. O template `header-template.js` é importado por `bottom-nav.js` nas páginas que carregam esse módulo; `professor.html` carrega apenas `navegacao.js` e usa navegação separada.
+- Risco prioritário combinado com a Etapa 9: `navegacao.js` interpola `aluno.foto` do Firestore em `navAvatar.innerHTML` (`navegacao.js:171`). Como as regras Firestore fornecidas pelo usuário permitem escrita anônima global, existe um caminho potencial para injeção HTML persistente via dado de perfil; não foi criada nem executada carga de teste. Tratar como prioridade, substituir interpolação por criação de elementos e atribuição segura de `img.src`, e restringir as regras antes de usar o perfil.
+- Acessibilidade/usabilidade: o botão de menu em `navegacao.js` é uma `div` com listener de clique, sem semântica/teclado identificados; avatar sem `alt` e item ativo sem `aria-current`. A intenção do link Professor também não deve ser considerada autorização: sua visibilidade deriva de `classificado` no cliente.
+- Correções realizadas: nenhuma alteração funcional ou de dados. Achados e caminhos foram registrados para correção controlada.
+- Pendências: decidir manifesto do painel Coral; rever precache/instalação offline, limpeza de caches e espera do `cache.put`; adicionar fallback fail-open e sincronização do loader com tarefas críticas; eliminar o ID duplicado e corrigir Home/estado ativo do Coral; tornar menu/estado/avatar acessíveis; remover o sink `innerHTML` para a foto e restringir regras Firestore; testar instalação, offline, atualizações e navegação em browser/dispositivo após as correções.
+- Próxima etapa: Etapa 11 — CSS, mobile e acessibilidade.
