@@ -92,3 +92,15 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Resultado:** fluxos de chamada, edição, exclusão, correção de turma, frequência elegível e comprometimento foram comparados; os scripts passaram na validação estática; foi confirmada uma divergência que trata `FJ` como falta comum.
 - **Pendências principais:** unificar estados e coleções, preservar históricos ao editar, tornar recálculos idempotentes, corrigir `FJ`, usar `alunoId`, padronizar fuso de Brasília e recalcular após correções em massa.
 - **Próxima etapa:** Etapa 6 — Coral e comunidade.
+
+
+### Etapa 6 — Coral e comunidade
+
+- **Status:** concluída em 2026-10-29 como revisão estática, sem alterações funcionais. Executada no mesmo dia da Etapa 5 após autorização explícita do usuário, como exceção à cadência padrão de uma etapa por dia.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 6: Coral e comunidade”.
+- **Arquivos verificados:** `aluno-coral.html`, `aluno-coral.js`, `aluno-coral.css`, `coral.html`, `painel-social.html`, `painel-social1.html`, `conquistas.js`, `conquistas-editor.html`; dependências diretas `ensaio.html`, `ensaio2.html`, `frequencia.js`, `participacoes.js` e `aluno3.js`.
+- **Evidências:** scripts externos e inline examinados passaram em `node --check`; teste sintético confirmou que `turmaId` distinto mantém a chamada Coral fora da frequência da turma principal; teste sintético confirmou que o evento salvo como `tipo: "aula"` não satisfaz o filtro da conquista Coral. Nenhum acesso ao Firebase e nenhum dado real alterado.
+- **Confirmado:** o recálculo normal da chamada retorna para turma Coral; a elegibilidade principal exige a turma correspondente. Entretanto, ambos os formulários criam eventos com `tipo: "aula"`, enquanto filtros genéricos e a conquista `participacao_coral` dependem do marcador Coral. Para perfis sem `turmaId`, o painel social pode considerar chamada Coral pelo fallback por ID/nome. A tela Coral cria documento em `alunos` para novos membros e não oferece inclusão avulsa por nome em nova chamada; participantes sem documento também não aparecem nos fluxos sociais/de conquistas baseados em `alunos`.
+- **Pendências principais:** corrigir/normalizar o tipo e o escopo dos eventos Coral em todos os cálculos; definir representação de participantes Coral sem ID de aluno; preservar separação entre turma principal e atividade extra; verificar regras Firestore/Storage e renderizações dinâmicas. A falha `FJ` da Etapa 5 continua aberta.
+- **Correções realizadas:** nenhuma correção funcional; achados registrados na memória.
+- **Próxima etapa:** Etapa 7 — atividades e jogos.

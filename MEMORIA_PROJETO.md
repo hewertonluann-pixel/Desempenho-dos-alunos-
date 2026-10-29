@@ -313,6 +313,8 @@ A tabela abaixo registra as coleções encontradas no código. Campos podem poss
 
 O frontend acessa diretamente o Firestore e o Storage. Portanto, mudanças de nome de coleção, subcoleção ou campo precisam de uma estratégia de migração ou compatibilidade, não apenas de uma troca em um arquivo HTML.
 
+**Regra de domínio confirmada pelo usuário — Coral/KADOSH:** o Coral é uma atividade extra, distinta dos ensaios da orquestra. Alguns alunos da orquestra também participam, e várias outras pessoas não pertencem à orquestra e podem não ter ID/documento de aluno. A presença do Coral deve permanecer isolada e nunca alterar ou compor a frequência dos ensaios. Não presumir que todo participante do Coral precisa de `alunos/{id}`; preservar separadamente o vínculo à turma principal e a participação Coral.
+
 ## 10. PWA, cache e deploy
 
 [`manifest.json`](./manifest.json) define o nome Orquestra, ícones 192/512, orientação retrato, modo `standalone`, cores e idioma `pt-BR`. [`index.html`](./index.html) registra [`service-worker.js`](./service-worker.js).
@@ -397,9 +399,9 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
-- Etapa atual: 2 — login e sessão
-- Etapas concluídas: 1 — baseline e arquitetura, em 2026-10-29
-- Próxima ação: verificar `index.html`, `login.js`, `auth.js`, `cadastro.html` e `RESET.HTML`
+- Etapa atual: 7 — atividades e jogos
+- Etapas concluídas: 1–6 — registradas em 2026-10-29
+- Próxima ação: verificar `atividades*`, `jornada*`, jogos e teoria, conforme o plano da Etapa 7
 
 ### 2026-10-29 — Etapa 1: baseline e arquitetura
 - Status: concluída
@@ -454,3 +456,17 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Correções realizadas: nenhuma alteração funcional nesta etapa; a falha `FJ` e os demais riscos foram documentados para correção controlada.
 - Pendências prioritárias: unificar o enum de estados (`P`, `F`, `FJ`) em todos os cálculos; preservar registros históricos ao editar chamadas; consolidar chamadas em `eventos` e usar `alunoId`; tornar recálculos idempotentes e transacionais; usar fuso de Brasília em todas as chaves de data; recalcular após correções em massa; validar turma e autorização antes de mutações; filtrar por turma e evitar consultas globais; escapar conteúdo externo.
 - Próxima etapa: Etapa 6 — Coral e comunidade (`aluno-coral*`, `coral.html`, `painel-social*` e `conquistas*`).
+
+
+### 2026-10-29 — Etapa 6: Coral e comunidade
+- Status: concluída como revisão estática, sem correções funcionais. A Etapa 6 foi iniciada no mesmo dia da Etapa 5 após autorização explícita do usuário, como exceção à cadência padrão de uma etapa por dia.
+- Contexto confirmado pelo usuário: o inventário havia sido feito no dia anterior (2026-10-28); Coral/KADOSH é atividade extra; alguns alunos da orquestra participam e várias outras pessoas não são da orquestra e podem não ter ID/documento de aluno; presenças do Coral são distintas e não devem afetar as presenças dos ensaios. Esta regra também foi registrada na seção 9.
+- Arquivos verificados: `aluno-coral.html`, `aluno-coral.js`, `aluno-coral.css`, `coral.html`, `painel-social.html`, `painel-social1.html`, `conquistas.js`, `conquistas-editor.html`; dependências/caminhos de integração `ensaio.html`, `ensaio2.html`, `frequencia.js`, `participacoes.js` e `aluno3.js`.
+- Testes/evidências: checkout inicial limpo no commit `ca026f5`; `node --check` aprovado para `aluno-coral.js`, `conquistas.js`, `participacoes.js` e `frequencia.js`; scripts inline de `coral.html`, `ensaio.html`, `ensaio2.html`, `painel-social.html`, `painel-social1.html` e `conquistas-editor.html` passaram em `node --check`. Testes com dados sintéticos confirmaram que uma chamada com `turmaId` Coral não é elegível para frequência da turma principal e que o rótulo `tipo: "aula"` não passa pelo filtro de eventos usado para a conquista Coral. Nenhum acesso ao Firebase e nenhuma alteração de dados reais.
+- Confirmado: os fluxos de chamada interrompem o recálculo dos documentos de `alunos` quando a turma ativa é Coral, e o cálculo por turma exclui uma chamada cujo `turmaId` Coral difere do `turmaId` principal do aluno. A chamada é armazenada na coleção compartilhada `eventos`, com o ID da turma Coral.
+- Falha confirmada: a criação nos dois caminhos (`ensaio.html` e `ensaio2.html`) grava `tipo: "aula"` mesmo para uma turma Coral. Consultas genéricas excluem eventos Coral apenas quando `tipo === "coral"`; o cálculo de `participacao_coral` em `aluno3.js` também seleciona por `tipo === "coral"` ou `turmaTipo === "coral"`. Assim, chamadas novas podem escapar da separação por tipo e não acionar a conquista Coral. Para perfis sem `turmaId`, a rotina social usa correspondência de ID/nome e exclui somente eventos marcados `coral`, criando risco de contabilizar chamadas Coral como métricas gerais; não foi consultado banco nem medido efeito em produção.
+- Confirmado: o fluxo “Novo aluno” de `coral.html` cria um documento em `alunos` (com `turmaId` vazio) e vincula seu ID à turma Coral. A tela de nova chamada carrega documentos de `alunos`; não há fluxo visível para incluir um participante avulso apenas por nome. A edição preserva presenças antigas com `alunoId` vazio, mas isso não resolve a inclusão em novas chamadas. Os painéis sociais e o fluxo de conquistas também dependem de documentos `alunos`, então participantes sem documento não são representados por esses fluxos.
+- Suspeitas/limites: `painel-social.html` remove do conjunto principal perfis cujo `aluno.turmaId` seja o ID de uma turma Coral; se esse campo estiver preenchido com Coral apesar de a pessoa pertencer à orquestra, o card principal pode desaparecer. A validação de acesso observada em Coral, perfil individual e editor depende de estado/checagens no cliente; regras Firestore/Storage efetivas não foram localizadas nem verificadas. Algumas renderizações interpolam dados do Firestore ou URLs de imagem em HTML/atributos, a revisar com dados controlados.
+- Correções realizadas: nenhuma alteração funcional ou de dados; divergências e riscos registrados para decisão e correção controlada.
+- Pendências: definir um cadastro/identificador próprio para participantes Coral sem documento de aluno e como eles aparecem em chamadas, comunidade e conquistas; marcar/enriquecer eventos Coral de forma consistente e testar isolamento em todos os consumidores de frequência; manter `alunos.turmaId` representando a turma principal, independente da participação extra; revisar regras Firestore/Storage; escapar/validar conteúdo inserido no DOM. Permanece pendente a falha `FJ` registrada na Etapa 5; esta etapa não a corrigiu.
+- Próxima etapa: Etapa 7 — atividades e jogos (`atividades*`, `jornada*`, jogos e teoria).
