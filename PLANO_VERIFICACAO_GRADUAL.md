@@ -156,3 +156,17 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Limitações:** compatibilidade do manifesto de `aluno-coral.html` pode ser intencional; confirmação requer decisão de produto. Não houve teste de instalação, offline, atualização de worker, acessibilidade ou comportamento visual em dispositivos.
 - **Correções realizadas:** nenhuma. Os achados devem ser corrigidos e testados em ambiente controlado.
 - **Próxima etapa:** Etapa 11 — CSS, mobile e acessibilidade.
+
+
+### Etapa 11 — CSS, mobile e acessibilidade
+
+- **Status:** concluída em 2026-10-29 como auditoria estática; executada na mesma data da Etapa 10 por solicitação explícita do usuário, como exceção à cadência padrão.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 11: CSS, mobile e acessibilidade”.
+- **Arquivos verificados:** as 16 folhas CSS do checkout (`aluno-coral.css`, `aluno-teste.css`, `aluno.css`, `bottom-nav.css`, `cobertura_musicas.css`, `configuracoes.css`, `convites/convite.css`, `index.css`, `instrumento.css`, `loader.css`, `modules/chamada.css`, `modules/gerenciar-alunos.css`, `modules/relatorio.css`, `partes.css`, `professor.css`, `styles.css`) e páginas críticas de login, aluno/Coral/comunidade, chamadas, materiais/Biblioteca, partes/instrumento, professor/turmas, configurações, convites e relatórios.
+- **Evidências:** 16 unidades de auditoria e a síntese foram concluídas; foram comparadas referências de folhas, breakpoints, overflow, tamanhos de toque, rótulos, foco, cores declaradas e movimento reduzido. Sem execução/renderização, teste em dispositivo ou alteração funcional.
+- **Achados prioritários:** controles acionáveis não nativos/sem teclado, campos e uploads sem associação/foco suficiente, e diversos pares de texto normal abaixo de 4,5:1 (incluindo a navegação inferior, cards de apresentação e botões azuis); `styles.css` bloqueia a rolagem de `materiais.html`; há riscos fortes de layout móvel em convites, chamada e painel do professor; `ensaio2.html` restringe zoom do usuário; referências de CSS/JS precisam de alinhamento e contexto de URL; `convites/convite.html` tem script inline com sintaxe inválida.
+- **Outros achados:** animações contínuas sem `prefers-reduced-motion` em várias folhas; ausência de alternativa textual identificada para gráficos/partitura em canvas; label/foco/semântica de modais e estado acessível do loader requerem tratamento.
+- **Suspeitas e limites:** integração relativa de `modules/*.html` depende da URL/base hospedeira; contraste de gradientes/transparências e clipping, safe-area, teclado virtual e dimensões computadas exigem validação em runtime. `index.css` e `convites/convite.css` não foram encontrados ligados às páginas examinadas; não se presume regressão sem confirmar intenção.
+- **Correções realizadas:** nenhuma alteração em CSS, HTML, JS ou dados; apenas documentação dos resultados.
+- **Pendências:** corrigir primeiro os problemas de teclado/semântica e contraste, depois rolagem/reflow/zoom e referências; adicionar movimento reduzido e alternativas dos canvas; testar 320 CSS px, zoom 200%, teclado virtual, safe-area, teclado e leitor de tela antes de encerrar cada correção.
+- **Próxima etapa:** Etapa 12 — integração e consolidação dos fluxos completos e do backlog por prioridade.

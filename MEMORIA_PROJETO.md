@@ -415,9 +415,9 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
-- Etapa atual: 11 — CSS, mobile e acessibilidade
-- Etapas concluídas: 1–10 — registradas em 2026-10-29
-- Próxima ação: revisar CSS, mobile e acessibilidade das páginas críticas, conforme o plano da Etapa 11
+- Etapa atual: 12 — integração e consolidação
+- Etapas concluídas: 1–11 — registradas em 2026-10-29
+- Próxima ação: integrar os fluxos completos e consolidar o backlog por prioridade, conforme o plano da Etapa 12
 
 ### 2026-10-29 — Etapa 1: baseline e arquitetura
 - Status: concluída
@@ -554,3 +554,20 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Correções realizadas: nenhuma alteração funcional ou de dados. Achados e caminhos foram registrados para correção controlada.
 - Pendências: decidir manifesto do painel Coral; rever precache/instalação offline, limpeza de caches e espera do `cache.put`; adicionar fallback fail-open e sincronização do loader com tarefas críticas; eliminar o ID duplicado e corrigir Home/estado ativo do Coral; tornar menu/estado/avatar acessíveis; remover o sink `innerHTML` para a foto e restringir regras Firestore; testar instalação, offline, atualizações e navegação em browser/dispositivo após as correções.
 - Próxima etapa: Etapa 11 — CSS, mobile e acessibilidade.
+
+
+### 2026-10-29 — Etapa 11: CSS, mobile e acessibilidade
+- Status: concluída como auditoria estática, sem alterações funcionais. Executada na mesma data da Etapa 10 por solicitação explícita do usuário, como exceção à cadência padrão.
+- Arquivos verificados: as 16 folhas CSS do checkout: `aluno-coral.css`, `aluno-teste.css`, `aluno.css`, `bottom-nav.css`, `cobertura_musicas.css`, `configuracoes.css`, `convites/convite.css`, `index.css`, `instrumento.css`, `loader.css`, `modules/chamada.css`, `modules/gerenciar-alunos.css`, `modules/relatorio.css`, `partes.css`, `professor.css` e `styles.css`; páginas críticas e associadas incluem login (`index.html`), aluno/Coral e painéis sociais, chamadas (`ensaio.html`, `ensaio2.html`, `corrigir-chamadas.html`, `gerenciar-eventos.html`), materiais/Biblioteca, partes/instrumento, professor/turmas, configurações, convites e relatórios.
+- Testes/evidências: 16 auditorias estáticas independentes e uma síntese foram concluídas sem falhas; houve mapeamento determinístico de folhas para páginas e revisão das referências, seletores, breakpoints, alvos de toque, foco, rótulos, contraste declarado, movimento reduzido e semântica. Não houve execução do aplicativo, navegador, leitor de tela, dispositivo real, teste de impressão ou alteração de código.
+- Confirmado:
+  - Há ações em elementos não nativos (`div`/`span` com `onclick`) sem semântica/teclado declarados, além de uploads ou switches ocultos sem caminho por teclado suficientemente acessível. Exemplos: cartões dos painéis sociais, cartões de chamada, cabeçalho de turma, chips de materiais e controles de fechamento/upload. Também foram encontrados rótulos não associados a campos e casos de `outline:none` sem foco substituto perceptível.
+  - Há pares de texto normal com contraste estático inferior a 4,5:1. Exemplos calculados: rótulos de `bottom-nav.css` em torno de 1,66–1,73:1; texto herdado quase branco em cards brancos de `apresentacao.html` em torno de 1,23:1; botões primários azuis em `configuracoes.css`/`instrumento.css` em torno de 2,8:1; outros botões em gradiente e texto secundário pequeno também falham nos pares sólidos declarados. Gradientes e superfícies transparentes requerem recálculo com as cores efetivamente compostas.
+  - `styles.css` aplica `overflow:hidden` ao `body` e é carregado por `materiais.html`, cujo conteúdo se estende além da primeira tela; não há `.screen` no HTML fornecido que limite a regra, impedindo a rolagem normal do documento.
+  - Há riscos responsivos concretos no CSS/markup estático: cartões de convite com largura fixa de 600px/480px sem `max-width`; linhas sem quebra em `corrigir-chamadas.html`; ficha de 300px persistente no breakpoint móvel de `professor.html`; e `ensaio2.html` oculta overflow e desativa zoom do usuário (`maximum-scale=1.0,user-scalable=no`).
+  - A integração de estilos requer correção/decisão: `partes.html` aponta para `partes-desktop.css`, ausente no checkout, enquanto `partes.css` não está ligado pelo nome esperado; `index.css` e `convites/convite.css` não são referenciados pelas páginas críticas examinadas. Em `modules/*.html`, caminhos como `href="modules/chamada.css"` resolvem duplicados se o documento for servido diretamente em `/modules/`; se forem fragments, a URL/base hospedeira precisa ser confirmada. `materiais.html` declara contêiner vazio da navegação inferior e carrega `bottom-nav.js` como script clássico embora a fonte use `import`. `convites/convite.html` contém sintaxe inválida no script inline, que precisa ser corrigida antes de validar o fluxo.
+  - Várias folhas/estilos inline não declaram `prefers-reduced-motion` apesar de animações contínuas; gráficos em canvas nos relatórios e a partitura em canvas não apresentam alternativa textual equivalente identificada no markup examinado.
+- Suspeitas: a renderização final de overflow, safe-area, camadas de modal, teclado virtual, foco nativo e cores com transparência depende do navegador, dos estilos externos e dos dados/runtime. A integração dos fragments `modules/*.html` depende da URL/base real. A existência de folhas não referenciadas não comprova regressão ou remoção intencional.
+- Correções realizadas: nenhuma. Foram registrados somente os achados; não houve alteração de aplicação, dados, Firebase ou CSS.
+- Pendências: priorizar (1) controles nativos/teclado, nomes acessíveis, labels e foco; (2) corrigir contrastes insuficientes; (3) liberar rolagem em Materiais, reflow de convites/chamadas/professor e zoom em `ensaio2.html`; (4) alinhar referências e carregamento de CSS/JS após confirmar URLs; (5) adicionar movimento reduzido e alternativas textuais para canvas; (6) validar navegação fixa, safe-area e modais em navegador/dispositivo, incluindo 320 CSS px, ampliação de 200%, teclado virtual, teclado e leitor de tela.
+- Próxima etapa: Etapa 12 — integração e consolidação do backlog, conforme o plano.
