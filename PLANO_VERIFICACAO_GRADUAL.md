@@ -129,3 +129,15 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 - **Pendências:** alinhar URLs e aliases, preservar rótulos manuais, corrigir inicialização/rota e referência CSS, melhorar consistência de uploads/exclusões e validar MIME, playback, PDF e exportação com arquivos controlados; revisar permissões na Etapa 9. Não foram demonstrados objetos órfãos, acesso indevido ou falhas de rede reais.
 - **Correções realizadas:** nenhuma correção funcional; somente memória e plano atualizados.
 - **Próxima etapa:** Etapa 9 — Firebase e segurança.
+
+
+### Etapa 9 — Firebase e segurança
+
+- **Status:** revisão estática local realizada em 2026-10-29, mas etapa **incompleta/bloqueada** até a validação das regras efetivas do Firebase. Iniciada no mesmo dia da Etapa 8 por solicitação explícita do usuário.
+- **Registro detalhado:** `MEMORIA_PROJETO.md`, seção “2026-10-29 — Etapa 9: Firebase e segurança (bloqueada)”.
+- **Arquivos verificados:** `firebase-config.js`, `firebase.json`, `.firebaserc`, `cors.json`, `CONFIGURAR_CORS.md`, `.gitignore`, `login.js`, `auth.js` e `RESET.HTML`.
+- **Evidências:** JSONs válidos; sintaxe aprovada em três módulos JS e no script inline do `RESET.HTML`; nenhum arquivo de regras Firestore/Storage no checkout; nenhuma chave privada/service account detectada entre arquivos rastreados. Não houve login, deploy ou acesso a dados.
+- **Achados locais:** Hosting publica `.` e não exclui `RESET.HTML` ou os documentos do projeto; o reset em lote não tem guarda de autenticação no cliente. O login compara senhas no cliente e não usa Firebase Authentication; CORS não substitui regras de autorização. O procedimento CORS aponta para bucket diferente do declarado pela configuração principal. O repositório GitHub é público.
+- **Bloqueio:** `firebase.json` não define regras e o repositório não contém `firestore.rules`/`storage.rules`; as permissões atualmente implantadas podem estar no Console e são desconhecidas. Não concluir que dados estejam públicos ou protegidos sem examinar essas regras.
+- **Correções realizadas:** nenhuma. A revisão estática fica registrada, mas a etapa permanece em aberto.
+- **Próxima ação:** obter as regras ativas de Firestore e Storage e confirmar bucket/origens pretendidas; retomar a Etapa 9 após receber esses artefatos. **Não iniciar a Etapa 10 enquanto este bloqueio persistir.**

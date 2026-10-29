@@ -413,9 +413,9 @@ As referências abaixo são arquivos do próprio repositório e devem ser consul
 A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PROJETO.md). O trabalho de revisão deve seguir [`PLANO_VERIFICACAO_GRADUAL.md`](./PLANO_VERIFICACAO_GRADUAL.md), com uma etapa por dia e baixo consumo de contexto. Cada etapa só pode ser considerada concluída quando este arquivo de memória receber um registro datado com os arquivos verificados, evidências, achados, correções, pendências e próximo passo. O plano e esta memória devem ser atualizados juntos no mesmo commit.
 
 ### Estado do ciclo
-- Etapa atual: 9 — Firebase e segurança
+- Etapa atual: 9 — Firebase e segurança (bloqueada após auditoria estática local)
 - Etapas concluídas: 1–8 — registradas em 2026-10-29
-- Próxima ação: verificar `firebase-config.js`, `firebase.json`, `cors.json` e regras, conforme o plano da Etapa 9
+- Próxima ação: obter/revisar as regras ativas de Firestore e Storage; não avançar à Etapa 10 antes de avaliar as permissões reais
 
 ### 2026-10-29 — Etapa 1: baseline e arquitetura
 - Status: concluída
@@ -513,3 +513,16 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Correções realizadas: nenhuma correção funcional; os contratos e achados foram registrados para validação e correção controladas.
 - Pendências: definir fallback central `url`/`storagePath`; corrigir ou remover rotas placeholder e a inclusão de módulo em `materiais.html`; resolver a referência `partes-desktop.css`; alinhar aliases e a migração de rótulos sem perder ajustes manuais; tratar falhas parciais de upload/substituição/exclusão e guardar caminho de objetos quando necessário; alinhar MIME/extensão, validar tipo/tamanho e testar reprodução/exportação com arquivos reais; revisar regras e autorização na Etapa 9. Permanecem abertas `FJ` (Etapa 5), Coral (Etapa 6) e as pendências da jornada (Etapa 7).
 - Próxima etapa: Etapa 9 — Firebase e segurança (`firebase-config.js`, `firebase.json`, `cors.json` e regras).
+
+
+### 2026-10-29 — Etapa 9: Firebase e segurança (bloqueada)
+- Status: revisão estática local realizada; etapa incompleta quanto às permissões ativas do projeto. Iniciada no mesmo dia da Etapa 8 por solicitação explícita do usuário; não avançar à Etapa 10 enquanto o bloqueio persistir.
+- Arquivos verificados: `firebase-config.js`, `firebase.json`, `.firebaserc`, `cors.json`, `CONFIGURAR_CORS.md`, `.gitignore`, `login.js`, `auth.js` e `RESET.HTML`; pesquisa em arquivos versionados por regras e credenciais.
+- Testes/evidências: checkout limpo em `main`, commit-base `bc2cf55`; JSONs de configuração válidos; `node --check` passou em `firebase-config.js`, `login.js`, `auth.js` e no módulo inline de `RESET.HTML`. Nenhum arquivo de regras Firestore/Storage está rastreado ou presente no checkout. Varredura dos arquivos rastreados não encontrou marcadores de chave privada/service account. Repositório GitHub confirmado como público.
+- Confirmado: `.firebaserc` aponta para `asafenotas-5cf3f`. `firebase.json` configura somente Hosting, com `public: "."`, e não define publicação de regras Firestore/Storage; a configuração ignora `firebase.json`, dotfiles e `node_modules`, mas não `RESET.HTML` nem os documentos Markdown do projeto. Se esse Hosting for implantado com a configuração atual, esses arquivos da raiz são candidatos a serem servidos publicamente.
+- Confirmado: `RESET.HTML` não contém guarda de autenticação no cliente; percorre a coleção inteira `alunos` e oferece mutações em lote de presenças, frequência, conquistas, notas/classificação e fotos. A capacidade real de ler ou gravar depende das regras ativas, que não foram inspecionadas nem testadas.
+- Confirmado: `firebase-config.js` expõe a configuração web e inicializa Firestore, mas não inicializa Firebase Authentication. A chave `apiKey` do cliente é um identificador usado na configuração web, não uma chave privada; não foi possível verificar restrições de API no Console. `login.js` lê todas as coleções `usuarios` e `alunos` e compara `senha` no cliente; `auth.js` só grava uma sessão modificável em `localStorage`. As únicas referências a `getAuth`/`onAuthStateChanged` encontradas são imports em `materiais.js`, sem chamadas identificadas.
+- Confirmado: `cors.json` lista somente a origem Render e métodos GET/POST/PUT/DELETE/HEAD; CORS controla a origem de requisições do navegador, não concede nem substitui autorização. `CONFIGURAR_CORS.md` manda aplicar/verificar CORS no bucket `asafenotas-5cf3f.appspot.com`, enquanto a configuração principal usa `asafenotas-5cf3f.firebasestorage.app`; não foi possível determinar qual bucket existe ou qual política está ativa. `RESET.HTML` também mantém a configuração legada `appspot.com`.
+- Limites/bloqueio: sem arquivos de regras e sem inspeção autorizada do Console Firebase, não é possível afirmar se o projeto nega, restringe ou permite operações anônimas. Não houve deploy, autenticação, chamada a Firestore/Storage, teste de permissão, leitura ou alteração de dados. A presença de `firebase.json` local não comprova a configuração atualmente implantada.
+- Correções realizadas: nenhuma alteração funcional; nenhum segredo privado foi encontrado na varredura estática do repositório.
+- Próxima ação necessária para concluir a Etapa 9: fornecer/revisar os arquivos efetivos `firestore.rules` e `storage.rules` (ou uma exportação textual equivalente das regras ativas), além de confirmar o bucket e as origens Hosting pretendidas. Até isso ocorrer, manter a Etapa 9 bloqueada e não avançar à Etapa 10.
