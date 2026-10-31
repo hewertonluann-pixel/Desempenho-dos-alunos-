@@ -4,7 +4,7 @@
 >
 > **Repositório:** [hewertonluann-pixel/Desempenho-dos-alunos-](https://github.com/hewertonluann-pixel/Desempenho-dos-alunos-)
 >
-> **Última revisão:** 29/10/2026
+> **Última revisão:** 31/10/2026
 >
 > **Aplicação:** Orquestra Filhos de Asafe — Assembleia de Deus Ministério Diamantina
 
@@ -583,6 +583,16 @@ A lista completa de arquivos está em [`INVENTARIO_PROJETO.md`](./INVENTARIO_PRO
 - Correções realizadas: nenhuma funcional. Foram atualizados somente o estado, o registro da Etapa 12 e o backlog documental; nenhuma pendência de implementação é considerada encerrada por esta consolidação.
 - Pendências: iniciar pelo SEC-01 (verificação independente das regras/bucket ativos); tratar em seguida segurança e integridade P1; executar depois decisões e itens P2/P3 conforme dependências. Fechar cada item somente com evidência de saída/teste indicada no backlog.
 - Próxima etapa: ciclo de verificação gradual encerrado; próxima ação é executar o backlog priorizado em tarefas controladas, começando por SEC-01. A conclusão documental não significa que o aplicativo esteja corrigido ou pronto para produção.
+
+### 2026-10-31 — SEC-01: verificação das regras e do bucket ativos
+- Status: bloqueada; a inspeção local foi concluída, mas a confirmação da implantação exige acesso autorizado ao Console Firebase ou uma exportação das regras ativas.
+- Arquivos verificados: `firebase-config.js` (linhas 7–9), `.firebaserc` (linhas 2–5), `firebase.json` (linhas 2–9), `cors.json` (linhas 1–8) e lista de arquivos rastreados pelo Git para regras Firestore/Storage.
+- Testes/evidências: a busca estática não encontrou `firestore.rules`, `storage.rules` ou outro arquivo de regras rastreado; `firebase.json` aponta Hosting para `public: "."`; `.firebaserc` aponta o projeto `asafenotas-5cf3f`; `firebase-config.js` declara o bucket `asafenotas-5cf3f.firebasestorage.app`; `cors.json` contém somente configuração de origem/métodos. Não houve login no Console, leitura/escrita no Firebase, Emulator, deploy, upload ou alteração de dados.
+- Confirmado: a configuração local identifica o projeto e o bucket usados pelo frontend; o checkout não contém as regras efetivamente implantadas. A inspeção local, isoladamente, não confirma permissões ativas.
+- Suspeitas: os textos de regras analisados na Etapa 9 podem divergir da implantação atual; o bucket e a configuração CORS exigem conferência no ambiente efetivo. Nenhuma permissão aberta foi reclassificada como fato ou P0.
+- Correções realizadas: nenhuma correção funcional ou de infraestrutura; somente este registro documental.
+- Pendências: obter confirmação autorizada das regras Firestore/Storage e do bucket ativos; se houver permissões abertas, desenhar regras de negação por padrão e validá-las no Emulator antes de qualquer deploy autorizado.
+- Próxima etapa: retomar SEC-01 com acesso ao Console Firebase ou exportação verificável das regras; não iniciar SEC-02 antes dessa confirmação.
 
 ## Backlog consolidado após a Etapa 12
 

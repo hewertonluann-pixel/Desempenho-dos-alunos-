@@ -189,3 +189,13 @@ Nas próximas etapas, esta seção deve ser ampliada imediatamente após cada co
 ## Estado final do ciclo
 
 As 12 etapas de verificação estão registradas e o backlog foi consolidado em `MEMORIA_PROJETO.md`. O ciclo documental está concluído; a implementação e validação dos itens do backlog permanecem abertas, com SEC-01 como verificação urgente inicial. Nenhum item funcional foi marcado como corrigido sem evidência.
+
+### 2026-10-31 — SEC-01: verificação das regras e do bucket ativos
+- **Status:** bloqueada; a inspeção local foi concluída, mas a confirmação da implantação exige acesso autorizado ao Console Firebase ou uma exportação das regras ativas.
+- **Arquivos verificados:** `firebase-config.js` (linhas 7–9), `.firebaserc` (linhas 2–5), `firebase.json` (linhas 2–9), `cors.json` (linhas 1–8) e lista de arquivos rastreados pelo Git para regras Firestore/Storage.
+- **Testes/evidências:** busca estática não encontrou `firestore.rules`, `storage.rules` ou outro arquivo de regras rastreado; `firebase.json` aponta Hosting para `public: "."`; `.firebaserc` aponta o projeto `asafenotas-5cf3f`; `firebase-config.js` declara o bucket `asafenotas-5cf3f.firebasestorage.app`; `cors.json` contém somente configuração de origem/métodos. Não houve login no Console, leitura/escrita no Firebase, Emulator, deploy, upload ou alteração de dados.
+- **Confirmado:** a configuração local identifica o projeto e o bucket usados pelo frontend; o checkout não contém as regras efetivamente implantadas. A inspeção local, isoladamente, não confirma permissões ativas.
+- **Suspeitas:** os textos de regras analisados na Etapa 9 podem divergir da implantação atual; o bucket e a configuração CORS exigem conferência no ambiente efetivo. Nenhuma permissão aberta foi reclassificada como fato ou P0.
+- **Correções realizadas:** nenhuma correção funcional ou de infraestrutura; somente este registro documental.
+- **Pendências:** obter confirmação autorizada das regras Firestore/Storage e do bucket ativos; se houver permissões abertas, desenhar regras de negação por padrão e validá-las no Emulator antes de qualquer deploy autorizado.
+- **Próximo passo:** retomar SEC-01 com acesso ao Console Firebase ou exportação verificável das regras; não iniciar SEC-02 antes dessa confirmação.
