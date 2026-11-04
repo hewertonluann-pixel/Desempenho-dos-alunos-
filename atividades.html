@@ -40,11 +40,21 @@
       text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
     .page-title p { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; }
-    .level-section { width: 100%; max-width: 900px; margin-bottom: 36px; }
+    .jornada-resumo {
+      width: 100%; max-width: 900px; margin: -10px 0 26px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 13px 16px; border: 1px solid rgba(34,211,238,.28); border-radius: 14px;
+      background: rgba(7,20,38,.72); box-shadow: 0 8px 22px rgba(0,0,0,.2);
+    }
+    .jornada-resumo strong { display: block; color: #f8fafc; font-size: 1.15rem; }
+    .jornada-resumo span { color: #94a3b8; font-size: .72rem; }
+    .jornada-resumo-barra { flex: 1; max-width: 260px; height: 8px; overflow: hidden; border-radius: 99px; background: #162d49; }
+    .jornada-resumo-barra i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#22d3ee,#22c55e); transition: width .25s ease; }
+    .level-section { width: 100%; max-width: 900px; margin-bottom: 30px; }
     .level-header {
       display: flex; align-items: center; gap: 12px;
-      margin-bottom: 14px; padding-bottom: 10px;
-      border-bottom: 1.5px solid rgba(255,255,255,0.07);
+      margin-bottom: 14px; padding: 0 2px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .level-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
     .level-dot.green  { background: #22c55e; box-shadow: 0 0 8px #22c55e88; }
@@ -55,19 +65,16 @@
     .level-title.yellow { color: #facc15; }
     .level-title.red    { color: #f87171; }
     .level-desc { font-size: 0.8rem; color: #64748b; margin-left: auto; }
-    .atividades-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px; width: 100%;
-    }
+    .atividades-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; width: 100%; position: relative; }
+    .atividades-grid::before { content:""; position:absolute; z-index:0; left:8%; right:8%; top:50%; height:2px; background:repeating-linear-gradient(90deg,rgba(34,211,238,.4) 0 8px,transparent 8px 15px); opacity:.55; }
     .atividade-card {
       --hud-blue: #2563eb; --hud-cyan: #22d3ee; --hud-gold: #fbbf24;
       background: linear-gradient(145deg, #0b1a30 0%, #071426 62%, #0a2038 100%);
       border: 1px solid rgba(34,211,238,.52); border-radius: 5px 16px 5px 16px;
-      min-height: 142px; overflow: hidden; box-shadow: 0 8px 22px rgba(0,0,0,.38), inset 0 0 0 1px rgba(37,99,235,.12);
+      min-height: 0; aspect-ratio: 1 / 1; overflow: hidden; box-shadow: 0 8px 22px rgba(0,0,0,.38), inset 0 0 0 1px rgba(37,99,235,.12);
       transition: transform .22s, box-shadow .22s, border-color .22s;
-      text-decoration: none; color: inherit; display: grid; grid-template-columns: 148px minmax(0,1fr);
-      backdrop-filter: blur(8px); position: relative; isolation: isolate;
+      text-decoration: none; color: inherit; display: flex; flex-direction: column;
+      position: relative; isolation: isolate; z-index: 1;
     }
     .atividade-card::before { content:""; position:absolute; inset:7px; border:1px solid rgba(37,99,235,.24); border-radius:2px 12px 2px 12px; pointer-events:none; z-index:3; }
     .atividade-card::after { content:""; position:absolute; right:-1px; bottom:16px; width:58px; height:2px; background:#22d3ee; box-shadow:-12px 7px #22d3ee; opacity:.72; transform:skewX(-42deg); pointer-events:none; z-index:4; }
@@ -82,11 +89,11 @@
       border-color: #22c55e;
     }
     .card-banner {
-      height: auto; min-height: 140px; display: flex; align-items: center; justify-content: center;
-      font-size: 2.45rem; position: relative; border-right: 1px solid rgba(251,191,36,.7);
+      height: 31%; min-height: 66px; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; position: relative; border-bottom: 1px solid rgba(251,191,36,.55);
     }
     .card-banner::after { content:""; position:absolute; inset:9px 8px auto; height:2px; background:linear-gradient(90deg,transparent,#fde047 18%,#f59e0b 82%,transparent); opacity:.8; }
-    .card-banner > span:nth-child(2) { width:62px; height:62px; display:grid; place-items:center; border-radius:50%; background:radial-gradient(circle at 35% 30%,#27324a,#080d18 68%); border:2px solid #facc15; box-shadow:0 0 0 4px rgba(120,53,15,.55),0 0 16px rgba(250,204,21,.32); z-index:1; }
+    .card-banner > span:nth-child(2) { width:46px; height:46px; display:grid; place-items:center; border-radius:50%; background:radial-gradient(circle at 35% 30%,#27324a,#080d18 68%); border:2px solid #facc15; box-shadow:0 0 0 3px rgba(120,53,15,.55),0 0 12px rgba(250,204,21,.28); z-index:1; }
     .card-banner.purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
     .card-banner.blue   { background: linear-gradient(135deg, #2563eb, #3b82f6); }
     .card-banner.orange { background: linear-gradient(135deg, #ea580c, #f97316); }
@@ -125,9 +132,9 @@
       background: rgba(34,197,94,0.35); color: #86efac;
       border: 1px solid rgba(34,197,94,0.5);
     }
-    .card-body { padding: 13px 16px 11px; flex: 1; display: grid; grid-template-columns: minmax(0,1fr) 92px; grid-template-rows: auto 1fr auto auto; column-gap: 10px; position:relative; min-width:0; }
-    .card-title { grid-column:1; font-size: 1rem; font-weight: 850; letter-spacing:-.02em; color: #f8fafc; margin-bottom: 4px; text-shadow:0 2px 12px rgba(96,165,250,.16); }
-    .card-desc { grid-column:1; font-size: 0.76rem; color: #b6c6e3; line-height: 1.35; min-height: 0; align-self:start; }
+    .card-body { padding: 10px 11px 9px; flex: 1; display: grid; grid-template-columns: minmax(0,1fr) 48px; grid-template-rows: auto 1fr auto auto; column-gap: 5px; position:relative; min-width:0; }
+    .card-title { grid-column:1; font-size: .86rem; font-weight: 850; letter-spacing:-.02em; color: #f8fafc; margin-bottom: 3px; text-shadow:0 2px 12px rgba(96,165,250,.16); }
+    .card-desc { grid-column:1; font-size: .66rem; color: #b6c6e3; line-height: 1.3; min-height: 0; align-self:start; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
     .card-meta {
       grid-column:1 / -1; display: flex; align-items: center; justify-content:space-around; gap: 7px;
       margin-top: 8px; padding: 7px 4px 4px; border-top:1px solid rgba(37,99,235,.3); font-size: 0.65rem; color: #9db0d5; flex-wrap: wrap;
@@ -135,19 +142,19 @@
     .atividade-card .card-meta { display:none; }
     .card-meta span { flex:1; text-align:center; min-width:0; white-space:nowrap; }
     .card-meta span + span { border-left:1px solid rgba(37,99,235,.32); }
-    .medalha-slot { grid-column:2; grid-row:1 / span 3; width:76px; height:86px; align-self:center; justify-self:center; display:grid; place-items:center; clip-path:polygon(25% 3%,75% 3%,98% 25%,86% 82%,50% 98%,14% 82%,2% 25%); background:linear-gradient(145deg,#5b769b,#1b2c45 48%,#0b1729); filter:drop-shadow(0 5px 8px rgba(0,0,0,.65)); position:relative; }
+    .medalha-slot { grid-column:2; grid-row:1 / span 3; width:44px; height:52px; align-self:center; justify-self:center; display:grid; place-items:center; clip-path:polygon(25% 3%,75% 3%,98% 25%,86% 82%,50% 98%,14% 82%,2% 25%); background:linear-gradient(145deg,#5b769b,#1b2c45 48%,#0b1729); filter:drop-shadow(0 4px 6px rgba(0,0,0,.65)); position:relative; }
     .medalha-slot::before { content:""; position:absolute; inset:7px; clip-path:inherit; background:#0a1728; box-shadow:inset 0 0 0 2px #3c5576; }
     .medalha-slot::after { content:""; position:absolute; inset:0; background:linear-gradient(135deg,transparent 45%,#facc15 46%,#facc15 49%,transparent 50%); opacity:.45; clip-path:polygon(0 5%,34% 0,35% 5%,5% 14%); }
-    .medalha-placeholder, .medalha-slot img { position:relative; z-index:1; width:58px; height:58px; object-fit:contain; display:grid; place-items:center; }
-    .medalha-placeholder { color:#395270; font-size:3rem; line-height:1; text-shadow:0 2px 5px #020617; }
+    .medalha-placeholder, .medalha-slot img { position:relative; z-index:1; width:34px; height:34px; object-fit:contain; display:grid; place-items:center; }
+    .medalha-placeholder { color:#395270; font-size:1.7rem; line-height:1; text-shadow:0 2px 5px #020617; }
     .medalha-slot.desbloqueada { background:linear-gradient(145deg,#fde047,#f59e0b 47%,#b45309); filter:drop-shadow(0 0 14px rgba(251,191,36,.48)); animation:medalhaUnlock .7s ease-out both; }
     .medalha-slot.desbloqueada::before { background:#111827; box-shadow:inset 0 0 0 2px #facc15; }
     .medalha-slot.desbloqueada .medalha-placeholder { color:#facc15; }
-    .jornada-status { grid-column:1 / -1; grid-row:4; display:block; margin-top:7px; padding:6px 8px; border:1px solid rgba(34,211,238,.35); border-radius:3px 9px 3px 9px; background:rgba(6,25,39,.8); color:#a9bddc; font-size:.64rem; font-weight:800; letter-spacing:.01em; }
-    .atividade-progresso { grid-column:1; grid-row:3; display:flex; align-items:center; gap:8px; margin-top:6px; }
-    .progresso-contagem { min-width:34px; color:#f8fafc; font-size:.72rem; font-weight:850; }
-    .progresso-segmentos { display:flex; gap:3px; flex:1; max-width:230px; }
-    .progresso-segmento { height:6px; flex:1; min-width:8px; transform:skewX(-24deg); border:1px solid rgba(56,189,248,.45); background:#162d49; }
+    .jornada-status { grid-column:1 / -1; grid-row:4; display:block; margin-top:5px; padding:5px 6px; border:1px solid rgba(34,211,238,.35); border-radius:3px 8px 3px 8px; background:rgba(6,25,39,.8); color:#a9bddc; font-size:.56rem; font-weight:800; letter-spacing:.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .atividade-progresso { grid-column:1; grid-row:3; display:flex; align-items:center; gap:5px; margin-top:5px; }
+    .progresso-contagem { min-width:28px; color:#f8fafc; font-size:.62rem; font-weight:850; }
+    .progresso-segmentos { display:flex; gap:2px; flex:1; max-width:120px; }
+    .progresso-segmento { height:5px; flex:1; min-width:3px; transform:skewX(-24deg); border:1px solid rgba(56,189,248,.45); background:#162d49; }
     .progresso-segmento.preenchido { background:linear-gradient(90deg,#06b6d4,#22d3ee); box-shadow:0 0 7px rgba(34,211,238,.5); }
     .jornada-completed .progresso-segmento.preenchido { background:linear-gradient(90deg,#22c55e,#86efac); box-shadow:0 0 7px rgba(74,222,128,.5); }
     .jornada-em-andamento { border-color:rgba(34,211,238,.9); box-shadow:0 8px 24px rgba(34,211,238,.13), inset 0 0 0 1px rgba(34,211,238,.12); }
@@ -169,22 +176,19 @@
       background: rgba(0,0,0,0.55); color: #fff;
       text-align: center; padding: 4px; font-size: 0.78rem; font-weight: 600;
     }
-    @media (max-width: 600px) {
-      .atividades-grid { gap: 8px; }
+    @media (max-width: 700px) {
+      .atividades-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
       .page-title h1 { font-size: 1.2rem; }
       .level-desc { display: none; }
-      .atividade-card { grid-template-columns: 86px minmax(0,1fr); min-height: 118px; }
-      .card-banner { min-height: 116px; font-size: 1.8rem; }
-      .card-banner > span:nth-child(2) { width:46px; height:46px; box-shadow:0 0 0 3px rgba(120,53,15,.55),0 0 12px rgba(250,204,21,.28); }
-      .card-body { grid-template-columns: minmax(0,1fr) 68px; padding: 10px 10px 8px; column-gap: 5px; }
-      .card-title { font-size: .86rem; }
-      .card-desc { font-size: .67rem; }
-      .medalha-slot { width: 60px; height: 68px; }
-      .medalha-placeholder, .medalha-slot img { width: 44px; height: 44px; }
-      .medalha-placeholder { font-size:2.2rem; }
-      .progresso-segmentos { gap:2px; }
-      .progresso-segmento { height:5px; min-width:4px; }
-      .card-meta { font-size: .65rem; gap: 3px; }
+      .jornada-resumo { margin-top: -4px; }
+    }
+    @media (max-width: 390px) {
+      body { padding-left: 10px; padding-right: 10px; }
+      .atividades-grid { gap: 8px; }
+      .card-title { font-size: .78rem; }
+      .card-desc { font-size: .6rem; -webkit-line-clamp:2; }
+      .jornada-status { font-size: .5rem; }
+      .jornada-resumo { padding: 11px 12px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .atividade-card, .medalha-slot { transition:none; animation:none !important; }
@@ -207,10 +211,15 @@
   <div class="page-header">
     <a href="aluno.html" class="back-btn">← Painel</a>
     <div class="page-title">
-      <h1>🎓 Atividades Musicais</h1>
-      <p>Pratique e aprimore seu conhecimento com exercícios interativos.</p>
+      <h1>🎓 Fases Musicais</h1>
+      <p>Escolha uma fase para continuar sua jornada.</p>
     </div>
   </div>
+
+  <section class="jornada-resumo" aria-label="Progresso da jornada">
+    <div><strong id="jornada-contagem">0 de 9</strong><span>fases concluídas</span></div>
+    <div class="jornada-resumo-barra" role="progressbar" aria-label="Progresso da jornada" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0"><i id="jornada-barra"></i></div>
+  </section>
 
   <!-- ══ INICIAIS ══ -->
   <div class="level-section">
@@ -548,6 +557,17 @@
       painel.innerHTML = `<span class="progresso-contagem">${progresso.atual}/${progresso.total}</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="${progresso.total}" aria-valuenow="${progresso.atual}">${Array.from({ length: segmentos }, (_, indice) => `<i class="progresso-segmento${indice < preenchidos ? " preenchido" : ""}"></i>`).join("")}</span>`;
     }
 
+    function atualizarResumo(progressoMapa) {
+      const total = cards.length || JORNADA_ATIVIDADES.length;
+      const concluidas = cards.filter((card) => card.classList.contains("jornada-completed")).length;
+      const contagem = document.getElementById("jornada-contagem");
+      const barra = document.getElementById("jornada-barra");
+      const progressbar = barra?.parentElement;
+      if (contagem) contagem.textContent = `${concluidas} de ${total}`;
+      if (barra) barra.style.width = `${total ? (concluidas / total) * 100 : 0}%`;
+      if (progressbar) progressbar.setAttribute("aria-valuenow", String(concluidas));
+    }
+
     function aplicarJornada(progressoMapa, medalhas = {}) {
       for (const atividade of JORNADA_ATIVIDADES) {
         const card = document.querySelector(`[data-jornada-id="${atividade.id}"]`);
@@ -590,6 +610,7 @@
           body.appendChild(label);
         }
       }
+      atualizarResumo(progressoMapa);
     }
 
     aplicarJornada({}, {});
