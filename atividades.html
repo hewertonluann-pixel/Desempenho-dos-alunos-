@@ -1,523 +1,63 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Fases musicais da jornada de aprendizagem.">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
-  <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#22d3ee">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Atividades Musicais</title><link rel="stylesheet" href="loader.css">
+  <link rel="stylesheet" href="loader.css">
   <link rel="stylesheet" href="bottom-nav.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <title>Fases Musicais</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 28px 16px 80px; color: #e2e8f0;
-    }
-    .page-header {
-      width: 100%; max-width: 900px;
-      display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
-    }
-    .back-btn {
-      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
-      color: #e2e8f0; padding: 8px 16px; border-radius: 10px;
-      font-size: 0.88rem; font-weight: 600; cursor: pointer;
-      text-decoration: none; display: flex; align-items: center; gap: 6px;
-      transition: background 0.18s, border-color 0.18s; white-space: nowrap;
-    }
-    .back-btn:hover { background: rgba(255,255,255,0.15); border-color: #a855f7; }
-    .page-title { flex: 1; }
-    .page-title h1 {
-      font-size: 1.55rem; font-weight: 800; color: #e2b96f;
-      display: flex; align-items: center; gap: 10px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
-    .page-title p { font-size: 0.9rem; color: #94a3b8; margin-top: 4px; }
-    .jornada-resumo {
-      width: 100%; max-width: 900px; margin: -10px 0 26px;
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
-      padding: 13px 16px; border: 1px solid rgba(34,211,238,.28); border-radius: 14px;
-      background: rgba(7,20,38,.72); box-shadow: 0 8px 22px rgba(0,0,0,.2);
-    }
-    .jornada-resumo strong { display: block; color: #f8fafc; font-size: 1.15rem; }
-    .jornada-resumo span { color: #94a3b8; font-size: .72rem; }
-    .jornada-resumo-barra { flex: 1; max-width: 260px; height: 8px; overflow: hidden; border-radius: 99px; background: #162d49; }
-    .jornada-resumo-barra i { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#22d3ee,#22c55e); transition: width .25s ease; }
-    .level-section { width: 100%; max-width: 900px; margin-bottom: 30px; }
-    .level-header {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 14px; padding: 0 2px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .level-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .level-dot.green  { background: #22c55e; box-shadow: 0 0 8px #22c55e88; }
-    .level-dot.yellow { background: #eab308; box-shadow: 0 0 8px #eab30888; }
-    .level-dot.red    { background: #ef4444; box-shadow: 0 0 8px #ef444488; }
-    .level-title { font-size: 1rem; font-weight: 700; letter-spacing: 0.5px; }
-    .level-title.green  { color: #4ade80; }
-    .level-title.yellow { color: #facc15; }
-    .level-title.red    { color: #f87171; }
-    .level-desc { font-size: 0.8rem; color: #64748b; margin-left: auto; }
-    .atividades-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; width: 100%; position: relative; }
-    .atividades-grid::before { content:""; position:absolute; z-index:0; left:8%; right:8%; top:50%; height:2px; background:repeating-linear-gradient(90deg,rgba(34,211,238,.4) 0 8px,transparent 8px 15px); opacity:.55; }
-    .atividade-card {
-      --hud-blue: #2563eb; --hud-cyan: #22d3ee; --hud-gold: #fbbf24;
-      background: linear-gradient(145deg, #0b1a30 0%, #071426 62%, #0a2038 100%);
-      border: 1px solid rgba(34,211,238,.52); border-radius: 5px 16px 5px 16px;
-      min-height: 0; aspect-ratio: 1 / 1; overflow: hidden; box-shadow: 0 8px 22px rgba(0,0,0,.38), inset 0 0 0 1px rgba(37,99,235,.12);
-      transition: transform .22s, box-shadow .22s, border-color .22s;
-      text-decoration: none; color: inherit; display: flex; flex-direction: column;
-      position: relative; isolation: isolate; z-index: 1;
-    }
-    .atividade-card::before { content:""; position:absolute; inset:7px; border:1px solid rgba(37,99,235,.24); border-radius:2px 12px 2px 12px; pointer-events:none; z-index:3; }
-    .atividade-card::after { content:""; position:absolute; right:-1px; bottom:16px; width:58px; height:2px; background:#22d3ee; box-shadow:-12px 7px #22d3ee; opacity:.72; transform:skewX(-42deg); pointer-events:none; z-index:4; }
-    .atividade-card:hover {
-      transform: translateY(-4px); box-shadow: 0 16px 38px rgba(0,0,0,.55), 0 0 22px rgba(34,211,238,.16);
-      border-color: #60a5fa;
-    }
-    .atividade-card.tutorial-card {
-      border-color: rgba(34,197,94,0.35);
-    }
-    .atividade-card.tutorial-card:hover {
-      border-color: #22c55e;
-    }
-    .card-banner {
-      height: 31%; min-height: 66px; display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; position: relative; border-bottom: 1px solid rgba(251,191,36,.55);
-    }
-    .card-banner::after { content:""; position:absolute; inset:9px 8px auto; height:2px; background:linear-gradient(90deg,transparent,#fde047 18%,#f59e0b 82%,transparent); opacity:.8; }
-    .card-banner > span:nth-child(2) { width:46px; height:46px; display:grid; place-items:center; border-radius:50%; background:radial-gradient(circle at 35% 30%,#27324a,#080d18 68%); border:2px solid #facc15; box-shadow:0 0 0 3px rgba(120,53,15,.55),0 0 12px rgba(250,204,21,.28); z-index:1; }
-    .card-banner.purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
-    .card-banner.blue   { background: linear-gradient(135deg, #2563eb, #3b82f6); }
-    .card-banner.orange { background: linear-gradient(135deg, #ea580c, #f97316); }
-    .card-banner.green  { background: linear-gradient(135deg, #16a34a, #22c55e); }
-    .card-banner.teal   { background: linear-gradient(135deg, #0d9488, #14b8a6); }
-    .card-banner.indigo { background: linear-gradient(135deg, #4338ca, #6366f1); }
-    .card-banner.amber  { background: linear-gradient(135deg, #b45309, #f59e0b); }
-    .card-banner.rose   { background: linear-gradient(135deg, #9f1239, #f43f5e); }
-    .card-banner.cyan   { background: linear-gradient(135deg, #0e7490, #22d3ee); }
-    .card-banner.violet { background: linear-gradient(135deg, #6d28d9, #8b5cf6); }
-    .card-banner.crimson { background: linear-gradient(135deg, #7f1d1d, #dc2626); }
-    .card-num {
-      position: absolute; top: 10px; left: 12px;
-      background: rgba(0,0,0,0.35); color: rgba(255,255,255,0.9);
-      font-size: 0.7rem; font-weight: 800;
-      width: 22px; height: 22px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .level-pill {
-      position: absolute; top: 10px; right: 12px;
-      font-size: 0.68rem; font-weight: 700;
-      padding: 3px 9px; border-radius: 20px;
-      letter-spacing: 0.4px; text-transform: uppercase;
-    }
-    .level-pill.green  { background: rgba(34,197,94,0.25);  color: #86efac; border: 1px solid #22c55e55; }
-    .level-pill.yellow { background: rgba(234,179,8,0.25);  color: #fde68a; border: 1px solid #eab30855; }
-    .level-pill.red    { background: rgba(239,68,68,0.25);  color: #fca5a5; border: 1px solid #ef444455; }
-    .card-badge {
-      position: absolute; bottom: 10px; right: 12px;
-      background: rgba(255,255,255,0.18); color: #fff;
-      font-size: 0.68rem; font-weight: 700;
-      padding: 2px 9px; border-radius: 20px;
-      letter-spacing: 0.4px; text-transform: uppercase;
-    }
-    .card-badge.new {
-      background: rgba(34,197,94,0.35); color: #86efac;
-      border: 1px solid rgba(34,197,94,0.5);
-    }
-    .card-body { padding: 10px 11px 9px; flex: 1; display: grid; grid-template-columns: minmax(0,1fr) 48px; grid-template-rows: auto 1fr auto auto; column-gap: 5px; position:relative; min-width:0; }
-    .card-title { grid-column:1; font-size: .86rem; font-weight: 850; letter-spacing:-.02em; color: #f8fafc; margin-bottom: 3px; text-shadow:0 2px 12px rgba(96,165,250,.16); }
-    .card-desc { grid-column:1; font-size: .66rem; color: #b6c6e3; line-height: 1.3; min-height: 0; align-self:start; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-    .card-meta {
-      grid-column:1 / -1; display: flex; align-items: center; justify-content:space-around; gap: 7px;
-      margin-top: 8px; padding: 7px 4px 4px; border-top:1px solid rgba(37,99,235,.3); font-size: 0.65rem; color: #9db0d5; flex-wrap: wrap;
-    }
-    .atividade-card .card-meta { display:none; }
-    .card-meta span { flex:1; text-align:center; min-width:0; white-space:nowrap; }
-    .card-meta span + span { border-left:1px solid rgba(37,99,235,.32); }
-    .medalha-slot { grid-column:2; grid-row:1 / span 3; width:44px; height:52px; align-self:center; justify-self:center; display:grid; place-items:center; clip-path:polygon(25% 3%,75% 3%,98% 25%,86% 82%,50% 98%,14% 82%,2% 25%); background:linear-gradient(145deg,#5b769b,#1b2c45 48%,#0b1729); filter:drop-shadow(0 4px 6px rgba(0,0,0,.65)); position:relative; }
-    .medalha-slot::before { content:""; position:absolute; inset:7px; clip-path:inherit; background:#0a1728; box-shadow:inset 0 0 0 2px #3c5576; }
-    .medalha-slot::after { content:""; position:absolute; inset:0; background:linear-gradient(135deg,transparent 45%,#facc15 46%,#facc15 49%,transparent 50%); opacity:.45; clip-path:polygon(0 5%,34% 0,35% 5%,5% 14%); }
-    .medalha-placeholder, .medalha-slot img { position:relative; z-index:1; width:34px; height:34px; object-fit:contain; display:grid; place-items:center; }
-    .medalha-placeholder { color:#395270; font-size:1.7rem; line-height:1; text-shadow:0 2px 5px #020617; }
-    .medalha-slot.desbloqueada { background:linear-gradient(145deg,#fde047,#f59e0b 47%,#b45309); filter:drop-shadow(0 0 14px rgba(251,191,36,.48)); animation:medalhaUnlock .7s ease-out both; }
-    .medalha-slot.desbloqueada::before { background:#111827; box-shadow:inset 0 0 0 2px #facc15; }
-    .medalha-slot.desbloqueada .medalha-placeholder { color:#facc15; }
-    .jornada-status { grid-column:1 / -1; grid-row:4; display:block; margin-top:5px; padding:5px 6px; border:1px solid rgba(34,211,238,.35); border-radius:3px 8px 3px 8px; background:rgba(6,25,39,.8); color:#a9bddc; font-size:.56rem; font-weight:800; letter-spacing:.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .atividade-progresso { grid-column:1; grid-row:3; display:flex; align-items:center; gap:5px; margin-top:5px; }
-    .progresso-contagem { min-width:28px; color:#f8fafc; font-size:.62rem; font-weight:850; }
-    .progresso-segmentos { display:flex; gap:2px; flex:1; max-width:120px; }
-    .progresso-segmento { height:5px; flex:1; min-width:3px; transform:skewX(-24deg); border:1px solid rgba(56,189,248,.45); background:#162d49; }
-    .progresso-segmento.preenchido { background:linear-gradient(90deg,#06b6d4,#22d3ee); box-shadow:0 0 7px rgba(34,211,238,.5); }
-    .jornada-completed .progresso-segmento.preenchido { background:linear-gradient(90deg,#22c55e,#86efac); box-shadow:0 0 7px rgba(74,222,128,.5); }
-    .jornada-em-andamento { border-color:rgba(34,211,238,.9); box-shadow:0 8px 24px rgba(34,211,238,.13), inset 0 0 0 1px rgba(34,211,238,.12); }
-    .jornada-em-andamento .jornada-status { color:#67e8f9; border-color:rgba(34,211,238,.68); }
-    .jornada-bloqueada .medalha-slot { opacity:.58; }
-    .jornada-bloqueada .card-title, .jornada-bloqueada .card-desc { color:#7185a6; }
-    .jornada-bloqueada .atividade-progresso { color:#7185a6; }
-    .jornada-completed .jornada-status { color:#62f5ae; border-color:rgba(16,185,129,.78); background:rgba(4,55,45,.72); box-shadow:0 0 15px rgba(16,185,129,.14); }
-    .jornada-expired .jornada-status { color:#fde68a; border-color:rgba(234,179,8,.65); }
-    @keyframes medalhaUnlock { from { opacity:.35; transform:scale(.86); } to { opacity:1; transform:scale(1); } }
-    .atividade-card.jornada-completed { border-color: rgba(16,185,129,.9); box-shadow: 0 10px 32px rgba(16,185,129,.16), inset 0 0 0 1px rgba(34,211,238,.12); }
-    .atividade-card.jornada-completed:hover { border-color: #6ee7b7; box-shadow: 0 16px 38px rgba(16,185,129,.24); }
-    .atividade-card.jornada-expired { border-color: rgba(234,179,8,.5); }
-    .jornada-banner { position: absolute; inset: auto 0 0; padding: 5px 8px; background: rgba(0,0,0,.62); color: #fde68a; font-size: .72rem; font-weight: 700; text-align: center; }
-    .card-coming { opacity: 0.42; pointer-events: none; cursor: default; }
-    .card-coming .card-body::after { content:"🔒 Bloqueada"; position:absolute; right:12px; bottom:10px; color:#93a4c2; font-size:.64rem; font-weight:800; letter-spacing:.03em; }
-    .card-coming .card-banner::after {
-      content: 'Em breve'; position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.55); color: #fff;
-      text-align: center; padding: 4px; font-size: 0.78rem; font-weight: 600;
-    }
-    @media (max-width: 700px) {
-      .atividades-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
-      .page-title h1 { font-size: 1.2rem; }
-      .level-desc { display: none; }
-      .jornada-resumo { margin-top: -4px; }
-    }
-    @media (max-width: 390px) {
-      body { padding-left: 10px; padding-right: 10px; }
-      .atividades-grid { gap: 8px; }
-      .card-title { font-size: .78rem; }
-      .card-desc { font-size: .6rem; -webkit-line-clamp:2; }
-      .jornada-status { font-size: .5rem; }
-      .jornada-resumo { padding: 11px 12px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .atividade-card, .medalha-slot { transition:none; animation:none !important; }
-    }
+    :root{--bg:#07111f;--surface:#0d1b2d;--surface2:#11243a;--line:#1d3854;--text:#e8f1f8;--muted:#8da4ba;--cyan:#38d5e8;--green:#42d392;--gold:#f4bd4e;--locked:#52657a}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;padding:72px 0 88px}
+    main{width:min(100% - 32px,720px);margin:0 auto;padding:22px 0 30px}
+    .topo{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:24px}
+    h1{margin:0;font-size:clamp(1.35rem,4vw,1.8rem);letter-spacing:-.04em}
+    .subtitulo{margin:6px 0 0;color:var(--muted);font-size:.86rem}
+    .resumo{min-width:120px;text-align:right}.resumo strong{display:block;color:var(--cyan);font-size:1.2rem}.resumo span{color:var(--muted);font-size:.68rem}
+    .barra{width:120px;height:5px;margin-top:8px;overflow:hidden;border-radius:99px;background:var(--line)}.barra i{display:block;width:0;height:100%;border-radius:inherit;background:var(--green);transition:width .2s ease}
+    .grupo{margin-top:26px}.grupo-titulo{display:flex;align-items:center;gap:9px;margin:0 0 10px;color:var(--muted);font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.grupo-titulo::after{content:"";flex:1;height:1px;background:var(--line)}
+    .fases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .fase{position:relative;display:flex;min-width:0;aspect-ratio:1;flex-direction:column;justify-content:space-between;padding:12px;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);text-decoration:none;transition:border-color .15s,background .15s,transform .15s}
+    .fase:hover,.fase:focus-visible{outline:none;border-color:var(--cyan);background:var(--surface2);transform:translateY(-2px)}
+    .fase-num{color:var(--muted);font-size:.66rem;font-weight:800}.fase-icone{display:grid;width:38px;height:38px;place-items:center;border-radius:11px;background:#142b43;color:var(--cyan);font-size:1.25rem}.fase-nome{display:block;min-height:2.2em;font-size:.76rem;font-weight:750;line-height:1.1}.fase-status{color:var(--muted);font-size:.62rem;font-weight:700}
+    .fase-progresso{display:flex;gap:3px;margin-top:7px}.fase-progresso i{flex:1;height:4px;border-radius:99px;background:var(--line)}.fase-progresso i.on{background:var(--cyan)}
+    .fase.concluida{border-color:rgba(66,211,146,.6)}.fase.concluida .fase-icone{background:rgba(66,211,146,.14);color:var(--green)}.fase.concluida .fase-status{color:var(--green)}.fase.concluida .fase-progresso i.on{background:var(--green)}
+    .fase.andamento{border-color:rgba(56,213,232,.65)}.fase.expirada{border-color:rgba(244,189,78,.65)}.fase.expirada .fase-status{color:var(--gold)}
+    .medalha{position:absolute;top:9px;right:9px;display:grid;width:25px;height:25px;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--locked);font-size:.74rem}.concluida .medalha{border-color:var(--gold);background:rgba(244,189,78,.14);color:var(--gold)}.medalha img{width:18px;height:18px;object-fit:contain}
+    .legenda{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px;color:var(--muted);font-size:.68rem}.legenda b{color:var(--text)}
+    .erro-jornada{padding:20px;border:1px solid #7f1d1d;border-radius:12px;color:#fecaca;background:#2b1118;font-size:.82rem}
+    @media (max-width:540px){main{width:min(100% - 20px,420px);padding-top:14px}.fases{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.fase{padding:9px;border-radius:11px}.fase-icone{width:32px;height:32px;font-size:1rem}.fase-nome{font-size:.68rem}.resumo{min-width:95px}.barra{width:95px}}
+    @media (max-width:340px){.topo{display:block}.resumo{margin-top:14px;text-align:left}.fases{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (prefers-reduced-motion:reduce){.fase,.barra i{transition:none}}
   </style>
 </head>
 <body>
-  <!-- HEADER INSERIDO AUTOMATICAMENTE PELO header-template.js -->
-  <div id="global-loader">
-    <div class="spinner-container">
-      <div class="spinner"></div>
-      <div id="emoji-container">🎷</div>
-      <div id="verse-container">
-        <div id="verse-text"></div>
-        <div id="verse-reference"></div>
-      </div>
-    </div>
-  </div>
+  <div id="global-loader"><div class="spinner-container"><div class="spinner"></div><div id="emoji-container">🎷</div><div id="verse-container"><div id="verse-text"></div><div id="verse-reference"></div></div></div></div>
 
-  <div class="page-header">
-    <a href="aluno.html" class="back-btn">← Painel</a>
-    <div class="page-title">
-      <h1>🎓 Fases Musicais</h1>
-      <p>Escolha uma fase para continuar sua jornada.</p>
-    </div>
-  </div>
+  <main>
+    <header class="topo">
+      <div><h1>Fases Musicais</h1><p class="subtitulo">Escolha uma fase para continuar sua jornada.</p></div>
+      <div class="resumo" aria-label="Progresso da jornada"><strong id="jornada-contagem">0 de 9</strong><span>fases concluídas</span><div class="barra" role="progressbar" aria-label="Progresso da jornada" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0"><i id="jornada-barra"></i></div></div>
+    </header>
 
-  <section class="jornada-resumo" aria-label="Progresso da jornada">
-    <div><strong id="jornada-contagem">0 de 9</strong><span>fases concluídas</span></div>
-    <div class="jornada-resumo-barra" role="progressbar" aria-label="Progresso da jornada" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0"><i id="jornada-barra"></i></div>
-  </section>
+    <section class="grupo" aria-labelledby="titulo-fundamentos"><h2 id="titulo-fundamentos" class="grupo-titulo">Fundamentos</h2><div class="fases" id="fases-fundamentos"></div></section>
+    <section class="grupo" aria-labelledby="titulo-desenvolvimento"><h2 id="titulo-desenvolvimento" class="grupo-titulo">Desenvolvimento</h2><div class="fases" id="fases-desenvolvimento"></div></section>
+    <section class="grupo" aria-labelledby="titulo-desafio"><h2 id="titulo-desafio" class="grupo-titulo">Desafio final</h2><div class="fases" id="fases-desafio"></div></section>
 
-  <!-- ══ INICIAIS ══ -->
-  <div class="level-section">
-    <div class="level-header">
-      <div class="level-dot green"></div>
-      <span class="level-title green">🟢 Nível Inicial</span>
-      <span class="level-desc">Fundamentos da leitura musical</span>
-    </div>
-    <div class="atividades-grid">
+    <footer class="legenda"><span><b>✓</b> Concluída</span><span><b>▶</b> Em andamento</span><span><b>★</b> Medalha</span><span><b>↺</b> Troféu expirado</span></footer>
+  </main>
 
-      <!-- 1: Notas Musicais -->
-      <a href="escalas-game.html" class="atividade-card" data-jornada-id="notas-musicais">
-        <div class="card-banner amber">
-          <span class="card-num">1</span>
-          <span>🎹</span>
-          <span class="level-pill green">Inicial</span>
-          <span class="card-badge">5 Escalas</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Notas Musicais</div>
-          <div class="card-desc">Complete as escalas musicais escolhendo as notas corretas em sequência. Ganhe pontos extras com combos.</div>
-          <div class="card-meta">
-            <span>🎵 Escalas</span>
-            <span>🔥 Combos</span>
-            <span>📱 Horizontal</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/5</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-      <!-- 2: Escada de Notas -->
-      <a href="escada-notas.html" class="atividade-card" data-jornada-id="escada-notas">
-        <div class="card-banner rose">
-          <span class="card-num">2</span>
-          <span>🪜</span>
-          <span class="level-pill green">Inicial</span>
-          <span class="card-badge">8 Escadas</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Escada de Notas</div>
-          <div class="card-desc">Complete os degraus da escada musical! Cada degrau representa uma nota — mais alto = nota mais aguda. Sobe e desce.</div>
-          <div class="card-meta">
-            <span>📊 Altura</span>
-            <span>↕️ Ascend./Desc.</span>
-            <span>🔥 Combos</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/8</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-      <!-- 2.5: Como Funciona a Pauta (Tutorial) -->
-      <a href="como-funciona-pauta.html" class="atividade-card tutorial-card" data-jornada-id="como-funciona-pauta">
-        <div class="card-banner cyan">
-          <span class="card-num" style="font-size:0.6rem;width:26px">2.5</span>
-          <span>🎼</span>
-          <span class="level-pill green">Inicial</span>
-          <span class="card-badge new">✨ Tutorial</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Como Funciona a Pauta</div>
-          <div class="card-desc">Aprenda como as linhas e espaços da pauta são os degraus da escada musical, e como a Clave de Sol define o nome de cada nota.</div>
-          <div class="card-meta">
-            <span>📖 Explicação</span>
-            <span>🔑 Clave de Sol</span>
-            <span>🔊 Com som</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/3</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-      <!-- 3: Figuras Musicais (Tutorial + Jogo) -->
-      <a href="figuras-musicais.html" class="atividade-card tutorial-card" data-jornada-id="figuras-musicais">
-        <div class="card-banner violet">
-          <span class="card-num">3</span>
-          <span>𝅗𝅥</span>
-          <span class="level-pill green">Inicial</span>
-          <span class="card-badge new">✨ Tutorial</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Figuras Musicais</div>
-          <div class="card-desc">Conheça as figuras musicais — semibreve, mínima, semínima e mais. Aprenda os valores rítmicos com animações e exemplos.</div>
-          <div class="card-meta">
-            <span>🎵 Valores</span>
-            <span>📖 Tutorial</span>
-            <span>🔊 Com som</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/5</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-      <!-- 3.5: Jogo das Figuras Musicais -->
-      <a href="jogo-figuras.html" class="atividade-card" data-jornada-id="jogo-figuras">
-        <div class="card-banner purple">
-          <span class="card-num" style="font-size:0.6rem;width:26px">3.5</span>
-          <span>🎮</span>
-          <span class="level-pill green">Inicial</span>
-          <span class="card-badge">3 Modos</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Jogo das Figuras</div>
-          <div class="card-desc">Teste seu conhecimento sobre figuras musicais em 3 modos progressivos: nome, número e equivalências. Combos e timer de 8s!</div>
-          <div class="card-meta">
-            <span>🎯 Quiz</span>
-            <span>🔥 Combos</span>
-            <span>⏱ Timer</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/10</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-      <!-- 4: Nomeie as Notas -->
-      <a href="atividades-notas.html" class="atividade-card" data-jornada-id="atividades-notas">
-        <div class="card-banner purple">
-          <span class="card-num">4</span>
-          <span>𝄞</span>
-          <span class="level-pill green">Inicial</span>
-          <span class="card-badge">5 Níveis</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Nomeie as Notas</div>
-          <div class="card-desc">Identifique as notas escritas na pauta musical em clave de sol. Escolha entre 5 opções e avance por níveis progressivos.</div>
-          <div class="card-meta">
-            <span>🎯 Teoria</span>
-            <span>🔊 Com som</span>
-            <span>📈 Progressivo</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/10</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-      <!-- 4.5: Compassos — NOVO -->
-      <a href="compassos-game.html" class="atividade-card" data-jornada-id="compassos-game">
-        <div class="card-banner crimson">
-          <span class="card-num" style="font-size:0.6rem;width:26px">4.5</span>
-          <span>🥁</span>
-          <span class="level-pill green">Inicial</span>
-          <span class="card-badge new">✨ Novo</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Fórmulas de Compasso</div>
-          <div class="card-desc">Identifique a unidade de tempo e a unidade de compasso para cada fórmula apresentada. 2 fases: binário/quaternário e ternário.</div>
-          <div class="card-meta">
-            <span>🎵 Ritmo</span>
-            <span>❤️ 3 Vidas</span>
-            <span>🔊 Com som</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/10</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-    </div>
-  </div>
-
-  <!-- ══ INTERMEDIÁRIAS ══ -->
-  <div class="level-section">
-    <div class="level-header">
-      <div class="level-dot yellow"></div>
-      <span class="level-title yellow">🟡 Nível Intermediário</span>
-      <span class="level-desc">Intervalos e sequências de notas</span>
-    </div>
-    <div class="atividades-grid">
-
-      <!-- 5: Tom ou Semitom -->
-      <a href="jogo-tom-semitom.html" class="atividade-card" data-jornada-id="tom-semitom">
-        <div class="card-banner teal">
-          <span class="card-num">5</span>
-          <span>🎵</span>
-          <span class="level-pill yellow">Intermediário</span>
-          <span class="card-badge">4 Modos</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Tom ou Semitom?</div>
-          <div class="card-desc">Identifique se o intervalo de 2ª entre duas notas é um Tom ou Semitom. Avance por modos com naturais, sustenidos e bemóis.</div>
-          <div class="card-meta">
-            <span>⏱ Timer 3s</span>
-            <span>🔓 Desbloqueáveis</span>
-            <span>📈 Progressivo</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/10</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-      <!-- 6: Tetracordes -->
-      <a href="tetracordes.html" class="atividade-card" data-jornada-id="tetracordes">
-        <div class="card-banner indigo">
-          <span class="card-num">6</span>
-          <span>🎼</span>
-          <span class="level-pill yellow">Intermediário</span>
-          <span class="card-badge">5 Fases</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Tetracordes &amp; Escalas</div>
-          <div class="card-desc">Aprenda como os tetracordes formam novas escalas maiores e geram sustenidos. Estude a teoria e teste seus conhecimentos!</div>
-          <div class="card-meta">
-            <span>📐 Intervalos</span>
-            <span>🎮 Gamificado</span>
-            <span>🔑 Armaduras</span>
-          </div>
-          <div class="medalha-slot" aria-label="Medalha ainda não desbloqueada"><span class="medalha-placeholder">★</span></div>
-          <div class="atividade-progresso"><span class="progresso-contagem">0/10</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i><i class="progresso-segmento"></i></span></div>
-          <span class="jornada-status">▶ Conquista pendente · disponível para praticar</span>
-        </div>
-      </a>
-
-    </div>
-  </div>
-
-  <!-- ══ AVANÇADAS ══ -->
-  <div class="level-section">
-    <div class="level-header">
-      <div class="level-dot red"></div>
-      <span class="level-title red">🔴 Nível Avançado</span>
-      <span class="level-desc">Teoria musical aplicada</span>
-    </div>
-    <div class="atividades-grid">
-
-      <!-- 7: Em breve - Ditado Rítmico -->
-      <div class="atividade-card card-coming">
-        <div class="card-banner blue">
-          <span class="card-num">7</span>
-          <span>🎵</span>
-          <span class="level-pill red">Avançado</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Ditado Rítmico</div>
-          <div class="card-desc">Ouça um padrão rítmico e reproduza-o corretamente selecionando as figuras musicais na pauta.</div>
-          <div class="card-meta"><span>👂 Percepção</span><span>🥁 Ritmo</span></div>
-        </div>
-      </div>
-
-      <!-- 8: Em breve - Intervalos Musicais -->
-      <div class="atividade-card card-coming">
-        <div class="card-banner orange">
-          <span class="card-num">8</span>
-          <span>🎼</span>
-          <span class="level-pill red">Avançado</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Intervalos Musicais</div>
-          <div class="card-desc">Identifique o intervalo entre duas notas apresentadas na pauta. Treine ouvido e leitura musical.</div>
-          <div class="card-meta"><span>👂 Percepção</span><span>🎹 Harmonia</span></div>
-        </div>
-      </div>
-
-      <!-- 9: Em breve - Escalas e Modos -->
-      <div class="atividade-card card-coming">
-        <div class="card-banner green">
-          <span class="card-num">9</span>
-          <span>🎹</span>
-          <span class="level-pill red">Avançado</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Escalas e Modos</div>
-          <div class="card-desc">Complete escalas musicais e identifique o modo (maior, menor, dórico, etc.) a partir de fragmentos melódicos.</div>
-          <div class="card-meta"><span>📚 Teoria</span><span>🎸 Prática</span></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <nav class="bottom-nav">
-    <a href="aluno.html" class="nav-item" data-page="home">
-      <i class="fas fa-home nav-icon"></i>
-      <span class="nav-label">Home</span>
-    </a>
-    <a href="painel-social.html" class="nav-item" data-page="comunidade">
-      <i class="fas fa-users nav-icon"></i>
-      <span class="nav-label">Comunidade</span>
-    </a>
-    <a href="biblioteca.html" class="nav-item" data-page="biblioteca">
-      <i class="fas fa-book nav-icon"></i>
-      <span class="nav-label">Biblioteca</span>
-    </a>
-    <a href="atividades.html" class="nav-item active" data-page="atividades">
-      <i class="fas fa-clipboard-list nav-icon"></i>
-      <span class="nav-label">Atividades</span>
-    </a>
-    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none;">
-      <i class="fas fa-chalkboard-teacher nav-icon"></i>
-      <span class="nav-label">Professor</span>
-    </a>
+  <nav class="bottom-nav" aria-label="Navegação principal">
+    <a href="aluno.html" class="nav-item" data-page="home"><span class="nav-icon">⌂</span><span class="nav-label">Home</span></a>
+    <a href="painel-social.html" class="nav-item" data-page="comunidade"><span class="nav-icon">♧</span><span class="nav-label">Comunidade</span></a>
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca"><span class="nav-icon">▤</span><span class="nav-label">Biblioteca</span></a>
+    <a href="atividades.html" class="nav-item active" data-page="atividades"><span class="nav-icon">◆</span><span class="nav-label">Atividades</span></a>
+    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none"><span class="nav-icon">♟</span><span class="nav-label">Professor</span></a>
   </nav>
 
   <script type="module">
@@ -525,110 +65,53 @@
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { JORNADA_ATIVIDADES, carregarProgressoJornada, trofeuAtivo, dataExpiracaoTrofeu } from "./jornada-atividades.js";
 
-    const cards = [...document.querySelectorAll("[data-jornada-id]")];
-    const limitesProgresso = {
-      "notas-musicais": 5,
-      "escada-notas": 8,
-      "como-funciona-pauta": 3,
-      "figuras-musicais": 5,
-      "jogo-figuras": 10,
-      "atividades-notas": 10,
-      "compassos-game": 10,
-      "tom-semitom": 10,
-      "tetracordes": 10
-    };
+    const limites = {"notas-musicais":5,"escada-notas":8,"como-funciona-pauta":3,"figuras-musicais":5,"jogo-figuras":10,"atividades-notas":10,"compassos-game":10,"tom-semitom":10,"tetracordes":10};
+    const icones = Object.fromEntries(JORNADA_ATIVIDADES.map((atividade) => [atividade.id, atividade.icone]));
+    const contagem = document.getElementById("jornada-contagem");
+    const barra = document.getElementById("jornada-barra");
+    const barraBox = barra.parentElement;
+    const cards = new Map();
 
-    function lerProgresso(registro, atividade, concluida) {
-      const total = Number(registro.totalEtapas || limitesProgresso[atividade.id] || 10);
-      const valorSalvo = registro.progressoAtual ?? registro.progresso ?? registro.etapasConcluidas ?? registro.passosConcluidos;
-      const atual = concluida ? total : Math.max(0, Math.min(total, Number(valorSalvo) || 0));
+    function grupoDe(atividade){ return atividade.ordem <= 4 ? "fases-fundamentos" : atividade.ordem <= 8 ? "fases-desenvolvimento" : "fases-desafio"; }
+    function progressoDe(registro, atividade, concluida){
+      const total = Number(registro.totalEtapas || limites[atividade.id] || 10);
+      const salvo = registro.progressoAtual ?? registro.progresso ?? registro.etapasConcluidas ?? registro.passosConcluidos;
+      const atual = concluida ? total : Math.max(0, Math.min(total, Number(salvo) || 0));
       return { atual, total };
     }
-
-    function renderizarProgresso(body, progresso) {
-      let painel = body.querySelector(".atividade-progresso");
-      if (!painel) {
-        painel = document.createElement("div");
-        painel.className = "atividade-progresso";
-        body.appendChild(painel);
+    function criarCard(atividade){
+      const card = document.createElement("a");
+      card.className = "fase"; card.href = atividade.url; card.dataset.jornadaId = atividade.id;
+      const num = document.createElement("span"); num.className = "fase-num"; num.textContent = `FASE ${String(atividade.ordem).padStart(2,"0")}`;
+      const icone = document.createElement("span"); icone.className = "fase-icone"; icone.textContent = icones[atividade.id] || "♪";
+      const nomeWrap = document.createElement("span"); const nome = document.createElement("strong"); nome.className = "fase-nome"; nome.textContent = atividade.titulo;
+      const status = document.createElement("small"); status.className = "fase-status"; nomeWrap.append(nome,status);
+      const medalha = document.createElement("span"); medalha.className = "medalha"; medalha.setAttribute("aria-label","Medalha da fase");
+      const progresso = document.createElement("span"); progresso.className = "fase-progresso";
+      card.append(num,icone,nomeWrap,medalha,progresso); document.getElementById(grupoDe(atividade)).appendChild(card); cards.set(atividade.id,{card,status,medalha,progresso});
+    }
+    function aplicar(progressoMapa, medalhas){
+      let totalConcluidas = 0;
+      for (const atividade of JORNADA_ATIVIDADES){
+        const partes = cards.get(atividade.id); if (!partes) continue;
+        const registro = progressoMapa[atividade.id] || {}; const concluida = trofeuAtivo(registro); const expirado = registro.concluida === true && !concluida && Boolean(dataExpiracaoTrofeu(registro));
+        const p = progressoDe(registro, atividade, concluida); const andamento = !concluida && p.atual > 0;
+        partes.card.classList.toggle("concluida",concluida); partes.card.classList.toggle("andamento",andamento); partes.card.classList.toggle("expirada",expirado);
+        partes.status.textContent = concluida ? "✓ Concluída" : expirado ? "↺ Troféu expirado" : andamento ? "▶ Em andamento" : "Disponível";
+        partes.medalha.replaceChildren();
+        const imagem = medalhas?.[atividade.id]?.url;
+        if (imagem && concluida){ const img = document.createElement("img"); img.src = imagem; img.alt = `Medalha ${atividade.titulo}`; img.loading = "lazy"; partes.medalha.appendChild(img); } else partes.medalha.textContent = "★";
+        partes.progresso.replaceChildren(); const segmentos = Math.min(Math.max(p.total,1),5); const preenchidos = Math.round((p.atual / p.total) * segmentos);
+        for(let i=0;i<segmentos;i++){ const item = document.createElement("i"); if(i < preenchidos) item.className = "on"; partes.progresso.appendChild(item); }
+        if(concluida) totalConcluidas++;
       }
-      const segmentos = Math.min(Math.max(progresso.total, 1), 10);
-      const preenchidos = Math.round((progresso.atual / progresso.total) * segmentos);
-      painel.innerHTML = `<span class="progresso-contagem">${progresso.atual}/${progresso.total}</span><span class="progresso-segmentos" role="progressbar" aria-valuemin="0" aria-valuemax="${progresso.total}" aria-valuenow="${progresso.atual}">${Array.from({ length: segmentos }, (_, indice) => `<i class="progresso-segmento${indice < preenchidos ? " preenchido" : ""}"></i>`).join("")}</span>`;
+      const total = JORNADA_ATIVIDADES.length; contagem.textContent = `${totalConcluidas} de ${total}`; barra.style.width = `${total ? totalConcluidas / total * 100 : 0}%`; barraBox.setAttribute("aria-valuenow",String(totalConcluidas));
     }
-
-    function atualizarResumo(progressoMapa) {
-      const total = cards.length || JORNADA_ATIVIDADES.length;
-      const concluidas = cards.filter((card) => card.classList.contains("jornada-completed")).length;
-      const contagem = document.getElementById("jornada-contagem");
-      const barra = document.getElementById("jornada-barra");
-      const progressbar = barra?.parentElement;
-      if (contagem) contagem.textContent = `${concluidas} de ${total}`;
-      if (barra) barra.style.width = `${total ? (concluidas / total) * 100 : 0}%`;
-      if (progressbar) progressbar.setAttribute("aria-valuenow", String(concluidas));
-    }
-
-    function aplicarJornada(progressoMapa, medalhas = {}) {
-      for (const atividade of JORNADA_ATIVIDADES) {
-        const card = document.querySelector(`[data-jornada-id="${atividade.id}"]`);
-        if (!card) continue;
-        const registro = progressoMapa[atividade.id] || {};
-        const concluida = trofeuAtivo(registro);
-        const expirada = registro.concluida === true && !concluida && Boolean(dataExpiracaoTrofeu(registro));
-        const body = card.querySelector(".card-body");
-        let medalha = body?.querySelector(".medalha-slot");
-        if (body && !medalha) {
-          medalha = document.createElement("div");
-          medalha.className = "medalha-slot";
-          body.appendChild(medalha);
-        }
-        const progresso = lerProgresso(registro, atividade, concluida);
-        renderizarProgresso(body, progresso);
-        const emAndamento = !concluida && progresso.atual > 0;
-        card.classList.toggle("jornada-completed", concluida);
-        card.classList.toggle("jornada-em-andamento", emAndamento);
-        card.classList.toggle("jornada-pending", !concluida);
-        card.classList.toggle("jornada-expired", expirada);
-        card.classList.remove("jornada-locked");
-        card.setAttribute("aria-disabled", "false");
-        const old = body?.querySelector(".jornada-status");
-        if (old) old.remove();
-        const oldTrophy = card.querySelector(".jornada-trophy");
-        if (oldTrophy) oldTrophy.remove();
-        const imagem = medalhas[atividade.id]?.url || "";
-        if (medalha) {
-          medalha.classList.toggle("desbloqueada", concluida);
-          medalha.classList.toggle("expirada", expirada);
-          medalha.innerHTML = imagem && concluida
-            ? `<img src="${imagem}" alt="Medalha ${atividade.titulo}" loading="lazy">`
-            : `<span class="medalha-placeholder">★</span>`;
-        }
-        if (body) {
-          const label = document.createElement("span");
-          label.className = "jornada-status";
-          label.textContent = concluida ? "✅ Concluída · troféu válido por 30 dias" : (expirada ? "🏆 Troféu expirado · refaça para renovar" : "▶ Conquista pendente · disponível para praticar");
-          body.appendChild(label);
-        }
-      }
-      atualizarResumo(progressoMapa);
-    }
-
-    aplicarJornada({}, {});
-
-    Promise.allSettled([
-        carregarProgressoJornada(),
-        getDoc(doc(db, "configuracoes", "conquistas"))
-      ]).then(([resultadoProgresso, resultadoConfig]) => {
-      const progresso = resultadoProgresso.status === "fulfilled" ? resultadoProgresso.value : {};
-      const configSnap = resultadoConfig.status === "fulfilled" ? resultadoConfig.value : null;
-      const medalhas = configSnap?.exists() ? configSnap.data().atividades || {} : {};
-      aplicarJornada(progresso, medalhas);
-      }).catch((erro) => {
-      console.error("Não foi possível carregar a jornada de atividades", erro);
-      });
+    JORNADA_ATIVIDADES.forEach(criarCard);
+    aplicar({},{});
+    Promise.allSettled([carregarProgressoJornada(),getDoc(doc(db,"configuracoes","conquistas"))]).then(([p,c])=>{ const progresso = p.status === "fulfilled" ? p.value : {}; const snap = c.status === "fulfilled" ? c.value : null; aplicar(progresso,snap?.exists() ? snap.data().atividades || {} : {}); }).catch((erro)=>console.error("Não foi possível carregar a jornada",erro));
   </script>
   <script src="loader.js"></script>
-  <script type="module" src="navegacao.js"></script>
   <script type="module" src="bottom-nav.js"></script>
 </body>
 </html>
