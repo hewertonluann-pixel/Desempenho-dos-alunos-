@@ -18,6 +18,7 @@ export const JORNADA_ATIVIDADES = [
   { id: "compassos-game", ordem: 7, titulo: "Fórmulas de Compasso", url: "compassos-game.html", icone: "🥁" },
   { id: "tom-semitom", ordem: 8, titulo: "Tom ou Semitom?", url: "jogo-tom-semitom.html", icone: "🎵" },
   { id: "tetracordes", ordem: 9, titulo: "Tetracordes & Escalas", url: "tetracordes.html", icone: "🎼" },
+  { id: "atividades-armadura", ordem: 10, titulo: "Armaduras de Clave", url: "atividades-armadura.html", icone: "🎼" },
 ];
 
 const DURACAO_TROFEU_DIAS = 30;

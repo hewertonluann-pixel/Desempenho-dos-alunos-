@@ -690,3 +690,10 @@ A prioridade P1 indica ação prioritária; riscos condicionais permanecem condi
 - **Arquivos alterados:** `atividades-armadura.html` e `jornada-atividades.js`.
 - **Evidências:** `node --check` aprovado para o módulo e para o script inline extraído; verificação estática confirmou os limiares, os campos de persistência e o tratamento de saída antecipada.
 - **Próximo passo:** testar uma conclusão real com usuário logado, repetir com desempenho inferior e conferir o documento no Firestore antes de replicar para outras atividades.
+
+
+### 2026-11-05 — Card do piloto de Armaduras de Clave
+- **Status:** implementado e validado estaticamente.
+- `atividades-armadura` foi incluída no catálogo `JORNADA_ATIVIDADES`, passando a aparecer como Fase 10 na página de atividades.
+- O card agora exibe `☆☆☆` quando ainda não há resultado salvo e passa a preencher de uma a três estrelas conforme `registro.estrelas` no Firestore.
+- O contador geral da jornada foi atualizado de 9 para 10 fases.

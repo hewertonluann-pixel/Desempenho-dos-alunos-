@@ -234,3 +234,9 @@ As 12 etapas de verificação estão registradas e o backlog foi consolidado em 
 - **Critérios implementados:** resultado percentual convertido em 1–3 estrelas; tela final exibe estrelas; melhor resultado é persistido; tentativas inferiores não substituem a melhor; saída antecipada não registra conclusão.
 - **Critérios de validação:** concluir a atividade com resultado abaixo de 60%, entre 60% e 84% e acima de 85%; repetir com pontuação menor; verificar estrelas e campos no Firestore; testar usuário sem sessão.
 - **Próximo passo:** executar o teste runtime do piloto e somente depois definir a adaptação das outras atividades e do seletor por níveis.
+
+
+### 2026-11-05 — Card do piloto de Armaduras de Clave
+- **Status:** implementado; validação visual em viewport mobile/desktop pendente.
+- **Critério atendido:** o card da atividade aparece no seletor da jornada e exibe três estrelas vazias (`☆☆☆`) antes da primeira conclusão.
+- **Persistência futura:** o card lê `registro.estrelas` do progresso salvo para substituir as estrelas vazias pelas conquistadas.

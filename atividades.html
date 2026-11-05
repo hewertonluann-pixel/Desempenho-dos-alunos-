@@ -27,6 +27,7 @@
     .fase:hover,.fase:focus-visible{outline:none;border-color:var(--cyan);background:var(--surface2);transform:translateY(-2px)}
     .fase-num{color:var(--muted);font-size:.66rem;font-weight:800}.fase-icone{display:grid;width:38px;height:38px;place-items:center;border-radius:11px;background:#142b43;color:var(--cyan);font-size:1.25rem}.fase-nome{display:block;min-height:2.2em;font-size:.76rem;font-weight:750;line-height:1.1}.fase-status{color:var(--muted);font-size:.62rem;font-weight:700}
     .fase-progresso{display:flex;gap:3px;margin-top:7px}.fase-progresso i{flex:1;height:4px;border-radius:99px;background:var(--line)}.fase-progresso i.on{background:var(--cyan)}
+    .fase-estrelas{margin-top:6px;color:var(--locked);font-size:.78rem;letter-spacing:2px;line-height:1}.fase-estrelas .on{color:var(--gold);text-shadow:0 0 8px rgba(244,189,78,.35)}
     .fase.concluida{border-color:rgba(66,211,146,.6)}.fase.concluida .fase-icone{background:rgba(66,211,146,.14);color:var(--green)}.fase.concluida .fase-status{color:var(--green)}.fase.concluida .fase-progresso i.on{background:var(--green)}
     .fase.andamento{border-color:rgba(56,213,232,.65)}.fase.expirada{border-color:rgba(244,189,78,.65)}.fase.expirada .fase-status{color:var(--gold)}
     .medalha{position:absolute;top:9px;right:9px;display:grid;width:25px;height:25px;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--locked);font-size:.74rem}.concluida .medalha{border-color:var(--gold);background:rgba(244,189,78,.14);color:var(--gold)}.medalha img{width:18px;height:18px;object-fit:contain}
@@ -43,7 +44,7 @@
   <main>
     <header class="topo">
       <div><h1>Fases Musicais</h1><p class="subtitulo">Escolha uma fase para continuar sua jornada.</p></div>
-      <div class="resumo" aria-label="Progresso da jornada"><strong id="jornada-contagem">0 de 9</strong><span>fases concluídas</span><div class="barra" role="progressbar" aria-label="Progresso da jornada" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0"><i id="jornada-barra"></i></div></div>
+      <div class="resumo" aria-label="Progresso da jornada"><strong id="jornada-contagem">0 de 10</strong><span>fases concluídas</span><div class="barra" role="progressbar" aria-label="Progresso da jornada" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i id="jornada-barra"></i></div></div>
     </header>
 
     <section class="grupo" aria-labelledby="titulo-fundamentos"><button type="button" class="grupo-titulo" id="titulo-fundamentos" aria-expanded="true" aria-controls="fases-fundamentos"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Fundamentos</span></button><div class="fases" id="fases-fundamentos"></div></section>
@@ -66,7 +67,7 @@
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { JORNADA_ATIVIDADES, carregarProgressoJornada, trofeuAtivo, dataExpiracaoTrofeu } from "./jornada-atividades.js";
 
-    const limites = {"notas-musicais":5,"escada-notas":8,"como-funciona-pauta":3,"figuras-musicais":5,"jogo-figuras":10,"atividades-notas":10,"compassos-game":10,"tom-semitom":10,"tetracordes":10};
+    const limites = {"notas-musicais":5,"escada-notas":8,"como-funciona-pauta":3,"figuras-musicais":5,"jogo-figuras":10,"atividades-notas":10,"compassos-game":10,"tom-semitom":10,"tetracordes":10,"atividades-armadura":11};
     const icones = Object.fromEntries(JORNADA_ATIVIDADES.map((atividade) => [atividade.id, atividade.icone]));
     const contagem = document.getElementById("jornada-contagem");
     const barra = document.getElementById("jornada-barra");
@@ -88,8 +89,9 @@
       const nomeWrap = document.createElement("span"); const nome = document.createElement("strong"); nome.className = "fase-nome"; nome.textContent = atividade.titulo;
       const status = document.createElement("small"); status.className = "fase-status"; nomeWrap.append(nome,status);
       const medalha = document.createElement("span"); medalha.className = "medalha"; medalha.setAttribute("aria-label","Medalha da fase");
+      const estrelas = document.createElement("span"); estrelas.className = "fase-estrelas"; estrelas.setAttribute("aria-label", "0 de 3 estrelas"); estrelas.textContent = "☆☆☆";
       const progresso = document.createElement("span"); progresso.className = "fase-progresso";
-      card.append(num,icone,nomeWrap,medalha,progresso); document.getElementById(grupoDe(atividade)).appendChild(card); cards.set(atividade.id,{card,status,medalha,progresso});
+      card.append(num,icone,nomeWrap,medalha,estrelas,progresso); document.getElementById(grupoDe(atividade)).appendChild(card); cards.set(atividade.id,{card,status,medalha,estrelas,progresso});
     }
     function aplicar(progressoMapa, medalhas){
       let totalConcluidas = 0;
@@ -101,7 +103,10 @@
         partes.status.textContent = concluida ? "✓ Concluída" : expirado ? "↺ Troféu expirado" : andamento ? "▶ Em andamento" : "Disponível";
         partes.medalha.replaceChildren();
         const imagem = medalhas?.[atividade.id]?.url;
-        if (imagem && concluida){ const img = document.createElement("img"); img.src = imagem; img.alt = `Medalha ${atividade.titulo}`; img.loading = "lazy"; partes.medalha.appendChild(img); } else partes.medalha.textContent = "★";
+        if (imagem && concluida){ const img = document.createElement("img"); img.src = imagem; img.alt = `Medalha ${atividade.titulo}`; img.loading = "lazy"; partes.medalha.appendChild(img); } else partes.medalha.textContent = concluida ? "🏆" : "";
+        const quantidadeEstrelas = Math.min(Math.max(Number(registro.estrelas) || 0, 0), 3);
+        partes.estrelas.innerHTML = `<span class="on">${"★".repeat(quantidadeEstrelas)}</span>${"☆".repeat(3 - quantidadeEstrelas)}`;
+        partes.estrelas.setAttribute("aria-label", `${quantidadeEstrelas} de 3 estrelas`);
         partes.progresso.replaceChildren(); const segmentos = Math.min(Math.max(p.total,1),5); const preenchidos = Math.round((p.atual / p.total) * segmentos);
         for(let i=0;i<segmentos;i++){ const item = document.createElement("i"); if(i < preenchidos) item.className = "on"; partes.progresso.appendChild(item); }
         if(concluida) totalConcluidas++;
