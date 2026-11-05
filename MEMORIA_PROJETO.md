@@ -671,3 +671,12 @@ A prioridade P1 indica ação prioritária; riscos condicionais permanecem condi
 - **Arquivos alterados:** `navegacao.js` e `bottom-nav.js`.
 - **Evidências:** não há mais o mesmo ID compartilhado entre navbar superior e barra inferior; a sintaxe dos dois scripts foi validada com `node --check`.
 - **Pendência:** confirmar visualmente no celular ou em viewport mobile após novo carregamento sem cache.
+
+
+### 2026-11-05 — Correção preventiva de coleções duplicadas na Biblioteca
+- **Status:** corrigida no código; limpeza das duplicatas existentes não realizada.
+- **Causa confirmada:** `ensureInitialCollections()` usava `getDocs` seguido de `addDoc` com IDs aleatórios. Carregamentos simultâneos podiam observar a mesma coleção ausente e criar documentos diferentes com o mesmo nome. `createNewCollection()` também aceitava nomes já existentes.
+- **Correção realizada:** `script_biblioteca.js` agora normaliza nomes ignorando acentos, caixa e espaços; usa IDs determinísticos com `setDoc` para coleções iniciais e novas coleções; e rejeita nomes duplicados antes da criação.
+- **Estado observado antes da correção:** havia seis coleções, incluindo uma `Músicas` vazia duplicada e uma `Métodos` vazia duplicada. Não foram apagados nem alterados dados.
+- **Validação:** sintaxe e diff serão validados antes do commit; a confirmação em produção depende do novo deploy e de uma recarga sem cache.
+- **Pendência:** remover manualmente, com autorização e confirmação da coleção correta, as duplicatas vazias já existentes.

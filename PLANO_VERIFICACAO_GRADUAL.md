@@ -217,3 +217,12 @@ As 12 etapas de verificação estão registradas e o backlog foi consolidado em 
 - **Correção:** renomeado o ID superior para `navProfessorTop` e restringida a seleção do botão mobile a `.bottom-nav #navProfessor` em `bottom-nav.js`.
 - **Critério preservado:** somente alunos cujo registro tenha `classificado === true` recebem o botão Professor visível.
 - **Próximo passo:** validar em viewport mobile com usuário classificado e não classificado, incluindo recarga sem cache.
+
+
+### 2026-11-05 — Correção preventiva de coleções duplicadas na Biblioteca
+- **Status:** corrigida no código; dados duplicados existentes permanecem pendentes de limpeza autorizada.
+- **Escopo:** Etapa 8 — Biblioteca e arquivos.
+- **Causa:** criação por `addDoc` após leitura não transacional e ausência de validação de nomes no fluxo manual.
+- **Correção:** nomes são comparados de forma normalizada; novas coleções usam IDs determinísticos com `setDoc`, tornando carregamentos simultâneos idempotentes; criação manual rejeita nomes já existentes.
+- **Critério de saída:** após o deploy, abrir a Biblioteca em múltiplas abas não deve criar novos IDs para `Músicas`, `Métodos` ou outras coleções com o mesmo nome; tentativa de criar nome existente deve ser recusada.
+- **Próximo passo:** publicar e validar o comportamento em produção; depois decidir a limpeza das duas duplicatas vazias observadas.

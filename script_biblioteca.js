@@ -4,6 +4,7 @@ import {
   collection,
   getDocs,
   addDoc,
+  setDoc,
   deleteDoc,
   doc,
   serverTimestamp,
@@ -52,6 +53,22 @@ let currentView = localStorage.getItem('bibliotecaView') || 'list';
 let currentColModoPartes = true;
 
 const INITIAL_COLLECTIONS = ['Métodos', 'Hinos da Harpa', 'Músicas'];
+
+function normalizarNomeColecao(nome = '') {
+  return String(nome)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('pt-BR');
+}
+
+function idDeterministicoColecao(nome) {
+  const slug = normalizarNomeColecao(nome)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'sem-nome';
+  return `colecao-${slug}`;
+}
 
 let searchTerm = '';
 let sortCriterion = 'name-asc';
@@ -155,12 +172,13 @@ function checkUserAuth() {
 async function ensureInitialCollections() {
   try {
     const snap = await getDocs(collection(db, 'biblioteca_colecoes'));
-    const existingNames = snap.docs.map(d => d.data().nome);
+    const existingNames = new Set(snap.docs.map(d => normalizarNomeColecao(d.data().nome)));
     for (const colName of INITIAL_COLLECTIONS) {
-      if (!existingNames.includes(colName)) {
+      if (!existingNames.has(normalizarNomeColecao(colName))) {
         // Métodos começa com modoPartes=false; demais com true
         const modoPartes = colName !== 'Métodos';
-        await addDoc(collection(db, 'biblioteca_colecoes'), { nome: colName, modoPartes, criadoEm: serverTimestamp() });
+        await setDoc(doc(db, 'biblioteca_colecoes', idDeterministicoColecao(colName)), { nome: colName, modoPartes, criadoEm: serverTimestamp() });
+        existingNames.add(normalizarNomeColecao(colName));
       }
     }
   } catch (error) {
@@ -582,10 +600,18 @@ async function removeAudio() {
 
 async function createNewCollection() {
   const input = document.getElementById('new-collection-name');
-  if (!input.value.trim()) { alert('❌ Digite um nome para a coleção'); return; }
+  const nome = input.value.trim();
+  if (!nome) { alert('❌ Digite um nome para a coleção'); return; }
   try {
-    await addDoc(collection(db, 'biblioteca_colecoes'), {
-      nome: input.value.trim(),
+    const snap = await getDocs(collection(db, 'biblioteca_colecoes'));
+    const nomeNormalizado = normalizarNomeColecao(nome);
+    const duplicada = snap.docs.some((docSnap) => normalizarNomeColecao(docSnap.data().nome) === nomeNormalizado);
+    if (duplicada) {
+      alert('⚠️ Já existe uma coleção com esse nome.');
+      return;
+    }
+    await setDoc(doc(db, 'biblioteca_colecoes', idDeterministicoColecao(nome)), {
+      nome,
       modoPartes: true, // novas coleções começam com modo partes ativo
       criadoEm: serverTimestamp()
     });
