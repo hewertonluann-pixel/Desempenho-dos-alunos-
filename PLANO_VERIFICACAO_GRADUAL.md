@@ -199,3 +199,12 @@ As 12 etapas de verificação estão registradas e o backlog foi consolidado em 
 - **Correções realizadas:** nenhuma correção funcional ou de infraestrutura; somente este registro documental.
 - **Pendências:** obter confirmação autorizada das regras Firestore/Storage e do bucket ativos; se houver permissões abertas, desenhar regras de negação por padrão e validá-las no Emulator antes de qualquer deploy autorizado.
 - **Próximo passo:** retomar SEC-01 com acesso ao Console Firebase ou exportação verificável das regras; não iniciar SEC-02 antes dessa confirmação.
+
+
+### 2026-11-05 — Revisão delta de `atividades.html`
+- **Status:** parcialmente concluída; validação estática concluída e validação visual/runtime pendente.
+- **Escopo:** revisão pontual da Etapa 7 e dos aspectos de navegação/mobile da Etapa 11 após alteração posterior ao fechamento do ciclo.
+- **Arquivos verificados:** `atividades.html`, comparado com `aluno.html`, `bottom-nav.css` e `bottom-nav.js`.
+- **Evidências:** script inline aprovado por `node --check`; markup da barra inferior alinhado ao aluno; grid mobile verificado com duas colunas; três categorias convertidas em controles retráteis acessíveis por teclado.
+- **Pendências:** testar em navegador desktop/mobile o recolhimento, foco, estado ativo da navegação, item Professor e reflow em telas estreitas. A revisão não encerra nem altera as pendências funcionais anteriores da jornada.
+- **Próximo passo:** concluir a validação runtime e atualizar este registro no mesmo commit da memória técnica; aplicar a regra de revisão delta para futuras alterações em arquivos já auditados.

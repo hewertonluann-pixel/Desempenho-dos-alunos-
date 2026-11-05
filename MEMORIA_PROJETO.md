@@ -652,3 +652,12 @@ A prioridade P1 indica ação prioritária; riscos condicionais permanecem condi
 4. **Experiência integrada:** OPS-01/02 resolvem rotas e carregamento; OPS-03/04/05 cobrem PWA, loader e navegação; A11Y-01/02/03 e VAL-01 só são fechados com evidência em navegador/dispositivo compatível.
 
 **Status do backlog:** nenhum item foi marcado como corrigido nesta etapa. A conclusão do ciclo documental não certifica segurança, funcionamento ou prontidão para produção.
+
+### 2026-11-05 — Revisão delta de `atividades.html`
+- **Status:** parcialmente concluída; validação estática concluída e validação visual/runtime pendente.
+- **Arquivos verificados:** `atividades.html`, com referência de padrão em `aluno.html`, `bottom-nav.css` e `bottom-nav.js`.
+- **Alterações realizadas:** a barra inferior passou a usar o mesmo markup e os mesmos ícones Font Awesome da página do aluno; o layout mobile passou a exibir as fases em duas colunas; as categorias `Fundamentos`, `Desenvolvimento` e `Desafio final` passaram a ser botões retráteis com `aria-expanded`, `aria-controls` e suporte a foco por teclado.
+- **Evidências:** `node --check` passou para o script inline; verificações estruturais confirmaram os cinco itens de navegação, o grid mobile de duas colunas, os três controles de categoria e o listener de expansão/recolhimento. Não houve execução em navegador nem acesso/alteração de dados Firebase.
+- **Confirmado:** a navegação permanece compatível com o contrato de `bottom-nav.js`; o item ativo continua sendo determinado pelo `data-page`; o estado inicial das três categorias é aberto.
+- **Pendências:** validar visualmente em desktop e mobile, testar recolhimento por mouse e teclado, confirmar que o estado ativo e a visibilidade do item Professor permanecem corretos com usuário aluno/professor e verificar a altura dos cards em telas estreitas.
+- **Próximo passo:** executar a validação em navegador/dispositivo quando disponível e, se aprovada, marcar a revisão delta como concluída; manter abertas as pendências funcionais já registradas para jornada e persistência de progresso.

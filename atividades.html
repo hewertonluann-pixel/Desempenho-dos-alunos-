@@ -9,6 +9,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="loader.css">
   <link rel="stylesheet" href="bottom-nav.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <title>Fases Musicais</title>
   <style>
     :root{--bg:#07111f;--surface:#0d1b2d;--surface2:#11243a;--line:#1d3854;--text:#e8f1f8;--muted:#8da4ba;--cyan:#38d5e8;--green:#42d392;--gold:#f4bd4e;--locked:#52657a}
@@ -20,8 +21,8 @@
     .subtitulo{margin:6px 0 0;color:var(--muted);font-size:.86rem}
     .resumo{min-width:120px;text-align:right}.resumo strong{display:block;color:var(--cyan);font-size:1.2rem}.resumo span{color:var(--muted);font-size:.68rem}
     .barra{width:120px;height:5px;margin-top:8px;overflow:hidden;border-radius:99px;background:var(--line)}.barra i{display:block;width:0;height:100%;border-radius:inherit;background:var(--green);transition:width .2s ease}
-    .grupo{margin-top:26px}.grupo-titulo{display:flex;align-items:center;gap:9px;margin:0 0 10px;color:var(--muted);font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.grupo-titulo::after{content:"";flex:1;height:1px;background:var(--line)}
-    .fases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .grupo{margin-top:26px}.grupo-titulo{display:flex;align-items:center;width:100%;gap:9px;margin:0 0 10px;padding:0;border:0;background:transparent;color:var(--muted);font:inherit;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-align:left;text-transform:uppercase;cursor:pointer}.grupo-titulo::after{content:"";flex:1;height:1px;background:var(--line)}.grupo-titulo:focus-visible{outline:2px solid var(--cyan);outline-offset:4px;border-radius:3px}.grupo-titulo i{width:12px;color:var(--cyan);font-size:.65rem;text-align:center;transition:transform .15s ease}.grupo-titulo[aria-expanded="false"] i{transform:rotate(-90deg)}
+    .fases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.fases[hidden]{display:none}
     .fase{position:relative;display:flex;min-width:0;aspect-ratio:1;flex-direction:column;justify-content:space-between;padding:12px;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--text);text-decoration:none;transition:border-color .15s,background .15s,transform .15s}
     .fase:hover,.fase:focus-visible{outline:none;border-color:var(--cyan);background:var(--surface2);transform:translateY(-2px)}
     .fase-num{color:var(--muted);font-size:.66rem;font-weight:800}.fase-icone{display:grid;width:38px;height:38px;place-items:center;border-radius:11px;background:#142b43;color:var(--cyan);font-size:1.25rem}.fase-nome{display:block;min-height:2.2em;font-size:.76rem;font-weight:750;line-height:1.1}.fase-status{color:var(--muted);font-size:.62rem;font-weight:700}
@@ -31,9 +32,9 @@
     .medalha{position:absolute;top:9px;right:9px;display:grid;width:25px;height:25px;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--locked);font-size:.74rem}.concluida .medalha{border-color:var(--gold);background:rgba(244,189,78,.14);color:var(--gold)}.medalha img{width:18px;height:18px;object-fit:contain}
     .legenda{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px;color:var(--muted);font-size:.68rem}.legenda b{color:var(--text)}
     .erro-jornada{padding:20px;border:1px solid #7f1d1d;border-radius:12px;color:#fecaca;background:#2b1118;font-size:.82rem}
-    @media (max-width:540px){main{width:min(100% - 20px,420px);padding-top:14px}.fases{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.fase{padding:9px;border-radius:11px}.fase-icone{width:32px;height:32px;font-size:1rem}.fase-nome{font-size:.68rem}.resumo{min-width:95px}.barra{width:95px}}
-    @media (max-width:340px){.topo{display:block}.resumo{margin-top:14px;text-align:left}.fases{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (prefers-reduced-motion:reduce){.fase,.barra i{transition:none}}
+    @media (max-width:540px){main{width:min(100% - 20px,420px);padding-top:14px}.fases{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.fase{padding:9px;border-radius:11px}.fase-icone{width:32px;height:32px;font-size:1rem}.fase-nome{font-size:.68rem}.resumo{min-width:95px}.barra{width:95px}}
+    @media (max-width:340px){.topo{display:block}.resumo{margin-top:14px;text-align:left}}
+    @media (prefers-reduced-motion:reduce){.fase,.barra i,.grupo-titulo i{transition:none}}
   </style>
 </head>
 <body>
@@ -45,19 +46,19 @@
       <div class="resumo" aria-label="Progresso da jornada"><strong id="jornada-contagem">0 de 9</strong><span>fases concluídas</span><div class="barra" role="progressbar" aria-label="Progresso da jornada" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0"><i id="jornada-barra"></i></div></div>
     </header>
 
-    <section class="grupo" aria-labelledby="titulo-fundamentos"><h2 id="titulo-fundamentos" class="grupo-titulo">Fundamentos</h2><div class="fases" id="fases-fundamentos"></div></section>
-    <section class="grupo" aria-labelledby="titulo-desenvolvimento"><h2 id="titulo-desenvolvimento" class="grupo-titulo">Desenvolvimento</h2><div class="fases" id="fases-desenvolvimento"></div></section>
-    <section class="grupo" aria-labelledby="titulo-desafio"><h2 id="titulo-desafio" class="grupo-titulo">Desafio final</h2><div class="fases" id="fases-desafio"></div></section>
+    <section class="grupo" aria-labelledby="titulo-fundamentos"><button type="button" class="grupo-titulo" id="titulo-fundamentos" aria-expanded="true" aria-controls="fases-fundamentos"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Fundamentos</span></button><div class="fases" id="fases-fundamentos"></div></section>
+    <section class="grupo" aria-labelledby="titulo-desenvolvimento"><button type="button" class="grupo-titulo" id="titulo-desenvolvimento" aria-expanded="true" aria-controls="fases-desenvolvimento"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Desenvolvimento</span></button><div class="fases" id="fases-desenvolvimento"></div></section>
+    <section class="grupo" aria-labelledby="titulo-desafio"><button type="button" class="grupo-titulo" id="titulo-desafio" aria-expanded="true" aria-controls="fases-desafio"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Desafio final</span></button><div class="fases" id="fases-desafio"></div></section>
 
     <footer class="legenda"><span><b>✓</b> Concluída</span><span><b>▶</b> Em andamento</span><span><b>★</b> Medalha</span><span><b>↺</b> Troféu expirado</span></footer>
   </main>
 
-  <nav class="bottom-nav" aria-label="Navegação principal">
-    <a href="aluno.html" class="nav-item" data-page="home"><span class="nav-icon">⌂</span><span class="nav-label">Home</span></a>
-    <a href="painel-social.html" class="nav-item" data-page="comunidade"><span class="nav-icon">♧</span><span class="nav-label">Comunidade</span></a>
-    <a href="biblioteca.html" class="nav-item" data-page="biblioteca"><span class="nav-icon">▤</span><span class="nav-label">Biblioteca</span></a>
-    <a href="atividades.html" class="nav-item active" data-page="atividades"><span class="nav-icon">◆</span><span class="nav-label">Atividades</span></a>
-    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none"><span class="nav-icon">♟</span><span class="nav-label">Professor</span></a>
+  <nav class="bottom-nav">
+    <a href="aluno.html" class="nav-item" data-page="home"><i class="fas fa-home nav-icon"></i><span class="nav-label">Home</span></a>
+    <a href="painel-social.html" class="nav-item" data-page="comunidade"><i class="fas fa-users nav-icon"></i><span class="nav-label">Comunidade</span></a>
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca"><i class="fas fa-book nav-icon"></i><span class="nav-label">Biblioteca</span></a>
+    <a href="atividades.html" class="nav-item" data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i><span class="nav-label">Atividades</span></a>
+    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor" style="display:none;"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></a>
   </nav>
 
   <script type="module">
@@ -107,6 +108,13 @@
       }
       const total = JORNADA_ATIVIDADES.length; contagem.textContent = `${totalConcluidas} de ${total}`; barra.style.width = `${total ? totalConcluidas / total * 100 : 0}%`; barraBox.setAttribute("aria-valuenow",String(totalConcluidas));
     }
+    document.querySelectorAll(".grupo-titulo").forEach((titulo) => {
+      titulo.addEventListener("click", () => {
+        const aberto = titulo.getAttribute("aria-expanded") === "true";
+        titulo.setAttribute("aria-expanded", String(!aberto));
+        document.getElementById(titulo.getAttribute("aria-controls")).hidden = aberto;
+      });
+    });
     JORNADA_ATIVIDADES.forEach(criarCard);
     aplicar({},{});
     Promise.allSettled([carregarProgressoJornada(),getDoc(doc(db,"configuracoes","conquistas"))]).then(([p,c])=>{ const progresso = p.status === "fulfilled" ? p.value : {}; const snap = c.status === "fulfilled" ? c.value : null; aplicar(progresso,snap?.exists() ? snap.data().atividades || {} : {}); }).catch((erro)=>console.error("Não foi possível carregar a jornada",erro));
