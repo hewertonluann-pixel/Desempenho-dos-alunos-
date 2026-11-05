@@ -2,6 +2,7 @@ import { db } from "./firebase-config.js";
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   serverTimestamp,
   setDoc,
@@ -32,6 +33,51 @@ function usuarioAtual() {
 
 function progressoRef(usuario, atividadeId) {
   return doc(db, "alunos", usuario.docId, "progressoAtividades", atividadeId);
+}
+
+export function calcularEstrelas(percentual) {
+  const valor = Math.max(0, Math.min(100, Number(percentual) || 0));
+  if (valor >= 85) return 3;
+  if (valor >= 60) return 2;
+  return 1;
+}
+
+export async function registrarResultadoAtividade(atividadeId, detalhes = {}) {
+  const usuario = usuarioAtual();
+  if (!usuario) {
+    console.warn("Jornada: nenhum aluno identificado para salvar o resultado.");
+    return { salvo: false, motivo: "sem-usuario" };
+  }
+
+  const referencia = progressoRef(usuario, atividadeId);
+  const anteriorSnap = await getDoc(referencia);
+  const anterior = anteriorSnap.exists() ? anteriorSnap.data() : {};
+  const percentual = Math.max(0, Math.min(100, Number(detalhes.percentual) || 0));
+  const melhorAnterior = Number(anterior.melhorPercentual) || 0;
+  const melhorPercentual = Math.max(melhorAnterior, percentual);
+  const novoMelhor = percentual >= melhorAnterior;
+  const atividade = JORNADA_ATIVIDADES.find((item) => item.id === atividadeId);
+  const agora = serverTimestamp();
+
+  await setDoc(referencia, {
+    atividadeId,
+    ordem: atividade?.ordem ?? anterior.ordem ?? null,
+    titulo: detalhes.titulo || atividade?.titulo || anterior.titulo || atividadeId,
+    concluida: true,
+    concluidaEm: agora,
+    totalEtapas: detalhes.totalQuestoes ?? anterior.totalEtapas ?? null,
+    progressoAtual: detalhes.totalQuestoes ?? anterior.progressoAtual ?? null,
+    melhorPontuacao: melhorPercentual,
+    melhorPercentual,
+    estrelas: calcularEstrelas(melhorPercentual),
+    melhorAcertos: novoMelhor ? (detalhes.acertos ?? null) : (anterior.melhorAcertos ?? null),
+    melhorErros: novoMelhor ? (detalhes.erros ?? null) : (anterior.melhorErros ?? null),
+    tentativas: (Number(anterior.tentativas) || 0) + 1,
+    ultimaTentativaEm: agora,
+    ...(novoMelhor ? { melhorResultadoEm: agora } : {}),
+  }, { merge: true });
+
+  return { salvo: true, percentual, estrelas: calcularEstrelas(melhorPercentual), melhorPercentual };
 }
 
 export async function carregarProgressoJornada(alunoId = null) {
@@ -130,5 +176,5 @@ export function instalarBotaoProximaAtividade({ atividadeId, seletor = "body", d
   };
 }
 
-window.JornadaAtividades = { concluirAtividade, instalarBotaoProximaAtividade, protegerPaginaAtual, JORNADA_ATIVIDADES };
+window.JornadaAtividades = { calcularEstrelas, registrarResultadoAtividade, concluirAtividade, instalarBotaoProximaAtividade, protegerPaginaAtual, JORNADA_ATIVIDADES };
 protegerPaginaAtual().catch((erro) => console.warn("Jornada: não foi possível validar a etapa atual", erro));

@@ -226,3 +226,11 @@ As 12 etapas de verificação estão registradas e o backlog foi consolidado em 
 - **Correção:** nomes são comparados de forma normalizada; novas coleções usam IDs determinísticos com `setDoc`, tornando carregamentos simultâneos idempotentes; criação manual rejeita nomes já existentes.
 - **Critério de saída:** após o deploy, abrir a Biblioteca em múltiplas abas não deve criar novos IDs para `Músicas`, `Métodos` ou outras coleções com o mesmo nome; tentativa de criar nome existente deve ser recusada.
 - **Próximo passo:** publicar e validar o comportamento em produção; depois decidir a limpeza das duas duplicatas vazias observadas.
+
+
+### 2026-11-05 — Etapa 1: piloto de estrelas em `atividades-armadura.html`
+- **Status:** implementação concluída; runtime e persistência em produção pendentes.
+- **Escopo:** uma atividade-piloto, sem replicação ainda para as demais páginas.
+- **Critérios implementados:** resultado percentual convertido em 1–3 estrelas; tela final exibe estrelas; melhor resultado é persistido; tentativas inferiores não substituem a melhor; saída antecipada não registra conclusão.
+- **Critérios de validação:** concluir a atividade com resultado abaixo de 60%, entre 60% e 84% e acima de 85%; repetir com pontuação menor; verificar estrelas e campos no Firestore; testar usuário sem sessão.
+- **Próximo passo:** executar o teste runtime do piloto e somente depois definir a adaptação das outras atividades e do seletor por níveis.

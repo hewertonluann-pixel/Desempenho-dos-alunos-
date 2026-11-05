@@ -210,6 +210,9 @@ body{
 .trophy{font-size:4rem;margin-bottom:12px}
 .end-title{font-size:1.5rem;font-weight:800;color:#e2b96f;margin-bottom:8px}
 .end-text{font-size:.88rem;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:22px}
+.result-stars{font-size:2.35rem;letter-spacing:5px;line-height:1;margin:-4px 0 18px;color:#e2b96f;text-shadow:0 3px 14px rgba(226,185,111,.35)}
+.result-stars[aria-label]{outline:none}
+.save-status{min-height:20px;margin:-12px 0 18px;color:rgba(255,255,255,.55);font-size:.76rem}
 .end-chips{display:flex;justify-content:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
 .btn-restart{
   background:linear-gradient(135deg,#e2b96f,#c9963d);color:#1a1a2e;
@@ -316,14 +319,17 @@ body{
   <div class="trophy" id="trophyIcon">🏆</div>
   <div class="end-title" id="endTitle">Parabéns!</div>
   <div class="end-text" id="endText"></div>
+  <div class="result-stars" id="finalStars" aria-label="0 estrelas">☆☆☆</div>
   <div class="end-chips">
     <div class="chip certs"><span id="finalAcertos">0</span>acertos</div>
     <div class="chip errs"><span id="finalErros">0</span>erros</div>
     <div class="chip"><span id="finalPct">0%</span>aproveitamento</div>
   </div>
+  <div class="save-status" id="saveStatus" aria-live="polite"></div>
   <button class="btn-restart" onclick="restartGame()">🔄 Jogar Novamente</button>
 </div>
 
+<script type="module" src="jornada-atividades.js"></script>
 <script>
 // ─────────── Audio ───────────
 let AC=null;
@@ -699,7 +705,12 @@ function onTimeout(){
 }
 
 // ─────────── End ───────────
-function endGame(){
+function estrelasPorPercentual(pct){
+  if(pct>=85)return 3;
+  if(pct>=60)return 2;
+  return 1;
+}
+function endGame(completa=true){
   stopTimer();
   document.getElementById('gameScreen').style.display='none';
   document.getElementById('endScreen').style.display='block';
@@ -713,9 +724,23 @@ function endGame(){
   document.getElementById('finalAcertos').textContent=acertos;
   document.getElementById('finalErros').textContent=erros;
   document.getElementById('finalPct').textContent=pct+'%';
+  const estrelas=estrelasPorPercentual(pct);
+  document.getElementById('finalStars').textContent='★'.repeat(estrelas)+'☆'.repeat(3-estrelas);
+  document.getElementById('finalStars').setAttribute('aria-label',estrelas+' de 3 estrelas');
+  const saveStatus=document.getElementById('saveStatus');
+  saveStatus.textContent='';
+  if(completa){
+    const salvar=window.JornadaAtividades?.registrarResultadoAtividade;
+    if(salvar){
+      saveStatus.textContent='Salvando seu melhor resultado…';
+      salvar('atividades-armadura',{titulo:'Armaduras de Clave',percentual:pct,acertos,erros,totalQuestoes:total})
+        .then(resultado=>{saveStatus.textContent=resultado.salvo?`Melhor resultado salvo: ${resultado.estrelas} estrela${resultado.estrelas===1?'':'s'}.`:'Entre como aluno para salvar seu progresso.';})
+        .catch(()=>{saveStatus.textContent='Não foi possível salvar o resultado. Você pode tentar novamente.';});
+    }else saveStatus.textContent='Carregando o salvamento do progresso…';
+  }else saveStatus.textContent='Atividade encerrada antes de completar todas as questões; resultado não salvo.';
 }
 
-function exitToEnd(){stopTimer();endGame();}
+function exitToEnd(){stopTimer();endGame(false);}
 function restartGame(){
   document.getElementById('endScreen').style.display='none';
   startGame();

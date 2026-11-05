@@ -680,3 +680,13 @@ A prioridade P1 indica ação prioritária; riscos condicionais permanecem condi
 - **Estado observado antes da correção:** havia seis coleções, incluindo uma `Músicas` vazia duplicada e uma `Métodos` vazia duplicada. Não foram apagados nem alterados dados.
 - **Validação:** sintaxe e diff serão validados antes do commit; a confirmação em produção depende do novo deploy e de uma recarga sem cache.
 - **Pendência:** remover manualmente, com autorização e confirmação da coleção correta, as duplicatas vazias já existentes.
+
+
+### 2026-11-05 — Etapa 1: piloto de estrelas em `atividades-armadura.html`
+- **Status:** implementada e validada estaticamente; validação visual/runtime com usuário logado permanece pendente.
+- **Regra:** 85–100% = 3 estrelas; 60–84% = 2 estrelas; 0–59% = 1 estrela. A saída antecipada não salva a tentativa como concluída.
+- **Persistência:** `jornada-atividades.js` agora expõe `calcularEstrelas()` e `registrarResultadoAtividade()`, salvando o melhor percentual, estrelas, acertos, erros, número de tentativas e timestamps em `alunos/{docId}/progressoAtividades/atividades-armadura`.
+- **Tela:** a tela final mostra estrelas preenchidas/vazadas, percentual e o status do salvamento. O melhor resultado é preservado quando uma tentativa posterior é inferior.
+- **Arquivos alterados:** `atividades-armadura.html` e `jornada-atividades.js`.
+- **Evidências:** `node --check` aprovado para o módulo e para o script inline extraído; verificação estática confirmou os limiares, os campos de persistência e o tratamento de saída antecipada.
+- **Próximo passo:** testar uma conclusão real com usuário logado, repetir com desempenho inferior e conferir o documento no Firestore antes de replicar para outras atividades.
