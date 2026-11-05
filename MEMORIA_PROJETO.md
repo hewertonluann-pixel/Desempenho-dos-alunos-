@@ -661,3 +661,13 @@ A prioridade P1 indica ação prioritária; riscos condicionais permanecem condi
 - **Confirmado:** a navegação permanece compatível com o contrato de `bottom-nav.js`; o item ativo continua sendo determinado pelo `data-page`; o estado inicial das três categorias é aberto.
 - **Pendências:** validar visualmente em desktop e mobile, testar recolhimento por mouse e teclado, confirmar que o estado ativo e a visibilidade do item Professor permanecem corretos com usuário aluno/professor e verificar a altura dos cards em telas estreitas.
 - **Próximo passo:** executar a validação em navegador/dispositivo quando disponível e, se aprovada, marcar a revisão delta como concluída; manter abertas as pendências funcionais já registradas para jornada e persistência de progresso.
+
+
+### 2026-11-05 — Correção do botão Professor na barra mobile
+- **Status:** corrigida; validação estática concluída e validação visual no dispositivo pendente.
+- **Causa confirmada:** `navegacao.js` inseria uma navbar superior com o mesmo `id="navProfessor"` usado pela barra inferior. Como `getElementById` retornava o primeiro elemento, o script exibia o botão da navbar superior e deixava oculto o botão da barra inferior.
+- **Correção realizada:** o botão da navbar superior passou a usar `id="navProfessorTop"`; `bottom-nav.js` passou a selecionar explicitamente `.bottom-nav #navProfessor`.
+- **Regra preservada:** o botão inferior inicia oculto e só é exibido quando o documento do aluno possui `classificado === true`. O registro de Hewerton Luan Assunção foi conferido como booleano `true`, sem expor senha ou alterar dados.
+- **Arquivos alterados:** `navegacao.js` e `bottom-nav.js`.
+- **Evidências:** não há mais o mesmo ID compartilhado entre navbar superior e barra inferior; a sintaxe dos dois scripts foi validada com `node --check`.
+- **Pendência:** confirmar visualmente no celular ou em viewport mobile após novo carregamento sem cache.

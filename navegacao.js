@@ -119,7 +119,7 @@ function inserirNavbar() {
           <a href="painel-social.html">Comunidade</a>
           <a href="biblioteca.html">Biblioteca</a>
           <a href="atividades.html">Atividades</a>
-          <a id="navProfessor" href="professor.html" style="display:none;">Professor</a>
+          <a id="navProfessorTop" href="professor.html" style="display:none;">Professor</a>
           <a id="navSair" href="#" style="color:#f87171;">Sair</a>
         </div>
       </div>
@@ -139,7 +139,7 @@ async function configurarNavbar() {
   const menuBtn = document.getElementById("menuBtn");
   const navLinks = document.getElementById("navLinks");
   const navInicio = document.getElementById("navInicio");
-  const navProfessor = document.getElementById("navProfessor");
+  const navProfessor = document.getElementById("navProfessorTop");
   const navAvatar = document.getElementById("navAvatar");
   const navSair = document.getElementById("navSair");
 

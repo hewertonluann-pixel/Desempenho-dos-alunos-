@@ -47,7 +47,7 @@ async function carregarDadosUsuario() {
     }
 
     // Mostrar botão Professor se for classificado
-    const navProfessor = document.getElementById('navProfessor');
+    const navProfessor = document.querySelector('.bottom-nav #navProfessor');
     if (navProfessor && aluno.classificado === true) {
       navProfessor.style.display = 'flex';
     }

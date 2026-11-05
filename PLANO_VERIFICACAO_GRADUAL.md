@@ -208,3 +208,12 @@ As 12 etapas de verificação estão registradas e o backlog foi consolidado em 
 - **Evidências:** script inline aprovado por `node --check`; markup da barra inferior alinhado ao aluno; grid mobile verificado com duas colunas; três categorias convertidas em controles retráteis acessíveis por teclado.
 - **Pendências:** testar em navegador desktop/mobile o recolhimento, foco, estado ativo da navegação, item Professor e reflow em telas estreitas. A revisão não encerra nem altera as pendências funcionais anteriores da jornada.
 - **Próximo passo:** concluir a validação runtime e atualizar este registro no mesmo commit da memória técnica; aplicar a regra de revisão delta para futuras alterações em arquivos já auditados.
+
+
+### 2026-11-05 — Correção do botão Professor na barra mobile
+- **Status:** corrigida; validação estática concluída e validação visual no dispositivo pendente.
+- **Escopo:** correção pontual relacionada às Etapas 10 e 11, nas páginas `aluno.html`, `painel-social.html` e `biblioteca.html`.
+- **Causa:** `navegacao.js` e a barra inferior usavam o mesmo `id="navProfessor"`; a seleção pelo ID atingia a navbar superior antes do elemento mobile.
+- **Correção:** renomeado o ID superior para `navProfessorTop` e restringida a seleção do botão mobile a `.bottom-nav #navProfessor` em `bottom-nav.js`.
+- **Critério preservado:** somente alunos cujo registro tenha `classificado === true` recebem o botão Professor visível.
+- **Próximo passo:** validar em viewport mobile com usuário classificado e não classificado, incluindo recarga sem cache.
