@@ -154,9 +154,25 @@ function construirLinhas(hino) {
     origem: row.grade ? 'padrão: 1 cópia' : contagem.get(row.key) ? 'automático' : 'sem aluno'
   }));
 }
+function documentosVisiveis() {
+  const termo = normalizar($('busca-documento')?.value || '');
+  return state.hinos.map((hino, index) => ({ hino, index })).filter(({ hino }) => !termo || normalizar(`${hino.colecaoNome} ${hino.nome}`).includes(termo));
+}
 function preencherHinos() {
-  $('hino-select').innerHTML = '<option value="">— Selecione uma música ou hino —</option>' + state.hinos.map((hino, index) => `<option value="${index}">${escapar(hino.colecaoNome)} — ${escapar(hino.nome)}</option>`).join('');
+  const visiveis = documentosVisiveis();
+  $('hino-select').innerHTML = '<option value="">— Selecione uma música ou hino —</option>' + visiveis.map(({ hino, index }) => `<option value="${index}">${escapar(hino.colecaoNome)} — ${escapar(hino.nome)}</option>`).join('');
   $('hino-select').disabled = false;
+  const atualVisivel = visiveis.some(({ hino }) => hino.id === state.hinoAtual?.id && hino.colId === state.hinoAtual?.colId);
+  if (atualVisivel) {
+    const atual = visiveis.find(({ hino }) => hino.id === state.hinoAtual.id && hino.colId === state.hinoAtual.colId);
+    $('hino-select').value = String(atual.index);
+  } else if (state.hinoAtual) {
+    state.hinoAtual = null;
+    state.rows = [];
+    $('hino-meta').textContent = 'Músicas e hinos são carregados das coleções “Músicas” e “Hinos da Harpa”.';
+    $('analysis-body').innerHTML = '<tr><td colspan="6" class="empty-cell">Selecione uma música ou hino para conferir as partes.</td></tr>';
+    atualizarResumo();
+  }
 }
 function atualizarResumo() {
   const linhas = state.rows;
@@ -299,6 +315,7 @@ async function carregar() {
 
 if (exigirProfessor()) {
   $('hino-select').addEventListener('change', selecionarHino);
+  $('busca-documento').addEventListener('input', preencherHinos);
   $('refresh-btn').addEventListener('click', carregar);
   $('generate-btn').addEventListener('click', gerarPdfConsolidado);
   $('include-grade').addEventListener('change', event => { const grade = state.rows.find(row => row.grade); if (grade) { grade.incluir = event.target.checked; renderizarTabela(); } });
