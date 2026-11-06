@@ -112,6 +112,7 @@ function checkAuth() {
     userRole = isTeacher ? 'teacher' : 'student';
   } catch { userRole = 'student'; }
   if (seletor) { seletor.value = userRole; seletor.style.display = 'block'; }
+  atualizarDownloadCompleto();
 }
 
 function configurarSeletor() {
@@ -121,6 +122,7 @@ function configurarSeletor() {
     userRole = seletor.value;
     renderRoleBadge();
     atualizarBarraProfessor();
+    atualizarDownloadCompleto();
     if (documentoCarregado) renderizarGrupos();
   });
 }
@@ -141,6 +143,11 @@ function configurarBarraProfessor() {
 function atualizarBarraProfessor() {
   const barra = document.getElementById('barra-professor');
   barra.style.display = userRole === 'teacher' ? 'flex' : 'none';
+}
+
+function atualizarDownloadCompleto() {
+  const bloco = document.getElementById('download-completo');
+  if (bloco) bloco.style.display = userRole === 'teacher' ? 'flex' : 'none';
 }
 
 async function reprocessarGrupos() {
@@ -481,7 +488,7 @@ async function carregarDocumento() {
     const dlBtn = document.getElementById('btn-dl-completo');
     dlBtn.href = data.url;
     dlBtn.setAttribute('data-nome-arquivo', nomePdf);
-    document.getElementById('download-completo').style.display = 'flex';
+    atualizarDownloadCompleto();
     await inicializarPdf();
     await carregarGrupos();
     documentoCarregado = true;

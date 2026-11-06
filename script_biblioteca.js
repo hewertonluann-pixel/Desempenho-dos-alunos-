@@ -192,6 +192,7 @@ function setupEventListeners() {
     updateUIBasedOnRole();
     // Re-renderiza cards para mostrar/ocultar toggles
     renderCollections();
+    if (currentCollectionId) renderDocuments();
   });
   document.getElementById('search-input').addEventListener('input', filterAndSortDocuments);
   document.getElementById('sort-select').addEventListener('change', filterAndSortDocuments);
@@ -392,7 +393,7 @@ function renderDocumentsFiltered(docsToRender) {
             <div class="doc-buttons">
               <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.72rem;font-weight:700;width:100%;"
                 onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
-              <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 Baixar</a>
+              ${userRole === 'teacher' ? `<a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}
               <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
               <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
@@ -446,7 +447,7 @@ function renderDocumentsFiltered(docsToRender) {
           <div class="doc-buttons">
             <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:0.85rem;font-weight:700;"
               onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
-            <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
+            ${userRole === 'teacher' ? `<a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}
             <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
             <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
@@ -696,7 +697,8 @@ function renderGlobalResults(results) {
         </div>
         ${audioHTML}
         <div class="doc-buttons">
-          <a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>
+          <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:0.85rem;font-weight:700;" onclick="abrirPartes('${d.collectionId}', '${d.id}')">🎼 Ver Partes</button>
+          ${userRole === 'teacher' ? `<a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}
         </div>`;
     } else {
       item.innerHTML = `
