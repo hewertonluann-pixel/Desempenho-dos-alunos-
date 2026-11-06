@@ -122,7 +122,7 @@
       color: #4b5563;
       font-size: 0.75rem;
     }
-    .form-group input {
+    .form-group input, .form-group select {
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 10px;
@@ -134,7 +134,7 @@
       transition: border-color 0.2s, box-shadow 0.2s;
       width: 100%;
     }
-    .form-group input:focus {
+    .form-group input:focus, .form-group select:focus {
       border-color: #00ffcc;
       box-shadow: 0 0 0 3px rgba(0,255,204,0.12);
     }
@@ -354,6 +354,14 @@
         <input type="text" id="inputNome" placeholder="Seu nome completo" autocomplete="name" />
       </div>
 
+      <!-- INSTRUMENTO -->
+      <div class="form-group">
+        <label for="inputInstrumento">Instrumento</label>
+        <select id="inputInstrumento" required>
+          <option value="">Carregando instrumentos...</option>
+        </select>
+      </div>
+
       <!-- DATA DE NASCIMENTO -->
       <div class="form-group">
         <label>Data de nascimento <span class="opcional">(opcional)</span></label>
@@ -406,6 +414,7 @@
 <script type="module">
   import { db } from "./firebase-config.js";
   import { criarParticipacaoPrincipal } from "./participacoes.js";
+  import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "./instrumentos-catalogo.js";
   import {
     collection, addDoc, getDocs, doc, getDoc, updateDoc, query, where
   } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
@@ -419,6 +428,8 @@
   let turmaDados  = null;
   let fotoBase64  = "";
   let nomeAlunoCadastrado = "";
+  const campoInstrumento = document.getElementById("inputInstrumento");
+  preencherSelectInstrumentos(campoInstrumento);
 
   /* ============================================================
      CARREGAR TURMA
@@ -483,6 +494,8 @@
      ============================================================ */
   document.getElementById("btnCadastrar").addEventListener("click", async () => {
     const nome       = document.getElementById("inputNome").value.trim();
+    const instrumentoId = chaveInstrumento(campoInstrumento.value);
+    const instrumento = nomeInstrumento(instrumentoId);
     const nascimento = document.getElementById("inputNascimento").value;
     const responsavel= document.getElementById("inputResponsavel").value.trim();
     const contato    = document.getElementById("inputContato").value.trim();
@@ -491,6 +504,11 @@
     // Validações
     if (!nome) { mostrarMsg("Por favor, informe seu nome completo.", "err"); return; }
     if (nome.length < 3) { mostrarMsg("Nome muito curto.", "err"); return; }
+    if (!instrumentoValido(instrumentoId)) {
+      mostrarMsg("Selecione um instrumento válido.", "err");
+      campoInstrumento.focus();
+      return;
+    }
     if (!turmaDados) { mostrarMsg("Turma não carregada. Recarregue a página.", "err"); return; }
 
     // Verificar se já existe aluno com mesmo nome
@@ -515,7 +533,8 @@
         dataNascimento: nascimento || "",
         responsavel: responsavel || "",
         contato: contato || "",
-        instrumento: "",
+        instrumento,
+        instrumentoId,
         fase,
         turmaId: turmaDados.id,
         turmaNome: turmaDados.nome,

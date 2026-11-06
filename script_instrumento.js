@@ -1,5 +1,6 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, getDoc, doc, setDoc, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+import { nomeInstrumento } from './instrumentos-catalogo.js';
 
 const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -268,10 +269,16 @@ function queryInstrumento() { return new URLSearchParams(location.search).get('i
 async function instrumentoDoPerfil() {
   try {
     const usuario = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
-    if (usuario.instrumento) return usuario.instrumento;
+    if (usuario.instrumentoId || usuario.instrumento) {
+      const valor = usuario.instrumentoId || usuario.instrumento;
+      return nomeInstrumento(valor) || usuario.instrumento;
+    }
     if (usuario.docId) {
       const snap = await getDoc(doc(db, 'alunos', usuario.docId));
-      if (snap.exists() && snap.data().instrumento) return snap.data().instrumento;
+      if (snap.exists() && (snap.data().instrumentoId || snap.data().instrumento)) {
+        const valor = snap.data().instrumentoId || snap.data().instrumento;
+        return nomeInstrumento(valor) || snap.data().instrumento;
+      }
     }
   } catch (error) { console.warn('Não foi possível carregar o instrumento do perfil', error); }
   return '';

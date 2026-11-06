@@ -4,7 +4,7 @@
 >
 > **Repositório:** [hewertonluann-pixel/Desempenho-dos-alunos-](https://github.com/hewertonluann-pixel/Desempenho-dos-alunos-)
 >
-> **Última revisão:** 31/10/2026
+> **Última revisão:** 06/11/2026
 >
 > **Aplicação:** Orquestra Filhos de Asafe — Assembleia de Deus Ministério Diamantina
 
@@ -302,7 +302,7 @@ A tabela abaixo registra as coleções encontradas no código. Campos podem poss
 
 | Caminho | Uso principal | Campos/relações importantes |
 |---|---|---|
-| `alunos/{id}` | Perfil e desempenho do aluno | `nome`, `login`, `senha` legada, `instrumento`, `turma`, `classificado`, `ativo`, `foto`, níveis, métodos, frequência, conquistas, lições, evolução e preferências. |
+| `alunos/{id}` | Perfil e desempenho do aluno | `nome`, `login`, `senha` legada, `instrumento` (nome canônico), `instrumentoId` (chave estável do catálogo), `turma`, `classificado`, `ativo`, `foto`, níveis, métodos, frequência, conquistas, lições, evolução e preferências. |
 | `usuarios/{id}` | Login do professor | `nome` e `senha` no fluxo atual. |
 | `turmas/{id}` | Turmas e organização dos alunos | Usada por painéis, chamadas e configurações. |
 | `eventos/{id}` | Ensaios, aulas e chamadas | Datas, turma e mapa/lista de presenças. Alimenta frequência. |
@@ -709,3 +709,16 @@ O layout ganhou cards mais largos, bordas e brilhos com acentos cromáticos, fun
 A página `atividades.html` passou a carregar o perfil do aluno em `alunos/{docId}` e definir a categoria aberta conforme os dados de turma. Para alunos da Fase 1, a seção Fundamentos fica aberta; para alunos da Fase 2 ou de turma Orquestra, Desenvolvimento fica aberta. Desafio final inicia fechado em todos os casos. As demais categorias continuam acessíveis manualmente pelo botão retrátil.
 
 A identificação utiliza `fase`, `turmaNome`, `nomeTurma`, `turmaTipo` e `tipoTurma`, com fallback para os dados disponíveis na sessão local. Quando o perfil não puder ser carregado, o comportamento padrão mantém Fundamentos aberto e as demais seções fechadas.
+
+
+### 2026-11-06 — Catálogo central e vínculo de instrumento do aluno
+- **Status:** implementação concluída; validação de runtime com Firebase e conferência visual em navegador permanecem pendentes.
+- **Escopo:** padronizar os cadastros e edições de alunos com um catálogo único e preparar contagens futuras e seleção automática de cópias de hinos.
+- **Arquivos principais:** `instrumentos-catalogo.js`, `cadastro.html`, `ficha-aluno.html`, `ficha-aluno.js`, `professor.html`, `professor.js`, `professor1.html`, `professor2.html`, `professor.css`, `modules/gerenciar-alunos.html`, `modules/gerenciar-alunos.js`, `modules/gerenciar-alunos.css`, `js/professor-alunos.js` e `script_instrumento.js`.
+- **Contrato de dados:** o documento `alunos/{id}` mantém `instrumento` como nome canônico exibível, para compatibilidade com relatórios e telas existentes, e passa a gravar `instrumentoId` como chave estável do catálogo. Registros legados que ainda possuem apenas `instrumento` continuam aceitos quando o valor resolve por alias.
+- **Catálogo:** `instrumentos-catalogo.js` exporta 30 instrumentos, chaves sem acentos, nomes canônicos, aliases normalizados e helpers de resolução/validação/renderização. As partes `Trombone 01`, `Trombone 02` e `Trombone Base` permanecem distintas do Trombone genérico.
+- **Correções realizadas:** `cadastro.html`, os modais de `professor.html`, `professor1.html` e `professor2.html`, o módulo `modules/gerenciar-alunos` e a ficha individual agora usam `<select>`; a edição rápida nos cards também usa o mesmo catálogo. Valores vazios ou desconhecidos ficam sinalizados para revisão e são recusados no salvamento até que uma opção válida seja escolhida.
+- **Integração de hinos:** `script_instrumento.js` consulta primeiro `instrumentoId` do perfil/documento e converte a chave pelo catálogo antes de resolver o instrumento reconhecido na Biblioteca. Isso mantém a cópia de hinos compatível com nomes/aliases já indexados.
+- **Evidências:** `node --check` passou nos módulos alterados e nos scripts inline extraídos; teste sintético passou para `Trompete`, `Saxofone Alto`, `Clarinete em Sib`, `Trombone 1`, `Trombone Base` e `Órgão`, rejeitando `Guitarra`; servidor HTTP local retornou 200 para as páginas, scripts e módulo novo; inspeção confirmou a ausência dos antigos inputs de texto nos formulários-alvo. Nenhum dado real foi lido ou alterado no Firebase.
+- **Pendências:** executar em navegador a carga de registros antigos válidos, vazios e desconhecidos; criar/editar um aluno em cada rota; confirmar a persistência de `instrumento` e `instrumentoId`; validar a seleção de cópias de hinos com dados reais; decidir se o catálogo local deve futuramente ser sincronizado com `biblioteca_instrumentos` sem permitir que instrumentos desativados sejam escolhidos.
+- **Próximo passo:** validação runtime controlada e, se aprovada, considerar migração assistida dos documentos legados sem `instrumentoId`.
