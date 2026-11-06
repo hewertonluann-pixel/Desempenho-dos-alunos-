@@ -17,6 +17,7 @@ import { registrarHistoricoProgresso } from "../evolucao.js";
 
 // 📸 Atualizar pegada do mês ao salvar nível
 import { atualizarSnapshotMesAtual } from "../snapshots-mensais.js";
+import { opcoesInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "../instrumentos-catalogo.js";
 
 /* ============================================================
    1. CARREGAR ALUNOS
@@ -101,9 +102,11 @@ function criarFichaHTML(aluno) {
 
         <div class="campo">
           <label>Instrumento</label>
-          <input type="text" class="campo-nota" style="width:120px;"
-            value="${aluno.instrumento ?? ""}"
+          <select class="campo-nota campo-instrumento" style="width:180px; text-align:left; padding:0 8px;"
+            aria-label="Instrumento de ${aluno.nome}"
             data-acao="instrumento" data-id="${aluno.id}">
+            ${opcoesInstrumentos(aluno.instrumentoId || aluno.instrumento)}
+          </select>
         </div>
 
         <div class="acoes">
@@ -213,8 +216,13 @@ export async function atualizarNota(id, campo, valorDigitado) {
    6. ATUALIZAR INSTRUMENTO
    ============================================================ */
 export async function atualizarInstrumento(id, novoInstrumento) {
+  const instrumentoId = chaveInstrumento(novoInstrumento);
+  if (!instrumentoValido(instrumentoId)) {
+    throw new Error("Instrumento inválido. Selecione uma opção do catálogo.");
+  }
   await updateDoc(doc(db, "alunos", id), {
-    instrumento: novoInstrumento.trim()
+    instrumento: nomeInstrumento(instrumentoId),
+    instrumentoId
   });
 }
 

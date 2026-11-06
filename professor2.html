@@ -1014,7 +1014,8 @@
       letter-spacing: .06em;
       margin-bottom: 5px;
     }
-    .campo-modal input {
+    .campo-modal input,
+    .campo-modal select {
       width: 100%;
       background: var(--bg-elevated);
       border: 1px solid var(--border);
@@ -1026,7 +1027,8 @@
       outline: none;
       transition: var(--transition);
     }
-    .campo-modal input:focus {
+    .campo-modal input:focus,
+    .campo-modal select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
@@ -1381,7 +1383,7 @@
     <div class="modal-conteudo">
       <h2>➕ Novo Aluno</h2>
       <div class="campo-modal"><label>Nome</label><input type="text" id="novoNome"></div>
-      <div class="campo-modal"><label>Instrumento</label><input type="text" id="novoInstrumento"></div>
+      <div class="campo-modal"><label for="novoInstrumento">Instrumento</label><select id="novoInstrumento" required><option value="">Carregando instrumentos...</option></select></div>
       <div class="campo-modal"><label>Foto</label><input type="file" id="novoFoto" accept="image/*"></div>
       <div class="campo-modal"><label>Método de Solfejo</label><input type="text" id="novaLeitura" placeholder="ex.: Bona"></div>
       <div class="campo-modal"><label>Método Instrumental</label><input type="text" id="novoMetodo" placeholder="ex.: Amadeu Russo"></div>

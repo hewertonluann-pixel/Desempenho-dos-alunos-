@@ -11,10 +11,13 @@ import {
 } from "../js/professor-alunos.js";
 
 import { db } from "../firebase-config.js";
+import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "../instrumentos-catalogo.js";
 import { addDoc, collection } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 const painel = document.getElementById("painelGerenciar");
 const loader = document.getElementById("loaderGerAlunos");
+const campoNovoInstrumento = document.getElementById("novoInstrumentoAluno");
+preencherSelectInstrumentos(campoNovoInstrumento);
 
 /* === RENDERIZA AO ABRIR MÓDULO === */
 (async () => {
@@ -67,8 +70,12 @@ document.getElementById("cancelAddAluno").onclick = () => modal.style.display = 
 
 document.getElementById("confirmAddAluno").onclick = async () => {
   const nome = document.getElementById("novoNomeAluno").value.trim();
-  const instr = document.getElementById("novoInstrumentoAluno").value.trim();
+  const instrumentoId = chaveInstrumento(campoNovoInstrumento.value);
   const foto = document.getElementById("novoFotoAluno").files[0];
+  if (!nome || !instrumentoValido(instrumentoId)) {
+    alert("Informe o nome e selecione um instrumento válido.");
+    return;
+  }
 
   let base64 = "";
   if (foto) {
@@ -81,7 +88,8 @@ document.getElementById("confirmAddAluno").onclick = async () => {
 
   await addDoc(collection(db, "alunos"), {
     nome,
-    instrumento: instr,
+    instrumento: nomeInstrumento(instrumentoId),
+    instrumentoId,
     foto: base64,
     leitura: 1,
     metodo: 1,

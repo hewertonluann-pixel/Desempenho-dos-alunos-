@@ -18,8 +18,10 @@
     <label>Nome</label>
     <input type="text" id="novoNomeAluno">
 
-    <label>Instrumento</label>
-    <input type="text" id="novoInstrumentoAluno">
+    <label for="novoInstrumentoAluno">Instrumento</label>
+    <select id="novoInstrumentoAluno" required>
+      <option value="">Carregando instrumentos...</option>
+    </select>
 
     <label>Foto</label>
     <input type="file" id="novoFotoAluno" accept="image/*">

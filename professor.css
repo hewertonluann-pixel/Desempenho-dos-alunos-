@@ -380,7 +380,8 @@ h1 {
   margin-bottom: 4px;
 }
 
-.campo-modal input {
+.campo-modal input,
+.campo-modal select {
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;

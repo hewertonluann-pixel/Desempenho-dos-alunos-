@@ -248,3 +248,13 @@ A alteração visual foi implementada e validada estaticamente. Os critérios do
 
 ### 2026-11-06 — Foco de nível por turma na página de atividades
 A regra de abertura automática foi implementada e validada estaticamente. Deve ser testada com três perfis: Fase 1, com Fundamentos aberto; Fase 2, com Desenvolvimento aberto; e Orquestra, também com Desenvolvimento aberto. Em todos os casos, Desafio final deve iniciar retraído. Os botões de título devem continuar permitindo a abertura manual das demais seções.
+
+### 2026-11-06 — Catálogo central de instrumentos e ficha do aluno
+- **Status:** implementação concluída; validação runtime/visual e persistência em Firebase pendentes.
+- **Arquivos verificados:** `instrumentos-catalogo.js`, `cadastro.html`, `ficha-aluno.html`, `ficha-aluno.js`, `professor.html`, `professor.js`, `professor1.html`, `professor2.html`, `professor.css`, `modules/gerenciar-alunos.html`, `modules/gerenciar-alunos.js`, `modules/gerenciar-alunos.css`, `js/professor-alunos.js` e `script_instrumento.js`.
+- **Evidências:** validação sintática com `node --check`; teste sintético de aliases e chaves; retorno HTTP 200 para páginas/scripts/módulo novo em servidor estático local; inspeção estrutural confirmou `<select>` nos formulários de cadastro e edição e rejeição de valores não catalogados. Não houve acesso nem alteração de dados reais.
+- **Confirmado:** todos os novos vínculos salvam `instrumento` com nome canônico e `instrumentoId` com chave estável; aliases legados conhecidos são resolvidos; valores desconhecidos exigem revisão; `script_instrumento.js` consegue converter o ID do perfil para o nome usado pelo resolvedor de cópias.
+- **Suspeitas/limites:** a seleção visual, o comportamento de documentos antigos e a escrita/leitura real do Firestore ainda não foram exercitados em navegador; o catálogo local e a coleção `biblioteca_instrumentos` podem precisar de sincronização futura, ainda sem decisão de produto.
+- **Correções realizadas:** substituídos os inputs livres de instrumento por selects nos cadastros, modais, módulo de gerenciamento, cards de edição rápida e ficha; adicionados helpers de resolução/validação; preservado o campo legado exibível e acrescentado `instrumentoId`.
+- **Pendências:** testar aluno com instrumento vazio, alias conhecido e valor desconhecido; testar criação e edição nas rotas principal/legadas; conferir contagens por `instrumentoId`; testar cópia de hinos; validar mobile e acessibilidade do select.
+- **Próxima etapa:** executar a matriz runtime controlada desta revisão delta e, se aprovada, planejar a migração assistida de alunos antigos sem `instrumentoId`.

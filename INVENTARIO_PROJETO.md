@@ -2,7 +2,7 @@
 
 > Repositório: `hewertonluann-pixel/Desempenho-dos-alunos-`  
 > Referência: 2026-10-28  
-> Total de arquivos fora de `.git`: **135**
+> Total de arquivos fora de `.git`: **136**
 
 ## Páginas HTML (60)
 
@@ -67,7 +67,7 @@
 - `tetroquestgame.html` — 26260 bytes
 - `turmas.html` — 40163 bytes
 
-## JavaScript (45)
+## JavaScript (46)
 
 - `aluno-coral.js` — 20620 bytes
 - `aluno.js` — 13669 bytes
@@ -91,6 +91,7 @@
 - `grafico-evolucao.js` — 14098 bytes
 - `header-template.js` — 2072 bytes
 - `historico-licoes.js` — 1974 bytes
+- `instrumentos-catalogo.js` — catálogo canônico e helpers de validação de instrumentos
 - `jornada-atividades.js` — 5607 bytes
 - `js/html2pdf.bundle.min.js` — 905956 bytes
 - `js/professor-alunos.js` — 8517 bytes
@@ -170,4 +171,3 @@
 - **Biblioteca e partituras:** `biblioteca*.html`, `script_biblioteca.js`, `instrumento.*`, `partes.*`, `cobertura_musicas.*`, `script_partes.js`, `js/recorder*`.
 - **Jogos e teoria musical:** páginas `compassos`, `escalas`, `figuras-musicais`, `escada-notas`, `jogo-*`, `tetracordes`, `tetroquestgame` e atividades correlatas.
 - **Configuração e plataforma:** `firebase-config.js`, `firebase.json`, `cors.json`, manifests, `service-worker.js`, `loader.*`, `navegacao.js`, `utils.js`, `header-template.js`.
-

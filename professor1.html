@@ -62,8 +62,10 @@
       </div>
 
       <div class="campo-modal">
-        <label>Instrumento</label>
-        <input type="text" id="novoInstrumento">
+        <label for="novoInstrumento">Instrumento</label>
+        <select id="novoInstrumento" required>
+          <option value="">Carregando instrumentos...</option>
+        </select>
       </div>
 
       <div class="campo-modal">
@@ -100,9 +102,12 @@
       removerAluno,
       alterarFoto
     } from "./js/professor-alunos.js";
+    import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "./instrumentos-catalogo.js";
 
     const painel = document.getElementById("painel");
     const loader = document.getElementById("loader");
+    const campoInstrumento = document.getElementById("novoInstrumento");
+    preencherSelectInstrumentos(campoInstrumento);
 
     // Identifica professor logado
     document.addEventListener("DOMContentLoaded", () => {
@@ -171,8 +176,14 @@
 
     document.getElementById("btnConfirmarAdicionar").onclick = async () => {
       const nome = document.getElementById("novoNome").value.trim();
-      const instrumento = document.getElementById("novoInstrumento").value.trim();
+      const instrumentoId = chaveInstrumento(campoInstrumento.value);
+      const instrumento = nomeInstrumento(instrumentoId);
       const foto = document.getElementById("novoFoto").files[0];
+
+      if (!nome || !instrumentoValido(instrumentoId)) {
+        alert("Informe o nome e selecione um instrumento válido.");
+        return;
+      }
 
       let fotoBase64 = "";
       if (foto) {
@@ -184,7 +195,7 @@
       }
 
       await addDoc(collection(db, "alunos"), {
-        nome, instrumento, foto: fotoBase64,
+        nome, instrumento, instrumentoId, foto: fotoBase64,
         leitura: 1, metodo: 1, energia: 100,
         frequenciaMensal: { porcentagem: 0 },
         frequenciaAnual: {}, conquistas: [],
@@ -248,5 +259,3 @@
   
 </body>
 </html>
-
-

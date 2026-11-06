@@ -7,6 +7,7 @@ import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
 import { obterEventosDoAno, agruparEventosPorMes, calcularFrequenciaMensalParaAluno } from "./frequencia.js";
 import { criarParticipacaoPrincipal, calcularFrequenciaElegivel } from "./participacoes.js";
 import { atualizarComprometimentoGeral as recalcularComprometimentoGeral } from "./comprometimento.js";
+import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "./instrumentos-catalogo.js";
 
 if (!db) console.error("❌ Firebase DB não carregado.");
 
@@ -86,15 +87,19 @@ function setupModalAdicionar() {
 
   if (!modal || !btnAdd || !btnConfirm || !btnCancel) return;
 
+  const campoInstrumento = document.getElementById("novoInstrumento");
+  preencherSelectInstrumentos(campoInstrumento);
+
   btnAdd.onclick = () => modal.classList.add("ativo");
   btnCancel.onclick = () => modal.classList.remove("ativo");
 
   btnConfirm.onclick = async () => {
     const nome = document.getElementById("novoNome")?.value.trim();
-    const instrumento = document.getElementById("novoInstrumento")?.value.trim();
+    const instrumentoId = chaveInstrumento(campoInstrumento?.value);
+    const instrumento = nomeInstrumento(instrumentoId);
     const fotoFile = document.getElementById("novoFoto")?.files[0];
 
-    if (!nome || !instrumento) { mostrarMensagem("mensagemInfo", "⚠️ Preencha nome e instrumento!"); return; }
+    if (!nome || !instrumentoValido(instrumentoId)) { mostrarMensagem("mensagemInfo", "⚠️ Preencha nome e selecione um instrumento válido!"); return; }
 
     try {
       let fotoBase64 = "";
@@ -114,7 +119,7 @@ function setupModalAdicionar() {
         ehCoral = turmaSnap.exists() && String(turmaSnap.data().tipo || "").toLowerCase() === "coral";
       }
       const novoAlunoRef = await addDoc(collection(db, "alunos"), {
-        nome, instrumento, foto: fotoBase64,
+        nome, instrumento, instrumentoId, foto: fotoBase64,
         leituraNome: "Bona", metodoNome: "Método",
         leitura: 1, metodo: 1, energia: 100,
         frequenciaMensal: { porcentagem: 0 }, frequenciaAnual: {},

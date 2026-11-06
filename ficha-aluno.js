@@ -4,6 +4,12 @@ import {
   doc, getDoc, updateDoc,
   collection, getDocs, query, orderBy
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import {
+  preencherSelectInstrumentos,
+  chaveInstrumento,
+  instrumentoValido,
+  nomeInstrumento
+} from "./instrumentos-catalogo.js";
 
 // ── Parâmetros de URL ─────────────────────────────────────────────────────────
 const params  = new URLSearchParams(window.location.search);
@@ -137,7 +143,8 @@ async function carregarFicha() {
     // Topo
     tituloPagina.textContent       = `Ficha — ${d.nome}`;
     nomeExibido.textContent        = d.nome;
-    instrumentoExibido.textContent = d.instrumento || "Instrumento não informado";
+    const instrumentoAtual = preencherSelectInstrumentos(campoInstrumento, d.instrumentoId || d.instrumento);
+    instrumentoExibido.textContent = instrumentoAtual?.nome || "Instrumento não informado";
     if (d.foto) fotoPerfil.innerHTML = `<img src="${d.foto}" alt="Foto de ${d.nome}">`;
     if (d.turmaNome) {
       turmaExibida.textContent   = `🏫 ${d.turmaNome}`;
@@ -157,7 +164,6 @@ async function carregarFicha() {
 
     // Dados Gerais
     campoNome.value         = d.nome         || "";
-    campoInstrumento.value      = d.instrumento      || "";
     campoInstrumentoCoral.value = d.instrumentoCoral || "";
     campoAtivo.value        = String(d.ativo !== false);
     campoClassificado.value = String(d.classificado === true);
@@ -241,12 +247,18 @@ btnSalvarPessoais.addEventListener("click", async () => {
 // ── Salvar dados gerais ───────────────────────────────────────────────────────
 btnSalvarDados.addEventListener("click", async () => {
   const nome         = campoNome.value.trim();
-  const instrumento  = campoInstrumento.value.trim();
+  const instrumentoId = chaveInstrumento(campoInstrumento.value);
+  const instrumento  = nomeInstrumento(instrumentoId);
   const instrumentoCoral = campoInstrumentoCoral.value.trim();
   const turmaId      = campoTurma.value || "";
   const ativo        = campoAtivo.value === "true";
   const classificado = campoClassificado.value === "true";
   if (!nome) { toast("⚠️ O nome não pode ficar vazio.", "err"); return; }
+  if (!instrumentoValido(instrumentoId)) {
+    toast("⚠️ Selecione um instrumento válido do catálogo.", "err");
+    campoInstrumento.focus();
+    return;
+  }
   btnSalvarDados.disabled = true;
   try {
     let turmaNome = "";
@@ -254,13 +266,13 @@ btnSalvarDados.addEventListener("click", async () => {
       const ts = await getDoc(doc(db, "turmas", turmaId));
       if (ts.exists()) turmaNome = ts.data().nome || "";
     }
-    await updateDoc(doc(db, "alunos", alunoId), { nome, instrumento, instrumentoCoral, turmaId, turmaNome, ativo, classificado });
+    await updateDoc(doc(db, "alunos", alunoId), { nome, instrumento, instrumentoId, instrumentoCoral, turmaId, turmaNome, ativo, classificado });
     nomeExibido.textContent        = nome;
-    instrumentoExibido.textContent = instrumento || "Instrumento não informado";
+    instrumentoExibido.textContent = nomeInstrumento(instrumento) || "Instrumento não informado";
     tituloPagina.textContent       = `Ficha — ${nome}`;
     turmaExibida.textContent       = turmaNome ? `🏫 ${turmaNome}` : "";
     turmaExibida.style.display     = turmaNome ? "inline-flex" : "none";
-    dadosAluno = { ...dadosAluno, nome, instrumento, instrumentoCoral, turmaId, turmaNome, ativo, classificado };
+    dadosAluno = { ...dadosAluno, nome, instrumento, instrumentoId, instrumentoCoral, turmaId, turmaNome, ativo, classificado };
     toast("✅ Dados salvos com sucesso!");
   } catch (e) {
     toast("❌ Erro ao salvar dados.", "err");
