@@ -244,3 +244,7 @@ As 12 etapas de verificação estão registradas e o backlog foi consolidado em 
 
 ### 2026-11-06 — Validação visual do redesign gaming de `atividades.html`
 A alteração visual foi implementada e validada estaticamente. Os critérios do piloto são: cards com selo de fase no formato `FASE 01`, nome legível, estrelas grandes de 0 a 3, ausência de troféu/medalha como indicador principal, seta de acesso, resumo superior de estrelas e manutenção de duas colunas em mobile. Permanece recomendada a conferência visual no deploy em desktop e mobile, especialmente contraste, quebra de nomes longos e leitura das estrelas em telas pequenas.
+
+
+### 2026-11-06 — Foco de nível por turma na página de atividades
+A regra de abertura automática foi implementada e validada estaticamente. Deve ser testada com três perfis: Fase 1, com Fundamentos aberto; Fase 2, com Desenvolvimento aberto; e Orquestra, também com Desenvolvimento aberto. Em todos os casos, Desafio final deve iniciar retraído. Os botões de título devem continuar permitindo a abertura manual das demais seções.

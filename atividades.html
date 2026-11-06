@@ -48,7 +48,7 @@
 
     <section class="grupo" aria-labelledby="titulo-fundamentos"><button type="button" class="grupo-titulo" id="titulo-fundamentos" aria-expanded="true" aria-controls="fases-fundamentos"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Fundamentos</span></button><div class="fases" id="fases-fundamentos"></div></section>
     <section class="grupo" aria-labelledby="titulo-desenvolvimento"><button type="button" class="grupo-titulo" id="titulo-desenvolvimento" aria-expanded="true" aria-controls="fases-desenvolvimento"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Desenvolvimento</span></button><div class="fases" id="fases-desenvolvimento"></div></section>
-    <section class="grupo" aria-labelledby="titulo-desafio"><button type="button" class="grupo-titulo" id="titulo-desafio" aria-expanded="true" aria-controls="fases-desafio"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Desafio final</span></button><div class="fases" id="fases-desafio"></div></section>
+    <section class="grupo" aria-labelledby="titulo-desafio"><button type="button" class="grupo-titulo" id="titulo-desafio" aria-expanded="false" aria-controls="fases-desafio"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i><span>Desafio final</span></button><div class="fases" id="fases-desafio" hidden></div></section>
 
     <footer class="legenda"><span><b>★</b> nível alcançado</span><span><b>☆</b> ainda não conquistada</span><span><b>↺</b> resultado expirado</span></footer>
   </main>
@@ -73,6 +73,40 @@
     const barra = document.getElementById("jornada-barra");
     const barraBox = barra.parentElement;
     const cards = new Map();
+
+    function lerSessao(){
+      try { return JSON.parse(localStorage.getItem("usuarioAtual") || "{}"); } catch { return {}; }
+    }
+    function perfilDeTurma(aluno = {}){
+      const turmaNome = String(aluno.turmaNome || aluno.nomeTurma || "").toLowerCase();
+      const turmaTipo = String(aluno.turmaTipo || aluno.tipoTurma || aluno.tipo || "").toLowerCase();
+      const faseInformada = Number(aluno.fase);
+      const fasePorNome = turmaNome.match(/fase\s*([0-9]+)/i);
+      const fase = Number.isFinite(faseInformada) && faseInformada > 0 ? faseInformada : Number(fasePorNome?.[1] || 0);
+      const orquestra = turmaTipo.includes("orquestra") || turmaNome.includes("orquestra");
+      return { foco: fase === 1 && !orquestra ? "fundamentos" : "desenvolvimento", fase, orquestra };
+    }
+    function definirCategorias(foco = "fundamentos"){
+      const estados = { fundamentos: foco === "fundamentos", desenvolvimento: foco === "desenvolvimento", desafio: false };
+      for (const [nome, aberto] of Object.entries(estados)){
+        const titulo = document.getElementById(`titulo-${nome}`);
+        const conteudo = document.getElementById(`fases-${nome}`);
+        if (!titulo || !conteudo) continue;
+        titulo.setAttribute("aria-expanded", String(aberto));
+        conteudo.hidden = !aberto;
+      }
+    }
+    async function carregarPerfilDoAluno(){
+      const sessao = lerSessao();
+      if (!sessao.docId) return sessao;
+      try {
+        const snap = await getDoc(doc(db, "alunos", sessao.docId));
+        return snap.exists() ? { ...sessao, ...snap.data() } : sessao;
+      } catch (erro) {
+        console.warn("Não foi possível carregar a turma do aluno", erro);
+        return sessao;
+      }
+    }
 
     function grupoDe(atividade){ return atividade.ordem <= 4 ? "fases-fundamentos" : atividade.ordem <= 8 ? "fases-desenvolvimento" : "fases-desafio"; }
     function progressoDe(registro, atividade, concluida){
@@ -119,8 +153,15 @@
       });
     });
     JORNADA_ATIVIDADES.forEach(criarCard);
+    definirCategorias("fundamentos");
     aplicar({},{});
-    Promise.allSettled([carregarProgressoJornada(),getDoc(doc(db,"configuracoes","conquistas"))]).then(([p,c])=>{ const progresso = p.status === "fulfilled" ? p.value : {}; const snap = c.status === "fulfilled" ? c.value : null; aplicar(progresso,snap?.exists() ? snap.data().atividades || {} : {}); }).catch((erro)=>console.error("Não foi possível carregar a jornada",erro));
+    Promise.allSettled([carregarProgressoJornada(),getDoc(doc(db,"configuracoes","conquistas")),carregarPerfilDoAluno()]).then(([p,c,u])=>{
+      const progresso = p.status === "fulfilled" ? p.value : {};
+      const snap = c.status === "fulfilled" ? c.value : null;
+      const aluno = u.status === "fulfilled" ? u.value : {};
+      definirCategorias(perfilDeTurma(aluno).foco);
+      aplicar(progresso,snap?.exists() ? snap.data().atividades || {} : {});
+    }).catch((erro)=>console.error("Não foi possível carregar a jornada", erro));
   </script>
   <script src="loader.js"></script>
   <script type="module" src="bottom-nav.js"></script>

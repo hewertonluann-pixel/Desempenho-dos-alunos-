@@ -703,3 +703,9 @@ A prioridade P1 indica ação prioritária; riscos condicionais permanecem condi
 A página de seleção recebeu uma atualização visual minimalista inspirada em mapas de fases de jogos. Os cards agora apresentam o selo `FASE 01`, nome da atividade com tipografia ampliada, estrelas grandes como indicador principal de nível alcançado de 0 a 3 e uma seta de acesso. O elemento visual de troféu/medalha foi removido dos cards e substituído pela leitura direta das estrelas.
 
 O layout ganhou cards mais largos, bordas e brilhos com acentos cromáticos, fundo com gradientes discretos, resumo superior com total de estrelas conquistadas e fases concluídas, além de responsividade preservando duas colunas no mobile. A lógica existente de progresso, categorias retráteis e leitura do Firestore foi mantida.
+
+
+### 2026-11-06 — Foco automático das categorias por turma
+A página `atividades.html` passou a carregar o perfil do aluno em `alunos/{docId}` e definir a categoria aberta conforme os dados de turma. Para alunos da Fase 1, a seção Fundamentos fica aberta; para alunos da Fase 2 ou de turma Orquestra, Desenvolvimento fica aberta. Desafio final inicia fechado em todos os casos. As demais categorias continuam acessíveis manualmente pelo botão retrátil.
+
+A identificação utiliza `fase`, `turmaNome`, `nomeTurma`, `turmaTipo` e `tipoTurma`, com fallback para os dados disponíveis na sessão local. Quando o perfil não puder ser carregado, o comportamento padrão mantém Fundamentos aberto e as demais seções fechadas.
