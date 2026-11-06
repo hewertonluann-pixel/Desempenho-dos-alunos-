@@ -731,3 +731,10 @@ A identificação utiliza `fase`, `turmaNome`, `nomeTurma`, `turmaTipo` e `tipoT
 - A tabela separa instrumentos individuais de `Partitura geral`, mostra páginas, alunos ativos, cópias e origem automática/manual. O resumo calcula cópias e páginas configuradas sem gerar arquivo nesta etapa.
 - Dados legados: rótulos no formato antigo `paginas` são migrados em memória; alunos sem instrumento válido aparecem em um aviso de revisão e não entram na contagem automática.
 - Evidências: `node --check` passou para `script_impressao.js` e `professor.js`; referências HTML/IDs e `git diff --check` passaram; os novos arquivos responderam por HTTP local.
+
+
+### 2026-11-06 — Ajuste da Etapa 2: somente alunos da orquestra
+- A contagem da página `impressao.html` passou a carregar a coleção `turmas` antes de contar alunos.
+- Turmas com `tipo: "coral"` são excluídas. Entram somente alunos ativos com `turmaId` em turma não-Coral ou cujo ID esteja na lista `alunos` de uma turma não-Coral.
+- Dessa forma, participantes exclusivamente do Coral/KADOSH não geram cópias; alunos que pertencem à orquestra e também participam do Coral continuam sendo considerados pela turma principal da orquestra.
+- As mensagens da tela foram atualizadas para explicitar esse critério.

@@ -9,6 +9,8 @@ const state = {
   alunos: [],
   pendentes: [],
   configs: [],
+  turmaIdsOrquestra: new Set(),
+  alunoIdsOrquestra: new Set(),
   rows: [],
   hinoAtual: null,
   carregando: false
@@ -91,7 +93,7 @@ async function carregarHinos() {
 async function carregarAlunos() {
   const snap = await getDocs(collection(db, 'alunos'));
   const pendentes = [];
-  const alunos = snap.docs.map(item => ({ id: item.id, ...item.data() })).filter(aluno => aluno.ativo !== false).map(aluno => {
+  const alunos = snap.docs.map(item => ({ id: item.id, ...item.data() })).filter(aluno => aluno.ativo !== false && (state.turmaIdsOrquestra.has(aluno.turmaId) || state.alunoIdsOrquestra.has(aluno.id))).map(aluno => {
     const valor = aluno.instrumentoId || aluno.instrumento || '';
     const config = configParaGrupo(valor);
     if (!config) pendentes.push({ nome: aluno.nome || aluno.login || aluno.id, valor: valor || 'não informado' });
@@ -99,6 +101,17 @@ async function carregarAlunos() {
   });
   state.pendentes = pendentes;
   return alunos;
+}
+async function carregarTurmasOrquestra() {
+  const snap = await getDocs(collection(db, 'turmas'));
+  state.turmaIdsOrquestra = new Set();
+  state.alunoIdsOrquestra = new Set();
+  snap.docs.forEach(item => {
+    const turma = item.data();
+    if (String(turma.tipo || '').toLowerCase() === 'coral') return;
+    state.turmaIdsOrquestra.add(item.id);
+    (Array.isArray(turma.alunos) ? turma.alunos : []).forEach(id => state.alunoIdsOrquestra.add(id));
+  });
 }
 async function carregarConfiguracoes() {
   try {
@@ -179,17 +192,17 @@ function renderizarPendentes() {
   const card = $('pending-card');
   if (!state.pendentes.length) { card.hidden = true; return; }
   card.hidden = false;
-  $('pending-description').textContent = `${state.pendentes.length} aluno${state.pendentes.length === 1 ? '' : 's'} ativo${state.pendentes.length === 1 ? '' : 's'} não entrou na contagem automática porque não possui instrumento válido.`;
+  $('pending-description').textContent = `${state.pendentes.length} aluno${state.pendentes.length === 1 ? '' : 's'} ativo${state.pendentes.length === 1 ? '' : 's'} da orquestra não entrou na contagem automática porque não possui instrumento válido.`;
   $('pending-list').innerHTML = state.pendentes.map(item => `<li>${escapar(item.nome)} — ${escapar(item.valor)}</li>`).join('');
 }
 async function carregar() {
   if (state.carregando) return;
   const hinoAnteriorId = state.hinoAtual?.id || '';
-  state.carregando = true; $('refresh-btn').disabled = true; $('hino-select').disabled = true; setLoading('Carregando dados...', 'Lendo hinos, rótulos, catálogo e alunos ativos.'); setStatus('');
+  state.carregando = true; $('refresh-btn').disabled = true; $('hino-select').disabled = true; setLoading('Carregando dados...', 'Lendo hinos, rótulos, turmas da orquestra e alunos ativos.'); setStatus('');
   try {
     const [remotos, hinos] = await Promise.all([carregarConfiguracoes(), carregarHinos()]);
-    configurarCatalogo(remotos); state.hinos = hinos; state.alunos = await carregarAlunos();
-    preencherHinos(); renderizarPendentes(); setLoading('', '', false); setStatus(`${hinos.length} hino${hinos.length === 1 ? '' : 's'} disponível${hinos.length === 1 ? '' : 'eis'} para preparação.`);
+    configurarCatalogo(remotos); state.hinos = hinos; await carregarTurmasOrquestra(); state.alunos = await carregarAlunos();
+    preencherHinos(); renderizarPendentes(); setLoading('', '', false); setStatus(`${hinos.length} hino${hinos.length === 1 ? '' : 's'} disponível${hinos.length === 1 ? '' : 'eis'} para preparação. A contagem considera somente a orquestra.`);
     const indiceAnterior = state.hinos.findIndex(hino => hino.id === hinoAnteriorId);
     if (indiceAnterior >= 0) { $('hino-select').value = String(indiceAnterior); selecionarHino(); }
   } catch (error) { console.error(error); setLoading('Não foi possível carregar a página.', 'Verifique a conexão e tente novamente.'); setStatus(error.message || 'Falha ao carregar os dados.', true); }
