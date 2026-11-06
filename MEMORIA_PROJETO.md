@@ -738,3 +738,9 @@ A identificação utiliza `fase`, `turmaNome`, `nomeTurma`, `turmaTipo` e `tipoT
 - Turmas com `tipo: "coral"` são excluídas. Entram somente alunos ativos com `turmaId` em turma não-Coral ou cujo ID esteja na lista `alunos` de uma turma não-Coral.
 - Dessa forma, participantes exclusivamente do Coral/KADOSH não geram cópias; alunos que pertencem à orquestra e também participam do Coral continuam sendo considerados pela turma principal da orquestra.
 - As mensagens da tela foram atualizadas para explicitar esse critério.
+
+
+### 2026-11-06 — Etapa 3: geração do PDF consolidado
+- O botão `Gerar PDF consolidado` deixou de ser um marcador desabilitado da etapa 2 e passou a ser habilitado automaticamente quando há hino selecionado e pelo menos uma linha de páginas incluída.
+- A página carrega `pdf-lib` sob demanda, baixa o PDF original do hino, copia as páginas de cada instrumento e repete o bloco conforme o número de cópias configurado. A partitura geral permanece opcional e os separadores geram uma folha identificadora por instrumento.
+- O arquivo é baixado como `Impressao_<hino>.pdf`; falhas de URL, CORS, PDF ou páginas inválidas são exibidas no status da página. A versão do script foi atualizada para evitar cache do navegador.

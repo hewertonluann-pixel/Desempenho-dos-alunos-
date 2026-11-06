@@ -25,7 +25,7 @@
   </header>
 
   <main class="page-content">
-    <section class="notice" role="note"><strong>Etapa 2:</strong> esta tela prepara e revisa o lote. A geração do PDF consolidado será adicionada na próxima etapa.</section>
+    <section class="notice" role="note"><strong>Preparação concluída:</strong> selecione um hino, revise as cópias e gere o PDF consolidado. A quantidade considera somente alunos da orquestra.</section>
 
     <section class="selection-card" aria-labelledby="selection-title">
       <div class="section-heading">
@@ -62,14 +62,14 @@
       <div class="section-heading"><div><p class="eyebrow">3. OPÇÕES</p><h2 id="options-title">Configurações do lote</h2></div></div>
       <div class="options-grid">
         <label class="check-option"><input id="include-grade" type="checkbox" checked><span><strong>Incluir partitura geral</strong><small>Uma cópia, independente da quantidade de alunos.</small></span></label>
-        <label class="check-option"><input id="insert-separators" type="checkbox"><span><strong>Inserir separadores</strong><small>Será aplicado na etapa de geração do PDF.</small></span></label>
+        <label class="check-option"><input id="insert-separators" type="checkbox"><span><strong>Inserir separadores</strong><small>Adiciona uma folha identificando cada instrumento no PDF.</small></span></label>
       </div>
     </section>
 
     <section class="print-summary" aria-labelledby="print-summary-title">
       <div><p class="eyebrow">4. RESUMO</p><h2 id="print-summary-title">Conferência antes de gerar</h2></div>
       <div id="summary-lines" class="summary-lines"><p>Selecione um hino para montar o resumo.</p></div>
-      <button id="generate-btn" class="btn primary" type="button" disabled title="Disponível na etapa 3"><i class="fas fa-file-pdf"></i> Gerar PDF consolidado</button>
+      <button id="generate-btn" class="btn primary" type="button" disabled title="Selecione um hino com partes válidas"><i class="fas fa-file-pdf"></i> Gerar PDF consolidado</button>
     </section>
 
     <section id="pending-card" class="warning-card" hidden aria-labelledby="pending-title">
@@ -88,7 +88,7 @@
   </nav>
 
   <script src="loader.js"></script>
-  <script type="module" src="script_impressao.js?v=etapa2-20261106"></script>
+  <script type="module" src="script_impressao.js?v=etapa3-download-20261106"></script>
   <script type="module" src="bottom-nav.js"></script>
 </body>
 </html>

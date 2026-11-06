@@ -4,6 +4,8 @@ import { INSTRUMENTOS_CATALOGO, normalizarInstrumento, resolverInstrumento } fro
 
 const $ = id => document.getElementById(id);
 const COLECAO_HINOS = 'Hinos da Harpa';
+const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+let pdfLib = null;
 const state = {
   hinos: [],
   alunos: [],
@@ -163,8 +165,91 @@ function atualizarResumo() {
   $('summary-students').textContent = alunos || '0';
   $('summary-pages').textContent = paginas || '0';
   $('summary-copies').textContent = copias || '0';
+  const botaoGerar = $('generate-btn');
+  if (botaoGerar) botaoGerar.disabled = !state.hinoAtual || !incluidas.length;
   if (!state.hinoAtual) { $('summary-lines').innerHTML = '<p>Selecione um hino para montar o resumo.</p>'; return; }
   $('summary-lines').innerHTML = incluidas.length ? incluidas.map(row => `<p><strong>${escapar(row.nome)}:</strong> ${row.copias} cópia${row.copias === 1 ? '' : 's'} × ${row.paginas.length} página${row.paginas.length === 1 ? '' : 's'} = ${row.copias * row.paginas.length} página${row.copias * row.paginas.length === 1 ? '' : 's'}</p>`).join('') : '<p>Nenhuma linha está configurada para inclusão.</p>';
+}
+function carregarScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Não foi possível carregar a biblioteca de PDF.'));
+    document.head.appendChild(script);
+  });
+}
+async function carregarPdfLib() {
+  if (pdfLib) return pdfLib;
+  await carregarScript(PDFLIB_CDN);
+  pdfLib = window.PDFLib;
+  if (!pdfLib?.PDFDocument) throw new Error('A biblioteca de PDF não foi inicializada.');
+  return pdfLib;
+}
+function nomeSeguro(valor = '') {
+  return String(valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'hino';
+}
+function baixarBlob(blob, nome) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = nome;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+function adicionarSeparador(pdf, texto, fonte) {
+  const pagina = pdf.addPage([595.28, 841.89]);
+  pagina.drawText(texto, { x: 52, y: 420, size: 24, font: fonte, maxWidth: 490 });
+}
+async function gerarPdfConsolidado() {
+  const incluidas = state.rows.filter(row => row.incluir && row.copias > 0);
+  if (!state.hinoAtual || !incluidas.length) return;
+  const botao = $('generate-btn');
+  botao.disabled = true;
+  botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PDF...';
+  try {
+    setStatus('Preparando o PDF consolidado...');
+    const { PDFDocument, StandardFonts } = await carregarPdfLib();
+    const consolidado = await PDFDocument.create();
+    consolidado.setTitle(`Impressão — ${state.hinoAtual.nome}`);
+    consolidado.setAuthor('Orquestra Filhos de Asafe');
+    const fonte = await consolidado.embedFont(StandardFonts.HelveticaBold);
+    const fontes = new Map();
+    const inserirSeparadores = $('insert-separators').checked;
+
+    for (let i = 0; i < incluidas.length; i += 1) {
+      const row = incluidas[i];
+      if (inserirSeparadores) adicionarSeparador(consolidado, row.nome, fonte);
+      if (!state.hinoAtual.url) throw new Error('Este hino não possui URL de PDF cadastrada.');
+      let origem = fontes.get(state.hinoAtual.url);
+      if (!origem) {
+        const response = await fetch(state.hinoAtual.url);
+        if (!response.ok) throw new Error(`Não foi possível baixar o PDF de “${state.hinoAtual.nome}”.`);
+        origem = await PDFDocument.load(await response.arrayBuffer());
+        fontes.set(state.hinoAtual.url, origem);
+      }
+      const paginasValidas = row.paginas.filter(pagina => pagina > 0 && pagina <= origem.getPageCount()).map(pagina => pagina - 1);
+      if (!paginasValidas.length) continue;
+      for (let copia = 0; copia < row.copias; copia += 1) {
+        const paginas = await consolidado.copyPages(origem, paginasValidas);
+        paginas.forEach(pagina => consolidado.addPage(pagina));
+      }
+      setStatus(`Instrumento ${i + 1} de ${incluidas.length} processado: ${row.nome}.`);
+    }
+    if (!consolidado.getPageCount()) throw new Error('Nenhuma página válida foi encontrada para gerar o PDF.');
+    const bytes = await consolidado.save();
+    baixarBlob(new Blob([bytes], { type: 'application/pdf' }), `Impressao_${nomeSeguro(state.hinoAtual.nome)}.pdf`);
+    setStatus(`PDF gerado com ${consolidado.getPageCount()} página${consolidado.getPageCount() === 1 ? '' : 's'}.`);
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || 'Não foi possível gerar o PDF consolidado.', true);
+  } finally {
+    botao.disabled = false;
+    botao.innerHTML = '<i class="fas fa-file-pdf"></i> Gerar PDF consolidado';
+    atualizarResumo();
+  }
 }
 function renderizarTabela() {
   const corpo = $('analysis-body');
@@ -212,6 +297,7 @@ async function carregar() {
 if (exigirProfessor()) {
   $('hino-select').addEventListener('change', selecionarHino);
   $('refresh-btn').addEventListener('click', carregar);
+  $('generate-btn').addEventListener('click', gerarPdfConsolidado);
   $('include-grade').addEventListener('change', event => { const grade = state.rows.find(row => row.grade); if (grade) { grade.incluir = event.target.checked; renderizarTabela(); } });
   carregar();
 }
