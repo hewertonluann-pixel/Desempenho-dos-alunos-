@@ -3,7 +3,7 @@ import { collection, getDocs, getDoc, doc } from 'https://www.gstatic.com/fireba
 import { INSTRUMENTOS_CATALOGO, normalizarInstrumento, resolverInstrumento } from './instrumentos-catalogo.js';
 
 const $ = id => document.getElementById(id);
-const COLECAO_HINOS = 'Hinos da Harpa';
+const COLECOES_IMPRESSAO = new Set(['hinos da harpa', 'musicas']);
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 let pdfLib = null;
 const state = {
@@ -76,21 +76,24 @@ function migrarPaginas(paginas) {
 }
 async function carregarHinos() {
   const colecoes = await getDocs(collection(db, 'biblioteca_colecoes'));
-  const colecao = colecoes.docs.map(item => ({ id: item.id, ...item.data() })).find(item => item.nome === COLECAO_HINOS);
-  if (!colecao) throw new Error(`Coleção “${COLECAO_HINOS}” não encontrada.`);
-  const documentos = await getDocs(collection(db, 'biblioteca_colecoes', colecao.id, 'documentos'));
-  return Promise.all(documentos.docs.map(async item => {
-    const data = item.data();
-    let grupos = [];
-    try {
-      const rotulo = await getDoc(doc(db, 'biblioteca_rotulos', `${colecao.id}_${item.id}`));
-      if (rotulo.exists()) {
-        const dados = rotulo.data();
-        grupos = Array.isArray(dados.grupos) ? dados.grupos : migrarPaginas(dados.paginas);
-      }
-    } catch (error) { console.warn('Não foi possível carregar o rótulo de', data.nome, error); }
-    return { id: item.id, colId: colecao.id, nome: data.nome || 'Hino sem nome', url: data.url || '', grupos };
-  })).then(lista => lista.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')));
+  const selecionadas = colecoes.docs.map(item => ({ id: item.id, ...item.data() })).filter(item => COLECOES_IMPRESSAO.has(normalizar(item.nome)));
+  if (!selecionadas.length) throw new Error('As coleções “Hinos da Harpa” e “Músicas” não foram encontradas.');
+  const listas = await Promise.all(selecionadas.map(async colecao => {
+    const documentos = await getDocs(collection(db, 'biblioteca_colecoes', colecao.id, 'documentos'));
+    return Promise.all(documentos.docs.map(async item => {
+      const data = item.data();
+      let grupos = [];
+      try {
+        const rotulo = await getDoc(doc(db, 'biblioteca_rotulos', `${colecao.id}_${item.id}`));
+        if (rotulo.exists()) {
+          const dados = rotulo.data();
+          grupos = Array.isArray(dados.grupos) ? dados.grupos : migrarPaginas(dados.paginas);
+        }
+      } catch (error) { console.warn('Não foi possível carregar o rótulo de', data.nome, error); }
+      return { id: item.id, colId: colecao.id, colecaoNome: colecao.nome, nome: data.nome || 'Documento sem nome', url: data.url || '', grupos };
+    }));
+  }));
+  return listas.flat().sort((a, b) => a.colecaoNome.localeCompare(b.colecaoNome, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR'));
 }
 async function carregarAlunos() {
   const snap = await getDocs(collection(db, 'alunos'));
@@ -152,7 +155,7 @@ function construirLinhas(hino) {
   }));
 }
 function preencherHinos() {
-  $('hino-select').innerHTML = '<option value="">— Selecione um hino —</option>' + state.hinos.map((hino, index) => `<option value="${index}">${escapar(hino.nome)}</option>`).join('');
+  $('hino-select').innerHTML = '<option value="">— Selecione uma música ou hino —</option>' + state.hinos.map((hino, index) => `<option value="${index}">${escapar(hino.colecaoNome)} — ${escapar(hino.nome)}</option>`).join('');
   $('hino-select').disabled = false;
 }
 function atualizarResumo() {
@@ -269,8 +272,8 @@ function renderizarTabelaPreservandoFoco(input) {
 function selecionarHino() {
   const indice = Number.parseInt($('hino-select').value, 10);
   state.hinoAtual = Number.isFinite(indice) && state.hinos[indice] ? state.hinos[indice] : null;
-  if (!state.hinoAtual) { state.rows = []; $('hino-meta').textContent = 'Os hinos são carregados da coleção “Hinos da Harpa”.'; $('analysis-body').innerHTML = '<tr><td colspan="6" class="empty-cell">Selecione um hino para conferir as partes.</td></tr>'; atualizarResumo(); return; }
-  $('hino-meta').textContent = `${state.hinoAtual.nome} · ${state.hinoAtual.grupos.filter(grupoUtil).length} grupo${state.hinoAtual.grupos.filter(grupoUtil).length === 1 ? '' : 's'} de páginas analisado${state.hinoAtual.grupos.filter(grupoUtil).length === 1 ? '' : 's'}.`;
+  if (!state.hinoAtual) { state.rows = []; $('hino-meta').textContent = 'Músicas e hinos são carregados das coleções “Músicas” e “Hinos da Harpa”.'; $('analysis-body').innerHTML = '<tr><td colspan="6" class="empty-cell">Selecione uma música ou hino para conferir as partes.</td></tr>'; atualizarResumo(); return; }
+  $('hino-meta').textContent = `${state.hinoAtual.colecaoNome} · ${state.hinoAtual.nome} · ${state.hinoAtual.grupos.filter(grupoUtil).length} grupo${state.hinoAtual.grupos.filter(grupoUtil).length === 1 ? '' : 's'} de páginas analisado${state.hinoAtual.grupos.filter(grupoUtil).length === 1 ? '' : 's'}.`;
   construirLinhas(state.hinoAtual); renderizarTabela();
 }
 function renderizarPendentes() {
@@ -287,7 +290,7 @@ async function carregar() {
   try {
     const [remotos, hinos] = await Promise.all([carregarConfiguracoes(), carregarHinos()]);
     configurarCatalogo(remotos); state.hinos = hinos; await carregarTurmasOrquestra(); state.alunos = await carregarAlunos();
-    preencherHinos(); renderizarPendentes(); setLoading('', '', false); setStatus(`${hinos.length} hino${hinos.length === 1 ? '' : 's'} disponível${hinos.length === 1 ? '' : 'eis'} para preparação. A contagem considera somente a orquestra.`);
+    preencherHinos(); renderizarPendentes(); setLoading('', '', false); setStatus(`${hinos.length} documento${hinos.length === 1 ? '' : 's'} disponível${hinos.length === 1 ? '' : 'eis'} nas coleções Músicas e Hinos da Harpa. A contagem considera somente a orquestra.`);
     const indiceAnterior = state.hinos.findIndex(hino => hino.id === hinoAnteriorId);
     if (indiceAnterior >= 0) { $('hino-select').value = String(indiceAnterior); selecionarHino(); }
   } catch (error) { console.error(error); setLoading('Não foi possível carregar a página.', 'Verifique a conexão e tente novamente.'); setStatus(error.message || 'Falha ao carregar os dados.', true); }

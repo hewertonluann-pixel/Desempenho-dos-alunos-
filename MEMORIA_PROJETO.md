@@ -744,3 +744,9 @@ A identificação utiliza `fase`, `turmaNome`, `nomeTurma`, `turmaTipo` e `tipoT
 - O botão `Gerar PDF consolidado` deixou de ser um marcador desabilitado da etapa 2 e passou a ser habilitado automaticamente quando há hino selecionado e pelo menos uma linha de páginas incluída.
 - A página carrega `pdf-lib` sob demanda, baixa o PDF original do hino, copia as páginas de cada instrumento e repete o bloco conforme o número de cópias configurado. A partitura geral permanece opcional e os separadores geram uma folha identificadora por instrumento.
 - O arquivo é baixado como `Impressao_<hino>.pdf`; falhas de URL, CORS, PDF ou páginas inválidas são exibidas no status da página. A versão do script foi atualizada para evitar cache do navegador.
+
+
+### 2026-11-06 — Ajuste da Etapa 3: coleção Músicas
+- A seleção da página de impressão agora consulta simultaneamente as coleções `Músicas` e `Hinos da Harpa`.
+- Cada opção mostra a coleção de origem e o nome do documento, evitando ambiguidades entre títulos iguais.
+- Os rótulos continuam sendo carregados pelo par `colecaoId_documentoId`, e o PDF original selecionado mantém sua própria URL e grupos de páginas.
