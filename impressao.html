@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#22d3ee">
+  <title>Preparar impressão — Orquestra Filhos de Asafe</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="loader.css">
+  <link rel="stylesheet" href="bottom-nav.css">
+  <link rel="stylesheet" href="impressao.css?v=etapa2-20261106">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div id="global-loader"><div class="spinner-container"><div class="spinner"></div><div id="emoji-container">🖨️</div><div id="verse-container"><div id="verse-text"></div><div id="verse-reference"></div></div></div></div>
+  <header class="page-header">
+    <div>
+      <a class="back-link" href="professor.html"><i class="fas fa-arrow-left"></i> Painel do professor</a>
+      <p class="eyebrow">PREPARAÇÃO ADMINISTRATIVA</p>
+      <h1><i class="fas fa-print"></i> Impressão de partes</h1>
+      <p class="subtitle">Escolha um hino, confira os instrumentos analisados e ajuste as cópias antes da geração do PDF.</p>
+    </div>
+    <span class="teacher-badge"><i class="fas fa-shield-halved"></i> Professor</span>
+  </header>
+
+  <main class="page-content">
+    <section class="notice" role="note"><strong>Etapa 2:</strong> esta tela prepara e revisa o lote. A geração do PDF consolidado será adicionada na próxima etapa.</section>
+
+    <section class="selection-card" aria-labelledby="selection-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">1. DOCUMENTO</p><h2 id="selection-title">Selecione o hino</h2></div>
+        <button id="refresh-btn" class="btn secondary" type="button"><i class="fas fa-rotate"></i> Atualizar</button>
+      </div>
+      <label class="field-label" for="hino-select">Hino da Harpa</label>
+      <select id="hino-select" disabled><option value="">Carregando hinos...</option></select>
+      <p id="hino-meta" class="field-help">Os hinos são carregados da coleção “Hinos da Harpa”.</p>
+    </section>
+
+    <section class="summary-grid" aria-label="Resumo da análise">
+      <article class="summary-card"><span class="summary-icon">♫</span><div><strong id="summary-instruments">—</strong><span>Instrumentos analisados</span></div></article>
+      <article class="summary-card"><span class="summary-icon">🎓</span><div><strong id="summary-students">—</strong><span>Alunos ativos considerados</span></div></article>
+      <article class="summary-card"><span class="summary-icon">▣</span><div><strong id="summary-pages">—</strong><span>Páginas configuradas</span></div></article>
+      <article class="summary-card highlight"><span class="summary-icon">#</span><div><strong id="summary-copies">—</strong><span>Cópias configuradas</span></div></article>
+    </section>
+
+    <section class="analysis-card" aria-labelledby="analysis-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">2. CONFERÊNCIA</p><h2 id="analysis-title">Instrumentos e cópias</h2><p class="section-description">A quantidade inicial vem dos alunos ativos cadastrados. Altere o campo “Cópias” somente para esta impressão.</p></div>
+      </div>
+      <div id="loading-card" class="loading-card" role="status" aria-live="polite"><div class="spinner"></div><div><strong id="loading-title">Carregando dados...</strong><span id="loading-message">Lendo hinos, rótulos e alunos ativos.</span></div></div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <div class="table-wrap">
+        <table class="analysis-table">
+          <thead><tr><th scope="col">Incluir</th><th scope="col">Instrumento</th><th scope="col">Páginas</th><th scope="col">Alunos ativos</th><th scope="col">Cópias</th><th scope="col">Origem</th></tr></thead>
+          <tbody id="analysis-body"><tr><td colspan="6" class="empty-cell">Selecione um hino para conferir as partes.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="options-card" aria-labelledby="options-title">
+      <div class="section-heading"><div><p class="eyebrow">3. OPÇÕES</p><h2 id="options-title">Configurações do lote</h2></div></div>
+      <div class="options-grid">
+        <label class="check-option"><input id="include-grade" type="checkbox" checked><span><strong>Incluir partitura geral</strong><small>Uma cópia, independente da quantidade de alunos.</small></span></label>
+        <label class="check-option"><input id="insert-separators" type="checkbox"><span><strong>Inserir separadores</strong><small>Será aplicado na etapa de geração do PDF.</small></span></label>
+      </div>
+    </section>
+
+    <section class="print-summary" aria-labelledby="print-summary-title">
+      <div><p class="eyebrow">4. RESUMO</p><h2 id="print-summary-title">Conferência antes de gerar</h2></div>
+      <div id="summary-lines" class="summary-lines"><p>Selecione um hino para montar o resumo.</p></div>
+      <button id="generate-btn" class="btn primary" type="button" disabled title="Disponível na etapa 3"><i class="fas fa-file-pdf"></i> Gerar PDF consolidado</button>
+    </section>
+
+    <section id="pending-card" class="warning-card" hidden aria-labelledby="pending-title">
+      <h2 id="pending-title"><i class="fas fa-triangle-exclamation"></i> Cadastros que precisam de revisão</h2>
+      <p id="pending-description"></p>
+      <details><summary>Ver alunos sem instrumento válido</summary><ul id="pending-list"></ul></details>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="aluno.html" class="nav-item" data-page="home"><i class="fas fa-home nav-icon"></i><span class="nav-label">Home</span></a>
+    <a href="painel-social.html" class="nav-item" data-page="comunidade"><i class="fas fa-users nav-icon"></i><span class="nav-label">Comunidade</span></a>
+    <a href="biblioteca.html" class="nav-item" data-page="biblioteca"><i class="fas fa-book nav-icon"></i><span class="nav-label">Biblioteca</span></a>
+    <a href="atividades.html" class="nav-item" data-page="atividades"><i class="fas fa-clipboard-list nav-icon"></i><span class="nav-label">Atividades</span></a>
+    <a href="professor.html" class="nav-item" data-page="professor" id="navProfessor"><i class="fas fa-chalkboard-teacher nav-icon"></i><span class="nav-label">Professor</span></a>
+  </nav>
+
+  <script src="loader.js"></script>
+  <script type="module" src="script_impressao.js?v=etapa2-20261106"></script>
+  <script type="module" src="bottom-nav.js"></script>
+</body>
+</html>

@@ -722,3 +722,12 @@ A identificação utiliza `fase`, `turmaNome`, `nomeTurma`, `turmaTipo` e `tipoT
 - **Evidências:** `node --check` passou nos módulos alterados e nos scripts inline extraídos; teste sintético passou para `Trompete`, `Saxofone Alto`, `Clarinete em Sib`, `Trombone 1`, `Trombone Base` e `Órgão`, rejeitando `Guitarra`; servidor HTTP local retornou 200 para as páginas, scripts e módulo novo; inspeção confirmou a ausência dos antigos inputs de texto nos formulários-alvo. Nenhum dado real foi lido ou alterado no Firebase.
 - **Pendências:** executar em navegador a carga de registros antigos válidos, vazios e desconhecidos; criar/editar um aluno em cada rota; confirmar a persistência de `instrumento` e `instrumentoId`; validar a seleção de cópias de hinos com dados reais; decidir se o catálogo local deve futuramente ser sincronizado com `biblioteca_instrumentos` sem permitir que instrumentos desativados sejam escolhidos.
 - **Próximo passo:** validação runtime controlada e, se aprovada, considerar migração assistida dos documentos legados sem `instrumentoId`.
+
+
+### 2026-11-06 — Etapa 2: preparação administrativa de impressão
+- Status: implementada e validada estaticamente; a geração do PDF consolidado permanece reservada para a Etapa 3.
+- Arquivos: `impressao.html`, `impressao.css`, `script_impressao.js` e acesso adicionado ao `professor.html`.
+- Comportamento: página restrita ao papel de professor no cliente; lista os documentos da coleção `Hinos da Harpa`, carrega grupos de `biblioteca_rotulos`, respeita aliases/configurações de `biblioteca_instrumentos`, conta alunos ativos por `instrumentoId` com fallback para `instrumento`, permite incluir/excluir linhas e ajustar cópias por hino.
+- A tabela separa instrumentos individuais de `Partitura geral`, mostra páginas, alunos ativos, cópias e origem automática/manual. O resumo calcula cópias e páginas configuradas sem gerar arquivo nesta etapa.
+- Dados legados: rótulos no formato antigo `paginas` são migrados em memória; alunos sem instrumento válido aparecem em um aviso de revisão e não entram na contagem automática.
+- Evidências: `node --check` passou para `script_impressao.js` e `professor.js`; referências HTML/IDs e `git diff --check` passaram; os novos arquivos responderam por HTTP local.

@@ -4,7 +4,7 @@
 > Referência: 2026-10-28  
 > Total de arquivos fora de `.git`: **136**
 
-## Páginas HTML (60)
+## Páginas HTML (61)
 
 - `404.html` — 2088 bytes
 - `RESET.HTML` — 5251 bytes
@@ -45,6 +45,7 @@
 - `hud-preview.html` — 48079 bytes
 - `index.html` — 7799 bytes
 - `instrumento.html` — 4598 bytes
+- `impressao.html` — página administrativa de preparação de lotes de impressão
 - `jogo-figuras.html` — 24665 bytes
 - `jogo-tom-semitom.html` — 34898 bytes
 - `manual.html` — 8775 bytes
@@ -67,7 +68,7 @@
 - `tetroquestgame.html` — 26260 bytes
 - `turmas.html` — 40163 bytes
 
-## JavaScript (46)
+## JavaScript (47)
 
 - `aluno-coral.js` — 20620 bytes
 - `aluno.js` — 13669 bytes
@@ -92,6 +93,7 @@
 - `header-template.js` — 2072 bytes
 - `historico-licoes.js` — 1974 bytes
 - `instrumentos-catalogo.js` — catálogo canônico e helpers de validação de instrumentos
+- `script_impressao.js` — seleção de hinos, análise de rótulos e contagem de alunos para impressão
 - `jornada-atividades.js` — 5607 bytes
 - `js/html2pdf.bundle.min.js` — 905956 bytes
 - `js/professor-alunos.js` — 8517 bytes
@@ -116,7 +118,7 @@
 - `snapshots-mensais.js` — 10974 bytes
 - `utils.js` — 595 bytes
 
-## CSS (16)
+## CSS (17)
 
 - `aluno-coral.css` — 30695 bytes
 - `aluno-teste.css` — 8405 bytes
@@ -127,6 +129,7 @@
 - `convites/convite.css` — 6354 bytes
 - `index.css` — 2430 bytes
 - `instrumento.css` — 5789 bytes
+- `impressao.css` — estilos responsivos da preparação de impressão
 - `loader.css` — 1139 bytes
 - `modules/chamada.css` — 2607 bytes
 - `modules/gerenciar-alunos.css` — 2756 bytes
