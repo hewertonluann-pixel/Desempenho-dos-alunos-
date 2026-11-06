@@ -240,3 +240,7 @@ As 12 etapas de verificação estão registradas e o backlog foi consolidado em 
 - **Status:** implementado; validação visual em viewport mobile/desktop pendente.
 - **Critério atendido:** o card da atividade aparece no seletor da jornada e exibe três estrelas vazias (`☆☆☆`) antes da primeira conclusão.
 - **Persistência futura:** o card lê `registro.estrelas` do progresso salvo para substituir as estrelas vazias pelas conquistadas.
+
+
+### 2026-11-06 — Validação visual do redesign gaming de `atividades.html`
+A alteração visual foi implementada e validada estaticamente. Os critérios do piloto são: cards com selo de fase no formato `FASE 01`, nome legível, estrelas grandes de 0 a 3, ausência de troféu/medalha como indicador principal, seta de acesso, resumo superior de estrelas e manutenção de duas colunas em mobile. Permanece recomendada a conferência visual no deploy em desktop e mobile, especialmente contraste, quebra de nomes longos e leitura das estrelas em telas pequenas.

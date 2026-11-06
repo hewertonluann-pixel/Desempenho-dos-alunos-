@@ -697,3 +697,9 @@ A prioridade P1 indica ação prioritária; riscos condicionais permanecem condi
 - `atividades-armadura` foi incluída no catálogo `JORNADA_ATIVIDADES`, passando a aparecer como Fase 10 na página de atividades.
 - O card agora exibe `☆☆☆` quando ainda não há resultado salvo e passa a preencher de uma a três estrelas conforme `registro.estrelas` no Firestore.
 - O contador geral da jornada foi atualizado de 9 para 10 fases.
+
+
+### 2026-11-06 — Redesign gaming da página `atividades.html`
+A página de seleção recebeu uma atualização visual minimalista inspirada em mapas de fases de jogos. Os cards agora apresentam o selo `FASE 01`, nome da atividade com tipografia ampliada, estrelas grandes como indicador principal de nível alcançado de 0 a 3 e uma seta de acesso. O elemento visual de troféu/medalha foi removido dos cards e substituído pela leitura direta das estrelas.
+
+O layout ganhou cards mais largos, bordas e brilhos com acentos cromáticos, fundo com gradientes discretos, resumo superior com total de estrelas conquistadas e fases concluídas, além de responsividade preservando duas colunas no mobile. A lógica existente de progresso, categorias retráteis e leitura do Firestore foi mantida.
