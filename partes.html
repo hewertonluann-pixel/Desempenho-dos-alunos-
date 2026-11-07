@@ -910,6 +910,65 @@
         }
     </style>
     <link rel="stylesheet" href="partes-desktop.css">
+    <style>
+        /* Regra final: mantém a folha desktop externa sem reintroduzir altura/padding na lista. */
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            min-height: 48px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-thumb,
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info::before,
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-nome-wrap::before {
+            display: none !important;
+        }
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-info {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            grid-template-rows: auto !important;
+            align-items: center !important;
+            flex: 1 1 auto !important;
+            min-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border: 0 !important;
+        }
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-nome-wrap {
+            grid-column: 1 !important;
+            grid-row: 1 !important;
+            min-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-btns {
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo,
+        .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo {
+            min-height: 40px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        @media (max-width: 600px) {
+            .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
+                min-height: 44px !important;
+            }
+        }
+    </style>
 </head>
 <body class="partes-desktop-page">
     <div id="global-loader">
