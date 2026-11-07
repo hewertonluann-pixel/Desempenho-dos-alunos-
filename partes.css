@@ -522,10 +522,11 @@
         align-items: center;
         gap: 6px 8px;
         min-width: 0;
-        min-height: 54px;
-        padding: 12px 14px;
-        border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-        background: linear-gradient(90deg, rgba(14, 165, 233, 0.14), rgba(15, 23, 42, 0.18));
+        min-height: 0;
+        padding: 0 14px;
+        border-bottom: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
     .partes-desktop-page .grupo-card:not(.professor-mode) .grupo-nome {
@@ -576,7 +577,7 @@
         gap: 10px;
         min-width: 0;
         margin: 0;
-        padding: 12px 14px 14px;
+        padding: 4px 14px;
     }
 
     .partes-desktop-page .grupo-card:not(.professor-mode) .btn-visualizar-grupo .viz-label {
@@ -604,9 +605,8 @@
     .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
         grid-template-areas:
             "instrumento"
-            "paginas"
             "botoes";
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto;
         min-height: 0;
         padding: 0;
     }
