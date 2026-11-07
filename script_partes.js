@@ -959,10 +959,6 @@ function criarCardAluno(grupo, idx) {
   const badgeTipo = ehGrade
     ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">Partitura geral</small>'
     : '';
-  const numPags   = grupo.paginas.length;
-  const labelPags = numPags === 1
-    ? 'Página ' + grupo.paginas[0]
-    : `Páginas ${grupo.paginas[0]}–${grupo.paginas[grupo.paginas.length - 1]} · ${numPags} folhas`;
 
   // FIX: sem onclick inline (scripts ES module não expõem ao escopo global via onclick)
   card.innerHTML = `
@@ -973,7 +969,6 @@ function criarCardAluno(grupo, idx) {
       </div>
     </div>
     <div class="grupo-info">
-      <span class="grupo-paginas-label">${labelPags}</span>
       <div class="grupo-nome-wrap">
             <span class="grupo-nome">${grupo.nome}</span>${badgeTipo}
           </div>
