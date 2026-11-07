@@ -891,21 +891,22 @@
             }
             .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo,
             .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo {
-                flex: 0 0 40px;
-                width: 40px;
-                min-width: 40px;
+                flex: 0 0 auto;
+                width: auto;
+                min-width: 0;
                 min-height: 40px;
                 height: 40px;
-                padding: 0;
-                gap: 0;
-                font-size: 0;
+                padding: 0 8px;
+                gap: 5px;
+                font-size: 0.72rem;
+                white-space: nowrap;
             }
             .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo i,
             .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo i {
-                font-size: 0.95rem;
+                font-size: 0.78rem;
             }
             .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo .viz-label {
-                display: none;
+                display: inline;
             }
         }
     </style>
@@ -966,6 +967,29 @@
         @media (max-width: 600px) {
             .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) {
                 min-height: 66px !important;
+            }
+            .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .grupo-btns {
+                gap: 6px !important;
+                flex-wrap: nowrap !important;
+            }
+            .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo,
+            .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo {
+                flex: 0 0 auto !important;
+                width: auto !important;
+                min-width: 0 !important;
+                min-height: 40px !important;
+                height: 40px !important;
+                padding: 0 8px !important;
+                gap: 5px !important;
+                font-size: 0.72rem !important;
+                white-space: nowrap !important;
+            }
+            .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo .viz-label {
+                display: inline !important;
+            }
+            .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-visualizar-grupo i,
+            .partes-desktop-page .partes-grid.view-list .grupo-card:not(.professor-mode) .btn-baixar-grupo i {
+                font-size: 0.78rem !important;
             }
         }
     </style>
