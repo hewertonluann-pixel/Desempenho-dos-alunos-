@@ -974,14 +974,14 @@ function criarCardAluno(grupo, idx) {
     </div>
     <div class="grupo-info">
       <span class="grupo-paginas-label">${labelPags}</span>
-          <div class="grupo-nome-wrap">
+      <div class="grupo-nome-wrap">
             <span class="grupo-nome">${grupo.nome}</span>${badgeTipo}
           </div>
       <div class="grupo-btns">
-        <button class="btn-visualizar-grupo" id="btn-ver-${idx}" title="Visualizar em tela cheia">
+        <button class="btn-visualizar-grupo" id="btn-ver-${idx}" title="Visualizar em tela cheia" aria-label="Visualizar partitura em tela cheia">
           <i class="fas fa-expand"></i> <span class="viz-label">Visualizar</span>
         </button>
-        <button class="btn-baixar-grupo" id="btn-baixar-${idx}">
+        <button class="btn-baixar-grupo" id="btn-baixar-${idx}" title="Baixar partitura" aria-label="Baixar partitura">
           <i class="fas fa-download"></i> Baixar
         </button>
       </div>
