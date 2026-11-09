@@ -26,6 +26,21 @@ function isProfessor() {
   }
 }
 
+/** Retorna somente o primeiro nome em uma forma segura para exibição em HTML. */
+function primeiroNomeParaExibicao(nomeCompleto) {
+  const primeiroNome = String(nomeCompleto || "Aluno").trim().split(/\s+/u)[0] || "Aluno";
+  return primeiroNome.replace(/[&<>"']/g, caractere => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[caractere]);
+}
+
+/** Encurta o nome destacado nas mensagens, preservando o restante do texto. */
+function limitarNomeNaNotificacao(texto) {
+  return String(texto || "").replace(/<strong>([\s\S]*?)<\/strong>/gi, (_match, nome) =>
+    `<strong>${primeiroNomeParaExibicao(nome)}</strong>`
+  );
+}
+
 /**
  * Remove tags HTML e retorna texto puro formatado para WhatsApp
  * <strong>texto</strong> → *texto*
@@ -75,6 +90,7 @@ export function adicionarNotificacao(tipo, icone, texto, tempo = null) {
   const professor = isProfessor();
   const ehNivel = tipo === "nivel";
   const clicavel = ehNivel && professor;
+  const textoExibicao = limitarNomeNaNotificacao(texto);
 
   const li = document.createElement("li");
   li.className = `notificacao ${tipo}${clicavel ? " copiavel" : ""}`;
@@ -104,7 +120,7 @@ export function adicionarNotificacao(tipo, icone, texto, tempo = null) {
   li.innerHTML = `
     <span class="icone">${icone}</span>
     <div class="conteudo">
-      ${texto} <small>${tempo || "agora mesmo"}</small>
+      ${textoExibicao} <small>${tempo || "agora mesmo"}</small>
     </div>
   `;
 
