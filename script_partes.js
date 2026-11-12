@@ -69,6 +69,7 @@ let pdfUrl    = null;
 let docId     = null;
 let colId     = null;
 let userRole  = 'student';
+let podeAlternarProfessor = false;
 let nomePdf   = '';
 
 let grupos = [];
@@ -101,17 +102,21 @@ function lerParams() {
 // ── Auth + Seletor ───────────────────────────────────────────────────────────
 function checkAuth() {
   const seletor = document.getElementById('user-role');
+  podeAlternarProfessor = false;
+  userRole = 'student';
   try {
     const user = JSON.parse(localStorage.getItem('usuarioAtual') || '{}');
-    const isTeacher =
+    podeAlternarProfessor =
       user.classificado === true  ||
       user.classificado === 'true'||
       user.role === 'teacher'     ||
       user.tipo === 'professor'   ||
       user.isTeacher === true;
-    userRole = isTeacher ? 'teacher' : 'student';
-  } catch { userRole = 'student'; }
-  if (seletor) { seletor.value = userRole; seletor.style.display = 'block'; }
+  } catch { podeAlternarProfessor = false; }
+  if (seletor) {
+    seletor.value = 'student';
+    seletor.style.display = podeAlternarProfessor ? 'block' : 'none';
+  }
   atualizarDownloadCompleto();
 }
 
@@ -119,7 +124,8 @@ function configurarSeletor() {
   const seletor = document.getElementById('user-role');
   if (!seletor) return;
   seletor.addEventListener('change', () => {
-    userRole = seletor.value;
+    userRole = podeAlternarProfessor && seletor.value === 'teacher' ? 'teacher' : 'student';
+    seletor.value = userRole;
     renderRoleBadge();
     atualizarBarraProfessor();
     atualizarDownloadCompleto();
