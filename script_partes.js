@@ -960,10 +960,7 @@ function criarCardAluno(grupo, idx) {
   card.className = 'grupo-card';
   card.id = `grupo-card-${idx}`;
 
-  const ehGrade = grupo.tipo === 'grade' || normalizarTexto(grupo.nome).startsWith('grade');
-  const badgeTipo = ehGrade
-    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">GRADE</small>'
-    : '';
+  const badgeTipo = '';
 
   // FIX: sem onclick inline (scripts ES module não expõem ao escopo global via onclick)
   card.innerHTML = `
@@ -1002,10 +999,7 @@ function criarCardProfessor(grupo, idx) {
   card.className = 'grupo-card professor-mode';
   card.id = `grupo-card-${idx}`;
 
-  const ehGrade = grupo.tipo === 'grade' || normalizarTexto(grupo.nome).startsWith('grade');
-  const badgeTipo = ehGrade
-    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">GRADE</small>'
-    : '';
+  const badgeTipo = '';
   const thumbsHTML = grupo.paginas.map(numPag => `
     <div class="grupo-mini-wrap">
       <div class="grupo-mini-thumb" id="mini-thumb-${idx}-${numPag}">
