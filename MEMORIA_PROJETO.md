@@ -754,3 +754,7 @@ A identificação utiliza `fase`, `turmaNome`, `nomeTurma`, `turmaTipo` e `tipoT
 
 ### 2026-11-12 — Etapa 2: player compacto da Biblioteca
 A lista de documentos e os resultados da busca global passaram a usar um player customizado compartilhado. O botão de reprodução cria um único áudio ativo por vez, alterna entre reproduzir e pausar, mostra o progresso somente durante a reprodução, atualiza a duração real do arquivo e permite buscar outra posição pela barra. Ao trocar de música, finalizar ou reconstruir a lista, o player anterior é encerrado e o progresso é ocultado. Documentos sem áudio exibem essa condição sem criar um controle inoperante. A versão do script foi atualizada para evitar cache do navegador.
+
+
+### 2026-11-12 — Etapa 3: refinamento do player compacto
+O player passou a preservar a posição quando pausado, permitindo retomar a mesma música sem reiniciar. Ao pausar, o botão muda para Retomar e a trilha de progresso é ocultada; ao retomar, ela reaparece. A troca de documento continua encerrando e reiniciando o player anterior. Foram adicionados estados de foco visíveis para teclado no botão e na barra, além da atualização da versão do script para evitar cache antigo.

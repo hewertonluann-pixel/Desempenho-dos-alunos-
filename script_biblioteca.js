@@ -381,24 +381,35 @@ function limparPlayerAtivo() {
   activePlayer = null;
 }
 
-function pausarPlayerAtivo() {
+function pararPlayerAtivo() {
   if (activeAudio) activeAudio.pause();
   limparPlayerAtivo();
   activeAudio = null;
+}
+
+function atualizarBotaoPlayer(playing) {
+  if (!activePlayer) return;
+  activePlayer.button.innerHTML = playing
+    ? '<i class="fas fa-pause" aria-hidden="true"></i>'
+    : '<i class="fas fa-play" aria-hidden="true"></i>';
+  activePlayer.button.setAttribute('aria-label', `${playing ? 'Pausar' : 'Retomar'} ${activePlayer.nome}`);
+  activePlayer.button.title = playing ? 'Pausar' : 'Retomar';
+  activePlayer.progressWrap.hidden = !playing;
 }
 
 function conectarPlayer(item, button, progressWrap, progress, currentTime, totalTime, nome, audioUrl) {
   button.addEventListener('click', () => {
     if (activePlayer?.button === button) {
       if (activeAudio?.paused) {
-        activeAudio.play().catch(() => setStatusPlayer(button, 'Não foi possível reproduzir este áudio.'));
+        activeAudio.play().then(() => atualizarBotaoPlayer(true)).catch(() => setStatusPlayer(button, 'Não foi possível reproduzir este áudio.'));
         return;
       }
-      pausarPlayerAtivo();
+      activeAudio.pause();
+      atualizarBotaoPlayer(false);
       return;
     }
 
-    pausarPlayerAtivo();
+    pararPlayerAtivo();
     const audio = new Audio(audioUrl);
     activeAudio = audio;
     activePlayer = { item, button, progressWrap, progress, currentTime, totalTime, nome };
@@ -417,17 +428,17 @@ function conectarPlayer(item, button, progressWrap, progress, currentTime, total
     });
     audio.addEventListener('ended', () => {
       if (activePlayer?.button !== button) return;
-      pausarPlayerAtivo();
+      pararPlayerAtivo();
     });
     audio.addEventListener('error', () => {
       if (activePlayer?.button !== button) return;
       setStatusPlayer(button, 'Não foi possível carregar este áudio.');
-      pausarPlayerAtivo();
+      pararPlayerAtivo();
     }, { once: true });
     audio.play().catch(() => {
       if (activePlayer?.button !== button) return;
       setStatusPlayer(button, 'Não foi possível reproduzir este áudio.');
-      pausarPlayerAtivo();
+      pararPlayerAtivo();
     });
   });
   progress.addEventListener('input', () => {
@@ -488,7 +499,7 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
 }
 
 function renderDocumentsFiltered(docsToRender) {
-  pausarPlayerAtivo();
+  pararPlayerAtivo();
   const container = document.getElementById('documents-container');
   if (!container) return;
   container.innerHTML = '';
@@ -774,7 +785,7 @@ async function performGlobalSearch(term) {
 }
 
 function renderGlobalResults(results) {
-  pausarPlayerAtivo();
+  pararPlayerAtivo();
   const container = document.getElementById('global-results-container');
   container.innerHTML = '';
   if (results.length === 0) {
