@@ -51,6 +51,8 @@ let documents = [];
 let currentView = localStorage.getItem('bibliotecaView') || 'list';
 // modoPartes da coleção aberta (true = abre partes.html, false = só download)
 let currentColModoPartes = true;
+let activeAudio = null;
+let activePlayer = null;
 
 const INITIAL_COLLECTIONS = ['Métodos', 'Hinos da Harpa', 'Músicas'];
 
@@ -361,6 +363,101 @@ function abrirPartes(colId, docId) {
   window.location.href = `partes.html?col=${colId}&doc=${docId}`;
 }
 
+function formatarTempo(segundos) {
+  if (!Number.isFinite(segundos) || segundos < 0) return '0:00';
+  const minutos = Math.floor(segundos / 60);
+  const segundosRestantes = Math.floor(segundos % 60).toString().padStart(2, '0');
+  return `${minutos}:${segundosRestantes}`;
+}
+
+function limparPlayerAtivo() {
+  if (!activePlayer) return;
+  activePlayer.item.classList.remove('is-playing');
+  activePlayer.button.innerHTML = '<i class="fas fa-play" aria-hidden="true"></i>';
+  activePlayer.button.setAttribute('aria-label', `Reproduzir ${activePlayer.nome}`);
+  activePlayer.progress.value = '0';
+  activePlayer.currentTime.textContent = '0:00';
+  activePlayer.progressWrap.hidden = true;
+  activePlayer = null;
+}
+
+function pausarPlayerAtivo() {
+  if (activeAudio) activeAudio.pause();
+  limparPlayerAtivo();
+  activeAudio = null;
+}
+
+function conectarPlayer(item, button, progressWrap, progress, currentTime, totalTime, nome, audioUrl) {
+  button.addEventListener('click', () => {
+    if (activePlayer?.button === button) {
+      if (activeAudio?.paused) {
+        activeAudio.play().catch(() => setStatusPlayer(button, 'Não foi possível reproduzir este áudio.'));
+        return;
+      }
+      pausarPlayerAtivo();
+      return;
+    }
+
+    pausarPlayerAtivo();
+    const audio = new Audio(audioUrl);
+    activeAudio = audio;
+    activePlayer = { item, button, progressWrap, progress, currentTime, totalTime, nome };
+    item.classList.add('is-playing');
+    progressWrap.hidden = false;
+    button.innerHTML = '<i class="fas fa-pause" aria-hidden="true"></i>';
+    button.setAttribute('aria-label', `Pausar ${nome}`);
+    audio.addEventListener('loadedmetadata', () => {
+      if (activePlayer?.button !== button) return;
+      totalTime.textContent = formatarTempo(audio.duration);
+    });
+    audio.addEventListener('timeupdate', () => {
+      if (activePlayer?.button !== button || !Number.isFinite(audio.duration)) return;
+      progress.value = String((audio.currentTime / audio.duration) * 100);
+      currentTime.textContent = formatarTempo(audio.currentTime);
+    });
+    audio.addEventListener('ended', () => {
+      if (activePlayer?.button !== button) return;
+      pausarPlayerAtivo();
+    });
+    audio.addEventListener('error', () => {
+      if (activePlayer?.button !== button) return;
+      setStatusPlayer(button, 'Não foi possível carregar este áudio.');
+      pausarPlayerAtivo();
+    }, { once: true });
+    audio.play().catch(() => {
+      if (activePlayer?.button !== button) return;
+      setStatusPlayer(button, 'Não foi possível reproduzir este áudio.');
+      pausarPlayerAtivo();
+    });
+  });
+  progress.addEventListener('input', () => {
+    if (activePlayer?.button !== button || !activeAudio || !Number.isFinite(activeAudio.duration)) return;
+    activeAudio.currentTime = (Number(progress.value) / 100) * activeAudio.duration;
+  });
+}
+
+function setStatusPlayer(button, mensagem) {
+  button.title = mensagem;
+  setTimeout(() => { if (button) button.title = ''; }, 3500);
+}
+
+function conectarPlayers(container) {
+  container.querySelectorAll('.compact-play-button').forEach(button => {
+    const item = button.closest('.document-item');
+    const progressWrap = item.querySelector('.audio-progress');
+    conectarPlayer(
+      item,
+      button,
+      progressWrap,
+      progressWrap.querySelector('.progress-range'),
+      progressWrap.querySelector('.current-time'),
+      progressWrap.querySelector('.total-time'),
+      button.dataset.nome || 'áudio',
+      button.dataset.audioUrl
+    );
+  });
+}
+
 function escapeHtml(valor = '') {
   return String(valor).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
 }
@@ -370,8 +467,8 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
   const safeNome = escapeHtml(d.nome || 'Documento sem nome');
   const collectionName = escapeHtml(d.collectionName || '');
   const audioHTML = d.audioUrl
-    ? `<div class="audio-player"><audio controls preload="none" aria-label="Reproduzir ${nome}"><source src="${escapeHtml(d.audioUrl)}" type="audio/mpeg"></audio></div>`
-    : '';
+    ? `<div class="compact-audio"><div class="audio-progress" hidden><span class="current-time">0:00</span><input class="progress-range" type="range" min="0" max="100" value="0" step="0.1" aria-label="Progresso de ${nome}"><span class="total-time">0:00</span></div></div>`
+    : '<span class="audio-unavailable">Sem áudio</span>';
   const collectionHTML = showCollection && collectionName
     ? `<span class="doc-collection">${collectionName}</span>`
     : '';
@@ -384,10 +481,14 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
   const adminActions = showAdminActions
     ? `<button class="btn-edit" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
     : '';
-  return `<div class="document-main"><div class="doc-info">${collectionHTML}${titleHTML}</div>${audioHTML}<div class="doc-buttons">${primaryAction}${adminActions}</div></div>`;
+  const playHTML = d.audioUrl
+    ? `<button class="compact-play-button" type="button" data-audio-url="${escapeHtml(d.audioUrl)}" data-nome="${nome}" aria-label="Reproduzir ${nome}" title="Reproduzir"><i class="fas fa-play" aria-hidden="true"></i></button>`
+    : '';
+  return `<div class="document-main"><div class="doc-info">${collectionHTML}${titleHTML}</div>${audioHTML}<div class="doc-buttons">${playHTML}${primaryAction}${adminActions}</div></div>`;
 }
 
 function renderDocumentsFiltered(docsToRender) {
+  pausarPlayerAtivo();
   const container = document.getElementById('documents-container');
   if (!container) return;
   container.innerHTML = '';
@@ -467,6 +568,7 @@ function renderDocumentsFiltered(docsToRender) {
     }
   });
 
+  conectarPlayers(container);
   updateUIBasedOnRole();
 }
 
@@ -672,6 +774,7 @@ async function performGlobalSearch(term) {
 }
 
 function renderGlobalResults(results) {
+  pausarPlayerAtivo();
   const container = document.getElementById('global-results-container');
   container.innerHTML = '';
   if (results.length === 0) {
@@ -689,6 +792,7 @@ function renderGlobalResults(results) {
     });
     container.appendChild(item);
   });
+  conectarPlayers(container);
 }
 
 function clearGlobalSearch() {
