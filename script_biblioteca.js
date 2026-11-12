@@ -149,14 +149,16 @@ document.addEventListener('click', (e) => {
 function checkUserAuth() {
   const usuarioLogado = localStorage.getItem("usuarioAtual");
   const roleSelector = document.getElementById('user-role');
+  // O modo aluno é sempre a visualização inicial. Usuários classificados
+  // continuam podendo alternar para professor pelo seletor, mas nunca entram
+  // automaticamente no modo de edição.
+  userRole = 'student';
   if (usuarioLogado) {
     try {
       const user = JSON.parse(usuarioLogado);
       if (user.classificado === true) {
-        userRole = 'teacher';
-        if (roleSelector) { roleSelector.style.display = 'block'; roleSelector.value = 'teacher'; }
+        if (roleSelector) { roleSelector.style.display = 'block'; roleSelector.value = 'student'; }
       } else {
-        userRole = 'student';
         if (roleSelector) roleSelector.style.display = 'none';
       }
     } catch (e) {
