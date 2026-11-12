@@ -920,12 +920,13 @@
       const energiaGeral  = aluno.energiaAnual ?? 0;
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
+      const nomeExibicao  = escapeHtml(primeiroNomeAluno(aluno.nome));
       return `
         <div class="card-social card-fase1" onclick="window.location.href='aluno.html?id=${encodeURIComponent(aluno.id)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
             <div class="info-principal">
-              <div class="nome-aluno">${aluno.nome}</div>
+              <div class="nome-aluno">${nomeExibicao}</div>
               <span class="badge-fase fase1">Fase 1</span>
             </div>
           </div>
@@ -950,12 +951,13 @@
       const leitura       = aluno.leitura ?? 0;
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
+      const nomeExibicao  = escapeHtml(primeiroNomeAluno(aluno.nome));
       return `
         <div class="card-social card-fase2" onclick="window.location.href='aluno.html?id=${encodeURIComponent(aluno.id)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
             <div class="info-principal">
-              <div class="nome-aluno">${aluno.nome}</div>
+              <div class="nome-aluno">${nomeExibicao}</div>
               <span class="badge-fase fase2">Fase 2</span>
             </div>
           </div>
@@ -984,12 +986,13 @@
       const total         = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
+      const nomeExibicao  = escapeHtml(primeiroNomeAluno(aluno.nome));
       return `
         <div class="card-social" onclick="window.location.href='aluno.html?id=${encodeURIComponent(aluno.id)}&view=public'">
           <div class="topo-card">
             <div class="foto-social">${aluno.foto ? `<img src="${aluno.foto}" alt="${aluno.nome}">` : ""}</div>
             <div class="info-principal">
-              <div class="nome-aluno">${aluno.nome}</div>
+              <div class="nome-aluno">${nomeExibicao}</div>
               <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
               ${!aluno._isCoralView && aluno._coralVoz ? `<span class="atividade-extra">🎶 KADOSH · ${escapeHtml(aluno._coralVoz)}</span>` : ""}
             </div>
@@ -1139,6 +1142,9 @@
     function nomeInicialAluno(nome) {
       return String(nome || "?").split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join("").toUpperCase();
     }
+    function primeiroNomeAluno(nome) {
+      return String(nome || "Aluno").trim().split(/\s+/).filter(Boolean)[0] || "Aluno";
+    }
     function nivelCompacto(aluno) {
       if (aluno.nivel != null && aluno.nivel !== "") return aluno.nivel;
       return (Number(aluno.leitura) || 0) + (Number(aluno.metodo) || 0);
@@ -1146,7 +1152,7 @@
     function htmlCardCompacto(aluno) {
       const coral = Boolean(aluno._isCoralView);
       const instrumento = coral ? (vozCoralAluno(aluno) || aluno.instrumento || "Voz não definida") : (aluno.instrumento || "Instrumento não definido");
-      const nome = escapeHtml(aluno.nome || "Aluno");
+      const nome = escapeHtml(primeiroNomeAluno(aluno.nome));
       const foto = aluno.foto ? `<img src="${aluno.foto}" alt="${nome}" loading="lazy">` : `<span>${nomeInicialAluno(aluno.nome)}</span>`;
       return `<article class="mosaico-card ${coral ? "mosaico-coral" : ""}" tabindex="0" role="link" aria-label="Abrir perfil de ${nome}" onclick="abrirPerfilMosaico('${encodeURIComponent(aluno.id)}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); abrirPerfilMosaico('${encodeURIComponent(aluno.id)}'); }">
         <div class="mosaico-foto">${foto}</div>
