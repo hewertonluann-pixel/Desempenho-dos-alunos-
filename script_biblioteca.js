@@ -473,16 +473,12 @@ function escapeHtml(valor = '') {
   return String(valor).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
 }
 
-function renderCompactDocument(d, { collectionId = currentCollectionId, modoPartes = currentColModoPartes, showCollection = false, showAdminActions = true } = {}) {
+function renderCompactDocument(d, { collectionId = currentCollectionId, modoPartes = currentColModoPartes, showAdminActions = true } = {}) {
   const nome = escapeHtml(d.nome || 'Documento sem nome');
   const safeNome = escapeHtml(d.nome || 'Documento sem nome');
-  const collectionName = escapeHtml(d.collectionName || '');
   const audioHTML = d.audioUrl
     ? `<div class="compact-audio"><div class="audio-progress" hidden><span class="current-time">0:00</span><input class="progress-range" type="range" min="0" max="100" value="0" step="0.1" aria-label="Progresso de ${nome}"><span class="total-time">0:00</span></div></div>`
     : '<span class="audio-unavailable">Sem áudio</span>';
-  const collectionHTML = showCollection && collectionName
-    ? `<span class="doc-collection">${collectionName}</span>`
-    : '';
   const titleHTML = modoPartes
     ? `<div class="doc-name doc-name-link" onclick="abrirPartes('${escapeHtml(collectionId)}', '${escapeHtml(d.id)}')" title="Ver partes">${nome}</div>`
     : `<div class="doc-name">${nome}</div>`;
@@ -495,7 +491,7 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
   const playHTML = d.audioUrl
     ? `<button class="compact-play-button" type="button" data-audio-url="${escapeHtml(d.audioUrl)}" data-nome="${nome}" aria-label="Reproduzir ${nome}" title="Reproduzir"><i class="fas fa-play" aria-hidden="true"></i></button>`
     : '';
-  return `<div class="document-main"><div class="doc-info">${collectionHTML}${titleHTML}</div>${audioHTML}<div class="doc-buttons">${playHTML}${primaryAction}${adminActions}</div></div>`;
+  return `<div class="document-main"><div class="doc-info">${titleHTML}</div><div class="doc-buttons">${playHTML}${primaryAction}${adminActions}</div>${audioHTML}</div>`;
 }
 
 function renderDocumentsFiltered(docsToRender) {
@@ -798,7 +794,6 @@ function renderGlobalResults(results) {
     item.innerHTML = renderCompactDocument(d, {
       collectionId: d.collectionId,
       modoPartes: d.modoPartes,
-      showCollection: true,
       showAdminActions: false
     });
     container.appendChild(item);
