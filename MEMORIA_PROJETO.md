@@ -758,3 +758,7 @@ A lista de documentos e os resultados da busca global passaram a usar um player 
 
 ### 2026-11-12 — Etapa 3: refinamento do player compacto
 O player passou a preservar a posição quando pausado, permitindo retomar a mesma música sem reiniciar. Ao pausar, o botão muda para Retomar e a trilha de progresso é ocultada; ao retomar, ela reaparece. A troca de documento continua encerrando e reiniciando o player anterior. Foram adicionados estados de foco visíveis para teclado no botão e na barra, além da atualização da versão do script para evitar cache antigo.
+
+
+### 2026-11-12 — Player coerente na página Partes
+O player de áudio de `partes.html` deixou de usar o controle nativo visível e passou a usar a mesma linguagem visual compacta da Biblioteca: botão circular de reprodução/pausa, nome do documento, tempo atual, duração e barra de progresso com busca. Nesta página, a barra permanece visível o tempo todo enquanto o áudio está disponível. O elemento de áudio nativo continua presente apenas como mecanismo de reprodução, oculto visualmente, e o cache do script foi atualizado.

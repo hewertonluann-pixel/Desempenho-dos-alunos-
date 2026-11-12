@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   configurarBarraProfessor();
   configurarModal();
   configurarVisualizador();
+  configurarPlayerAudio();
   await carregarDocumento();
 });
 
@@ -153,6 +154,57 @@ function atualizarBarraProfessor() {
 function atualizarDownloadCompleto() {
   const bloco = document.getElementById('download-completo');
   if (bloco) bloco.style.display = userRole === 'teacher' ? 'flex' : 'none';
+}
+
+function formatarTempoAudio(segundos) {
+  if (!Number.isFinite(segundos) || segundos < 0) return '0:00';
+  const minutos = Math.floor(segundos / 60);
+  const segundosRestantes = Math.floor(segundos % 60).toString().padStart(2, '0');
+  return `${minutos}:${segundosRestantes}`;
+}
+
+function configurarPlayerAudio() {
+  const audio = document.getElementById('audio-player');
+  const playButton = document.getElementById('audio-play-button');
+  const progress = document.getElementById('audio-progress-range');
+  const currentTime = document.getElementById('audio-current-time');
+  const totalTime = document.getElementById('audio-total-time');
+  if (!audio || !playButton || !progress || !currentTime || !totalTime) return;
+
+  const atualizarBotao = (tocando) => {
+    playButton.innerHTML = tocando
+      ? '<i class="fas fa-pause" aria-hidden="true"></i>'
+      : '<i class="fas fa-play" aria-hidden="true"></i>';
+    playButton.setAttribute('aria-label', `${tocando ? 'Pausar' : 'Reproduzir'} áudio`);
+    playButton.title = tocando ? 'Pausar' : 'Reproduzir';
+  };
+
+  playButton.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().catch(() => { playButton.title = 'Não foi possível reproduzir o áudio'; });
+    } else {
+      audio.pause();
+    }
+  });
+  audio.addEventListener('play', () => atualizarBotao(true));
+  audio.addEventListener('pause', () => atualizarBotao(false));
+  audio.addEventListener('loadedmetadata', () => {
+    totalTime.textContent = formatarTempoAudio(audio.duration);
+  });
+  audio.addEventListener('timeupdate', () => {
+    if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+    progress.value = String((audio.currentTime / audio.duration) * 100);
+    currentTime.textContent = formatarTempoAudio(audio.currentTime);
+  });
+  audio.addEventListener('ended', () => {
+    progress.value = '0';
+    currentTime.textContent = '0:00';
+    atualizarBotao(false);
+  });
+  progress.addEventListener('input', () => {
+    if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+    audio.currentTime = (Number(progress.value) / 100) * audio.duration;
+  });
 }
 
 async function reprocessarGrupos() {
@@ -483,6 +535,8 @@ async function carregarDocumento() {
     pdfUrl  = data.url;
     nomePdf = data.nome;
     document.getElementById('doc-titulo').textContent = '🎵 ' + nomePdf;
+    const audioTitle = document.getElementById('audio-player-title');
+    if (audioTitle) audioTitle.textContent = nomePdf;
     document.title = nomePdf + ' — Biblioteca';
     document.getElementById('btn-voltar').href = 'biblioteca.html';
     if (data.audioUrl) {
