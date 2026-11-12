@@ -51,7 +51,6 @@ const CATALOGO_INSTRUMENTOS = [
 
 const TERMOS_GRADE = [
   'grade',
-  'partitura geral',
   'full score',
   'orchestral score',
   'conductor score'
@@ -59,7 +58,7 @@ const TERMOS_GRADE = [
 
 // Incrementar quando o catálogo ou a regra de agrupamento mudar. Rótulos
 // salvos com versão anterior serão reprocessados automaticamente em memória.
-const ALGORITMO_RECONHECIMENTO_VERSAO = 6;
+const ALGORITMO_RECONHECIMENTO_VERSAO = 7;
 
 // ── Estado global ────────────────────────────────────────────────────────────
 let pdfJsLib  = null;
@@ -963,7 +962,7 @@ function criarCardAluno(grupo, idx) {
 
   const ehGrade = grupo.tipo === 'grade' || normalizarTexto(grupo.nome).startsWith('grade');
   const badgeTipo = ehGrade
-    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">Partitura geral</small>'
+    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">GRADE</small>'
     : '';
 
   // FIX: sem onclick inline (scripts ES module não expõem ao escopo global via onclick)
@@ -1005,7 +1004,7 @@ function criarCardProfessor(grupo, idx) {
 
   const ehGrade = grupo.tipo === 'grade' || normalizarTexto(grupo.nome).startsWith('grade');
   const badgeTipo = ehGrade
-    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">Partitura geral</small>'
+    ? '<small style="display:inline-flex;margin-left:6px;padding:3px 7px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">GRADE</small>'
     : '';
   const thumbsHTML = grupo.paginas.map(numPag => `
     <div class="grupo-mini-wrap">
