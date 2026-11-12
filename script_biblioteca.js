@@ -473,8 +473,12 @@ function escapeHtml(valor = '') {
   return String(valor).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
 }
 
+function nomeDocumentoExibicao(nome = '') {
+  return String(nome).replace(/\.pdf$/i, '');
+}
+
 function renderCompactDocument(d, { collectionId = currentCollectionId, modoPartes = currentColModoPartes, showAdminActions = true } = {}) {
-  const nome = escapeHtml(d.nome || 'Documento sem nome');
+  const nome = escapeHtml(nomeDocumentoExibicao(d.nome || 'Documento sem nome'));
   const safeNome = escapeHtml(d.nome || 'Documento sem nome');
   const audioHTML = d.audioUrl
     ? `<div class="compact-audio"><div class="audio-progress" hidden><span class="current-time">0:00</span><input class="progress-range" type="range" min="0" max="100" value="0" step="0.1" aria-label="Progresso de ${nome}"><span class="total-time">0:00</span></div></div>`
@@ -515,6 +519,7 @@ function renderDocumentsFiltered(docsToRender) {
     const item = document.createElement('div');
     item.className = 'document-item';
     const safeNome = d.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const nomeExibicao = escapeHtml(nomeDocumentoExibicao(d.nome || 'Documento sem nome'));
 
     if (currentView === 'grid') {
 
@@ -528,7 +533,7 @@ function renderDocumentsFiltered(docsToRender) {
             </div>
           </div>
           <div class="doc-grid-info">
-            <div class="doc-name" title="${safeNome}">${d.nome}</div>
+            <div class="doc-name" title="${nomeExibicao}">${nomeExibicao}</div>
             <div class="doc-buttons">
               <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.72rem;font-weight:700;width:100%;"
                 onclick="abrirPartes('${currentCollectionId}', '${d.id}')">Partes</button>
@@ -554,7 +559,7 @@ function renderDocumentsFiltered(docsToRender) {
             </div>
           </div>
           <div class="doc-grid-info">
-            <div class="doc-name" title="${safeNome}">${d.nome}</div>
+            <div class="doc-name" title="${nomeExibicao}">${nomeExibicao}</div>
             <div class="doc-buttons">
               <a class="btn-download" href="${d.url}" target="_blank"
                 style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;display:block;text-align:center;font-size:0.72rem;font-weight:700;width:100%;"
