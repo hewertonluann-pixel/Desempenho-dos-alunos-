@@ -361,6 +361,32 @@ function abrirPartes(colId, docId) {
   window.location.href = `partes.html?col=${colId}&doc=${docId}`;
 }
 
+function escapeHtml(valor = '') {
+  return String(valor).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+}
+
+function renderCompactDocument(d, { collectionId = currentCollectionId, modoPartes = currentColModoPartes, showCollection = false, showAdminActions = true } = {}) {
+  const nome = escapeHtml(d.nome || 'Documento sem nome');
+  const safeNome = escapeHtml(d.nome || 'Documento sem nome');
+  const collectionName = escapeHtml(d.collectionName || '');
+  const audioHTML = d.audioUrl
+    ? `<div class="audio-player"><audio controls preload="none" aria-label="Reproduzir ${nome}"><source src="${escapeHtml(d.audioUrl)}" type="audio/mpeg"></audio></div>`
+    : '';
+  const collectionHTML = showCollection && collectionName
+    ? `<span class="doc-collection">${collectionName}</span>`
+    : '';
+  const titleHTML = modoPartes
+    ? `<div class="doc-name doc-name-link" onclick="abrirPartes('${escapeHtml(collectionId)}', '${escapeHtml(d.id)}')" title="Ver partes">${nome}</div>`
+    : `<div class="doc-name">${nome}</div>`;
+  const primaryAction = modoPartes
+    ? `<button class="btn-download btn-parts" onclick="abrirPartes('${escapeHtml(collectionId)}', '${escapeHtml(d.id)}')">🎼 Ver Partes</button>${userRole === 'teacher' ? `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}`
+    : `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>`;
+  const adminActions = showAdminActions
+    ? `<button class="btn-edit" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
+    : '';
+  return `<div class="document-main"><div class="doc-info">${collectionHTML}${titleHTML}</div>${audioHTML}<div class="doc-buttons">${primaryAction}${adminActions}</div></div>`;
+}
+
 function renderDocumentsFiltered(docsToRender) {
   const container = document.getElementById('documents-container');
   if (!container) return;
@@ -435,40 +461,8 @@ function renderDocumentsFiltered(docsToRender) {
       }
 
     } else {
-      // ── Lista ──────────────────────────────────────────────────────────
-      let audioHTML = d.audioUrl
-        ? `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>`
-        : '';
-
-      if (currentColModoPartes) {
-        item.innerHTML = `
-          <div class="doc-name" style="cursor:pointer;" onclick="abrirPartes('${currentCollectionId}', '${d.id}')" title="Ver partes">
-            ${d.nome}
-          </div>
-          ${audioHTML}
-          <div class="doc-buttons">
-            <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:0.85rem;font-weight:700;"
-              onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
-            ${userRole === 'teacher' ? `<a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}
-            <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
-            <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-            </button>
-          </div>`;
-      } else {
-        item.innerHTML = `
-          <div class="doc-name">${d.nome}</div>
-          ${audioHTML}
-          <div class="doc-buttons">
-            <a class="btn-download" href="${d.url}" target="_blank"
-              style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:0.85rem;font-weight:700;text-align:center;"
-              data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
-            <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
-            <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-            </button>
-          </div>`;
-      }
+      // ── Lista compacta compartilhada com a busca global ────────────────
+      item.innerHTML = renderCompactDocument(d);
       container.appendChild(item);
     }
   });
@@ -687,34 +681,12 @@ function renderGlobalResults(results) {
   results.forEach(d => {
     const item = document.createElement('div');
     item.className = 'document-item';
-    let audioHTML = d.audioUrl
-      ? `<div class="audio-player"><audio controls><source src="${d.audioUrl}" type="audio/mpeg"></audio></div>` : '';
-    const safeNome = d.nome.replace(/"/g, '&quot;');
-
-    if (d.modoPartes) {
-      item.innerHTML = `
-        <div class="doc-info" style="flex:1; cursor:pointer;" onclick="window.location.href='partes.html?col=${d.collectionId}&doc=${d.id}'">
-          <span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:2px;">${d.collectionName}</span>
-          <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome}</div>
-        </div>
-        ${audioHTML}
-        <div class="doc-buttons">
-          <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-size:0.85rem;font-weight:700;" onclick="abrirPartes('${d.collectionId}', '${d.id}')">🎼 Ver Partes</button>
-          ${userRole === 'teacher' ? `<a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}
-        </div>`;
-    } else {
-      item.innerHTML = `
-        <div class="doc-info" style="flex:1;">
-          <span style="font-size:0.75rem;color:var(--muted);display:block;margin-bottom:2px;">${d.collectionName}</span>
-          <div class="doc-name" style="text-align:left;font-size:1rem;">${d.nome}</div>
-        </div>
-        ${audioHTML}
-        <div class="doc-buttons">
-          <a class="btn-download" href="${d.url}" target="_blank"
-            style="background:var(--azul);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:0.85rem;font-weight:700;text-align:center;"
-            data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
-        </div>`;
-    }
+    item.innerHTML = renderCompactDocument(d, {
+      collectionId: d.collectionId,
+      modoPartes: d.modoPartes,
+      showCollection: true,
+      showAdminActions: false
+    });
     container.appendChild(item);
   });
 }

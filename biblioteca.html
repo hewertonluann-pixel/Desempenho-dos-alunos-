@@ -500,6 +500,9 @@
             .documents-list .doc-buttons { margin-left: 0; }
             .documents-list .doc-buttons .btn-download { min-width: 0; padding: 9px 10px; border-radius: 11px; font-size: .76rem; }
         }
+        /* Etapa 1: estrutura interna compartilhada com a busca global. */
+        .document-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,250px) auto;align-items:center;gap:14px;width:100%;min-width:0}.document-main .doc-info{min-width:0}.document-main .doc-name{text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.document-main .doc-name-link{cursor:pointer}.document-main .doc-name-link:hover{color:var(--azul)}.document-main .doc-collection{display:block;margin-bottom:3px;color:var(--muted);font-size:.72rem;line-height:1.2}.document-main .audio-player{min-width:0;max-width:none;margin:0}.document-main .doc-buttons{justify-content:flex-end;gap:8px;flex-wrap:nowrap}.document-main .btn-download{font-size:.78rem;padding:7px 10px}
+        @media(max-width:800px){.document-main{grid-template-columns:minmax(0,1fr) auto;gap:8px 10px}.document-main .audio-player{grid-column:1 / -1;grid-row:2}.document-main .doc-buttons{grid-column:2;grid-row:1}.document-main .btn-download{font-size:.74rem;padding:7px 8px}.document-main .btn-edit{display:none}}
     </style>
 </head>
 <body>
