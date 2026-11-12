@@ -103,86 +103,26 @@
         .search-box button { background: var(--azul-escuro); color: var(--azul); border: 1px solid var(--border); border-radius: 12px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.5rem; font-weight: 700; transition: all 0.2s ease; flex-shrink: 0; }
         .search-box button:hover { background: var(--vermelho); color: white; border-color: var(--vermelho); transform: scale(1.1); }
 
-        .collections-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: 13px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
         .collection-card {
-            display: grid;
-            grid-template-columns: 54px minmax(0, 1fr) auto;
-            align-items: center;
-            gap: 17px;
-            min-height: 94px;
-            padding: 14px 17px;
-            background: linear-gradient(115deg, rgba(17,29,48,.98), rgba(13,22,38,.98));
-            border: 1px solid #263c5c;
-            border-radius: 21px;
-            text-align: left;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
             cursor: pointer;
-            transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 7px 20px rgba(0,0,0,.12);
         }
-        .collection-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 12px;
-            bottom: 12px;
-            width: 4px;
-            border-radius: 0 5px 5px 0;
-            background: linear-gradient(180deg, #48b8ff, #1689e8);
-        }
-        .collection-card:hover {
-            transform: translateY(-1px);
-            border-color: #3d6595;
-            box-shadow: 0 10px 25px rgba(0,0,0,.28);
-        }
-        .collection-card h3 {
-            min-width: 0;
-            overflow: hidden;
-            margin: 0;
-            color: #f4f7ff;
-            font-size: clamp(1rem, 2.2vw, 1.25rem);
-            line-height: 1.2;
-            letter-spacing: -.025em;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-        .collection-card p { color: #9aaccb; font-size: .88rem; margin: 5px 0 0; }
-        .collection-card .file-count { color: #9aaccb; font-weight: 500; font-size: .88rem; margin: 5px 0 0; }
-        .collection-card .tap-hint {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            margin: 0;
-            padding: 11px 15px;
-            border: 1px solid #43a9ff;
-            border-radius: 14px;
-            color: #fff;
-            background: linear-gradient(180deg, #299cf7, #1269cf);
-            box-shadow: inset 0 1px rgba(255,255,255,.2), 0 5px 13px rgba(0,91,190,.18);
-            font-style: normal;
-            font-size: .82rem;
-            font-weight: 750;
-            white-space: nowrap;
-        }
-        .collection-card .tap-hint::after { content: '›'; font-size: 1.35rem; line-height: .7; }
-        .icon-folder {
-            display: grid;
-            place-items: center;
-            width: 50px;
-            height: 56px;
-            color: #eaf3ff;
-            font-size: 2.45rem;
-            filter: drop-shadow(0 3px 5px rgba(0,0,0,.25));
-        }
-        .collection-info { min-width: 0; }
+        .collection-card:hover { transform: translateY(-5px); border-color: var(--azul); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .collection-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--azul); opacity: 0.5; }
+        .collection-card h3 { margin: 15px 0 10px; color: var(--azul); font-size: 1.4rem; }
+        .collection-card p { color: var(--muted); font-size: 0.85rem; margin: 0; }
+        .collection-card .file-count { color: var(--azul); font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; }
+        .collection-card .tap-hint { font-style: italic; opacity: 0.8; }
+        .icon-folder { font-size: 3rem; display: block; margin-bottom: 10px; }
 
         /* Toggle modo partes no card da coleção */
         .modo-partes-toggle {
@@ -476,12 +416,12 @@
             .global-search-container { width: 100%; }
         }
         @media (max-width: 600px) {
-            .collections-grid { gap: 9px; }
-            .collection-card { grid-template-columns: 42px minmax(0, 1fr) auto; gap: 10px; min-height: 76px; padding: 10px 9px 10px 13px; border-radius: 15px; }
-            .collection-card h3 { font-size: .92rem; }
-            .collection-card p, .collection-card .file-count { font-size: .76rem; }
-            .collection-card .tap-hint { padding: 9px 10px; border-radius: 11px; font-size: .74rem; }
-            .icon-folder { width: 40px; height: 48px; font-size: 2rem; }
+            .collections-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+            .collection-card { padding: 14px 8px; border-radius: 12px; }
+            .collection-card h3 { margin: 8px 0 6px; font-size: 1rem; line-height: 1.2; }
+            .collection-card p { font-size: 0.72rem; line-height: 1.35; }
+            .collection-card .file-count { font-size: 0.76rem; }
+            .icon-folder { font-size: 2.1rem; margin-bottom: 4px; }
             .upload-controls { flex-direction: column; align-items: stretch; }
             .new-col-input { max-width: none; }
             .search-sort-controls { flex-direction: column; align-items: stretch; }
@@ -490,6 +430,75 @@
             .audio-player, audio { max-width: 100%; min-width: 150px; }
             .modal-content { padding: 15px; }
             .documents-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
+
+        /* Visual do mockup aplicado somente aos PDFs dentro de uma coleção. */
+        .documents-list .document-item {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px 17px;
+            min-height: 94px;
+            padding: 14px 17px;
+            border: 1px solid #263c5c;
+            border-radius: 21px;
+            background: linear-gradient(115deg, rgba(17,29,48,.98), rgba(13,22,38,.98));
+            box-shadow: 0 7px 20px rgba(0,0,0,.12);
+        }
+        .documents-list .document-item::before {
+            content: '📄';
+            flex: 0 0 50px;
+            display: grid;
+            place-items: center;
+            width: 50px;
+            height: 56px;
+            font-size: 2.35rem;
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,.25));
+        }
+        .documents-list .doc-name,
+        .documents-list .doc-info {
+            flex: 1 1 180px;
+            min-width: 0;
+            text-align: left;
+        }
+        .documents-list .doc-name {
+            overflow: hidden;
+            color: #f4f7ff;
+            font-size: clamp(.98rem, 2.2vw, 1.18rem);
+            font-weight: 750;
+            letter-spacing: -.025em;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .documents-list .audio-player { flex: 0 1 220px; margin: 0; }
+        .documents-list .doc-buttons {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-left: auto;
+        }
+        .documents-list .doc-buttons .btn-download {
+            min-width: 132px;
+            padding: 11px 15px;
+            border: 1px solid #43a9ff;
+            border-radius: 14px;
+            color: #fff;
+            background: linear-gradient(180deg, #299cf7, #1269cf);
+            box-shadow: inset 0 1px rgba(255,255,255,.2), 0 5px 13px rgba(0,91,190,.18);
+            font-weight: 750;
+            text-align: center;
+        }
+        .documents-list .doc-buttons .btn-download:hover { filter: brightness(1.1); }
+        @media (max-width: 600px) {
+            .documents-list .document-item { gap: 8px 10px; min-height: 76px; padding: 10px 9px 10px 13px; border-radius: 15px; }
+            .documents-list .document-item::before { flex-basis: 38px; width: 38px; height: 46px; font-size: 1.9rem; }
+            .documents-list .doc-name, .documents-list .doc-info { flex-basis: calc(100% - 108px); }
+            .documents-list .audio-player { order: 4; flex-basis: 100%; max-width: none; }
+            .documents-list .doc-buttons { margin-left: 0; }
+            .documents-list .doc-buttons .btn-download { min-width: 0; padding: 9px 10px; border-radius: 11px; font-size: .76rem; }
         }
     </style>
 </head>
@@ -644,7 +653,7 @@
     </nav>
 
     <script src="loader.js"></script>
-    <script type="module" src="script_biblioteca.js?v=folders-lista-mockup-20261112"></script>
+    <script type="module" src="script_biblioteca.js?v=pdf-lista-mockup-20261112"></script>
     <script type="module" src="navegacao.js"></script>
     <script type="module" src="bottom-nav.js"></script>
 </body>
