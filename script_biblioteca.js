@@ -480,10 +480,13 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
     ? `<div class="compact-audio"><div class="audio-progress" hidden><span class="current-time">0:00</span><input class="progress-range" type="range" min="0" max="100" value="0" step="0.1" aria-label="Progresso de ${nome}"><span class="total-time">0:00</span></div></div>`
     : '<span class="audio-unavailable">Sem áudio</span>';
   const titleHTML = modoPartes
-    ? `<div class="doc-name doc-name-link" onclick="abrirPartes('${escapeHtml(collectionId)}', '${escapeHtml(d.id)}')" title="Ver partes">${nome}</div>`
+    ? `<div class="doc-name doc-name-link" onclick="abrirPartes('${escapeHtml(collectionId)}', '${escapeHtml(d.id)}')" title="Partes">${nome}</div>`
     : `<div class="doc-name">${nome}</div>`;
-  const primaryAction = modoPartes
-    ? `<button class="btn-download btn-parts" onclick="abrirPartes('${escapeHtml(collectionId)}', '${escapeHtml(d.id)}')">🎼 Ver Partes</button>${userRole === 'teacher' ? `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}`
+  const partsAction = modoPartes
+    ? `<button class="btn-parts" onclick="abrirPartes('${escapeHtml(collectionId)}', '${escapeHtml(d.id)}')">Partes</button>`
+    : '';
+  const documentAction = modoPartes
+    ? (userRole === 'teacher' ? `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : '')
     : `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>`;
   const adminActions = showAdminActions
     ? `<button class="btn-edit" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
@@ -491,7 +494,7 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
   const playHTML = d.audioUrl
     ? `<button class="compact-play-button" type="button" data-audio-url="${escapeHtml(d.audioUrl)}" data-nome="${nome}" aria-label="Reproduzir ${nome}" title="Reproduzir"><i class="fas fa-play" aria-hidden="true"></i></button>`
     : '';
-  return `<div class="document-main"><div class="doc-info">${titleHTML}</div><div class="doc-buttons">${playHTML}${primaryAction}${adminActions}</div>${audioHTML}</div>`;
+  return `<div class="document-main"><div class="document-header-row">${playHTML}<div class="doc-info">${titleHTML}</div>${partsAction}</div><div class="doc-buttons">${documentAction}${adminActions}</div>${audioHTML}</div>`;
 }
 
 function renderDocumentsFiltered(docsToRender) {
@@ -528,7 +531,7 @@ function renderDocumentsFiltered(docsToRender) {
             <div class="doc-name" title="${safeNome}">${d.nome}</div>
             <div class="doc-buttons">
               <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.72rem;font-weight:700;width:100%;"
-                onclick="abrirPartes('${currentCollectionId}', '${d.id}')">🎼 Ver Partes</button>
+                onclick="abrirPartes('${currentCollectionId}', '${d.id}')">Partes</button>
               ${userRole === 'teacher' ? `<a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}
               <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
               <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
