@@ -1,7 +1,7 @@
 // script_partes.js
 import { db } from './firebase-config.js';
 import {
-  doc, getDoc, setDoc, addDoc, collection, Timestamp
+  doc, getDoc, setDoc, addDoc, collection, Timestamp, updateDoc
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
@@ -75,6 +75,7 @@ let grupos = [];
 let totalPaginas = 0;
 let gruposModificados = false;
 let documentoCarregado = false;
+let youtubeParts = {};
 
 // Cache separado por chave "pagina_dpr_altura" para não misturar resoluções
 const pageCache = {};
@@ -87,6 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderRoleBadge();
   configurarBarraProfessor();
   configurarModal();
+  configurarModalYoutubeGrupo();
   configurarVisualizador();
   configurarPlayerAudio();
   await carregarDocumento();
@@ -210,7 +212,7 @@ function configurarPlayerAudio() {
 async function reprocessarGrupos() {
   if (userRole !== 'teacher' || !pdfDoc) return;
   const btn = document.getElementById('btn-reprocessar-grupos');
-  if (!window.confirm('Reprocessar todas as páginas com o algoritmo atualizado? Os rótulos atuais serão substituídos em memória. Clique em “Salvar Tudo” para confirmar.')) return;
+  if (!window.confirm('Reprocessar todas as páginas com o algoritmo atualizado? Os rótulos atuais serão substituídos em memória. Os vídeos são preservados quando o grupo pode ser associado pelo nome ou pelas páginas. Clique em “Salvar Tudo” para confirmar.')) return;
 
   const textoOriginal = btn?.innerHTML;
   try {
@@ -218,7 +220,7 @@ async function reprocessarGrupos() {
       btn.disabled = true;
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
     }
-    grupos = await algoritmoVarredura();
+    grupos = preservarLinksYoutube(grupos, await algoritmoVarredura());
     marcarModificado();
     renderizarGrupos();
   } catch (e) {
@@ -248,6 +250,35 @@ function configurarModal() {
     .addEventListener('click', fecharModal);
   document.getElementById('modal-seletor-overlay')
     .addEventListener('click', fecharModal);
+}
+
+let modalYoutubeGrupoIdx = null;
+let focoRetornoYoutubeGrupo = null;
+
+function configurarModalYoutubeGrupo() {
+  document.getElementById('youtube-grupo-close').addEventListener('click', fecharModalYoutubeGrupo);
+  document.getElementById('youtube-grupo-cancel').addEventListener('click', fecharModalYoutubeGrupo);
+  document.getElementById('youtube-grupo-overlay').addEventListener('click', fecharModalYoutubeGrupo);
+  document.getElementById('youtube-grupo-save').addEventListener('click', salvarYoutubeGrupo);
+  document.getElementById('youtube-grupo-remove').addEventListener('click', removerYoutubeGrupo);
+  document.addEventListener('keydown', event => {
+    const modal = document.getElementById('youtube-grupo-modal');
+    if (!modal.classList.contains('aberto')) return;
+    if (event.key === 'Escape') { fecharModalYoutubeGrupo(); return; }
+    if (event.key !== 'Tab') return;
+    const focaveis = [...modal.querySelectorAll('button:not(:disabled):not([hidden]), input:not(:disabled), [href], [tabindex]:not([tabindex="-1"])')]
+      .filter(elemento => elemento.getClientRects().length > 0);
+    if (!focaveis.length) return;
+    const primeiro = focaveis[0];
+    const ultimo = focaveis[focaveis.length - 1];
+    if (event.shiftKey && (document.activeElement === primeiro || !modal.contains(document.activeElement))) {
+      event.preventDefault();
+      ultimo.focus();
+    } else if (!event.shiftKey && (document.activeElement === ultimo || !modal.contains(document.activeElement))) {
+      event.preventDefault();
+      primeiro.focus();
+    }
+  });
 }
 
 function abrirSeletorPaginas(idxGrupo) {
@@ -534,6 +565,7 @@ async function carregarDocumento() {
     const data = snap.data();
     pdfUrl  = data.url;
     nomePdf = data.nome;
+    youtubeParts = data.youtubeParts && typeof data.youtubeParts === 'object' ? data.youtubeParts : {};
     document.getElementById('doc-titulo').textContent = '🎵 ' + nomePdf;
     const audioTitle = document.getElementById('audio-player-title');
     if (audioTitle) audioTitle.textContent = nomePdf;
@@ -550,6 +582,7 @@ async function carregarDocumento() {
     atualizarDownloadCompleto();
     await inicializarPdf();
     await carregarGrupos();
+    grupos = anexarLinksYoutube(grupos);
     documentoCarregado = true;
     renderizarGrupos();
   } catch (err) {
@@ -575,6 +608,7 @@ async function carregarGrupos() {
     const snap = await getDoc(rotuloRef);
     if (snap.exists()) {
       const data = snap.data();
+      const gruposAnteriores = Array.isArray(data.grupos) ? data.grupos : [];
       const versaoSalva = Number(data.algoritmoVersao || 0);
       const precisaReprocessar = versaoSalva < ALGORITMO_RECONHECIMENTO_VERSAO;
 
@@ -591,7 +625,7 @@ async function carregarGrupos() {
 
       // Rótulos antigos são mantidos no Firestore até o professor confirmar
       // o resultado, mas não bloqueiam mais o algoritmo atualizado.
-      grupos = await algoritmoVarredura();
+      grupos = preservarLinksYoutube(gruposAnteriores, await algoritmoVarredura());
       marcarModificado();
       return;
     }
@@ -622,6 +656,200 @@ function normalizarTexto(valor = '') {
     .replace(/[^a-z0-9]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function validarUrlYoutube(valor) {
+  const texto = String(valor || '').trim();
+  if (!texto) return null;
+  const entrada = /^https?:\/\//i.test(texto) ? texto : `https://${texto.replace(/^\/\//, '')}`;
+  let url;
+  try { url = new URL(entrada); } catch { throw new Error('Cole um link válido do YouTube.'); }
+  const host = url.hostname.toLowerCase().replace(/^www\./, '');
+  const hostsPermitidos = ['youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be', 'youtube-nocookie.com'];
+  if (!hostsPermitidos.includes(host) || url.username || url.password) throw new Error('O endereço precisa ser de youtube.com ou youtu.be.');
+  const caminho = url.pathname;
+  const idValido = /^[A-Za-z0-9_-]{6,}$/;
+  const segmentos = caminho.split('/').filter(Boolean);
+  const idCurto = host === 'youtu.be' && segmentos.length === 1 && idValido.test(segmentos[0]);
+  const idVideo = (caminho === '/watch' && idValido.test(url.searchParams.get('v') || ''))
+    || /^\/(?:shorts|embed|live|v)\/([A-Za-z0-9_-]{6,})\/?$/.test(caminho)
+    || /^\/clip\/([A-Za-z0-9_-]{6,})\/?$/.test(caminho);
+  const idPlaylist = caminho === '/playlist' && idValido.test(url.searchParams.get('list') || '');
+  if (!idCurto && !idVideo && !idPlaylist) throw new Error('Use o link direto do vídeo ou da playlist do YouTube.');
+  url.protocol = 'https:';
+  return url.toString();
+}
+
+function obterUrlYoutube(valor) {
+  try { return validarUrlYoutube(valor) || ''; } catch { return ''; }
+}
+
+function escaparHtmlPartes(valor = '') {
+  return String(valor).replace(/[&<>"']/g, caractere => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[caractere]));
+}
+
+function criarChaveYoutubeGrupo(grupo) {
+  const nome = normalizarTexto(grupo?.nome || '').replace(/\s+/g, '-') || 'instrumento';
+  const paginas = (Array.isArray(grupo?.paginas) ? grupo.paginas : []).map(Number).filter(pagina => Number.isFinite(pagina) && pagina > 0);
+  const primeiraPagina = paginas.length ? Math.min(...paginas) : 'sem-pagina';
+  return `parte-${nome}-${primeiraPagina}`.replace(/[^a-z0-9_-]/g, '-');
+}
+
+function anexarLinksYoutube(gruposEntrada) {
+  return (Array.isArray(gruposEntrada) ? gruposEntrada : []).map(grupo => {
+    const temPaginas = Array.isArray(grupo.paginas) && grupo.paginas.length > 0;
+    const youtubeKey = grupo.youtubeKey || (temPaginas ? criarChaveYoutubeGrupo(grupo) : null);
+    const linkSalvoNoDocumento = youtubeKey && Object.prototype.hasOwnProperty.call(youtubeParts, youtubeKey);
+    const youtubeUrl = obterUrlYoutube(linkSalvoNoDocumento ? youtubeParts[youtubeKey] : grupo.youtubeUrl) || null;
+    return { ...grupo, ...(youtubeKey ? { youtubeKey } : {}), youtubeUrl };
+  });
+}
+
+function preservarLinksYoutube(gruposAntigos, gruposNovos) {
+  const antigos = (Array.isArray(gruposAntigos) ? gruposAntigos : []).map((grupo, indice) => {
+    const temPaginas = Array.isArray(grupo.paginas) && grupo.paginas.length > 0;
+    const youtubeKey = grupo.youtubeKey || (temPaginas ? criarChaveYoutubeGrupo(grupo) : null);
+    const linkSalvoNoDocumento = youtubeKey && Object.prototype.hasOwnProperty.call(youtubeParts, youtubeKey);
+    const youtubeUrl = obterUrlYoutube(linkSalvoNoDocumento ? youtubeParts[youtubeKey] : grupo.youtubeUrl);
+    return { grupo, indice, youtubeKey, youtubeUrl };
+  }).filter(item => item.youtubeUrl);
+  const usados = new Set();
+
+  return (Array.isArray(gruposNovos) ? gruposNovos : []).map(novo => {
+    const paginasNovas = new Set((Array.isArray(novo.paginas) ? novo.paginas : []).map(Number));
+    const candidatos = antigos.filter(item => !usados.has(item.indice)).map(item => {
+      const nomeIgual = normalizarTexto(item.grupo.nome || '') === normalizarTexto(novo.nome || '');
+      const paginasAntigas = Array.isArray(item.grupo.paginas) ? item.grupo.paginas : [];
+      const sobreposicao = paginasAntigas.reduce((total, pagina) => total + (paginasNovas.has(Number(pagina)) ? 1 : 0), 0);
+      return { ...item, nomeIgual, sobreposicao };
+    }).filter(item => item.nomeIgual || item.sobreposicao > 0)
+      .sort((a, b) => Number(b.nomeIgual) - Number(a.nomeIgual) || b.sobreposicao - a.sobreposicao);
+    const melhor = candidatos[0];
+    if (!melhor) return novo;
+    usados.add(melhor.indice);
+    const youtubeKey = melhor.youtubeKey || (Array.isArray(novo.paginas) && novo.paginas.length ? criarChaveYoutubeGrupo(novo) : null);
+    return { ...novo, ...(youtubeKey ? { youtubeKey } : {}), youtubeUrl: melhor.youtubeUrl };
+  });
+}
+
+function criarLinkYoutubeAluno(grupo, indice) {
+  const url = obterUrlYoutube(grupo.youtubeUrl);
+  if (!url) return '';
+  const rotulo = `Abrir vídeo da parte ${grupo.nome || ''} no YouTube`;
+  return `<a class="youtube-icon-button" id="btn-youtube-grupo-${indice}" href="${escaparHtmlPartes(url)}" target="_blank" rel="noopener noreferrer" title="${escaparHtmlPartes(rotulo)}" aria-label="${escaparHtmlPartes(rotulo)}"><i class="fa-brands fa-youtube" aria-hidden="true"></i></a>`;
+}
+
+function criarBotaoEditarYoutubeGrupo(grupo, indice) {
+  const rotulo = `Adicionar ou editar vídeo da parte ${grupo.nome || ''}`;
+  return `<button class="youtube-icon-button" id="btn-youtube-grupo-${indice}" type="button" title="${escaparHtmlPartes(rotulo)}" aria-label="${escaparHtmlPartes(rotulo)}"><i class="fa-brands fa-youtube" aria-hidden="true"></i></button>`;
+}
+
+function abrirModalYoutubeGrupo(indice) {
+  if (userRole !== 'teacher' || !grupos[indice]) return;
+  modalYoutubeGrupoIdx = indice;
+  focoRetornoYoutubeGrupo = document.activeElement;
+  const grupo = grupos[indice];
+  const youtubeKey = grupo.youtubeKey || (Array.isArray(grupo.paginas) && grupo.paginas.length ? criarChaveYoutubeGrupo(grupo) : null);
+  const url = youtubeKey && Object.prototype.hasOwnProperty.call(youtubeParts, youtubeKey)
+    ? youtubeParts[youtubeKey]
+    : grupo.youtubeUrl;
+  document.getElementById('youtube-grupo-name').textContent = grupo.nome || 'Instrumento';
+  document.getElementById('youtube-grupo-input').value = url || '';
+  document.getElementById('youtube-grupo-status').textContent = '';
+  document.getElementById('youtube-grupo-status').classList.remove('error');
+  document.getElementById('youtube-grupo-remove').hidden = !url;
+  const modal = document.getElementById('youtube-grupo-modal');
+  modal.setAttribute('aria-hidden', 'false');
+  modal.classList.add('aberto');
+  document.getElementById('youtube-grupo-input').focus();
+}
+
+function fecharModalYoutubeGrupo() {
+  const indice = modalYoutubeGrupoIdx;
+  const focoRetorno = focoRetornoYoutubeGrupo;
+  const modal = document.getElementById('youtube-grupo-modal');
+  if (modal) {
+    modal.classList.remove('aberto');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  const input = document.getElementById('youtube-grupo-input');
+  if (input) input.value = '';
+  modalYoutubeGrupoIdx = null;
+  focoRetornoYoutubeGrupo = null;
+  if (focoRetorno?.isConnected) focoRetorno.focus();
+  else if (indice !== null) document.getElementById(`btn-youtube-grupo-${indice}`)?.focus();
+}
+
+async function salvarYoutubeGrupo() {
+  if (userRole !== 'teacher' || modalYoutubeGrupoIdx === null) return;
+  const indice = modalYoutubeGrupoIdx;
+  const grupo = grupos[indice];
+  if (!grupo) return;
+  const input = document.getElementById('youtube-grupo-input');
+  const status = document.getElementById('youtube-grupo-status');
+  if (!Array.isArray(grupo.paginas) || grupo.paginas.length === 0) {
+    status.textContent = 'Atribua ao menos uma página ao instrumento antes de cadastrar o vídeo.';
+    status.classList.add('error');
+    return;
+  }
+  let youtubeUrl;
+  try { youtubeUrl = validarUrlYoutube(input.value); }
+  catch (error) {
+    status.textContent = error.message;
+    status.classList.add('error');
+    input.focus();
+    return;
+  }
+  const youtubeKey = grupo.youtubeKey || criarChaveYoutubeGrupo(grupo);
+  const button = document.getElementById('youtube-grupo-save');
+  button.disabled = true;
+  button.textContent = 'Salvando...';
+  try {
+    await updateDoc(doc(db, 'biblioteca_colecoes', colId, 'documentos', docId), {
+      [`youtubeParts.${youtubeKey}`]: youtubeUrl
+    });
+    youtubeParts[youtubeKey] = youtubeUrl;
+    grupo.youtubeKey = youtubeKey;
+    grupo.youtubeUrl = youtubeUrl;
+    fecharModalYoutubeGrupo();
+    renderizarGrupos();
+    document.getElementById(`btn-youtube-grupo-${indice}`)?.focus();
+  } catch (error) {
+    console.error('Erro ao salvar o vídeo da parte:', error);
+    status.textContent = 'Não foi possível salvar o link. Tente novamente.';
+    status.classList.add('error');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Salvar link';
+  }
+}
+
+async function removerYoutubeGrupo() {
+  if (userRole !== 'teacher' || modalYoutubeGrupoIdx === null) return;
+  const indice = modalYoutubeGrupoIdx;
+  const grupo = grupos[indice];
+  if (!grupo) return;
+  const youtubeKey = grupo.youtubeKey || criarChaveYoutubeGrupo(grupo);
+  const button = document.getElementById('youtube-grupo-remove');
+  button.disabled = true;
+  try {
+    await updateDoc(doc(db, 'biblioteca_colecoes', colId, 'documentos', docId), {
+      [`youtubeParts.${youtubeKey}`]: null
+    });
+    youtubeParts[youtubeKey] = null;
+    grupo.youtubeKey = youtubeKey;
+    grupo.youtubeUrl = null;
+    fecharModalYoutubeGrupo();
+    renderizarGrupos();
+    document.getElementById(`btn-youtube-grupo-${indice}`)?.focus();
+  } catch (error) {
+    console.error('Erro ao remover o vídeo da parte:', error);
+    const status = document.getElementById('youtube-grupo-status');
+    status.textContent = 'Não foi possível remover o link. Tente novamente.';
+    status.classList.add('error');
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function localizarInstrumentos(texto) {
@@ -1015,6 +1243,8 @@ function criarCardAluno(grupo, idx) {
   card.id = `grupo-card-${idx}`;
 
   const badgeTipo = '';
+  const nomeSeguro = escaparHtmlPartes(grupo.nome || 'Instrumento');
+  const youtubeAction = criarLinkYoutubeAluno(grupo, idx);
 
   // FIX: sem onclick inline (scripts ES module não expõem ao escopo global via onclick)
   card.innerHTML = `
@@ -1026,9 +1256,10 @@ function criarCardAluno(grupo, idx) {
     </div>
     <div class="grupo-info">
       <div class="grupo-nome-wrap">
-            <span class="grupo-nome">${grupo.nome}</span>${badgeTipo}
+            <span class="grupo-nome">${nomeSeguro}</span>${badgeTipo}
           </div>
       <div class="grupo-btns">
+        ${youtubeAction}
         <button class="btn-visualizar-grupo" id="btn-ver-${idx}" title="Visualizar em tela cheia" aria-label="Visualizar partitura em tela cheia">
           <i class="fas fa-expand"></i> <span class="viz-label">Visualizar</span>
         </button>
@@ -1054,6 +1285,8 @@ function criarCardProfessor(grupo, idx) {
   card.id = `grupo-card-${idx}`;
 
   const badgeTipo = '';
+  const nomeSeguro = escaparHtmlPartes(grupo.nome || 'Instrumento');
+  const youtubeAction = criarBotaoEditarYoutubeGrupo(grupo, idx);
   const thumbsHTML = grupo.paginas.map(numPag => `
     <div class="grupo-mini-wrap">
       <div class="grupo-mini-thumb" id="mini-thumb-${idx}-${numPag}">
@@ -1073,7 +1306,7 @@ function criarCardProfessor(grupo, idx) {
   card.innerHTML = `
     <div class="grupo-prof-header">
       <div id="grupo-nome-wrap-${idx}" style="display:flex;align-items:center;gap:6px;flex:1;">
-        <span class="grupo-prof-nome" id="grupo-prof-nome-${idx}">${grupo.nome}</span>${badgeTipo}
+        <span class="grupo-prof-nome" id="grupo-prof-nome-${idx}">${nomeSeguro}</span>${badgeTipo}
         <button class="btn-renomear-grupo" title="Renomear" onclick="iniciarRenomear(${idx})">
           <i class="fas fa-pen"></i>
         </button>
@@ -1085,6 +1318,7 @@ function criarCardProfessor(grupo, idx) {
         <button class="btn-confirm-rename" onclick="confirmarRenomear(${idx})">OK</button>
         <button class="btn-cancel-rename" onclick="cancelarRenomear(${idx})">Cancelar</button>
       </div>
+      ${youtubeAction}
       <button class="btn-excluir-grupo" title="Excluir" onclick="excluirGrupo(${idx})">
         <i class="fas fa-trash"></i>
       </button>
@@ -1105,6 +1339,7 @@ function criarCardProfessor(grupo, idx) {
     </div>
   `;
 
+  card.querySelector(`#btn-youtube-grupo-${idx}`)?.addEventListener('click', () => abrirModalYoutubeGrupo(idx));
   // Botão baixar do card professor também via addEventListener
   card.querySelector(`#btn-baixar-${idx}`).addEventListener('click', () => baixarGrupo(idx));
   return card;

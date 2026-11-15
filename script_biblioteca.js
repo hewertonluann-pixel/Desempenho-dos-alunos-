@@ -46,6 +46,8 @@ const storage = getStorage();
 let userRole = 'student';
 let currentCollectionId = null;
 let currentDocumentId = null;
+let currentYoutubeDocumentId = null;
+let youtubeModalReturnFocus = null;
 let collections = [];
 let documents = [];
 let currentView = localStorage.getItem('bibliotecaView') || 'list';
@@ -200,6 +202,24 @@ function setupEventListeners() {
   });
   document.getElementById('search-input').addEventListener('input', filterAndSortDocuments);
   document.getElementById('sort-select').addEventListener('change', filterAndSortDocuments);
+  document.addEventListener('keydown', event => {
+    const modal = document.getElementById('youtube-modal');
+    if (!modal || modal.style.display !== 'block') return;
+    if (event.key === 'Escape') { closeYoutubeModal(); return; }
+    if (event.key !== 'Tab') return;
+    const focaveis = [...modal.querySelectorAll('button:not(:disabled):not([hidden]), input:not(:disabled), [href], [tabindex]:not([tabindex="-1"])')]
+      .filter(elemento => elemento.getClientRects().length > 0);
+    if (!focaveis.length) return;
+    const primeiro = focaveis[0];
+    const ultimo = focaveis[focaveis.length - 1];
+    if (event.shiftKey && (document.activeElement === primeiro || !modal.contains(document.activeElement))) {
+      event.preventDefault();
+      ultimo.focus();
+    } else if (!event.shiftKey && (document.activeElement === ultimo || !modal.contains(document.activeElement))) {
+      event.preventDefault();
+      primeiro.focus();
+    }
+  });
 }
 
 function updateUIBasedOnRole() {
@@ -477,9 +497,48 @@ function nomeDocumentoExibicao(nome = '') {
   return String(nome).replace(/\.pdf$/i, '');
 }
 
+function validarUrlYoutube(valor) {
+  const texto = String(valor || '').trim();
+  if (!texto) return null;
+  const entrada = /^https?:\/\//i.test(texto) ? texto : `https://${texto.replace(/^\/\//, '')}`;
+  let url;
+  try { url = new URL(entrada); } catch { throw new Error('Cole um link válido do YouTube.'); }
+  const host = url.hostname.toLowerCase().replace(/^www\./, '');
+  const hostsPermitidos = ['youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be', 'youtube-nocookie.com'];
+  if (!hostsPermitidos.includes(host) || url.username || url.password) throw new Error('O endereço precisa ser de youtube.com ou youtu.be.');
+  const caminho = url.pathname;
+  const idValido = /^[A-Za-z0-9_-]{6,}$/;
+  const segmentos = caminho.split('/').filter(Boolean);
+  const idCurto = host === 'youtu.be' && segmentos.length === 1 && idValido.test(segmentos[0]);
+  const idVideo = (caminho === '/watch' && idValido.test(url.searchParams.get('v') || ''))
+    || (/^\/(?:shorts|embed|live|v)\/([A-Za-z0-9_-]{6,})\/?$/.test(caminho))
+    || (/^\/clip\/([A-Za-z0-9_-]{6,})\/?$/.test(caminho));
+  const idPlaylist = caminho === '/playlist' && idValido.test(url.searchParams.get('list') || '');
+  if (!idCurto && !idVideo && !idPlaylist) throw new Error('Use o link direto do vídeo ou da playlist do YouTube.');
+  url.protocol = 'https:';
+  return url.toString();
+}
+
+function obterUrlYoutube(valor) {
+  try { return validarUrlYoutube(valor) || ''; } catch { return ''; }
+}
+
+function criarLinkYoutubePublico(valor, nome) {
+  const url = obterUrlYoutube(valor);
+  if (!url) return '';
+  const rotulo = `Abrir vídeo de ${nomeDocumentoExibicao(nome || 'música')} no YouTube`;
+  return `<a class="youtube-icon-button" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(rotulo)}" aria-label="${escapeHtml(rotulo)}"><i class="fa-brands fa-youtube" aria-hidden="true"></i></a>`;
+}
+
+function criarBotaoEditarYoutube(docId, nome) {
+  const rotulo = `Adicionar ou editar vídeo de ${nomeDocumentoExibicao(nome || 'música')}`;
+  return `<button class="youtube-icon-button youtube-admin-button" type="button" data-youtube-doc-id="${escapeHtml(docId)}" title="${escapeHtml(rotulo)}" aria-label="${escapeHtml(rotulo)}"><i class="fa-brands fa-youtube" aria-hidden="true"></i></button>`;
+}
+
 function renderCompactDocument(d, { collectionId = currentCollectionId, modoPartes = currentColModoPartes, showAdminActions = true } = {}) {
   const nome = escapeHtml(nomeDocumentoExibicao(d.nome || 'Documento sem nome'));
   const safeNome = escapeHtml(d.nome || 'Documento sem nome');
+  const youtubeLinkAction = criarLinkYoutubePublico(d.youtubeUrl, d.nome);
   const audioHTML = d.audioUrl
     ? `<div class="compact-audio"><div class="audio-progress" hidden><span class="current-time">0:00</span><input class="progress-range" type="range" min="0" max="100" value="0" step="0.1" aria-label="Progresso de ${nome}"><span class="total-time">0:00</span></div></div>`
     : '<span class="audio-unavailable">Sem áudio</span>';
@@ -492,13 +551,13 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
   const documentAction = modoPartes
     ? (userRole === 'teacher' ? `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : '')
     : `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>`;
-  const adminActions = showAdminActions
-    ? `<button class="btn-edit" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
+  const adminActions = showAdminActions && userRole === 'teacher'
+    ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button>${criarBotaoEditarYoutube(d.id, d.nome)}</div><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
     : '';
   const playHTML = d.audioUrl
     ? `<button class="compact-play-button" type="button" data-audio-url="${escapeHtml(d.audioUrl)}" data-nome="${nome}" aria-label="Reproduzir ${nome}" title="Reproduzir"><i class="fas fa-play" aria-hidden="true"></i></button>`
     : '';
-  return `<div class="document-main"><div class="document-header-row">${playHTML}<div class="doc-info">${titleHTML}</div>${partsAction}</div><div class="doc-buttons">${documentAction}${adminActions}</div>${audioHTML}</div>`;
+  return `<div class="document-main"><div class="document-header-row">${playHTML}<div class="doc-info">${titleHTML}</div>${youtubeLinkAction}${partsAction}</div><div class="doc-buttons">${documentAction}${adminActions}</div>${audioHTML}</div>`;
 }
 
 function renderDocumentsFiltered(docsToRender) {
@@ -520,6 +579,11 @@ function renderDocumentsFiltered(docsToRender) {
     item.className = 'document-item';
     const safeNome = d.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     const nomeExibicao = escapeHtml(nomeDocumentoExibicao(d.nome || 'Documento sem nome'));
+    const youtubeLinkAction = criarLinkYoutubePublico(d.youtubeUrl, d.nome);
+    const youtubeEditAction = userRole === 'teacher' ? criarBotaoEditarYoutube(d.id, d.nome) : '';
+    const teacherMediaActions = userRole === 'teacher'
+      ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${d.id}')">🎵 Áudio</button>${youtubeEditAction}</div>`
+      : '';
 
     if (currentView === 'grid') {
 
@@ -535,10 +599,10 @@ function renderDocumentsFiltered(docsToRender) {
           <div class="doc-grid-info">
             <div class="doc-name" title="${nomeExibicao}">${nomeExibicao}</div>
             <div class="doc-buttons">
-              <button class="btn-download" style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.72rem;font-weight:700;width:100%;"
-                onclick="abrirPartes('${currentCollectionId}', '${d.id}')">Partes</button>
+              <div class="doc-primary-actions">${youtubeLinkAction}<button class="btn-parts-card" type="button"
+                onclick="abrirPartes('${currentCollectionId}', '${d.id}')">Partes</button></div>
               ${userRole === 'teacher' ? `<a class="btn-download" href="${d.url}" target="_blank" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : ''}
-              <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
+              ${teacherMediaActions}
               <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
               </button>
@@ -561,10 +625,8 @@ function renderDocumentsFiltered(docsToRender) {
           <div class="doc-grid-info">
             <div class="doc-name" title="${nomeExibicao}">${nomeExibicao}</div>
             <div class="doc-buttons">
-              <a class="btn-download" href="${d.url}" target="_blank"
-                style="background:var(--azul);color:white;border:none;border-radius:6px;padding:5px 8px;display:block;text-align:center;font-size:0.72rem;font-weight:700;width:100%;"
-                data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>
-              <button class="btn-edit" onclick="openEditModal('${d.id}')">🎵 Áudio</button>
+              <div class="doc-primary-actions">${youtubeLinkAction}<a class="btn-download pdf-direct-button" href="${d.url}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a></div>
+              ${teacherMediaActions}
               <button class="btn-delete" onclick="deleteDocument('${d.id}', '${d.storagePath}', '${d.audioStoragePath || ''}')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
               </button>
@@ -581,6 +643,10 @@ function renderDocumentsFiltered(docsToRender) {
       item.innerHTML = renderCompactDocument(d);
       container.appendChild(item);
     }
+
+    item.querySelectorAll('[data-youtube-doc-id]').forEach(button => {
+      button.addEventListener('click', () => openYoutubeModal(button.dataset.youtubeDocId));
+    });
   });
 
   conectarPlayers(container);
@@ -623,6 +689,7 @@ async function uploadDocument() {
       tamanho: pdfFile.size,
       url: pdfUrl,
       storagePath: pdfPath,
+      youtubeUrl: null,
       audioUrl: audioUrl || null,
       audioStoragePath: audioStoragePath || null,
       criadoEm: serverTimestamp()
@@ -709,6 +776,86 @@ async function removeAudio() {
   } catch (error) {
     console.error('Erro ao remover áudio:', error);
     alert('❌ Erro ao remover o áudio');
+  }
+}
+
+function openYoutubeModal(docId) {
+  if (userRole !== 'teacher') return;
+  const documentData = documents.find(d => d.id === docId);
+  if (!documentData || !currentCollectionId) { alert('❌ Documento não encontrado.'); return; }
+  currentYoutubeDocumentId = docId;
+  youtubeModalReturnFocus = document.activeElement;
+  document.getElementById('youtube-modal-document').textContent = nomeDocumentoExibicao(documentData.nome || 'Música');
+  document.getElementById('youtube-link-input').value = documentData.youtubeUrl || '';
+  document.getElementById('youtube-modal-status').textContent = '';
+  document.getElementById('youtube-modal-status').classList.remove('error');
+  document.getElementById('youtube-remove-button').hidden = !documentData.youtubeUrl;
+  document.getElementById('youtube-modal').style.display = 'block';
+  document.getElementById('youtube-link-input').focus();
+}
+
+function closeYoutubeModal() {
+  const returnFocus = youtubeModalReturnFocus;
+  const modal = document.getElementById('youtube-modal');
+  if (modal) modal.style.display = 'none';
+  const input = document.getElementById('youtube-link-input');
+  if (input) input.value = '';
+  currentYoutubeDocumentId = null;
+  youtubeModalReturnFocus = null;
+  if (returnFocus?.isConnected) returnFocus.focus();
+}
+
+async function saveYoutubeLink() {
+  if (userRole !== 'teacher' || !currentYoutubeDocumentId || !currentCollectionId) return;
+  const input = document.getElementById('youtube-link-input');
+  const status = document.getElementById('youtube-modal-status');
+  let youtubeUrl;
+  try { youtubeUrl = validarUrlYoutube(input.value); }
+  catch (error) {
+    status.textContent = error.message;
+    status.classList.add('error');
+    input.focus();
+    return;
+  }
+  const button = document.getElementById('youtube-save-button');
+  const savedDocId = currentYoutubeDocumentId;
+  button.disabled = true;
+  try {
+    await updateDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', currentYoutubeDocumentId), {
+      youtubeUrl: youtubeUrl || null
+    });
+    closeYoutubeModal();
+    await loadDocuments();
+    renderDocuments();
+    [...document.querySelectorAll('[data-youtube-doc-id]')].find(elemento => elemento.dataset.youtubeDocId === savedDocId)?.focus();
+  } catch (error) {
+    console.error('Erro ao salvar o link do YouTube:', error);
+    status.textContent = 'Não foi possível salvar o link. Tente novamente.';
+    status.classList.add('error');
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function removeYoutubeLink() {
+  if (userRole !== 'teacher' || !currentYoutubeDocumentId || !currentCollectionId) return;
+  if (!confirm('Remover o link de vídeo desta música?')) return;
+  const button = document.getElementById('youtube-remove-button');
+  const removedDocId = currentYoutubeDocumentId;
+  button.disabled = true;
+  try {
+    await updateDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', currentYoutubeDocumentId), { youtubeUrl: null });
+    closeYoutubeModal();
+    await loadDocuments();
+    renderDocuments();
+    [...document.querySelectorAll('[data-youtube-doc-id]')].find(elemento => elemento.dataset.youtubeDocId === removedDocId)?.focus();
+  } catch (error) {
+    console.error('Erro ao remover o link do YouTube:', error);
+    const status = document.getElementById('youtube-modal-status');
+    status.textContent = 'Não foi possível remover o link. Tente novamente.';
+    status.classList.add('error');
+  } finally {
+    button.disabled = false;
   }
 }
 
@@ -830,6 +977,10 @@ window.openEditModal = openEditModal;
 window.closeModal = closeModal;
 window.saveAudio = saveAudio;
 window.removeAudio = removeAudio;
+window.openYoutubeModal = openYoutubeModal;
+window.closeYoutubeModal = closeYoutubeModal;
+window.saveYoutubeLink = saveYoutubeLink;
+window.removeYoutubeLink = removeYoutubeLink;
 window.filterAndSortDocuments = filterAndSortDocuments;
 window.clearGlobalSearch = clearGlobalSearch;
 window.setView = setView;

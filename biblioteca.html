@@ -499,6 +499,27 @@
         /* Etapa 3: card em duas faixas — nome acima, ações abaixo. */
         .document-main{display:flex;flex-direction:column;align-items:stretch;gap:9px;width:100%;min-width:0}.document-header-row{display:flex;align-items:center;gap:9px;width:100%;min-width:0}.document-header-row .doc-info{flex:1;min-width:0}.document-main .doc-name{min-height:0;line-height:1.3;white-space:normal;overflow:visible;overflow-wrap:anywhere;text-overflow:clip}.document-header-row .compact-play-button{order:0}.document-header-row .btn-parts{flex:0 0 auto;padding:8px 12px;border:1px solid var(--azul);border-radius:9px;background:linear-gradient(180deg,#299cf7,#1269cf);color:#fff;font-size:.78rem;font-weight:750;cursor:pointer;white-space:nowrap}.document-header-row .btn-parts:hover{filter:brightness(1.1)}.document-main .doc-buttons{display:flex;width:100%;align-items:center;justify-content:flex-start;gap:8px;flex-wrap:wrap;margin:0}.document-main .doc-buttons:empty{display:none}.document-main .compact-audio{width:100%;order:3}.document-main .doc-buttons .btn-download{min-width:0}.document-main .audio-unavailable{display:none}
     </style>
+    <style>
+        .youtube-icon-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;min-width:36px;height:36px;padding:0;border:1px solid rgba(255,255,255,.24);border-radius:9px;background:#ff0000;color:#fff;font-size:1.08rem;line-height:1;text-decoration:none;cursor:pointer;box-shadow:0 3px 9px rgba(255,0,0,.18)}
+        .youtube-icon-button:hover{background:#cc0000;color:#fff;transform:translateY(-1px)}
+        .youtube-icon-button:focus-visible{outline:3px solid rgba(255,0,0,.42);outline-offset:2px}
+        .document-header-row .youtube-icon-button{flex:0 0 36px}
+        .media-admin-actions,.doc-primary-actions{display:flex;align-items:center;justify-content:center;gap:7px}
+        .documents-grid .doc-buttons .doc-primary-actions,.documents-grid .doc-buttons .media-admin-actions{width:100%;flex-direction:row;flex-wrap:nowrap}
+        .documents-grid .doc-buttons .media-admin-actions .btn-edit{display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:36px;white-space:nowrap}
+        .documents-grid .doc-buttons .youtube-icon-button{flex:0 0 36px;width:36px;height:36px;padding:0}
+        .btn-parts-card{flex:1;min-width:0;padding:7px 9px;border:1px solid var(--azul);border-radius:7px;background:linear-gradient(180deg,#299cf7,#1269cf);color:#fff;font-size:.75rem;font-weight:750;cursor:pointer;white-space:nowrap}
+        .btn-parts-card:hover{filter:brightness(1.1)}
+        .documents-grid .doc-buttons .doc-primary-actions .btn-parts-card{width:auto;min-width:0}
+        .pdf-direct-button{display:block;padding:6px 8px;border:0;border-radius:6px;background:var(--azul);color:#fff;font-size:.72rem;font-weight:700;text-align:center;text-decoration:none;white-space:nowrap}
+        .documents-grid .doc-buttons .doc-primary-actions .pdf-direct-button{width:auto;min-width:0;flex:1}
+        .youtube-link-input{display:block;width:100%;margin:8px 0 4px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--ink);font-size:.92rem}
+        .youtube-modal-status{min-height:1.2em;margin:8px 0 0;color:var(--muted);font-size:.78rem}
+        .youtube-modal-status.error{color:#fca5a5}
+        .youtube-modal-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+        .youtube-modal-actions .btn-remove-audio{margin:0}
+        .youtube-modal-actions .btn-download{min-width:0}
+    </style>
 </head>
 <body>
     <!-- HEADER INSERIDO AUTOMATICAMENTE PELO header-template.js -->
@@ -623,6 +644,23 @@
             <input type="file" id="edit-audio-file" accept=".mp3,.wav,.ogg" style="display: none;">
             <button class="upload-btn" onclick="saveAudio()" style="margin-top: 10px;">Salvar Áudio</button>
             <button class="btn-remove-audio" onclick="removeAudio()">Remover Áudio</button>
+        </div>
+    </div>
+
+    <!-- Modal para gerenciar o vídeo da música -->
+    <div class="modal" id="youtube-modal" role="dialog" aria-modal="true" aria-labelledby="youtube-modal-title" onclick="if(event.target===this) closeYoutubeModal()">
+        <div class="modal-content youtube-modal-content">
+            <button class="btn-close" type="button" aria-label="Fechar" onclick="closeYoutubeModal()">×</button>
+            <h3 id="youtube-modal-title"><i class="fa-brands fa-youtube" aria-hidden="true"></i> Vídeo da música</h3>
+            <p id="youtube-modal-document" class="youtube-modal-status"></p>
+            <label for="youtube-link-input">Link do vídeo no YouTube</label>
+            <input id="youtube-link-input" class="youtube-link-input" type="url" inputmode="url" autocomplete="url" placeholder="https://youtu.be/...">
+            <p id="youtube-modal-status" class="youtube-modal-status" role="status" aria-live="polite"></p>
+            <div class="youtube-modal-actions">
+                <button id="youtube-remove-button" class="btn-remove-audio" type="button" onclick="removeYoutubeLink()">Remover vídeo</button>
+                <button class="btn-download" type="button" onclick="closeYoutubeModal()">Cancelar</button>
+                <button id="youtube-save-button" class="upload-btn" type="button" onclick="saveYoutubeLink()">Salvar link</button>
+            </div>
         </div>
     </div>
 
