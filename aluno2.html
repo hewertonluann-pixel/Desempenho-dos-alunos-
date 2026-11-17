@@ -138,6 +138,65 @@
   .pie-center { width: 42px; height: 42px; }
 }
 
+
+/* ============================================================
+   PRÓXIMA AÇÃO
+   ============================================================ */
+.next-action { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; padding: 18px 22px; border-color: #38bdf8; background: #0c2233; }
+.next-action .na-ico { width: 48px; height: 48px; border-radius: 50%; background: rgba(56,189,248,.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; flex: none; }
+.next-action .na-ico svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.next-action .na-body { flex: 1; min-width: 0; }
+.next-action .na-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: #38bdf8; }
+.next-action .na-title { font-size: 1.1rem; font-weight: 700; margin-top: 3px; line-height: 1.3; }
+.next-action .na-sub { font-size: .85rem; color: var(--muted); margin-top: 3px; }
+.next-action .na-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: #38bdf8; color: #04202e; font-weight: 700; font-size: .95rem; cursor: pointer; flex: none; white-space: nowrap; }
+.next-action .na-btn:hover { background: #7dd3fc; }
+.next-action .na-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.next-action.refazer { border-color: #f59e0b; background: #2a1f0a; }
+.next-action.refazer .na-label { color: #fcd34d; }
+.next-action.refazer .na-ico { background: rgba(245,158,11,.16); color: #fcd34d; }
+.next-action.aguardando { border-color: rgba(56,189,248,.3); background: #0f172a; }
+.next-action .na-btn.sec { background: #16223c; color: #e8eefb; }
+.next-action .na-btn.sec:hover { background: #1e2f52; }
+.next-action.carregando .na-ico, .next-action.carregando .na-l1, .next-action.carregando .na-l2 { background: #1a2640; border-radius: 8px; }
+.next-action.carregando .na-l1 { height: 14px; width: 110px; }
+.next-action.carregando .na-l2 { height: 20px; width: 60%; margin-top: 8px; }
+@media (max-width: 700px) { .next-action { flex-wrap: wrap; } .next-action .na-btn { width: 100%; } }
+
+/* ============================================================
+   LIÇÕES ENVIADAS — lista em linhas
+   ============================================================ */
+.lessons-section { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 20px; background: var(--card-alt); border: 1px solid var(--border); }
+.lessons-section h2 { flex: 1 1 auto; margin: 0; border: 0; padding: 0; font-size: 1.15rem; }
+.lessons-section .btn-send-lesson { width: auto; margin: 0; padding: 0 18px; min-height: 42px; font-size: .9rem; border-radius: 999px; background: #38bdf8; color: #04202e; box-shadow: none; }
+.lessons-section .btn-send-lesson:hover { transform: none; background: #7dd3fc; box-shadow: none; }
+.lessons-section .lessons-list { flex: 1 1 100%; display: flex; flex-direction: column; gap: 8px; grid-template-columns: none; font-size: .9rem; }
+.card-licao { flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; min-height: 64px; padding: 10px 14px; border-radius: 12px; background: #0a1222; box-shadow: none; }
+.card-licao:hover { transform: none; border-color: #38bdf8; }
+.card-licao::before { content: ""; order: 0; width: 38px; height: 38px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.05rem; background: #1a2640; color: #94a3b8; }
+.card-licao.v2-aprovada::before { content: "✓"; background: #12382c; color: #6ee7b7; }
+.card-licao.v2-refazer::before { content: "↻"; background: #3a2e0e; color: #fcd34d; }
+.card-licao.v2-pendente::before { content: "…"; background: #10304a; color: #7dd3fc; }
+.card-licao.v2-refazer { border-color: rgba(245,158,11,.45); }
+.card-licao .card-licao-content { order: 1; flex: 1; min-width: 0; margin: 0; }
+.card-licao .licao-tipo { display: none; }
+.card-licao .licao-numero { text-align: left; font-size: 1rem; font-weight: 700; margin: 0; }
+.card-licao .status-badge { order: 2; margin: 0; align-self: center; white-space: nowrap; }
+.card-licao .btn-ver-detalhes { order: 3; width: auto; padding: 0 16px; min-height: 38px; }
+.card-licao .btn-delete-licao { order: 4; position: static; flex: none; }
+.lic-vazio { text-align: center; padding: 18px 8px 6px; }
+.lic-vazio .lv-ico { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; background: #12304a; color: #38bdf8; display: flex; align-items: center; justify-content: center; }
+.lic-vazio .lv-ico svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.lic-vazio .lv-t { font-weight: 700; font-size: 1rem; margin-top: 12px; }
+.lic-vazio .lv-s { color: var(--muted); font-size: .85rem; margin: 4px 0 14px; }
+.lic-vazio .na-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: #38bdf8; color: #04202e; font-weight: 700; cursor: pointer; }
+@media (max-width: 480px) {
+  .card-licao { flex-wrap: wrap; }
+  .card-licao .card-licao-content { flex: 1 1 calc(100% - 110px); }
+  .card-licao .btn-delete-licao { order: 2; }
+  .card-licao .status-badge { order: 3; margin-left: 50px; }
+  .card-licao .btn-ver-detalhes { order: 4; margin-left: auto; }
+}
 </style>
   
   <!-- Fontes com display swap -->
@@ -469,10 +528,151 @@
       });
     }
 
-    function ajustarLicoes() {
-      document.querySelectorAll("#listaLicoes .status-badge").forEach(function (b) {
-        if (b.textContent.trim().toUpperCase() === "REPROVADA") b.textContent = "PRECISA REFAZER";
+
+    var ICONE_SETA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    var ICONE_MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+    var ICONE_REFAZER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-3-6.2M20 4v5h-5"/></svg>';
+    var ICONE_RELOGIO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    var ICONE_OK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+
+    function rotuloTipo(metodo) { return metodo ? "Método instrumental" : "Leitura"; }
+
+    function lerLicoes() {
+      var lista = document.getElementById("listaLicoes");
+      var out = [];
+      if (!lista) return out;
+      lista.querySelectorAll(".card-licao").forEach(function (card) {
+        var badge = card.querySelector(".status-badge");
+        var num = card.querySelector(".licao-numero");
+        var tipo = card.querySelector(".licao-tipo");
+        var det = card.querySelector(".btn-ver-detalhes");
+        if (!badge || !num) return;
+        if (!card.dataset.v2) {
+          var metodo = tipo ? /M[ÉE]TODO/i.test(tipo.textContent) : false;
+          var n = parseInt((num.textContent || "").replace(/\D/g, ""), 10);
+          card.dataset.metodo = metodo ? "1" : "";
+          card.dataset.num = isNaN(n) ? "" : String(n);
+          var cls = badge.classList.contains("aprovada") ? "aprovada" : badge.classList.contains("pendente") ? "pendente" : "refazer";
+          card.dataset.st = cls;
+          card.classList.add("v2-" + cls);
+          if (cls === "refazer") badge.textContent = "PRECISA REFAZER";
+          num.textContent = rotuloTipo(!!metodo) + (card.dataset.num ? " Nº " + card.dataset.num : "");
+          var m = det && (det.getAttribute("onclick") || "").match(/abrirLicao\('([^']+)'\)/);
+          card.dataset.id = m ? m[1] : "";
+          card.dataset.v2 = "1";
+        }
+        out.push({ st: card.dataset.st, metodo: !!card.dataset.metodo, num: card.dataset.num === "" ? null : parseInt(card.dataset.num, 10), id: card.dataset.id });
       });
+      return out;
+    }
+
+    function estadoLicoes() {
+      var lista = document.getElementById("listaLicoes");
+      if (!lista) return "carregando";
+      if (lista.querySelector(".card-licao")) return "ok";
+      if (lista.querySelector(".lic-vazio") || lista.querySelector("p")) return "vazio";
+      return "carregando";
+    }
+
+    function ajustarListaVazia() {
+      var lista = document.getElementById("listaLicoes");
+      if (!lista || lista.querySelector(".card-licao") || lista.querySelector(".lic-vazio")) return;
+      if (!lista.querySelector("p")) return;
+      lista.innerHTML = '<div class="lic-vazio"><div class="lv-ico">' + ICONE_MIC + '</div>' +
+        '<div class="lv-t">Nenhuma lição enviada ainda</div>' +
+        '<div class="lv-s">Grave sua lição e receba o retorno do professor.</div>' +
+        '<button type="button" class="na-btn">Enviar primeira lição</button></div>';
+      lista.querySelector(".na-btn").addEventListener("click", function () { if (window.abrirModalEnviarLicao) window.abrirModalEnviarLicao(); });
+    }
+
+    function decidirProximaAcao(licoes) {
+      var refazer = licoes.filter(function (l) {
+        if (l.st !== "refazer") return false;
+        var refeita = licoes.some(function (o) {
+          return o !== l && o.metodo === l.metodo && (o.st === "aprovada" || o.st === "pendente") && o.num !== null && l.num !== null && o.num >= l.num;
+        });
+        return !refeita;
+      }).sort(function (a, b) { return (b.num || 0) - (a.num || 0); });
+      if (refazer.length) {
+        var l = refazer[0];
+        return { tipo: "refazer", label: "PRÓXIMA AÇÃO", icone: ICONE_REFAZER,
+          titulo: "Refazer a lição de " + rotuloTipo(l.metodo) + (l.num !== null ? " Nº " + l.num : ""),
+          sub: refazer.length > 1 ? "Há mais " + (refazer.length - 1) + " lição(ões) para refazer." : "O professor pediu uma nova gravação.",
+          botao: "Enviar lição", acao: "enviar" };
+      }
+      var pend = licoes.filter(function (l) { return l.st === "pendente"; });
+      if (pend.length) {
+        var p = pend[0];
+        return { tipo: "aguardando", label: "AGUARDANDO CORREÇÃO", icone: ICONE_RELOGIO,
+          titulo: "Sua lição de " + rotuloTipo(p.metodo) + (p.num !== null ? " Nº " + p.num : "") + " está com o professor",
+          sub: "Assim que for corrigida, o resultado aparece na lista de lições.",
+          botao: "Ver lição", acao: "ver", id: p.id, secundario: true };
+      }
+      var aprov = licoes.filter(function (l) { return l.st === "aprovada"; }).length;
+      return { tipo: "novo", label: "PRÓXIMA AÇÃO", icone: ICONE_OK,
+        titulo: "Tudo em dia! Que tal enviar a próxima lição?",
+        sub: aprov + (aprov === 1 ? " lição aprovada até agora." : " lições aprovadas até agora."),
+        botao: "Enviar lição", acao: "enviar" };
+    }
+
+    function ajustarProximaAcao() {
+      var area = document.querySelector(".content-area");
+      if (!area) return;
+      var card = document.getElementById("proximaAcao");
+      if (!card) {
+        card = document.createElement("section");
+        card.id = "proximaAcao";
+        card.className = "next-action card";
+        card.setAttribute("aria-live", "polite");
+      }
+      // Em telas estreitas a ação vem antes do perfil; em telas largas, no topo da coluna central
+      var estreita = window.matchMedia("(max-width: 1024px)").matches;
+      var raiz = document.querySelector(".main-container");
+      var sidebar = document.querySelector(".sidebar");
+      if (estreita && raiz && sidebar) {
+        if (card.parentNode !== raiz) raiz.insertBefore(card, sidebar);
+      } else if (card.parentNode !== area) {
+        area.insertBefore(card, area.firstChild);
+      }
+      var secao = area.querySelector(".lessons-section");
+      if (secao && window.getComputedStyle(secao).display === "none") { card.style.display = "none"; return; }
+      card.style.display = "";
+
+      var est = estadoLicoes();
+      var licoes = est === "ok" ? lerLicoes() : [];
+      var dec = est === "carregando" ? null
+        : est === "vazio" ? { tipo: "novo", label: "PRÓXIMA AÇÃO", icone: ICONE_MIC, titulo: "Envie sua primeira lição",
+            sub: "Grave sua lição e receba o retorno do professor.", botao: "Enviar lição", acao: "enviar" }
+        : decidirProximaAcao(licoes);
+
+      var chave = dec ? [dec.tipo, dec.titulo, dec.sub, dec.id || ""].join("|") : "carregando";
+      if (card.dataset.chave === chave) return;
+      card.dataset.chave = chave;
+
+      if (!dec) {
+        card.className = "next-action card carregando";
+        card.innerHTML = '<div class="na-ico"></div><div class="na-body"><div class="na-l1"></div><div class="na-l2"></div></div>';
+        return;
+      }
+      card.className = "next-action card " + dec.tipo;
+      card.innerHTML = '<div class="na-ico">' + dec.icone + '</div>' +
+        '<div class="na-body"><div class="na-label"></div><div class="na-title"></div><div class="na-sub"></div></div>' +
+        '<button type="button" class="na-btn' + (dec.secundario ? ' sec' : '') + '"></button>';
+      card.querySelector(".na-label").textContent = dec.label;
+      card.querySelector(".na-title").textContent = dec.titulo;
+      card.querySelector(".na-sub").textContent = dec.sub;
+      var btn = card.querySelector(".na-btn");
+      btn.innerHTML = (dec.acao === "enviar" ? ICONE_MIC : ICONE_SETA) + "<span></span>";
+      btn.querySelector("span").textContent = dec.botao;
+      btn.addEventListener("click", function () {
+        if (dec.acao === "enviar" && window.abrirModalEnviarLicao) window.abrirModalEnviarLicao();
+        if (dec.acao === "ver" && dec.id && window.abrirLicao) window.abrirLicao(dec.id);
+      });
+    }
+
+    function ajustarLicoes() {
+      ajustarListaVazia();
+      lerLicoes();
       document.querySelectorAll("#listaLicoes .btn-delete-licao").forEach(function (b) {
         if (!b.getAttribute("aria-label")) { b.setAttribute("aria-label", "Excluir lição"); b.title = "Excluir lição"; }
       });
@@ -496,12 +696,13 @@
     var agendado = false;
     function aplicar() {
       agendado = false;
-      ajustarLegendas(); ajustarFrequencia(); ajustarLicoes(); ajustarFotos(); marcarHome();
+      ajustarLegendas(); ajustarFrequencia(); ajustarLicoes(); ajustarProximaAcao(); ajustarFotos(); marcarHome();
     }
     function agendar() { if (!agendado) { agendado = true; requestAnimationFrame(aplicar); } }
 
     document.addEventListener("DOMContentLoaded", function () {
       aplicar();
+      window.matchMedia("(max-width: 1024px)").addEventListener("change", agendar);
       new MutationObserver(agendar).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["src"] });
     });
   })();
