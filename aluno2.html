@@ -37,33 +37,6 @@
 /* ---- Títulos dos cards um pouco mais discretos ---- */
 .card h2 { font-size: 1.15rem; letter-spacing: -.01em; }
 
-/* ---- Coluna do perfil: botões com o mesmo estilo ---- */
-.btn-change-password,
-.btn-professor-mode,
-.btn-download-app {
-  min-height: 44px;
-  font-size: .9rem;
-  font-weight: 600;
-  border-radius: 10px;
-  border: 1px solid var(--azul-suave);
-  background: var(--azul-escuro);
-  color: var(--ink);
-  letter-spacing: 0;
-}
-.btn-change-password:hover,
-.btn-professor-mode:hover,
-.btn-download-app:hover {
-  background: rgba(56,189,248,.12);
-  border-color: #38bdf8;
-  color: #38bdf8;
-}
-.btn-professor-mode { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.45); color: #86efac; }
-.btn-professor-mode:hover { background: rgba(34,197,94,.2); border-color: #22c55e; color: #bbf7d0; }
-
-/* textos pequenos do perfil mais legíveis */
-.detail-label { font-size: .8rem; }
-.detail-method-name { font-size: .78rem; color: var(--muted); }
-
 /* ---- Menu superior: alvos maiores e "Sair" separado dos links ---- */
 .nav-links { align-items: center; gap: 6px; }
 .nav-links a {
@@ -226,39 +199,59 @@
     <!-- SIDEBAR (visível em desktop, oculta em mobile) -->
     <aside class="sidebar">
       <div class="profile-card">
-        <div class="photo-upload">
-          <img id="fotoAluno" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkZvdG8gcGFkcsOjbyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMxMjMwNGEiLz48Y2lyY2xlIGN4PSI3NSIgY3k9IjU4IiByPSIyNiIgZmlsbD0iIzM4YmRmOCIgZmlsbC1vcGFjaXR5PSIuODUiLz48cGF0aCBkPSJNMjQgMTM4YzQtMzAgMjYtNDQgNTEtNDRzNDcgMTQgNTEgNDR6IiBmaWxsPSIjMzhiZGY4IiBmaWxsLW9wYWNpdHk9Ii44NSIvPjwvc3ZnPg==" alt="Foto do aluno" class="profile-photo" loading="lazy">
-          <label for="novaFoto" class="upload-icon">
+        <div class="profile-identity">
+          <div class="photo-upload">
+            <img id="fotoAluno" src="" alt="Foto do aluno" class="profile-photo" loading="lazy">
+            <span id="avatarInicial" class="avatar-initial" aria-hidden="true">A</span>
+            <label for="novaFoto" class="upload-icon" aria-label="Editar foto">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
                  viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
             </svg>
-          </label>
-          <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" style="display: none;" />
-        </div>
-        <h1 class="aluno-name" id="nomeAluno">Nome do Aluno</h1>
-        <p class="instrument" id="instrumentoAluno">Instrumento</p>
-        <div class="level-info">
-          <span class="level-label">Nível Geral</span>
-          <span class="level-value" id="nivelGeral">0</span>
+            </label>
+            <input type="file" id="novaFoto" accept="image/*" onchange="enviarNovaFoto()" hidden />
+          </div>
+          <h1 class="aluno-name" id="nomeAluno">Nome do Aluno</h1>
+          <span class="profile-badge" id="badgePerfil">Instrumento</span>
         </div>
         <div class="level-details">
           <div class="detail-item">
+            <div class="detail-icon detail-icon-reading" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Z" />
+                <path d="M4 19V5" />
+                <path d="M9 8h6" />
+              </svg>
+            </div>
+            <div class="detail-copy">
             <span class="detail-label">Leitura</span>
-            <span class="detail-value" id="nivelLeitura">0</span>
             <span class="detail-method-name" id="nomeMetodoLeitura">-</span>
+            </div>
+            <span class="detail-value" id="nivelLeitura">0</span>
           </div>
           <div class="detail-item">
+            <div class="detail-icon detail-icon-method" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m12 3 9 5-9 5-9-5Z" />
+                <path d="m3 13 9 5 9-5" />
+              </svg>
+            </div>
+            <div class="detail-copy">
             <span class="detail-label">Método</span>
-            <span class="detail-value" id="nivelMetodo">0</span>
             <span class="detail-method-name" id="nomeMetodoInstrumental">-</span>
+            </div>
+            <span class="detail-value" id="nivelMetodo">0</span>
           </div>
         </div>
-        <button class="btn-change-password" onclick="abrirConfiguracoes()">⚙️ Configurações</button>
-        <button class="btn-professor-mode" id="modoProfessorBtn" style="display:none;" onclick="acessarModoProfessor()">👨‍🏫 Modo Professor</button>
-        <a href="download.html" class="btn-download-app">📲 Baixar App</a>
+        <button class="btn-change-password" onclick="abrirConfiguracoes()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+          </svg>
+          Configurações
+        </button>
       </div>
       
       <div class="sidebar-buttons-row">
