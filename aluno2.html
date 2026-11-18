@@ -144,19 +144,19 @@
 .lessons-section .btn-send-lesson { width: auto; margin: 0; padding: 0 18px; min-height: 42px; font-size: .9rem; border-radius: 999px; background: #38bdf8; color: #04202e; box-shadow: none; }
 .lessons-section .btn-send-lesson:hover { transform: none; background: #7dd3fc; box-shadow: none; }
 .lessons-section .lessons-list { flex: 1 1 100%; display: flex; flex-direction: column; gap: 8px; grid-template-columns: none; font-size: .9rem; }
-.card-licao { flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; min-height: 64px; padding: 10px 14px; border-radius: 12px; background: #0a1222; box-shadow: none; }
+.card-licao { flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; height: 58px; min-height: 58px; max-height: 58px; padding: 8px 12px; border-radius: 12px; background: #0a1222; box-shadow: none; overflow: hidden; }
 .card-licao:hover { transform: none; border-color: #38bdf8; }
-.card-licao::before { content: ""; order: 0; width: 38px; height: 38px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.05rem; background: #1a2640; color: #94a3b8; }
+.card-licao::before { content: ""; order: 0; width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; background: #1a2640; color: #94a3b8; }
 .card-licao.v2-aprovada::before { content: "✓"; background: #12382c; color: #6ee7b7; }
 .card-licao.v2-refazer::before { content: "↻"; background: #3a2e0e; color: #fcd34d; }
 .card-licao.v2-pendente::before { content: "…"; background: #10304a; color: #7dd3fc; }
 .card-licao.v2-refazer { border-color: rgba(245,158,11,.45); }
 .card-licao .card-licao-content { order: 1; flex: 1; min-width: 0; margin: 0; }
 .card-licao .licao-tipo { display: none; }
-.card-licao .licao-numero { text-align: left; font-size: 1rem; font-weight: 700; margin: 0; }
+.card-licao .licao-numero { overflow: hidden; text-align: left; font-size: .92rem; font-weight: 700; margin: 0; text-overflow: ellipsis; white-space: nowrap; }
 .card-licao .status-badge { order: 2; margin: 0; align-self: center; white-space: nowrap; }
-.card-licao .btn-ver-detalhes { order: 3; width: auto; padding: 0 16px; min-height: 38px; }
-.card-licao .btn-delete-licao { order: 4; position: static; flex: none; }
+.card-licao .btn-ver-detalhes { order: 3; width: auto; flex: 0 0 auto; padding: 0 12px; min-height: 34px; height: 34px; }
+.card-licao .btn-delete-licao { order: 4; position: static; width: 28px; height: 28px; flex: 0 0 28px; }
 .lic-vazio { text-align: center; padding: 18px 8px 6px; }
 .lic-vazio .lv-ico { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; background: #12304a; color: #38bdf8; display: flex; align-items: center; justify-content: center; }
 .lic-vazio .lv-ico svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -164,11 +164,10 @@
 .lic-vazio .lv-s { color: var(--muted); font-size: .85rem; margin: 4px 0 14px; }
 .lic-vazio .na-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: #38bdf8; color: #04202e; font-weight: 700; cursor: pointer; }
 @media (max-width: 480px) {
-  .card-licao { flex-wrap: wrap; }
-  .card-licao .card-licao-content { flex: 1 1 calc(100% - 110px); }
-  .card-licao .btn-delete-licao { order: 2; }
-  .card-licao .status-badge { order: 3; margin-left: 50px; }
-  .card-licao .btn-ver-detalhes { order: 4; margin-left: auto; }
+  .card-licao { gap: 7px; padding: 8px 9px; }
+  .card-licao .card-licao-content { flex: 1 1 auto; }
+  .card-licao .status-badge { margin-left: 0; }
+  .card-licao .btn-ver-detalhes { padding: 0 9px; font-size: .76rem; }
 }
 </style>
   
