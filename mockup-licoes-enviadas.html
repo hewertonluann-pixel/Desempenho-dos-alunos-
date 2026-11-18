@@ -53,15 +53,6 @@
     }
     .primary-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
 
-    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; margin-bottom: 18px; }
-    .summary-card { min-width: 0; padding: 15px; background: rgba(14,23,40,.84); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow); }
-    .summary-label { color: var(--muted); font-size: .74rem; }
-    .summary-value { margin-top: 5px; font-size: 1.55rem; font-weight: 900; letter-spacing: -.04em; }
-    .summary-note { margin-top: 3px; color: var(--muted); font-size: .7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .summary-card.pending .summary-value { color: var(--amber); }
-    .summary-card.approved .summary-value { color: var(--green); }
-    .summary-card.review .summary-value { color: var(--red); }
-
     .workspace { padding: 16px; background: rgba(14,23,40,.72); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
     .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
     .filters { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; }
@@ -111,7 +102,6 @@
       .page { width: min(100% - 20px, 620px); padding-top: 20px; }
       .hero { align-items: stretch; flex-direction: column; gap: 14px; }
       .primary-btn { width: 100%; }
-      .summary { grid-template-columns: repeat(2, 1fr); }
       .workspace { padding: 11px; }
       .toolbar { align-items: stretch; }
       .sort { justify-content: space-between; }
@@ -135,13 +125,6 @@
       </div>
       <button class="primary-btn" type="button" onclick="alert('Aqui abrirá o fluxo atual de envio de lição.')"><span aria-hidden="true">＋</span> Enviar nova lição</button>
     </header>
-
-    <section class="summary" aria-label="Resumo das lições">
-      <div class="summary-card"><div class="summary-label">Total enviado</div><div class="summary-value">12</div><div class="summary-note">Neste ciclo</div></div>
-      <div class="summary-card pending"><div class="summary-label">Aguardando avaliação</div><div class="summary-value">3</div><div class="summary-note">Requer acompanhamento</div></div>
-      <div class="summary-card approved"><div class="summary-label">Aprovadas</div><div class="summary-value">7</div><div class="summary-note">Bom progresso</div></div>
-      <div class="summary-card review"><div class="summary-label">Para revisar</div><div class="summary-value">2</div><div class="summary-note">Veja o feedback</div></div>
-    </section>
 
     <section class="workspace" aria-label="Lista de lições">
       <div class="toolbar">
