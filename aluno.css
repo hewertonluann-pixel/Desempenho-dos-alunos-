@@ -152,7 +152,11 @@ body {
 }
 
 #novaFoto {
-  display: none;
+  display: none !important;
+}
+
+.photo-upload > input[type="file"] {
+  display: none !important;
 }
 
 .aluno-name {
