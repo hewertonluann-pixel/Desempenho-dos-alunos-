@@ -40,7 +40,7 @@ body {
 }
 
 .sidebar {
-  width: 300px;
+  width: 320px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -73,19 +73,29 @@ body {
 }
 
 .profile-card {
-  background: var(--card);
-  padding: 20px;
-  border-radius: 16px;
-  border: 1px solid var(--azul-suave);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  background: #11161d;
+  padding: 28px;
+  border-radius: 20px;
+  border: 1px solid #232a36;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
   text-align: center;
+}
+
+.profile-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
 }
 
 .photo-upload {
   position: relative;
-  width: 150px;
-  height: 150px;
-  margin: 0 auto 15px;
+  width: 96px;
+  height: 96px;
+  margin: 0;
 }
 
 .profile-photo {
@@ -93,142 +103,189 @@ body {
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  border: 3px solid var(--azul);
+  border: 1px solid #3a4558;
+  background: linear-gradient(145deg, #2b3547, #1a212c);
+  display: none;
+}
+
+.profile-photo.has-photo {
+  display: block;
+}
+
+.avatar-initial {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1px solid #3a4558;
+  background: linear-gradient(145deg, #2b3547, #1a212c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b8c6da;
+  font-size: 36px;
+  font-weight: 600;
 }
 
 .upload-icon {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background: var(--azul);
-  color: white;
+  right: -2px;
+  bottom: -2px;
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border: 2px solid #11161d;
   border-radius: 50%;
-  padding: 8px;
+  background: #232c3b;
+  color: #c9d6e8;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  padding: 0;
+  transition: background .18s, color .18s;
+}
+
+.upload-icon:hover {
+  background: #2a3445;
+  color: #fff;
+}
+
+#novaFoto {
+  display: none;
 }
 
 .aluno-name {
-  font-size: 1.8rem;
-  margin: 0 0 5px;
-  color: var(--ink);
+  margin: 0;
+  color: #e6eaf0;
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
 }
 
-.instrument {
-  color: var(--muted);
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-}
-
-.level-info {
-  background: var(--azul-escuro);
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-.level-label {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.level-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--azul);
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: 5px 12px;
+  border: 1px solid #263246;
+  border-radius: 999px;
+  background: #1a2332;
+  color: #9fb3ce;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .level-details {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
 }
 
 .detail-item {
-  background: var(--card-alt);
-  padding: 10px 15px;
-  border-radius: 8px;
-  flex-basis: 45%;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  padding: 14px 16px;
+  background: #161c26;
+  border: 1px solid #232a36;
+  border-radius: 14px;
+  text-align: left;
 }
 
-.detail-label {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.detail-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.detail-method-name {
-  font-size: 0.8rem;
-  color: var(--muted);
-  font-weight: 500;
-  text-transform: capitalize;
-  margin-top: 4px;
-  opacity: 0.85;
-  text-align: center;
-  display: block;
-}
-
-.btn-change-password, .btn-professor-mode {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s;
-}
-
-.btn-change-password {
-  background: var(--azul-escuro);
-  color: var(--azul);
-  border: 1px solid var(--azul-suave);
-}
-
-.btn-professor-mode {
-  background: var(--verde);
-  color: var(--bg);
-}
-
-/* ── BOTÃO BAIXAR APP ── */
-.btn-download-app {
+.detail-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  width: 100%;
-  margin-top: 10px;
-  padding: 9px 10px;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #94a3b8;
-  text-decoration: none;
-  border: 1px dashed rgba(148, 163, 184, 0.25);
-  background: transparent;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-  letter-spacing: 0.01em;
+  border-radius: 10px;
 }
 
-.btn-download-app:hover {
-  color: #22d3ee;
-  border-color: rgba(34, 211, 238, 0.35);
-  background: rgba(34, 211, 238, 0.05);
+.detail-icon-reading {
+  color: #8fb0da;
+  background: #1d2735;
 }
-/* ────────────────────── */
+
+.detail-icon-method {
+  color: #86bdb6;
+  background: #1b2a2e;
+}
+
+.detail-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-label {
+  color: #8a94a6;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.detail-value {
+  color: #e6eaf0;
+  font-size: 2.05rem;
+  font-weight: 600;
+  letter-spacing: -.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-method-name {
+  display: block;
+  overflow: hidden;
+  color: #c3ccda;
+  font-size: .88rem;
+  font-weight: 400;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-change-password {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 0 16px;
+  border: 1px solid #2b3443;
+  border-radius: 12px;
+  background: transparent;
+  color: #d5deeb;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, color .18s;
+}
+
+.btn-change-password:hover {
+  background: #1b2230;
+  border-color: #3a4558;
+  color: #fff;
+}
+
+.btn-change-password svg {
+  flex: 0 0 auto;
+}
 
 .social-link-card {
   background: var(--card);
@@ -684,7 +741,7 @@ body {
   .modal-header-icon { font-size: 2.5rem; }
   .btn-fechar-modal { padding: 14px; font-size: 0.95rem; margin-top: 16px; }
   .btn-send-lesson { padding: 18px; font-size: 0.95rem; min-height: 48px; }
-  .btn-change-password, .btn-professor-mode, .btn-salvar, .btn-cancelar { padding: 14px; min-height: 44px; font-size: 0.95rem; }
+  .btn-change-password, .btn-salvar, .btn-cancelar { padding: 14px; min-height: 44px; font-size: 0.95rem; }
   .btn-ver-detalhes { padding: 10px 14px; min-height: 40px; }
   .arrow-btn { padding: 12px 16px; min-width: 44px; min-height: 44px; }
   .lessons-list { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }

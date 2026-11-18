@@ -125,31 +125,40 @@ export async function carregarAlunoAtual() {
     2. EXIBIR DADOS DO ALUNO
    ======================================================== */
 export function montarPainelAluno(aluno) {
-  document.getElementById("nomeAluno").textContent = primeiroNome(aluno.nome);
+  const nomePrimeiro = primeiroNome(aluno.nome);
+  const nomeEl = document.getElementById("nomeAluno");
+  if (nomeEl) nomeEl.textContent = nomePrimeiro;
 
-  const ehFase = /^fase\s*\d/i.test(aluno.turmaNome || "");
-  const labelInstrumento = document.getElementById("instrumentoAluno");
-  if (labelInstrumento) {
-    labelInstrumento.textContent = ehFase
-      ? `📚 ${aluno.turmaNome}`
-      : (aluno.instrumento || "Não definido");
+  const turma = String(aluno.turmaNome || "").trim();
+  const ehFase1ou2 = /^fase\s*[12]\b/i.test(turma);
+  const badgePerfil = document.getElementById("badgePerfil");
+  if (badgePerfil) {
+    badgePerfil.textContent = (ehFase1ou2 ? turma : (aluno.instrumento || "Instrumento")).toUpperCase();
   }
 
   const fotoImg = document.getElementById("fotoAluno");
-  if (fotoImg) fotoImg.src = aluno.foto || "https://via.placeholder.com/150";
+  const avatarInicial = document.getElementById("avatarInicial");
+  if (avatarInicial) avatarInicial.textContent = nomePrimeiro.charAt(0).toUpperCase();
+  if (fotoImg) {
+    if (aluno.foto) {
+      fotoImg.src = aluno.foto;
+      fotoImg.classList.add("has-photo");
+      if (avatarInicial) avatarInicial.style.display = "none";
+    } else {
+      fotoImg.removeAttribute("src");
+      fotoImg.classList.remove("has-photo");
+      if (avatarInicial) avatarInicial.style.display = "flex";
+    }
+  }
 
   const leitura = aluno.leitura ?? 0;
   const metodo  = aluno.metodo  ?? 0;
 
   document.getElementById("nivelLeitura").textContent = leitura;
   document.getElementById("nivelMetodo").textContent  = metodo;
-  document.getElementById("nivelGeral").textContent   = leitura + metodo;
-
   document.getElementById("nomeMetodoLeitura").textContent      = aluno.solfejoNome  || "Bona";
   document.getElementById("nomeMetodoInstrumental").textContent = aluno.metodoNome   || "-";
 
-  if (aluno.classificado === true)
-    document.getElementById("modoProfessorBtn").style.display = "block";
 }
 
 /* ========================================================
@@ -354,11 +363,9 @@ export async function iniciarPainelAluno() {
     const btnSenha  = document.querySelector(".btn-change-password");
     const labelFoto = document.querySelector('label[for="novaFoto"]');
     const inputFoto = document.getElementById("novaFoto");
-    const btnApp    = document.querySelector(".btn-download-app");
     if (btnSenha)  btnSenha.style.display  = "none";
     if (labelFoto) labelFoto.style.display = "none";
     if (inputFoto) inputFoto.style.display = "none";
-    if (btnApp)    btnApp.style.display    = "none";
   }
 
   const preferencias = aluno.preferencias || {
@@ -516,7 +523,12 @@ window.enviarNovaFoto = async () => {
       if (snap.empty) { alert("Aluno não encontrado."); return; }
       await updateDoc(doc(db, "alunos", snap.docs[0].id), { foto: e.target.result });
       const fotoImg = document.getElementById("fotoAluno");
-      if (fotoImg) fotoImg.src = e.target.result;
+      const avatarInicial = document.getElementById("avatarInicial");
+      if (fotoImg) {
+        fotoImg.src = e.target.result;
+        fotoImg.classList.add("has-photo");
+      }
+      if (avatarInicial) avatarInicial.style.display = "none";
       const label = document.querySelector('label[for="novaFoto"]');
       if (label) {
         const orig = label.innerHTML;
