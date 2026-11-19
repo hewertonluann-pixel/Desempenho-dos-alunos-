@@ -344,6 +344,7 @@
     .foto-social img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .info-principal { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .topo-card .niveis-secundarios { margin: 0 0 0 auto; grid-template-columns: 1fr; width: 100px; flex-shrink: 0; gap: 4px; }
+    .topo-card .nivel-item { flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
     .nome-aluno        { font-size: 1rem; font-weight: 600; color: #f9fafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .instrumento-aluno { font-size: 0.85rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nivel-geral-destaque { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(56,189,248,0.08)); border-radius: 10px; border: 1px solid rgba(34,211,238,0.3); margin-top: 8px; }
@@ -497,8 +498,8 @@
       gap:10px; align-items:stretch;
     }
     .mosaico-card {
-      min-width:0; min-height:166px; padding:10px 9px 9px;
-      display:flex; flex-direction:column; align-items:center; gap:6px;
+      min-width:0; min-height:116px; padding:10px 9px 9px;
+      display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:6px;
       border-radius:14px; border:1px solid rgba(34,211,238,.28);
       background:radial-gradient(circle at top left,#17243a,#020617 78%);
       box-shadow:0 7px 16px rgba(0,0,0,.34); cursor:pointer;
@@ -515,24 +516,25 @@
     .mosaico-nome { width:100%; color:#f8fafc; font-size:.79rem; font-weight:850; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-instrumento { width:100%; color:#a5b4fc; font-size:.66rem; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-coral .mosaico-instrumento { color:#a5b4fc; }
-    .mosaico-topo { width:100%; display:flex; align-items:center; gap:7px; }
-    .mosaico-identidade { min-width:0; flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:5px; }
-    .mosaico-nivel { width:68px; flex:0 0 68px; display:grid; grid-template-columns:1fr; gap:4px; padding:4px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
-    .mosaico-nivel-item { min-width:0; display:flex; align-items:center; justify-content:space-between; gap:3px; padding:4px 3px; border-radius:6px; background:rgba(15,23,42,.72); border:1px solid rgba(34,211,238,.2); }
+    .mosaico-topo { width:100%; display:flex; align-items:flex-start; gap:8px; }
+    .mosaico-identidade { min-width:0; flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; }
+    .mosaico-nivel { width:78px; flex:0 0 78px; display:grid; grid-template-columns:1fr; gap:4px; padding:4px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
+    .mosaico-nivel-item { min-width:0; min-height:29px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:4px 2px; border-radius:6px; background:rgba(15,23,42,.72); border:1px solid rgba(34,211,238,.2); transition:background .16s ease, border-color .16s ease; }
+    .mosaico-nivel-item:hover { background:rgba(34,211,238,.13); border-color:rgba(34,211,238,.48); }
     .mosaico-coral .mosaico-voz { width:100%; margin-top:auto; padding:8px 7px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); color:#e5e7eb; font-size:.72rem; font-weight:900; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-coral .mosaico-voz::before { content:"🎶 "; }
-    .mosaico-nivel-label { color:#94a3b8; font-size:.61rem; font-weight:700; white-space:nowrap; }
-    .mosaico-nivel-valor { color:#f8fafc; font-size:1.05rem; font-weight:900; line-height:1; }
+    .mosaico-nivel-label { color:#a5b4c9; font-size:.58rem; font-weight:750; line-height:1; white-space:nowrap; }
+    .mosaico-nivel-valor { color:#f8fafc; font-size:.98rem; font-weight:900; line-height:1; white-space:nowrap; letter-spacing:-.02em; }
     .mosaico-vazio { grid-column:1 / -1; padding:36px 12px; color:#94a3b8; text-align:center; border:1px dashed rgba(148,163,184,.28); border-radius:14px; }
     .mosaico-contador { grid-column:1 / -1; color:#64748b; font-size:.7rem; text-align:right; margin-top:-3px; }
     @media (max-width: 520px) {
       body.mosaico-page { padding:8px; }
       .mosaico-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-      .mosaico-card { min-height:156px; padding:9px 7px 8px; }
+      .mosaico-card { min-height:116px; padding:9px 7px 8px; }
       .mosaico-foto { width:52px; height:52px; flex-basis:52px; }
       .mosaico-nome { font-size:.74rem; }
       .mosaico-instrumento { font-size:.62rem; }
-      .mosaico-nivel { padding:6px; }
+      .mosaico-nivel { width:78px; flex-basis:78px; padding:4px; }
       .mosaico-nivel-valor { font-size:.98rem; }
     }
     @media (min-width: 1100px) {
