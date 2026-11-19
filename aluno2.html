@@ -187,6 +187,32 @@
   .card-licao .status-badge { margin-left: 0; }
   .card-licao .btn-ver-detalhes { padding: 0 9px; font-size: .76rem; }
 }
+
+/* ---- Mobile: conteúdo sempre contido na largura da viewport ---- */
+html, body { max-width: 100%; overflow-x: hidden; }
+.main-container, .content-area, .card, .lessons-section, .lessons-list { min-width: 0; max-width: 100%; }
+.content-area, .lessons-section, .lessons-list { width: 100%; }
+.lessons-section h2 { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.lessons-section .btn-send-lesson { max-width: 100%; white-space: nowrap; }
+.card-licao .licao-titulo { min-width: 0; overflow: hidden; }
+.card-licao .licao-tipo { min-width: 0; }
+.next-action .na-body, .next-action .na-title, .next-action .na-sub { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .main-container { width: 100%; padding: 12px; gap: 12px; }
+  .card, .lessons-section { padding: 14px; }
+  .lessons-section { gap: 10px 12px; }
+  .lessons-section h2 { flex-basis: 100%; font-size: 1.05rem; }
+  .lessons-section .btn-send-lesson { width: 100%; min-height: 40px; }
+  .next-action { width: 100%; padding: 14px; gap: 12px; }
+  .next-action .na-title { font-size: 1rem; }
+}
+@media (max-width: 360px) {
+  .main-container { padding: 8px; }
+  .card, .lessons-section { padding: 12px; }
+  .card-licao { gap: 5px; padding-inline: 7px; }
+  .card-licao .btn-ver-detalhes { padding-inline: 7px; font-size: .72rem; }
+  .card-licao .btn-delete-licao { width: 25px; height: 25px; flex-basis: 25px; }
+}
 </style>
   
   <!-- Fontes com display swap -->
