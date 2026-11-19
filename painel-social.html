@@ -577,18 +577,11 @@
     import { db } from "./firebase-config.js";
     import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import { regrasDeConquistas } from "./conquistas.js";
-    import { obterEventosDoAno, agruparEventosPorMes } from "./frequencia.js";
-    import { calcularFrequenciaElegivel } from "./participacoes.js";
 
     let todosAtivos   = [];
     let todosAtivosComCoral = [];
-    let gruposEventos = {};
-    let gruposEventosCoral = {};
-    let abaAtual      = "nivel";
-    let mesAtual      = new Date().getMonth();
     let dadosGrupo    = { nome: 'Filhos de Asafe', anoCriacao: '2021', descricao: '', logoUrl: '' };
     let todasTurmas   = []; // turmas cadastradas em turmas.html
-    const cacheFrequencia = new WeakMap();
 
     // Persistência de preferências
     let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
@@ -596,9 +589,6 @@
     let turmaAtiva    = "orquestra";
     let filtroInstrumento = "";
 
-    const mesesNomes  = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                         "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-    const mesesChaves = ["01","02","03","04","05","06","07","08","09","10","11","12"];
 
     // ================================================================
     // DETECÇÃO DE FASE
@@ -658,54 +648,6 @@
         return regrasDeConquistas.find(regra => regra.id === id)?.icone;
       }).filter(Boolean);
       return d.length > 0 ? d.join(" ") : "—";
-    }
-    function chamadasDoAluno(aluno, grupos, mes = null) {
-      let cache = cacheFrequencia.get(grupos);
-      if (!cache) {
-        cache = new Map();
-        cacheFrequencia.set(grupos, cache);
-      }
-      const cacheKey = `${aluno.id || aluno.nome}|${aluno.turmaId || ""}|${mes || "__ano__"}`;
-      if (cache.has(cacheKey)) return cache.get(cacheKey);
-
-      const eventos = Object.keys(grupos)
-        .filter(ch => !mes || ch === mes)
-        .flatMap(ch => grupos[ch] || []);
-      let resultado;
-      if (!aluno.turmaId) {
-        const listadas = eventos.filter(ev => ev.tipo !== "coral" && ev.presencas?.some(p =>
-          (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome
-        ));
-        const avaliadas = listadas.filter(ev => {
-          const p = ev.presencas.find(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome);
-          return p?.presenca !== "justificado" && p?.presenca !== "J";
-        });
-        const presentes = avaliadas.filter(ev => {
-          const p = ev.presencas.find(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome);
-          return p?.presenca === "presente" || p?.presenca === "P";
-        }).length;
-        resultado = { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
-      } else {
-        resultado = calcularFrequenciaElegivel(eventos, aluno, aluno.turmaId);
-      }
-      cache.set(cacheKey, resultado);
-      return resultado;
-    }
-    function calcularEnergiaAnualLocal(aluno, grupos) {
-      return chamadasDoAluno(aluno, grupos).percentual ?? 0;
-    }
-    function freqAlunoNoMes(aluno, mesIdx) {
-      return chamadasDoAluno(aluno, gruposEventos, `2026-${mesesChaves[mesIdx]}`).percentual ?? 0;
-    }
-    function chamadasCoralDoAluno(aluno, grupos, mes = null) {
-      const eventos = Object.keys(grupos).filter(ch => !mes || ch === mes).flatMap(ch => grupos[ch] || []);
-      const registros = eventos.map(ev => ev.presencas?.find(p => (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome)).filter(Boolean);
-      const avaliadas = registros.filter(p => p.presenca !== "justificado" && p.presenca !== "J");
-      const presentes = avaliadas.filter(p => p.presenca === "presente" || p.presenca === "P").length;
-      return { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
-    }
-    function freqAlunoCoralNoMes(aluno, turmaId, mesIdx) {
-      return chamadasCoralDoAluno(aluno, gruposEventosCoral[turmaId] || {}, `2026-${mesesChaves[mesIdx]}`).percentual ?? 0;
     }
     function agruparPorGrupo(alunos) {
       const map = new Map();
@@ -788,8 +730,6 @@
           const membros = new Set(Array.isArray(turma.alunos) ? turma.alunos : []);
           if (membros.has(aluno.id) || aluno.turmaId === turma.id) {
             const coralAluno = { ...aluno, _isCoralView: true, instrumento: vozCoralAluno(aluno) || "Voz não definida" };
-            coralAluno.energiaAnual = chamadasCoralDoAluno(coralAluno, gruposEventosCoral[turma.id] || {}).percentual ?? 0;
-            coralAluno.energiaMensal = freqAlunoCoralNoMes(coralAluno, turma.id, mesAtual);
             mapa.get(turma.id).push(coralAluno);
           }
         });
@@ -884,51 +824,6 @@
         `<span class="badge-subgrupo" onclick="scrollParaGrupo('${b.grupoPai}')">${b.label} <strong>${b.qtd}</strong></span>`
       ).join("");
       return `<div class="badges-container"><div class="badges-titulo">🎼 Bancadas</div><div class="badges-wrap">${badgesHtml}</div></div>`;
-    }
-
-    function calcularMetricaGrupo(alunos, aba, mes) {
-      if (aba === "nivel")      return media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0)));
-      if (aba === "frequencia") return media(alunos.map(a => freqAlunoNoMes(a, mes)));
-      if (aba === "score")      return { nivel: media(alunos.map(a => (a.leitura ?? 0) + (a.metodo ?? 0))), freq: media(alunos.map(a => freqAlunoNoMes(a, mes))) };
-      return 0;
-    }
-
-    function htmlRanking(turmaMap, aba, mes) {
-      const grupos = [...turmaMap.keys()].filter(k => k !== "__sem_turma__");
-      let dados = grupos.map(nome => {
-        const alunos = turmaMap.get(nome);
-        if (aba === "score") { const raw = calcularMetricaGrupo(alunos, "score", mes); return { nome: nomeTurmaDisplay(nome), nivel: raw.nivel, freq: raw.freq, valor: null }; }
-        return { nome: nomeTurmaDisplay(nome), valor: calcularMetricaGrupo(alunos, aba, mes) };
-      });
-      if (aba === "score") {
-        const maxNivel = Math.max(...dados.map(d => d.nivel), 1);
-        dados.forEach(d => { d.valor = Math.round((Math.round((d.nivel / maxNivel) * 100) + d.freq) / 2); });
-      }
-      dados.sort((a, b) => b.valor - a.valor);
-      const maxValor  = Math.max(...dados.map(d => d.valor), 1);
-      const unidade   = aba === "nivel" ? " pts" : "%";
-      const gradiente = aba === "nivel" ? "linear-gradient(90deg,#38bdf8,#818cf8)" : aba === "frequencia" ? null : "linear-gradient(90deg,#f59e0b,#fcd34d)";
-      const linhas = dados.map((d, i) => {
-        const pct  = Math.round((d.valor / maxValor) * 100);
-        const grad = gradiente || corBarra(d.valor);
-        return `<div class="ranking-linha"><span class="ranking-pos">${medalha(i)}</span><span class="ranking-nome">${d.nome}</span><div class="ranking-barra-wrap"><div class="ranking-barra-fill" style="width:${pct}%;background:${grad};"></div></div><span class="ranking-valor">${d.valor}${unidade}</span></div>`;
-      }).join("");
-      const mesControlDisplay = aba === "nivel" ? "none" : "flex";
-      return `
-        <div class="bloco-ranking">
-          <div class="ranking-titulo">🏆 Ranking</div>
-          <div class="ranking-tabs">
-            <button class="tab-btn ${aba==='nivel'     ?'ativo':''}" onclick="trocarAba('nivel')">🎯</button>
-            <button class="tab-btn ${aba==='frequencia'?'ativo':''}" onclick="trocarAba('frequencia')">📅</button>
-            <button class="tab-btn ${aba==='score'     ?'ativo':''}" onclick="trocarAba('score')">⭐</button>
-          </div>
-          <div class="mes-control" style="display:${mesControlDisplay}">
-            <button onclick="mudarMes(-1)">◀</button>
-            <span class="mes-nome">${mesesNomes[mes]}</span>
-            <button onclick="mudarMes(1)">▶</button>
-          </div>
-          <div class="ranking-lista">${linhas}</div>
-        </div>`;
     }
 
     // ================================================================
@@ -1208,7 +1103,6 @@
     }
     function renderizarTudo() {
       const container = document.getElementById("gridCompleto");
-      todosAtivos.forEach(a => { a.energiaMensal = freqAlunoNoMes(a, mesAtual); });
       const turmaMap = agruparPorTurma(todosAtivos);
       const coralMap = mapaCoral(todosAtivosComCoral);
       let alunos = todosAtivos;
@@ -1252,8 +1146,6 @@
       renderizarTudo();
     };
 
-    window.trocarAba       = aba   => { abaAtual = aba; renderizarTudo(); };
-    window.mudarMes        = delta => { mesAtual = (mesAtual + delta + 12) % 12; renderizarTudo(); };
     window.scrollParaGrupo = nome  => {
       const id = nome.toLowerCase().replace(/[\s\/]+/g, "-");
       document.getElementById(`grupo-${id}`)?.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -1270,16 +1162,13 @@
     };
 
     async function carregarAlunos() {
-      const [snap, eventosAno, grupoSnap, turmasSnap] = await Promise.all([
+      const [snap, grupoSnap, turmasSnap] = await Promise.all([
         getDocs(collection(db, "alunos")),
-        obterEventosDoAno(2026),
         getDoc(doc(db, "config", "grupo")),
         getDocs(collection(db, "turmas")).catch(() => null)
       ]);
-      gruposEventos = agruparEventosPorMes(eventosAno);
       const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       todosAtivos = alunos.filter(a => a.ativo !== false);
-      todosAtivos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
       todosAtivosComCoral = todosAtivos.slice();
       if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
       if (turmasSnap) todasTurmas = turmasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1301,11 +1190,6 @@
         turmaAtiva = chavesTurmas.has("orquestra") ? "orquestra" : "todas";
         localStorage.setItem("ps_turmaAtiva", turmaAtiva);
       }
-      renderizarTudo();
-
-      // O Coral é complementar à primeira pintura: carrega depois para não bloquear os cards principais.
-      const eventosCoral = await Promise.all(obterTurmasCoral().map(async turma => [turma.id, agruparEventosPorMes(await obterEventosDoAno(2026, turma.id))]));
-      gruposEventosCoral = Object.fromEntries(eventosCoral);
       renderizarTudo();
     }
 
