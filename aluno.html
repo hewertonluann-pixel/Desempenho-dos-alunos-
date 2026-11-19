@@ -9,6 +9,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel do Aluno</title>
+  <!-- aluno.html: versão principal com melhorias de design. Usa os mesmos scripts e dados do painel do aluno. -->
   
   <!-- Preconnect para recursos externos -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,9 +19,220 @@
   <link rel="stylesheet" href="loader.css">
   <link rel="stylesheet" href="aluno.css" />
   <link rel="stylesheet" href="bottom-nav.css" />
-  <style>
-    .profile-identity .photo-upload { width: 150px; height: 150px; }
-  </style>
+  <style id="melhorias-v2">
+/* ============================================================
+   aluno-melhorias.css — refinamentos de design do painel do aluno
+   Carregado DEPOIS de aluno.css. Para desfazer, remova o <link>.
+   ============================================================ */
+
+/* ---- Foco visível e movimento reduzido (acessibilidade) ---- */
+:where(a, button, [role="button"], input):focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ---- Títulos dos cards um pouco mais discretos ---- */
+.card h2 { font-size: 1.15rem; letter-spacing: -.01em; }
+
+/* ---- Foto do perfil lateral: recuperar o tamanho maior da versão anterior ---- */
+.profile-identity .photo-upload { width: 150px; height: 150px; }
+
+/* ---- Menu superior: alvos maiores e "Sair" separado dos links ---- */
+.nav-links { align-items: center; gap: 6px; }
+.nav-links a {
+  font-size: 1rem !important;
+  padding: 10px 12px;
+  border-radius: 8px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+.nav-links a:hover { background: rgba(56,189,248,.1); }
+#navSair {
+  margin-left: 14px;
+  padding-left: 16px;
+  border-left: 1px solid rgba(148,163,184,.25);
+  color: #fca5a5 !important;
+}
+
+/* ---- Presença: texto da legenda maior ---- */
+.capsule-title { font-size: .85rem; }
+/* ---- Sidebar: níveis com a mesma escala tipográfica do nome ---- */
+.profile-card .detail-value { font-size: 1.55rem; }
+/* ---- Frequência anual: anéis compactos e meses sem aula neutros ---- */
+.frequency-grid { grid-template-columns: repeat(6, 1fr); gap: 14px 10px; }
+@media (min-width: 1280px) { .frequency-grid { grid-template-columns: repeat(12, 1fr); gap: 10px 6px; } }
+.pie-chart { width: 52px; height: 52px; box-shadow: none; }
+.pie-center { width: 38px; height: 38px; }
+.pie-value { font-size: .68rem; }
+.month-name { font-size: .72rem; }
+.month-card { padding: 6px 2px; border-radius: 10px; }
+.month-card:hover { transform: none; background: rgba(56,189,248,.08); }
+.month-card.perfeito .pie-chart { background: conic-gradient(var(--verde) 100%, var(--azul-escuro) 0); }
+.month-card.perfeito .pie-value { color: #86efac; }
+.month-card.sem-aulas { opacity: .55; }
+.month-card.sem-aulas .pie-chart { background: transparent; border: 2px dashed rgba(148,163,184,.35); }
+.month-card.sem-aulas .pie-value { color: var(--muted); font-size: .9rem; }
+
+/* ---- Lições enviadas: status legível, excluir discreto ---- */
+.lessons-list { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.status-badge { font-size: .75rem; padding: 3px 10px; border-radius: 99px; }
+.status-badge.reprovada { color: #fcd34d; background: rgba(245,158,11,.14); }
+.btn-delete-licao {
+  top: 6px; right: 6px;
+  width: 30px; height: 30px;
+  font-size: 18px;
+  background: transparent;
+  color: #94a3b8;
+  border-radius: 8px;
+  opacity: 1;
+}
+.btn-delete-licao:hover { background: rgba(239,68,68,.15); color: #fca5a5; }
+.btn-ver-detalhes { min-height: 40px; font-size: .85rem; }
+.licao-tipo { font-size: .75rem; }
+
+/* ---- Evolução técnica: respiro ---- */
+#painelEvolucao { padding-top: 4px; }
+
+/* ---- Desktop: igualar a altura da evolução à de atividades recentes ---- */
+@media (min-width: 1025px) {
+  .evolucao-section { align-self: start; display: flex; flex-direction: column; height: var(--altura-atividades, auto); overflow: hidden; }
+  .evolucao-section #painelEvolucao { display: flex; flex: 1 1 auto; min-height: 0; padding-top: 0; }
+  .evolucao-section .painel-evolucao { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; padding: 0; }
+  .evolucao-section .ev-pills { flex: 0 0 auto; margin: 0 0 6px; }
+  .evolucao-section .ev-ano-control { flex: 0 0 auto; gap: 10px; margin-bottom: 6px; }
+  .evolucao-section .ev-ano-btn { width: 36px; height: 36px; font-size: 1.15rem; }
+  .evolucao-section .ev-ano-label { min-width: 72px; font-size: 1.15rem; }
+  .evolucao-section .ev-grafico-wrap { flex: 1 1 auto; min-height: 60px; height: auto !important; margin-bottom: 4px; }
+  .evolucao-section .ev-sem-dados { flex: 1 1 auto; min-height: 60px; height: auto; }
+  .evolucao-section .ev-legenda { flex: 0 0 auto; }
+}
+
+/* ---- Mobile: alvos de toque confortáveis ---- */
+@media (max-width: 600px) {
+  .frequency-grid { grid-template-columns: repeat(4, 1fr); }
+  .pie-chart { width: 56px; height: 56px; }
+  .pie-center { width: 42px; height: 42px; }
+}
+
+
+/* ============================================================
+   PRÓXIMA AÇÃO
+   ============================================================ */
+.next-action { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; padding: 18px 22px; border-color: #38bdf8; background: #0c2233; }
+.next-action .na-ico { width: 48px; height: 48px; border-radius: 50%; background: rgba(56,189,248,.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; flex: none; }
+.next-action .na-ico svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.next-action .na-body { flex: 1; min-width: 0; }
+.next-action .na-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: #38bdf8; }
+.next-action .na-title { font-size: 1.1rem; font-weight: 700; margin-top: 3px; line-height: 1.3; }
+.next-action .na-sub { font-size: .85rem; color: var(--muted); margin-top: 3px; }
+.next-action .na-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: #38bdf8; color: #04202e; font-weight: 700; font-size: .95rem; cursor: pointer; flex: none; white-space: nowrap; }
+.next-action .na-btn:hover { background: #7dd3fc; }
+.next-action .na-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.next-action.refazer { border-color: #f59e0b; background: #2a1f0a; }
+.next-action.refazer .na-label { color: #fcd34d; }
+.next-action.refazer .na-ico { background: rgba(245,158,11,.16); color: #fcd34d; }
+.next-action.aguardando { border-color: rgba(56,189,248,.3); background: #0f172a; }
+.next-action .na-btn.sec { background: #16223c; color: #e8eefb; }
+.next-action .na-btn.sec:hover { background: #1e2f52; }
+.next-action.carregando .na-ico, .next-action.carregando .na-l1, .next-action.carregando .na-l2 { background: #1a2640; border-radius: 8px; }
+.next-action.carregando .na-l1 { height: 14px; width: 110px; }
+.next-action.carregando .na-l2 { height: 20px; width: 60%; margin-top: 8px; }
+@media (max-width: 700px) { .next-action { flex-wrap: wrap; } .next-action .na-btn { width: 100%; } }
+
+/* ============================================================
+   LIÇÕES ENVIADAS — lista em linhas
+   ============================================================ */
+.lessons-section { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 20px; background: var(--card-alt); border: 1px solid var(--border); }
+.lessons-section h2 { flex: 1 1 auto; margin: 0; border: 0; padding: 0; font-size: 1.15rem; }
+.lessons-section .btn-send-lesson { width: auto; margin: 0; padding: 0 18px; min-height: 42px; font-size: .9rem; border-radius: 999px; background: #38bdf8; color: #04202e; box-shadow: none; }
+.lessons-section .btn-send-lesson:hover { transform: none; background: #7dd3fc; box-shadow: none; }
+.lessons-section .lessons-list { flex: 1 1 100%; display: flex; flex-direction: column; gap: 8px; grid-template-columns: none; font-size: .9rem; }
+.card-licao.licao-oculta { display: none; }
+.lessons-more { flex: 1 1 100%; display: flex; justify-content: center; margin-top: 2px; }
+.lessons-more button { min-height: 34px; padding: 0 18px; border: 1px solid rgba(56,189,248,.35); border-radius: 999px; background: rgba(56,189,248,.08); color: #7dd3fc; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.lessons-more button:hover { background: rgba(56,189,248,.16); border-color: #38bdf8; }
+.card-licao { flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; height: 58px; min-height: 58px; max-height: 58px; padding: 8px 12px; border-radius: 12px; background: #0a1222; box-shadow: none; overflow: hidden; }
+.card-licao:hover { transform: none; border-color: #38bdf8; }
+.card-licao::before { content: ""; order: 0; width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; background: #1a2640; color: #94a3b8; }
+.card-licao.v2-aprovada::before { content: "✓"; background: #12382c; color: #6ee7b7; }
+.card-licao.v2-refazer::before { content: "↻"; background: #3a2e0e; color: #fcd34d; }
+.card-licao.v2-pendente::before { content: "…"; background: #10304a; color: #7dd3fc; }
+.card-licao.v2-refazer { border-color: rgba(245,158,11,.45); }
+.card-licao .card-licao-content { order: 1; flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; overflow: hidden; }
+.card-licao .licao-titulo { justify-content: flex-start; min-width: 0; max-width: 100%; gap: 4px; white-space: nowrap; }
+.card-licao .licao-tipo { display: inline; overflow: hidden; color: var(--ink); font-size: .78rem; font-weight: 600; letter-spacing: 0; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }
+.card-licao .licao-numero { overflow: hidden; flex: 0 0 auto; text-align: left; font-size: .92rem; font-weight: 700; margin: 0; text-overflow: ellipsis; white-space: nowrap; }
+.card-licao .status-badge { order: 3; margin: 0; align-self: flex-start; white-space: nowrap; font-size: .68rem; padding: 2px 8px; line-height: 1.2; }
+.card-licao .btn-ver-detalhes { order: 3; width: auto; flex: 0 0 auto; padding: 0 12px; min-height: 34px; height: 34px; }
+.card-licao .btn-delete-licao { order: 4; position: static; width: 28px; height: 28px; flex: 0 0 28px; }
+.lic-vazio { text-align: center; padding: 18px 8px 6px; }
+.lic-vazio .lv-ico { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto; background: #12304a; color: #38bdf8; display: flex; align-items: center; justify-content: center; }
+.lic-vazio .lv-ico svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.lic-vazio .lv-t { font-weight: 700; font-size: 1rem; margin-top: 12px; }
+.lic-vazio .lv-s { color: var(--muted); font-size: .85rem; margin: 4px 0 14px; }
+.lic-vazio .na-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border: 0; border-radius: 999px; background: #38bdf8; color: #04202e; font-weight: 700; cursor: pointer; }
+@media (max-width: 480px) {
+  .card-licao { gap: 7px; padding: 8px 9px; }
+  .card-licao .card-licao-content { flex: 1 1 auto; }
+  .card-licao .status-badge { margin-left: 0; }
+  .card-licao .btn-ver-detalhes { padding: 0 9px; font-size: .76rem; }
+}
+
+/* ---- Mobile: conteúdo sempre contido na largura da viewport ---- */
+html, body { max-width: 100%; overflow-x: hidden; }
+.main-container, .content-area, .card, .lessons-section, .lessons-list { min-width: 0; max-width: 100%; }
+.lessons-section h2 { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.lessons-section .btn-send-lesson { max-width: 100%; white-space: nowrap; }
+.card-licao .licao-titulo { min-width: 0; overflow: hidden; }
+.card-licao .licao-tipo { min-width: 0; }
+.next-action .na-body, .next-action .na-title, .next-action .na-sub { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .main-container { width: 100%; padding: 12px; gap: 12px; }
+  .content-area, .lessons-section, .lessons-list { width: 100%; }
+  .card, .lessons-section { padding: 14px; }
+  .lessons-section { gap: 10px 12px; }
+  .lessons-section h2 { flex-basis: 100%; font-size: 1.05rem; }
+  .lessons-section .btn-send-lesson { width: 100%; min-height: 40px; }
+  .next-action { width: 100%; padding: 14px; gap: 12px; }
+  .next-action .na-title { font-size: 1rem; }
+}
+@media (max-width: 360px) {
+  .main-container { padding: 8px; }
+  .card, .lessons-section { padding: 12px; }
+  .card-licao { gap: 5px; padding-inline: 7px; }
+  .card-licao .btn-ver-detalhes { padding-inline: 7px; font-size: .72rem; }
+  .card-licao .btn-delete-licao { width: 25px; height: 25px; flex-basis: 25px; }
+}
+
+/* ---- Desktop: preencher elegantemente a altura disponível da frequência ---- */
+@media (min-width: 1025px) {
+  .frequency-section { display: flex; flex-direction: column; min-height: 0; }
+  .lessons-section .lessons-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .frequency-section .frequency-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    align-content: stretch;
+    align-items: stretch;
+    gap: 12px 10px;
+    padding: 10px 0 0;
+  }
+  .frequency-section .month-card {
+    height: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
+}
+</style>
   
   <!-- Fontes com display swap -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap">
@@ -124,9 +336,9 @@
 
     <main class="content-area">
       
-      <!-- COMPROMETIMENTO (NOVO DESIGN CÁPSULA) -->
+      <!-- PRESENÇA (NOVO DESIGN CÁPSULA) -->
       <section class="energy-section card">
-        <h2>Comprometimento</h2>
+        <h2>Presença</h2>
         <div class="capsule-grid">
           <!-- GERAL -->
           <div class="capsule-wrapper">
@@ -320,6 +532,323 @@
   <script src="js/recorder.js" defer></script>
   <script type="module" src="licoes.js?v=1" defer></script>
   <script type="module" src="bottom-nav.js" defer></script>
+
+
+  <!-- Ajustes de interface da v2 (não altera os módulos originais) -->
+  <script>
+  (function () {
+    var AVATAR = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTAgMTUwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkZvdG8gcGFkcsOjbyI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMxMjMwNGEiLz48Y2lyY2xlIGN4PSI3NSIgY3k9IjU4IiByPSIyNiIgZmlsbD0iIzM4YmRmOCIgZmlsbC1vcGFjaXR5PSIuODUiLz48cGF0aCBkPSJNMjQgMTM4YzQtMzAgMjYtNDQgNTEtNDRzNDcgMTQgNTEgNDR6IiBmaWxsPSIjMzhiZGY4IiBmaWxsLW9wYWNpdHk9Ii44NSIvPjwvc3ZnPg==";
+    var MESES = { JAN:0, FEV:1, MAR:2, ABR:3, MAI:4, JUN:5, JUL:6, AGO:7, SET:8, OUT:9, NOV:10, DEZ:11 };
+
+    function agoraSP() {
+      return new Date(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    }
+
+    function ajustarLegendas() {
+      ["legendaGeral", "legendaMensal"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var m = el.textContent.match(/^(\S+)\s*\[(.+)\]$/);
+        if (m) el.textContent = m[1] + (id === "legendaMensal" ? " · " : " ") + m[2];
+      });
+    }
+
+    function ajustarFrequencia() {
+      var anoEl = document.getElementById("anoAtualTexto");
+      var ano = anoEl ? parseInt(anoEl.textContent, 10) : NaN;
+      var agora = agoraSP(), anoNow = agora.getFullYear(), mesNow = agora.getMonth();
+      document.querySelectorAll("#gradeFrequencia .month-card").forEach(function (card) {
+        var nome = card.querySelector(".month-name");
+        var valor = card.querySelector(".pie-value");
+        var pie = card.querySelector(".pie-chart");
+        if (!nome || !valor) return;
+        var chave = ano + "|" + nome.textContent + "|" + valor.textContent;
+        if (card.dataset.v2 === chave) return;
+        var mes = MESES[nome.textContent.trim().toUpperCase()];
+        var futuro = !isNaN(ano) && mes !== undefined && (ano > anoNow || (ano === anoNow && mes > mesNow));
+        var texto = valor.textContent.trim();
+        card.classList.toggle("sem-aulas", futuro);
+        card.classList.toggle("perfeito", !futuro && texto === "100%");
+        if (futuro) { valor.textContent = "—"; if (pie) pie.style.setProperty("--p", 0); }
+        card.setAttribute("role", "button");
+        card.setAttribute("tabindex", "0");
+        card.setAttribute("aria-label", futuro ? nome.textContent + ": mês futuro" : nome.textContent + ": " + texto + " de presença");
+        if (!card.dataset.teclado) {
+          card.dataset.teclado = "1";
+          card.addEventListener("keydown", function (ev) {
+            if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); card.click(); }
+          });
+        }
+        card.dataset.v2 = ano + "|" + nome.textContent + "|" + valor.textContent;
+      });
+    }
+
+
+    var ICONE_SETA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+    var ICONE_MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+    var ICONE_REFAZER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-3-6.2M20 4v5h-5"/></svg>';
+    var ICONE_RELOGIO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    var ICONE_OK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+
+    function rotuloTipo(metodo) { return metodo ? "Método instrumental" : "Leitura"; }
+
+    function lerLicoes() {
+      var lista = document.getElementById("listaLicoes");
+      var out = [];
+      if (!lista) return out;
+      lista.querySelectorAll(".card-licao").forEach(function (card) {
+        var badge = card.querySelector(".status-badge");
+        var num = card.querySelector(".licao-numero");
+        var tipo = card.querySelector(".licao-tipo");
+        var det = card.querySelector(".btn-ver-detalhes");
+        if (!badge || !num) return;
+        if (!card.dataset.v2) {
+          var metodo = tipo ? /M[ÉE]TODO/i.test(tipo.textContent) : false;
+          var n = parseInt((num.textContent || "").replace(/\D/g, ""), 10);
+          card.dataset.metodo = metodo ? "1" : "";
+          card.dataset.num = isNaN(n) ? "" : String(n);
+          var cls = badge.classList.contains("aprovada") ? "aprovada" : badge.classList.contains("pendente") ? "pendente" : "refazer";
+          card.dataset.st = cls;
+          card.classList.add("v2-" + cls);
+          if (cls === "refazer") badge.textContent = "PRECISA REFAZER";
+          // O tipo já é exibido pelo .licao-tipo; aqui deve permanecer somente o número.
+          num.textContent = card.dataset.num || "";
+          var m = det && (det.getAttribute("onclick") || "").match(/abrirLicao\('([^']+)'\)/);
+          card.dataset.id = m ? m[1] : "";
+          card.dataset.v2 = "1";
+        }
+        out.push({
+          st: card.dataset.st,
+          metodo: !!card.dataset.metodo,
+          num: card.dataset.num === "" ? null : parseInt(card.dataset.num, 10),
+          id: card.dataset.id,
+          enviadoEm: card.dataset.enviadoEm || ""
+        });
+      });
+      return out;
+    }
+
+    function estadoLicoes() {
+      var lista = document.getElementById("listaLicoes");
+      if (!lista) return "carregando";
+      if (lista.querySelector(".card-licao")) return "ok";
+      if (lista.querySelector(".lic-vazio") || lista.querySelector("p")) return "vazio";
+      return "carregando";
+    }
+
+    function ajustarListaVazia() {
+      var lista = document.getElementById("listaLicoes");
+      if (!lista || lista.querySelector(".card-licao") || lista.querySelector(".lic-vazio")) return;
+      if (!lista.querySelector("p")) return;
+      lista.innerHTML = '<div class="lic-vazio"><div class="lv-ico">' + ICONE_MIC + '</div>' +
+        '<div class="lv-t">Nenhuma lição enviada ainda</div>' +
+        '<div class="lv-s">Grave sua lição e receba o retorno do professor.</div>' +
+        '<button type="button" class="na-btn">Enviar primeira lição</button></div>';
+      lista.querySelector(".na-btn").addEventListener("click", function () { if (window.abrirModalEnviarLicao) window.abrirModalEnviarLicao(); });
+    }
+    function ajustarResumoLicoes() {
+      var lista = document.getElementById("listaLicoes");
+      var secao = document.querySelector(".lessons-section");
+      if (!lista || !secao) return;
+      var cards = Array.prototype.slice.call(lista.querySelectorAll(".card-licao"));
+      var antigo = secao.querySelector(".lessons-more");
+      if (cards.length <= 4) {
+        cards.forEach(function (card) { card.classList.remove("licao-oculta"); });
+        if (antigo) antigo.remove();
+        return;
+      }
+      var controle = antigo;
+      var botao = controle && controle.querySelector("button");
+      if (!botao) {
+        controle = document.createElement("div");
+        controle.className = "lessons-more";
+        botao = document.createElement("button");
+        botao.type = "button";
+        controle.appendChild(botao);
+        secao.appendChild(controle);
+        botao.addEventListener("click", function () {
+          botao.dataset.expandido = botao.dataset.expandido === "1" ? "0" : "1";
+          ajustarResumoLicoes();
+        });
+      }
+      var expandido = botao.dataset.expandido === "1";
+      cards.forEach(function (card, index) {
+        card.classList.toggle("licao-oculta", !expandido && index >= 4);
+      });
+      botao.textContent = expandido ? "Ver menos" : "Ver mais";
+      botao.setAttribute("aria-expanded", expandido ? "true" : "false");
+      botao.setAttribute("aria-label", expandido ? "Mostrar menos lições" : "Mostrar mais lições");
+    }
+
+    function decidirProximaAcao(licoes) {
+      var refazer = licoes.filter(function (l) {
+        if (l.st !== "refazer") return false;
+        var refeita = licoes.some(function (o) {
+          return o !== l && o.metodo === l.metodo && (o.st === "aprovada" || o.st === "pendente") && o.num !== null && l.num !== null && o.num >= l.num;
+        });
+        return !refeita;
+      }).sort(function (a, b) { return (b.num || 0) - (a.num || 0); });
+      if (refazer.length) {
+        var l = refazer[0];
+        return { tipo: "refazer", label: "PRÓXIMA AÇÃO", icone: ICONE_REFAZER,
+          titulo: "Refazer a lição de " + rotuloTipo(l.metodo) + (l.num !== null ? " Nº " + l.num : ""),
+          sub: refazer.length > 1 ? "Há mais " + (refazer.length - 1) + " lição(ões) para refazer." : "O professor pediu uma nova gravação.",
+          botao: "Enviar lição", acao: "enviar" };
+      }
+
+      // Meta mensal: uma leitura e um método instrumental enviados a cada mês.
+      // Quando as duas faltam, a leitura é cobrada primeiro; o método aparece
+      // somente depois que a leitura do mês já foi enviada.
+      var agora = agoraSP();
+      var mesAtual = agora.getFullYear() + "-" + agora.getMonth();
+      var meta = { leitura: false, metodo: false };
+      licoes.forEach(function (l) {
+        if (l.st === "refazer") return;
+        if (!l.enviadoEm) return;
+        var data = new Date(l.enviadoEm);
+        if (isNaN(data.getTime())) return;
+        var dataSP = new Date(data.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+        var chave = dataSP.getFullYear() + "-" + dataSP.getMonth();
+        if (chave === mesAtual) meta[l.metodo ? "metodo" : "leitura"] = true;
+      });
+
+      var proximaMeta = !meta.leitura ? "leitura" : !meta.metodo ? "metodo" : null;
+      if (proximaMeta) {
+        var nomeMeta = proximaMeta === "leitura" ? "Leitura" : "Método Instrumental";
+        return { tipo: "novo", label: "META DO MÊS", icone: ICONE_MIC,
+          titulo: "Envie a lição de " + nomeMeta + " deste mês",
+          sub: "Para ficar em dia, envie uma lição de leitura e uma de método por mês.",
+          botao: "Enviar lição", acao: "enviar" };
+      }
+
+      var pend = licoes.filter(function (l) { return l.st === "pendente"; });
+      if (pend.length) {
+        var p = pend[0];
+        return { tipo: "aguardando", label: "AGUARDANDO CORREÇÃO", icone: ICONE_RELOGIO,
+          titulo: "Sua lição de " + rotuloTipo(p.metodo) + (p.num !== null ? " Nº " + p.num : "") + " está com o professor",
+          sub: "As duas lições do mês já foram enviadas. Assim que forem corrigidas, o resultado aparece na lista.",
+          botao: "Ver lição", acao: "ver", id: p.id, secundario: true };
+      }
+      var aprov = licoes.filter(function (l) { return l.st === "aprovada"; }).length;
+      return { tipo: "novo", label: "PRÓXIMA AÇÃO", icone: ICONE_OK,
+        titulo: "Tudo em dia! Que tal enviar a próxima lição?",
+        sub: aprov + (aprov === 1 ? " lição aprovada até agora." : " lições aprovadas até agora."),
+        botao: "Enviar lição", acao: "enviar" };
+    }
+
+    function ajustarProximaAcao() {
+      var area = document.querySelector(".content-area");
+      if (!area) return;
+      var card = document.getElementById("proximaAcao");
+      if (!card) {
+        card = document.createElement("section");
+        card.id = "proximaAcao";
+        card.className = "next-action card";
+        card.setAttribute("aria-live", "polite");
+      }
+      // Em telas estreitas a ação vem antes do perfil; em telas largas, no topo da coluna central
+      var estreita = window.matchMedia("(max-width: 1024px)").matches;
+      var raiz = document.querySelector(".main-container");
+      var sidebar = document.querySelector(".sidebar");
+      if (estreita && raiz && sidebar) {
+        if (card.parentNode !== raiz) raiz.insertBefore(card, sidebar);
+      } else if (card.parentNode !== area) {
+        area.insertBefore(card, area.firstChild);
+      }
+      var secao = area.querySelector(".lessons-section");
+      if (secao && window.getComputedStyle(secao).display === "none") { card.style.display = "none"; return; }
+      card.style.display = "";
+
+      var est = estadoLicoes();
+      var licoes = est === "ok" ? lerLicoes() : [];
+      var dec = est === "carregando" ? null
+        : est === "vazio" ? decidirProximaAcao([])
+        : decidirProximaAcao(licoes);
+
+      var chave = dec ? [dec.tipo, dec.titulo, dec.sub, dec.id || ""].join("|") : "carregando";
+      if (card.dataset.chave === chave) return;
+      card.dataset.chave = chave;
+
+      if (!dec) {
+        card.className = "next-action card carregando";
+        card.innerHTML = '<div class="na-ico"></div><div class="na-body"><div class="na-l1"></div><div class="na-l2"></div></div>';
+        return;
+      }
+      card.className = "next-action card " + dec.tipo;
+      card.innerHTML = '<div class="na-ico">' + dec.icone + '</div>' +
+        '<div class="na-body"><div class="na-label"></div><div class="na-title"></div><div class="na-sub"></div></div>' +
+        '<button type="button" class="na-btn' + (dec.secundario ? ' sec' : '') + '"></button>';
+      card.querySelector(".na-label").textContent = dec.label;
+      card.querySelector(".na-title").textContent = dec.titulo;
+      card.querySelector(".na-sub").textContent = dec.sub;
+      var btn = card.querySelector(".na-btn");
+      btn.innerHTML = (dec.acao === "enviar" ? ICONE_MIC : ICONE_SETA) + "<span></span>";
+      btn.querySelector("span").textContent = dec.botao;
+      btn.addEventListener("click", function () {
+        if (dec.acao === "enviar" && window.abrirModalEnviarLicao) window.abrirModalEnviarLicao();
+        if (dec.acao === "ver" && dec.id && window.abrirLicao) window.abrirLicao(dec.id);
+      });
+    }
+
+    function ajustarLicoes() {
+      ajustarListaVazia();
+      lerLicoes();
+      ajustarResumoLicoes();
+      document.querySelectorAll("#listaLicoes .btn-delete-licao").forEach(function (b) {
+        if (!b.getAttribute("aria-label")) { b.setAttribute("aria-label", "Excluir lição"); b.title = "Excluir lição"; }
+      });
+    }
+
+    function ajustarFotos() {
+      document.querySelectorAll("img").forEach(function (img) {
+        if (img.src && img.src.indexOf("via.placeholder.com") !== -1) img.src = AVATAR;
+        if (!img.dataset.v2err && (img.id === "fotoAluno" || img.classList.contains("profile-photo"))) {
+          img.dataset.v2err = "1";
+          img.addEventListener("error", function () { if (img.src !== AVATAR) img.src = AVATAR; });
+        }
+      });
+    }
+
+    function marcarHome() {
+      var home = document.querySelector('.bottom-nav .nav-item[data-page="home"]');
+      if (home) home.classList.add("active");
+    }
+
+    function sincronizarAlturaEvolucao() {
+      var atividades = document.querySelector(".notifications-section");
+      var evolucao = document.querySelector(".evolucao-section");
+      if (!atividades || !evolucao) return;
+      if (!window.matchMedia("(min-width: 1025px)").matches || window.getComputedStyle(atividades).display === "none") {
+        evolucao.style.removeProperty("--altura-atividades");
+        return;
+      }
+      var altura = Math.ceil(atividades.getBoundingClientRect().height);
+      if (altura > 0 && evolucao.style.getPropertyValue("--altura-atividades") !== altura + "px") {
+        evolucao.style.setProperty("--altura-atividades", altura + "px");
+      }
+    }
+
+    var agendado = false;
+    var observadorAlturaAtividades = null;
+    function aplicar() {
+      agendado = false;
+      ajustarLegendas(); ajustarFrequencia(); ajustarLicoes(); ajustarProximaAcao(); ajustarFotos(); marcarHome(); sincronizarAlturaEvolucao();
+    }
+    function agendar() { if (!agendado) { agendado = true; requestAnimationFrame(aplicar); } }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      aplicar();
+      window.matchMedia("(max-width: 1024px)").addEventListener("change", agendar);
+      window.addEventListener("resize", agendar);
+      var atividades = document.querySelector(".notifications-section");
+      if (atividades && "ResizeObserver" in window) {
+        observadorAlturaAtividades = new ResizeObserver(sincronizarAlturaEvolucao);
+        observadorAlturaAtividades.observe(atividades);
+      }
+      new MutationObserver(agendar).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["src"] });
+    });
+  })();
+  </script>
 
 </body>
 </html>
