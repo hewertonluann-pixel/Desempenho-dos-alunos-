@@ -651,7 +651,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       if (!lista || !secao) return;
       var cards = Array.prototype.slice.call(lista.querySelectorAll(".card-licao"));
       var antigo = secao.querySelector(".lessons-more");
-      if (cards.length <= 3) {
+      if (cards.length <= 4) {
         cards.forEach(function (card) { card.classList.remove("licao-oculta"); });
         if (antigo) antigo.remove();
         return;
@@ -672,7 +672,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       }
       var expandido = botao.dataset.expandido === "1";
       cards.forEach(function (card, index) {
-        card.classList.toggle("licao-oculta", !expandido && index >= 3);
+        card.classList.toggle("licao-oculta", !expandido && index >= 4);
       });
       botao.textContent = expandido ? "Ver menos" : "Ver mais";
       botao.setAttribute("aria-expanded", expandido ? "true" : "false");
