@@ -1198,10 +1198,12 @@ export async function carregarLicoesAluno(alunoOuNome) {
 
     const tipoLabel = l.tipo === "metodo" ? "MÉTODO INSTRUMENTAL" : "LEITURA";
     card.innerHTML = `
-      <div class="status-badge ${statusClass}">${statusTexto}</div>
       <div class="card-licao-content">
-        <div class="licao-tipo">${tipoLabel}</div>
-        <div class="licao-numero">Nº ${l.numero}</div>
+        <div class="licao-titulo">
+          <span class="licao-tipo">${tipoLabel}</span>
+          <span class="licao-numero">${l.numero}</span>
+        </div>
+        <div class="status-badge ${statusClass}">${statusTexto}</div>
       </div>
       <button class="btn-ver-detalhes" onclick="abrirLicao('${id}')">Detalhes</button>
     `;

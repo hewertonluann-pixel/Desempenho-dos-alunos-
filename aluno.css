@@ -841,9 +841,10 @@ body {
 
 .btn-delete-licao:hover { opacity: 1; }
 
-.card-licao-content { margin-bottom: 10px; }
+.card-licao-content { margin-bottom: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.licao-titulo { display: flex; align-items: baseline; justify-content: center; gap: 5px; line-height: 1.15; }
 .licao-tipo { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
-.licao-numero { font-size: 1.3rem; font-weight: 900; color: #f1f5f9; margin: 8px 0; text-align: center; }
+.licao-numero { font-size: 1.3rem; font-weight: 900; color: #f1f5f9; margin: 0; text-align: center; }
 
 .btn-ver-detalhes {
   background: rgba(56,189,248,.1);

@@ -168,10 +168,11 @@
 .card-licao.v2-refazer::before { content: "↻"; background: #3a2e0e; color: #fcd34d; }
 .card-licao.v2-pendente::before { content: "…"; background: #10304a; color: #7dd3fc; }
 .card-licao.v2-refazer { border-color: rgba(245,158,11,.45); }
-.card-licao .card-licao-content { order: 1; flex: 1; min-width: 0; margin: 0; }
-.card-licao .licao-tipo { display: none; }
-.card-licao .licao-numero { overflow: hidden; text-align: left; font-size: .92rem; font-weight: 700; margin: 0; text-overflow: ellipsis; white-space: nowrap; }
-.card-licao .status-badge { order: 2; margin: 0; align-self: center; white-space: nowrap; }
+.card-licao .card-licao-content { order: 1; flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; overflow: hidden; }
+.card-licao .licao-titulo { justify-content: flex-start; min-width: 0; max-width: 100%; gap: 4px; white-space: nowrap; }
+.card-licao .licao-tipo { display: inline; overflow: hidden; color: var(--ink); font-size: .78rem; font-weight: 600; letter-spacing: 0; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }
+.card-licao .licao-numero { overflow: hidden; flex: 0 0 auto; text-align: left; font-size: .92rem; font-weight: 700; margin: 0; text-overflow: ellipsis; white-space: nowrap; }
+.card-licao .status-badge { order: 3; margin: 0; align-self: flex-start; white-space: nowrap; font-size: .68rem; padding: 2px 8px; line-height: 1.2; }
 .card-licao .btn-ver-detalhes { order: 3; width: auto; flex: 0 0 auto; padding: 0 12px; min-height: 34px; height: 34px; }
 .card-licao .btn-delete-licao { order: 4; position: static; width: 28px; height: 28px; flex: 0 0 28px; }
 .lic-vazio { text-align: center; padding: 18px 8px 6px; }
