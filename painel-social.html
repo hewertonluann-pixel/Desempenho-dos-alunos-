@@ -588,6 +588,7 @@
     let mesAtual      = new Date().getMonth();
     let dadosGrupo    = { nome: 'Filhos de Asafe', anoCriacao: '2021', descricao: '', logoUrl: '' };
     let todasTurmas   = []; // turmas cadastradas em turmas.html
+    const cacheFrequencia = new WeakMap();
 
     // Persistência de preferências
     let modoBancada   = localStorage.getItem("ps_modoBancada") !== "false";
@@ -659,9 +660,18 @@
       return d.length > 0 ? d.join(" ") : "—";
     }
     function chamadasDoAluno(aluno, grupos, mes = null) {
+      let cache = cacheFrequencia.get(grupos);
+      if (!cache) {
+        cache = new Map();
+        cacheFrequencia.set(grupos, cache);
+      }
+      const cacheKey = `${aluno.id || aluno.nome}|${aluno.turmaId || ""}|${mes || "__ano__"}`;
+      if (cache.has(cacheKey)) return cache.get(cacheKey);
+
       const eventos = Object.keys(grupos)
         .filter(ch => !mes || ch === mes)
         .flatMap(ch => grupos[ch] || []);
+      let resultado;
       if (!aluno.turmaId) {
         const listadas = eventos.filter(ev => ev.tipo !== "coral" && ev.presencas?.some(p =>
           (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome
@@ -674,9 +684,12 @@
           const p = ev.presencas.find(x => (x.alunoId && x.alunoId === aluno.id) || x.nome === aluno.nome);
           return p?.presenca === "presente" || p?.presenca === "P";
         }).length;
-        return { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
+        resultado = { percentual: avaliadas.length ? Math.round((presentes / avaliadas.length) * 100) : null };
+      } else {
+        resultado = calcularFrequenciaElegivel(eventos, aluno, aluno.turmaId);
       }
-      return calcularFrequenciaElegivel(eventos, aluno, aluno.turmaId);
+      cache.set(cacheKey, resultado);
+      return resultado;
     }
     function calcularEnergiaAnualLocal(aluno, grupos) {
       return chamadasDoAluno(aluno, grupos).percentual ?? 0;
@@ -1222,6 +1235,7 @@
       const cards = alunosFiltrados.slice().sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")).map(htmlCardCompacto).join("");
       const contador = alunosFiltrados.length === 1 ? "1 perfil exibido" : `${alunosFiltrados.length} perfis exibidos`;
       container.innerHTML = `${htmlFiltrosMosaico(turmaMap, coralMap, alunos, coralSelecionado)}<div class="mosaico-contador">${contador}</div><div class="mosaico-grid">${cards || '<div class="mosaico-vazio">Nenhum aluno encontrado nesta turma.</div>'}</div>`;
+      window.hideLoader?.();
     }
     window.abrirPerfilMosaico = idCodificado => {
       window.location.href = `aluno.html?id=${idCodificado}&view=public`;
@@ -1264,13 +1278,11 @@
       ]);
       gruposEventos = agruparEventosPorMes(eventosAno);
       const alunos  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      alunos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
       todosAtivos = alunos.filter(a => a.ativo !== false);
+      todosAtivos.forEach(a => { a.energiaAnual = calcularEnergiaAnualLocal(a, gruposEventos); });
       todosAtivosComCoral = todosAtivos.slice();
       if (grupoSnap.exists()) dadosGrupo = { ...dadosGrupo, ...grupoSnap.data() };
       if (turmasSnap) todasTurmas = turmasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-      const eventosCoral = await Promise.all(obterTurmasCoral().map(async turma => [turma.id, agruparEventosPorMes(await obterEventosDoAno(2026, turma.id))]));
-      gruposEventosCoral = Object.fromEntries(eventosCoral);
       const idsCoral = new Set(todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral").map(t => t.id));
       todosAtivos = todosAtivos.filter(a => !idsCoral.has(a.turmaId));
       const membrosCoral = new Set(todasTurmas.filter(t => String(t.tipo || "").toLowerCase() === "coral").flatMap(t => Array.isArray(t.alunos) ? t.alunos : []));
@@ -1289,9 +1301,11 @@
         turmaAtiva = chavesTurmas.has("orquestra") ? "orquestra" : "todas";
         localStorage.setItem("ps_turmaAtiva", turmaAtiva);
       }
-      alunos.forEach(a => {
-        a.energiaMensal = freqAlunoNoMes(a, mesAtual);
-      });
+      renderizarTudo();
+
+      // O Coral é complementar à primeira pintura: carrega depois para não bloquear os cards principais.
+      const eventosCoral = await Promise.all(obterTurmasCoral().map(async turma => [turma.id, agruparEventosPorMes(await obterEventosDoAno(2026, turma.id))]));
+      gruposEventosCoral = Object.fromEntries(eventosCoral);
       renderizarTudo();
     }
 
