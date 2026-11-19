@@ -107,6 +107,20 @@
 /* ---- Evolução técnica: respiro ---- */
 #painelEvolucao { padding-top: 4px; }
 
+/* ---- Desktop: igualar a altura da evolução à de atividades recentes ---- */
+@media (min-width: 1025px) {
+  .evolucao-section { align-self: start; display: flex; flex-direction: column; height: var(--altura-atividades, auto); overflow: hidden; }
+  .evolucao-section #painelEvolucao { display: flex; flex: 1 1 auto; min-height: 0; padding-top: 0; }
+  .evolucao-section .painel-evolucao { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; padding: 0; }
+  .evolucao-section .ev-pills { flex: 0 0 auto; margin: 0 0 6px; }
+  .evolucao-section .ev-ano-control { flex: 0 0 auto; gap: 10px; margin-bottom: 6px; }
+  .evolucao-section .ev-ano-btn { width: 36px; height: 36px; font-size: 1.15rem; }
+  .evolucao-section .ev-ano-label { min-width: 72px; font-size: 1.15rem; }
+  .evolucao-section .ev-grafico-wrap { flex: 1 1 auto; min-height: 60px; height: auto !important; margin-bottom: 4px; }
+  .evolucao-section .ev-sem-dados { flex: 1 1 auto; min-height: 60px; height: auto; }
+  .evolucao-section .ev-legenda { flex: 0 0 auto; }
+}
+
 /* ---- Mobile: alvos de toque confortáveis ---- */
 @media (max-width: 600px) {
   .frequency-grid { grid-template-columns: repeat(4, 1fr); }
@@ -688,16 +702,37 @@
       if (home) home.classList.add("active");
     }
 
+    function sincronizarAlturaEvolucao() {
+      var atividades = document.querySelector(".notifications-section");
+      var evolucao = document.querySelector(".evolucao-section");
+      if (!atividades || !evolucao) return;
+      if (!window.matchMedia("(min-width: 1025px)").matches || window.getComputedStyle(atividades).display === "none") {
+        evolucao.style.removeProperty("--altura-atividades");
+        return;
+      }
+      var altura = Math.ceil(atividades.getBoundingClientRect().height);
+      if (altura > 0 && evolucao.style.getPropertyValue("--altura-atividades") !== altura + "px") {
+        evolucao.style.setProperty("--altura-atividades", altura + "px");
+      }
+    }
+
     var agendado = false;
+    var observadorAlturaAtividades = null;
     function aplicar() {
       agendado = false;
-      ajustarLegendas(); ajustarFrequencia(); ajustarLicoes(); ajustarProximaAcao(); ajustarFotos(); marcarHome();
+      ajustarLegendas(); ajustarFrequencia(); ajustarLicoes(); ajustarProximaAcao(); ajustarFotos(); marcarHome(); sincronizarAlturaEvolucao();
     }
     function agendar() { if (!agendado) { agendado = true; requestAnimationFrame(aplicar); } }
 
     document.addEventListener("DOMContentLoaded", function () {
       aplicar();
       window.matchMedia("(max-width: 1024px)").addEventListener("change", agendar);
+      window.addEventListener("resize", agendar);
+      var atividades = document.querySelector(".notifications-section");
+      if (atividades && "ResizeObserver" in window) {
+        observadorAlturaAtividades = new ResizeObserver(sincronizarAlturaEvolucao);
+        observadorAlturaAtividades.observe(atividades);
+      }
       new MutationObserver(agendar).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["src"] });
     });
   })();
