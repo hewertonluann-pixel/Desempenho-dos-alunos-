@@ -1,4 +1,4 @@
-const CACHE_NAME = "painel-orquestra-cache-v62";
+const CACHE_NAME = "painel-orquestra-cache-v63";
 const APP_SCOPE = self.registration.scope;
 
 const arquivosEssenciais = [
@@ -9,6 +9,7 @@ const arquivosEssenciais = [
   "firebase-config.js",
   "manifest.json",
   "aluno.html",
+  "painel-social.html",
   "professor.html",
   "favicon.svg",
   "icon-192.png",
