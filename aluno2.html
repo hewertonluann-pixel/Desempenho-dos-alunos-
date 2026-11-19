@@ -598,7 +598,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
           card.dataset.id = m ? m[1] : "";
           card.dataset.v2 = "1";
         }
-        out.push({ st: card.dataset.st, metodo: !!card.dataset.metodo, num: card.dataset.num === "" ? null : parseInt(card.dataset.num, 10), id: card.dataset.id });
+        out.push({
+          st: card.dataset.st,
+          metodo: !!card.dataset.metodo,
+          num: card.dataset.num === "" ? null : parseInt(card.dataset.num, 10),
+          id: card.dataset.id,
+          enviadoEm: card.dataset.enviadoEm || ""
+        });
       });
       return out;
     }
@@ -637,12 +643,38 @@ html, body { max-width: 100%; overflow-x: hidden; }
           sub: refazer.length > 1 ? "Há mais " + (refazer.length - 1) + " lição(ões) para refazer." : "O professor pediu uma nova gravação.",
           botao: "Enviar lição", acao: "enviar" };
       }
+
+      // Meta mensal: uma leitura e um método instrumental enviados a cada mês.
+      // Quando as duas faltam, a leitura é cobrada primeiro; o método aparece
+      // somente depois que a leitura do mês já foi enviada.
+      var agora = agoraSP();
+      var mesAtual = agora.getFullYear() + "-" + agora.getMonth();
+      var meta = { leitura: false, metodo: false };
+      licoes.forEach(function (l) {
+        if (l.st === "refazer") return;
+        if (!l.enviadoEm) return;
+        var data = new Date(l.enviadoEm);
+        if (isNaN(data.getTime())) return;
+        var dataSP = new Date(data.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+        var chave = dataSP.getFullYear() + "-" + dataSP.getMonth();
+        if (chave === mesAtual) meta[l.metodo ? "metodo" : "leitura"] = true;
+      });
+
+      var proximaMeta = !meta.leitura ? "leitura" : !meta.metodo ? "metodo" : null;
+      if (proximaMeta) {
+        var nomeMeta = proximaMeta === "leitura" ? "Leitura" : "Método Instrumental";
+        return { tipo: "novo", label: "META DO MÊS", icone: ICONE_MIC,
+          titulo: "Envie a lição de " + nomeMeta + " deste mês",
+          sub: "Para ficar em dia, envie uma lição de leitura e uma de método por mês.",
+          botao: "Enviar lição", acao: "enviar" };
+      }
+
       var pend = licoes.filter(function (l) { return l.st === "pendente"; });
       if (pend.length) {
         var p = pend[0];
         return { tipo: "aguardando", label: "AGUARDANDO CORREÇÃO", icone: ICONE_RELOGIO,
           titulo: "Sua lição de " + rotuloTipo(p.metodo) + (p.num !== null ? " Nº " + p.num : "") + " está com o professor",
-          sub: "Assim que for corrigida, o resultado aparece na lista de lições.",
+          sub: "As duas lições do mês já foram enviadas. Assim que forem corrigidas, o resultado aparece na lista.",
           botao: "Ver lição", acao: "ver", id: p.id, secundario: true };
       }
       var aprov = licoes.filter(function (l) { return l.st === "aprovada"; }).length;
@@ -678,8 +710,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       var est = estadoLicoes();
       var licoes = est === "ok" ? lerLicoes() : [];
       var dec = est === "carregando" ? null
-        : est === "vazio" ? { tipo: "novo", label: "PRÓXIMA AÇÃO", icone: ICONE_MIC, titulo: "Envie sua primeira lição",
-            sub: "Grave sua lição e receba o retorno do professor.", botao: "Enviar lição", acao: "enviar" }
+        : est === "vazio" ? decidirProximaAcao([])
         : decidirProximaAcao(licoes);
 
       var chave = dec ? [dec.tipo, dec.titulo, dec.sub, dec.id || ""].join("|") : "carregando";

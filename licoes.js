@@ -1167,6 +1167,12 @@ export async function carregarLicoesAluno(alunoOuNome) {
 
     const card = document.createElement("div");
     card.className = "card-licao";
+    const dataEnvio = l.criadoEm || (
+      l.dataEnvio && typeof l.dataEnvio.toDate === "function"
+        ? l.dataEnvio.toDate().toISOString()
+        : ""
+    );
+    if (dataEnvio) card.dataset.enviadoEm = dataEnvio;
 
     const s = (l.status || "").toLowerCase();
     const statusClass = s === "pendente" ? "pendente"
