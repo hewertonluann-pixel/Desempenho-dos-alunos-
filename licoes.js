@@ -1202,7 +1202,8 @@ export async function carregarLicoesAluno(alunoOuNome) {
       }
     };
 
-    const tipoLabel = l.tipo === "metodo" ? "MÉTODO INSTRUMENTAL" : "LEITURA";
+    // O card usa um rótulo curto; detalhes e confirmação continuam com o nome completo.
+    const tipoLabel = l.tipo === "metodo" ? "MÉTODO" : "LEITURA";
     card.innerHTML = `
       <div class="card-licao-content">
         <div class="licao-titulo">
