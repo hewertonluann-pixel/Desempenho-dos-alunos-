@@ -514,7 +514,8 @@
     .mosaico-nome { width:100%; color:#f8fafc; font-size:.79rem; font-weight:850; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-instrumento { width:100%; color:#a5b4fc; font-size:.66rem; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-coral .mosaico-instrumento { color:#a5b4fc; }
-    .mosaico-nivel { width:100%; margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:5px; padding:7px 8px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
+    .mosaico-nivel { width:100%; margin-top:auto; display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:7px 8px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
+    .mosaico-nivel-item { min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; }
     .mosaico-coral .mosaico-voz { width:100%; margin-top:auto; padding:8px 7px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); color:#e5e7eb; font-size:.72rem; font-weight:900; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-coral .mosaico-voz::before { content:"🎶 "; }
     .mosaico-nivel-label { color:#94a3b8; font-size:.61rem; font-weight:700; white-space:nowrap; }
@@ -948,7 +949,8 @@
     function htmlCardFase2(aluno) {
       const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
-      const leitura       = aluno.leitura ?? 0;
+      const bona          = aluno.leitura ?? 0;
+      const metodo        = aluno.metodo ?? 0;
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
       const nomeExibicao  = escapeHtml(primeiroNomeAluno(aluno.nome));
@@ -961,9 +963,9 @@
               <span class="badge-fase fase2">Fase 2</span>
             </div>
           </div>
-          <div class="nivel-geral-destaque">
-            <span class="label-nivel">📘 Índice de Leitura</span>
-            <span class="valor-nivel">${leitura}</span>
+          <div class="niveis-secundarios">
+            <div class="nivel-item"><span>📘 Bona</span><span class="valor">${bona}</span></div>
+            <div class="nivel-item"><span>🎵 Método</span><span class="valor">${metodo}</span></div>
           </div>
           <div class="barra-comprometimento">
             <div class="barra-label"><span>📊 Presença Anual</span><span>${energiaGeral}%</span></div>
@@ -983,7 +985,8 @@
     function htmlCard(aluno) {
       const energiaMensal = aluno.energiaMensal ?? aluno.frequenciaMensal?.porcentagem ?? 0;
       const energiaGeral  = aluno.energiaAnual ?? 0;
-      const total         = (aluno.leitura ?? 0) + (aluno.metodo ?? 0);
+      const bona          = aluno.leitura ?? 0;
+      const metodo        = aluno.metodo ?? 0;
       const conquistas    = calcularConquistas(aluno);
       const bgMensal      = corBarra(energiaMensal);
       const nomeExibicao  = escapeHtml(primeiroNomeAluno(aluno.nome));
@@ -997,10 +1000,9 @@
               ${!aluno._isCoralView && aluno._coralVoz ? `<span class="atividade-extra">🎶 KADOSH · ${escapeHtml(aluno._coralVoz)}</span>` : ""}
             </div>
           </div>
-          <div class="nivel-geral-destaque"><span class="label-nivel">🎯 Nível Geral</span><span class="valor-nivel">${total}</span></div>
           <div class="niveis-secundarios">
-            <div class="nivel-item"><span>📘 Leitura</span><span class="valor">${aluno.leitura ?? 0}</span></div>
-            <div class="nivel-item"><span>🎵 Método</span><span class="valor">${aluno.metodo ?? 0}</span></div>
+            <div class="nivel-item"><span>📘 Bona</span><span class="valor">${bona}</span></div>
+            <div class="nivel-item"><span>🎵 Método</span><span class="valor">${metodo}</span></div>
           </div>
           <div class="barra-comprometimento">
             <div class="barra-label"><span>📊 Geral</span><span>${energiaGeral}%</span></div>
@@ -1145,10 +1147,6 @@
     function primeiroNomeAluno(nome) {
       return String(nome || "Aluno").trim().split(/\s+/).filter(Boolean)[0] || "Aluno";
     }
-    function nivelCompacto(aluno) {
-      if (aluno.nivel != null && aluno.nivel !== "") return aluno.nivel;
-      return (Number(aluno.leitura) || 0) + (Number(aluno.metodo) || 0);
-    }
     function htmlCardCompacto(aluno) {
       const coral = Boolean(aluno._isCoralView);
       const instrumento = coral ? (vozCoralAluno(aluno) || aluno.instrumento || "Voz não definida") : (aluno.instrumento || "Instrumento não definido");
@@ -1158,7 +1156,7 @@
         <div class="mosaico-foto">${foto}</div>
         <div class="mosaico-nome" title="${nome}">${nome}</div>
         ${!coral ? `<div class="mosaico-instrumento" title="${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : ""}
-        ${coral ? `<div class="mosaico-voz" title="Voz coral: ${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : `<div class="mosaico-nivel"><span class="mosaico-nivel-label">🎯 Nível</span><span class="mosaico-nivel-valor">${nivelCompacto(aluno)}</span></div>`}
+        ${coral ? `<div class="mosaico-voz" title="Voz coral: ${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : `<div class="mosaico-nivel"><div class="mosaico-nivel-item"><span class="mosaico-nivel-label">📘 Bona</span><span class="mosaico-nivel-valor">${aluno.leitura ?? 0}</span></div><div class="mosaico-nivel-item"><span class="mosaico-nivel-label">🎵 Método</span><span class="mosaico-nivel-valor">${aluno.metodo ?? 0}</span></div></div>`}
       </article>`;
     }
     function htmlResumoInstrumentos(alunos, coralSelecionado) {
