@@ -180,7 +180,6 @@
 /* ---- Mobile: conteúdo sempre contido na largura da viewport ---- */
 html, body { max-width: 100%; overflow-x: hidden; }
 .main-container, .content-area, .card, .lessons-section, .lessons-list { min-width: 0; max-width: 100%; }
-.content-area, .lessons-section, .lessons-list { width: 100%; }
 .lessons-section h2 { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .lessons-section .btn-send-lesson { max-width: 100%; white-space: nowrap; }
 .card-licao .licao-titulo { min-width: 0; overflow: hidden; }
@@ -188,6 +187,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .next-action .na-body, .next-action .na-title, .next-action .na-sub { min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 600px) {
   .main-container { width: 100%; padding: 12px; gap: 12px; }
+  .content-area, .lessons-section, .lessons-list { width: 100%; }
   .card, .lessons-section { padding: 14px; }
   .lessons-section { gap: 10px 12px; }
   .lessons-section h2 { flex-basis: 100%; font-size: 1.05rem; }
