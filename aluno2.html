@@ -150,6 +150,10 @@
 .lessons-section .btn-send-lesson { width: auto; margin: 0; padding: 0 18px; min-height: 42px; font-size: .9rem; border-radius: 999px; background: #38bdf8; color: #04202e; box-shadow: none; }
 .lessons-section .btn-send-lesson:hover { transform: none; background: #7dd3fc; box-shadow: none; }
 .lessons-section .lessons-list { flex: 1 1 100%; display: flex; flex-direction: column; gap: 8px; grid-template-columns: none; font-size: .9rem; }
+.card-licao.licao-oculta { display: none; }
+.lessons-more { flex: 1 1 100%; display: flex; justify-content: center; margin-top: 2px; }
+.lessons-more button { min-height: 34px; padding: 0 18px; border: 1px solid rgba(56,189,248,.35); border-radius: 999px; background: rgba(56,189,248,.08); color: #7dd3fc; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.lessons-more button:hover { background: rgba(56,189,248,.16); border-color: #38bdf8; }
 .card-licao { flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; height: 58px; min-height: 58px; max-height: 58px; padding: 8px 12px; border-radius: 12px; background: #0a1222; box-shadow: none; overflow: hidden; }
 .card-licao:hover { transform: none; border-color: #38bdf8; }
 .card-licao::before { content: ""; order: 0; width: 34px; height: 34px; border-radius: 50%; flex: 0 0 34px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; background: #1a2640; color: #94a3b8; }
@@ -636,6 +640,39 @@ html, body { max-width: 100%; overflow-x: hidden; }
         '<button type="button" class="na-btn">Enviar primeira lição</button></div>';
       lista.querySelector(".na-btn").addEventListener("click", function () { if (window.abrirModalEnviarLicao) window.abrirModalEnviarLicao(); });
     }
+    function ajustarResumoLicoes() {
+      var lista = document.getElementById("listaLicoes");
+      var secao = document.querySelector(".lessons-section");
+      if (!lista || !secao) return;
+      var cards = Array.prototype.slice.call(lista.querySelectorAll(".card-licao"));
+      var antigo = secao.querySelector(".lessons-more");
+      if (cards.length <= 3) {
+        cards.forEach(function (card) { card.classList.remove("licao-oculta"); });
+        if (antigo) antigo.remove();
+        return;
+      }
+      var controle = antigo;
+      var botao = controle && controle.querySelector("button");
+      if (!botao) {
+        controle = document.createElement("div");
+        controle.className = "lessons-more";
+        botao = document.createElement("button");
+        botao.type = "button";
+        controle.appendChild(botao);
+        secao.appendChild(controle);
+        botao.addEventListener("click", function () {
+          botao.dataset.expandido = botao.dataset.expandido === "1" ? "0" : "1";
+          ajustarResumoLicoes();
+        });
+      }
+      var expandido = botao.dataset.expandido === "1";
+      cards.forEach(function (card, index) {
+        card.classList.toggle("licao-oculta", !expandido && index >= 3);
+      });
+      botao.textContent = expandido ? "Ver menos" : "Ver mais";
+      botao.setAttribute("aria-expanded", expandido ? "true" : "false");
+      botao.setAttribute("aria-label", expandido ? "Mostrar menos lições" : "Mostrar mais lições");
+    }
 
     function decidirProximaAcao(licoes) {
       var refazer = licoes.filter(function (l) {
@@ -750,6 +787,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     function ajustarLicoes() {
       ajustarListaVazia();
       lerLicoes();
+      ajustarResumoLicoes();
       document.querySelectorAll("#listaLicoes .btn-delete-licao").forEach(function (b) {
         if (!b.getAttribute("aria-label")) { b.setAttribute("aria-label", "Excluir lição"); b.title = "Excluir lição"; }
       });
