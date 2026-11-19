@@ -343,13 +343,14 @@
     .foto-social { width: 64px; height: 64px; border-radius: 999px; overflow: hidden; border: 2px solid rgba(34,211,238,0.5); flex-shrink: 0; background: #020617; }
     .foto-social img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .info-principal { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .topo-card .niveis-secundarios { margin: 0 0 0 auto; grid-template-columns: 1fr; width: 100px; flex-shrink: 0; gap: 4px; }
     .nome-aluno        { font-size: 1rem; font-weight: 600; color: #f9fafb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .instrumento-aluno { font-size: 0.85rem; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .nivel-geral-destaque { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: linear-gradient(135deg, rgba(34,211,238,0.15), rgba(56,189,248,0.08)); border-radius: 10px; border: 1px solid rgba(34,211,238,0.3); margin-top: 8px; }
     .label-nivel { font-size: 0.85rem; font-weight: 600; color: #22d3ee; }
     .valor-nivel  { font-size: 1.4rem;  font-weight: 700; color: #f9fafb; }
     .niveis-secundarios { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-    .nivel-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: rgba(15,23,42,0.6); border-radius: 8px; font-size: 0.8rem; color: #9ca3af; }
+    .nivel-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: rgba(15,23,42,0.72); border: 1px solid rgba(34,211,238,0.2); border-radius: 8px; font-size: 0.8rem; color: #9ca3af; }
     .nivel-item .valor { font-weight: 600; color: #e5e7eb; font-size: 0.9rem; }
     .barra-comprometimento { margin-top: 8px; }
     .barra-label { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #e5e7eb; margin-bottom: 4px; }
@@ -514,8 +515,10 @@
     .mosaico-nome { width:100%; color:#f8fafc; font-size:.79rem; font-weight:850; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-instrumento { width:100%; color:#a5b4fc; font-size:.66rem; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-coral .mosaico-instrumento { color:#a5b4fc; }
-    .mosaico-nivel { width:100%; margin-top:auto; display:grid; grid-template-columns:1fr 1fr; gap:5px; padding:7px 8px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
-    .mosaico-nivel-item { min-width:0; display:flex; flex-direction:column; align-items:center; gap:3px; }
+    .mosaico-topo { width:100%; display:flex; align-items:center; gap:7px; }
+    .mosaico-identidade { min-width:0; flex:1; display:flex; flex-direction:column; align-items:flex-start; gap:5px; }
+    .mosaico-nivel { width:68px; flex:0 0 68px; display:grid; grid-template-columns:1fr; gap:4px; padding:4px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); }
+    .mosaico-nivel-item { min-width:0; display:flex; align-items:center; justify-content:space-between; gap:3px; padding:4px 3px; border-radius:6px; background:rgba(15,23,42,.72); border:1px solid rgba(34,211,238,.2); }
     .mosaico-coral .mosaico-voz { width:100%; margin-top:auto; padding:8px 7px; box-sizing:border-box; border-radius:9px; background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.2); color:#e5e7eb; font-size:.72rem; font-weight:900; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .mosaico-coral .mosaico-voz::before { content:"🎶 "; }
     .mosaico-nivel-label { color:#94a3b8; font-size:.61rem; font-weight:700; white-space:nowrap; }
@@ -962,10 +965,10 @@
               <div class="nome-aluno">${nomeExibicao}</div>
               <span class="badge-fase fase2">Fase 2</span>
             </div>
-          </div>
-          <div class="niveis-secundarios">
-            <div class="nivel-item"><span>📘 Bona</span><span class="valor">${bona}</span></div>
-            <div class="nivel-item"><span>🎵 Método</span><span class="valor">${metodo}</span></div>
+            <div class="niveis-secundarios">
+              <div class="nivel-item"><span>Bona</span><span class="valor">${bona}</span></div>
+              <div class="nivel-item"><span>Método</span><span class="valor">${metodo}</span></div>
+            </div>
           </div>
           <div class="barra-comprometimento">
             <div class="barra-label"><span>📊 Presença Anual</span><span>${energiaGeral}%</span></div>
@@ -999,10 +1002,10 @@
               <div class="instrumento-aluno">${aluno.instrumento ?? ""}</div>
               ${!aluno._isCoralView && aluno._coralVoz ? `<span class="atividade-extra">🎶 KADOSH · ${escapeHtml(aluno._coralVoz)}</span>` : ""}
             </div>
-          </div>
-          <div class="niveis-secundarios">
-            <div class="nivel-item"><span>📘 Bona</span><span class="valor">${bona}</span></div>
-            <div class="nivel-item"><span>🎵 Método</span><span class="valor">${metodo}</span></div>
+            <div class="niveis-secundarios">
+              <div class="nivel-item"><span>Bona</span><span class="valor">${bona}</span></div>
+              <div class="nivel-item"><span>Método</span><span class="valor">${metodo}</span></div>
+            </div>
           </div>
           <div class="barra-comprometimento">
             <div class="barra-label"><span>📊 Geral</span><span>${energiaGeral}%</span></div>
@@ -1153,10 +1156,14 @@
       const nome = escapeHtml(primeiroNomeAluno(aluno.nome));
       const foto = aluno.foto ? `<img src="${aluno.foto}" alt="${nome}" loading="lazy">` : `<span>${nomeInicialAluno(aluno.nome)}</span>`;
       return `<article class="mosaico-card ${coral ? "mosaico-coral" : ""}" tabindex="0" role="link" aria-label="Abrir perfil de ${nome}" onclick="abrirPerfilMosaico('${encodeURIComponent(aluno.id)}')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); abrirPerfilMosaico('${encodeURIComponent(aluno.id)}'); }">
-        <div class="mosaico-foto">${foto}</div>
-        <div class="mosaico-nome" title="${nome}">${nome}</div>
-        ${!coral ? `<div class="mosaico-instrumento" title="${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : ""}
-        ${coral ? `<div class="mosaico-voz" title="Voz coral: ${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : `<div class="mosaico-nivel"><div class="mosaico-nivel-item"><span class="mosaico-nivel-label">📘 Bona</span><span class="mosaico-nivel-valor">${aluno.leitura ?? 0}</span></div><div class="mosaico-nivel-item"><span class="mosaico-nivel-label">🎵 Método</span><span class="mosaico-nivel-valor">${aluno.metodo ?? 0}</span></div></div>`}
+        <div class="mosaico-topo">
+          <div class="mosaico-identidade">
+            <div class="mosaico-foto">${foto}</div>
+            <div class="mosaico-nome" title="${nome}">${nome}</div>
+            ${!coral ? `<div class="mosaico-instrumento" title="${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : ""}
+          </div>
+          ${coral ? `<div class="mosaico-voz" title="Voz coral: ${escapeHtml(instrumento)}">${escapeHtml(instrumento)}</div>` : `<div class="mosaico-nivel"><div class="mosaico-nivel-item"><span class="mosaico-nivel-label">Bona</span><span class="mosaico-nivel-valor">${aluno.leitura ?? 0}</span></div><div class="mosaico-nivel-item"><span class="mosaico-nivel-label">Método</span><span class="mosaico-nivel-valor">${aluno.metodo ?? 0}</span></div></div>`}
+        </div>
       </article>`;
     }
     function htmlResumoInstrumentos(alunos, coralSelecionado) {
