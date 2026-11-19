@@ -566,7 +566,8 @@
           card.dataset.st = cls;
           card.classList.add("v2-" + cls);
           if (cls === "refazer") badge.textContent = "PRECISA REFAZER";
-          num.textContent = rotuloTipo(!!metodo) + (card.dataset.num ? " Nº " + card.dataset.num : "");
+          // O tipo já é exibido pelo .licao-tipo; aqui deve permanecer somente o número.
+          num.textContent = card.dataset.num || "";
           var m = det && (det.getAttribute("onclick") || "").match(/abrirLicao\('([^']+)'\)/);
           card.dataset.id = m ? m[1] : "";
           card.dataset.v2 = "1";
