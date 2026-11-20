@@ -344,35 +344,48 @@ function inserirModalLicao() {
     }
     .gravador-status { font-size: 0.78rem; color: #64748b; }
 
-    /* comentário colapsável */
+    /* comentário colapsável — destacado para não passar despercebido */
     .comentario-toggle {
+      width: 100%;
+      min-height: 48px;
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.8rem;
-      color: #64748b;
+      padding: 11px 13px;
+      border: 1px solid rgba(168,85,247,0.55);
+      border-radius: 12px;
+      background: linear-gradient(135deg,rgba(126,34,206,0.22),rgba(14,165,233,0.12));
+      color: #e9d5ff;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-align: left;
       cursor: pointer;
-      margin-bottom: 6px;
+      margin: 2px 0 8px;
       user-select: none;
-      transition: color .2s;
+      transition: color .2s, border-color .2s, background .2s, box-shadow .2s;
     }
-    .comentario-toggle:hover { color: #94a3b8; }
-    .comentario-toggle-seta { font-size: 0.65rem; transition: transform .2s; }
+    .comentario-toggle:hover,
+    .comentario-toggle:focus-visible { color: #fff; border-color: #c084fc; box-shadow: 0 0 14px rgba(168,85,247,.25); }
+    .comentario-toggle.aberto { border-color: #22d3ee; background: linear-gradient(135deg,rgba(126,34,206,0.28),rgba(14,165,233,0.2)); }
+    .comentario-toggle-icone { font-size: 1.15rem; line-height: 1; }
+    .comentario-toggle-seta { color: #c084fc; font-size: 0.68rem; transition: transform .2s; }
     .comentario-toggle.aberto .comentario-toggle-seta { transform: rotate(90deg); }
+    .comentario-toggle small { color: #c4b5fd; font-size: .78rem; font-weight: 600; }
     .modal-licao-texto {
       width: 100%;
       background: #020617;
       border-radius: 8px;
-      border: 1px solid #1f2937;
+      border: 1px solid rgba(56,189,248,0.5);
       color: #e5e7eb;
-      padding: 8px;
-      font-size: 0.85rem;
-      min-height: 60px;
+      padding: 11px;
+      font-size: 0.88rem;
+      min-height: 76px;
       resize: vertical;
       box-sizing: border-box;
       display: none;
       margin-bottom: 10px;
     }
+    .modal-licao-texto:focus { outline: none; border-color: #22d3ee; box-shadow: 0 0 10px rgba(34,211,238,.2); }
     .modal-licao-texto.aberto { display: block; }
 
     /* rodapé passo 2 */
@@ -548,10 +561,11 @@ function inserirModalLicao() {
             <div class="gravador-status" id="statusGravador">Pronto para gravar.</div>
           </div>
 
-          <div class="comentario-toggle" id="comentarioToggle">
+          <button type="button" class="comentario-toggle" id="comentarioToggle" aria-expanded="false" aria-controls="textoLicao">
+            <span class="comentario-toggle-icone" aria-hidden="true">💬</span>
             <span class="comentario-toggle-seta">▶</span>
-            Adicionar comentário opcional
-          </div>
+            <span>Adicionar comentário <small>(opcional)</small></span>
+          </button>
           <textarea id="textoLicao" class="modal-licao-texto" placeholder="Dúvidas, dificuldades, observações..."></textarea>
 
           <div class="rodape-p2">
@@ -618,6 +632,8 @@ function inserirModalLicao() {
   toggleComentario.onclick = () => {
     const aberto = toggleComentario.classList.toggle("aberto");
     textareaComentario.classList.toggle("aberto", aberto);
+    toggleComentario.setAttribute("aria-expanded", String(aberto));
+    if (aberto) textareaComentario.focus();
   };
 
   /* ── modal de visualização ── */
@@ -753,6 +769,7 @@ function resetarGravador() {
 
   // fechar comentário se estava aberto
   el("comentarioToggle")?.classList.remove("aberto");
+  el("comentarioToggle")?.setAttribute("aria-expanded", "false");
   el("textoLicao")?.classList.remove("aberto");
 }
 
