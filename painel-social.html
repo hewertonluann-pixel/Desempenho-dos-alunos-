@@ -527,8 +527,11 @@
     .mosaico-nivel-valor { color:#f8fafc; font-size:.98rem; font-weight:900; line-height:1; white-space:nowrap; letter-spacing:-.02em; }
     .mosaico-vazio { grid-column:1 / -1; padding:36px 12px; color:#94a3b8; text-align:center; border:1px dashed rgba(148,163,184,.28); border-radius:14px; }
     .mosaico-contador { grid-column:1 / -1; color:#64748b; font-size:.7rem; text-align:right; margin-top:-3px; }
+    @media (max-width: 768px) {
+      body.mosaico-page { padding-top:60px; padding-bottom:calc(86px + env(safe-area-inset-bottom, 0px)); }
+    }
     @media (max-width: 520px) {
-      body.mosaico-page { padding:8px; }
+      body.mosaico-page { padding:60px 8px calc(86px + env(safe-area-inset-bottom, 0px)); }
       .mosaico-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
       .mosaico-card { min-height:116px; padding:9px 7px 8px; }
       .mosaico-foto { width:52px; height:52px; flex-basis:52px; }
