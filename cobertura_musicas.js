@@ -1,5 +1,6 @@
 import { db } from './firebase-config.js';
-import { collection, getDocs, getDoc, doc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+import { collection, getDocs, doc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+import { INDICE_PARTITURAS } from './biblioteca-indice.js';
 
 const COLECOES = ['Músicas', 'Hinos da Harpa'];
 const CONFIG_PADRAO = [
@@ -42,21 +43,40 @@ function setLoading(title, message, show = true) { $('loading-card').hidden = !s
 function setStatus(text, error = false) { $('status').textContent = text; $('status').className = error ? 'status error' : 'status'; }
 function setSettingsStatus(text, type = '') { const el = $('instrument-settings-status'); el.textContent = text; el.className = `settings-status ${type}`.trim(); }
 async function carregarDados() {
-  setLoading('Carregando cobertura...', 'Lendo as coleções de músicas e hinos.');
-  const colSnap = await getDocs(collection(db, 'biblioteca_colecoes'));
+  setLoading('Carregando cobertura...', 'Lendo documentos, rótulos e índice em lote.');
+  const [colSnap, rotulosSnap, indiceSnap] = await Promise.all([
+    getDocs(collection(db, 'biblioteca_colecoes')),
+    getDocs(collection(db, 'biblioteca_rotulos')),
+    getDocs(collection(db, INDICE_PARTITURAS)).catch(error => { console.warn('Índice ainda indisponível; usando rótulos.', error); return { docs: [], empty: true }; })
+  ]);
   const colecoes = colSnap.docs.map(d => ({id:d.id, ...d.data()})).filter(c => COLECOES.includes(c.nome));
+  const rotulos = new Map(rotulosSnap.docs.map(d => [d.id, d.data()]));
+  const indicePorDocumento = new Map();
+  indiceSnap.docs.forEach(snapshot => {
+    const data = snapshot.data();
+    if (!data.colecaoId || !data.documentoId || !Array.isArray(data.paginas) || !data.paginas.length) return;
+    const chave = `${data.colecaoId}:${data.documentoId}`;
+    const grupos = indicePorDocumento.get(chave) || [];
+    grupos.push({ nome: data.instrumentoNome || data.instrumentoKey, tipo: 'instrumento', paginas: data.paginas, confianca: 1, origem: 'indice' });
+    indicePorDocumento.set(chave, grupos);
+  });
   const resultado = [];
   for (const col of colecoes) {
     setLoading('Carregando cobertura...', `Lendo documentos de ${col.nome}...`);
     const docsSnap = await getDocs(collection(db, 'biblioteca_colecoes', col.id, 'documentos'));
-    for (const d of docsSnap.docs) {
-      const data = d.data(); let grupos = [], rotuloExiste = false;
-      try {
-        const snap = await getDoc(doc(db, 'biblioteca_rotulos', `${col.id}_${d.id}`));
-        if (snap.exists()) { rotuloExiste = true; const r = snap.data(); grupos = Array.isArray(r.grupos) ? r.grupos : []; if (!grupos.length && r.paginas && typeof r.paginas === 'object') grupos = Object.entries(r.paginas).map(([p,n]) => ({nome:n, tipo:'instrumento', paginas:[Number(p)], confianca:.5, origem:'migrado'})); }
-      } catch (e) { console.warn('Falha ao ler rótulo', d.id, e); }
-      resultado.push({id:d.id, colId:col.id, colecao:col.nome, nome:data.nome || 'Sem nome', url:data.url || '', grupos, rotuloExiste});
-    }
+    docsSnap.docs.forEach(d => {
+      const data = d.data();
+      const rotulo = rotulos.get(`${col.id}_${d.id}`);
+      let grupos = indicePorDocumento.get(`${col.id}:${d.id}`) || [];
+      const gruposSalvos = Array.isArray(rotulo?.grupos) ? rotulo.grupos : rotulo?.paginas && typeof rotulo.paginas === 'object' ? Object.entries(rotulo.paginas).map(([p,n]) => ({nome:n, tipo:'instrumento', paginas:[Number(p)], confianca:.5, origem:'migrado'})) : [];
+      if (!grupos.length) {
+        grupos = gruposSalvos;
+      } else {
+        const nomesIndexados = new Set(grupos.map(grupo => normalizar(grupo.nome)));
+        grupos = [...grupos, ...gruposSalvos.filter(grupo => grupoValido(grupo) && !nomesIndexados.has(normalizar(grupo.nome)))];
+      }
+      resultado.push({id:d.id, colId:col.id, colecao:col.nome, nome:data.nome || 'Sem nome', url:data.url || '', grupos, rotuloExiste:Boolean(rotulo)});
+    });
   }
   documentos = resultado.sort((a,b) => a.nome.localeCompare(b.nome,'pt-BR'));
   let remotas = [];
