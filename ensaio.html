@@ -356,18 +356,36 @@
       const turmaEvento = await carregarTurma(dados.turmaId);
       const ehCoral = String(turmaEvento?.tipo || "").toLowerCase() === "coral";
       if (presencasSalvas.length) {
-        alunos = presencasSalvas
-          .filter(p => {
-            if (!p.alunoId) return true;
-            return ativoMap[p.alunoId] !== false;
+        const salvasPorId = new Map();
+        const salvasPorNome = new Map();
+        presencasSalvas.forEach(p => {
+          if (p.alunoId) salvasPorId.set(p.alunoId, p);
+          else if (p.nome) {
+            const anteriores = salvasPorNome.get(p.nome) || [];
+            anteriores.push(p);
+            salvasPorNome.set(p.nome, anteriores);
+          }
+        });
+        const qAlunos = dados.turmaId
+          ? query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
+          : collection(db, "alunos");
+        const rosterSnap = await getDocs(qAlunos);
+        alunos = rosterSnap.docs
+          .filter(d => d.data().ativo !== false)
+          .map(d => {
+            const cadastro = d.data();
+            const salvoPorId = salvasPorId.get(d.id);
+            const legados = salvasPorNome.get(cadastro.nome) || [];
+            const salvo = salvoPorId || (legados.length === 1 ? legados[0] : null);
+            return {
+              id: d.id,
+              nome: cadastro.nome,
+              instrumento: ehCoral ? (vozCoral(cadastro) || cadastro.instrumento || "") : (cadastro.instrumento || ""),
+              foto: cadastro.foto || "",
+              presenca: salvo ? (salvo.presenca === "FJ" ? "justificado" : (salvo.presenca || "")) : ""
+            };
           })
-          .map(p => ({
-            id:          p.alunoId || "",
-            nome:        p.nome,
-            instrumento: ehCoral ? (vozCoral(dadosAlunos[p.alunoId] || {}) || p.instrumento || "") : (p.instrumento || ""),
-            foto:        (p.alunoId && fotoMap[p.alunoId]) || nomeMap[p.nome] || "",
-            presenca:    p.presenca === "FJ" ? "justificado" : (p.presenca || "")
-          }));
+          .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
       } else {
         if (dados.turmaId) {
           const s = await getDocs(
