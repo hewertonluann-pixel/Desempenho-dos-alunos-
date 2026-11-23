@@ -52,8 +52,17 @@ export function chamadaElegivelParaAluno(evento, aluno, turmaId) {
   if (evento.turmaId !== turmaId) return false;
   if (!alunoParticipaNaData(aluno, turmaId, evento.data)) return false;
   return Array.isArray(evento.presencas) && evento.presencas.some(p =>
-    p && ((p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome)
+    registroPertenceAoAluno(p, aluno)
   );
+}
+
+function registroPertenceAoAluno(registro, aluno) {
+  if (!registro) return false;
+  if (aluno.id && registro.alunoId) return registro.alunoId === aluno.id;
+  if (registro.nome !== aluno.nome) return false;
+  const instrumentoAluno = String(aluno.instrumento || "").trim().toLocaleLowerCase("pt-BR");
+  const instrumentoRegistro = String(registro.instrumento || "").trim().toLocaleLowerCase("pt-BR");
+  return !instrumentoAluno || !instrumentoRegistro || instrumentoAluno === instrumentoRegistro;
 }
 
 export function obterChamadasElegiveis(eventos, aluno, turmaId) {
@@ -66,9 +75,7 @@ export function calcularFrequenciaElegivel(eventos, aluno, turmaId) {
   let ausencias = 0;
   let justificadas = 0;
   chamadas.forEach(evento => {
-    const registro = evento.presencas.find(p =>
-      (p.alunoId && p.alunoId === aluno.id) || p.nome === aluno.nome
-    );
+    const registro = evento.presencas.find(p => registroPertenceAoAluno(p, aluno));
     const status = registro?.presenca;
     if (status === "presente" || status === "P") presencas++;
     else if (status === "justificado" || status === "J") justificadas++;

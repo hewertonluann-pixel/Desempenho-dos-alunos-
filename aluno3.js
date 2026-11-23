@@ -218,7 +218,10 @@ export function abrirPopupFrequencia(info, destino) {
   const chamadas = (info.eventos || [])
     .map(evento => {
       const registro = (evento.presencas || []).find(p =>
-        (info.alunoId && p.alunoId === info.alunoId) || nomesValidos.has(p.nome)
+        (info.alunoId && p.alunoId === info.alunoId) ||
+        (!p.alunoId && nomesValidos.has(p.nome) &&
+          (!info.instrumento || !p.instrumento ||
+            String(info.instrumento).trim().toLocaleLowerCase("pt-BR") === String(p.instrumento).trim().toLocaleLowerCase("pt-BR")))
       );
       return registro ? {
         data: evento.data,

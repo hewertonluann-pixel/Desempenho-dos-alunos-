@@ -12,6 +12,7 @@ import {
   query,
   where
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { alunoParticipaNaData } from "./participacoes.js";
 
 /* ======================================================
    1. OBTER TODOS OS EVENTOS DO ANO
@@ -75,14 +76,22 @@ export function agruparEventosPorMes(eventos) {
    na lista de chamada (presente ou falta registrada).
    Chamadas anteriores à aprovação do aluno são ignoradas.
    ====================================================== */
-function registroPertenceAoAluno(registro, nomeAluno, alunoId = null, nomesAlternativos = []) {
-  if (!registro) return false;
-  if (alunoId && registro.alunoId === alunoId) return true;
-  const nomes = new Set([nomeAluno, ...nomesAlternativos].filter(Boolean));
-  return nomes.has(registro.nome);
+function normalizarTexto(valor) {
+  return String(valor || "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
 }
 
-export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno, alunoId = null, nomesAlternativos = []) {
+function registroPertenceAoAluno(registro, nomeAluno, alunoId = null, nomesAlternativos = [], instrumento = "") {
+  if (!registro) return false;
+  if (alunoId && registro.alunoId === alunoId) return true;
+  if (alunoId && registro.alunoId) return false;
+  const nomes = new Set([nomeAluno, ...nomesAlternativos].filter(Boolean));
+  if (!nomes.has(registro.nome)) return false;
+  const instrumentoAluno = normalizarTexto(instrumento);
+  const instrumentoRegistro = normalizarTexto(registro.instrumento);
+  return !instrumentoAluno || !instrumentoRegistro || instrumentoAluno === instrumentoRegistro;
+}
+
+export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno, alunoId = null, nomesAlternativos = [], instrumento = "") {
   if (!eventosMes || eventosMes.length === 0) {
     return {
       totalEventos: 0,
@@ -93,7 +102,7 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno, alunoId
 
   // Filtra apenas eventos em que o aluno aparece na lista
   const eventosDoAluno = eventosMes.filter(ev =>
-    ev.presencas.some(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos))
+    ev.presencas.some(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos, instrumento))
   );
 
   const totalEventos = eventosDoAluno.length;
@@ -105,7 +114,7 @@ export function calcularFrequenciaMensalParaAluno(eventosMes, nomeAluno, alunoId
   let presencasAluno = 0;
 
   eventosDoAluno.forEach(ev => {
-    const hit = ev.presencas.find(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos));
+    const hit = ev.presencas.find(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos, instrumento));
     if (hit && hit.presenca === "presente") {
       presencasAluno++;
     }
@@ -137,14 +146,14 @@ export async function contarChamadasPorTurma(ano, turmaId) {
    na lista de chamada (presente ou falta registrada).
    Chamadas anteriores à aprovação do aluno são ignoradas.
    ====================================================== */
-export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano, alunoId = null, nomesAlternativos = []) {
+export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano, alunoId = null, nomesAlternativos = [], instrumento = "") {
   if (!turmaId) return { totalEventos: 0, presencasAluno: 0, percentual: 0 };
 
   const eventos = await obterEventosDoAno(ano, turmaId);
 
   // Filtra apenas eventos em que o aluno aparece na lista
   const eventosDoAluno = eventos.filter(ev =>
-    ev.presencas.some(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos))
+    ev.presencas.some(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos, instrumento))
   );
 
   const totalEventos = eventosDoAluno.length;
@@ -152,7 +161,7 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano, 
 
   let presencasAluno = 0;
   eventosDoAluno.forEach(ev => {
-    const hit = ev.presencas.find(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos));
+    const hit = ev.presencas.find(p => registroPertenceAoAluno(p, nomeAluno, alunoId, nomesAlternativos, instrumento));
     if (hit && hit.presenca === "presente") presencasAluno++;
   });
 
@@ -185,9 +194,10 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano, 
   meses.forEach(mesNumero => {
     const chaveMes = `${ano}-${mesNumero}`;
 
-    const eventosMes = agrupado[chaveMes] || [];
+    const eventosMes = (agrupado[chaveMes] || [])
+      .filter(ev => !turmaId || alunoParticipaNaData(aluno, turmaId, ev.data));
 
-    const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome, aluno.id, aluno.nomesAnteriores || []);
+    const freq = calcularFrequenciaMensalParaAluno(eventosMes, aluno.nome, aluno.id, aluno.nomesAnteriores || [], aluno.instrumento);
 
     const mesAbreviado = mesesAbreviados[mesNumero];
 
@@ -198,6 +208,7 @@ export async function calcularFrequenciaAnualParaAluno(nomeAluno, turmaId, ano, 
       mes: mesNumero,
       alunoId: aluno.id,
       nomeAluno: aluno.nome,
+      instrumento: aluno.instrumento,
       nomesAlternativos: aluno.nomesAnteriores || [],
       ...freq,
       eventos: eventosMes
