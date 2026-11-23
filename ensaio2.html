@@ -608,6 +608,16 @@
     return dados.instrumentoCoral || dados.instrumentocoral || dados.vozCoral || "";
   }
 
+  function pertenceNaData(dados, turmaId, dataChamada) {
+    const participacoes = Array.isArray(dados.participacoes) ? dados.participacoes : [];
+    const daTurma = participacoes.filter(p => !turmaId || p.turmaId === turmaId);
+    if (!daTurma.length) return true;
+    return daTurma.some(p =>
+      (!p.inicioEm || p.inicioEm <= dataChamada) &&
+      (!p.fimEm || p.fimEm >= dataChamada)
+    );
+  }
+
   function atualizarProgresso() {
     const total   = alunos.length;
     const marcado = alunos.filter(a => a.presenca !== "").length;
@@ -902,7 +912,7 @@
         : collection(db, "alunos");
       const rosterSnap = await getDocs(qAlunos);
       alunos = rosterSnap.docs
-        .filter(d => d.data().ativo !== false)
+        .filter(d => d.data().ativo !== false && pertenceNaData(d.data(), dados.turmaId, inputData.value))
         .map(d => {
           const cadastro = d.data();
           const salvoPorId = salvasPorId.get(d.id);
