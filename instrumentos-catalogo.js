@@ -40,7 +40,7 @@ const CATALOGO = [
   { key: "trombone-do", nome: "Trombone em Dó", aliases: ["Trombone em Dó", "Trombone em Do", "Trombone C", "Trombone em C", "Trombone in C"], ordem: 210 },
   { key: "tuba", nome: "Tuba", aliases: ["Tuba"], ordem: 220 },
   { key: "bombardino", nome: "Bombardino", aliases: ["Bombardino", "Euphonium"], ordem: 230 },
-  { key: "souzafone", nome: "Souzafone", aliases: [
+  { key: "souzafone", nome: "Sousafone", aliases: [
     "Souzafone", "Sousafone", "Sousaphone", "Souzafone em Sib", "Sousafone em Sib", "Sousaphone em Sib",
     "Souzafone Sib", "Sousafone Sib", "Sousaphone Sib", "Souzafone Bb", "Sousafone Bb", "Sousaphone Bb",
     "Souzafone in Bb", "Sousafone in Bb", "Sousaphone in Bb", "Souzafone B Flat", "Sousafone B Flat",

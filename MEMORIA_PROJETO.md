@@ -215,7 +215,7 @@ O catálogo possui nomes canônicos e aliases normalizados. Entre os nomes espec
 | Clarinete em Sib | `clarinet in bb`, `clarinet in b flat`, `clarinete em sib` |
 | Trombone em Sib | `trombone em sib`, `trombone sib`, `trombone bb`, `trombone in bb`, `trombone in b flat` |
 | Trombone em Dó | `trombone em dó`, `trombone em do`, `trombone c`, `trombone em c`, `trombone in c` |
-| Souzafone | `souzafone`, `sousafone`, `sousaphone` e variantes com `sib`, `bb`, `b flat` e `in b` |
+| Sousafone | `souzafone`, `sousafone`, `sousaphone` e variantes com `sib`, `bb`, `b flat` e `in b` |
 | Trombone 01/02 | `trombone 01`, `trombone 1`, `trombone 02`, `trombone 2` |
 | Trombone Base | `trombone base`, `bass trombone`, `trombone baixo` |
 
