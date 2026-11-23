@@ -376,6 +376,8 @@
         .modal .file-input-label-audio { display: block; margin: 10px 0; }
         .btn-close { background: var(--vermelho); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; float: right; }
         .btn-remove-audio { background: var(--vermelho); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-left: 10px; }
+        .replace-help { color: var(--muted); font-size: .82rem; line-height: 1.45; margin: 8px 0 14px; }
+        .replace-status { min-height: 22px; color: var(--muted); font-size: .82rem; margin-top: 12px; }
 
         .teacher-section {
             background: var(--azul-suave); border: 1px solid var(--azul);
@@ -646,6 +648,26 @@
             <input type="file" id="edit-audio-file" accept=".mp3,.wav,.ogg" style="display: none;">
             <button class="upload-btn" onclick="saveAudio()" style="margin-top: 10px;">Salvar Áudio</button>
             <button class="btn-remove-audio" onclick="removeAudio()">Remover Áudio</button>
+        </div>
+    </div>
+
+    <!-- Modal para substituir uma partitura mantendo o mesmo documento -->
+    <div class="modal" id="replace-modal" onclick="if(event.target===this) closeReplaceModal()">
+        <div class="modal-content">
+            <button class="btn-close" type="button" onclick="closeReplaceModal()">X</button>
+            <h3>↻ Substituir partitura</h3>
+            <p class="replace-help">Documento: <strong id="replace-document-name"></strong><br>O PDF será atualizado mantendo o mesmo cadastro. Os rótulos antigos serão removidos para você reprocessar em Partes.</p>
+            <label for="replace-pdf-file" class="file-input-label">Selecionar novo PDF</label>
+            <input type="file" id="replace-pdf-file" accept=".pdf,application/pdf" onchange="updateReplaceFileName()" style="display:none;">
+            <span id="replace-file-name" style="display:block;font-size:.8rem;color:var(--muted);margin-top:8px;"></span>
+            <label for="replace-audio-file" class="file-input-label-audio" style="display:block;margin-top:14px;">Substituir áudio (opcional)</label>
+            <input type="file" id="replace-audio-file" accept=".mp3,.wav,.ogg" onchange="updateReplaceAudioFileName()" style="display:none;">
+            <span id="replace-audio-file-name" style="display:block;font-size:.8rem;color:var(--muted);margin-top:8px;"></span>
+            <p id="replace-status" class="replace-status" role="status" aria-live="polite"></p>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+                <button class="btn-download" type="button" onclick="closeReplaceModal()">Cancelar</button>
+                <button class="upload-btn" id="replace-submit" type="button" onclick="replaceDocument()">Substituir PDF</button>
+            </div>
         </div>
     </div>
 

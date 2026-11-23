@@ -9,7 +9,8 @@ import {
   doc,
   serverTimestamp,
   updateDoc,
-  Timestamp
+  Timestamp,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 import {
@@ -46,6 +47,7 @@ const storage = getStorage();
 let userRole = 'student';
 let currentCollectionId = null;
 let currentDocumentId = null;
+let currentReplaceDocumentId = null;
 let currentYoutubeDocumentId = null;
 let youtubeModalReturnFocus = null;
 let collections = [];
@@ -535,6 +537,11 @@ function criarBotaoEditarYoutube(docId, nome) {
   return `<button class="youtube-icon-button youtube-admin-button" type="button" data-youtube-doc-id="${escapeHtml(docId)}" title="${escapeHtml(rotulo)}" aria-label="${escapeHtml(rotulo)}"><i class="fa-brands fa-youtube" aria-hidden="true"></i></button>`;
 }
 
+function criarBotaoSubstituir(docId, nome) {
+  const rotulo = `Substituir PDF de ${nomeDocumentoExibicao(nome || 'música')}`;
+  return `<button class="btn-edit btn-replace" type="button" onclick="openReplaceModal('${escapeHtml(docId)}')" title="${escapeHtml(rotulo)}">↻ PDF</button>`;
+}
+
 function renderCompactDocument(d, { collectionId = currentCollectionId, modoPartes = currentColModoPartes, showAdminActions = true } = {}) {
   const nome = escapeHtml(nomeDocumentoExibicao(d.nome || 'Documento sem nome'));
   const safeNome = escapeHtml(d.nome || 'Documento sem nome');
@@ -552,7 +559,7 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
     ? (userRole === 'teacher' ? `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : '')
     : `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>`;
   const adminActions = showAdminActions && userRole === 'teacher'
-    ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button>${criarBotaoEditarYoutube(d.id, d.nome)}</div><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
+    ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button>${criarBotaoEditarYoutube(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
     : '';
   const playHTML = d.audioUrl
     ? `<button class="compact-play-button" type="button" data-audio-url="${escapeHtml(d.audioUrl)}" data-nome="${nome}" aria-label="Reproduzir ${nome}" title="Reproduzir"><i class="fas fa-play" aria-hidden="true"></i></button>`
@@ -582,7 +589,7 @@ function renderDocumentsFiltered(docsToRender) {
     const youtubeLinkAction = criarLinkYoutubePublico(d.youtubeUrl, d.nome);
     const youtubeEditAction = userRole === 'teacher' ? criarBotaoEditarYoutube(d.id, d.nome) : '';
     const teacherMediaActions = userRole === 'teacher'
-      ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${d.id}')">🎵 Áudio</button>${youtubeEditAction}</div>`
+      ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${d.id}')">🎵 Áudio</button>${youtubeEditAction}${criarBotaoSubstituir(d.id, d.nome)}</div>`
       : '';
 
     if (currentView === 'grid') {
@@ -724,6 +731,114 @@ async function deleteDocument(docId, pdfPath, audioPath) {
   } catch (error) {
     console.error('Erro ao excluir documento:', error);
     alert('❌ Erro ao excluir o documento');
+  }
+}
+
+function openReplaceModal(docId) {
+  const documento = documents.find(d => d.id === docId);
+  if (!documento) { alert('❌ Documento não encontrado.'); return; }
+  currentReplaceDocumentId = docId;
+  document.getElementById('replace-document-name').textContent = documento.nome || 'Partitura';
+  document.getElementById('replace-pdf-file').value = '';
+  document.getElementById('replace-audio-file').value = '';
+  document.getElementById('replace-file-name').textContent = '';
+  document.getElementById('replace-audio-file-name').textContent = documento.audioUrl
+    ? 'Áudio atual será mantido se nenhum novo arquivo for selecionado.'
+    : 'Este documento ainda não possui áudio.';
+  document.getElementById('replace-status').textContent = '';
+  document.getElementById('replace-modal').style.display = 'block';
+}
+
+function closeReplaceModal() {
+  document.getElementById('replace-modal').style.display = 'none';
+  currentReplaceDocumentId = null;
+}
+
+function updateReplaceFileName() {
+  const file = document.getElementById('replace-pdf-file').files[0];
+  document.getElementById('replace-file-name').textContent = file ? `✅ ${file.name}` : '';
+}
+
+function updateReplaceAudioFileName() {
+  const file = document.getElementById('replace-audio-file').files[0];
+  document.getElementById('replace-audio-file-name').textContent = file
+    ? `✅ Novo áudio: ${file.name}`
+    : 'Áudio atual será mantido se nenhum novo arquivo for selecionado.';
+}
+
+async function limparDerivadosDaPartitura(colId, docId) {
+  const indiceSnap = await getDocs(collection(db, 'biblioteca_partituras_instrumentos'));
+  const lote = writeBatch(db);
+  lote.delete(doc(db, 'biblioteca_rotulos', `${colId}_${docId}`));
+  indiceSnap.docs
+    .filter(item => item.data().colecaoId === colId && item.data().documentoId === docId)
+    .forEach(item => lote.delete(item.ref));
+  await lote.commit();
+}
+
+async function replaceDocument() {
+  const pdfFile = document.getElementById('replace-pdf-file').files[0];
+  const audioFile = document.getElementById('replace-audio-file').files[0];
+  const status = document.getElementById('replace-status');
+  const button = document.getElementById('replace-submit');
+  if (!pdfFile || pdfFile.type !== 'application/pdf') {
+    status.textContent = 'Selecione um PDF válido.';
+    return;
+  }
+  const documento = documents.find(d => d.id === currentReplaceDocumentId);
+  if (!documento || !currentCollectionId) { status.textContent = 'Documento ou coleção não encontrado.'; return; }
+
+  let novoPdfPath = null;
+  let novoAudioPath = null;
+  let documentoAtualizado = false;
+  button.disabled = true;
+  status.textContent = 'Enviando a nova partitura...';
+  try {
+    novoPdfPath = `biblioteca/${currentCollectionId}/${Date.now()}_substituicao_${pdfFile.name}`;
+    const novoPdfRef = ref(storage, novoPdfPath);
+    await uploadBytes(novoPdfRef, pdfFile);
+    const novoPdfUrl = await getDownloadURL(novoPdfRef);
+
+    const atualizacao = {
+      nome: pdfFile.name,
+      tamanho: pdfFile.size,
+      url: novoPdfUrl,
+      storagePath: novoPdfPath,
+      atualizadoEm: serverTimestamp()
+    };
+    if (audioFile) {
+      novoAudioPath = `biblioteca/${currentCollectionId}/${Date.now()}_substituicao_audio_${audioFile.name}`;
+      const novoAudioRef = ref(storage, novoAudioPath);
+      await uploadBytes(novoAudioRef, audioFile);
+      atualizacao.audioUrl = await getDownloadURL(novoAudioRef);
+      atualizacao.audioStoragePath = novoAudioPath;
+    }
+
+    status.textContent = 'Atualizando o documento e limpando rótulos antigos...';
+    await updateDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', documento.id), atualizacao);
+    documentoAtualizado = true;
+    await limparDerivadosDaPartitura(currentCollectionId, documento.id);
+
+    try { await deleteObject(ref(storage, documento.storagePath)); } catch (e) { console.warn('PDF antigo não encontrado:', e); }
+    if (audioFile && documento.audioStoragePath) {
+      try { await deleteObject(ref(storage, documento.audioStoragePath)); } catch (e) { console.warn('Áudio antigo não encontrado:', e); }
+    }
+
+    status.textContent = 'Partitura substituída. Abra Partes, reprocese e salve os novos rótulos.';
+    await loadDocuments();
+    renderDocuments();
+    setTimeout(closeReplaceModal, 1800);
+  } catch (error) {
+    console.error('Erro ao substituir partitura:', error);
+    if (!documentoAtualizado) {
+      if (novoPdfPath) { try { await deleteObject(ref(storage, novoPdfPath)); } catch (_) {} }
+      if (novoAudioPath) { try { await deleteObject(ref(storage, novoAudioPath)); } catch (_) {} }
+      status.textContent = 'Não foi possível substituir a partitura. A versão anterior foi mantida.';
+    } else {
+      status.textContent = 'A partitura foi atualizada, mas a limpeza de referências antigas precisa ser verificada.';
+    }
+  } finally {
+    button.disabled = false;
   }
 }
 
@@ -977,6 +1092,11 @@ window.openEditModal = openEditModal;
 window.closeModal = closeModal;
 window.saveAudio = saveAudio;
 window.removeAudio = removeAudio;
+window.openReplaceModal = openReplaceModal;
+window.closeReplaceModal = closeReplaceModal;
+window.updateReplaceFileName = updateReplaceFileName;
+window.updateReplaceAudioFileName = updateReplaceAudioFileName;
+window.replaceDocument = replaceDocument;
 window.openYoutubeModal = openYoutubeModal;
 window.closeYoutubeModal = closeYoutubeModal;
 window.saveYoutubeLink = saveYoutubeLink;
