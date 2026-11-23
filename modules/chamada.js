@@ -16,7 +16,8 @@ const inputLocal = document.getElementById("localEvento");
 const switchTipo = document.getElementById("tipoEventoSwitch");
 
 let alunos = [];
-let presencasSalvas = {};
+let presencasSalvasPorId = new Map();
+let presencasLegadasPorNome = new Map();
 let tipoEvento = "ensaio";
 let eventoId = null;
 let veioDeEventos = false;
@@ -59,7 +60,14 @@ async function detectarOrigem() {
       switchTipo.checked = tipoEvento === "apresentacao";
 
       if (dados.presencas) {
-        dados.presencas.forEach(p => presencasSalvas[p.nome] = p.presenca);
+        dados.presencas.forEach(p => {
+          if (p.alunoId) presencasSalvasPorId.set(p.alunoId, p.presenca);
+          else if (p.nome) {
+            const anteriores = presencasLegadasPorNome.get(p.nome) || [];
+            anteriores.push(p.presenca);
+            presencasLegadasPorNome.set(p.nome, anteriores);
+          }
+        });
       }
 
       obs.value = dados.observacoes || "";
@@ -77,12 +85,15 @@ switchTipo.addEventListener("change", () => {
 /* ===== CARREGAR ALUNOS ===== */
 async function carregarAlunos() {
   const snap = await getDocs(collection(db, "alunos"));
-  alunos = snap.docs.map(d => {
+  alunos = snap.docs
+    .filter(d => d.data().ativo !== false)
+    .map(d => {
     const a = d.data();
+    const legadas = presencasLegadasPorNome.get(a.nome) || [];
     return {
       id: d.id,
       ...a,
-      presenca: presencasSalvas[a.nome] || ""
+      presenca: presencasSalvasPorId.get(d.id) || (legadas.length === 1 ? legadas[0] : "")
     };
   });
 
@@ -92,7 +103,7 @@ async function carregarAlunos() {
 /* ===== RENDERIZAR CARDS ===== */
 function renderizarAlunos() {
   painel.innerHTML = alunos.map(a => `
-    <div class="card-chamada ${a.presenca || "vazio"}" data-nome="${a.nome}">
+    <div class="card-chamada ${a.presenca || "vazio"}" data-aluno-id="${a.id}">
       <div class="foto">
         ${a.foto ? `<img src="${a.foto}">` : "Sem foto"}
       </div>
@@ -107,8 +118,8 @@ painel.addEventListener("click", e => {
   const card = e.target.closest(".card-chamada");
   if (!card) return;
 
-  const nome = card.dataset.nome;
-  const aluno = alunos.find(a => a.nome === nome);
+  const aluno = alunos.find(a => a.id === card.dataset.alunoId);
+  if (!aluno) return;
 
   if (!aluno.presenca || aluno.presenca === "ausente")
     aluno.presenca = "presente";
@@ -130,6 +141,7 @@ document.getElementById("btnSalvarChamada").onclick = async () => {
   }).format(new Date()).split('/').reverse().join('-');
 
   const presencas = alunos.map(a => ({
+    alunoId: a.id,
     nome: a.nome,
     instrumento: a.instrumento || "",
     presenca: a.presenca

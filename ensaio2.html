@@ -819,9 +819,10 @@
           (membros.has(d.id) || d.data().turmaId === turma.id) && d.data().ativo !== false
         ) };
       } else {
-        snap = await getDocs(
-          query(collection(db, "alunos"), where("turmaId", "==", turma.id), where("ativo", "!=", false))
+        const turmaSnapAlunos = await getDocs(
+          query(collection(db, "alunos"), where("turmaId", "==", turma.id))
         );
+        snap = { docs: turmaSnapAlunos.docs.filter(d => d.data().ativo !== false) };
       }
       alunos = snap.docs
         .map(d => ({
@@ -895,11 +896,9 @@
           presenca: normalizarPresenca(p.presenca)
         }));
     } else {
-      const q2 = dados.turmaId
-        ? query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId))
-        : collection(db, "alunos");
-
-      const s = await getDocs(q2);
+      const s = dados.turmaId
+        ? await getDocs(query(collection(db, "alunos"), where("turmaId", "==", dados.turmaId)))
+        : await getDocs(collection(db, "alunos"));
       alunos = s.docs
         .filter(d => d.data().ativo !== false)
         .map(d => ({

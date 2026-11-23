@@ -304,10 +304,10 @@
         } else {
           snap = await getDocs(
             query(collection(db, "alunos"),
-              where("turmaId", "==", turmaAtiva.id),
-              where("ativo",   "!=",  false)
+              where("turmaId", "==", turmaAtiva.id)
             )
           );
+          snap = { docs: snap.docs.filter(d => d.data().ativo !== false) };
         }
         alunos = snap.docs
           .map(d => ({ id: d.id, nome: d.data().nome, instrumento: ehCoral ? (vozCoral(d.data()) || d.data().instrumento || "") : (d.data().instrumento || ""), foto: d.data().foto || "", presenca: "" }))
@@ -384,8 +384,15 @@
             .map(d => ({ id: d.id, nome: d.data().nome, instrumento: ehCoral ? (vozCoral(d.data()) || d.data().instrumento || "") : (d.data().instrumento || ""), foto: d.data().foto || "", presenca: "" }))
             .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
           presencasSalvas.forEach(p => {
-            const a = alunos.find(al => al.nome === p.nome);
-            if (a) a.presenca = p.presenca === "FJ" ? "justificado" : p.presenca;
+            const porId = p.alunoId && alunos.find(al => al.id === p.alunoId);
+            if (porId) {
+              porId.presenca = p.presenca === "FJ" ? "justificado" : p.presenca;
+              return;
+            }
+            const porNome = alunos.filter(al => al.nome === p.nome);
+            if (porNome.length === 1) {
+              porNome[0].presenca = p.presenca === "FJ" ? "justificado" : p.presenca;
+            }
           });
         }
       }
