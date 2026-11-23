@@ -1,8 +1,9 @@
 // script_partes.js
 import { db } from './firebase-config.js';
 import {
-  doc, getDoc, setDoc, addDoc, collection, Timestamp, updateDoc
+  doc, getDoc, setDoc, addDoc, collection, Timestamp, updateDoc, getDocs, writeBatch
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { registrosDeIndice, INDICE_PARTITURAS } from './biblioteca-indice.js';
 
 const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -1078,6 +1079,8 @@ async function salvarGrupos() {
       algoritmoVersao: ALGORITMO_RECONHECIMENTO_VERSAO,
       atualizadoEm: Timestamp.now()
     }, { merge: false });
+    try { await sincronizarIndiceDaPartitura(); }
+    catch (indiceError) { console.warn('Grupo salvo, mas o índice por instrumento não foi sincronizado:', indiceError); }
     gruposModificados = false;
     if (ind) ind.style.display = 'none';
     btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
@@ -1088,6 +1091,22 @@ async function salvarGrupos() {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-save"></i> Salvar Tudo';
   }
+}
+
+async function sincronizarIndiceDaPartitura() {
+  const colecaoSnap = await getDoc(doc(db, 'biblioteca_colecoes', colId));
+  const colecao = colecaoSnap.exists() ? (colecaoSnap.data().nome || '') : '';
+  const configuracoes = await getDocs(collection(db, 'biblioteca_instrumentos'))
+    .then(snap => snap.docs.map(item => ({ id: item.id, key: item.id, ...item.data() })))
+    .catch(() => []);
+  const registros = registrosDeIndice({ colId, colecao, documentoId: docId, nome: nomePdf, url: pdfUrl, grupos, configuracoes });
+  const indiceSnap = await getDocs(collection(db, INDICE_PARTITURAS));
+  const lote = writeBatch(db);
+  indiceSnap.docs
+    .filter(item => item.data().colecaoId === colId && item.data().documentoId === docId)
+    .forEach(item => lote.delete(item.ref));
+  registros.forEach(item => lote.set(doc(db, INDICE_PARTITURAS, item.id), { ...item, atualizadoEm: Timestamp.now() }));
+  await lote.commit();
 }
 
 function getPaginasAtribuidas() {

@@ -1,6 +1,7 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, getDoc, doc, setDoc, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 import { nomeInstrumento } from './instrumentos-catalogo.js';
+import { INDICE_PARTITURAS } from './biblioteca-indice.js';
 
 const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -105,8 +106,9 @@ function aplicarConfiguracoesPadrao(remotas = []) {
 }
 
 function atualizarInfoCache(meta, origem) {
-  if (!meta?.atualizadoEm) { $('cache-info').textContent = origem === 'cache' ? 'Rótulos carregados do dispositivo.' : ''; return; }
-  $('cache-info').textContent = `${origem === 'cache' ? 'Carregados do dispositivo' : 'Dados atualizados'} em ${formatarData(meta.atualizadoEm)} · ${meta.quantidadeDocumentos || documentos.length} documentos`;
+  if (!meta?.atualizadoEm) { $('cache-info').textContent = origem === 'cache' ? 'Rótulos carregados do dispositivo.' : origem === 'indice' ? 'Índice pré-processado do servidor.' : ''; return; }
+  const origemTexto = origem === 'cache' ? 'Carregados do dispositivo' : origem === 'indice' ? 'Índice do servidor' : 'Dados atualizados';
+  $('cache-info').textContent = `${origemTexto} em ${formatarData(meta.atualizadoEm)} · ${meta.quantidadeDocumentos || documentos.length} documentos`;
 }
 
 const CATALOGO_REPROCESSAMENTO = [
@@ -202,8 +204,34 @@ async function buscarDoFirestore(forcarTodos = false) {
   return { documentos: ordenados, configuracoes: configuracoesEfetivas, meta: { atualizadoEm: new Date().toISOString(), quantidadeDocumentos: ordenados.length }, origem: 'servidor', reprocessamento: resultadoReprocessamento };
 }
 
+async function buscarIndiceDoFirestore() {
+  const indiceSnap = await getDocs(collection(db, INDICE_PARTITURAS));
+  if (indiceSnap.empty) return null;
+  let configs = [];
+  try {
+    const configSnap = await getDocs(collection(db, 'biblioteca_instrumentos'));
+    configs = configSnap.docs.map(d => ({ id: d.id, key: d.id, ...d.data() }));
+  } catch (error) { console.warn('Configuração de agrupamentos indisponível; usando catálogo padrão.', error); }
+  const porDocumento = new Map();
+  indiceSnap.docs.forEach(snapshot => {
+    const data = snapshot.data();
+    if (!data.documentoId || !data.colecaoId || !Array.isArray(data.paginas) || !data.paginas.length) return;
+    const chave = chaveDocumento(data.colecaoId, data.documentoId);
+    const item = porDocumento.get(chave) || { id: data.documentoId, colId: data.colecaoId, colecao: data.colecaoNome || '', nome: data.nome || 'Sem nome', url: data.url || '', grupos: [], formatoAntigo: false, algoritmoVersao: Number(data.indiceVersao || 1) };
+    item.grupos.push({ nome: data.instrumentoNome || data.instrumentoKey, tipo: 'instrumento', paginas: data.paginas, origem: 'indice' });
+    porDocumento.set(chave, item);
+  });
+  const documentosIndexados = [...porDocumento.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  if (!documentosIndexados.length) return null;
+  return { documentos: documentosIndexados, configuracoes: aplicarConfiguracoesPadrao(configs), meta: { atualizadoEm: new Date().toISOString(), quantidadeDocumentos: documentosIndexados.length }, origem: 'indice', reprocessamento: { processados: 0, falhas: [] } };
+}
+
 async function carregarDados(force = false, forcarTodos = false) {
   if (!force) {
+    try {
+      const indice = await buscarIndiceDoFirestore();
+      if (indice) return indice;
+    } catch (error) { console.warn('Índice por instrumento indisponível; tentando cache local.', error); }
     try {
       setLoading('Carregando instrumentos...', 'Lendo os rótulos salvos neste dispositivo...');
       const cache = await lerCache();
@@ -215,9 +243,7 @@ async function carregarDados(force = false, forcarTodos = false) {
           const remotas = configSnap.docs.map(d => ({ id: d.id, key: d.id, ...d.data() }));
           configuracoesCache = aplicarConfiguracoesPadrao(remotas);
         } catch (error) { console.warn('Não foi possível atualizar a configuração de instrumentos; usando cache.', error); }
-        const resultadoReprocessamento = await reprocessarPendentes(documentosCache);
-        if (resultadoReprocessamento.processados) await salvarCache(documentosCache, configuracoesCache);
-        return { documentos: documentosCache, configuracoes: configuracoesCache, meta: cache.meta, origem: 'cache', reprocessamento: resultadoReprocessamento };
+        return { documentos: documentosCache, configuracoes: configuracoesCache, meta: cache.meta, origem: 'cache', reprocessamento: { processados: 0, falhas: [] } };
       }
     } catch (error) { console.warn('Cache indisponível; buscando no servidor.', error); }
   }
@@ -336,6 +362,6 @@ async function init() {
   setControls(true); $('scores-list').innerHTML = '';
   $('instrument-select').addEventListener('change', e => { const item = instrumentosIdentificados().find(i => i.key === e.target.value); instrumentoAtualKey = item?.key || ''; instrumentoAtualNome = item?.nome || ''; selecionados.clear(); renderizar(); });
   $('collection-select').addEventListener('change', renderizar); $('select-all').addEventListener('click', selecionarTodos); $('clear-selection').addEventListener('click', limparSelecao); $('download-selected').addEventListener('click', baixarSelecionadas); $('refresh-labels').addEventListener('click', atualizarRotulos);
-  try { const dados = await carregarDados(false); documentos = dados.documentos; configuracoes = dados.configuracoes; const perfil = await instrumentoDoPerfil(); preencherInstrumentos(queryInstrumento() || perfil); atualizarInfoCache(dados.meta, dados.origem); carregamentoConcluido = true; setLoading('', '', false); setControls(false); renderizar(); if (dados.reprocessamento?.processados || dados.reprocessamento?.falhas?.length) setStatus(`${dados.reprocessamento.processados} partituras processadas automaticamente${dados.reprocessamento.falhas.length ? `; ${dados.reprocessamento.falhas.length} precisam de revisão.` : '.'}`, Boolean(dados.reprocessamento.falhas.length)); else if (dados.origem === 'cache') setStatus('Rótulos carregados do dispositivo. Use “Atualizar rótulos” para verificar alterações.'); } catch (error) { console.error(error); setLoading('Não foi possível carregar os instrumentos.', 'Verifique sua conexão e tente novamente.'); $('loading-card').hidden = false; setStatus('Não foi possível carregar os rótulos. Tente novamente.', true); $('refresh-labels').innerHTML = '<i class="fas fa-rotate"></i> Tentar novamente'; $('refresh-labels').disabled = false; } finally { atualizarContador(); }
+  try { const dados = await carregarDados(false); documentos = dados.documentos; configuracoes = dados.configuracoes; const perfil = await instrumentoDoPerfil(); preencherInstrumentos(queryInstrumento() || perfil); atualizarInfoCache(dados.meta, dados.origem); if (dados.origem === 'indice') $('refresh-labels').hidden = true; carregamentoConcluido = true; setLoading('', '', false); setControls(false); renderizar(); if (dados.reprocessamento?.processados || dados.reprocessamento?.falhas?.length) setStatus(`${dados.reprocessamento.processados} partituras processadas automaticamente${dados.reprocessamento.falhas.length ? `; ${dados.reprocessamento.falhas.length} precisam de revisão.` : '.'}`, Boolean(dados.reprocessamento.falhas.length)); else if (dados.origem === 'cache') setStatus('Rótulos carregados do dispositivo. Use “Atualizar rótulos” para verificar alterações.'); else if (dados.origem === 'indice') setStatus('Partituras carregadas do índice pré-processado.'); } catch (error) { console.error(error); setLoading('Não foi possível carregar os instrumentos.', 'Verifique sua conexão e tente novamente.'); $('loading-card').hidden = false; setStatus('Não foi possível carregar os rótulos. Tente novamente.', true); $('refresh-labels').innerHTML = '<i class="fas fa-rotate"></i> Tentar novamente'; $('refresh-labels').disabled = false; } finally { atualizarContador(); }
 }
 document.addEventListener('DOMContentLoaded', init);
