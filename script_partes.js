@@ -1079,8 +1079,20 @@ async function salvarGrupos() {
       algoritmoVersao: ALGORITMO_RECONHECIMENTO_VERSAO,
       atualizadoEm: Timestamp.now()
     }, { merge: false });
-    try { await sincronizarIndiceDaPartitura(); }
-    catch (indiceError) { console.warn('Grupo salvo, mas o índice por instrumento não foi sincronizado:', indiceError); }
+    try {
+      await sincronizarIndiceDaPartitura();
+    } catch (indiceError) {
+      console.error('Grupo salvo, mas o índice por instrumento não foi sincronizado:', indiceError);
+      gruposModificados = true;
+      if (ind) {
+        ind.textContent = '⚠️ índice da Cobertura não sincronizado';
+        ind.style.display = 'inline';
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Tentar sincronização';
+      alert('⚠️ Os rótulos foram salvos, mas a cobertura de partituras não foi atualizada. Verifique a conexão e tente salvar novamente.');
+      return;
+    }
     gruposModificados = false;
     if (ind) ind.style.display = 'none';
     btn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
@@ -1172,7 +1184,18 @@ function confirmarRenomear(idxGrupo) {
   const input = document.getElementById(`grupo-rename-input-${idxGrupo}`);
   const novo  = input ? input.value.trim() : '';
   if (!novo) { alert('❌ Digite um nome válido.'); return; }
-  grupos[idxGrupo].nome = novo;
+  const grupo = grupos[idxGrupo];
+  const instrumento = localizarInstrumentos(novo)[0];
+  grupo.nome = novo;
+  // Renomear “GRADE” para um alias de instrumento transforma o grupo em uma
+  // parte indexável. Sem isso, o tipo antigo continuava “grade” e a Cobertura
+  // descartava o grupo mesmo com o nome “Souzafone”.
+  if (instrumento) {
+    grupo.tipo = 'instrumento';
+    grupo.instrumentosDetectados = [instrumento.nome];
+    grupo.origem = 'manual';
+    grupo.fonte = 'renomeado';
+  }
   marcarModificado();
   cancelarRenomear(idxGrupo);
   const nomeEl = document.getElementById(`grupo-prof-nome-${idxGrupo}`);

@@ -1,6 +1,7 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, doc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 import { INDICE_PARTITURAS } from './biblioteca-indice.js';
+import { resolverInstrumento } from './instrumentos-catalogo.js';
 
 const COLECOES = ['Músicas', 'Hinos da Harpa'];
 const CONFIG_PADRAO = [
@@ -22,7 +23,15 @@ function aplicarConfigs(remotas) {
   remotas.forEach(c => { const key = c.key || c.id || normalizar(c.nomeExibicao || c.nome); const base = map.get(key); map.set(key, {...base, ...c, key, nomeExibicao: c.nomeExibicao || base?.nomeExibicao || c.nome || key, aliases: [...new Set([...(base?.aliases || []), ...(c.aliases || [])])]}); });
   return map;
 }
-function grupoValido(g) { const nome = String(g?.nome || '').trim(); const paginas = Array.isArray(g?.paginas) ? g.paginas : []; const tipo = normalizar(g?.tipo || ''); return nome && paginas.length && tipo !== 'grade' && tipo !== 'desconhecido' && normalizar(nome) !== 'grade' && !/^pagina \d+ revisar$/.test(normalizar(nome)); }
+function grupoValido(g) {
+  const nome = String(g?.nome || '').trim();
+  const paginas = Array.isArray(g?.paginas) ? g.paginas : [];
+  const tipo = normalizar(g?.tipo || '');
+  const ehInstrumentoReconhecido = Boolean(resolverInstrumento(nome));
+  // Se uma grade foi renomeada manualmente para um instrumento, o nome
+  // resolvido é mais específico que o tipo “grade” herdado da detecção.
+  return nome && paginas.length && (tipo !== 'grade' || ehInstrumentoReconhecido) && tipo !== 'desconhecido' && normalizar(nome) !== 'grade' && !/^pagina \d+ revisar$/.test(normalizar(nome));
+}
 function criarCatalogo(configMap) {
   const porNome = new Map();
   documentos.flatMap(d => d.grupos.filter(grupoValido)).forEach(g => {

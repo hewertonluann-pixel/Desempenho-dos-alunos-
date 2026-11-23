@@ -28,7 +28,11 @@ function resolverComConfiguracao(nome, configuracoes = []) {
 export function gruposValidosParaIndice(grupos = [], configuracoes = []) {
   return grupos.filter(grupo => {
     const paginas = Array.isArray(grupo?.paginas) ? grupo.paginas.map(Number).filter(Number.isFinite) : [];
-    return paginas.length > 0 && !ehGrade(grupo) && normalizarInstrumento(grupo?.tipo || '') !== 'desconhecido' && !/^pagina\s+\d+\s+revisar$/.test(normalizarInstrumento(grupo?.nome || '')) && resolverComConfiguracao(grupo?.nome, configuracoes);
+    // Uma grade detectada automaticamente pode ser renomeada pelo professor
+    // para um instrumento (por exemplo, “GRADE” -> “Souzafone”). Nesse caso,
+    // o nome canônico prevalece sobre o tipo antigo salvo no grupo.
+    const ehInstrumentoReconhecido = Boolean(resolverComConfiguracao(grupo?.nome, configuracoes));
+    return paginas.length > 0 && (!ehGrade(grupo) || ehInstrumentoReconhecido) && normalizarInstrumento(grupo?.tipo || '') !== 'desconhecido' && !/^pagina\s+\d+\s+revisar$/.test(normalizarInstrumento(grupo?.nome || '')) && ehInstrumentoReconhecido;
   });
 }
 
