@@ -539,20 +539,20 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            padding: 10px 16px;
+            flex-wrap: nowrap;
+            padding: 6px 12px;
             background: rgba(11,18,32,0.98);
             border-bottom: 1px solid var(--border);
-            gap: 8px 12px;
+            gap: 6px 8px;
             flex-shrink: 0;
             position: relative;
             z-index: 5;
         }
         #viz-nome {
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--ink);
-            flex: 1 1 240px;
+            flex: 1 1 auto;
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -567,9 +567,10 @@
             display: inline-flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 6px;
+            gap: 4px;
             flex: 0 1 auto;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            min-width: 0;
         }
         #viz-zoom-controls,
         #viz-rotacao-controls {
@@ -587,11 +588,11 @@
         #viz-fullscreen,
         #viz-baixar,
         #viz-fechar {
-            width: 34px;
-            min-width: 34px;
-            height: 34px;
+            width: 30px;
+            min-width: 30px;
+            height: 30px;
             padding: 0;
-            border-radius: 7px;
+            border-radius: 6px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -624,7 +625,7 @@
         }
         #viz-zoom-label,
         #viz-rotation-label {
-            min-width: 46px;
+            min-width: 38px;
             padding: 0 2px;
             text-align: center;
             color: var(--ink);
@@ -741,6 +742,7 @@
         }
         @media (min-width: 601px) { #viz-swipe-hint { display: none; } }
         @media (max-width: 900px) {
+            #viz-topbar { flex-wrap: wrap; }
             #viz-nome { flex-basis: 100%; }
             #viz-contador { order: 2; }
             #viz-acoes { order: 3; flex: 1 1 100%; justify-content: center; }

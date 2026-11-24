@@ -312,6 +312,8 @@ As miniaturas de páginas nos cards do professor são clicáveis e acessíveis p
 
 No visualizador de `partes.html`, os botões de página anterior e próxima ficam fixos na parte inferior da janela, incluindo durante a tela cheia, para permanecerem acessíveis enquanto a partitura é rolada ou ampliada.
 
+A barra superior do visualizador usa controles compactos e permanece em uma única linha acima de 900 px; abaixo desse limite, o nome e os comandos podem quebrar de forma controlada para evitar corte em telas menores.
+
 ## 9. Modelo de dados Firestore
 
 A tabela abaixo registra as coleções encontradas no código. Campos podem possuir variações legadas; antes de remover um campo, procure todos os consumidores.
