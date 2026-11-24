@@ -4,7 +4,7 @@
 >
 > **Repositório:** [hewertonluann-pixel/Desempenho-dos-alunos-](https://github.com/hewertonluann-pixel/Desempenho-dos-alunos-)
 >
-> **Última revisão:** 06/11/2026
+> **Última revisão:** 24/11/2026
 >
 > **Aplicação:** Orquestra Filhos de Asafe — Assembleia de Deus Ministério Diamantina
 
@@ -295,6 +295,16 @@ Quando `modoPartes` está ativo, a Biblioteca mantém o botão **Ver Partes** co
 ### 8.9 Limitações confirmadas na auditoria
 
 `biblioteca-with-nav.html` é um placeholder sem o DOM operacional esperado por `script_biblioteca.js`; se for servido como rota da Biblioteca, a inicialização falha por ausência dos elementos. `materiais.html`/`materiais.js` implementam registro e histórico de entregas, não uma biblioteca de arquivos; além disso, o HTML carrega como script clássico um arquivo JavaScript com imports de módulo, impedindo sua inicialização conforme está marcado. `partes.html` referencia `partes-desktop.css`, ausente no checkout. A Biblioteca aceita áudio em formatos diversos, mas declara `audio/mpeg` nos players; as gravações de lições podem usar MIME diferente sob extensão `.webm` e não persistem `storagePath` no documento da lição.
+
+### 8.10 Fluxo atual de processamento e substituição
+
+O upload de um PDF na Biblioteca inicia automaticamente a análise de páginas por instrumento, o salvamento dos rótulos em `biblioteca_rotulos` e a sincronização do índice usado por `instrumento.html` e `cobertura_musicas.html`. A interface exibe um modal com etapa, progresso e página processada. A substituição segue uma ordem segura: o novo PDF é enviado e analisado primeiro; o arquivo antigo só é removido depois que a análise e o salvamento do novo documento terminam com sucesso.
+
+No modo professor, cada card de PDF oferece **Áudio**, edição do link do YouTube, **Reprocessar**, **Substituir** e **Excluir**, sem alterar as funções existentes. **Reprocessar** executa novamente a análise do PDF atual e salva os rótulos automaticamente. A revisão manual em `partes.html` continua disponível para correções específicas e não deve ser substituída por uma nova análise automática sem ação explícita do professor.
+
+O botão **Reprocessar** usa fundo âmbar escuro com texto claro para manter contraste. As demais ações seguem a linguagem dos cards de alunos do painel do professor: card escuro `#1e293b`, borda `#334155`, ação primária azul `#0ea5e9` e ações secundárias `#334155`. Na lista desktop, as ações ficam em uma única linha; em telas pequenas, o PDF ocupa uma faixa própria e as ações administrativas formam uma grade 2×2, com Excluir em coluna compacta. Não reintroduzir estilos que permitam ao botão **Substituir** extrapolar o card.
+
+As alterações recentes foram publicadas nos commits `4c2a439`, `1234ac6`, `329eb4e`, `573aec9` e `1b5d361`. O service worker não precisou receber nova versão para essas mudanças porque a página e os módulos da Biblioteca são atualizados pela rede conforme a estratégia atual; se a política de cache for alterada ou esses arquivos forem adicionados ao pré-cache, revisar o `CACHE_NAME` antes do próximo deploy.
 
 ## 9. Modelo de dados Firestore
 
