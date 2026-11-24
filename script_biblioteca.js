@@ -232,8 +232,8 @@ function setupEventListeners() {
 
 function updateUIBasedOnRole() {
   document.querySelectorAll('.is-teacher').forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
-  document.querySelectorAll('.btn-delete').forEach(el => el.style.display = userRole === 'teacher' ? 'block' : 'none');
-  document.querySelectorAll('.btn-edit').forEach(el => el.style.display = userRole === 'teacher' ? 'inline-block' : 'none');
+  document.querySelectorAll('.btn-delete').forEach(el => el.style.display = userRole === 'teacher' ? 'inline-flex' : 'none');
+  document.querySelectorAll('.btn-edit').forEach(el => el.style.display = userRole === 'teacher' ? 'inline-flex' : 'none');
   document.querySelectorAll('.btn-delete-collection').forEach(el => el.style.display = userRole === 'teacher' ? 'flex' : 'none');
   document.querySelectorAll('.modo-partes-toggle').forEach(el => el.style.display = userRole === 'teacher' ? 'flex' : 'none');
   // Badge de status interno (quando dentro de uma coleção)
@@ -599,12 +599,12 @@ function criarBotaoEditarYoutube(docId, nome) {
 
 function criarBotaoSubstituir(docId, nome) {
   const rotulo = `Substituir PDF de ${nomeDocumentoExibicao(nome || 'música')}`;
-  return `<button class="btn-edit btn-replace" type="button" onclick="openReplaceModal('${escapeHtml(docId)}')" title="${escapeHtml(rotulo)}">↻ PDF</button>`;
+  return `<button class="btn-edit btn-replace" type="button" onclick="openReplaceModal('${escapeHtml(docId)}')" title="${escapeHtml(rotulo)}"><i class="fas fa-file-arrow-up" aria-hidden="true"></i> Substituir</button>`;
 }
 function criarBotaoReprocessar(docId, nome) {
   const emProcessamento = documentosEmProcessamento.has(`${currentCollectionId}:${docId}`);
   const rotulo = `Reprocessar rótulos de ${nomeDocumentoExibicao(nome || 'música')}`;
-  return `<button class="btn-edit btn-reprocess" type="button" onclick="reprocessarDocumento('${escapeHtml(docId)}')" title="${escapeHtml(rotulo)}" ${emProcessamento ? 'disabled' : ''}>${emProcessamento ? '⟳ Processando' : '⟳ Reprocessar'}</button>`;
+  return `<button class="btn-edit btn-reprocess" type="button" onclick="reprocessarDocumento('${escapeHtml(docId)}')" title="${escapeHtml(rotulo)}" ${emProcessamento ? 'disabled' : ''}><i class="fas fa-rotate" aria-hidden="true"></i> ${emProcessamento ? 'Processando' : 'Reprocessar'}</button>`;
 }
 async function reprocessarDocumento(docId) {
   if (userRole !== 'teacher') return;
@@ -636,7 +636,7 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
     ? (userRole === 'teacher' ? `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : '')
     : `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>`;
   const adminActions = showAdminActions && userRole === 'teacher'
-    ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button>${criarBotaoEditarYoutube(d.id, d.nome)}${criarBotaoReprocessar(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
+    ? `<div class="media-admin-actions"><button class="btn-edit btn-audio" type="button" onclick="openEditModal('${escapeHtml(d.id)}')"><i class="fas fa-music" aria-hidden="true"></i> Áudio</button>${criarBotaoEditarYoutube(d.id, d.nome)}${criarBotaoReprocessar(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
     : '';
   const playHTML = d.audioUrl
     ? `<button class="compact-play-button" type="button" data-audio-url="${escapeHtml(d.audioUrl)}" data-nome="${nome}" aria-label="Reproduzir ${nome}" title="Reproduzir"><i class="fas fa-play" aria-hidden="true"></i></button>`
@@ -666,7 +666,7 @@ function renderDocumentsFiltered(docsToRender) {
     const youtubeLinkAction = criarLinkYoutubePublico(d.youtubeUrl, d.nome);
     const youtubeEditAction = userRole === 'teacher' ? criarBotaoEditarYoutube(d.id, d.nome) : '';
     const teacherMediaActions = userRole === 'teacher'
-      ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${d.id}')">🎵 Áudio</button>${youtubeEditAction}${criarBotaoReprocessar(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div>`
+      ? `<div class="media-admin-actions"><button class="btn-edit btn-audio" type="button" onclick="openEditModal('${d.id}')"><i class="fas fa-music" aria-hidden="true"></i> Áudio</button>${youtubeEditAction}${criarBotaoReprocessar(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div>`
       : '';
 
     if (currentView === 'grid') {
