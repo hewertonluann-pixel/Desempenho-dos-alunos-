@@ -59,7 +59,7 @@ const TERMOS_GRADE = [
 
 // Incrementar quando o catálogo ou a regra de agrupamento mudar. Rótulos
 // salvos com versão anterior serão reprocessados automaticamente em memória.
-const ALGORITMO_RECONHECIMENTO_VERSAO = 7;
+const ALGORITMO_RECONHECIMENTO_VERSAO = 8;
 
 // ── Estado global ────────────────────────────────────────────────────────────
 let pdfJsLib  = null;

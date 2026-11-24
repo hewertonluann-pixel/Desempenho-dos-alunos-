@@ -20,6 +20,11 @@ import {
   getDownloadURL,
   deleteObject
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+import {
+  analisarPartitura,
+  salvarRotulosESincronizar,
+  carregarConfiguracoesInstrumentos
+} from './processador-partituras.js';
 
 const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -57,6 +62,7 @@ let currentView = localStorage.getItem('bibliotecaView') || 'list';
 let currentColModoPartes = true;
 let activeAudio = null;
 let activePlayer = null;
+const documentosEmProcessamento = new Set();
 
 const INITIAL_COLLECTIONS = ['Métodos', 'Hinos da Harpa', 'Músicas'];
 
@@ -499,6 +505,60 @@ function nomeDocumentoExibicao(nome = '') {
   return String(nome).replace(/\.pdf$/i, '');
 }
 
+function atualizarProgressoProcessamento({ titulo = 'Processando partitura', etapa = 'preparando', percentual = 0, detalhe = '' } = {}) {
+  const modal = document.getElementById('processing-modal');
+  if (!modal) return;
+  const nomes = { validando: 'Validando arquivo...', analisando_paginas: 'Analisando páginas...', salvando_rotulos: 'Salvando rótulos...', sincronizando_indice: 'Sincronizando índice por instrumento...', concluido: 'Processamento concluído', revisao: 'Processado — revisão necessária', erro: 'Erro no processamento' };
+  document.getElementById('processing-title').textContent = titulo;
+  document.getElementById('processing-stage').textContent = nomes[etapa] || etapa;
+  document.getElementById('processing-detail').textContent = detalhe;
+  document.getElementById('processing-progress').style.width = `${Math.max(0, Math.min(100, percentual))}%`;
+  document.getElementById('processing-percent').textContent = `${Math.round(percentual)}%`;
+}
+function abrirProgressoProcessamento(titulo) {
+  const modal = document.getElementById('processing-modal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  document.getElementById('processing-close').disabled = true;
+  atualizarProgressoProcessamento({ titulo, etapa: 'validando', percentual: 2 });
+}
+function fecharProgressoProcessamento() {
+  const modal = document.getElementById('processing-modal');
+  if (modal) modal.style.display = 'none';
+}
+async function processarDocumentoBiblioteca(documento, { dadosDocumento = {} } = {}) {
+  const colId = documento.colId || currentCollectionId;
+  const chave = `${colId}:${documento.id}`;
+  if (documentosEmProcessamento.has(chave)) return;
+  documentosEmProcessamento.add(chave);
+  const refDocumento = doc(db, 'biblioteca_colecoes', colId, 'documentos', documento.id);
+  const titulo = `Processando ${nomeDocumentoExibicao(documento.nome || 'partitura')}`;
+  abrirProgressoProcessamento(titulo);
+  try {
+    await updateDoc(refDocumento, { processamentoStatus: 'processando', processamentoAtualizadoEm: serverTimestamp() });
+    const analise = await analisarPartitura(documento.url, { onProgress: info => atualizarProgressoProcessamento({ titulo, ...info, detalhe: `Página ${info.pagina} de ${info.totalPaginas}` }) });
+    atualizarProgressoProcessamento({ titulo, etapa: 'salvando_rotulos', percentual: 78, detalhe: `${analise.grupos.length} grupos identificados` });
+    if (Object.keys(dadosDocumento).length) await updateDoc(refDocumento, { ...dadosDocumento, processamentoStatus: 'salvando_rotulos', processamentoAtualizadoEm: serverTimestamp() });
+    const colecao = collections.find(item => item.id === colId)?.nome || '';
+    const configuracoes = await carregarConfiguracoesInstrumentos();
+    const resultado = await salvarRotulosESincronizar({ colId, colecao, documentoId: documento.id, nome: dadosDocumento.nome || documento.nome, url: dadosDocumento.url || documento.url, grupos: analise.grupos, configuracoes, onProgress: info => atualizarProgressoProcessamento({ titulo, ...info, detalhe: info.registros === undefined ? 'Persistindo os rótulos...' : `${info.registros} instrumentos sincronizados` }) });
+    const precisaRevisao = resultado.paginasComRevisao.length > 0;
+    await updateDoc(refDocumento, { processamentoStatus: precisaRevisao ? 'revisao-necessaria' : 'concluido', processamentoPercentual: 100, paginasComRevisao: resultado.paginasComRevisao, paginasProcessadas: analise.totalPaginas, processamentoAtualizadoEm: serverTimestamp() });
+    atualizarProgressoProcessamento({ titulo: precisaRevisao ? 'Processado — revisão necessária' : 'Processamento concluído', etapa: precisaRevisao ? 'revisao' : 'concluido', percentual: 100, detalhe: precisaRevisao ? `${resultado.paginasComRevisao.length} página(s) precisam de revisão em Partes.` : `${analise.totalPaginas} páginas analisadas e índice atualizado.` });
+    document.getElementById('processing-close').disabled = false;
+    await loadDocuments(); renderDocuments();
+  } catch (error) {
+    console.error('Erro no processamento automático:', error);
+    try { await updateDoc(refDocumento, { processamentoStatus: 'erro', processamentoErro: error.message || 'Falha desconhecida', processamentoAtualizadoEm: serverTimestamp() }); } catch (_) {}
+    atualizarProgressoProcessamento({ titulo: 'Erro no processamento', etapa: 'erro', percentual: 100, detalhe: 'A versão anterior foi preservada. Tente novamente ou abra Partes para revisão.' });
+    document.getElementById('processing-close').disabled = false;
+    throw error;
+  } finally {
+    documentosEmProcessamento.delete(chave);
+    renderDocuments();
+  }
+}
+
 function validarUrlYoutube(valor) {
   const texto = String(valor || '').trim();
   if (!texto) return null;
@@ -541,6 +601,23 @@ function criarBotaoSubstituir(docId, nome) {
   const rotulo = `Substituir PDF de ${nomeDocumentoExibicao(nome || 'música')}`;
   return `<button class="btn-edit btn-replace" type="button" onclick="openReplaceModal('${escapeHtml(docId)}')" title="${escapeHtml(rotulo)}">↻ PDF</button>`;
 }
+function criarBotaoReprocessar(docId, nome) {
+  const emProcessamento = documentosEmProcessamento.has(`${currentCollectionId}:${docId}`);
+  const rotulo = `Reprocessar rótulos de ${nomeDocumentoExibicao(nome || 'música')}`;
+  return `<button class="btn-edit btn-reprocess" type="button" onclick="reprocessarDocumento('${escapeHtml(docId)}')" title="${escapeHtml(rotulo)}" ${emProcessamento ? 'disabled' : ''}>${emProcessamento ? '⟳ Processando' : '⟳ Reprocessar'}</button>`;
+}
+async function reprocessarDocumento(docId) {
+  if (userRole !== 'teacher') return;
+  const documento = documents.find(item => item.id === docId);
+  if (!documento || !documento.url) { alert('❌ PDF não encontrado.'); return; }
+  if (!confirm(`Reprocessar os rótulos de “${nomeDocumentoExibicao(documento.nome)}”? Os rótulos atuais serão substituídos após a análise.`)) return;
+  try {
+    await processarDocumentoBiblioteca({ ...documento, colId: currentCollectionId });
+    alert('✅ Rótulos reprocessados e índice atualizado.');
+  } catch (_) {
+    alert('❌ Não foi possível reprocessar esta partitura. Verifique o status exibido no processamento.');
+  }
+}
 
 function renderCompactDocument(d, { collectionId = currentCollectionId, modoPartes = currentColModoPartes, showAdminActions = true } = {}) {
   const nome = escapeHtml(nomeDocumentoExibicao(d.nome || 'Documento sem nome'));
@@ -559,7 +636,7 @@ function renderCompactDocument(d, { collectionId = currentCollectionId, modoPart
     ? (userRole === 'teacher' ? `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 PDF Completo</a>` : '')
     : `<a class="btn-download" href="${escapeHtml(d.url || '')}" target="_blank" rel="noopener" data-nome-arquivo="${safeNome}">📥 Baixar PDF</a>`;
   const adminActions = showAdminActions && userRole === 'teacher'
-    ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button>${criarBotaoEditarYoutube(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
+    ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${escapeHtml(d.id)}')">🎵 Áudio</button>${criarBotaoEditarYoutube(d.id, d.nome)}${criarBotaoReprocessar(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div><button class="btn-delete" onclick="deleteDocument('${escapeHtml(d.id)}', '${escapeHtml(d.storagePath || '')}', '${escapeHtml(d.audioStoragePath || '')}')" aria-label="Excluir ${nome}"><i class="fas fa-trash"></i></button>`
     : '';
   const playHTML = d.audioUrl
     ? `<button class="compact-play-button" type="button" data-audio-url="${escapeHtml(d.audioUrl)}" data-nome="${nome}" aria-label="Reproduzir ${nome}" title="Reproduzir"><i class="fas fa-play" aria-hidden="true"></i></button>`
@@ -589,7 +666,7 @@ function renderDocumentsFiltered(docsToRender) {
     const youtubeLinkAction = criarLinkYoutubePublico(d.youtubeUrl, d.nome);
     const youtubeEditAction = userRole === 'teacher' ? criarBotaoEditarYoutube(d.id, d.nome) : '';
     const teacherMediaActions = userRole === 'teacher'
-      ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${d.id}')">🎵 Áudio</button>${youtubeEditAction}${criarBotaoSubstituir(d.id, d.nome)}</div>`
+      ? `<div class="media-admin-actions"><button class="btn-edit" type="button" onclick="openEditModal('${d.id}')">🎵 Áudio</button>${youtubeEditAction}${criarBotaoReprocessar(d.id, d.nome)}${criarBotaoSubstituir(d.id, d.nome)}</div>`
       : '';
 
     if (currentView === 'grid') {
@@ -691,7 +768,7 @@ async function uploadDocument() {
       audioUrl = await getDownloadURL(audioRef);
       audioStoragePath = audioPath;
     }
-    await addDoc(collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos'), {
+    const documentoRef = await addDoc(collection(db, 'biblioteca_colecoes', currentCollectionId, 'documentos'), {
       nome: pdfFile.name,
       tamanho: pdfFile.size,
       url: pdfUrl,
@@ -699,9 +776,11 @@ async function uploadDocument() {
       youtubeUrl: null,
       audioUrl: audioUrl || null,
       audioStoragePath: audioStoragePath || null,
-      criadoEm: serverTimestamp()
+      criadoEm: serverTimestamp(),
+      processamentoStatus: 'pendente'
     });
-    alert('✅ Documento enviado com sucesso!');
+    await processarDocumentoBiblioteca({ id: documentoRef.id, colId: currentCollectionId, nome: pdfFile.name, url: pdfUrl });
+    alert('✅ Documento enviado e processado com sucesso!');
     document.getElementById('pdf-file').value = '';
     document.getElementById('audio-file').value = '';
     document.getElementById('file-name').textContent = '';
@@ -814,17 +893,19 @@ async function replaceDocument() {
       atualizacao.audioStoragePath = novoAudioPath;
     }
 
-    status.textContent = 'Atualizando o documento e limpando rótulos antigos...';
-    await updateDoc(doc(db, 'biblioteca_colecoes', currentCollectionId, 'documentos', documento.id), atualizacao);
+    status.textContent = 'Novo PDF enviado. Analisando páginas e atualizando rótulos...';
+    await processarDocumentoBiblioteca(
+      { id: documento.id, colId: currentCollectionId, nome: pdfFile.name, url: novoPdfUrl },
+      { dadosDocumento: atualizacao }
+    );
     documentoAtualizado = true;
-    await limparDerivadosDaPartitura(currentCollectionId, documento.id);
 
     try { await deleteObject(ref(storage, documento.storagePath)); } catch (e) { console.warn('PDF antigo não encontrado:', e); }
     if (audioFile && documento.audioStoragePath) {
       try { await deleteObject(ref(storage, documento.audioStoragePath)); } catch (e) { console.warn('Áudio antigo não encontrado:', e); }
     }
 
-    status.textContent = 'Partitura substituída. Abra Partes, reprocese e salve os novos rótulos.';
+    status.textContent = 'Partitura substituída, rótulos salvos e índice atualizado.';
     await loadDocuments();
     renderDocuments();
     setTimeout(closeReplaceModal, 1800);
@@ -1097,6 +1178,8 @@ window.closeReplaceModal = closeReplaceModal;
 window.updateReplaceFileName = updateReplaceFileName;
 window.updateReplaceAudioFileName = updateReplaceAudioFileName;
 window.replaceDocument = replaceDocument;
+window.reprocessarDocumento = reprocessarDocumento;
+window.fecharProgressoProcessamento = fecharProgressoProcessamento;
 window.openYoutubeModal = openYoutubeModal;
 window.closeYoutubeModal = closeYoutubeModal;
 window.saveYoutubeLink = saveYoutubeLink;

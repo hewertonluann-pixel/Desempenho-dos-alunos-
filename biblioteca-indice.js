@@ -18,7 +18,7 @@ function resolverComConfiguracao(nome, configuracoes = []) {
   const configuracao = configuracoes.find(item => aliasesDaConfiguracao(item).includes(alvo));
   if (configuracao) return {
     key: configuracao.key || configuracao.id || alvo,
-    nome: configuracao.nomeExibicao || configuracao.nome || nome,
+    nome: (configuracao.key || configuracao.id) === 'souzafone' ? 'Sousafone' : configuracao.nomeExibicao || configuracao.nome || nome,
     ordem: configuracao.ordem ?? 9999
   };
   const canonico = resolverInstrumento(nome);
