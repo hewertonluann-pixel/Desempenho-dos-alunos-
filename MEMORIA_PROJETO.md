@@ -314,6 +314,8 @@ No visualizador de `partes.html`, os botões de página anterior e próxima fica
 
 A barra superior do visualizador usa controles compactos e permanece em uma única linha acima de 900 px; abaixo desse limite, o nome e os comandos podem quebrar de forma controlada para evitar corte em telas menores.
 
+No mobile, os controles de zoom ficam alinhados na mesma linha do título; contador e os comandos de rotação, foco, tela cheia, download e fechamento ficam organizados nas linhas seguintes.
+
 ## 9. Modelo de dados Firestore
 
 A tabela abaixo registra as coleções encontradas no código. Campos podem possuir variações legadas; antes de remover um campo, procure todos os consumidores.
