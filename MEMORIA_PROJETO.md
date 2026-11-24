@@ -306,6 +306,8 @@ O botão **Reprocessar** usa fundo âmbar escuro com texto claro para manter con
 
 As alterações recentes foram publicadas nos commits `4c2a439`, `1234ac6`, `329eb4e`, `573aec9` e `1b5d361`. O service worker não precisou receber nova versão para essas mudanças porque a página e os módulos da Biblioteca são atualizados pela rede conforme a estratégia atual; se a política de cache for alterada ou esses arquivos forem adicionados ao pré-cache, revisar o `CACHE_NAME` antes do próximo deploy.
 
+Na página `partes.html`, o modo professor usa a classe `professor-layout`: em desktop os cards de instrumentos são exibidos em duas colunas; até 800 px eles retornam para uma coluna para preservar a área de edição, miniaturas e controles.
+
 ## 9. Modelo de dados Firestore
 
 A tabela abaixo registra as coleções encontradas no código. Campos podem possuir variações legadas; antes de remover um campo, procure todos os consumidores.

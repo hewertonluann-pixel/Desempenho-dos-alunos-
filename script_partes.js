@@ -1229,6 +1229,7 @@ function renderizarGrupos() {
 
   const currentMode = localStorage.getItem('partes_view_mode') || 'list';
   const grid = document.getElementById('partes-grid');
+  if (userRole === 'teacher') grid.classList.add('professor-layout');
   if (currentMode === 'list') grid.classList.add('view-list');
 
   grupos.forEach((grupo, idx) => {
