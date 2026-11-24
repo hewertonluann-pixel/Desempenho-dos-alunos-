@@ -518,7 +518,7 @@
         .youtube-icon-button:hover{background:transparent;color:#cc0000;transform:scale(1.08)}
         .youtube-icon-button:focus-visible{outline:2px solid rgba(255,0,0,.7);outline-offset:2px;border-radius:50%}
         .document-header-row .youtube-icon-button{flex:0 0 36px}
-        .media-admin-actions,.doc-primary-actions{display:flex;align-items:center;justify-content:center;gap:7px}
+        .media-admin-actions,.doc-primary-actions{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0}
         .documents-grid .doc-buttons .doc-primary-actions,.documents-grid .doc-buttons .media-admin-actions{width:100%;flex-direction:row;flex-wrap:nowrap}
         .documents-grid .doc-buttons .media-admin-actions .btn-edit{display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:36px;white-space:nowrap}
         .documents-grid .doc-buttons .youtube-icon-button{flex:0 0 36px;width:36px;height:36px;padding:0}
@@ -529,51 +529,77 @@
         .documents-grid .doc-buttons .doc-primary-actions .pdf-direct-button{width:auto;min-width:0;flex:1}
         .youtube-link-input{display:block;width:100%;margin:8px 0 4px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--ink);font-size:.92rem}
         /* Ações do professor: família visual única, com acentos por função. */
+        .document-item { background: #1e293b; border-color: #334155; }
+        .document-item:hover { background: #1e293b; border-color: #475569; }
         .media-admin-actions .btn-edit,
         .media-admin-actions .btn-reprocess,
         .media-admin-actions .btn-replace,
         .media-admin-actions .youtube-icon-button,
-        .document-main .doc-buttons .btn-download,
-        .document-main .doc-buttons .pdf-direct-button {
+        .doc-buttons .btn-download,
+        .doc-buttons .pdf-direct-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            min-height: 34px;
+            min-height: 32px;
             padding: 0 11px;
-            border: 1px solid rgba(148,163,184,.34);
-            border-radius: 8px;
-            background: #162238;
-            color: #e5edf8;
-            font-size: .73rem;
-            font-weight: 750;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: #334155;
+            color: #cbd5e1;
+            font-size: .72rem;
+            font-weight: 650;
             line-height: 1;
             white-space: nowrap;
             text-decoration: none;
-            box-shadow: 0 2px 7px rgba(0,0,0,.18);
+            box-shadow: none;
             transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
         }
         .media-admin-actions .btn-edit:hover:not(:disabled),
         .media-admin-actions .btn-reprocess:hover:not(:disabled),
         .media-admin-actions .btn-replace:hover:not(:disabled),
-        .document-main .doc-buttons .btn-download:hover,
-        .document-main .doc-buttons .pdf-direct-button:hover { transform: translateY(-1px); }
-        .media-admin-actions .btn-audio { border-color: rgba(74,222,128,.7); background: rgba(22,101,52,.72); color: #dcfce7; }
-        .media-admin-actions .btn-audio:hover { background: #166534; border-color: #86efac; }
-        .media-admin-actions .btn-reprocess { border-color: rgba(251,191,36,.78) !important; background: rgba(120,53,15,.88) !important; color: #fffbeb !important; }
-        .media-admin-actions .btn-reprocess:hover:not(:disabled) { background: #92400e !important; border-color: #fde68a !important; color: #fff !important; }
-        .media-admin-actions .btn-replace { border-color: rgba(56,189,248,.7); background: rgba(14,70,105,.82); color: #e0f2fe; }
-        .media-admin-actions .btn-replace:hover { background: #075985; border-color: #7dd3fc; }
-        .media-admin-actions .youtube-icon-button { width: 34px; min-width: 34px; padding: 0; border-color: rgba(248,113,113,.55); background: rgba(127,29,29,.5); color: #fecaca; font-size: 1rem; }
-        .media-admin-actions .youtube-icon-button:hover { background: #991b1b; border-color: #fca5a5; color: #fff; transform: translateY(-1px); }
-        .document-main .doc-buttons .btn-download { border-color: rgba(56,189,248,.72); background: rgba(14,70,105,.82); color: #e0f2fe; }
-        .document-main .doc-buttons .btn-download:hover { background: #075985; border-color: #7dd3fc; }
-        .btn-delete { width: 34px; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .doc-buttons .btn-download:hover,
+        .doc-buttons .pdf-direct-button:hover { transform: translateY(-1px); }
+        .media-admin-actions .btn-edit:hover:not(:disabled) { background: #475569; color: #f1f5f9; }
+        .media-admin-actions .btn-audio { background: #334155; color: #cbd5e1; }
+        .media-admin-actions .btn-reprocess { border-color: #fbbf2455 !important; background: #fbbf2433 !important; color: #fbbf24 !important; }
+        .media-admin-actions .btn-reprocess:hover:not(:disabled) { background: #fbbf2455 !important; border-color: #fbbf24 !important; color: #fffbeb !important; }
+        .media-admin-actions .btn-replace { background: #334155; color: #cbd5e1; }
+        .media-admin-actions .btn-replace:hover { background: #475569; color: #f1f5f9; }
+        .media-admin-actions .youtube-icon-button { width: 34px; min-width: 34px; padding: 0; background: #334155; color: #f87171; font-size: 1rem; }
+        .media-admin-actions .youtube-icon-button:hover { background: #475569; color: #fca5a5; transform: translateY(-1px); }
+        .doc-buttons .btn-download { border-color: transparent; background: #0ea5e9; color: #fff; }
+        .doc-buttons .btn-download:hover { background: #0284c7; border-color: transparent; }
+        .doc-buttons .pdf-direct-button { border-color: transparent; background: #0ea5e9; color: #fff; }
+        .doc-buttons .pdf-direct-button:hover { background: #0284c7; }
+        .btn-delete { width: 34px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
         .media-admin-actions .btn-edit:focus-visible,
         .media-admin-actions .btn-reprocess:focus-visible,
         .media-admin-actions .btn-replace:focus-visible,
         .media-admin-actions .youtube-icon-button:focus-visible,
-        .document-main .doc-buttons .btn-download:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+        .doc-buttons .btn-download:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+        @media (max-width: 600px) {
+            .document-main .doc-buttons { display: flex; width: 100%; gap: 7px; align-items: stretch; }
+            .document-main .doc-buttons > .btn-download { flex: 1 1 100%; width: 100%; min-width: 0; }
+            .document-main .doc-buttons .doc-primary-actions { flex: 1 1 100%; width: 100%; justify-content: stretch; }
+            .document-main .doc-buttons .doc-primary-actions .btn-download,
+            .document-main .doc-buttons .doc-primary-actions .pdf-direct-button { width: 100%; min-width: 0; }
+            .document-main .doc-buttons .media-admin-actions { flex: 1 1 calc(100% - 41px); width: calc(100% - 41px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; align-items: stretch; justify-content: stretch; }
+            .document-main .doc-buttons .media-admin-actions .btn-edit,
+            .document-main .doc-buttons .media-admin-actions .btn-reprocess,
+            .document-main .doc-buttons .media-admin-actions .btn-replace { width: 100%; min-width: 0; padding-left: 5px; padding-right: 5px; overflow: hidden; text-overflow: ellipsis; }
+            .document-main .doc-buttons .media-admin-actions .youtube-icon-button { width: 100%; min-width: 0; }
+            .document-main .doc-buttons > .btn-delete { flex: 0 0 34px; align-self: stretch; }
+            .documents-grid .doc-buttons { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+            .documents-grid .doc-buttons .doc-primary-actions { flex: 1 1 100%; width: 100%; flex-direction: row; flex-wrap: nowrap; }
+            .documents-grid .doc-buttons > .btn-download { flex: 1 1 100%; width: 100%; min-width: 0; }
+            .documents-grid .doc-buttons .media-admin-actions { flex: 1 1 calc(100% - 41px); width: calc(100% - 41px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; flex-direction: initial; flex-wrap: initial; }
+            .documents-grid .doc-buttons .media-admin-actions .btn-edit,
+            .documents-grid .doc-buttons .media-admin-actions .btn-reprocess,
+            .documents-grid .doc-buttons .media-admin-actions .btn-replace,
+            .documents-grid .doc-buttons .media-admin-actions .youtube-icon-button { width: 100%; min-width: 0; padding-left: 5px; padding-right: 5px; overflow: hidden; text-overflow: ellipsis; }
+            .documents-grid .doc-buttons > .btn-delete { flex: 0 0 34px; align-self: stretch; }
+        }
         .youtube-modal-status{min-height:1.2em;margin:8px 0 0;color:var(--muted);font-size:.78rem}
         .youtube-modal-status.error{color:#fca5a5}
         .youtube-modal-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
