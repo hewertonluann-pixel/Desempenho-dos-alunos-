@@ -310,6 +310,8 @@ Na página `partes.html`, o modo professor usa a classe `professor-layout`: em d
 
 As miniaturas de páginas nos cards do professor são clicáveis e acessíveis por teclado. O clique abre a página correspondente no visualizador existente, com navegação, zoom e rotação, e solicita tela cheia do navegador quando suportada; os controles de edição do card permanecem separados.
 
+No visualizador de `partes.html`, os botões de página anterior e próxima ficam fixos na parte inferior da janela, incluindo durante a tela cheia, para permanecerem acessíveis enquanto a partitura é rolada ou ampliada.
+
 ## 9. Modelo de dados Firestore
 
 A tabela abaixo registra as coleções encontradas no código. Campos podem possuir variações legadas; antes de remover um campo, procure todos os consumidores.

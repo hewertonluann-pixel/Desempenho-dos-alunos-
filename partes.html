@@ -707,11 +707,12 @@
         }
         #viz-canvas:active { cursor: grabbing; }
 
-        /* Botões de navegação lateral */
+        /* Botões de navegação fixos na base da janela */
         .viz-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+            position: fixed;
+            top: auto;
+            bottom: max(18px, env(safe-area-inset-bottom));
+            transform: none;
             background: rgba(11,18,32,0.85);
             color: var(--azul);
             border: 1px solid var(--border);
@@ -723,12 +724,12 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
-            z-index: 2;
+            z-index: 10;
             backdrop-filter: blur(4px);
         }
         .viz-nav:hover { background: var(--azul); color: white; }
-        #viz-prev { left: 10px; }
-        #viz-next { right: 10px; }
+        #viz-prev { left: max(16px, env(safe-area-inset-left)); }
+        #viz-next { right: max(16px, env(safe-area-inset-right)); }
 
         /* Hint de swipe no mobile */
         #viz-swipe-hint {
