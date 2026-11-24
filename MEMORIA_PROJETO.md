@@ -308,6 +308,8 @@ As alterações recentes foram publicadas nos commits `4c2a439`, `1234ac6`, `329
 
 Na página `partes.html`, o modo professor usa a classe `professor-layout`: em desktop os cards de instrumentos são exibidos em duas colunas; até 800 px eles retornam para uma coluna para preservar a área de edição, miniaturas e controles.
 
+As miniaturas de páginas nos cards do professor são clicáveis e acessíveis por teclado. O clique abre a página correspondente no visualizador existente, com navegação, zoom e rotação, e solicita tela cheia do navegador quando suportada; os controles de edição do card permanecem separados.
+
 ## 9. Modelo de dados Firestore
 
 A tabela abaixo registra as coleções encontradas no código. Campos podem possuir variações legadas; antes de remover um campo, procure todos os consumidores.

@@ -472,6 +472,9 @@
         .grupo-mini-wrap { position: relative; width: 80px; flex-shrink: 0; }
         .grupo-mini-thumb { width: 80px; height: 110px; background: #fff; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
         .grupo-mini-thumb canvas { width: 100% !important; height: auto !important; }
+        .grupo-card.professor-mode .grupo-mini-thumb { cursor: zoom-in; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+        .grupo-card.professor-mode .grupo-mini-thumb:hover,
+        .grupo-card.professor-mode .grupo-mini-thumb:focus-visible { border-color: var(--azul); box-shadow: 0 0 0 2px rgba(14,165,233,.28); transform: translateY(-2px); outline: none; }
         .grupo-mini-label { font-size: 0.65rem; color: var(--muted); text-align: center; margin-top: 3px; }
         .btn-remover-pag { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: var(--vermelho); color: white; border: none; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: transform 0.15s; z-index: 2; }
         .btn-remover-pag:hover { transform: scale(1.2); }

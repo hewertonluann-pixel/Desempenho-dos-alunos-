@@ -1242,9 +1242,26 @@ function renderizarGrupos() {
 
   grupos.forEach((grupo, idx) => {
     if (userRole === 'teacher') {
-      grupo.paginas.forEach(numPag => {
+      grupo.paginas.forEach((numPag, paginaIdx) => {
         const wrapEl = document.getElementById(`mini-thumb-${idx}-${numPag}`);
-        if (wrapEl) renderMiniatura(numPag, wrapEl, 80);
+        if (wrapEl) {
+          wrapEl.setAttribute('role', 'button');
+          wrapEl.setAttribute('tabindex', '0');
+          wrapEl.setAttribute('aria-label', `Visualizar página ${numPag} de ${grupo.nome}`);
+          wrapEl.title = 'Clique para visualizar em tela cheia';
+          const abrirPagina = () => {
+            abrirVisualizador(idx, paginaIdx);
+            alternarTelaCheia();
+          };
+          wrapEl.addEventListener('click', abrirPagina);
+          wrapEl.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              abrirPagina();
+            }
+          });
+          renderMiniatura(numPag, wrapEl, 80);
+        }
       });
     } else {
       if (grupo.paginas.length > 0 && currentMode !== 'list') {
