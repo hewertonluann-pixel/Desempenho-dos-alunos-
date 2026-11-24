@@ -600,6 +600,15 @@
             .documents-grid .doc-buttons .media-admin-actions .youtube-icon-button { width: 100%; min-width: 0; padding-left: 5px; padding-right: 5px; overflow: hidden; text-overflow: ellipsis; }
             .documents-grid .doc-buttons > .btn-delete { flex: 0 0 34px; align-self: stretch; }
         }
+        @media (min-width: 801px) {
+            .documents-list .document-main .doc-buttons { flex-wrap: nowrap; }
+            .documents-list .document-main .doc-buttons > .btn-download { flex: 0 0 auto; width: auto; }
+            .documents-list .document-main .media-admin-actions { flex: 0 0 auto; flex-wrap: nowrap; }
+            .documents-list .document-main .media-admin-actions .btn-edit,
+            .documents-list .document-main .media-admin-actions .btn-reprocess,
+            .documents-list .document-main .media-admin-actions .btn-replace { flex: 0 0 auto; }
+            .documents-list .document-main .doc-buttons > .btn-delete { flex: 0 0 34px; }
+        }
         .youtube-modal-status{min-height:1.2em;margin:8px 0 0;color:var(--muted);font-size:.78rem}
         .youtube-modal-status.error{color:#fca5a5}
         .youtube-modal-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
