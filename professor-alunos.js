@@ -2,7 +2,7 @@
 // Módulo oficial para gerenciar alunos no Painel do Professor
 // Compatível com a arquitetura unificada de CHAMADA DO DIA
 
-import { db } from "./firebase-config.js";
+import { db } from "../firebase-config.js";
 import {
   collection,
   getDocs,
@@ -13,11 +13,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 // 🔥 IMPORTANTE: Registro de histórico
-import { registrarHistoricoProgresso } from "./evolucao.js";
+import { registrarHistoricoProgresso } from "../evolucao.js";
 
 // 📸 Atualizar pegada do mês ao salvar nível
-import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
-import { opcoesInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento, resolverInstrumentoComParte, nomeInstrumentoComParte } from "./instrumentos-catalogo.js";
+import { atualizarSnapshotMesAtual } from "../snapshots-mensais.js";
+import { opcoesInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "../instrumentos-catalogo.js";
 
 /* ============================================================
    1. CARREGAR ALUNOS
@@ -54,23 +54,6 @@ export async function renderizarPainel(painelEl, loaderEl) {
 /* ============================================================
    3. GERAR HTML DE CADA FICHA DO ALUNO
    ============================================================ */
-function nomeCompletoInstrumento(aluno) {
-  const porNome = resolverInstrumentoComParte(aluno.instrumento || aluno.instrumentoId, aluno.instrumentoParte || "");
-  const porId = resolverInstrumentoComParte(aluno.instrumentoId || "", aluno.instrumentoParte || "");
-  const item = porNome.instrumento || porId.instrumento;
-  const parte = porNome.parte || porId.parte;
-  return nomeInstrumentoComParte(item?.key || aluno.instrumento || aluno.instrumentoId, parte);
-}
-
-function opcoesPartesInstrumento(aluno) {
-  const resolvido = resolverInstrumentoComParte(aluno.instrumento || aluno.instrumentoId, aluno.instrumentoParte || "");
-  const resolvidoId = resolverInstrumentoComParte(aluno.instrumentoId || "", aluno.instrumentoParte || "");
-  const atual = resolvido.parte || resolvidoId.parte;
-  const partes = [["", "Sem divisão"], ...Array.from({ length: 10 }, (_, i) => [String(i + 1), String(i + 1)])];
-  if (atual && !partes.some(([valor]) => valor === atual)) partes.push([atual, atual]);
-  return partes.map(([valor, rotulo]) => `<option value="${valor}"${valor === atual ? " selected" : ""}>${rotulo}</option>`).join("");
-}
-
 function criarFichaHTML(aluno) {
   const foto = aluno.foto
     ? `<img src="${aluno.foto}" alt="${aluno.nome}">`
@@ -122,14 +105,8 @@ function criarFichaHTML(aluno) {
           <select class="campo-nota campo-instrumento" style="width:180px; text-align:left; padding:0 8px;"
             aria-label="Instrumento de ${aluno.nome}"
             data-acao="instrumento" data-id="${aluno.id}">
-            ${opcoesInstrumentos(aluno.instrumento || aluno.instrumentoId)}
+            ${opcoesInstrumentos(aluno.instrumentoId || aluno.instrumento)}
           </select>
-          <select class="campo-nota campo-instrumento-parte" style="width:180px; text-align:left; padding:0 8px; margin-top:5px;"
-            aria-label="Subdivisão do instrumento de ${aluno.nome}"
-            data-acao="instrumento-parte" data-id="${aluno.id}">
-            ${opcoesPartesInstrumento(aluno)}
-          </select>
-          <small class="instrumento-nome-completo" data-instrumento-display="${aluno.id}">${nomeCompletoInstrumento(aluno)}</small>
         </div>
 
         <div class="acoes">
@@ -238,15 +215,14 @@ export async function atualizarNota(id, campo, valorDigitado) {
 /* ============================================================
    6. ATUALIZAR INSTRUMENTO
    ============================================================ */
-export async function atualizarInstrumento(id, novoInstrumento, parte = "") {
+export async function atualizarInstrumento(id, novoInstrumento) {
   const instrumentoId = chaveInstrumento(novoInstrumento);
   if (!instrumentoValido(instrumentoId)) {
     throw new Error("Instrumento inválido. Selecione uma opção do catálogo.");
   }
   await updateDoc(doc(db, "alunos", id), {
     instrumento: nomeInstrumento(instrumentoId),
-    instrumentoId,
-    instrumentoParte: parte || ""
+    instrumentoId
   });
 }
 

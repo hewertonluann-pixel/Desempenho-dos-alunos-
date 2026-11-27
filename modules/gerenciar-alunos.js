@@ -11,13 +11,12 @@ import {
 } from "../js/professor-alunos.js";
 
 import { db } from "../firebase-config.js";
-import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento, nomeInstrumentoComParte } from "../instrumentos-catalogo.js";
+import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "../instrumentos-catalogo.js";
 import { addDoc, collection } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 const painel = document.getElementById("painelGerenciar");
 const loader = document.getElementById("loaderGerAlunos");
 const campoNovoInstrumento = document.getElementById("novoInstrumentoAluno");
-const campoNovoInstrumentoParte = document.getElementById("novoInstrumentoParteAluno");
 preencherSelectInstrumentos(campoNovoInstrumento);
 
 /* === RENDERIZA AO ABRIR MÓDULO === */
@@ -56,16 +55,7 @@ painel.addEventListener("change", async (e) => {
     await atualizarNota(el.dataset.id, el.dataset.campo, el.value);
   }
   if (el.dataset.acao === "instrumento") {
-    const parte = painel.querySelector(`[data-id="${el.dataset.id}"][data-acao="instrumento-parte"]`)?.value || "";
-    await atualizarInstrumento(el.dataset.id, el.value, parte);
-    const combinado = painel.querySelector(`[data-instrumento-display="${el.dataset.id}"]`);
-    if (combinado) combinado.textContent = nomeInstrumentoComParte(el.value, parte);
-  }
-  if (el.dataset.acao === "instrumento-parte") {
-    const instrumento = painel.querySelector(`[data-id="${el.dataset.id}"][data-acao="instrumento"]`)?.value || "";
-    await atualizarInstrumento(el.dataset.id, instrumento, el.value);
-    const combinado = painel.querySelector(`[data-instrumento-display="${el.dataset.id}"]`);
-    if (combinado) combinado.textContent = nomeInstrumentoComParte(instrumento, el.value);
+    await atualizarInstrumento(el.dataset.id, el.value);
   }
   if (el.dataset.acao === "foto") {
     await alterarFoto(el.dataset.id, el.files[0]);
@@ -75,13 +65,12 @@ painel.addEventListener("change", async (e) => {
 
 /* === MODAL ADICIONAR ALUNO === */
 const modal = document.getElementById("modalAddAluno");
-document.getElementById("btnAddNovoAluno").onclick = () => { campoNovoInstrumentoParte.value = ""; modal.style.display = "flex"; };
+document.getElementById("btnAddNovoAluno").onclick = () => modal.style.display = "flex";
 document.getElementById("cancelAddAluno").onclick = () => modal.style.display = "none";
 
 document.getElementById("confirmAddAluno").onclick = async () => {
   const nome = document.getElementById("novoNomeAluno").value.trim();
   const instrumentoId = chaveInstrumento(campoNovoInstrumento.value);
-  const instrumentoParte = campoNovoInstrumentoParte.value || "";
   const foto = document.getElementById("novoFotoAluno").files[0];
   if (!nome || !instrumentoValido(instrumentoId)) {
     alert("Informe o nome e selecione um instrumento válido.");
@@ -101,7 +90,6 @@ document.getElementById("confirmAddAluno").onclick = async () => {
     nome,
     instrumento: nomeInstrumento(instrumentoId),
     instrumentoId,
-    instrumentoParte,
     foto: base64,
     leitura: 1,
     metodo: 1,

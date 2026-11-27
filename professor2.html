@@ -1384,7 +1384,6 @@
       <h2>➕ Novo Aluno</h2>
       <div class="campo-modal"><label>Nome</label><input type="text" id="novoNome"></div>
       <div class="campo-modal"><label for="novoInstrumento">Instrumento</label><select id="novoInstrumento" required><option value="">Carregando instrumentos...</option></select></div>
-      <div class="campo-modal"><label for="novoInstrumentoParte">Subdivisão (opcional)</label><select id="novoInstrumentoParte"><option value="">Sem divisão</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
       <div class="campo-modal"><label>Foto</label><input type="file" id="novoFoto" accept="image/*"></div>
       <div class="campo-modal"><label>Método de Solfejo</label><input type="text" id="novaLeitura" placeholder="ex.: Bona"></div>
       <div class="campo-modal"><label>Método Instrumental</label><input type="text" id="novoMetodo" placeholder="ex.: Amadeu Russo"></div>
@@ -1553,7 +1552,6 @@
 
   <script type="module">
     import { db } from "./firebase-config.js";
-    import { resolverInstrumentoComParte, nomeInstrumentoComParte } from "./instrumentos-catalogo.js";
     import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
     import {
       criarSnapshotRetroativo,
@@ -1561,12 +1559,6 @@
       preenchimentoAutomaticoPegadas,
       preenchimentoAutomaticoTodosAlunos
     } from "./snapshots-mensais.js";
-
-    function nomeCompletoInstrumento(aluno) {
-      const porNome = resolverInstrumentoComParte(aluno.instrumento || aluno.instrumentoId, aluno.instrumentoParte || "");
-      const porId = resolverInstrumentoComParte(aluno.instrumentoId || "", aluno.instrumentoParte || "");
-      return nomeInstrumentoComParte(porNome.instrumento?.key || porId.instrumento?.key || aluno.instrumento || aluno.instrumentoId, porNome.parte || porId.parte);
-    }
 
     const nomesMes = ["","Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
     let alunosCache = [];
@@ -1827,7 +1819,7 @@
             <div style="font-family:Arial,sans-serif;padding:28px;page-break-after:always;background:#fff;">
               <div style="border-bottom:3px solid #0ea5e9;padding-bottom:14px;margin-bottom:20px;">
                 <h2 style="color:#0ea5e9;font-size:22px;margin:0;">${a.nome}</h2>
-                <p style="color:#64748b;font-size:13px;margin:4px 0 0;">${nomeCompletoInstrumento(a) || 'Instrumento não informado'} | ${dataHoje}</p>
+                <p style="color:#64748b;font-size:13px;margin:4px 0 0;">${a.instrumento || 'Instrumento não informado'} | ${dataHoje}</p>
               </div>
               <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
                 <thead><tr style="background:#f1f5f9;">

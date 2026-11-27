@@ -1,17 +1,17 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, doc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 import { INDICE_PARTITURAS } from './biblioteca-indice.js';
-import { resolverInstrumentoComParte } from './instrumentos-catalogo.js';
+import { resolverInstrumento } from './instrumentos-catalogo.js';
 
 const COLECOES = ['Músicas', 'Hinos da Harpa'];
 const CONFIG_PADRAO = [
-  { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete','Clarinet'], ordem: 20 },
+  { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete','Clarinete 1','Clarinete I','Clarinete em Sib','Clarinete Sib','Clarinete Si Bemol','Clarinet in Bb','Clarinet in B Flat'], ordem: 20 },
   { key: 'trombone-sib', nomeExibicao: 'Trombone em Sib', aliases: ['Trombone em Sib','Trombone Sib','Trombone Bb','Trombone in Bb','Trombone in B Flat'], ordem: 39 },
   { key: 'trombone-do', nomeExibicao: 'Trombone em Dó', aliases: ['Trombone em Dó','Trombone em Do','Trombone C','Trombone em C','Trombone in C'], ordem: 40 },
-  { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone'], ordem: 41 },
+  { key: 'trombone', nomeExibicao: 'Trombone', aliases: ['Trombone','Trombone 1','Trombone I','Trombone 01'], ordem: 41 },
   { key: 'trompete', nomeExibicao: 'Trompete', aliases: ['Trompete','Trumpet','Cornet'], ordem: 45 },
   { key: 'souzafone', nomeExibicao: 'Sousafone', aliases: ['Souzafone','Sousafone','Sousaphone','Souzafone em Sib','Sousafone em Sib','Sousaphone in Sib','Souzafone Sib','Sousafone Sib','Sousaphone Sib','Souzafone Bb','Sousafone Bb','Sousaphone Bb','Souzafone in Bb','Sousafone in Bb','Sousaphone in Bb','Souzafone B Flat','Sousafone B Flat','Sousaphone B Flat','Souzafone in B Flat','Sousafone in B Flat','Sousaphone in B Flat','Souzafone in B','Sousafone in B','Sousaphone in B'], ordem: 46 },
-  { key: 'violino', nomeExibicao: 'Violino', aliases: ['Violino','Violin'], ordem: 80 }
+  { key: 'violino', nomeExibicao: 'Violino', aliases: ['Violino','Violino 1','Violino I'], ordem: 80 }
 ];
 let documentos = [], instrumentos = [], linhas = [], carregando = false, configuracaoAlterada = false;
 const $ = id => document.getElementById(id);
@@ -27,7 +27,7 @@ function grupoValido(g) {
   const nome = String(g?.nome || '').trim();
   const paginas = Array.isArray(g?.paginas) ? g.paginas : [];
   const tipo = normalizar(g?.tipo || '');
-  const ehInstrumentoReconhecido = Boolean(resolverInstrumentoComParte(nome).instrumento);
+  const ehInstrumentoReconhecido = Boolean(resolverInstrumento(nome));
   // Se uma grade foi renomeada manualmente para um instrumento, o nome
   // resolvido é mais específico que o tipo “grade” herdado da detecção.
   return nome && paginas.length && (tipo !== 'grade' || ehInstrumentoReconhecido) && tipo !== 'desconhecido' && normalizar(nome) !== 'grade' && !/^pagina \d+ revisar$/.test(normalizar(nome));
@@ -36,26 +36,18 @@ function criarCatalogo(configMap) {
   const porNome = new Map();
   documentos.flatMap(d => d.grupos.filter(grupoValido)).forEach(g => {
     const nome = String(g.nome).trim(), n = normalizar(nome);
-    const resolvido = resolverInstrumentoComParte(nome);
-    let encontrado = resolvido.instrumento ? porNome.get(resolvido.instrumento.key) : [...porNome.values()].find(c => aliases(c).includes(n));
+    let encontrado = [...porNome.values()].find(c => aliases(c).includes(n));
     if (!encontrado) {
-      const config = resolvido.instrumento
-        ? configMap.get(resolvido.instrumento.key) || [...configMap.values()].find(c => aliases(c).includes(normalizar(resolvido.instrumento.nome)))
-        : [...configMap.values()].find(c => aliases(c).includes(n));
-      const key = resolvido.instrumento?.key || config?.key || n.replace(/\s+/g, '_');
-      const nomeExibicao = resolvido.instrumento?.nome || config?.nomeExibicao || nome;
-      encontrado = {...(config || {}), key, nomeExibicao, aliases: [...new Set([...(config?.aliases || []), resolvido.instrumento?.nome || nome])], ativo: config?.ativo !== false, ordem: config?.ordem ?? resolvido.instrumento?.ordem ?? 9999};
+      const config = [...configMap.values()].find(c => aliases(c).includes(n));
+      const key = config?.key || n.replace(/\s+/g, '_');
+      encontrado = {...(config || {}), key, nomeExibicao: config?.nomeExibicao || nome, aliases: [...new Set([...(config?.aliases || []), nome])], ativo: config?.ativo !== false, ordem: config?.ordem ?? 9999};
       porNome.set(key, encontrado);
     }
   });
   instrumentos = [...porNome.values()].sort((a,b) => (a.ordem ?? 9999) - (b.ordem ?? 9999) || a.nomeExibicao.localeCompare(b.nomeExibicao, 'pt-BR'));
 }
 function instrumentosAtivos() { return instrumentos.filter(i => i.ativo !== false); }
-function canonical(nome) {
-  const n = normalizar(nome), resolvido = resolverInstrumentoComParte(nome);
-  if (resolvido.instrumento) return instrumentos.find(i => i.key === resolvido.instrumento.key) || {key:resolvido.instrumento.key, nomeExibicao:resolvido.instrumento.nome, ordem:resolvido.instrumento.ordem};
-  return instrumentos.find(i => aliases(i).includes(n)) || {key:n.replace(/\s+/g,'_'), nomeExibicao:nome};
-}
+function canonical(nome) { const n = normalizar(nome); return instrumentos.find(i => aliases(i).includes(n)) || {key:n.replace(/\s+/g,'_'), nomeExibicao:nome}; }
 function setLoading(title, message, show = true) { $('loading-card').hidden = !show; $('loading-title').textContent = title; $('loading-message').textContent = message; }
 function setStatus(text, error = false) { $('status').textContent = text; $('status').className = error ? 'status error' : 'status'; }
 function setSettingsStatus(text, type = '') { const el = $('instrument-settings-status'); el.textContent = text; el.className = `settings-status ${type}`.trim(); }
@@ -74,10 +66,7 @@ async function carregarDados() {
     if (!data.colecaoId || !data.documentoId || !Array.isArray(data.paginas) || !data.paginas.length) return;
     const chave = `${data.colecaoId}:${data.documentoId}`;
     const grupos = indicePorDocumento.get(chave) || [];
-    const partes = Array.isArray(data.partes) && data.partes.length
-      ? data.partes
-      : [{ nome: data.instrumentoNome || data.instrumentoKey, paginas: data.paginas }];
-    partes.forEach(parte => grupos.push({ nome: parte.nome || data.instrumentoNome || data.instrumentoKey, tipo: 'instrumento', paginas: parte.paginas || data.paginas, confianca: 1, origem: 'indice' }));
+    grupos.push({ nome: data.instrumentoNome || data.instrumentoKey, tipo: 'instrumento', paginas: data.paginas, confianca: 1, origem: 'indice' });
     indicePorDocumento.set(chave, grupos);
   });
   const resultado = [];
@@ -106,13 +95,10 @@ async function carregarDados() {
 function construirLinhas() {
   const ativos = instrumentosAtivos();
   linhas = documentos.map(d => {
-    const gruposValidos = d.grupos.filter(grupoValido), desconhecidos = gruposValidos.filter(g => {
-      const resolvido = resolverInstrumentoComParte(g.nome);
-      return !resolvido.instrumento && !instrumentos.some(i => aliases(i).includes(normalizar(g.nome)));
-    });
+    const gruposValidos = d.grupos.filter(grupoValido), desconhecidos = gruposValidos.filter(g => !instrumentos.some(i => aliases(i).includes(normalizar(g.nome))));
     const encontrados = new Map();
     gruposValidos.forEach(g => { const i = canonical(g.nome); if (!encontrados.has(i.key)) encontrados.set(i.key, {paginas:[], grupos:[]}); const item = encontrados.get(i.key); item.paginas.push(...g.paginas); item.grupos.push(g); });
-    const analisada = d.grupos.length > 0;
+    const analisada = d.rotuloExiste && d.grupos.length > 0;
     const celulas = new Map(ativos.map(i => { const encontrado = encontrados.get(i.key); return [i.key, encontrado ? {status:'disponivel', paginas:[...new Set(encontrado.paginas)].sort((a,b)=>a-b), grupos:encontrado.grupos} : {status:analisada ? 'pendente' : 'nao-analisada', paginas:[], grupos:[]}]; }));
     const faltantes = [...celulas.values()].filter(c => c.status === 'pendente').length;
     const status = !ativos.length ? 'sem-instrumentos' : !analisada ? 'nao-analisada' : desconhecidos.length ? 'revisar' : faltantes ? 'incompleta' : 'completa';

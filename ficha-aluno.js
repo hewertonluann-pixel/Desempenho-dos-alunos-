@@ -8,9 +8,7 @@ import {
   preencherSelectInstrumentos,
   chaveInstrumento,
   instrumentoValido,
-  nomeInstrumento,
-  resolverInstrumentoComParte,
-  nomeInstrumentoComParte
+  nomeInstrumento
 } from "./instrumentos-catalogo.js";
 
 // ── Parâmetros de URL ─────────────────────────────────────────────────────────
@@ -54,7 +52,6 @@ const btnSalvarPessoais = document.getElementById("btnSalvarPessoais");
 // Dados Gerais
 const campoNome         = document.getElementById("campoNome");
 const campoInstrumento  = document.getElementById("campoInstrumento");
-const campoInstrumentoParte = document.getElementById("campoInstrumentoParte");
 const campoInstrumentoCoral = document.getElementById("campoInstrumentoCoral");
 const campoTurma        = document.getElementById("campoTurma");
 const campoAtivo        = document.getElementById("campoAtivo");
@@ -146,13 +143,8 @@ async function carregarFicha() {
     // Topo
     tituloPagina.textContent       = `Ficha — ${d.nome}`;
     nomeExibido.textContent        = d.nome;
-    const instrumentoAtual = resolverInstrumentoComParte(d.instrumento || d.instrumentoId, d.instrumentoParte || "");
-    const instrumentoDoId = resolverInstrumentoComParte(d.instrumentoId || "", d.instrumentoParte || "");
-    const itemInstrumento = instrumentoAtual.instrumento || instrumentoDoId.instrumento;
-    const parteInstrumento = instrumentoAtual.parte || instrumentoDoId.parte;
-    preencherSelectInstrumentos(campoInstrumento, itemInstrumento?.key || d.instrumentoId || d.instrumento);
-    campoInstrumentoParte.value = parteInstrumento || "";
-    instrumentoExibido.textContent = nomeInstrumentoComParte(itemInstrumento?.key || d.instrumento, parteInstrumento) || "Instrumento não informado";
+    const instrumentoAtual = preencherSelectInstrumentos(campoInstrumento, d.instrumentoId || d.instrumento);
+    instrumentoExibido.textContent = instrumentoAtual?.nome || "Instrumento não informado";
     if (d.foto) fotoPerfil.innerHTML = `<img src="${d.foto}" alt="Foto de ${d.nome}">`;
     if (d.turmaNome) {
       turmaExibida.textContent   = `🏫 ${d.turmaNome}`;
@@ -257,7 +249,6 @@ btnSalvarDados.addEventListener("click", async () => {
   const nome         = campoNome.value.trim();
   const instrumentoId = chaveInstrumento(campoInstrumento.value);
   const instrumento  = nomeInstrumento(instrumentoId);
-  const instrumentoParte = campoInstrumentoParte.value || "";
   const instrumentoCoral = campoInstrumentoCoral.value.trim();
   const turmaId      = campoTurma.value || "";
   const ativo        = campoAtivo.value === "true";
@@ -275,13 +266,13 @@ btnSalvarDados.addEventListener("click", async () => {
       const ts = await getDoc(doc(db, "turmas", turmaId));
       if (ts.exists()) turmaNome = ts.data().nome || "";
     }
-    await updateDoc(doc(db, "alunos", alunoId), { nome, instrumento, instrumentoId, instrumentoParte, instrumentoCoral, turmaId, turmaNome, ativo, classificado });
+    await updateDoc(doc(db, "alunos", alunoId), { nome, instrumento, instrumentoId, instrumentoCoral, turmaId, turmaNome, ativo, classificado });
     nomeExibido.textContent        = nome;
-    instrumentoExibido.textContent = nomeInstrumentoComParte(instrumento, instrumentoParte) || "Instrumento não informado";
+    instrumentoExibido.textContent = nomeInstrumento(instrumento) || "Instrumento não informado";
     tituloPagina.textContent       = `Ficha — ${nome}`;
     turmaExibida.textContent       = turmaNome ? `🏫 ${turmaNome}` : "";
     turmaExibida.style.display     = turmaNome ? "inline-flex" : "none";
-    dadosAluno = { ...dadosAluno, nome, instrumento, instrumentoId, instrumentoParte, instrumentoCoral, turmaId, turmaNome, ativo, classificado };
+    dadosAluno = { ...dadosAluno, nome, instrumento, instrumentoId, instrumentoCoral, turmaId, turmaNome, ativo, classificado };
     toast("✅ Dados salvos com sucesso!");
   } catch (e) {
     toast("❌ Erro ao salvar dados.", "err");
