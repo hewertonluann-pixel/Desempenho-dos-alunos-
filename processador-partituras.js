@@ -3,52 +3,18 @@ import {
   collection, doc, getDocs, setDoc, Timestamp, writeBatch
 } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 import { INDICE_PARTITURAS, registrosDeIndice } from './biblioteca-indice.js';
+import { localizarInstrumentosComParte, normalizarInstrumento } from './instrumentos-catalogo.js';
 
 const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-export const ALGORITMO_RECONHECIMENTO_VERSAO = 8;
+export const ALGORITMO_RECONHECIMENTO_VERSAO = 9;
 
-const CATALOGO = [
-  ['Violino I', ['violino i', 'violino 1', 'violin i', 'violin 1']],
-  ['Violino II', ['violino ii', 'violino 2', 'violin ii', 'violin 2']],
-  ['Violino', ['violino', 'violin']], ['Viola', ['viola']],
-  ['Violoncelo', ['violoncelo', 'violoncello', 'cello']],
-  ['Contrabaixo', ['contrabaixo', 'contrabasso', 'contrabass', 'double bass']],
-  ['Flauta', ['flauta transversal', 'flauta', 'flute']],
-  ['Escaleta', ['escaleta', 'melodica', 'melódica', 'melodion']],
-  ['Oboé', ['oboé', 'oboe']], ['Clarinete', ['clarinete', 'clarinet']],
-  ['Clarinete em Sib', ['clarinet in bb', 'clarinet in b flat', 'clarinete em sib', 'clarinete sib', 'clarinete si bemol']],
-  ['Clarinete em Dó', ['clarinet in c', 'clarinete em do', 'clarinete dó', 'clarinete c']],
-  ['Fagote', ['fagote', 'bassoon']],
-  ['Saxofone Soprano', ['saxofone soprano', 'sax soprano', 'soprano sax', 'soprano saxophone', 'saxophone soprano']],
-  ['Saxofone Alto', ['saxofone alto', 'alto saxofone', 'saxophone alto', 'alto saxophone', 'sax alto', 'alto sax']],
-  ['Saxofone Tenor', ['saxofone tenor', 'tenor saxophone', 'saxophone tenor', 'sax tenor', 'tenor sax']],
-  ['Saxofone Barítono', ['saxofone barítono', 'saxofone baritono', 'baritone saxophone', 'saxophone baritone', 'sax barítono', 'sax baritono']],
-  ['Saxofone', ['saxofone', 'saxophone']], ['Trompete', ['trompete', 'trumpet', 'cornet']],
-  ['Trompa', ['trompa', 'french horn']],
-  ['Sousafone', ['souzafone', 'sousafone', 'sousaphone', 'souzafone sib', 'sousafone sib', 'sousaphone sib', 'souzafone em sib', 'sousafone em sib', 'sousaphone em sib', 'souzafone bb', 'sousafone bb', 'sousaphone bb', 'souzafone in bb', 'sousafone in bb', 'sousaphone in bb', 'souzafone b flat', 'sousafone b flat', 'sousaphone b flat', 'souzafone in b flat', 'sousafone in b flat', 'sousaphone in b flat', 'souzafone in b', 'sousafone in b', 'sousaphone in b']],
-  ['Trombone em Sib', ['trombone em sib', 'trombone sib', 'trombone bb', 'trombone in bb', 'trombone in b flat']],
-  ['Trombone em Dó', ['trombone em dó', 'trombone em do', 'trombone c', 'trombone em c', 'trombone in c']],
-  ['Trombone 01', ['trombone 01', 'trombone 1']], ['Trombone 02', ['trombone 02', 'trombone 2']],
-  ['Trombone Base', ['trombone base', 'bass trombone', 'trombone baixo', 'bass trombone']],
-  ['Trombone', ['trombone']], ['Tuba', ['tuba']], ['Bombardino', ['bombardino', 'euphonium']],
-  ['Percussão', ['percussão', 'percussao', 'bateria', 'tímpano', 'timpani']],
-  ['Piano', ['piano', 'teclado', 'keyboard']], ['Órgão', ['órgão', 'orgao', 'organ']]
-].map(([nome, aliases]) => ({ nome, aliases }));
 const TERMOS_GRADE = ['grade', 'partitura geral', 'full score', 'orchestral score', 'conductor score'];
 let pdfjsLib = null;
 
-function normalizar(texto = '') {
-  return String(texto).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
-}
+const normalizar = normalizarInstrumento;
 function localizarInstrumentos(texto) {
-  const normalizado = ` ${normalizar(texto)} `;
-  const encontrados = [];
-  CATALOGO.forEach(item => {
-    const alias = item.aliases.slice().sort((a, b) => normalizar(b).length - normalizar(a).length).find(valor => normalizado.includes(` ${normalizar(valor)} `));
-    if (alias) encontrados.push({ nome: item.nome, alias: normalizar(alias) });
-  });
-  return encontrados.filter((item, _, lista) => !lista.some(outro => outro !== item && outro.alias.length > item.alias.length && ` ${outro.alias} `.includes(` ${item.alias} `)));
+  return localizarInstrumentosComParte(texto).map(item => ({ nome: item.nome, alias: normalizar(item.alias), parte: item.parte, instrumentoKey: item.instrumento.key, instrumentoNome: item.instrumento.nome }));
 }
 function contemGrade(texto) {
   const normalizado = ` ${normalizar(texto)} `;
@@ -65,11 +31,13 @@ async function carregarPdfJs() {
 }
 function detectar(textoPagina, textoCabecalho) {
   const cabecalho = localizarInstrumentos(textoCabecalho);
-  if (contemGrade(textoCabecalho) || cabecalho.length >= 2) return { nome: 'GRADE', tipo: 'grade', instrumentosDetectados: cabecalho.map(x => x.nome), confianca: contemGrade(textoCabecalho) ? .99 : .90, origem: 'automatico', fonte: 'cabecalho' };
-  if (cabecalho.length === 1) return { nome: cabecalho[0].nome, tipo: 'instrumento', instrumentosDetectados: [cabecalho[0].nome], confianca: .90, origem: 'automatico', fonte: 'cabecalho' };
+  const cabecalhoTemVariosInstrumentos = new Set(cabecalho.map(item => item.instrumentoKey || item.nome)).size >= 2;
+  if (contemGrade(textoCabecalho) || cabecalhoTemVariosInstrumentos) return { nome: 'GRADE', tipo: 'grade', instrumentosDetectados: cabecalho.map(x => x.nome), confianca: contemGrade(textoCabecalho) ? .99 : .90, origem: 'automatico', fonte: 'cabecalho' };
+  if (cabecalho.length === 1) return { nome: cabecalho[0].nome, tipo: 'instrumento', instrumentoKey: cabecalho[0].instrumentoKey, instrumentoNome: cabecalho[0].instrumentoNome, instrumentoParte: cabecalho[0].parte, instrumentosDetectados: [cabecalho[0].nome], confianca: .90, origem: 'automatico', fonte: 'cabecalho' };
   const pagina = localizarInstrumentos(textoPagina);
-  if (pagina.length >= 2) return { nome: 'GRADE', tipo: 'grade', instrumentosDetectados: pagina.map(x => x.nome), confianca: .70, origem: 'automatico-ampliado', fonte: 'pagina' };
-  if (pagina.length === 1) return { nome: pagina[0].nome, tipo: 'instrumento', instrumentosDetectados: [pagina[0].nome], confianca: .65, origem: 'automatico-ampliado', fonte: 'pagina' };
+  const paginaTemVariosInstrumentos = new Set(pagina.map(item => item.instrumentoKey || item.nome)).size >= 2;
+  if (paginaTemVariosInstrumentos) return { nome: 'GRADE', tipo: 'grade', instrumentosDetectados: pagina.map(x => x.nome), confianca: .70, origem: 'automatico-ampliado', fonte: 'pagina' };
+  if (pagina.length) return { nome: pagina[0].nome, tipo: 'instrumento', instrumentoKey: pagina[0].instrumentoKey, instrumentoNome: pagina[0].instrumentoNome, instrumentoParte: pagina[0].parte, instrumentosDetectados: [pagina[0].nome], confianca: .65, origem: 'automatico-ampliado', fonte: 'pagina' };
   return { nome: null, tipo: 'desconhecido', instrumentosDetectados: [], confianca: 0, origem: 'sem-texto-ou-sem-match', fonte: 'desconhecida' };
 }
 export async function analisarPartitura(url, { onProgress = () => {} } = {}) {

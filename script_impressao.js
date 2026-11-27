@@ -1,6 +1,6 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, getDoc, doc } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
-import { INSTRUMENTOS_CATALOGO, normalizarInstrumento, resolverInstrumento } from './instrumentos-catalogo.js';
+import { INSTRUMENTOS_CATALOGO, normalizarInstrumento, resolverInstrumentoComParte } from './instrumentos-catalogo.js';
 
 const $ = id => document.getElementById(id);
 const COLECOES_IMPRESSAO = new Set(['hinos da harpa', 'musicas']);
@@ -15,6 +15,7 @@ const state = {
   alunoIdsOrquestra: new Set(),
   rows: [],
   hinoAtual: null,
+  revisoes: [],
   carregando: false
 };
 
@@ -49,11 +50,13 @@ function configurarCatalogo(remotos) {
   state.configs = [...mapa.values()];
 }
 function configParaGrupo(nome) {
+  const resolvido = resolverInstrumentoComParte(nome);
+  if (resolvido.instrumento) {
+    const remoto = state.configs.find(config => config.key === resolvido.instrumento.key);
+    return remoto || { ...resolvido.instrumento, nomeExibicao: resolvido.instrumento.nome, ordem: resolvido.instrumento.ordem };
+  }
   const chave = normalizar(nome);
-  const encontrado = state.configs.find(config => [config.key, config.nome, config.nomeExibicao, ...(config.aliases || [])].filter(Boolean).map(normalizar).includes(chave));
-  if (encontrado) return encontrado;
-  const canonico = resolverInstrumento(nome);
-  return canonico ? state.configs.find(config => config.key === canonico.key) || { ...canonico, nomeExibicao: canonico.nome, ordem: canonico.ordem } : null;
+  return state.configs.find(config => [config.key, config.nome, config.nomeExibicao, ...(config.aliases || [])].filter(Boolean).map(normalizar).includes(chave)) || null;
 }
 function ehGrade(grupo) {
   const nome = normalizar(grupo?.nome || '');
@@ -100,9 +103,16 @@ async function carregarAlunos() {
   const pendentes = [];
   const alunos = snap.docs.map(item => ({ id: item.id, ...item.data() })).filter(aluno => aluno.ativo !== false && (state.turmaIdsOrquestra.has(aluno.turmaId) || state.alunoIdsOrquestra.has(aluno.id))).map(aluno => {
     const valor = aluno.instrumentoId || aluno.instrumento || '';
-    const config = configParaGrupo(valor);
+    let resolvido = resolverInstrumentoComParte(valor, aluno.instrumentoParte || '');
+    // Em registros migrados, instrumentoId pode já ser o pai enquanto `instrumento`
+    // ainda contém o rótulo antigo subdividido (por exemplo, “Trombone 01”).
+    if (resolvido.instrumento && !resolvido.parte && aluno.instrumento && aluno.instrumento !== valor) {
+      const legado = resolverInstrumentoComParte(aluno.instrumento, aluno.instrumentoParte || '');
+      if (legado.instrumento?.key === resolvido.instrumento.key && legado.parte) resolvido = legado;
+    }
+    const config = resolvido.instrumento ? (state.configs.find(item => item.key === resolvido.instrumento.key) || resolvido.instrumento) : configParaGrupo(valor);
     if (!config) pendentes.push({ nome: aluno.nome || aluno.login || aluno.id, valor: valor || 'não informado' });
-    return { ...aluno, instrumentoKey: config?.key || '', instrumentoNome: config?.nomeExibicao || config?.nome || '' };
+    return { ...aluno, instrumentoKey: config?.key || '', instrumentoNome: config?.nomeExibicao || config?.nome || '', instrumentoParte: resolvido.parte || '' };
   });
   state.pendentes = pendentes;
   return alunos;
@@ -124,11 +134,6 @@ async function carregarConfiguracoes() {
     return snap.docs.map(item => ({ id: item.id, key: item.id, ...item.data() }));
   } catch (error) { console.warn('Configuração compartilhada indisponível; usando catálogo padrão.', error); return []; }
 }
-function contagemAlunos() {
-  const contagem = new Map();
-  state.alunos.forEach(aluno => { if (aluno.instrumentoKey) contagem.set(aluno.instrumentoKey, (contagem.get(aluno.instrumentoKey) || 0) + 1); });
-  return contagem;
-}
 function construirLinhas(hino) {
   const porInstrumento = new Map();
   hino.grupos.filter(grupoUtil).forEach(grupo => {
@@ -139,20 +144,52 @@ function construirLinhas(hino) {
       porInstrumento.set('grade', atual);
       return;
     }
-    const config = configParaGrupo(grupo.nome);
-    const key = config?.key || `desconhecido:${normalizar(grupo.nome)}`;
-    const atual = porInstrumento.get(key) || { key, nome: config?.nomeExibicao || config?.nome || grupo.nome, paginas: [], grade: false, ordem: config?.ordem ?? 9999, desconhecido: !config };
+    const resolvido = resolverInstrumentoComParte(grupo.nome);
+    const config = resolvido.instrumento ? (state.configs.find(item => item.key === resolvido.instrumento.key) || resolvido.instrumento) : configParaGrupo(grupo.nome);
+    const instrumentoKey = config?.key || `desconhecido:${normalizar(grupo.nome)}`;
+    const parte = resolvido.instrumento ? resolvido.parte : '';
+    const key = parte ? `${instrumentoKey}:parte:${parte}` : instrumentoKey;
+    const nomePai = config?.nomeExibicao || config?.nome || grupo.nome;
+    const nome = parte ? `${nomePai} ${parte}` : nomePai;
+    const atual = porInstrumento.get(key) || { key, instrumentoKey, instrumentoNome: nomePai, parte, nome, paginas: [], grade: false, ordem: config?.ordem ?? 9999, desconhecido: !config };
     atual.paginas = [...new Set([...atual.paginas, ...paginas])].sort((a, b) => a - b);
     porInstrumento.set(key, atual);
   });
-  const contagem = contagemAlunos();
-  state.rows = [...porInstrumento.values()].sort((a, b) => a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt-BR')).map(row => ({
-    ...row,
-    alunos: row.grade ? 0 : (contagem.get(row.key) || 0),
-    copias: row.grade ? 1 : (contagem.get(row.key) || 0),
-    incluir: row.grade || Boolean(contagem.get(row.key)),
-    origem: row.grade ? 'padrão: 1 cópia' : contagem.get(row.key) ? 'automático' : 'sem aluno'
-  }));
+  const gruposPorPai = new Map();
+  [...porInstrumento.values()].filter(row => !row.grade && row.instrumentoKey).forEach(row => {
+    if (!gruposPorPai.has(row.instrumentoKey)) gruposPorPai.set(row.instrumentoKey, { geral: false, partes: new Set() });
+    const grupos = gruposPorPai.get(row.instrumentoKey);
+    if (row.parte) grupos.partes.add(row.parte); else grupos.geral = true;
+  });
+
+  const revisoes = [];
+  const alunosSemGrupoNotificados = new Set();
+  for (const aluno of state.alunos) {
+    if (!aluno.instrumentoKey) continue;
+    const grupos = gruposPorPai.get(aluno.instrumentoKey);
+    if (!aluno.instrumentoParte && grupos?.partes.size) {
+      revisoes.push(`${aluno.nome || aluno.login || aluno.id} — ${aluno.instrumentoNome}: sem parte cadastrada; não foi atribuído automaticamente às partes numeradas.`);
+    } else if (aluno.instrumentoParte && (!grupos || (!grupos.geral && !grupos.partes.has(aluno.instrumentoParte))) && !alunosSemGrupoNotificados.has(aluno.id)) {
+      revisoes.push(`${aluno.nome || aluno.login || aluno.id} — ${aluno.instrumentoNome} ${aluno.instrumentoParte}: a partitura não tem grupo correspondente.`);
+      alunosSemGrupoNotificados.add(aluno.id);
+    }
+  }
+
+  state.rows = [...porInstrumento.values()].sort((a, b) => a.ordem - b.ordem || a.instrumentoNome?.localeCompare(b.instrumentoNome, 'pt-BR') || a.nome.localeCompare(b.nome, 'pt-BR')).map(row => {
+    if (row.grade) return { ...row, alunos: 0, copias: 1, incluir: true, origem: 'padrão: 1 cópia' };
+    const correspondentes = state.alunos.filter(aluno => aluno.instrumentoKey === row.instrumentoKey && (row.parte ? aluno.instrumentoParte === row.parte : true));
+    const alunos = correspondentes.length;
+    const precisaRevisao = Boolean(row.parte && state.alunos.some(aluno => aluno.instrumentoKey === row.instrumentoKey && !aluno.instrumentoParte));
+    return {
+      ...row,
+      alunos,
+      copias: alunos,
+      incluir: Boolean(row.parte || alunos),
+      revisarParte: precisaRevisao,
+      origem: precisaRevisao ? 'revisar parte' : alunos ? 'automático' : 'sem aluno'
+    };
+  });
+  state.revisoes = revisoes;
 }
 function documentosVisiveis() {
   const termo = normalizar($('busca-documento')?.value || '');
@@ -169,6 +206,8 @@ function preencherHinos() {
   } else if (state.hinoAtual) {
     state.hinoAtual = null;
     state.rows = [];
+    state.revisoes = [];
+    renderizarRevisoes();
     $('hino-meta').textContent = 'Músicas e hinos são carregados das coleções “Músicas” e “Hinos da Harpa”.';
     $('analysis-body').innerHTML = '<tr><td colspan="6" class="empty-cell">Selecione uma música ou hino para conferir as partes.</td></tr>';
     atualizarResumo();
@@ -275,7 +314,10 @@ function renderizarTabela() {
   if (!state.rows.length) { corpo.innerHTML = '<tr><td colspan="6" class="empty-cell">Este hino ainda não possui grupos de páginas analisados.</td></tr>'; atualizarResumo(); return; }
   const grade = state.rows.find(row => row.grade);
   $('include-grade').checked = Boolean(grade?.incluir);
-  corpo.innerHTML = state.rows.map((row, index) => `<tr class="${row.grade ? 'grade-row' : ''}"><td><input class="include-input" data-index="${index}" type="checkbox" ${row.incluir ? 'checked' : ''} aria-label="Incluir ${escapar(row.nome)}"></td><td><span class="instrument-name">${escapar(row.nome)}</span>${row.desconhecido ? '<span class="instrument-sub">Nome não encontrado no catálogo</span>' : row.grade ? '<span class="instrument-sub">Não depende da quantidade de alunos</span>' : ''}</td><td>${row.paginas.length}</td><td>${row.grade ? '—' : row.alunos}</td><td><input class="copies-input" data-index="${index}" type="number" min="0" max="999" step="1" value="${row.copias}" aria-label="Cópias de ${escapar(row.nome)}"></td><td><span class="origin ${row.origem === 'manual' ? 'manual' : ''}">${row.origem}</span></td></tr>`).join('');
+  corpo.innerHTML = state.rows.map((row, index) => {
+    const detalhes = row.grade ? 'Não depende da quantidade de alunos' : row.desconhecido ? 'Nome não encontrado no catálogo' : row.parte ? `Instrumento-pai: ${row.instrumentoNome} · parte ${row.parte}${row.revisarParte ? ' · revise alunos sem parte cadastrada' : ''}` : '';
+    return `<tr class="${row.grade ? 'grade-row' : ''}"><td><input class="include-input" data-index="${index}" type="checkbox" ${row.incluir ? 'checked' : ''} aria-label="Incluir ${escapar(row.nome)}"></td><td><span class="instrument-name">${escapar(row.nome)}</span>${detalhes ? `<span class="instrument-sub">${escapar(detalhes)}</span>` : ''}</td><td>${row.paginas.length}</td><td>${row.grade ? '—' : row.alunos}</td><td><input class="copies-input" data-index="${index}" type="number" min="0" max="999" step="1" value="${row.copias}" aria-label="Cópias de ${escapar(row.nome)}"></td><td><span class="origin ${row.origem === 'manual' || row.origem === 'revisar parte' ? 'manual' : ''}">${escapar(row.origem)}</span></td></tr>`;
+  }).join('');
   corpo.querySelectorAll('.include-input').forEach(input => input.addEventListener('change', event => { state.rows[Number(event.target.dataset.index)].incluir = event.target.checked; atualizarResumo(); }));
   corpo.querySelectorAll('.copies-input').forEach(input => input.addEventListener('input', event => { const row = state.rows[Number(event.target.dataset.index)]; const valor = Math.max(0, Math.min(999, Number.parseInt(event.target.value, 10) || 0)); row.copias = valor; row.origem = valor === (row.grade ? 1 : row.alunos) ? (row.grade ? 'padrão: 1 cópia' : row.alunos ? 'automático' : 'sem aluno') : 'manual'; event.target.value = valor; renderizarTabelaPreservandoFoco(event.target); atualizarResumo(); }));
   atualizarResumo();
@@ -288,9 +330,9 @@ function renderizarTabelaPreservandoFoco(input) {
 function selecionarHino() {
   const indice = Number.parseInt($('hino-select').value, 10);
   state.hinoAtual = Number.isFinite(indice) && state.hinos[indice] ? state.hinos[indice] : null;
-  if (!state.hinoAtual) { state.rows = []; $('hino-meta').textContent = 'Músicas e hinos são carregados das coleções “Músicas” e “Hinos da Harpa”.'; $('analysis-body').innerHTML = '<tr><td colspan="6" class="empty-cell">Selecione uma música ou hino para conferir as partes.</td></tr>'; atualizarResumo(); return; }
+  if (!state.hinoAtual) { state.rows = []; state.revisoes = []; renderizarRevisoes(); $('hino-meta').textContent = 'Músicas e hinos são carregados das coleções “Músicas” e “Hinos da Harpa”.'; $('analysis-body').innerHTML = '<tr><td colspan="6" class="empty-cell">Selecione uma música ou hino para conferir as partes.</td></tr>'; atualizarResumo(); return; }
   $('hino-meta').textContent = `${state.hinoAtual.colecaoNome} · ${state.hinoAtual.nome} · ${state.hinoAtual.grupos.filter(grupoUtil).length} grupo${state.hinoAtual.grupos.filter(grupoUtil).length === 1 ? '' : 's'} de páginas analisado${state.hinoAtual.grupos.filter(grupoUtil).length === 1 ? '' : 's'}.`;
-  construirLinhas(state.hinoAtual); renderizarTabela();
+  construirLinhas(state.hinoAtual); renderizarTabela(); renderizarRevisoes();
 }
 function renderizarPendentes() {
   const card = $('pending-card');
@@ -298,6 +340,14 @@ function renderizarPendentes() {
   card.hidden = false;
   $('pending-description').textContent = `${state.pendentes.length} aluno${state.pendentes.length === 1 ? '' : 's'} ativo${state.pendentes.length === 1 ? '' : 's'} da orquestra não entrou na contagem automática porque não possui instrumento válido.`;
   $('pending-list').innerHTML = state.pendentes.map(item => `<li>${escapar(item.nome)} — ${escapar(item.valor)}</li>`).join('');
+}
+function renderizarRevisoes() {
+  const card = $('part-review-card');
+  if (!card) return;
+  if (!state.revisoes.length) { card.hidden = true; return; }
+  card.hidden = false;
+  $('part-review-description').textContent = `${state.revisoes.length} situação${state.revisoes.length === 1 ? '' : 'ões'} exige${state.revisoes.length === 1 ? '' : 'm'} conferência. Alunos sem parte não foram atribuídos a grupos numerados; ajuste as cópias manualmente quando necessário.`;
+  $('part-review-list').innerHTML = state.revisoes.map(item => `<li>${escapar(item)}</li>`).join('');
 }
 async function carregar() {
   if (state.carregando) return;

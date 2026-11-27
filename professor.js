@@ -7,9 +7,15 @@ import { atualizarSnapshotMesAtual } from "./snapshots-mensais.js";
 import { obterEventosDoAno, agruparEventosPorMes, calcularFrequenciaMensalParaAluno } from "./frequencia.js";
 import { criarParticipacaoPrincipal, calcularFrequenciaElegivel } from "./participacoes.js";
 import { atualizarComprometimentoGeral as recalcularComprometimentoGeral } from "./comprometimento.js";
-import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento } from "./instrumentos-catalogo.js";
+import { preencherSelectInstrumentos, chaveInstrumento, instrumentoValido, nomeInstrumento, resolverInstrumentoComParte, nomeInstrumentoComParte } from "./instrumentos-catalogo.js";
 
 if (!db) console.error("❌ Firebase DB não carregado.");
+
+function nomeCompletoInstrumento(aluno) {
+  const porNome = resolverInstrumentoComParte(aluno.instrumento || aluno.instrumentoId, aluno.instrumentoParte || "");
+  const porId = resolverInstrumentoComParte(aluno.instrumentoId || "", aluno.instrumentoParte || "");
+  return nomeInstrumentoComParte(porNome.instrumento?.key || porId.instrumento?.key || aluno.instrumento || aluno.instrumentoId, porNome.parte || porId.parte);
+}
 
 // ========== TURMA ATIVA ==========
 function getTurmaAtiva() {
@@ -88,15 +94,17 @@ function setupModalAdicionar() {
   if (!modal || !btnAdd || !btnConfirm || !btnCancel) return;
 
   const campoInstrumento = document.getElementById("novoInstrumento");
+  const campoInstrumentoParte = document.getElementById("novoInstrumentoParte");
   preencherSelectInstrumentos(campoInstrumento);
 
-  btnAdd.onclick = () => modal.classList.add("ativo");
+  btnAdd.onclick = () => { if (campoInstrumentoParte) campoInstrumentoParte.value = ""; modal.classList.add("ativo"); };
   btnCancel.onclick = () => modal.classList.remove("ativo");
 
   btnConfirm.onclick = async () => {
     const nome = document.getElementById("novoNome")?.value.trim();
     const instrumentoId = chaveInstrumento(campoInstrumento?.value);
     const instrumento = nomeInstrumento(instrumentoId);
+    const instrumentoParte = campoInstrumentoParte?.value || "";
     const fotoFile = document.getElementById("novoFoto")?.files[0];
 
     if (!nome || !instrumentoValido(instrumentoId)) { mostrarMensagem("mensagemInfo", "⚠️ Preencha nome e selecione um instrumento válido!"); return; }
@@ -119,7 +127,7 @@ function setupModalAdicionar() {
         ehCoral = turmaSnap.exists() && String(turmaSnap.data().tipo || "").toLowerCase() === "coral";
       }
       const novoAlunoRef = await addDoc(collection(db, "alunos"), {
-        nome, instrumento, instrumentoId, foto: fotoBase64,
+        nome, instrumento, instrumentoId, instrumentoParte, foto: fotoBase64,
         leituraNome: "Bona", metodoNome: "Método",
         leitura: 1, metodo: 1, energia: 100,
         frequenciaMensal: { porcentagem: 0 }, frequenciaAnual: {},
@@ -277,7 +285,7 @@ export async function renderizarPainel() {
           </div>
           <div class="header-info">
             <h3 title="${aluno.nome}">${aluno.nome}</h3>
-            <p>${aluno.instrumento || '—'} · ${aluno.turmaNome || 'Sem turma'}</p>
+            <p>${nomeCompletoInstrumento(aluno) || '—'} · ${aluno.turmaNome || 'Sem turma'}</p>
           </div>
           <div class="status-badge ${ativoNaTurma ? 'on' : 'off'}">
             ${ativoNaTurma ? 'Ativo' : 'Inativo'}

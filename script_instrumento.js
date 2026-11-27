@@ -1,6 +1,6 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, getDoc, doc, setDoc, addDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
-import { nomeInstrumento } from './instrumentos-catalogo.js';
+import { nomeInstrumento, resolverInstrumentoComParte, localizarInstrumentosComParte } from './instrumentos-catalogo.js';
 import { INDICE_PARTITURAS } from './biblioteca-indice.js';
 
 const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
@@ -10,7 +10,7 @@ const COLECOES = ['Músicas', 'Hinos da Harpa'];
 const CACHE_DB = 'filhos-asafe-instrumentos-cache';
 const CACHE_VERSION = 1;
 const CACHE_STORES = { documentos: 'documentos', configuracoes: 'configuracoes', meta: 'meta' };
-const ALGORITMO_RECONHECIMENTO_VERSAO = 6;
+const ALGORITMO_RECONHECIMENTO_VERSAO = 7;
 const CONFIGURACOES_PADRAO = [
   { key: 'clarinete', nomeExibicao: 'Clarinete', aliases: ['Clarinete', 'Clarinete 1', 'Clarinete I', 'Clarinete em Sib', 'Clarinete Sib', 'Clarinete Si Bemol', 'Clarinet in Bb', 'Clarinet in B Flat'], ativo: true, ordem: 20 },
   { key: 'trombone-sib', nomeExibicao: 'Trombone em Sib', aliases: ['Trombone em Sib', 'Trombone Sib', 'Trombone Bb', 'Trombone in Bb', 'Trombone in B Flat'], ativo: true, ordem: 39 },
@@ -111,9 +111,6 @@ function atualizarInfoCache(meta, origem) {
   $('cache-info').textContent = `${origemTexto} em ${formatarData(meta.atualizadoEm)} · ${meta.quantidadeDocumentos || documentos.length} documentos`;
 }
 
-const CATALOGO_REPROCESSAMENTO = [
-  ['Violino I', ['violino i', 'violino 1', 'violin i', 'violin 1']], ['Violino II', ['violino ii', 'violino 2', 'violin ii', 'violin 2']], ['Violino', ['violino', 'violin']], ['Viola', ['viola']], ['Violoncelo', ['violoncelo', 'violoncello', 'cello']], ['Contrabaixo', ['contrabaixo', 'contrabasso', 'contrabass', 'double bass']], ['Flauta', ['flauta transversal', 'flauta', 'flute']], ['Escaleta', ['escaleta', 'melodica', 'melódica', 'melodion']], ['Oboé', ['oboé', 'oboe']], ['Clarinete em Sib', ['clarinet in bb', 'clarinet in b flat', 'clarinete em sib', 'clarinete sib', 'clarinete si bemol']], ['Clarinete em Dó', ['clarinet in c', 'clarinete em do', 'clarinete dó', 'clarinete c']], ['Clarinete', ['clarinete', 'clarinet']], ['Fagote', ['fagote', 'bassoon']], ['Saxofone Soprano', ['saxofone soprano', 'sax soprano', 'soprano sax', 'soprano saxophone', 'saxophone soprano']], ['Saxofone Alto', ['saxofone alto', 'alto saxofone', 'saxophone alto', 'alto saxophone', 'sax alto', 'alto sax']], ['Saxofone Tenor', ['saxofone tenor', 'tenor saxophone', 'saxophone tenor', 'sax tenor', 'tenor sax']], ['Saxofone Barítono', ['saxofone barítono', 'saxofone baritono', 'baritone saxophone', 'saxophone baritone', 'sax baritono']], ['Saxofone', ['saxofone', 'saxophone']], ['Trompete', ['trompete', 'trumpet', 'cornet']], ['Trompa', ['trompa', 'french horn']], ['Sousafone', ['souzafone', 'sousafone', 'sousaphone', 'souzafone sib', 'sousafone sib', 'sousaphone sib', 'souzafone em sib', 'sousafone em sib', 'sousaphone em sib', 'souzafone in sib', 'sousafone in sib', 'sousaphone in sib', 'souzafone bb', 'sousafone bb', 'sousaphone bb', 'souzafone in bb', 'sousafone in bb', 'sousaphone in bb', 'souzafone b flat', 'sousafone b flat', 'sousaphone b flat', 'souzafone in b flat', 'sousafone in b flat', 'sousaphone in b flat', 'souzafone in b', 'sousafone in b', 'sousaphone in b']], ['Trombone em Sib', ['trombone em sib', 'trombone sib', 'trombone bb', 'trombone in bb', 'trombone in b flat']], ['Trombone em Dó', ['trombone em dó', 'trombone em do', 'trombone c', 'trombone em c', 'trombone in c']], ['Trombone 01', ['trombone 01', 'trombone 1']], ['Trombone 02', ['trombone 02', 'trombone 2']], ['Trombone Base', ['trombone base', 'bass trombone', 'trombone baixo']], ['Trombone', ['trombone']], ['Tuba', ['tuba']], ['Bombardino', ['bombardino', 'euphonium']], ['Percussão', ['percussão', 'percussao', 'bateria', 'tímpano', 'timpani']], ['Piano', ['piano', 'teclado', 'keyboard']], ['Órgão', ['órgão', 'orgao', 'organ']]
-].map(([nome, aliases]) => ({ nome, aliases }));
 const TERMOS_GRADE_REPROCESSAMENTO = ['grade', 'partitura geral', 'full score', 'orchestral score', 'conductor score'];
 
 function migrarPaginasAntigas(paginas) {
@@ -122,12 +119,13 @@ function migrarPaginasAntigas(paginas) {
   return [...mapa.entries()].map(([nome, paginasDoGrupo]) => ({ nome, tipo: 'instrumento', paginas: paginasDoGrupo.sort((a, b) => a - b), instrumentosDetectados: [nome], confianca: 0.5, origem: 'migrado', fonte: 'formato-antigo' }));
 }
 function localizarInstrumentoReprocessamento(texto) {
-  const normalizado = ` ${normalizar(texto)} `;
-  const encontrados = [];
-  CATALOGO_REPROCESSAMENTO.forEach(item => item.aliases.slice().sort((a, b) => normalizar(b).length - normalizar(a).length).some(alias => {
-    const chave = normalizar(alias); if (!normalizado.includes(` ${chave} `)) return false; encontrados.push({ nome: item.nome, alias: chave }); return true;
+  return localizarInstrumentosComParte(texto).map(item => ({
+    nome: item.nome,
+    alias: normalizar(item.alias),
+    instrumentoKey: item.instrumento.key,
+    instrumentoNome: item.instrumento.nome,
+    parte: item.parte
   }));
-  return encontrados.filter((item, _, lista) => !lista.some(outro => outro !== item && outro.alias.length > item.alias.length && ` ${outro.alias} `.includes(` ${item.alias} `)));
 }
 function contemGradeReprocessamento(texto) { const normalizado = ` ${normalizar(texto)} `; return TERMOS_GRADE_REPROCESSAMENTO.some(termo => normalizado.includes(` ${normalizar(termo)} `)); }
 async function carregarPdfJs() {
@@ -146,7 +144,11 @@ async function analisarPdfParaGrupos(item) {
     const page = await pdf.getPage(pagina); const content = await page.getTextContent();
     const itens = (content.items || []).filter(i => String(i.str || '').trim()).map(i => ({ texto: i.str, x: Number(i.transform?.[4] || 0), y: Number(i.transform?.[5] || 0) })).sort((a, b) => b.y - a.y || a.x - b.x);
     const textoPagina = itens.map(i => i.texto).join(' '); const yMax = itens.length ? Math.max(...itens.map(i => i.y)) : 0; const textoCabecalho = itens.filter(i => i.y >= yMax - 180).map(i => i.texto).join(' ');
-    const cabecalho = localizarInstrumentoReprocessamento(textoCabecalho); const paginaInteira = localizarInstrumentoReprocessamento(textoPagina); const deteccoes = cabecalho.length ? cabecalho : paginaInteira; const nome = contemGradeReprocessamento(textoCabecalho) || cabecalho.length >= 2 || paginaInteira.length >= 2 ? 'GRADE' : deteccoes[0]?.nome;
+    const cabecalho = localizarInstrumentoReprocessamento(textoCabecalho);
+    const paginaInteira = localizarInstrumentoReprocessamento(textoPagina);
+    const deteccoes = cabecalho.length ? cabecalho : paginaInteira;
+    const pais = new Set(deteccoes.map(item => item.instrumentoKey || item.nome));
+    const nome = contemGradeReprocessamento(textoCabecalho) || pais.size >= 2 ? 'GRADE' : deteccoes[0]?.nome;
     const tipo = nome === 'GRADE' ? 'grade' : nome ? 'instrumento' : 'desconhecido';
     const fonteCabecalho = Boolean(cabecalho.length || contemGradeReprocessamento(textoCabecalho));
     if (fonteCabecalho && grupoAtual && grupoAtual.nome !== nome) { grupoAtual = { nome, tipo, paginas: [pagina], instrumentosDetectados: deteccoes.map(d => d.nome), confianca: tipo === 'grade' ? 0.9 : 0.85, origem: 'reprocessado', fonte: 'cabecalho' }; grupos.push(grupoAtual); }
@@ -218,7 +220,16 @@ async function buscarIndiceDoFirestore() {
     if (!data.documentoId || !data.colecaoId || !Array.isArray(data.paginas) || !data.paginas.length) return;
     const chave = chaveDocumento(data.colecaoId, data.documentoId);
     const item = porDocumento.get(chave) || { id: data.documentoId, colId: data.colecaoId, colecao: data.colecaoNome || '', nome: data.nome || 'Sem nome', url: data.url || '', grupos: [], formatoAntigo: false, algoritmoVersao: Number(data.indiceVersao || 1) };
-    item.grupos.push({ nome: data.instrumentoNome || data.instrumentoKey, tipo: 'instrumento', paginas: data.paginas, origem: 'indice' });
+    const nomePai = data.instrumentoNome || data.instrumentoKey;
+    const partes = Array.isArray(data.partes) && data.partes.length
+      ? data.partes
+      : [{ nome: nomePai, paginas: data.paginas }];
+    partes.forEach(parte => item.grupos.push({
+      nome: parte.nome || (parte.parte ? `${nomePai} ${parte.parte}` : nomePai),
+      tipo: 'instrumento',
+      paginas: Array.isArray(parte.paginas) ? parte.paginas : data.paginas,
+      origem: 'indice'
+    }));
     porDocumento.set(chave, item);
   });
   const documentosIndexados = [...porDocumento.values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -254,9 +265,36 @@ function aliasesDaConfiguracao(config) {
   return [config.nomeExibicao, config.chaveCanonica, ...(Array.isArray(config.aliases) ? config.aliases : [])].filter(Boolean).map(normalizar);
 }
 function agrupamentoParaNome(nome) {
+  const resolvido = resolverInstrumentoComParte(nome);
+  if (resolvido.instrumento) {
+    const config = configuracoes.find(c => (c.key || c.id) === resolvido.instrumento.key);
+    return {
+      key: config?.key || config?.id || resolvido.instrumento.key,
+      nome: config?.nomeExibicao || config?.nome || resolvido.instrumento.nome,
+      config,
+      parte: resolvido.parte,
+      instrumentoKey: resolvido.instrumento.key
+    };
+  }
+
   const chave = normalizar(nome);
-  const config = configuracoes.find(c => aliasesDaConfiguracao(c).includes(chave));
-  return config ? { key: config.key || config.id || normalizar(config.nomeExibicao), nome: config.nomeExibicao || nome, config } : { key: chave, nome };
+  let config = configuracoes.find(c => aliasesDaConfiguracao(c).includes(chave));
+  let parte = '';
+  if (!config) {
+    const correspondencia = chave.match(/^(\d{1,2}|i{1,3}|iv|v|vi{0,3}|ix|x) (.+)$/)
+      || chave.match(/^(.+?) (\d{1,2}|i{1,3}|iv|v|vi{0,3}|ix|x)$/);
+    if (correspondencia) {
+      const prefixo = /^(\d|i{1,3}$|iv$|v$|vi{1,3}$|ix$|x$)/.test(correspondencia[1]);
+      const token = correspondencia[prefixo ? 1 : 2];
+      const nomePai = correspondencia[prefixo ? 2 : 1];
+      const romanos = { i: '1', ii: '2', iii: '3', iv: '4', v: '5', vi: '6', vii: '7', viii: '8', ix: '9', x: '10' };
+      parte = romanos[token] || (/^\d{1,2}$/.test(token) && Number(token) > 0 ? String(Number(token)) : '');
+      config = configuracoes.find(c => aliasesDaConfiguracao(c).includes(nomePai));
+    }
+  }
+  return config
+    ? { key: config.key || config.id || normalizar(config.nomeExibicao), nome: config.nomeExibicao || nome, config, parte, instrumentoKey: config.key || config.id }
+    : { key: chave, nome };
 }
 function grupoValido(grupo) {
   const nome = String(grupo?.nome || '').trim();

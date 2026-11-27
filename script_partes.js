@@ -4,46 +4,15 @@ import {
   doc, getDoc, setDoc, addDoc, collection, Timestamp, updateDoc, getDocs, writeBatch
 } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { registrosDeIndice, INDICE_PARTITURAS } from './biblioteca-indice.js';
+import { localizarInstrumentosComParte } from './instrumentos-catalogo.js';
 
 const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const PDFLIB_CDN   = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 
-// Catálogo canônico usado pela detecção automática. Os aliases são normalizados
-// antes da comparação, portanto acentos, caixa e pontuação não são relevantes.
+// Registros vocais não são instrumentos do catálogo de alunos, mas continuam
+// reconhecidos aqui para a organização de partituras corais.
 const CATALOGO_INSTRUMENTOS = [
-  { nome: 'Violino I', aliases: ['violino i', 'violino 1', 'violin i', 'violin 1'] },
-  { nome: 'Violino II', aliases: ['violino ii', 'violino 2', 'violin ii', 'violin 2'] },
-  { nome: 'Violino', aliases: ['violino', 'violin'] },
-  { nome: 'Viola', aliases: ['viola'] },
-  { nome: 'Violoncelo', aliases: ['violoncelo', 'violoncello', 'cello'] },
-  { nome: 'Contrabaixo', aliases: ['contrabaixo', 'contrabasso', 'contrabass', 'double bass'] },
-  { nome: 'Flauta', aliases: ['flauta transversal', 'flauta', 'flute'] },
-  { nome: 'Escaleta', aliases: ['escaleta', 'melodica', 'melódica', 'melodion'] },
-  { nome: 'Oboé', aliases: ['oboé', 'oboe'] },
-  { nome: 'Clarinete em Sib', aliases: ['clarinet in bb', 'clarinet in b b', 'clarinet in b flat', 'clarinet in b-flat', 'clarinete em sib', 'clarinete sib', 'clarinete si bemol'] },
-  { nome: 'Clarinete em Dó', aliases: ['clarinet in c', 'clarinete em do', 'clarinete dó', 'clarinete c'] },
-  { nome: 'Clarinete', aliases: ['clarinete', 'clarinet'] },
-  { nome: 'Fagote', aliases: ['fagote', 'bassoon'] },
-  { nome: 'Saxofone Soprano', aliases: ['saxofone soprano', 'sax soprano', 'soprano sax', 'soprano saxophone', 'saxophone soprano'] },
-  { nome: 'Saxofone Alto', aliases: ['saxofone alto', 'alto saxofone', 'saxophone alto', 'alto saxophone', 'sax alto', 'alto sax'] },
-  { nome: 'Saxofone Tenor', aliases: ['saxofone tenor', 'tenor saxophone', 'saxophone tenor', 'sax tenor', 'tenor sax'] },
-  { nome: 'Saxofone Barítono', aliases: ['saxofone barítono', 'saxofone baritono', 'baritone saxophone', 'saxophone baritone', 'sax barítono', 'sax baritono', 'baritone sax'] },
-  { nome: 'Saxofone', aliases: ['saxofone', 'saxophone'] },
-  { nome: 'Trompete', aliases: ['trompete', 'trumpet', 'cornet'] },
-  { nome: 'Trompa', aliases: ['trompa', 'french horn'] },
-  { nome: 'Sousafone', aliases: ['souzafone', 'sousafone', 'sousaphone', 'souzafone sib', 'sousafone sib', 'sousaphone sib', 'souzafone em sib', 'sousafone em sib', 'sousaphone em sib', 'souzafone in sib', 'sousafone in sib', 'sousaphone in sib', 'souzafone bb', 'sousafone bb', 'sousaphone bb', 'souzafone in bb', 'sousafone in bb', 'sousaphone in bb', 'souzafone b flat', 'sousafone b flat', 'sousaphone b flat', 'souzafone in b flat', 'sousafone in b flat', 'sousaphone in b flat', 'souzafone in b', 'sousafone in b', 'sousaphone in b'] },
-  { nome: 'Trombone em Sib', aliases: ['trombone em sib', 'trombone sib', 'trombone bb', 'trombone in bb', 'trombone in b flat'] },
-  { nome: 'Trombone em Dó', aliases: ['trombone em dó', 'trombone em do', 'trombone c', 'trombone em c', 'trombone in c'] },
-  { nome: 'Trombone 01', aliases: ['trombone 01', 'trombone 1'] },
-  { nome: 'Trombone 02', aliases: ['trombone 02', 'trombone 2'] },
-  { nome: 'Trombone Base', aliases: ['trombone base', 'bass trombone', 'trombone baixo'] },
-  { nome: 'Trombone', aliases: ['trombone'] },
-  { nome: 'Tuba', aliases: ['tuba'] },
-  { nome: 'Bombardino', aliases: ['bombardino', 'euphonium'] },
-  { nome: 'Percussão', aliases: ['percussão', 'percussao', 'bateria', 'tímpano', 'timpani'] },
-  { nome: 'Piano', aliases: ['piano', 'teclado', 'keyboard'] },
-  { nome: 'Órgão', aliases: ['órgão', 'orgao', 'organ'] },
   { nome: 'Soprano', aliases: ['soprano'], generico: true },
   { nome: 'Contralto', aliases: ['contralto'], generico: true },
   { nome: 'Tenor', aliases: ['tenor'], generico: true },
@@ -59,7 +28,7 @@ const TERMOS_GRADE = [
 
 // Incrementar quando o catálogo ou a regra de agrupamento mudar. Rótulos
 // salvos com versão anterior serão reprocessados automaticamente em memória.
-const ALGORITMO_RECONHECIMENTO_VERSAO = 8;
+const ALGORITMO_RECONHECIMENTO_VERSAO = 9;
 
 // ── Estado global ────────────────────────────────────────────────────────────
 let pdfJsLib  = null;
@@ -855,8 +824,14 @@ async function removerYoutubeGrupo() {
 
 function localizarInstrumentos(texto) {
   const normalizado = ` ${normalizarTexto(texto)} `;
-  const candidatos = [];
-
+  const candidatos = localizarInstrumentosComParte(texto).map(item => ({
+    nome: item.nome,
+    alias: item.alias,
+    aliasNormalizado: normalizarTexto(item.alias),
+    instrumentoKey: item.instrumento.key,
+    instrumentoNome: item.instrumento.nome,
+    parte: item.parte
+  }));
   for (const item of CATALOGO_INSTRUMENTOS) {
     const aliases = [...item.aliases]
       .sort((a, b) => normalizarTexto(b).length - normalizarTexto(a).length);
@@ -887,12 +862,13 @@ function localizarInstrumentos(texto) {
   }
 
   // Evita contar simultaneamente um alias-base/genérico e seu alias específico:
-  // “violino ii” deve ser apenas Violino II, e “saxofone tenor” não deve
+  // “violino ii” deve ser apenas Violino 2, e “saxofone tenor” não deve
   // virar Saxofone Tenor + Tenor quando o cabeçalho mencionar “parte”.
   return candidatos.filter((item, _, lista) => !lista.some(outro => {
     if (outro === item || outro.aliasNormalizado.length <= item.aliasNormalizado.length) return false;
     const aliasMaior = ` ${outro.aliasNormalizado} `;
-    return aliasMaior.includes(` ${item.aliasNormalizado} `);
+    return aliasMaior.includes(` ${item.aliasNormalizado} `)
+      && (!item.instrumentoKey || !outro.instrumentoKey || item.instrumentoKey !== outro.instrumentoKey);
   }));
 }
 
@@ -930,11 +906,12 @@ async function detectarInstrumentoNaPagina(page) {
     const { textoPagina, textoCabecalho } = extrairTextoDaPagina(textContent);
     const encontradosCabecalho = localizarInstrumentos(textoCabecalho);
     const instrumentosCabecalho = [...new Set(encontradosCabecalho.map(item => item.nome))];
+    const paisCabecalho = new Set(encontradosCabecalho.map(item => item.instrumentoKey || item.nome));
     const gradeExplicita = contemTermoGrade(textoCabecalho);
 
     // Uma grade pode ser identificada pelo título explícito ou pela presença
     // de dois ou mais instrumentos distintos no cabeçalho.
-    if (gradeExplicita || instrumentosCabecalho.length >= 2) {
+    if (gradeExplicita || paisCabecalho.size >= 2) {
       return {
         nome: 'GRADE',
         tipo: 'grade',
@@ -947,9 +924,13 @@ async function detectarInstrumentoNaPagina(page) {
     }
 
     if (instrumentosCabecalho.length === 1) {
+      const instrumento = encontradosCabecalho.find(item => item.nome === instrumentosCabecalho[0]);
       return {
         nome: instrumentosCabecalho[0],
         tipo: 'instrumento',
+        instrumentoKey: instrumento?.instrumentoKey || '',
+        instrumentoNome: instrumento?.instrumentoNome || instrumento?.nome || '',
+        instrumentoParte: instrumento?.parte || '',
         paginas: [],
         instrumentosDetectados: instrumentosCabecalho,
         confianca: 0.90,
@@ -962,8 +943,9 @@ async function detectarInstrumentoNaPagina(page) {
     // porque outras referências musicais podem aparecer fora do cabeçalho.
     const encontradosPagina = localizarInstrumentos(textoPagina);
     const instrumentosPagina = [...new Set(encontradosPagina.map(item => item.nome))];
+    const paisPagina = new Set(encontradosPagina.map(item => item.instrumentoKey || item.nome));
 
-    if (instrumentosPagina.length >= 2) {
+    if (paisPagina.size >= 2) {
       return {
         nome: 'GRADE',
         tipo: 'grade',
@@ -976,9 +958,13 @@ async function detectarInstrumentoNaPagina(page) {
     }
 
     if (instrumentosPagina.length === 1) {
+      const instrumento = encontradosPagina.find(item => item.nome === instrumentosPagina[0]);
       return {
         nome: instrumentosPagina[0],
         tipo: 'instrumento',
+        instrumentoKey: instrumento?.instrumentoKey || '',
+        instrumentoNome: instrumento?.instrumentoNome || instrumento?.nome || '',
+        instrumentoParte: instrumento?.parte || '',
         paginas: [],
         instrumentosDetectados: instrumentosPagina,
         confianca: 0.65,
@@ -1020,6 +1006,9 @@ async function algoritmoVarredura() {
         tipo: deteccao.tipo,
         paginas: [i],
         instrumentosDetectados: deteccao.instrumentosDetectados,
+        instrumentoKey: deteccao.instrumentoKey || '',
+        instrumentoNome: deteccao.instrumentoNome || '',
+        instrumentoParte: deteccao.instrumentoParte || '',
         confianca: deteccao.confianca,
         origem: deteccao.origem,
         fonte: deteccao.fonte
@@ -1037,6 +1026,9 @@ async function algoritmoVarredura() {
         tipo: deteccao.tipo,
         paginas: [i],
         instrumentosDetectados: deteccao.instrumentosDetectados,
+        instrumentoKey: deteccao.instrumentoKey || '',
+        instrumentoNome: deteccao.instrumentoNome || '',
+        instrumentoParte: deteccao.instrumentoParte || '',
         confianca: deteccao.confianca,
         origem: deteccao.origem,
         fonte: deteccao.fonte
